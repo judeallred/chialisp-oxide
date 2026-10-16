@@ -10,4 +10,4 @@ This repository is in the research and design phase. No compiler is implemented 
 - [Chialisp reference and tutorials](https://chialisp.com/)
 
 The recommended first milestone is one real, rustc-checked puzzle compiled through
-Rue and executed by CLVM, with matching native Rust and Chialisp test results.
+reused Rue compiler infrastructure and executed by CLVM, with matching native Rust and Chialisp test results.

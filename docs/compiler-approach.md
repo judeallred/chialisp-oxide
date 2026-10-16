@@ -6,9 +6,11 @@ Research date: 2026-10-16. Status: proposal, not a validated compiler implementa
 
 Build a compiler for a documented subset of real Rust. Use rustc for name
 resolution, type checking, trait resolution, and borrow checking; lower supported
-MIR into a small, typed clispOx IR; initially emit readable Rue; let Rue compile
-and optimize it into CLVM. Add direct Rue LIR emission only after differential
-tests establish the semantics of our lowering.
+MIR into a small, typed clispOx IR; reuse Rue compiler infrastructure to lower,
+optimize, and generate CLVM. Generated Rue source is a bootstrap option, not a
+required intermediate. Integrating or adapting Rue compiler source directly into
+this repository is explicitly acceptable, including for the first working slice.
+Choose the integration boundary through a small comparative experiment.
 
 Proposed pipeline:
 
@@ -17,13 +19,14 @@ Rust puzzle crate + clispOx SDK
     → pinned rustc, with all required Rust checks completed
     → reachable, monomorphized MIR + supported-feature validation
     → clispOx typed, pure IR + explicit puzzle ABI
-    → generated Rue source
-    → Rue compiler → Rue LIR optimizer → CLVM serialization
+    → Rue backend integration (source emission or adapted compiler IR/lowering)
+    → Rue LIR optimizer → CLVM serialization
     → clvmr execution + native Rust / Chialisp comparison
 ```
 
-The typed IR keeps Rust-specific semantics separate from Rue and supports a
-future direct LIR backend. Generated Rue is a useful debugging artifact and a
+The typed IR keeps Rust-specific semantics separate from Rue. A direct backend
+can reuse adapted Rue lowering rather than rebuilding everything ourselves.
+Generated Rue can remain an optional debugging artifact and a
 way to compare this project with the existing Rust → Rue prototype referenced
 in goals.md. That prototype has not been inspected: obtain its source before
 duplicating it or treating any of its capabilities as established.
@@ -77,9 +80,19 @@ claims about Rust compatibility and library support.
 
 Alternatives considered:
 
-- Direct typed IR → Rue LIR: attractive long-term, avoids generated text and
+- Integrated Rue compiler source: a first-class option. Adapt relevant IR,
+  dependency handling, lowering, optimization, and code generation to accept our
+  typed IR without a Rue text round trip. Inspect dependencies on Rue-specific
+  types and symbol tables before selecting the entry point. Preserve upstream
+  license and NOTICE requirements, record the imported revision and local changes,
+  and retain relevant upstream tests. Prefer a focused import or fork over copying
+  unrelated CLI, LSP, or frontend code. Accept responsibility for maintenance and
+  upstream reconciliation.
+- Direct typed IR → Rue LIR: avoids generated text and
   repeated type checking, but requires managing environments, paths, function
-  application, and representation ourselves. Prototype after the first slice.
+  application, and representation ourselves unless adapted Rue lowering supplies
+  them. Compare this with source emission and integrated lowering during the
+  first spike; do not require a text-emitting compiler first.
 - LLVM or WebAssembly → CLVM: adds a memory/stack machine representation and
   runtime obligations that do not naturally match immutable CLVM trees. Defer.
 - A full rustc codegen backend: potentially useful later, but more integration
@@ -127,7 +140,7 @@ raw bytes and unchecked conversion escape hatches are unavailable.
 ## Validation is the foundation of the tutorial system
 
 Every example should carry original Chialisp source and provenance, Rust source,
-generated Rue, compiler versions/options, curried arguments, input vectors,
+generated Rue when available, compiler versions/options, curried arguments, input vectors,
 serialized CLVM, disassembly, tree hash, serialized size, execution cost, output
 conditions, and expected rejection cases. Store machine-readable reports and
 generate side-by-side documentation from those reports.
@@ -161,11 +174,15 @@ Pin Rue by revision, select a compatible rustc-driver toolchain, and lock
 dependencies. Build and run one upstream Rue example. Verify a tiny hand-built
 LIR program with optimization both enabled and disabled. Exit: reproducible
 commands and actual output/cost records, not an architecture diagram alone.
+Compare generated Rue with direct or adapted Rue internals on the same tiny
+puzzle. Select the simplest faithful integration based on retained compiler
+passes, diagnostics, implementation effort, and maintenance. The first working
+compiler may skip Rue source entirely.
 
 ### 1. Prove one complete Rust puzzle
 
-Implement SDK boundary types, the rustc frontend, a minimal typed IR, and Rue
-emission for one delegated-condition or fixed-payment puzzle. Use the same source
+Implement SDK boundary types, the rustc frontend, a minimal typed IR, and the
+selected Rue backend integration for one delegated-condition or fixed-payment puzzle. Use the same source
 for native execution and compilation. Add positive and compile-fail fixtures,
 including a Rust borrow/type error to establish that normal Rust checking runs.
 Exit: Rust, Chialisp, and optimized/unoptimized CLVM agree on valid and invalid
@@ -231,7 +248,7 @@ Create these as the first implementation lands, rather than adding empty crates:
 ```text
 crates/clispox-driver/      rustc integration and diagnostics
 crates/clispox-ir/          typed pure IR and validation
-crates/clispox-rue/         Rue emission; later direct LIR adapter
+crates/clispox-rue/         Rue backend adapter or integrated compiler passes
 crates/clispox-sdk/         puzzle ABI, domain types, intrinsics
 crates/clispox-cli/         reproducible build / compare commands
 tests/                     compile-fail and semantic regression cases
