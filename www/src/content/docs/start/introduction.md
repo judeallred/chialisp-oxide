@@ -7,8 +7,8 @@ description: What Chialisp Oxide compiles, why Rue is the backend, and how to re
 
 Chialisp Oxide experiments with compiling a restricted subset of real Rust into
 CLVM for Chia puzzles. Write an ordinary Cargo library, depend on the unpublished
-`oxide-sdk`, and mark entry functions with `#[oxide_sdk::puzzle]`. Native Cargo
-checking and tests remain normal Rust; `cargo oxide build` additionally validates
+`chialisp-oxide`, and mark entry functions with `#[chialisp_oxide::puzzle]`. Native Cargo
+checking and tests remain normal Rust; `cargo chialisp-oxide build` additionally validates
 the reachable subset and lowers checked MIR through a pure IR into Rue's
 optimizer and CLVM code generator.
 
@@ -42,7 +42,7 @@ entry states its policy and the obligations outside it.
 
 The consumer example and paired laboratory fixtures are ordinary Cargo packages
 with real SDK dependencies and annotated exports. The corpus lives in the
-`oxide-puzzles` workspace library; both CLVM extraction and the native oracle
+`chialisp-oxide-puzzles` workspace library; both CLVM extraction and the native oracle
 use that same library. Cargo support does not mean arbitrary cross-crate Rust libraries are
 accepted for CLVM, or that a native Cargo test validates a coin spend.
 

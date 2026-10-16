@@ -1,5 +1,5 @@
+use chialisp_oxide_backend_experiment::*;
 use num_bigint::BigInt;
-use oxide_backend_experiment::*;
 use proptest::prelude::*;
 use std::sync::OnceLock;
 

@@ -34,12 +34,12 @@ async function checkAuthoring(snapshot, label) {
     assert.deepEqual(snapshot[field], configuration[field], `${label}: Cargo ${field} changed`);
   }
   assert.deepEqual(snapshot.sources.map(source => source.path), [...configuration.inputs].sort(), `${label}: declared Cargo inputs changed`);
-  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/oxide-sdk/Cargo.toml', 'crates/oxide-sdk/src/lib.rs', 'crates/oxide-sdk/src/domain.rs', 'crates/oxide-macros/Cargo.toml', 'crates/oxide-macros/src/lib.rs']) {
+  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
     assert(configuration.inputs.includes(required), `${label}: missing required Cargo input ${required}`);
   }
   for (const source of snapshot.sources) await checkRecordedHash(source.path, source.sha256);
   for (const [slug, exported] of Object.entries(snapshot.exports)) {
-    assert.equal(exported.entry, `oxide_puzzles::${slug.replaceAll('-', '_')}::puzzle`, `${label}: unexpected Cargo export ${slug}`);
+    assert.equal(exported.entry, `chialisp_oxide_puzzles::${slug.replaceAll('-', '_')}::puzzle`, `${label}: unexpected Cargo export ${slug}`);
     assert.equal(exported.source, `puzzles/${slug}/puzzle.rs`, `${label}: unexpected export source ${slug}`);
     assert(configuration.inputs.includes(exported.source), `${label}: export source missing from Cargo inputs`);
   }

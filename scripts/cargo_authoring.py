@@ -43,22 +43,22 @@ def snapshot(root):
     metadata = load_json(contained_file(root, AUTHORING))
     require(type(metadata.get("schema_version")) is int and metadata["schema_version"] == 1
             and metadata["mode"] == "cargo_library", "Unsupported Cargo authoring configuration")
-    require(metadata["package"] == "oxide-puzzles" and metadata["manifest"] == "puzzles/Cargo.toml"
+    require(metadata["package"] == "chialisp-oxide-puzzles" and metadata["manifest"] == "puzzles/Cargo.toml"
             and metadata["library"] == "puzzles/lib.rs", "Unexpected Cargo teaching library")
     exports, inputs = metadata["exports"], metadata["inputs"]
     require(isinstance(exports, dict) and exports, "Missing Cargo export declarations")
     require(isinstance(inputs, list) and all(isinstance(path, str) for path in inputs)
             and len(inputs) == len(set(inputs)), "Invalid or duplicate Cargo input paths")
     required = {AUTHORING, metadata["manifest"], metadata["library"], "puzzles/fixture_keys.rs", "Cargo.toml", "Cargo.lock",
-                "rust-toolchain.toml", ".cargo/config.toml", "crates/oxide-sdk/Cargo.toml",
-                "crates/oxide-sdk/src/lib.rs", "crates/oxide-sdk/src/domain.rs",
-                "crates/oxide-macros/Cargo.toml", "crates/oxide-macros/src/lib.rs"}
+                "rust-toolchain.toml", ".cargo/config.toml", "crates/chialisp-oxide/Cargo.toml",
+                "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs",
+                "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"}
     entries = set()
     for slug, export in exports.items():
         require(isinstance(slug, str) and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug),
                 "Malformed Cargo export slug")
         require(set(export) == {"entry", "source"}
-                and export["entry"] == f"oxide_puzzles::{slug.replace('-', '_')}::puzzle"
+                and export["entry"] == f"chialisp_oxide_puzzles::{slug.replace('-', '_')}::puzzle"
                 and export["source"] == f"puzzles/{slug}/puzzle.rs",
                 f"Cargo export identity/source mismatch: {slug}")
         require(export["entry"] not in entries, "Duplicate Cargo entry name")

@@ -15,15 +15,43 @@ implementation precedents and candidates for the separate Lean proof path.
 
 ## Implemented authoring interface
 
-The workspace contains a `cargo-oxide` command, an ordinary `oxide-sdk`
+The workspace contains a `cargo-chialisp-oxide` command, an ordinary `chialisp-oxide`
 dependency, and a small procedural-macro crate re-exported by the SDK. A user
-writes an ordinary Rust library with `#[oxide_sdk::puzzle]` on exported puzzle
-functions, runs normal `cargo check` and `cargo test`, then invokes `cargo oxide
+writes an ordinary Rust library with `#[chialisp_oxide::puzzle]` on exported puzzle
+functions, runs normal `cargo check` and `cargo test`, then invokes `cargo chialisp-oxide
 build` to produce CLVM artifacts. These crates are built from this repository;
 none is published. The attribute preserves the original Rust function and adds
 an export marker. Rustc performs the semantic checking and MIR extraction.
 See the [working Cargo example](../examples/cargo-puzzles/README.md) and
-[SDK scope](../crates/oxide-sdk/README.md).
+[SDK scope](../crates/chialisp-oxide/README.md).
+
+### Package, import, and command names
+
+The user-facing package is `chialisp-oxide`; Rust code imports `chialisp_oxide`
+and writes `#[chialisp_oxide::puzzle]`. Hyphens are our package-family choice,
+not a Cargo requirement: the default Rust library name replaces them with
+underscores. The existing [`chialisp` package](https://crates.io/crates/chialisp)
+belongs to Chia Network's independent compiler, which this project already uses
+as a reference dependency. Reusing that name would confuse the two compilers.
+[Rust Reference: crate names](https://doc.rust-lang.org/reference/items/extern-crates.html#name-restrictions).
+
+The facade re-exports the attribute from `chialisp-oxide-macros`, so puzzle
+authors depend on the facade alone. This follows the established separation
+illustrated by [`#[tokio::main]`](https://docs.rs/tokio/latest/tokio/attr.main.html)
+and [`tokio-macros`](https://docs.rs/tokio-macros/latest/tokio_macros/).
+The `cargo-chialisp-oxide` executable is discovered as `cargo chialisp-oxide`,
+following [Cargo's custom-subcommand mechanism](https://doc.rust-lang.org/cargo/reference/external-tools.html#custom-subcommands).
+The standalone research/validation executable is `chialisp-oxide`. Internal
+packages share the `chialisp-oxide-*` prefix, with
+`chialisp-oxide-reference` identifying the independent Chialisp adapter.
+
+Live registry checks on 2026-10-16 returned an existing
+[`chialisp` record](https://crates.io/api/v1/crates/chialisp) and HTTP 404
+responses for [`chialisp-oxide`](https://crates.io/api/v1/crates/chialisp-oxide),
+[`chialisp-oxide-macros`](https://crates.io/api/v1/crates/chialisp-oxide-macros),
+and [`cargo-chialisp-oxide`](https://crates.io/api/v1/crates/cargo-chialisp-oxide).
+Those point-in-time responses do not reserve names or
+guarantee future publication. All project crates remain unpublished prototypes.
 
 Cargo explicitly supports external subcommands and recommends driving its CLI
 rather than linking the unstable Cargo library. The launcher uses `cargo
@@ -100,7 +128,7 @@ Our existing backend accepts a typed functional IR and emits CLVM through Rue.
 The implemented Cargo-driven MIR extractor follows the extraction tools above.
 A real `cargo build --target clvm` workflow remains
 a possible later backend project. Until it exists, call the operation a CLVM
-export through `cargo oxide`; do not advertise a rustc target merely because
+export through `cargo chialisp-oxide`; do not advertise a rustc target merely because
 configuration contains the word `clvm`.
 
 ## Implemented Cargo/driver boundary
@@ -127,7 +155,7 @@ configuration contains the word `clvm`.
    cached dependency metadata cannot substitute for missing entry exports.
    Native build/intermediate directories are preserved. Successful builds write
    an immutable bundle and atomically replace `latest.json`; failed builds leave
-   the previous pointer intact. `cargo oxide check` does not publish a bundle.
+   the previous pointer intact. `cargo chialisp-oxide check` does not publish a bundle.
 
 The versioned manifest records package identity and paths, the full compiler
 version, pinned toolchain, analysis target, driver hash, Rue revision, forwarded
@@ -135,8 +163,8 @@ Cargo options, and per-entry artifacts. It does not yet capture source hashes,
 dependency/lockfile identities, build-script inputs, or the complete effective
 cfg/feature environment. Identical artifacts on an unchanged rebuild are tested;
 complete reproducible-build provenance remains work to do.
-[Cargo launcher](../crates/cargo-oxide/src/main.rs),
-[wrapper protocol](../crates/oxide-driver/src/cargo.rs).
+[Cargo launcher](../crates/cargo-chialisp-oxide/src/main.rs),
+[wrapper protocol](../crates/chialisp-oxide-driver/src/cargo.rs).
 
 Cargo documents wrapper argument conventions, workspace-only scope, nested
 wrappers, encoded rustflags, primary-package identification and artifact paths.
@@ -151,7 +179,7 @@ bodies.
 [MIR metadata option in Rust 1.97.1](https://github.com/rust-lang/rust/blob/1.97.1/compiler/rustc_session/src/options.rs),
 [cargo rustc argument scope](https://doc.rust-lang.org/cargo/commands/cargo-rustc.html).
 
-Cross-crate execution currently admits vetted, non-generic `oxide_sdk` functions
+Cross-crate execution currently admits vetted, non-generic `chialisp_oxide` functions
 and structurally validated SDK newtypes. Other ordinary dependency calls remain
 unsupported, even when Cargo can resolve and type-check them. Do not remove every
 external-call gate as a shortcut.
@@ -225,9 +253,9 @@ The dependency tradeoff is concrete, although not measured in installed bytes:
 
 - The audited toolchain is `nightly-2026-09-17` with compiler components,
   Rust sources, and Miri. That date belongs to this Charon revision, not to a
-  verified oxide configuration.
+  verified chialisp-oxide configuration.
 - Its Cargo launcher ensures an explicit target and attempts a full-MIR sysroot
-  through Miri; failure can fall back to the ordinary sysroot. An oxide adoption
+  through Miri; failure can fall back to the ordinary sysroot. A chialisp-oxide adoption
   must reject any missing reachable body rather than treating that fallback as
   a complete library translation.
 - `charon-lib` can build without compiler-private features using
@@ -297,12 +325,12 @@ Lean backend, and no Creusot proof is included here.
 ## Source proofs and backend correctness remain separate
 
 A proof about Aeneas-extracted Rust semantics does not prove the artifact produced
-by our separate MIR adapter. Conversely, our SMT results describe oxide IR under
+by our separate MIR adapter. Conversely, our SMT results describe chialisp-oxide IR under
 typed input assumptions, not all Rust source behavior. Connecting those models
-requires an explicit relation between source values, oxide values, and CLVM trees,
+requires an explicit relation between source values, chialisp-oxide values, and CLVM trees,
 including rejection and integer overflow. An eventual shared LLBC extraction
 could reduce duplicated frontend work, but would still need a preservation link
-through oxide lowering, Rue optimization, serialization, and ABI decoding.
+through chialisp-oxide lowering, Rue optimization, serialization, and ABI decoding.
 
 Continue native/Chialisp/optimized/unoptimized execution comparisons and mutation
 replay while that link is developed. Preserve the distinctions in
@@ -312,7 +340,7 @@ Lean theorem establishes universal puzzle security or canonical hash compatibili
 
 ## Executed evidence for the first Cargo milestone
 
-The [Cargo integration test](../crates/cargo-oxide/tests/cargo_workflow.rs) builds
+The [Cargo integration test](../crates/cargo-chialisp-oxide/tests/cargo_workflow.rs) builds
 the real [consumer library](../examples/cargo-puzzles/src/lib.rs) using its
 separate Cargo manifest, checked-in lockfile, and path SDK dependency. Driver
 tests cover the compiler boundary separately. The validated milestone includes:
@@ -336,7 +364,7 @@ tests cover the compiler boundary separately. The validated milestone includes:
 - An invalid `RUSTC` environment override does not displace the pinned compiler.
   Both Cargo-configured wrapper forms are rejected with a specific diagnostic.
 - Rust type errors and unsupported CLVM operations fail without replacing the
-  last successful bundle pointer. A successful `cargo oxide check` also leaves
+  last successful bundle pointer. A successful `cargo chialisp-oxide check` also leaves
   that pointer unchanged. Driver tests separately cover borrow checking,
   domain-type swaps, unsupported signatures, and annotation diagnostics.
 

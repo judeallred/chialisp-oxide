@@ -207,13 +207,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
-name = "cargo-oxide"
+name = "cargo-chialisp-oxide"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chialisp-oxide-backend-experiment",
+ "chialisp-oxide-ir",
  "hex",
- "oxide-backend-experiment",
- "oxide-ir",
  "serde",
  "serde_json",
  "sha2 0.10.9",
@@ -664,6 +664,146 @@ dependencies = [
  "unicode-segmentation",
  "wasm-bindgen",
  "yaml-rust2",
+]
+
+[[package]]
+name = "chialisp-oxide"
+version = "0.1.0"
+dependencies = [
+ "chialisp-oxide-macros",
+]
+
+[[package]]
+name = "chialisp-oxide-backend-experiment"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clvmr 0.21.0",
+ "hex",
+ "id-arena",
+ "num-bigint",
+ "proptest",
+ "rue-clvm",
+ "rue-compiler 0.11.0",
+ "rue-diagnostic 0.11.0",
+ "rue-lir 0.11.0",
+ "rue-options 0.11.0",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "chialisp-oxide-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cargo-chialisp-oxide",
+ "chialisp-oxide-backend-experiment",
+ "chialisp-oxide-corpus",
+ "chialisp-oxide-ir",
+ "hex",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "chialisp-oxide-corpus"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chialisp-oxide",
+ "chialisp-oxide-backend-experiment",
+ "chialisp-oxide-ir",
+ "chialisp-oxide-puzzles",
+ "chialisp-oxide-reference",
+ "chialisp-oxide-simulator",
+ "clvmr 0.21.0",
+ "hex",
+ "num-bigint",
+ "rue-clvm",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "chialisp-oxide-driver"
+version = "0.1.0"
+dependencies = [
+ "cargo-chialisp-oxide",
+ "chialisp-oxide-backend-experiment",
+ "chialisp-oxide-corpus",
+ "chialisp-oxide-ir",
+ "chialisp-oxide-reference",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "chialisp-oxide-ir"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clvmr 0.21.0",
+ "hex",
+ "id-arena",
+ "num-bigint",
+ "num-traits",
+ "rue-clvm",
+ "rue-lir 0.11.0",
+ "serde",
+]
+
+[[package]]
+name = "chialisp-oxide-macros"
+version = "0.1.0"
+dependencies = [
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "chialisp-oxide-puzzles"
+version = "0.1.0"
+dependencies = [
+ "chialisp-oxide",
+]
+
+[[package]]
+name = "chialisp-oxide-reference"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chialisp",
+ "clvmr 0.16.2",
+ "clvmr 0.21.0",
+]
+
+[[package]]
+name = "chialisp-oxide-simulator"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chia-bls 0.36.1",
+ "chia-protocol",
+ "chia-sdk-test",
+ "chialisp-oxide-reference",
+ "clvm-utils",
+ "clvmr 0.16.2",
+ "hex",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "chialisp-oxide-verifier"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chialisp-oxide-ir",
+ "clvmr 0.21.0",
+ "num-bigint",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1975,146 +2115,6 @@ name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
-
-[[package]]
-name = "oxide-backend-experiment"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clvmr 0.21.0",
- "hex",
- "id-arena",
- "num-bigint",
- "proptest",
- "rue-clvm",
- "rue-compiler 0.11.0",
- "rue-diagnostic 0.11.0",
- "rue-lir 0.11.0",
- "rue-options 0.11.0",
- "serde",
- "serde_json",
- "sha2 0.10.9",
-]
-
-[[package]]
-name = "oxide-chialisp"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chialisp",
- "clvmr 0.16.2",
- "clvmr 0.21.0",
-]
-
-[[package]]
-name = "oxide-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "cargo-oxide",
- "hex",
- "oxide-backend-experiment",
- "oxide-corpus",
- "oxide-ir",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "oxide-corpus"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clvmr 0.21.0",
- "hex",
- "num-bigint",
- "oxide-backend-experiment",
- "oxide-chialisp",
- "oxide-ir",
- "oxide-puzzles",
- "oxide-sdk",
- "oxide-simulator",
- "rue-clvm",
- "serde",
- "serde_json",
- "sha2 0.10.9",
-]
-
-[[package]]
-name = "oxide-driver"
-version = "0.1.0"
-dependencies = [
- "cargo-oxide",
- "oxide-backend-experiment",
- "oxide-chialisp",
- "oxide-corpus",
- "oxide-ir",
- "serde_json",
- "sha2 0.10.9",
-]
-
-[[package]]
-name = "oxide-ir"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clvmr 0.21.0",
- "hex",
- "id-arena",
- "num-bigint",
- "num-traits",
- "rue-clvm",
- "rue-lir 0.11.0",
- "serde",
-]
-
-[[package]]
-name = "oxide-macros"
-version = "0.1.0"
-dependencies = [
- "syn 2.0.119",
-]
-
-[[package]]
-name = "oxide-puzzles"
-version = "0.1.0"
-dependencies = [
- "oxide-sdk",
-]
-
-[[package]]
-name = "oxide-sdk"
-version = "0.1.0"
-dependencies = [
- "oxide-macros",
-]
-
-[[package]]
-name = "oxide-simulator"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chia-bls 0.36.1",
- "chia-protocol",
- "chia-sdk-test",
- "clvm-utils",
- "clvmr 0.16.2",
- "hex",
- "oxide-chialisp",
- "sha2 0.10.9",
-]
-
-[[package]]
-name = "oxide-verifier"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clvmr 0.21.0",
- "num-bigint",
- "oxide-ir",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "p256"

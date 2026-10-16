@@ -88,10 +88,14 @@ for (const puzzle of validation.puzzles) {
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
-for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/oxide-sdk/src/lib.rs', 'crates/oxide-sdk/src/domain.rs']) {
+for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs']) {
   assert(sdk.includes(source), `Missing actual Cargo tutorial source: ${source}`);
 }
-assert(sdk.includes('oxide-puzzles') && sdk.includes('oxide_sdk'), 'SDK tutorial must identify the real Cargo corpus');
+assert(sdk.includes('chialisp-oxide-puzzles') && sdk.includes('chialisp_oxide'), 'SDK tutorial must identify the real Cargo corpus');
+const quickstart = await html(path.join(root, 'start/quickstart/index.html'));
+for (const name of ['cargo-chialisp-oxide', 'chialisp-oxide-driver', 'cargo chialisp-oxide build', 'chialisp_oxide::puzzle', 'target/chialisp-oxide/artifacts/']) {
+  assert(quickstart.includes(name), `Quickstart missing the current package, command, or output name: ${name}`);
+}
 const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
 const coverage = await html(path.join(root, 'coverage/index.html'));
 for (const example of tutorialExamples.examples) {
@@ -116,7 +120,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();

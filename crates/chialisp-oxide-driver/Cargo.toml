@@ -1,0 +1,17 @@
+[package]
+name = "chialisp-oxide-driver"
+version = "0.1.0"
+edition = "2024"
+publish = false
+build = "build.rs"
+
+[dependencies]
+chialisp-oxide-ir = { path = "../chialisp-oxide-ir" }
+serde_json = "1"
+sha2 = "0.10"
+
+[dev-dependencies]
+cargo-chialisp-oxide = { path = "../cargo-chialisp-oxide" }
+chialisp-oxide-backend-experiment = { path = "../../experiments/backend" }
+chialisp-oxide-corpus = { path = "../chialisp-oxide-corpus" }
+chialisp-oxide-reference = { path = "../chialisp-oxide-reference" }

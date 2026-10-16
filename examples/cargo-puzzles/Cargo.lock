@@ -3,24 +3,24 @@
 version = 4
 
 [[package]]
-name = "oxide-cargo-puzzles"
+name = "chialisp-oxide"
 version = "0.1.0"
 dependencies = [
- "oxide-sdk",
+ "chialisp-oxide-macros",
 ]
 
 [[package]]
-name = "oxide-macros"
+name = "chialisp-oxide-cargo-puzzles"
+version = "0.1.0"
+dependencies = [
+ "chialisp-oxide",
+]
+
+[[package]]
+name = "chialisp-oxide-macros"
 version = "0.1.0"
 dependencies = [
  "syn",
-]
-
-[[package]]
-name = "oxide-sdk"
-version = "0.1.0"
-dependencies = [
- "oxide-macros",
 ]
 
 [[package]]

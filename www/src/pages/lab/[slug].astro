@@ -42,7 +42,7 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <RuntimeVersions />
   <details class="source-dependency"><summary>Declared Cargo input hashes</summary><p class="source-note">The validation and proof reports record the same explicitly declared local Cargo inputs. This is not a complete transitive dependency fingerprint.</p><ul>{authoring.sources.map(source => <li><code>{source.path}</code> · <code class="dependency-hash">{source.sha256}</code></li>)}</ul></details>
-  <p>Reproduce this corpus with <code>./scripts/oxide validate --output corpus/validation.json</code>. Read <a href={href('verification/method/')}>the validation method and remaining assumptions</a> before interpreting a pass.</p>
+  <p>Reproduce this corpus with <code>./scripts/chialisp-oxide validate --output corpus/validation.json</code>. Read <a href={href('verification/method/')}>the validation method and remaining assumptions</a> before interpreting a pass.</p>
 </StarlightPage>
 <style>
   h2 { margin: 2.7rem 0 1rem; } .scope { font-size: 1.05rem; }

@@ -7,11 +7,11 @@ The working compiler integrates Rue at LIR. It does not need to emit Rue or
 Chialisp source as an intermediate representation.
 
 ```text
-Cargo library + oxide-sdk + #[oxide_sdk::puzzle]
+Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → Cargo dependencies, features, build scripts, generated code
   → rustc nightly-2026-07-14 analysis + borrow checking
   → typed MIR, supported-feature validation
-  → oxide-ir: pure expressions + explicit logical types
+  → chialisp-oxide-ir: pure expressions + explicit logical types
   → Rue LIR
   → optional Rue LIR optimizer
   → Rue CLVM code generation
@@ -20,15 +20,28 @@ Cargo library + oxide-sdk + #[oxide_sdk::puzzle]
 
 ## Keep the boundaries narrow
 
-`cargo-oxide` selects one Cargo library package and orchestrates extraction.
-`oxide-sdk` supplies real dependency types/helpers and re-exports the
-metadata-only annotation from `oxide-macros`. The attribute preserves the
+`cargo-chialisp-oxide` selects one Cargo library package and orchestrates extraction.
+`chialisp-oxide` supplies real dependency types/helpers and re-exports the
+metadata-only annotation from `chialisp-oxide-macros`. The attribute preserves the
 original function tokens; rustc remains responsible for their semantics.
-`oxide-driver` owns compiler-private rustc APIs and source diagnostics.
-`oxide-ir` owns the serializable typed expression contract, whole-program
-validation, ABI checks, and Rue lowering. `oxide-chialisp` owns the independent
-Chialisp reference compiler. `oxide-simulator` bridges serialized outputs into
+`chialisp-oxide-driver` owns compiler-private rustc APIs and source diagnostics.
+`chialisp-oxide-ir` owns the serializable typed expression contract, whole-program
+validation, ABI checks, and Rue lowering. `chialisp-oxide-reference` owns the independent
+Chialisp reference compiler. `chialisp-oxide-simulator` bridges serialized outputs into
 actual ledger validation. Corpus tooling compares these paths.
+
+## One package family
+
+Puzzle authors add the `chialisp-oxide` package and import `chialisp_oxide`.
+Its re-exported `#[chialisp_oxide::puzzle]` attribute comes from the separate
+`chialisp-oxide-macros` crate; a second consumer dependency is unnecessary.
+Cargo discovers the `cargo-chialisp-oxide` executable as `cargo chialisp-oxide`.
+The standalone research/validation binary is `chialisp-oxide`, and internal
+packages use the same `chialisp-oxide-*` prefix. The existing upstream
+`chialisp` crate remains the independent reference compiler dependency.
+See the [researched naming rationale](https://github.com/judeallred/chialisp-oxide/blob/main/docs/rust-authoring-research.md#package-import-and-command-names).
+These crates remain unpublished; use checkout path dependencies or a reviewed
+pinned Git revision.
 
 The IR represents arguments, tuples, fixed bytes, fixed-width integers,
 branches, operations, explicit rejection, and sequencing. Its validator infers
@@ -42,11 +55,11 @@ carry `CoinId` or `PuzzleHash` runtime tags. Concrete vetted SDK calls can cross
 the crate boundary; arbitrary dependency bodies cannot. Constructor validation
 is not executed during solution decoding.
 
-The corpus is the real `oxide-puzzles` Cargo library, with annotated modules
-registered in `puzzles/lib.rs` and a dependency on `oxide-sdk`. Validation
+The corpus is the real `chialisp-oxide-puzzles` Cargo library, with annotated modules
+registered in `puzzles/lib.rs` and a dependency on `chialisp-oxide`. Validation
 extracts all declared exports in one Cargo build; its native oracle links that
 same library. A separate consumer fixture additionally exercises feature flags,
-generated source, and native-only allocation code. `sdk/oxide.rs` remains only
+generated source, and native-only allocation code. `sdk/chialisp_oxide.rs` remains only
 for standalone compiler regressions, outside the corpus authoring path.
 
 ## Cargo extraction is a compiler integration, not a target name
@@ -58,7 +71,7 @@ features, `--extern` arguments, generated source, and build-script environment
 reach the pinned compiler. An explicit host analysis target separates those
 units; it is not a CLVM target specification.
 
-`cargo oxide build` publishes an immutable bundle only after the entire Cargo
+`cargo chialisp-oxide build` publishes an immutable bundle only after the entire Cargo
 invocation and CLVM lowering succeed. `latest.json` advances to that successful
 manifest. Extraction uses a separate target directory, preserving ordinary
 native Cargo artifacts; selected-package extraction is repeated even when
@@ -103,7 +116,7 @@ The import also fixes a strict-evaluation regression in truthiness folding,
 tracked in [Rue issue 109](https://github.com/xch-dev/rue/issues/109). These are
 recorded local changes to the pinned revision, not unmodified upstream.
 
-Entering at LIR also bypasses Rue frontend and earlier lowering work. Oxide is
+Entering at LIR also bypasses Rue frontend and earlier lowering work. chialisp-oxide is
 responsible for correct environments, paths, representations, evaluation
 strictness, and input validation. Reusing an optimizer does not prove those
 decisions correct. Both optimized and unoptimized output must satisfy the same

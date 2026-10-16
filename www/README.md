@@ -7,7 +7,7 @@ puzzle laboratory, formal evidence, and a separately filterable migration
 inventory.
 Authoring guides lead with the real unpublished Cargo SDK and annotated exports.
 Their consumer examples are imported directly from `../examples/cargo-puzzles`;
-the laboratory reports annotated exports of the real `oxide-puzzles` Cargo
+the laboratory reports annotated exports of the real `chialisp-oxide-puzzles` Cargo
 library. Validation and the native oracle use that same library and SDK. Full recorded
 dependency sources, including public fixture-key bytes, remain available in
 expandable drawers. Comparisons stack at narrow content widths; wrapped code

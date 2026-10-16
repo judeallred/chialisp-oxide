@@ -3,8 +3,9 @@
 Build toward goals.md; record current capabilities and gaps without shrinking the goals.
 Use docs/compiler-approach.md for architectural context and docs/verification.md for claim scope.
 
+- Keep the public facade named `chialisp-oxide` (Rust import `chialisp_oxide`), companion packages `chialisp-oxide-*`, and the Cargo executable `cargo-chialisp-oxide` (`cargo chialisp-oxide`). Re-export puzzle macros through the facade so consumers do not depend directly on the proc-macro crate. All project crates remain unpublished; use path dependencies or reviewed pinned Git revisions.
 - The source language is real Rust checked by rustc. Never substitute textual MIR parsing or a Rust-looking DSL while claiming Rust semantics.
-- Keep rustc internals in oxide-driver and Rue internals in oxide-ir/backend adapters.
+- Keep rustc internals in chialisp-oxide-driver and Rue internals in chialisp-oxide-ir/backend adapters.
 - Reject unsupported constructs with useful diagnostics. Preserve strict failure behavior, integer width/overflow rules, and exact ABI validation.
 - Treat all solutions as attacker-controlled CLVM trees. Test malformed shapes, padded numbers, oversized values, authorization failures, and optimization on/off.
 - Differential tests must use independently compiled Chialisp and native Rust where available. Never change a canonical module hash to hide incompatibility.
@@ -18,14 +19,14 @@ Use docs/compiler-approach.md for architectural context and docs/verification.md
 - Run python3 scripts/check-proofs.py for proof/model changes. Run pnpm site checks/build when www changes.
 - Push completed, verified work to origin; inspect CI and fix failures. Record remaining substantive work for continuation.
 - When finding a Rue bug, search upstream issues first, then file or update an xch-dev/rue issue with pinned revision, minimal repro, observed/expected behavior, and a patch containing a failing regression test plus fix. Link local patches to the issue. The user explicitly authorized upstream bug reports; no extra confirmation is needed.
-- Regenerate corpus evidence only after formatting Rust sources: build workspace, run `target/debug/oxide validate --output corpus/validation.json`, then `python3 scripts/check-ir-proofs.py --output corpus/proofs.json`. The site rejects stale source/manifests/proof hashes.
+- Regenerate corpus evidence only after formatting Rust sources: build workspace, run `target/debug/chialisp-oxide validate --output corpus/validation.json`, then `python3 scripts/check-ir-proofs.py --output corpus/proofs.json`. The site rejects stale source/manifests/proof hashes.
 - Keep Pages publication gated on successful compiler verification for the exact main commit, and verify the live evidence endpoint after deployment.
 
 - Keep the landing page and README prominent about WIP prototype status and not ready for use. Do not market current tests or model checks as production readiness.
 - Prefer researched Rust/Cargo authoring conventions. Do not present the standalone-file harness as the final user workflow or invent a rustc CLVM target before a real backend supports it.
-- Lead new authoring examples with normal Cargo libraries, oxide-sdk, and annotated exports. Keep native `cargo check/test` and the additional CLVM subset check distinct. Preserve Cargo's features, build scripts, generated code, and compiler arguments.
+- Lead new authoring examples with normal Cargo libraries, chialisp-oxide, and annotated exports. Keep native `cargo check/test` and the additional CLVM subset check distinct. Preserve Cargo's features, build scripts, generated code, and compiler arguments.
 - Keep compiler-private integration on a tested dated nightly with matching components; do not restore RUSTC_BOOTSTRAP as a supported stable-toolchain workaround.
-- Cross-crate lowering currently admits only structurally validated oxide-sdk types/helpers. Do not broaden external calls until overflow flags, dependency MIR, generics, and trait resolution have explicit semantics and regression tests. Cargo integration tests must compare exact outputs, not acceptance alone.
+- Cross-crate lowering currently admits only structurally validated chialisp-oxide types/helpers. Do not broaden external calls until overflow flags, dependency MIR, generics, and trait resolution have explicit semantics and regression tests. Cargo integration tests must compare exact outputs, not acceptance alone.
 - Write puzzle logic with named condition constructors, nominal domain types, explicit amount/time units, and named policy constants. Keep fixture key bytes in named supporting data. Retain ordinary Rust arithmetic and assertions; raw opcode tuples belong in SDK internals and independent wire-format tests.
-- The paired corpus is the real `oxide-puzzles` Cargo library. Validate annotated Cargo exports and link that same library for native execution; do not compile copied policies or silently route corpus checks through the standalone research driver. Maintain `puzzles/authoring.json` and fail on stale declared native/compiler inputs.
+- The paired corpus is the real `chialisp-oxide-puzzles` Cargo library. Validate annotated Cargo exports and link that same library for native execution; do not compile copied policies or silently route corpus checks through the standalone research driver. Maintain `puzzles/authoring.json` and fail on stale declared native/compiler inputs.
 - Preserve canonical tutorial source exactly when porting examples. Record finite Rust integer bounds, exact ABI differences, and module-hash incompatibilities explicitly; a wrapper that changes the original's accepted inputs is an adapter, not the unchanged canonical program.

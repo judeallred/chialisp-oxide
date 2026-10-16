@@ -1,0 +1,198 @@
+use anyhow::{Context, Result, bail, ensure};
+use chialisp_oxide_backend_experiment::{Outcome, RUE_REV, artifact, execute};
+use chialisp_oxide_ir::Program;
+use serde_json::json;
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
+fn driver_path() -> Result<PathBuf> {
+    Ok(std::env::var_os("CHIALISP_OXIDE_DRIVER")
+        .map(PathBuf::from)
+        .unwrap_or(std::env::current_exe()?.with_file_name("chialisp-oxide-driver")))
+}
+fn extract(source: &Path) -> Result<Program> {
+    let driver = driver_path()?;
+    let output = Command::new(&driver)
+        .arg(source)
+        .output()
+        .with_context(|| {
+            format!(
+                "run {}; build chialisp-oxide-driver first",
+                driver.display()
+            )
+        })?;
+    ensure!(
+        output.status.success(),
+        "Rust compilation failed:\n{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let program: Program =
+        serde_json::from_slice(&output.stdout).context("decode typed compiler IR")?;
+    program.validate()?;
+    Ok(program)
+}
+fn extract_corpus(
+    authoring: &chialisp_oxide_corpus::Authoring,
+) -> Result<cargo_chialisp_oxide::ArtifactBundle> {
+    let compiler = std::env::current_exe()?.with_file_name("cargo-chialisp-oxide");
+    let output = tempfile::tempdir()?;
+    let status = Command::new(&compiler)
+        .args(["build", "--locked", "--manifest-path"])
+        .arg(chialisp_oxide_corpus::root().join(&authoring.manifest))
+        .arg("--output-dir")
+        .arg(output.path())
+        .status()
+        .with_context(|| {
+            format!(
+                "run {}; build cargo-chialisp-oxide first",
+                compiler.display()
+            )
+        })?;
+    ensure!(status.success(), "Cargo corpus extraction failed");
+    let bundle = cargo_chialisp_oxide::load_bundle(output.path())?;
+    ensure!(
+        bundle.manifest["package"] == authoring.package,
+        "unexpected Cargo corpus package"
+    );
+    let expected = authoring
+        .exports
+        .values()
+        .map(|export| export.entry.clone())
+        .collect::<std::collections::BTreeSet<_>>();
+    ensure!(
+        bundle
+            .programs
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>()
+            == expected,
+        "Cargo corpus exports do not match declared entries"
+    );
+    Ok(bundle)
+}
+fn option(args: &[String], key: &str) -> Result<Option<String>> {
+    if let Some(index) = args.iter().position(|a| a == key) {
+        Ok(Some(
+            args.get(index + 1).context("missing option value")?.clone(),
+        ))
+    } else {
+        Ok(None)
+    }
+}
+fn main() -> Result<()> {
+    let args = std::env::args().skip(1).collect::<Vec<_>>();
+    let Some(command) = args.first().map(String::as_str) else {
+        usage();
+        return Ok(());
+    };
+    match command {
+        "build" => {
+            let source = Path::new(
+                args.get(1)
+                    .context("usage: chialisp-oxide build SOURCE.rs --output PREFIX")?,
+            );
+            let output = PathBuf::from(
+                option(&args, "--output")?.unwrap_or_else(|| "target/chialisp-oxide/puzzle".into()),
+            );
+            if let Some(parent) = output.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let program = extract(source)?;
+            let optimized = !args.iter().any(|a| a == "--no-optimize");
+            let bytes = chialisp_oxide_ir::compile(&program, optimized)?;
+            let artifact = artifact("rust_mir", optimized, &bytes)?;
+            let prefix = output.to_string_lossy();
+            std::fs::write(
+                format!("{prefix}.ir.json"),
+                serde_json::to_string_pretty(&program)?,
+            )?;
+            std::fs::write(
+                format!("{prefix}.clvm.hex"),
+                format!("{}\n", hex::encode(bytes)),
+            )?;
+            std::fs::write(
+                format!("{prefix}.clvm.txt"),
+                format!("{}\n", artifact.disassembly),
+            )?;
+            std::fs::write(
+                format!("{prefix}.artifact.json"),
+                serde_json::to_string_pretty(&artifact)?,
+            )?;
+            println!("{}", serde_json::to_string_pretty(&artifact)?);
+        }
+        "run" => {
+            let path = args
+                .get(1)
+                .context("usage: chialisp-oxide run PROGRAM.clvm.hex --solution '(...)'")?;
+            let solution = option(&args, "--solution")?.context("--solution required")?;
+            let max_cost = option(&args, "--max-cost")?
+                .map(|s| s.parse())
+                .transpose()?
+                .unwrap_or(1_000_000);
+            let bytes = hex::decode(std::fs::read_to_string(path)?.trim())?;
+            let execution = execute(&bytes, &solution, max_cost)?;
+            println!("{}", serde_json::to_string_pretty(&execution)?);
+            if execution.outcome == Outcome::Rejected {
+                std::process::exit(2);
+            }
+        }
+        "validate" => {
+            let path = PathBuf::from(
+                option(&args, "--output")?.unwrap_or_else(|| "corpus/validation.json".into()),
+            );
+            let authoring = chialisp_oxide_corpus::authoring()?;
+            let bundle = extract_corpus(&authoring)?;
+            let mut reports = vec![];
+            for slug in chialisp_oxide_corpus::PUZZLES {
+                eprintln!("Validating {slug}");
+                let export = &authoring.exports[*slug];
+                let program = &bundle.programs[&export.entry];
+                reports.push(chialisp_oxide_corpus::validate(slug, program)?);
+            }
+            let compiler = Command::new(driver_path()?)
+                .arg("--compiler-version")
+                .output()?;
+            ensure!(compiler.status.success(), "query active rustc version");
+            let compiler = String::from_utf8(compiler.stdout)?;
+            ensure!(
+                bundle.manifest["compiler"]
+                    .as_str()
+                    .and_then(|version| version.lines().next())
+                    == Some(compiler.trim()),
+                "Cargo extraction and validation compiler versions differ"
+            );
+            ensure!(
+                chialisp_oxide_corpus::authoring()? == authoring,
+                "Cargo inputs changed during corpus validation"
+            );
+            let report = json!({"schema_version":1,"authoring":authoring,"toolchain":compiler.trim(),"rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::write(&path, serde_json::to_string_pretty(&report)? + "\n")?;
+            eprintln!(
+                "Validated {} fixtures; report {}",
+                reports.len(),
+                path.display()
+            );
+        }
+        "native" => {
+            let slug = args
+                .get(1)
+                .context("usage: chialisp-oxide native SLUG --solution '(...)'")?;
+            let solution = option(&args, "--solution")?.context("--solution required")?;
+            chialisp_oxide_corpus::authoring()?;
+            let outcome = chialisp_oxide_corpus::native_execute(slug, &solution)?;
+            println!("{}", serde_json::to_string_pretty(&outcome)?);
+        }
+        "--help" | "-h" | "help" => usage(),
+        _ => bail!("unknown command {command}"),
+    }
+    Ok(())
+}
+fn usage() {
+    println!(
+        "chialisp-oxide build SOURCE.rs --output PREFIX [--no-optimize]\noxide run PROGRAM.clvm.hex --solution '(...)' [--max-cost N]\noxide validate --output corpus/validation.json\noxide native SLUG --solution '(...)'"
+    );
+}

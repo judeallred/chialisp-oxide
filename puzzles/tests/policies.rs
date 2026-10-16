@@ -1,10 +1,10 @@
-//! Ordinary native tests of the same exports built by `cargo oxide`.
+//! Ordinary native tests of the same exports built by `cargo chialisp-oxide`.
 //! Signature and timelock enforcement require the separate complete-spend suite.
-use oxide_puzzles::{
+use chialisp_oxide::{Amount, AssertMyAmount, CreateCoin, Message32};
+use chialisp_oxide_puzzles::{
     boolean_gate, bounded_counter, capped_payment, fixed_payment, recovery_payment,
     signature_payment, split_payment, timelocked_payment, two_signature_payment,
 };
-use oxide_sdk::{Amount, AssertMyAmount, CreateCoin, Message32};
 
 fn assert_payment(assertion: AssertMyAmount, payment: CreateCoin, expected: u64) {
     // Independent expected wire values deliberately use literal opcodes here.

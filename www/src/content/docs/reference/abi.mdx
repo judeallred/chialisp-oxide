@@ -73,9 +73,9 @@ At the wire level, the result is a proper list containing `(73 1000)` and
 The repeated destination bytes describe the recipient puzzle hash, not an
 address string.
 
-The real `oxide-sdk` crate provides nominal `Amount`, `PuzzleHash`, `CoinId`,
+The real `chialisp-oxide` crate provides nominal `Amount`, `PuzzleHash`, `CoinId`,
 `PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
-The consumer and `oxide-puzzles` corpus both depend on that crate. Standalone
+The consumer and `chialisp-oxide-puzzles` corpus both depend on that crate. Standalone
 frontend regression fixtures can still use the compatibility module, but it is
 not the corpus route. Result aliases remain tuples even though the examples use
 named constructors. `Amount::from_mojos` and `Timestamp::from_unix_seconds`

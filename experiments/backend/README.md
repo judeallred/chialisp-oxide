@@ -4,7 +4,7 @@ Run from the repository root:
 
 ```sh
 cargo test --workspace --locked
-cargo run --locked -p oxide-backend-experiment > /tmp/oxide-backend-report.json
+cargo run --locked -p chialisp-oxide-backend-experiment > /tmp/oxide-backend-report.json
 python3 scripts/check-proofs.py
 ```
 

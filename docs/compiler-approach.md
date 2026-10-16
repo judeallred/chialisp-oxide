@@ -10,7 +10,7 @@ an unpublished WIP prototype. See [measured results](../experiments/backend/READ
 
 Build a compiler for a documented subset of real Rust. Use rustc for name
 resolution, type checking, trait resolution, and borrow checking; lower supported
-MIR into a small, typed oxide IR; reuse Rue compiler infrastructure to lower,
+MIR into a small, typed chialisp-oxide IR; reuse Rue compiler infrastructure to lower,
 optimize, and generate CLVM. Generated Rue source is a bootstrap option, not a
 required intermediate. Integrating or adapting Rue compiler source directly into
 this repository is explicitly acceptable, including for the first working slice.
@@ -19,10 +19,10 @@ Choose the integration boundary through a small comparative experiment.
 Implemented pipeline for the supported non-generic subset:
 
 ```text
-Rust Cargo library + oxide SDK + #[oxide_sdk::puzzle]
+Rust Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
     → pinned rustc, with all required Rust checks completed
     → reachable non-generic MIR + supported-feature validation
-    → oxide typed, pure IR + explicit puzzle ABI
+    → chialisp-oxide typed, pure IR + explicit puzzle ABI
     → direct Rue LIR backend
     → Rue LIR optimizer → CLVM serialization
     → clvmr execution + native Rust / Chialisp comparison
@@ -71,11 +71,11 @@ change the proposal's evidence.
 ## Frontend decision
 
 Keep the focused direct MIR adapter. The implemented authoring workflow is a
-normal Cargo library with the `oxide-sdk` dependency and `#[oxide_sdk::puzzle]`
-entry annotations. The `cargo oxide build` and `cargo oxide check` commands
+normal Cargo library with the `chialisp-oxide` dependency and `#[chialisp_oxide::puzzle]`
+entry annotations. The `cargo chialisp-oxide build` and `cargo chialisp-oxide check` commands
 delegate dependency resolution, feature selection, macro expansion, generated
 sources, and rustc invocation construction to Cargo. The complete teaching
-corpus is now the `oxide-puzzles` Cargo library; extraction, native execution,
+corpus is now the `chialisp-oxide-puzzles` Cargo library; extraction, native execution,
 and source-derived proof replay use that library. The standalone-file driver
 remains useful for independent compiler regressions. The first Cargo integration milestone
 has passed its executable tests; its scope and remaining criteria are recorded in
@@ -155,7 +155,7 @@ Alternatives considered:
   runtime obligations that do not naturally match immutable CLVM trees. Defer.
 - A full rustc codegen backend: potentially useful later, but more integration
   work than a focused driver and lowering pass for a deliberately small subset.
-- Charon ULLBC/LLBC → oxide IR: retain as a measured alternative when dependency,
+- Charon ULLBC/LLBC → chialisp-oxide IR: retain as a measured alternative when dependency,
   trait, or ownership needs justify another frontend. Aeneas/hax can supply a
   separate Rust-to-Lean proof experiment; that proof does not establish our
   MIR-to-CLVM preservation link automatically.
@@ -308,18 +308,18 @@ promise about std or no_std libraries.
 The implemented boundaries are:
 
 ```text
-crates/cargo-oxide/         Cargo authoring command and artifact bundles
-crates/oxide-driver/        rustc integration, diagnostics, frontend tests
-crates/oxide-ir/            typed pure IR, validation, direct Rue adapter
-crates/oxide-sdk/           puzzle ABI types and supported helpers
-crates/oxide-macros/        entry annotation re-exported by the SDK
-crates/oxide-verifier/      IR-derived SMT and witness replay
-crates/oxide-cli/           corpus build, run, compare, and validation commands
-examples/cargo-puzzles/     native/Cargo consumer with real SDK dependency
-puzzles/                   oxide-puzzles Cargo library, paired Chialisp/vectors
-corpus/                    versioned tutorial and CHIP inventories
-docs/                      architecture, verification, and error study
-www/                       Astro documentation and generated evidence pages
+crates/cargo-chialisp-oxide/        Cargo authoring command and artifact bundles
+crates/chialisp-oxide-driver/       rustc integration, diagnostics, frontend tests
+crates/chialisp-oxide-ir/           typed pure IR, validation, direct Rue adapter
+crates/chialisp-oxide/              puzzle ABI types and supported helpers
+crates/chialisp-oxide-macros/       entry annotation re-exported by the SDK
+crates/chialisp-oxide-verifier/     IR-derived SMT and witness replay
+crates/chialisp-oxide-cli/          corpus build, run, compare, and validation commands
+examples/cargo-puzzles/             native/Cargo consumer with real SDK dependency
+puzzles/                            chialisp-oxide-puzzles Cargo library, paired Chialisp/vectors
+corpus/                             versioned tutorial and CHIP inventories
+docs/                               architecture, verification, and error study
+www/                                Astro documentation and generated evidence pages
 ```
 
 Keep rustc internals confined to the driver and Rue internals confined to the
@@ -344,7 +344,7 @@ backend. Each dependency upgrade must pass the semantic corpus before adoption.
 The first comparative experiment favored direct LIR for a tiny policy. We now
 use the pinned `nightly-2026-07-14` rustc driver without `RUSTC_BOOTSTRAP`,
 complete Rust analysis, and explicit borrow-check forcing. It emits validated
-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed-width
+chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed-width
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
@@ -358,7 +358,7 @@ upstream/regression tests. The upstream report is xch-dev/rue#108.
 Restricted one-field transparent wrappers now preserve Rust nominal type checks
 while erasing to the documented inner ABI. The puzzle sources use named
 SDK condition helpers, with explicit negative domain-mixup tests. The Cargo
-consumer calls helpers through the actual `oxide-sdk` dependency. Constructors
+consumer calls helpers through the actual `chialisp-oxide` dependency. Constructors
 are not invoked on raw solutions and impose no hidden runtime invariants.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial

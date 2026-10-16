@@ -1,6 +1,6 @@
 //! WIP consumer fixture. Never use these teaching puzzles with real funds.
 
-use oxide_sdk::{Amount, AssertMyAmount, CreateCoin, PuzzleHash, assert_my_amount, create_coin};
+use chialisp_oxide::{Amount, AssertMyAmount, CreateCoin, PuzzleHash, assert_my_amount, create_coin};
 
 // Cargo executes the host build script before rustc expands this source.
 include!(concat!(env!("OUT_DIR"), "/limits.rs"));
@@ -12,7 +12,7 @@ const RECIPIENT: PuzzleHash = PuzzleHash([0x42; 32]); // Fixed teaching destinat
 pub type PaymentConditions = (AssertMyAmount, CreateCoin);
 
 /// Permissionless fixed-destination payment; any remainder becomes a fee.
-#[oxide_sdk::puzzle]
+#[chialisp_oxide::puzzle]
 pub fn pay(amount: Amount) -> PaymentConditions {
     assert!(amount.is_at_most(PAYMENT_CAP));
     (
@@ -22,7 +22,7 @@ pub fn pay(amount: Amount) -> PaymentConditions {
 }
 
 /// Pure arithmetic example, not a condition-producing coin puzzle.
-#[oxide_sdk::puzzle]
+#[chialisp_oxide::puzzle]
 pub fn guarded_add(left: u64, right: u64) -> u64 {
     assert!(left <= PAYMENT_LIMIT);
     assert!(right <= PAYMENT_LIMIT);

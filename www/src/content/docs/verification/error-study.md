@@ -32,7 +32,7 @@ equivalent ABI, rather than presenting a shorter unsafe reference as equivalent.
 
 ## Domain swaps rejected by the typed SDK
 
-The actual `oxide-sdk` crate distinguishes `CoinId` from `PuzzleHash` and
+The actual `chialisp-oxide` crate distinguishes `CoinId` from `PuzzleHash` and
 `Amount` from `Timestamp` with single-field transparent nominal wrappers.
 The Cargo consumer `examples/cargo-invalid`, enabled with `type-error`, fails
 normal `cargo check` because `create_coin` receives a `CoinId` where it requires
@@ -43,7 +43,7 @@ The standalone compatibility regression `newtype_swap.rs` fails with `E0308`, ex
 found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
 `Amount`. The driver test requires both names in the Rust diagnostic and no
 emitted IR. The corpus itself now imports the real SDK crate from the
-`oxide-puzzles` Cargo library; standalone compatibility regressions remain
+`chialisp-oxide-puzzles` Cargo library; standalone compatibility regressions remain
 separate. The Cargo integration also compares actual generated outputs
 with and without optimization and under the changed feature cap.
 

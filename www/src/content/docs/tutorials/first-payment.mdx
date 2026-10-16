@@ -5,7 +5,7 @@ description: Compile a small condition-producing Rust function and distinguish t
 
 import SourcePair from '../../../components/SourcePair.astro';
 
-This paired fixture is an annotated module in the `oxide-puzzles` Cargo library.
+This paired fixture is an annotated module in the `chialisp-oxide-puzzles` Cargo library.
 For the SDK dependency and export setup, start with
 [typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/).
 
@@ -24,17 +24,17 @@ It makes no ownership promise. Anyone may trigger this payment.
 
 At the wire boundary these helpers produce `(73 1000)` and
 `(51 destination 1000)`, in a proper condition list. The Chialisp
-reference additionally shows the explicit zero-argument solution check. Oxide
+reference additionally shows the explicit zero-argument solution check. chialisp-oxide
 derives that boundary check from the Rust function signature.
 
 ## Compile the Cargo package
 
 ```sh
 cargo test --manifest-path puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
 ```
 
-Select `oxide_puzzles::fixed_payment::puzzle` from the output bundle manifest.
+Select `chialisp_oxide_puzzles::fixed_payment::puzzle` from the output bundle manifest.
 The [CLI guide](/chialisp-oxide/reference/cli/#execute-a-selected-export) explains
 how to resolve the bundle and run a selected export.
 

@@ -1,5 +1,5 @@
 //! Public teaching keys from deterministic simulator seeds, never custody keys.
-//! Regenerate with crates/oxide-simulator/examples/fixture-keys.rs.
+//! Regenerate with crates/chialisp-oxide-simulator/examples/fixture-keys.rs.
 #![allow(dead_code)] // A single-signature fixture only uses the owner key.
 
 pub const OWNER_PUBLIC_KEY: [u8; 48] = [

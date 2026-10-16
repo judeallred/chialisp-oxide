@@ -5,7 +5,7 @@ import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../l
 ---
 <StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect real Rust and Chialisp sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
   <p class="eyebrow">Executable examples / generated evidence</p>
-  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles and {format(totals.pureFunctions)} pure-function examples, compiled from the <code>oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp, input vectors, and ledger scenarios.</p>
+  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles and {format(totals.pureFunctions)} pure-function examples, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp, input vectors, and ledger scenarios.</p>
   <EvidenceSummary />
   <form class="filters" role="search" aria-label="Filter puzzle examples">
     <label>Find a puzzle<input id="puzzle-query" type="search" placeholder="Try signature, recovery, or amount" autocomplete="off" /></label>

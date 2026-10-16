@@ -34,7 +34,7 @@ must not hide unexpected cost exhaustion in normal tests.
 
 ```sh
 cargo test --workspace --locked
-cargo run --locked -p oxide-backend-experiment > /tmp/oxide-backend-report.json
+cargo run --locked -p chialisp-oxide-backend-experiment > /tmp/chialisp-oxide-backend-report.json
 python3 scripts/check-proofs.py
 ```
 
@@ -73,7 +73,7 @@ and call the compiled puzzle verified. Required links are:
    failure behavior, integer encoding, and branch evaluation.
 5. Explicit assumptions about hashing, signatures, consensus rules, and the VM.
 
-No Lean toolchain or Lean proof is included yet. The oxide-verifier crate now
+No Lean toolchain or Lean proof is included yet. The chialisp-oxide-verifier crate now
 generates obligations from actual typed IR and independently supplied specs,
 checks nonvacuity, and replays attack witnesses through source/native and CLVM. Start with narrow SMT obligations
 and tested counterexamples while designing this connection; evaluate Lean when

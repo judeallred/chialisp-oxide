@@ -2,7 +2,7 @@
 
 // Valid native Rust, deliberately unsupported by the current CLVM lowering.
 #[cfg(not(feature = "type-error"))]
-#[oxide_sdk::puzzle]
+#[chialisp_oxide::puzzle]
 pub fn unsupported_divide(numerator: u64, denominator: u64) -> u64 {
     numerator / denominator
 }
@@ -10,9 +10,9 @@ pub fn unsupported_divide(numerator: u64, denominator: u64) -> u64 {
 // With this feature, ordinary Rust checking must reject the nominal mismatch
 // before any IR or CLVM artifact can be emitted.
 #[cfg(feature = "type-error")]
-#[oxide_sdk::puzzle]
-pub fn wrong_domain(coin: oxide_sdk::CoinId, amount: oxide_sdk::Amount) -> oxide_sdk::CreateCoin {
-    oxide_sdk::create_coin(coin, amount)
+#[chialisp_oxide::puzzle]
+pub fn wrong_domain(coin: chialisp_oxide::CoinId, amount: chialisp_oxide::Amount) -> chialisp_oxide::CreateCoin {
+    chialisp_oxide::create_coin(coin, amount)
 }
 
 #[cfg(all(test, not(feature = "type-error")))]

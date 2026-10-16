@@ -3,14 +3,14 @@
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
 New Cargo consumer experiments use the actual, unpublished
-[`oxide-sdk` crate](../crates/oxide-sdk) and `#[oxide_sdk::puzzle]`, as shown in
+[`chialisp-oxide` crate](../crates/chialisp-oxide) and `#[chialisp_oxide::puzzle]`, as shown in
 [`examples/cargo-puzzles`](../examples/cargo-puzzles). See the
-[Cargo launcher](../crates/cargo-oxide/README.md) for the current prototype flow.
+[Cargo launcher](../crates/cargo-chialisp-oxide/README.md) for the current prototype flow.
 
-`oxide.rs` remains a source-only compatibility module for standalone compiler
+`chialisp_oxide.rs` remains a source-only compatibility module for standalone compiler
 regressions. The paired corpus is now the real
-[`oxide-puzzles` Cargo library](../puzzles), with annotated exports and a direct
-dependency on `oxide-sdk`. Native tests, differential validation, and proof
+[`chialisp-oxide-puzzles` Cargo library](../puzzles), with annotated exports and a direct
+dependency on `chialisp-oxide`. Native tests, differential validation, and proof
 extraction use that library. The compatibility module imports the same domain
 implementation, but defines distinct Rust types in its local module; it is not
 the corpus authoring interface.

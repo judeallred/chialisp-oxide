@@ -1,7 +1,7 @@
 ---
 import { Code } from '@astrojs/starlight/components';
-import coinSwap from '../../../crates/oxide-driver/tests/fixtures/newtype_swap.rs?raw';
-import timeSwap from '../../../crates/oxide-driver/tests/fixtures/newtype_time_swap.rs?raw';
+import coinSwap from '../../../crates/chialisp-oxide-driver/tests/fixtures/newtype_swap.rs?raw';
+import timeSwap from '../../../crates/chialisp-oxide-driver/tests/fixtures/newtype_time_swap.rs?raw';
 ---
 <Code code={coinSwap.trim()} lang="rust" title="tests/fixtures/newtype_swap.rs · intentionally does not compile" />
 <Code code={'error[E0308]: mismatched types\nexpected `PuzzleHash`, found `CoinId`'} lang="text" />

@@ -34,7 +34,7 @@ generated metrics or claim an unrelated teaching fixture completes a CHIP.
 
 Specify native semantics, accepted ABI encoding, rejection behavior, strictness,
 and width rules first. Extend the driver only for MIR forms with implemented
-lowering. Keep compiler-private rustc code in `oxide-driver` and Rue-specific
+lowering. Keep compiler-private rustc code in `chialisp-oxide-driver` and Rue-specific
 lowering in the backend. Include compile-fail diagnostics for adjacent
 unsupported constructs and tests that cannot pass by mirroring the same bug.
 

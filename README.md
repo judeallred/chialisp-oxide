@@ -11,30 +11,33 @@ the chia-wallet-sdk transaction simulator.
 
 ## Explore the Cargo prototype
 
-Use an ordinary Rust library with the real, unpublished `oxide-sdk` dependency.
-Mark exported functions with `#[oxide_sdk::puzzle]`. Ordinary `cargo check` and
-`cargo test` provide Rust checking and native tests; `cargo oxide check` and
-`cargo oxide build` additionally validate the reachable CLVM subset and compile
+Use an ordinary Rust library with the real, unpublished `chialisp-oxide` dependency.
+Mark exported functions with `#[chialisp_oxide::puzzle]`. Ordinary `cargo check` and
+`cargo test` provide Rust checking and native tests; `cargo chialisp-oxide check` and
+`cargo chialisp-oxide build` additionally validate the reachable CLVM subset and compile
 the marked functions through Rue.
 
 From this checkout, with rustup installed:
 
 ```sh
 rustup show
-cargo build --locked -p cargo-oxide -p oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
 export PATH="$PWD/target/debug:$PATH"
 cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
 ```
 
 The [consumer package](examples/cargo-puzzles) has two annotated entries, a real
 SDK path dependency, feature-controlled limits, a host build script generating
 code through `OUT_DIR`/`include!`, and unannotated native-only allocation code.
-Neither `oxide-sdk`, `oxide-macros`, nor `cargo-oxide` is published to crates.io.
+Neither `chialisp-oxide`, `chialisp-oxide-macros`, nor `cargo-chialisp-oxide` is published to crates.io.
 Use the checkout's path dependencies or a reviewed pinned Git revision. Local
-installation and output options are documented in [cargo-oxide](crates/cargo-oxide/README.md).
+installation and output options are documented in [cargo-chialisp-oxide](crates/cargo-chialisp-oxide/README.md).
+The package name is `chialisp-oxide`, its Rust import is `chialisp_oxide`, and
+the Cargo command is `cargo chialisp-oxide`; see the
+[naming rationale](docs/rust-authoring-research.md#package-import-and-command-names).
 
 The compiler is pinned to **nightly-2026-07-14**, reporting Rust 1.99.0-nightly,
 with `rustc-dev` and `llvm-tools-preview`. No `RUSTC_BOOTSTRAP` is required.
@@ -42,7 +45,7 @@ Cargo supplies features, dependencies, generated code, and actual rustc
 arguments. Build scripts and procedural macros remain normal host programs.
 
 Each successful export build creates an immutable bundle under the consumer
-workspace's `target/oxide/artifacts/<bundle>/manifest.json`, with typed IR,
+workspace's `target/chialisp-oxide/artifacts/<bundle>/manifest.json`, with typed IR,
 serialized CLVM, disassembly, sizes, and tree hashes. `latest.json` points to the
 most recent successful bundle. Failed builds preserve the previous successful
 bundle instead of publishing partial artifacts.
@@ -56,19 +59,19 @@ initial external calls are restricted to vetted concrete SDK helpers.
 
 ## Build and validate the Cargo corpus
 
-The teaching fixtures are modules of the workspace's `oxide-puzzles` library.
-Every entry imports the real SDK and uses `#[oxide_sdk::puzzle]`. Native tests,
+The teaching fixtures are modules of the workspace's `chialisp-oxide-puzzles` library.
+Every entry imports the real SDK and uses `#[chialisp_oxide::puzzle]`. Native tests,
 the differential oracle, and CLVM extraction use that same library:
 
 ```sh
 cargo test --manifest-path puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
 cargo build --workspace --locked
-./scripts/oxide validate --output corpus/validation.json
+./scripts/chialisp-oxide validate --output corpus/validation.json
 ```
 
-Follow `target/oxide/artifacts/latest.json` to the bundle manifest, then select
-a full entry name such as `oxide_puzzles::capped_payment::puzzle` and its artifact
+Follow `target/chialisp-oxide/artifacts/latest.json` to the bundle manifest, then select
+a full entry name such as `chialisp_oxide_puzzles::capped_payment::puzzle` and its artifact
 paths. [puzzles/authoring.json](puzzles/authoring.json) declares Cargo inputs and
 entry/source mappings; both validation and proof reports include their hashes.
 The site checks those records against current files. This declared input set is
@@ -121,14 +124,14 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 
 - [Project goals](goals.md) and [approach](docs/compiler-approach.md)
 - [Verification strategy](docs/verification.md)
-- [Rust frontend and limitations](crates/oxide-driver/README.md)
-- [Source-derived verifier](crates/oxide-verifier/README.md)
-- [Simulator and consensus scope](crates/oxide-simulator/README.md)
+- [Rust frontend and limitations](crates/chialisp-oxide-driver/README.md)
+- [Source-derived verifier](crates/chialisp-oxide-verifier/README.md)
+- [Simulator and consensus scope](crates/chialisp-oxide-simulator/README.md)
 - [Initial backend experiment](experiments/backend/README.md)
 - [Chialisp tutorials/reference](https://chialisp.com/)
 
 The compiler supports restricted single-field transparent newtypes, allowing
-nominal domain checks through the real [SDK crate](crates/oxide-sdk). The
+nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
 and enums, loops, recursion, allocation, arbitrary external calls, references, casts,
 division/remainder, and other unsupported MIR remain rejected.

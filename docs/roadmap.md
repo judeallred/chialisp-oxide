@@ -7,7 +7,7 @@
   compiler resource limits. The driver is compiler-private and host checked.
 - An unpublished Cargo SDK and marker macro, multiple annotated exports, normal
   native checks/tests, and Cargo-driven CLVM extraction with real features and
-  generated source. The paired corpus is the real `oxide-puzzles` Cargo library;
+  generated source. The paired corpus is the real `chialisp-oxide-puzzles` Cargo library;
   native execution, CLVM extraction, and proof replay use that same package.
 - Nominal one-field transparent wrappers and typed condition helpers in the SDK
   crate; domain swaps fail Rust checking while

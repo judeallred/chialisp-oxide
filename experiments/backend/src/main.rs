@@ -1,5 +1,5 @@
 use anyhow::Result;
-use oxide_backend_experiment::*;
+use chialisp_oxide_backend_experiment::*;
 use serde_json::json;
 
 fn main() -> Result<()> {

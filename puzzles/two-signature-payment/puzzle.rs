@@ -1,7 +1,7 @@
 // Both independent signers must authorize the same coin-bound message.
 use crate::fixture_keys;
 
-use oxide_sdk::{
+use chialisp_oxide::{
     AggSigMe, Amount, AssertMyAmount, CreateCoin, Message32, PublicKey, PuzzleHash, agg_sig_me,
     assert_my_amount, create_coin,
 };
@@ -13,7 +13,7 @@ const RECIPIENT: PuzzleHash = PuzzleHash([0x42; 32]);
 
 pub type TwoSignatureConditions = (AggSigMe, AggSigMe, AssertMyAmount, CreateCoin);
 
-#[oxide_sdk::puzzle]
+#[chialisp_oxide::puzzle]
 pub fn puzzle(message: Message32) -> TwoSignatureConditions {
     (
         agg_sig_me(FIRST_SIGNER, message),

@@ -72,12 +72,12 @@ semantics and cost experiments.
 ## One domain implementation for both authoring paths
 
 The real Cargo SDK re-exports
-[domain.rs](../crates/oxide-sdk/src/domain.rs). The complete teaching corpus is
-now the `oxide-puzzles` Cargo library and depends on that SDK; its native oracle
+[domain.rs](../crates/chialisp-oxide/src/domain.rs). The complete teaching corpus is
+now the `chialisp-oxide-puzzles` Cargo library and depends on that SDK; its native oracle
 and CLVM extraction use the same library. Standalone compiler regressions can
-reach the same definitions through [sdk/oxide.rs](../sdk/oxide.rs), which is no
+reach the same definitions through [sdk/chialisp_oxide.rs](../sdk/chialisp_oxide.rs), which is no
 longer the corpus route. There is no second set of domain declarations or
-condition encoders. Cargo users mark exports with `#[oxide_sdk::puzzle]`.
+condition encoders. Cargo users mark exports with `#[chialisp_oxide::puzzle]`.
 
 The corpus declares package/export/input provenance in
 [puzzles/authoring.json](../puzzles/authoring.json). Validation and proof reports
@@ -105,7 +105,7 @@ and ledger checks. The comparison utility accepts an explicit baseline:
 git show HEAD:corpus/validation.json > /tmp/oxide-before-refactor.json
 # Refactor the Rust sources and SDK helpers.
 cargo build --workspace --locked
-./scripts/oxide validate
+./scripts/chialisp-oxide validate
 python3 scripts/check-readable-puzzles.py --baseline /tmp/oxide-before-refactor.json
 python3 scripts/check-ir-proofs.py
 python3 scripts/check-proofs.py

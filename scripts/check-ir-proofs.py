@@ -20,10 +20,10 @@ from cargo_authoring import contained_file, load_json, snapshot
 ROOT = Path(__file__).resolve().parents[1]
 PROOFS = ROOT / "proofs/bounded-counter"
 SOURCE = Path("puzzles/bounded-counter/puzzle.rs")
-DRIVER = ROOT / "target/debug/oxide-driver"
-CARGO_OXIDE = ROOT / "target/debug/cargo-oxide"
-NATIVE = ROOT / "target/debug/oxide"
-VERIFIER = ROOT / "target/debug/oxide-verifier"
+DRIVER = ROOT / "target/debug/chialisp-oxide-driver"
+CARGO_OXIDE = ROOT / "target/debug/cargo-chialisp-oxide"
+NATIVE = ROOT / "target/debug/chialisp-oxide"
+VERIFIER = ROOT / "target/debug/chialisp-oxide-verifier"
 
 
 def run(args, expected=0, timeout=30):
@@ -123,11 +123,11 @@ def main():
         if not binary.is_file():
             raise SystemExit(f"Missing {binary}; run cargo build --workspace --locked")
 
-    with tempfile.TemporaryDirectory(prefix="oxide-ir-proofs-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="chialisp-oxide-proofs-") as temporary:
         temp = Path(temporary)
         authoring = authoring_snapshot()
         # Refresh the native CLI's Cargo-library dependency before witness replay.
-        run(["cargo", "build", "--locked", "--target-dir", ROOT / "target", "-p", "oxide-cli"], timeout=180)
+        run(["cargo", "build", "--locked", "--target-dir", ROOT / "target", "-p", "chialisp-oxide-cli"], timeout=180)
         cargo_path, cargo_manifest = cargo_program(temp / "cargo-artifacts", authoring)
         program_path = temp / "program.ir.json"
         program_path.write_bytes(cargo_path.read_bytes())

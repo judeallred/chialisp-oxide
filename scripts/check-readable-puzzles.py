@@ -2,7 +2,7 @@
 """Check fresh corpus evidence and optionally an exact source-refactor baseline.
 
 This reads reports; it does not execute the compiler or prove Rust semantics.
-Regenerate corpus/validation.json with ./scripts/oxide validate first. Supply a
+Regenerate corpus/validation.json with ./scripts/chialisp-oxide validate first. Supply a
 report captured before a source-only refactor to require unchanged artifacts,
 costs, native/reference outcomes, vectors, and ledger results. No permanent
 compiler-byte baseline is imposed when --baseline is omitted. Explicit semantic
@@ -255,7 +255,7 @@ class ComparisonTests(unittest.TestCase):
         self.assertIsNotNone(first_difference(behavior(self.original), behavior(updated)))
 
     def test_stale_puzzle_and_dependency_evidence_is_rejected(self):
-        with tempfile.TemporaryDirectory(prefix="oxide-readable-test-") as temporary:
+        with tempfile.TemporaryDirectory(prefix="chialisp-oxide-readable-test-") as temporary:
             root = Path(temporary)
             puzzle = root / "puzzles/example/puzzle.rs"
             puzzle.parent.mkdir(parents=True)
@@ -306,7 +306,7 @@ class ComparisonTests(unittest.TestCase):
     def test_cargo_migration_retains_exact_artifacts_costs_and_wire_inputs(self):
         updated = copy.deepcopy(self.original)
         updated["authoring"] = {"mode": "cargo_library"}  # Validated separately before comparison.
-        updated["puzzles"][0]["source"] = "#[oxide_sdk::puzzle] fn puzzle() {}"
+        updated["puzzles"][0]["source"] = "#[chialisp_oxide::puzzle] fn puzzle() {}"
         self.assertIsNone(first_difference(cargo_migration_behavior(self.original), cargo_migration_behavior(updated)))
         self.assertIsNotNone(first_difference(behavior(self.original), behavior(updated)))
         for collection, field, value in [
@@ -323,20 +323,20 @@ class ComparisonTests(unittest.TestCase):
                 self.assertIsNotNone(first_difference(cargo_migration_behavior(self.original), cargo_migration_behavior(mutated)))
 
     def test_cargo_authoring_hashes_export_identity_and_paths_are_checked(self):
-        with tempfile.TemporaryDirectory(prefix="oxide-authoring-test-") as temporary:
+        with tempfile.TemporaryDirectory(prefix="chialisp-oxide-authoring-test-") as temporary:
             root = Path(temporary)
             paths = [".cargo/config.toml", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml",
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
-                     "puzzles/authoring.json", "crates/oxide-sdk/Cargo.toml",
-                     "crates/oxide-sdk/src/lib.rs", "crates/oxide-sdk/src/domain.rs",
-                     "crates/oxide-macros/Cargo.toml", "crates/oxide-macros/src/lib.rs"]
+                     "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
+                     "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs",
+                     "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:
                 target = root / path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("fixture input\n")
-            metadata = {"schema_version": 1, "mode": "cargo_library", "package": "oxide-puzzles",
+            metadata = {"schema_version": 1, "mode": "cargo_library", "package": "chialisp-oxide-puzzles",
                         "manifest": "puzzles/Cargo.toml", "library": "puzzles/lib.rs",
-                        "exports": {"example": {"entry": "oxide_puzzles::example::puzzle",
+                        "exports": {"example": {"entry": "chialisp_oxide_puzzles::example::puzzle",
                                                 "source": "puzzles/example/puzzle.rs"}},
                         "inputs": sorted(paths)}
             config = root / "puzzles/authoring.json"
@@ -355,7 +355,7 @@ class ComparisonTests(unittest.TestCase):
                     bad["sources"][0]["path"] = "../outside"
                 with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                     check_recorded(bad, root, ["example"])
-            (root / "crates/oxide-sdk/src/domain.rs").write_text("changed constructor\n")
+            (root / "crates/chialisp-oxide/src/domain.rs").write_text("changed constructor\n")
             with self.assertRaisesRegex(ValueError, "stale"):
                 check_recorded(recorded, root, ["example"])
             for path in ("../outside", "puzzles/../Cargo.toml", "./Cargo.toml", "Cargo.toml"):

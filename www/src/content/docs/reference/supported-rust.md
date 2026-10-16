@@ -5,7 +5,7 @@ description: The implemented subset, rejected features, arithmetic behavior, and
 
 Cargo supplies the selected library's actual edition, features, dependencies,
 and generated source. Mark each exported free function with
-`#[oxide_sdk::puzzle]`; several marked functions can coexist without a special
+`#[chialisp_oxide::puzzle]`; several marked functions can coexist without a special
 function name. The annotation preserves the function body.
 
 Extraction uses `nightly-2026-07-14`, reporting Rust 1.99.0-nightly. Ordinary Rust

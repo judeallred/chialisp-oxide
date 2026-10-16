@@ -8,27 +8,27 @@ description: Build annotated Cargo exports, validate the genuine Cargo corpus, s
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
 Build the two local binaries with the repository's pinned nightly, then put
-them on `PATH`. Cargo discovers `cargo-oxide` as the `cargo oxide` subcommand:
+them on `PATH`. Cargo discovers `cargo-chialisp-oxide` as the `cargo chialisp-oxide` subcommand:
 
 ```sh
-cargo build --locked -p cargo-oxide -p oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
 export PATH="$PWD/target/debug:$PATH"
-cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 ```
 
-`./scripts/cargo-oxide` builds and invokes the same local command without the
+`./scripts/cargo-chialisp-oxide` builds and invokes the same local command without the
 `PATH` setup. The SDK and binaries are unpublished. Local installation is
-possible with `cargo install --path crates/cargo-oxide --locked` and
-`cargo install --path crates/oxide-driver --locked`; keep the pinned compiler
+possible with `cargo install --path crates/cargo-chialisp-oxide --locked` and
+`cargo install --path crates/chialisp-oxide-driver --locked`; keep the pinned compiler
 components installed. See the [quickstart](/chialisp-oxide/start/quickstart/).
 
 Ordinary `cargo check` and `cargo test` still check and test the native Rust
-library. `cargo oxide check` additionally checks every marked export's reachable
+library. `cargo chialisp-oxide check` additionally checks every marked export's reachable
 CLVM subset and backend lowering. It removes its temporary artifacts rather
-than publishing a bundle. `cargo oxide build` publishes a successful bundle.
+than publishing a bundle. `cargo chialisp-oxide build` publishes a successful bundle.
 
-The compiler analyzes a normal Cargo library with `#[oxide_sdk::puzzle]`
+The compiler analyzes a normal Cargo library with `#[chialisp_oxide::puzzle]`
 functions. Cargo supplies dependencies, features, edition, build-script output,
 and compiler arguments. This follows Cargo's
 [external subcommand convention](https://doc.rust-lang.org/cargo/reference/external-tools.html).
@@ -43,8 +43,8 @@ Feature options include `--features`, `--no-default-features`, and
 `--profile`, `--jobs`, verbosity, and quiet options are forwarded by the wrapper.
 
 ```sh
-cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
-cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --no-optimize
+cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --no-optimize
 ```
 
 `--no-optimize` disables Rue LIR optimization; it does not disable Rust checks,
@@ -54,7 +54,7 @@ rather than silently composed with the extraction wrapper.
 ### Output bundles
 
 The default output root is the selected package workspace's
-`target/oxide/artifacts/`. `--output-dir PATH` chooses another root. Each
+`target/chialisp-oxide/artifacts/`. `--output-dir PATH` chooses another root. Each
 successful build publishes a new immutable bundle containing `manifest.json`
 and each export's typed IR, serialized CLVM hex, disassembly, and artifact
 metadata. `latest.json` atomically points to the new bundle's manifest. Failed
@@ -73,17 +73,17 @@ and procedural macros. It is not a CLVM machine target.
 
 ## Build the validated puzzle library
 
-The corpus itself is the ordinary `oxide-puzzles` workspace package, declared
+The corpus itself is the ordinary `chialisp-oxide-puzzles` workspace package, declared
 in `puzzles/Cargo.toml`. Its modules export annotated functions such as
-`oxide_puzzles::capped_payment::puzzle`:
+`chialisp_oxide_puzzles::capped_payment::puzzle`:
 
 ```sh
 cargo test --manifest-path puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path puzzles/Cargo.toml --locked
-cargo oxide check --manifest-path puzzles/Cargo.toml --locked --no-optimize
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide check --manifest-path puzzles/Cargo.toml --locked --no-optimize
 ```
 
-The workspace output root is `target/oxide/artifacts/`. Read `latest.json`,
+The workspace output root is `target/chialisp-oxide/artifacts/`. Read `latest.json`,
 then its bundle manifest, and select the full export name. The entry records
 its IR, serialized CLVM, and artifact paths relative to that bundle.
 
@@ -98,13 +98,13 @@ import json
 from pathlib import Path
 import subprocess
 
-root = Path('target/oxide/artifacts')
+root = Path('target/chialisp-oxide/artifacts')
 pointer = json.loads((root / 'latest.json').read_text())
 manifest_path = root / pointer['manifest']
 manifest = json.loads(manifest_path.read_text())
 entry = next(item for item in manifest['entries']
-             if item['entry'] == 'oxide_puzzles::capped_payment::puzzle')
-subprocess.run(['target/debug/oxide', 'run',
+             if item['entry'] == 'chialisp_oxide_puzzles::capped_payment::puzzle')
+subprocess.run(['target/debug/chialisp-oxide', 'run',
                 str(manifest_path.parent / entry['clvm']),
                 '--solution', '(500)', '--max-cost', '1000000'], check=True)
 PYTHON
@@ -121,8 +121,8 @@ Use the ledger simulator for those obligations.
 ## Replay a linked native function
 
 ```sh
-target/debug/oxide native bounded-counter --solution '(999)'
-target/debug/oxide native bounded-counter --solution '(1000)'
+target/debug/chialisp-oxide native bounded-counter --solution '(999)'
+target/debug/chialisp-oxide native bounded-counter --solution '(1000)'
 ```
 
 The first command returns an accepted JSON outcome with `output_hex` equal to
@@ -141,7 +141,7 @@ native policy, without claiming a complete transitive dependency fingerprint.
 
 ```sh
 cargo build --workspace --locked
-./scripts/oxide validate --output corpus/validation.json
+./scripts/chialisp-oxide validate --output corpus/validation.json
 ```
 
 Validation builds the Cargo puzzle package once, selects the declared exports,
@@ -165,12 +165,12 @@ It is no longer the corpus authoring path. Use a standalone fixture rather
 than passing a Cargo module that requires external dependency metadata:
 
 ```sh
-./scripts/oxide build crates/oxide-driver/tests/fixtures/guarded_payment.rs --output target/research
-cargo build -p oxide-driver --locked
-target/debug/oxide-driver crates/oxide-driver/tests/fixtures/guarded_payment.rs --output target/research.ir.json
+./scripts/chialisp-oxide build crates/chialisp-oxide-driver/tests/fixtures/guarded_payment.rs --output target/research
+cargo build -p chialisp-oxide-driver --locked
+target/debug/chialisp-oxide-driver crates/chialisp-oxide-driver/tests/fixtures/guarded_payment.rs --output target/research.ir.json
 ```
 
 The standalone driver selects the free function named `puzzle` by default and
-accepts `--entry NAME`. That option is not an `oxide build` flag; Cargo mode
+accepts `--entry NAME`. That option is not a `chialisp-oxide build` flag; Cargo mode
 instead discovers annotated exports. Keep compiler-private APIs isolated in
 the driver when investigating diagnostics or extending the subset.

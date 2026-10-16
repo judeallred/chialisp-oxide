@@ -2,8 +2,8 @@
 
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
-Package `oxide-cargo-invalid` is a separate local workspace with a real
-`oxide-sdk` path dependency. It supplies two distinct failure boundaries:
+Package `chialisp-oxide-cargo-invalid` is a separate local workspace with a real
+`chialisp-oxide` path dependency. It supplies two distinct failure boundaries:
 
 - Default: `unsupported_divide` is valid Rust and its ordinary native test
   passes. Extracting its marked body for CLVM must fail because division has
@@ -17,7 +17,7 @@ From the repository root:
 
 ```sh
 cargo test --manifest-path examples/cargo-invalid/Cargo.toml --locked
-cargo oxide check --manifest-path examples/cargo-invalid/Cargo.toml --locked
+cargo chialisp-oxide check --manifest-path examples/cargo-invalid/Cargo.toml --locked
 cargo check --manifest-path examples/cargo-invalid/Cargo.toml --locked --features type-error
 ```
 

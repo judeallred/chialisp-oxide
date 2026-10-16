@@ -39,7 +39,7 @@ jobs:
       - name: Derive and check proofs from Rust source
         run: python3 scripts/check-ir-proofs.py --output corpus/proofs.json
       - name: Validate Rust, Chialisp, native execution, and complete spends
-        run: target/debug/oxide validate --output corpus/validation.json
+        run: target/debug/chialisp-oxide validate --output corpus/validation.json
       - name: Check readable-source evidence and comparison controls
         run: |
           python3 scripts/check-readable-puzzles.py --self-test

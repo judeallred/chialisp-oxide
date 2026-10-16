@@ -22,7 +22,7 @@ CLVM generation.
 ## Start with an ordinary Cargo library
 
 The working consumer is `examples/cargo-puzzles`. Its local `[workspace]`
-keeps it independent of the compiler workspace. `oxide-sdk` and its marker
+keeps it independent of the compiler workspace. `chialisp-oxide` and its marker
 macro are actual crates; neither is published to crates.io.
 
 <CargoSource file="manifest" />
@@ -30,13 +30,13 @@ macro are actual crates; neither is published to crates.io.
 A separate checkout can use a path dependency or a Git dependency pinned to a
 reviewed full commit of this repository. Do not substitute an invented registry
 version. The [quickstart](/chialisp-oxide/start/quickstart/) installs the pinned
-nightly components and makes the `cargo oxide` command available.
+nightly components and makes the `cargo chialisp-oxide` command available.
 
 ## Mark the functions to compile
 
 <CargoSource file="library" />
 
-`#[oxide_sdk::puzzle]` marks an export and preserves its Rust function body.
+`#[chialisp_oxide::puzzle]` marks an export and preserves its Rust function body.
 The macro does not translate the function into another language. Rust checks
 the source normally; the driver then lowers each marked function's supported
 reachable code through the typed IR and Rue backend.
@@ -73,13 +73,13 @@ cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features
 Then check the supported CLVM subset and compile the exports:
 
 ```sh
-cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
+cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
 ```
 
 `check` does not publish an artifact bundle. A successful `build` writes an
-immutable bundle under this consumer workspace's `target/oxide/artifacts/`;
+immutable bundle under this consumer workspace's `target/chialisp-oxide/artifacts/`;
 `latest.json` points to its manifest and each export's artifacts. Inspect the
 manifest rather than assuming a generated filename. Failed builds preserve
 the previous successful bundle.
@@ -100,7 +100,7 @@ cargo check --manifest-path examples/cargo-invalid/Cargo.toml --locked --feature
 ```
 
 Without that feature, its division example passes native tests but
-`cargo oxide check` rejects the unsupported operation. Valid Rust and accepted
+`cargo chialisp-oxide check` rejects the unsupported operation. Valid Rust and accepted
 CLVM-source Rust are separate checks.
 
 The standalone driver regressions below also exercise both domain mistakes.
@@ -109,7 +109,7 @@ Their observed diagnostics require the two type names and no emitted IR:
 <DomainErrorExamples />
 
 ```sh
-cargo test -p oxide-driver --test newtypes --locked
+cargo test -p chialisp-oxide-driver --test newtypes --locked
 ```
 
 These protections apply at typed helper call sites. Rue's nominal struct types
@@ -139,9 +139,9 @@ record the API rationale and the before/after validation method.
 ## Inspect the shared SDK definitions
 
 The consumer and corpus packages use this ordinary source through the real
-`oxide-sdk` dependency. The crate also re-exports the puzzle marker macro.
+`chialisp-oxide` dependency. The crate also re-exports the puzzle marker macro.
 Standalone frontend regression fixtures reach the same definitions through
-`sdk/oxide.rs`; that compatibility path is not used to build the corpus.
+`sdk/chialisp_oxide.rs`; that compatibility path is not used to build the corpus.
 
 <SdkSource />
 
@@ -163,18 +163,18 @@ Move checking does not enforce money conservation or prevent double spends.
 
 <SourcePair slug="capped-payment" />
 
-This fixture imports `oxide_sdk` and marks its entry with `#[oxide_sdk::puzzle]`.
-It is a module of the real `oxide-puzzles` Cargo library. The consumer's `pay`
+This fixture imports `chialisp_oxide` and marks its entry with `#[chialisp_oxide::puzzle]`.
+It is a module of the real `chialisp-oxide-puzzles` Cargo library. The consumer's `pay`
 and this corpus entry are different functions in different Cargo packages;
 both use the same SDK crate. The complete declared SDK/key dependency sources
 and hashes remain available in the drawers and report.
 
 ```sh
 cargo test --manifest-path puzzles/Cargo.toml --locked
-cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
 ```
 
-Select `oxide_puzzles::capped_payment::puzzle` from the bundle manifest, as shown
+Select `chialisp_oxide_puzzles::capped_payment::puzzle` from the bundle manifest, as shown
 in the [execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
 The solution remains `(500)`, not `((500))`. Transparent wrappers add neither
 an extra node nor a runtime domain tag. Read the fixture's actual
