@@ -1,7 +1,14 @@
 ---
-title: Install and compile a puzzle
-description: Reproduce the pinned Rust toolchain, compiler artifacts, and corpus validation report.
+title: Reproduce the experimental harness
+description: Research-only commands for the current standalone compiler harness, not a supported production authoring workflow.
 ---
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+The commands below reproduce the current standalone-source research harness.
+They are not the intended final package or authoring interface. A Cargo/crate
+workflow with function annotations is being researched; it is not implemented
+or promised by these instructions.
 
 Clone [the repository](https://github.com/judeallred/chialisp-oxide), then run
 these commands from its root.

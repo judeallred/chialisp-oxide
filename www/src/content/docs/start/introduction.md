@@ -3,8 +3,10 @@ title: Real Rust, deliberate semantics
 description: What Chialisp Oxide compiles, why Rue is the backend, and how to read the evidence.
 ---
 
-Chialisp Oxide compiles a restricted subset of real Rust into CLVM for Chia
-puzzles. You write an ordinary `puzzle` function. The pinned Rust compiler
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+Chialisp Oxide experiments with compiling a restricted subset of real Rust into CLVM for Chia
+puzzles. The current standalone research harness accepts an ordinary `puzzle` function. The pinned Rust compiler
 checks the source, and Oxide lowers its typed MIR through a small pure IR into
 Rue's LIR optimizer and CLVM code generator.
 
@@ -15,7 +17,7 @@ semantics before it belongs in a puzzle compiler.
 
 ## Follow one example all the way through
 
-1. [Install and compile](/chialisp-oxide/start/quickstart/) the capped-payment fixture.
+1. [Reproduce the prototype harness](/chialisp-oxide/start/quickstart/) with the capped-payment fixture.
 2. Read [the ABI](/chialisp-oxide/reference/abi/) before constructing a solution.
 3. Open [the puzzle laboratory](/chialisp-oxide/lab/) to compare native Rust,
    independently compiled Chialisp, and optimized/unoptimized CLVM.

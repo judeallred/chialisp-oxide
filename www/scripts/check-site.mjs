@@ -25,6 +25,8 @@ let checkedLinks = 0;
 for (const file of pages) {
   const text = await html(file);
   assert.match(text, /<html[^>]*lang="en"/, `${file}: missing document language`);
+  assert(text.includes('aria-label="Prototype status"'), `${file}: missing prominent prototype status banner`);
+  assert(text.includes('WIP prototype. Not ready for use. Do not use for real funds or production puzzles.'), `${file}: missing explicit prototype warning`);
   const url = new URL(base + path.relative(root, file).replace(/index\.html$/, ''), origin);
   for (const match of text.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
     const raw = match[1].replaceAll('&amp;', '&');
@@ -63,6 +65,9 @@ for (const puzzle of validation.puzzles) {
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
+const homepage = await html(path.join(root, 'index.html'));
+const heroTitle = homepage.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, '');
+assert.match(heroTitle ?? '', /WIP prototype.*not ready for use/i, 'Homepage must lead with the prototype status');
 
 // Execute the real built Pagefind WebAssembly index in Node. Its fetches are
 // served from dist; no server, browser, network access, or fake search required.

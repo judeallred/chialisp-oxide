@@ -1,10 +1,18 @@
 # chialisp-oxide
 
+> **WIP PROTOTYPE — NOT READY FOR USE.** This is an experimental compiler and
+> validation research project. **Do not use it for real funds, production
+> puzzles, wallets, or deployed contracts.** Tests and model-level checks do not
+> establish production safety.
+
 Compile a supported subset of real Rust into CLVM using Rue's optimizer and
 backend. Test puzzles against native Rust, independently compiled Chialisp, and
 the chia-wallet-sdk transaction simulator.
 
-## Try it
+## Run the prototype experiments
+
+The standalone-file flow below is an experiment harness. A researched Cargo-native
+authoring workflow is under development; no crates are published yet.
 
 Install Rust with rustup and Z3 (`brew install z3` on macOS, `apt install z3` on
 Ubuntu). The checked-in toolchain installs Rust 1.97.1 and rustc-dev. The pinned

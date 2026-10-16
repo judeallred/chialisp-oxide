@@ -12,11 +12,12 @@ export default defineConfig({
       logo: { src: './src/assets/oxide-mark.svg', replacesTitle: false },
       favicon: '/favicon.svg',
       customCss: ['./src/styles/custom.css'],
+      components: { Banner: './src/components/PrototypeBanner.astro' },
       social: [{ icon: 'github', label: 'GitHub repository', href: 'https://github.com/judeallred/chialisp-oxide' }],
       sidebar: [
         { label: 'Start here', items: [
           { label: 'Introduction', slug: 'start/introduction' },
-          { label: 'Install & compile', slug: 'start/quickstart' },
+          { label: 'Reproduce the prototype', slug: 'start/quickstart' },
           { label: 'What works today', slug: 'reference/supported-rust' },
         ] },
         { label: 'Learn by building', items: [

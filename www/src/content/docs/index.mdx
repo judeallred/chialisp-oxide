@@ -1,15 +1,15 @@
 ---
-title: Chialisp Oxide
-description: Compile a deliberate subset of real Rust to CLVM, then inspect independent Chialisp comparisons and actual coin-spend validation.
+title: Chialisp Oxide — WIP prototype
+description: WIP prototype. Not ready for use. Do not use for real funds or production puzzles.
 template: splash
 hero:
-  title: Rust in. Confidence earned.
-  tagline: Build Chia puzzles in real Rust. Compile through Rue’s optimizer. Examine the bytes, the costs, and the spends that actually pass.
+  title: WIP prototype — not ready for use
+  tagline: Do not use for real funds or production puzzles. This is an experimental Rust-to-CLVM compiler and research harness. The examples document current experiments, not a supported authoring workflow.
   actions:
-    - text: Compile your first puzzle
+    - text: Inspect the prototype harness
       link: /chialisp-oxide/start/quickstart/
       icon: right-arrow
-    - text: Open the puzzle lab
+    - text: Review experimental evidence
       link: /chialisp-oxide/lab/
       variant: secondary
 ---
@@ -23,7 +23,7 @@ import SourcePair from '../../components/SourcePair.astro';
 
 <EvidenceSummary />
 
-## From a Rust function to a real coin spend
+## From a Rust function to a simulated coin spend
 
 Rust handles names, types, and borrow checks. Oxide lowers a deliberately small
 subset of checked MIR into a pure IR. Rue optimizes the result and emits CLVM.
@@ -70,7 +70,7 @@ examples](/chialisp-oxide/tutorials/typed-sdk/) and read the [full error
 study](/chialisp-oxide/verification/error-study/) for the remaining runtime and
 policy obligations.
 
-## Confidence has a scope
+## Experimental evidence has limits
 
 The current compiler is an experimental subset, not a general Rust target or an
 audited wallet. The lab exposes measured evidence and the remaining assumptions.

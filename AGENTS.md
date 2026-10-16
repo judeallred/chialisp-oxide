@@ -20,3 +20,6 @@ Use docs/compiler-approach.md for architectural context and docs/verification.md
 - When finding a Rue bug, search upstream issues first, then file or update an xch-dev/rue issue with pinned revision, minimal repro, observed/expected behavior, and a patch containing a failing regression test plus fix. Link local patches to the issue. The user explicitly authorized upstream bug reports; no extra confirmation is needed.
 - Regenerate corpus evidence only after formatting Rust sources: build workspace, run `target/debug/oxide validate --output corpus/validation.json`, then `python3 scripts/check-ir-proofs.py --output corpus/proofs.json`. The site rejects stale source/manifests/proof hashes.
 - Keep Pages publication gated on successful compiler verification for the exact main commit, and verify the live evidence endpoint after deployment.
+
+- Keep the landing page and README prominent about WIP prototype status and not ready for use. Do not market current tests or model checks as production readiness.
+- Prefer researched Rust/Cargo authoring conventions. Do not present the standalone-file harness as the final user workflow or invent a rustc CLVM target before a real backend supports it.
