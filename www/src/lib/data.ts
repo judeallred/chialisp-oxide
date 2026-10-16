@@ -25,8 +25,17 @@ export interface PuzzleReport {
   simulator: { name: string; passed: boolean; scope: string }[];
   validated: boolean;
 }
+export interface Authoring {
+  mode: string;
+  package: string;
+  manifest: string;
+  library: string;
+  exports: Record<string, { entry: string; source: string }>;
+  sources: { path: string; sha256: string }[];
+}
 
 export const report = validation;
+export const authoring: Authoring = validation.authoring;
 export const puzzles = validation.puzzles as PuzzleReport[];
 export const entries = inventory.entries;
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -39,6 +48,8 @@ export const totals = {
   vectors: puzzles.reduce((sum, p) => sum + p.cases.length, 0),
   generated: puzzles.reduce((sum, p) => sum + p.generated_cases, 0),
   ledger: puzzles.reduce((sum, p) => sum + p.simulator.length, 0),
+  coinPuzzles: puzzles.filter(puzzle => puzzle.kind === 'coin_puzzle').length,
+  pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
 };
 
 if (validation.schema_version !== 1 || puzzles.length === 0 || puzzles.some(p => !p.validated)) {

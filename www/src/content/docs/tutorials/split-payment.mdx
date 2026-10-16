@@ -37,10 +37,11 @@ the accepted range. The manifest and generated-input sweep compare both Rust
 backends against native execution and the independently compiled reference.
 
 ```sh
-./scripts/oxide build puzzles/split-payment/puzzle.rs --output target/split
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
 ./scripts/oxide validate --output corpus/validation.json
 ```
 
+Select `oxide_puzzles::split_payment::puzzle` in the Cargo bundle manifest.
 Read [the split-payment report](/chialisp-oxide/lab/split-payment/) for the
 actual accepted/rejected vectors, artifacts, and simulator checks. These
 destinations are fixed teaching values; choosing real recipients requires

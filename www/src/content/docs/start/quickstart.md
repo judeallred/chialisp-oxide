@@ -71,24 +71,35 @@ This is a Cargo-driven extractor and CLVM backend adapter. It does not implement
 `cargo build --target clvm`; target configuration alone does not add a code
 generator or establish supported library semantics.
 
-## Reproduce the existing paired corpus
+## Build and validate the real Cargo corpus
 
-The nine-puzzle comparison corpus still uses the standalone-file harness. Its
-coin fixtures reach the shared SDK domain definitions through `sdk/oxide.rs`. The lab
-reports do not imply the corpus has migrated to Cargo dependencies.
+The laboratory fixtures are modules of the `oxide-puzzles` Cargo library.
+They use the real SDK dependency and annotated exports, just like the consumer
+example. Native tests and CLVM compilation use the same package:
 
 ```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo build --workspace --locked
 ./scripts/oxide validate --output corpus/validation.json
 python3 corpus/validate_inventory.py
 ```
 
-This harness compiles each paired source, checks named adversarial vectors and
-generated inputs, and exercises the optimized Rust output in a coin simulator.
-The command fails if the compared outcomes diverge. The documentation imports
-the generated report; it does not maintain independent hand-entered benchmarks.
+Select an export such as `oxide_puzzles::capped_payment::puzzle` from the bundle
+manifest under `target/oxide/artifacts/`. The
+[command reference](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+shows how to resolve the current bundle and execute its CLVM.
+
+Validation extracts all declared exports in one Cargo invocation and links the
+same library into the native oracle. It checks named adversarial vectors,
+generated inputs, and optimized coin spends. `puzzles/authoring.json` declares
+the package, entry/source mapping, and local Cargo inputs; validation and proof
+reports record their hashes. The site rejects stale records.
 
 Open the [capped-payment report](/chialisp-oxide/lab/capped-payment/) to inspect
-the exact vectors and metrics for the checked-in run.
+the exact sources, vectors, and metrics for the checked-in run. Direct
+standalone-file extraction remains available only for compiler regressions and
+research, rather than the validated corpus authoring workflow.
 
 ## Run the project checks
 

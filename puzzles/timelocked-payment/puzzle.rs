@@ -1,8 +1,5 @@
 // Permissionless after an absolute Unix timestamp; demonstrates a consensus check.
-#[path = "../../sdk/oxide.rs"]
-pub mod oxide;
-
-use oxide::{
+use oxide_sdk::{
     Amount, AssertMyAmount, AssertSecondsAbsolute, CreateCoin, PuzzleHash, Timestamp,
     assert_my_amount, assert_seconds_absolute, create_coin,
 };
@@ -14,6 +11,7 @@ const UNLOCK_AT: Timestamp = Timestamp::from_unix_seconds(100);
 
 pub type TimelockedConditions = (AssertSecondsAbsolute, AssertMyAmount, CreateCoin);
 
+#[oxide_sdk::puzzle]
 pub fn puzzle() -> TimelockedConditions {
     (
         assert_seconds_absolute(UNLOCK_AT),

@@ -1,7 +1,9 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
+mod authoring;
 mod native;
 mod spends;
 use anyhow::{Context, Result, ensure};
+pub use authoring::{Authoring, Export, authoring};
 use oxide_backend_experiment::{Artifact, Execution, MAX_COST, Outcome, artifact, execute};
 use oxide_ir::Program;
 use serde::{Deserialize, Serialize};
@@ -82,6 +84,11 @@ fn expectation(slug: &str, solution: &str) -> Result<Outcome> {
         },
         None => Outcome::Rejected,
     })
+}
+/// Execute the real Cargo policy library with an independent canonical ABI codec.
+pub fn native_execute(slug: &str, solution: &str) -> Result<Outcome> {
+    ensure!(PUZZLES.contains(&slug), "unregistered corpus puzzle");
+    expectation(slug, solution)
 }
 fn compare(
     slug: &str,

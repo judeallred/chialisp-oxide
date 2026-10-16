@@ -75,9 +75,9 @@ address string.
 
 The real `oxide-sdk` crate provides nominal `Amount`, `PuzzleHash`, `CoinId`,
 `PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
-The Cargo consumer uses that crate. The standalone corpus imports the same
-`domain.rs` definitions through `sdk/oxide.rs`; those fixture packages have not
-migrated to Cargo. Result aliases remain tuples even though the examples use
+The consumer and `oxide-puzzles` corpus both depend on that crate. Standalone
+frontend regression fixtures can still use the compatibility module, but it is
+not the corpus route. Result aliases remain tuples even though the examples use
 named constructors. `Amount::from_mojos` and `Timestamp::from_unix_seconds`
 make units explicit without changing these wire representations.
 There is no closed nominal `Condition` enum: an incorrect manually constructed

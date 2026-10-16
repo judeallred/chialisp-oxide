@@ -7,7 +7,8 @@ report captured before a source-only refactor to require unchanged artifacts,
 costs, native/reference outcomes, vectors, and ledger results. No permanent
 compiler-byte baseline is imposed when --baseline is omitted. Explicit semantic
 comparison permits Rust codegen/cost/diagnostic changes while retaining recorded
-outcomes and independent reference evidence.
+outcomes and independent reference evidence. Cargo-migration mode permits only
+verified Cargo authoring metadata and source-snapshot changes.
 """
 
 import argparse
@@ -18,6 +19,8 @@ from pathlib import Path
 import re
 import tempfile
 import unittest
+
+from cargo_authoring import check_recorded, contained_file, snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,8 +122,7 @@ def check_sources(report, root):
             path = dependency["path"]
             require(path not in seen, f"{puzzle['slug']}: duplicate dependency {path}")
             seen.add(path)
-            resolved = (root / path).resolve()
-            require(resolved.is_relative_to(root), f"Dependency escapes repository: {path}")
+            resolved = contained_file(root, path)
             payload = resolved.read_bytes()
             require(payload.decode() == dependency["source"], f"Stale dependency source: {path}")
             require(hashlib.sha256(payload).hexdigest() == dependency["sha256"],
@@ -149,6 +151,13 @@ def semantic_behavior(report):
                 if run["backend"] == "rust_mir":
                     del run["execution"]["cost"]
                     del run["execution"]["error"]
+    return result
+
+
+def cargo_migration_behavior(report):
+    """Current authoring must be verified before permitting its metadata to change."""
+    result = behavior(report)
+    result.pop("authoring", None)
     return result
 
 
@@ -294,13 +303,75 @@ class ComparisonTests(unittest.TestCase):
         updated["puzzles"][0]["artifacts"][1]["clvm_hex"] = "ff0181"
         self.assertIsNotNone(first_difference(semantic_behavior(original), semantic_behavior(updated)))
 
+    def test_cargo_migration_retains_exact_artifacts_costs_and_wire_inputs(self):
+        updated = copy.deepcopy(self.original)
+        updated["authoring"] = {"mode": "cargo_library"}  # Validated separately before comparison.
+        updated["puzzles"][0]["source"] = "#[oxide_sdk::puzzle] fn puzzle() {}"
+        self.assertIsNone(first_difference(cargo_migration_behavior(self.original), cargo_migration_behavior(updated)))
+        self.assertIsNotNone(first_difference(behavior(self.original), behavior(updated)))
+        for collection, field, value in [
+            ("artifacts", "clvm_hex", "ff0181"),
+            ("artifacts", "tree_hash", "b" * 64),
+            ("cases", "execution", {"cost": 21}),
+            ("cases", "native", {"status": "accepted", "output_hex": "01"}),
+            ("cases", "solution", "((7))"),
+            ("simulator", "passed", False),
+        ]:
+            with self.subTest(field=field):
+                mutated = copy.deepcopy(updated)
+                mutated["puzzles"][0][collection][0][field] = value
+                self.assertIsNotNone(first_difference(cargo_migration_behavior(self.original), cargo_migration_behavior(mutated)))
+
+    def test_cargo_authoring_hashes_export_identity_and_paths_are_checked(self):
+        with tempfile.TemporaryDirectory(prefix="oxide-authoring-test-") as temporary:
+            root = Path(temporary)
+            paths = [".cargo/config.toml", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml",
+                     "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
+                     "puzzles/authoring.json", "crates/oxide-sdk/Cargo.toml",
+                     "crates/oxide-sdk/src/lib.rs", "crates/oxide-sdk/src/domain.rs",
+                     "crates/oxide-macros/Cargo.toml", "crates/oxide-macros/src/lib.rs"]
+            for path in paths:
+                target = root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("fixture input\n")
+            metadata = {"schema_version": 1, "mode": "cargo_library", "package": "oxide-puzzles",
+                        "manifest": "puzzles/Cargo.toml", "library": "puzzles/lib.rs",
+                        "exports": {"example": {"entry": "oxide_puzzles::example::puzzle",
+                                                "source": "puzzles/example/puzzle.rs"}},
+                        "inputs": sorted(paths)}
+            config = root / "puzzles/authoring.json"
+            config.write_text(json.dumps(metadata))
+            recorded = snapshot(root)
+            check_recorded(recorded, root, ["example"])
+            for mutation in ("hash", "source", "duplicate", "escape"):
+                bad = copy.deepcopy(recorded)
+                if mutation == "hash":
+                    bad["sources"][0]["sha256"] = "0" * 64
+                elif mutation == "source":
+                    bad["exports"]["example"]["source"] = "puzzles/other/puzzle.rs"
+                elif mutation == "duplicate":
+                    bad["sources"].append(copy.deepcopy(bad["sources"][0]))
+                else:
+                    bad["sources"][0]["path"] = "../outside"
+                with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                    check_recorded(bad, root, ["example"])
+            (root / "crates/oxide-sdk/src/domain.rs").write_text("changed constructor\n")
+            with self.assertRaisesRegex(ValueError, "stale"):
+                check_recorded(recorded, root, ["example"])
+            for path in ("../outside", "puzzles/../Cargo.toml", "./Cargo.toml", "Cargo.toml"):
+                invalid = copy.deepcopy(metadata)
+                invalid["inputs"].append(path)
+                config.write_text(json.dumps(invalid))
+                with self.subTest(path=path), self.assertRaises(ValueError):
+                    snapshot(root)
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--current", type=Path, default=ROOT / "corpus/validation.json")
     parser.add_argument("--baseline", type=Path, help="explicit pre-refactor corpus report")
-    parser.add_argument("--comparison", choices=("exact", "semantic"), default="exact",
-                        help="exact bytes/costs by default; semantic allows measured Rust codegen changes")
+    parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration"), default="exact",
+                        help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata")
     parser.add_argument("--changes", type=Path, help="write comparison scope and codegen metric changes as JSON")
     parser.add_argument("--source-root", type=Path, default=ROOT)
     parser.add_argument("--self-test", action="store_true")
@@ -310,16 +381,18 @@ def main():
         result = unittest.TextTestRunner().run(suite)
         raise SystemExit(0 if result.wasSuccessful() else 1)
     if (args.comparison != "exact" or args.changes) and not args.baseline:
-        parser.error("--comparison semantic and --changes require an explicit --baseline")
+        parser.error("non-default comparison and --changes require an explicit --baseline")
     changes = []
     try:
         current = load_report(args.current)
         counts = check_report(current)
         check_sources(current, args.source_root)
+        check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
         if args.baseline:
             baseline = load_report(args.baseline)
             check_report(baseline)
-            projection = behavior if args.comparison == "exact" else semantic_behavior
+            projection = {"exact": behavior, "semantic": semantic_behavior,
+                          "cargo-migration": cargo_migration_behavior}[args.comparison]
             difference = first_difference(projection(baseline), projection(current))
             require(difference is None, f"{args.comparison.capitalize()} baseline changed: {difference}")
             changes = codegen_changes(baseline, current)

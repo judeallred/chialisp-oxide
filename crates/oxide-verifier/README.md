@@ -72,13 +72,20 @@ accepted input to establish nonvacuity. A failed property includes the actual
 counterexample inputs; callers should replay them through native Rust and the
 optimized and unoptimized CLVM artifacts. Tests demonstrate that replay for a
 deliberately removed guard, and compare all i8 inputs for checked arithmetic.
-The source-derived pipeline checks the bounded-counter puzzle from
-`puzzles/bounded-counter/puzzle.rs`, commits the extracted original/mutant IR and
+The source-derived pipeline builds the real `oxide-puzzles` Cargo library and
+selects its annotated `oxide_puzzles::bounded_counter::puzzle` export from a
+fresh `cargo oxide` artifact bundle. The policy source remains
+`puzzles/bounded-counter/puzzle.rs`; no copied policy wrapper is compiled.
+The pipeline commits the extracted original/mutant IR and
 SMT queries under `proofs/bounded-counter`, and writes generated website evidence
 to `corpus/proofs.json`. Both optimization settings execute nonvacuity witnesses
 and the mutation attack. Native Rust separately accepts the nonvacuity witnesses
 and rejects the attack. Cost exhaustion fails replay instead of counting as a
-policy rejection.
+policy rejection. Native witness replay calls the same Cargo policy library
+through `oxide native`. Both reports fingerprint the declared local inputs in
+`puzzles/authoring.json`, including the module graph, SDK, macros, configuration,
+and lockfile; the proof run rechecks them before publishing. These fingerprints
+do not cover the complete effective build environment or prove preservation.
 
 ## Claim scope
 

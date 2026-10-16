@@ -51,11 +51,16 @@ for (const file of pages) {
   }
 }
 
-for (const name of ['validation', 'proofs', 'inventory']) {
+for (const name of ['validation', 'proofs', 'inventory', 'tutorial-examples']) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
 }
 const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
+const proofs = JSON.parse(await readFile(path.join(root, 'reports/proofs.json'), 'utf8'));
+assert.equal(validation.authoring.mode, 'cargo_library', 'Published validation must use real Cargo authoring');
+const { entry: proofEntry, ...proofInputs } = proofs.authoring;
+assert.equal(proofEntry, validation.authoring.exports['bounded-counter'].entry, 'Published proof has the wrong Cargo export');
+assert.deepEqual(proofInputs, validation.authoring, 'Published proof/validation Cargo inputs differ');
 const decodeAttribute = value => value.replace(/&(?:#x([0-9a-f]+)|#([0-9]+)|(amp|lt|gt|quot|apos));/gi,
   (_, hex, decimal, named) => hex || decimal
     ? String.fromCodePoint(Number.parseInt(hex ?? decimal, hex ? 16 : 10))
@@ -67,6 +72,7 @@ let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
   assert(detail.includes('Serialized-byte diffs'), `${puzzle.slug}: missing compiled-output comparison`);
+  assert(detail.includes(validation.authoring.exports[puzzle.slug].entry), `${puzzle.slug}: missing actual Cargo export identity`);
   const copied = [...detail.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
   for (const [label, source] of [['Rust', puzzle.source], ['Chialisp', puzzle.reference], ...puzzle.source_dependencies.map(dependency => [dependency.path, dependency.source])]) {
     assert(copied.includes(normalizedCode(source)), `${puzzle.slug}: copy payload changed ${label} source`);
@@ -85,7 +91,14 @@ assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 
 for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/oxide-sdk/src/lib.rs', 'crates/oxide-sdk/src/domain.rs']) {
   assert(sdk.includes(source), `Missing actual Cargo tutorial source: ${source}`);
 }
-assert(sdk.includes('sdk/oxide.rs'), 'SDK tutorial must identify the standalone corpus compatibility module');
+assert(sdk.includes('oxide-puzzles') && sdk.includes('oxide_sdk'), 'SDK tutorial must identify the real Cargo corpus');
+const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
+const coverage = await html(path.join(root, 'coverage/index.html'));
+for (const example of tutorialExamples.examples) {
+  assert(coverage.includes(example.title), `Missing planned canonical example: ${example.id}`);
+  assert.equal(example.implementation_status, 'not_started', 'Canonical ports are not implemented in this snapshot');
+  assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
+}
 const homepage = await html(path.join(root, 'index.html'));
 const heroTitle = homepage.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, '');
 assert.match(heroTitle ?? '', /WIP prototype.*not ready for use/i, 'Homepage must lead with the prototype status');
@@ -115,4 +128,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 3 JSON reports, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 4 JSON reports, and live Pagefind queries`);

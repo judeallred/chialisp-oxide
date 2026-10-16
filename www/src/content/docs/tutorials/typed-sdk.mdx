@@ -86,8 +86,8 @@ the previous successful bundle.
 
 Native tests establish native behavior. The Cargo integration regressions also
 execute the generated payment conditions and arithmetic in both optimizer
-modes, including the changed feature cap. They are distinct from the paired
-nine-puzzle corpus and its ledger scenarios below.
+modes, including the changed feature cap. The registered Cargo corpus adds
+independent Chialisp comparisons and puzzle-specific ledger scenarios.
 
 ## Observe a typed API failure
 
@@ -138,8 +138,10 @@ record the API rationale and the before/after validation method.
 
 ## Inspect the shared SDK definitions
 
-`oxide-sdk` and the standalone compatibility path both use this ordinary source
-module. The crate additionally re-exports the puzzle marker macro.
+The consumer and corpus packages use this ordinary source through the real
+`oxide-sdk` dependency. The crate also re-exports the puzzle marker macro.
+Standalone frontend regression fixtures reach the same definitions through
+`sdk/oxide.rs`; that compatibility path is not used to build the corpus.
 
 <SdkSource />
 
@@ -157,22 +159,23 @@ and bypasses the direct source-level distinction. Amounts also remain ordinary
 duplicable numeric values: an inner `u64` can be copied and wrapped again.
 Move checking does not enforce money conservation or prevent double spends.
 
-## Inspect the independently compared compatibility fixture
+## Inspect the independently compared Cargo fixture
 
 <SourcePair slug="capped-payment" />
 
-This corpus fixture still includes `sdk/oxide.rs` with `#[path]`; it has not
-migrated to a Cargo SDK dependency. That compatibility module imports the same
-`crates/oxide-sdk/src/domain.rs` used by the real crate. Their complete declared
-dependency sources and hashes are in the drawers and report. The Cargo example
-and corpus fixture remain separate programs, compiled through different
-authoring harnesses, despite sharing the domain API implementation.
+This fixture imports `oxide_sdk` and marks its entry with `#[oxide_sdk::puzzle]`.
+It is a module of the real `oxide-puzzles` Cargo library. The consumer's `pay`
+and this corpus entry are different functions in different Cargo packages;
+both use the same SDK crate. The complete declared SDK/key dependency sources
+and hashes remain available in the drawers and report.
 
 ```sh
-./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/typed-cap
-./scripts/oxide run target/typed-cap.clvm.hex --solution '(500)' --max-cost 1000000
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
 ```
 
+Select `oxide_puzzles::capped_payment::puzzle` from the bundle manifest, as shown
+in the [execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
 The solution remains `(500)`, not `((500))`. Transparent wrappers add neither
 an extra node nor a runtime domain tag. Read the fixture's actual
 [case and ledger evidence](/chialisp-oxide/lab/capped-payment/) for the scope

@@ -5,9 +5,9 @@ description: Compile a small condition-producing Rust function and distinguish t
 
 import SourcePair from '../../../components/SourcePair.astro';
 
-This tutorial examines a paired fixture in the standalone comparison harness.
-For new Cargo-package experiments with the SDK and annotated exports, start
-with [typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/).
+This paired fixture is an annotated module in the `oxide-puzzles` Cargo library.
+For the SDK dependency and export setup, start with
+[typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/).
 
 Start with a puzzle that makes exactly two promises: the input coin has amount
 1,000, and the output sends 1,000 to the fixed 32-byte destination `0x42…42`.
@@ -27,11 +27,16 @@ At the wire boundary these helpers produce `(73 1000)` and
 reference additionally shows the explicit zero-argument solution check. Oxide
 derives that boundary check from the Rust function signature.
 
-## Compile the actual file
+## Compile the Cargo package
 
 ```sh
-./scripts/oxide build puzzles/fixed-payment/puzzle.rs --output target/fixed
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
 ```
+
+Select `oxide_puzzles::fixed_payment::puzzle` from the output bundle manifest.
+The [CLI guide](/chialisp-oxide/reference/cli/#execute-a-selected-export) explains
+how to resolve the bundle and run a selected export.
 
 The solution is the empty list `()`. A bare atom, extra arguments, or nested
 arguments are not alternative encodings of the same zero-argument call. They

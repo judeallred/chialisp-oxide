@@ -26,7 +26,13 @@ Existing compiler wrappers are currently rejected by the CLI rather than
 composed. The SDK crate is the only permitted external source of lowered
 functions or wrappers; a crate name is not a package authentication boundary.
 
-A standalone source harness remains available for the reproducibility corpus:
+The nine-puzzle corpus is the `oxide-puzzles` Cargo library. Its annotated
+modules export paths such as `oxide_puzzles::bounded_counter::puzzle`; the
+native oracle calls those same Rust functions. Corpus validation builds the
+library once through Cargo and loads the typed exports from the fresh bundle.
+
+A standalone source harness remains available for independent compiler
+regressions and research:
 
 ```sh
 cargo build -p oxide-driver

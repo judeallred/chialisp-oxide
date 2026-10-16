@@ -1,5 +1,14 @@
 # Source and migration inventory
 
+The validated teaching corpus is the real `oxide-puzzles` Cargo library under
+[`puzzles`](../puzzles). [`puzzles/authoring.json`](../puzzles/authoring.json)
+maps each paired source to its annotated export and declares local Cargo inputs.
+The validation and proof reports record their hashes. Native execution links
+that library; CLVM and proof IR are extracted through Cargo from the same source.
+Run `./scripts/oxide validate` and `python3 scripts/check-ir-proofs.py` after
+building the workspace. These original teaching fixtures do not count as
+canonical tutorial or CHIP ports.
+
 `inventory.json` records 98 source entries as of 2026-10-16: all 28 Markdown
 documentation pages in the pinned Chialisp site, all 64 numbered CHIP index
 entries, five grandfathered/obsolete standards, and the auction proposal listed

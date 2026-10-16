@@ -54,18 +54,28 @@ code generation, runtime layouts, linking, or a CLVM SDK. See the
 General cross-crate Rust libraries remain outside the supported subset; the
 initial external calls are restricted to vetted concrete SDK helpers.
 
-## Reproduce the paired corpus harness
+## Build and validate the Cargo corpus
 
-The existing nine-puzzle corpus still uses the standalone-file research harness.
-Its coin fixtures use the compatibility path in `sdk/oxide.rs` to the same
-ordinary domain definitions as the real SDK crate.
-This evidence does not imply that the corpus has migrated to the Cargo flow.
+The teaching fixtures are modules of the workspace's `oxide-puzzles` library.
+Every entry imports the real SDK and uses `#[oxide_sdk::puzzle]`. Native tests,
+the differential oracle, and CLVM extraction use that same library:
 
 ```sh
-./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/capped
-./scripts/oxide run target/capped.clvm.hex --solution '(500)'
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo build --workspace --locked
 ./scripts/oxide validate --output corpus/validation.json
 ```
+
+Follow `target/oxide/artifacts/latest.json` to the bundle manifest, then select
+a full entry name such as `oxide_puzzles::capped_payment::puzzle` and its artifact
+paths. [puzzles/authoring.json](puzzles/authoring.json) declares Cargo inputs and
+entry/source mappings; both validation and proof reports include their hashes.
+The site checks those records against current files. This declared input set is
+not a complete transitive dependency fingerprint.
+
+Standalone file extraction remains a compiler-regression and research tool;
+it is no longer the corpus's authoring or native-oracle route.
 
 Z3 is required for the formal experiments (`brew install z3` on macOS,
 `apt install z3` on Ubuntu). The backend directly integrates Rue compiler
@@ -85,6 +95,7 @@ cargo build --workspace --locked
 cargo test --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 python3 corpus/validate_inventory.py
+python3 corpus/validate_tutorial_examples.py
 python3 scripts/check-proofs.py
 python3 scripts/check-ir-proofs.py --output corpus/proofs.json
 ```
@@ -117,12 +128,17 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 - [Chialisp tutorials/reference](https://chialisp.com/)
 
 The compiler supports restricted single-field transparent newtypes, allowing
-nominal domain checks through the real [SDK crate](crates/oxide-sdk) and the
-corpus's [compatibility module](sdk/README.md). General structs
+nominal domain checks through the real [SDK crate](crates/oxide-sdk). The
+[compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
 and enums, loops, recursion, allocation, arbitrary external calls, references, casts,
 division/remainder, and other unsupported MIR remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
-standard puzzles have been reimplemented. No production security audit has been
+standard puzzles have been reimplemented. A separate
+[example inventory](corpus/tutorial-examples.json) snapshots 12 concrete tutorial
+programs, their source spans/license, a naming variant, and supporting workflow
+gaps. Every canonical target remains not started / not run; the first closed
+Intro expressions need explicit original-versus-typed-ABI observations before
+being counted as ports. No production security audit has been
 completed. The vendored Rue identity-product fix is reported upstream as
 [xch-dev/rue#108](https://github.com/xch-dev/rue/issues/108), with a regression test
 and patch.

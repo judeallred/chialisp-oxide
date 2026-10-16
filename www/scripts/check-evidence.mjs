@@ -22,6 +22,29 @@ async function checkRecordedHash(filename, expected) {
 const report = JSON.parse(await read('corpus/validation.json'));
 assert.equal(report.schema_version, 1);
 assert(report.puzzles.length > 0, 'A successful validation report is required');
+const configuration = JSON.parse(await read('puzzles/authoring.json'));
+assert.equal(configuration.schema_version, 1, 'Missing Cargo authoring schema');
+assert.equal(configuration.mode, 'cargo_library', 'Corpus must use Cargo library authoring');
+assert(Array.isArray(configuration.inputs), 'Missing declared Cargo inputs');
+assert.equal(new Set(configuration.inputs).size, configuration.inputs.length, 'Duplicate Cargo input');
+assert.deepEqual(Object.keys(configuration.exports).sort(), report.puzzles.map(puzzle => puzzle.slug).sort(), 'Cargo exports differ from the validation corpus');
+async function checkAuthoring(snapshot, label) {
+  assert(snapshot && Array.isArray(snapshot.sources), `${label}: missing Cargo authoring provenance`);
+  for (const field of ['mode', 'package', 'manifest', 'library', 'exports']) {
+    assert.deepEqual(snapshot[field], configuration[field], `${label}: Cargo ${field} changed`);
+  }
+  assert.deepEqual(snapshot.sources.map(source => source.path), [...configuration.inputs].sort(), `${label}: declared Cargo inputs changed`);
+  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/oxide-sdk/Cargo.toml', 'crates/oxide-sdk/src/lib.rs', 'crates/oxide-sdk/src/domain.rs', 'crates/oxide-macros/Cargo.toml', 'crates/oxide-macros/src/lib.rs']) {
+    assert(configuration.inputs.includes(required), `${label}: missing required Cargo input ${required}`);
+  }
+  for (const source of snapshot.sources) await checkRecordedHash(source.path, source.sha256);
+  for (const [slug, exported] of Object.entries(snapshot.exports)) {
+    assert.equal(exported.entry, `oxide_puzzles::${slug.replaceAll('-', '_')}::puzzle`, `${label}: unexpected Cargo export ${slug}`);
+    assert.equal(exported.source, `puzzles/${slug}/puzzle.rs`, `${label}: unexpected export source ${slug}`);
+    assert(configuration.inputs.includes(exported.source), `${label}: export source missing from Cargo inputs`);
+  }
+}
+await checkAuthoring(report.authoring, 'validation');
 const slugs = new Set();
 for (const puzzle of report.puzzles) {
   assert.match(puzzle.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid puzzle path');
@@ -62,6 +85,10 @@ for (const puzzle of report.puzzles) {
 }
 const proof = JSON.parse(await read('corpus/proofs.json'));
 assert.equal(proof.schema_version, 1);
+await checkAuthoring(proof.authoring, 'proof');
+assert.equal(proof.authoring.entry, configuration.exports['bounded-counter'].entry, 'Proof selects another Cargo export');
+const { entry: proofEntry, ...proofInputs } = proof.authoring;
+assert.deepEqual(proofInputs, report.authoring, 'Validation and proof Cargo provenance differ');
 for (const [fileKey, hashKey] of [['source', 'source_sha256'], ['ir', 'ir_sha256'], ['mutant_ir', 'mutant_ir_sha256']]) {
   await checkRecordedHash(proof[fileKey], proof[hashKey]);
 }
@@ -71,4 +98,20 @@ for (const check of [...proof.checks, proof.mutation]) {
 }
 assert(proof.checks.length > 0 && proof.checks.every(check => check.result.status === 'proven'), 'Formal obligation missing or failed');
 assert.equal(proof.mutation.result.status, 'refuted', 'Mutation was not detected');
-console.log(`Evidence current: ${slugs.size} compiled source pairs, matching vectors/outcomes, passing ledger scenarios, and hashed proof sources`);
+const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
+const sourceInventory = JSON.parse(await read('corpus/inventory.json'));
+assert.equal(tutorialExamples.schema_version, 1);
+assert.equal(tutorialExamples.upstream.revision, sourceInventory.scope.tutorial_source_revision, 'Tutorial example pin differs from source inventory');
+await checkRecordedHash(tutorialExamples.license.snapshot, tutorialExamples.license.sha256);
+for (const page of tutorialExamples.pages) await checkRecordedHash(page.source.snapshot, page.source.sha256);
+const snippets = [...tutorialExamples.examples.flatMap(example => [example, ...example.variants]), ...tutorialExamples.supporting_material];
+for (const snippet of snippets) {
+  const source = snippet.source;
+  await checkRecordedHash(source.snapshot, source.file_sha256);
+  const lines = (await recordedSource(source.snapshot)).match(/[^\n]*\n|[^\n]+$/g) ?? [];
+  assert(Number.isInteger(source.start_line) && Number.isInteger(source.end_line) && source.start_line >= 1 && source.end_line >= source.start_line && source.end_line <= lines.length, `${snippet.id}: invalid source span`);
+  const text = lines.slice(source.start_line - 1, source.end_line).join('');
+  assert.equal(createHash('sha256').update(text).digest('hex'), source.sha256, `${snippet.id}: canonical source span changed`);
+}
+console.log(`Evidence current: ${slugs.size} Cargo source pairs, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
+console.log(`Tutorial sources current: ${tutorialExamples.examples.length} planned programs, pinned pages/license, and ${snippets.length} exact source spans`);

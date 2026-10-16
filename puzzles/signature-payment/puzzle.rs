@@ -1,11 +1,7 @@
 // AGG_SIG_ME binds the owner's signature over the message to this coin.
-#[path = "../../sdk/oxide.rs"]
-pub mod oxide;
+use crate::fixture_keys;
 
-#[path = "../fixture_keys.rs"]
-mod fixture_keys;
-
-use oxide::{
+use oxide_sdk::{
     AggSigMe, Amount, AssertMyAmount, CreateCoin, Message32, PublicKey, PuzzleHash, agg_sig_me,
     assert_my_amount, create_coin,
 };
@@ -16,6 +12,7 @@ const RECIPIENT: PuzzleHash = PuzzleHash([0x42; 32]);
 
 pub type SignedConditions = (AggSigMe, AssertMyAmount, CreateCoin);
 
+#[oxide_sdk::puzzle]
 pub fn puzzle(message: Message32) -> SignedConditions {
     (
         agg_sig_me(OWNER, message),

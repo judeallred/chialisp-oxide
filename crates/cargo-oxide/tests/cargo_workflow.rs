@@ -62,11 +62,84 @@ fn success(output: Output) {
 
 fn manifest(scratch: &Path) -> (PathBuf, Value) {
     let output = scratch.join("artifacts");
-    let pointer: Value =
-        serde_json::from_slice(&std::fs::read(output.join("latest.json")).unwrap()).unwrap();
-    let path = output.join(pointer["manifest"].as_str().unwrap());
-    let value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
-    (path, value)
+    let bundle = cargo_oxide::load_bundle(&output).unwrap();
+    (bundle.manifest_path, bundle.manifest)
+}
+
+#[test]
+fn nested_modules_export_same_leaf_names_without_identity_collisions() {
+    let scratch = Scratch(std::env::temp_dir().join(format!(
+            "oxide-modules-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        )));
+    std::fs::create_dir_all(scratch.0.join("src")).unwrap();
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../..")
+        .canonicalize()
+        .unwrap();
+    std::fs::write(scratch.0.join("Cargo.toml"),format!("[package]\nname=\"nested-puzzles\"\nversion=\"0.1.0\"\nedition=\"2024\"\n[workspace]\n[dependencies]\noxide-sdk={{path={}}}\n",serde_json::to_string(&root.join("crates/oxide-sdk")).unwrap())).unwrap();
+    std::fs::write(scratch.0.join("src/lib.rs"),"pub mod alpha { #[oxide_sdk::puzzle] pub fn puzzle(value:u8)->u8 {value+1} } pub mod beta { pub mod nested { #[oxide_sdk::puzzle] pub fn puzzle(value:u8)->u8 {value+2} } }").unwrap();
+    let pin = include_str!("../../../rust-toolchain.toml")
+        .lines()
+        .find_map(|line| line.strip_prefix("channel = "))
+        .unwrap()
+        .trim_matches('"');
+    success(
+        Command::new("rustup")
+            .args(["run", pin, "cargo", "generate-lockfile", "--offline"])
+            .current_dir(&scratch.0)
+            .output()
+            .unwrap(),
+    );
+    let executable = Path::new(env!("CARGO_BIN_EXE_cargo-oxide"));
+    let output = scratch.0.join("artifacts");
+    success(
+        Command::new(executable)
+            .args(["build", "--manifest-path"])
+            .arg(scratch.0.join("Cargo.toml"))
+            .args(["--locked", "--offline", "--output-dir"])
+            .arg(&output)
+            .env("OXIDE_DRIVER", executable.with_file_name("oxide-driver"))
+            .output()
+            .unwrap(),
+    );
+    let bundle = cargo_oxide::load_bundle(&output).unwrap();
+    assert_eq!(
+        bundle
+            .programs
+            .keys()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
+        [
+            "nested_puzzles::alpha::puzzle",
+            "nested_puzzles::beta::nested::puzzle"
+        ]
+    );
+    assert_eq!(bundle.manifest["entries"].as_array().unwrap().len(), 2);
+    let mut files = std::collections::BTreeSet::new();
+    for entry in bundle.manifest["entries"].as_array().unwrap() {
+        assert!(files.insert(entry["ir"].as_str().unwrap()));
+        let name = entry["entry"].as_str().unwrap();
+        let expected = if name.contains("::alpha::") {
+            "2a"
+        } else {
+            "2b"
+        };
+        assert_eq!(
+            execution(&bundle.manifest_path, &bundle.manifest, name, "(41)"),
+            Outcome::Accepted {
+                output_hex: expected.into()
+            }
+        );
+        assert_eq!(
+            execution(&bundle.manifest_path, &bundle.manifest, name, "(255)"),
+            Outcome::Rejected
+        );
+    }
 }
 
 fn accepts(path: &Path, manifest: &Value, suffix: &str, solution: &str) -> bool {

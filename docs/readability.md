@@ -72,10 +72,18 @@ semantics and cost experiments.
 ## One domain implementation for both authoring paths
 
 The real Cargo SDK re-exports
-[domain.rs](../crates/oxide-sdk/src/domain.rs). The standalone corpus harness
-reaches that same source through [sdk/oxide.rs](../sdk/oxide.rs). It does not
-maintain a second set of domain declarations or condition encoders. Normal Cargo
-users depend on `oxide-sdk` and mark exports with `#[oxide_sdk::puzzle]`.
+[domain.rs](../crates/oxide-sdk/src/domain.rs). The complete teaching corpus is
+now the `oxide-puzzles` Cargo library and depends on that SDK; its native oracle
+and CLVM extraction use the same library. Standalone compiler regressions can
+reach the same definitions through [sdk/oxide.rs](../sdk/oxide.rs), which is no
+longer the corpus route. There is no second set of domain declarations or
+condition encoders. Cargo users mark exports with `#[oxide_sdk::puzzle]`.
+
+The corpus declares package/export/input provenance in
+[puzzles/authoring.json](../puzzles/authoring.json). Validation and proof reports
+record and recheck those local input hashes. The measured readability snapshot
+below predates this Cargo-corpus migration; its historical byte/cost results
+are retained as recorded.
 
 Named `const` values still pass through rustc's type checking and constant
 evaluation. Supporting a byte-array constant does not admit arbitrary memory,

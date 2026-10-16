@@ -2,12 +2,149 @@
   "schema_version": 1,
   "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
   "puzzle": "bounded-counter",
+  "authoring": {
+    "mode": "cargo_library",
+    "package": "oxide-puzzles",
+    "manifest": "puzzles/Cargo.toml",
+    "library": "puzzles/lib.rs",
+    "exports": {
+      "boolean-gate": {
+        "entry": "oxide_puzzles::boolean_gate::puzzle",
+        "source": "puzzles/boolean-gate/puzzle.rs"
+      },
+      "bounded-counter": {
+        "entry": "oxide_puzzles::bounded_counter::puzzle",
+        "source": "puzzles/bounded-counter/puzzle.rs"
+      },
+      "capped-payment": {
+        "entry": "oxide_puzzles::capped_payment::puzzle",
+        "source": "puzzles/capped-payment/puzzle.rs"
+      },
+      "fixed-payment": {
+        "entry": "oxide_puzzles::fixed_payment::puzzle",
+        "source": "puzzles/fixed-payment/puzzle.rs"
+      },
+      "recovery-payment": {
+        "entry": "oxide_puzzles::recovery_payment::puzzle",
+        "source": "puzzles/recovery-payment/puzzle.rs"
+      },
+      "signature-payment": {
+        "entry": "oxide_puzzles::signature_payment::puzzle",
+        "source": "puzzles/signature-payment/puzzle.rs"
+      },
+      "split-payment": {
+        "entry": "oxide_puzzles::split_payment::puzzle",
+        "source": "puzzles/split-payment/puzzle.rs"
+      },
+      "timelocked-payment": {
+        "entry": "oxide_puzzles::timelocked_payment::puzzle",
+        "source": "puzzles/timelocked-payment/puzzle.rs"
+      },
+      "two-signature-payment": {
+        "entry": "oxide_puzzles::two_signature_payment::puzzle",
+        "source": "puzzles/two-signature-payment/puzzle.rs"
+      }
+    },
+    "sources": [
+      {
+        "path": ".cargo/config.toml",
+        "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "6c3bedc94fbbe8caac43d757b917c6f7ec5ece37c3f7234773fb0395a8b096e9"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "b5373ce5282e172f3e9ea63e9a53964aa87ca7f45ba0bb7647e52a62efb1ec4f"
+      },
+      {
+        "path": "crates/oxide-macros/Cargo.toml",
+        "sha256": "89279ecfe64c231595b9e7cc07db1906337510112767db374d1dade8694d8ff8"
+      },
+      {
+        "path": "crates/oxide-macros/src/lib.rs",
+        "sha256": "0bb39ed3aa68f3de58bc503f0978ddf0f3e3447c7047b89413728ab9d04a6572"
+      },
+      {
+        "path": "crates/oxide-sdk/Cargo.toml",
+        "sha256": "95f580bd41cd66aabc5aa0cc77e50e565acc886190871f0fa37940ddea4d73b3"
+      },
+      {
+        "path": "crates/oxide-sdk/src/domain.rs",
+        "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+      },
+      {
+        "path": "crates/oxide-sdk/src/lib.rs",
+        "sha256": "0f2e7fa52a778dbc80368daae8b85097f9382d88e2f760a763ef821d1c24a86a"
+      },
+      {
+        "path": "puzzles/Cargo.toml",
+        "sha256": "c14b8a3aefea49af7736a9e1fedb1a33f9b3c76666a009c047b52e5bda1a60f6"
+      },
+      {
+        "path": "puzzles/authoring.json",
+        "sha256": "ba8e91963233ca63df795d2eabd5d4c0abbbdf857216e70b7ede90c16ca5b6e6"
+      },
+      {
+        "path": "puzzles/boolean-gate/puzzle.rs",
+        "sha256": "6f686e4c11bd20c0366bc9f690e9a59af680c4a157ffcf677c1c8494e19fba28"
+      },
+      {
+        "path": "puzzles/bounded-counter/puzzle.rs",
+        "sha256": "b5c688063c9ffd2eb79babbdaf788a9a89461af8cd132ea10c27125c6b7915c3"
+      },
+      {
+        "path": "puzzles/capped-payment/puzzle.rs",
+        "sha256": "c59322ee9dc565a5f1b18d4f30e91361bd455016b268fd21aac0263340d35f4d"
+      },
+      {
+        "path": "puzzles/fixed-payment/puzzle.rs",
+        "sha256": "4d85afc1ef8f0afc65eac066a5cf44fdd51671d79f7d8a7b6f3fd67cf123a9e6"
+      },
+      {
+        "path": "puzzles/fixture_keys.rs",
+        "sha256": "2f695f94a605b1c58d5cc1f96d02a67cb7177cdd44c9e1ac58378566d39447ad"
+      },
+      {
+        "path": "puzzles/lib.rs",
+        "sha256": "ee2e38b1eefbbae4e4239219951b4408c305288bccc495505cc355dce0ff15ad"
+      },
+      {
+        "path": "puzzles/recovery-payment/puzzle.rs",
+        "sha256": "bf19c18b477bbb4084667fa11531e9ac3c9f94cfd81f63add4e80c8a4cb110f8"
+      },
+      {
+        "path": "puzzles/signature-payment/puzzle.rs",
+        "sha256": "3b2105a7ddcaf73f359a0f1e8066b7f2b6a7e064ef1fb7776b5e0ebf20b9db04"
+      },
+      {
+        "path": "puzzles/split-payment/puzzle.rs",
+        "sha256": "38cbd5b2f0767911b66fbe92b90a06a08bf05e1f81cf717feef69e87e73408fe"
+      },
+      {
+        "path": "puzzles/timelocked-payment/puzzle.rs",
+        "sha256": "405007fdab899bc72b6f483c5426f3dd663c193dbfbc434e8cdd78435621a27b"
+      },
+      {
+        "path": "puzzles/two-signature-payment/puzzle.rs",
+        "sha256": "08caacf07d13cf82e1784be3bf0c2cfd3f3585b99ecf3278ddf609e166e64d90"
+      },
+      {
+        "path": "rust-toolchain.toml",
+        "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+      }
+    ],
+    "entry": "oxide_puzzles::bounded_counter::puzzle"
+  },
+  "toolchain": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)",
+  "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
   "source": "puzzles/bounded-counter/puzzle.rs",
-  "source_sha256": "0892bec77bb178e0f099ddb801ac52e600ff6544dad9d812e7996175ed41a2bf",
+  "source_sha256": "b5c688063c9ffd2eb79babbdaf788a9a89461af8cd132ea10c27125c6b7915c3",
   "ir": "proofs/bounded-counter/program.ir.json",
-  "ir_sha256": "af629db2c1024b77410d8e2db606243ba8838ed90dd62eed80377824728cc177",
+  "ir_sha256": "7994687918c2375804e9726444d508799d10232b7f3f14d207fb73106e335c01",
   "mutant_ir": "proofs/bounded-counter/mutant.ir.json",
-  "mutant_ir_sha256": "44e45ace5e392ae9f6b941914cad11a38499a82a7267bf8dc64e5e59bff0a01b",
+  "mutant_ir_sha256": "c0af5577ea5e6fd18055d30834c7c5207dbaf3ca18473ba7d91d3f2c42f7ff70",
   "solver": "Z3 version 4.15.4 - 64 bit",
   "checks": [
     {
@@ -158,6 +295,7 @@
     "Assumes successful ABI decoding of canonical typed values; byte semantics unsupported",
     "Does not prove rustc MIR extraction, SMT translation, Rue optimization, or CLVM lowering",
     "Witness execution is tested evidence, not compiler preservation",
+    "Authoring hashes cover declared Cargo inputs, not the complete effective build environment",
     "Not a claim of complete puzzle security or spend-bundle validity"
   ]
 }

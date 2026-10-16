@@ -4,7 +4,7 @@ import { Code } from '@astrojs/starlight/components';
 import SourcePair from '../../components/SourcePair.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, format, href, type PuzzleReport } from '../../lib/data';
+import { puzzles, authoring, format, href, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,slug:'artifacts',text:'Compiled artifacts'}, {depth:2,slug:'vectors',text:'Adversarial input vectors'}, {depth:2,slug:'ledger',text:'Ledger validation'}, {depth:2,slug:'provenance',text:'Provenance and versions'}];
@@ -19,7 +19,7 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
     <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
   </div>
   <h2 id="sources">Compare the sources</h2>
-  <p>These are the exact source strings recorded in the validation report. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
+  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
   <SourcePair slug={puzzle.slug} />
   <h2 id="artifacts">Compiled artifacts</h2>
   <p>All three programs are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
@@ -41,6 +41,7 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   <p><strong>{puzzle.provenance.classification}.</strong> This fixture is not claimed as a canonical protocol replacement or completed CHIP migration.</p>
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <RuntimeVersions />
+  <details class="source-dependency"><summary>Declared Cargo input hashes</summary><p class="source-note">The validation and proof reports record the same explicitly declared local Cargo inputs. This is not a complete transitive dependency fingerprint.</p><ul>{authoring.sources.map(source => <li><code>{source.path}</code> · <code class="dependency-hash">{source.sha256}</code></li>)}</ul></details>
   <p>Reproduce this corpus with <code>./scripts/oxide validate --output corpus/validation.json</code>. Read <a href={href('verification/method/')}>the validation method and remaining assumptions</a> before interpreting a pass.</p>
 </StarlightPage>
 <style>

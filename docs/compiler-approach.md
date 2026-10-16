@@ -74,8 +74,10 @@ Keep the focused direct MIR adapter. The implemented authoring workflow is a
 normal Cargo library with the `oxide-sdk` dependency and `#[oxide_sdk::puzzle]`
 entry annotations. The `cargo oxide build` and `cargo oxide check` commands
 delegate dependency resolution, feature selection, macro expansion, generated
-sources, and rustc invocation construction to Cargo. The standalone-file driver
-remains useful for the experiment corpus. The first Cargo integration milestone
+sources, and rustc invocation construction to Cargo. The complete teaching
+corpus is now the `oxide-puzzles` Cargo library; extraction, native execution,
+and source-derived proof replay use that library. The standalone-file driver
+remains useful for independent compiler regressions. The first Cargo integration milestone
 has passed its executable tests; its scope and remaining criteria are recorded in
 [Rust authoring research](rust-authoring-research.md).
 
@@ -103,6 +105,11 @@ builds publish an immutable artifact bundle through an atomic pointer update.
 Existing wrappers, custom targets, and workspace-wide extraction are rejected.
 The current artifact manifest records compiler/options/artifacts, but not full
 source/dependency hashes or resolved feature/cfg provenance.
+
+The corpus additionally declares its package, export/source mapping, and local
+Cargo inputs in `puzzles/authoring.json`. Both validation and proof reports
+record those input hashes and the site checks them against current files.
+This explicit local input set is not a complete transitive build fingerprint.
 
 A Cargo-native interface does not require a new rustc target first. A
 [custom target JSON](https://doc.rust-lang.org/rustc/targets/custom.html) describes
@@ -309,7 +316,7 @@ crates/oxide-macros/        entry annotation re-exported by the SDK
 crates/oxide-verifier/      IR-derived SMT and witness replay
 crates/oxide-cli/           corpus build, run, compare, and validation commands
 examples/cargo-puzzles/     native/Cargo consumer with real SDK dependency
-puzzles/                   paired Rust / Chialisp / vectors
+puzzles/                   oxide-puzzles Cargo library, paired Chialisp/vectors
 corpus/                    versioned tutorial and CHIP inventories
 docs/                      architecture, verification, and error study
 www/                       Astro documentation and generated evidence pages
@@ -341,7 +348,7 @@ oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed-width
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Nine source pairs are validated by the native source functions, independent
+Nine source pairs in the real Cargo library are validated by its native functions, independent
 Chialisp compilation, both optimization settings, and 30 ledger scenarios.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived IR-model proofs and attack replay. `www` renders these reports.
@@ -349,7 +356,7 @@ The imported Rue LIR includes a reproduced optimizer panic fix and retains 44
 upstream/regression tests. The upstream report is xch-dev/rue#108.
 
 Restricted one-field transparent wrappers now preserve Rust nominal type checks
-while erasing to the documented inner ABI. The capped-payment source uses named
+while erasing to the documented inner ABI. The puzzle sources use named
 SDK condition helpers, with explicit negative domain-mixup tests. The Cargo
 consumer calls helpers through the actual `oxide-sdk` dependency. Constructors
 are not invoked on raw solutions and impose no hidden runtime invariants.

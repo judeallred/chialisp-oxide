@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Prove real Rust-derived IR properties and replay mutation counterexamples.
 
-Requires cargo build --workspace --locked first. This deliberately fails rather
-than skipping if rustc, oxide-driver, oxide-verifier, or Z3 is unavailable.
+Requires cargo build --workspace --locked first. Uses the actual Cargo puzzle
+library and its annotated export; no generated policy wrapper or copied Rust
+policy is compiled. Fails rather than skipping when required tools are absent.
 """
 
 import argparse
@@ -13,18 +14,22 @@ from pathlib import Path
 import subprocess
 import tempfile
 
+from cargo_authoring import contained_file, load_json, snapshot
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOFS = ROOT / "proofs/bounded-counter"
 SOURCE = Path("puzzles/bounded-counter/puzzle.rs")
 DRIVER = ROOT / "target/debug/oxide-driver"
+CARGO_OXIDE = ROOT / "target/debug/cargo-oxide"
+NATIVE = ROOT / "target/debug/oxide"
 VERIFIER = ROOT / "target/debug/oxide-verifier"
 
 
-def run(args, expected=0):
+def run(args, expected=0, timeout=30):
     result = subprocess.run(
         [str(arg) for arg in args], cwd=ROOT,
-        text=True, capture_output=True, timeout=30, check=False,
+        text=True, capture_output=True, timeout=timeout, check=False,
     )
     if result.returncode != expected:
         raise SystemExit(
@@ -61,36 +66,95 @@ def sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def authoring_snapshot():
+    authoring = snapshot(ROOT)
+    selected = authoring["exports"]["bounded-counter"]
+    if selected["source"] != str(SOURCE):
+        raise SystemExit("Proof entry source changed; review the independently authored specification")
+    return {**authoring, "entry": selected["entry"]}
+
+
+def cargo_program(output, authoring):
+    run([CARGO_OXIDE, "build", "--manifest-path", ROOT / authoring["manifest"],
+         "--package", authoring["package"], "--locked", "--output-dir", output], timeout=180)
+    return load_cargo_program(output, authoring)
+
+
+def load_cargo_program(output, authoring):
+    pointer = load_json(contained_file(output, "latest.json"))
+    bundle = pointer["bundle"]
+    if len(Path(bundle).parts) != 1 or pointer["manifest"] != f"{bundle}/manifest.json":
+        raise SystemExit("Malformed atomic Cargo bundle pointer")
+    manifest_path = contained_file(output, pointer["manifest"])
+    manifest = load_json(manifest_path)
+    if not (
+        type(manifest.get("schema_version")) is int and manifest["schema_version"] == 1
+        and manifest["package"] == authoring["package"]
+        and Path(manifest["manifest_path"]).resolve() == (ROOT / authoring["manifest"]).resolve()
+    ):
+        raise SystemExit("Cargo bundle does not describe the requested puzzle library")
+    entries = manifest["entries"]
+    names = [entry["entry"] for entry in entries]
+    expected = {export["entry"] for export in authoring["exports"].values()}
+    if len(names) != len(set(names)) or set(names) != expected:
+        raise SystemExit("Cargo bundle exports differ from declared authoring entries")
+    entry = next(entry for entry in entries if entry["entry"] == authoring["entry"])
+    path = contained_file(manifest_path.parent, entry["ir"])
+    if load_json(path)["name"] != authoring["entry"]:
+        raise SystemExit("Cargo-exported IR name does not match selected proof entry")
+    return path, manifest
+
+
+def native_replay(value):
+    outcome = json.loads(run([NATIVE, "native", "bounded-counter", "--solution", f"({value})"]))
+    if outcome == {"status": "rejected"}:
+        return outcome
+    expected = {"status": "accepted", "output_hex": encoded_positive_integer(value + 1)}
+    if outcome != expected:
+        raise SystemExit(f"Native Cargo puzzle returned unexpected canonical output: {outcome}")
+    return {"status": "accepted", "value": value + 1}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / "corpus/proofs.json")
     args = parser.parse_args()
-    for binary in [DRIVER, VERIFIER]:
+    for binary in [CARGO_OXIDE, DRIVER, VERIFIER, NATIVE]:
         if not binary.is_file():
             raise SystemExit(f"Missing {binary}; run cargo build --workspace --locked")
 
     with tempfile.TemporaryDirectory(prefix="oxide-ir-proofs-") as temporary:
         temp = Path(temporary)
+        authoring = authoring_snapshot()
+        # Refresh the native CLI's Cargo-library dependency before witness replay.
+        run(["cargo", "build", "--locked", "--target-dir", ROOT / "target", "-p", "oxide-cli"], timeout=180)
+        cargo_path, cargo_manifest = cargo_program(temp / "cargo-artifacts", authoring)
         program_path = temp / "program.ir.json"
-        run([DRIVER, SOURCE, "--output", program_path])
+        program_path.write_bytes(cargo_path.read_bytes())
         program = json.loads(program_path.read_text())
         expected_u64 = {"kind": "int", "bits": 64, "signed": False}
         if program["result"] != expected_u64 or [p["ty"] for p in program["parameters"]] != [expected_u64]:
             raise SystemExit("bounded-counter ABI changed; update independently authored specifications")
 
+        specifications = {}
+        for name in ["range", "acceptance"]:
+            path = temp / f"{name}.spec.json"
+            path.write_bytes((PROOFS / f"{name}.spec.json").read_bytes())
+            specifications[name] = path
         checks = []
         for name in ["range", "acceptance"]:
             specification = PROOFS / f"{name}.spec.json"
-            result = json.loads(run([VERIFIER, program_path, specification]))
+            result = json.loads(run([VERIFIER, program_path, specifications[name]]))
             if result["status"] != "proven":
                 raise SystemExit(f"{name} was not proven: {result}")
-            queries = run([VERIFIER, program_path, specification, "--emit"])
-            (PROOFS / f"{name}.smt2").write_text(queries.rstrip()+"\n")
+            queries = run([VERIFIER, program_path, specifications[name], "--emit"])
+            query_path = temp / f"{name}.smt2"
+            query_path.write_text(queries.rstrip()+"\n")
             witness = temp / f"{name}.witness.json"
             write_json(witness, result["nonvacuity"])
             replay = json.loads(run([VERIFIER, program_path, "--replay", witness]))
             check_replays(replay, "accepted")
-            checks.append({"name": name, "specification": str(specification.relative_to(ROOT)), "specification_sha256": sha256(specification), "query": str((PROOFS / f"{name}.smt2").relative_to(ROOT)), "query_sha256": sha256(PROOFS / f"{name}.smt2"), "result": result, "clvm_nonvacuity_replay": replay})
+            checks.append({"name": name, "specification": str(specification.relative_to(ROOT)), "specification_sha256": sha256(specifications[name]), "query": str((PROOFS / f"{name}.smt2").relative_to(ROOT)), "query_sha256": sha256(query_path), "result": result, "clvm_nonvacuity_replay": replay})
 
         # Fail if rustc's assertion structure changes. Remove precisely the cap
         # guard while retaining the entire checked-arithmetic continuation.
@@ -112,7 +176,7 @@ def main():
         mutant["body"] = copy.deepcopy(body["else_value"])
         mutant_path = temp / "mutant.ir.json"
         write_json(mutant_path, mutant)
-        mutation = json.loads(run([VERIFIER, mutant_path, PROOFS / "range.spec.json"], expected=1))
+        mutation = json.loads(run([VERIFIER, mutant_path, specifications["range"]], expected=1))
         if mutation["status"] != "refuted":
             raise SystemExit(f"Guard removal was not detected: {mutation}")
         value = int(mutation["counterexample"]["arguments"][0]["value"])
@@ -131,25 +195,12 @@ def main():
             if row["outcome"]["output_hex"] != expected_hex:
                 raise SystemExit(f"Counterexample output mismatch: {row}")
 
-        harness_source = temp / "native.rs"
-        harness_source.write_text((ROOT / SOURCE).read_text() + r'''
-fn main() {
-    std::panic::set_hook(Box::new(|_| {}));
-    let value = std::env::args().nth(1).unwrap().parse::<u64>().unwrap();
-    match std::panic::catch_unwind(|| puzzle(value)) {
-        Ok(output) => println!("{{\"status\":\"accepted\",\"value\":{output}}}"),
-        Err(_) => println!("{{\"status\":\"rejected\"}}"),
-    }
-}
-''')
-        native = temp / "native"
-        run(["rustc", "--edition=2024", "-C", "overflow-checks=yes", harness_source, "-o", native])
-        native_counterexample = json.loads(run([native, value]))
+        native_counterexample = native_replay(value)
         if native_counterexample["status"] != "rejected":
             raise SystemExit(f"Native source accepted the attack witness: {native_counterexample}")
         for check in checks:
             value = int(check["result"]["nonvacuity"]["arguments"][0]["value"])
-            native_result = json.loads(run([native, value]))
+            native_result = native_replay(value)
             if native_result != {"status": "accepted", "value": value + 1}:
                 raise SystemExit(f"Native nonvacuity mismatch: {native_result}")
             for row in check["clvm_nonvacuity_replay"]:
@@ -157,13 +208,22 @@ fn main() {
                     raise SystemExit(f"Native/CLVM nonvacuity output mismatch: {native_result}, {row}")
             check["native_nonvacuity_replay"] = native_result
 
-        (PROOFS / "program.ir.json").write_text(program_path.read_text())
-        (PROOFS / "mutant.ir.json").write_text(mutant_path.read_text())
-        (PROOFS / "mutation.smt2").write_text(run([VERIFIER, mutant_path, PROOFS / "range.spec.json", "--emit"]).rstrip()+"\n")
+        mutation_query = temp / "mutation.smt2"
+        mutation_query.write_text(run([VERIFIER, mutant_path, specifications["range"], "--emit"]).rstrip()+"\n")
+        if authoring_snapshot() != authoring:
+            raise SystemExit("Declared Cargo authoring inputs changed during proof extraction/replay")
+        for name, snapshot in specifications.items():
+            if snapshot.read_bytes() != (PROOFS / f"{name}.spec.json").read_bytes():
+                raise SystemExit("An independently authored specification changed during verification")
+        for filename in ["program.ir.json", "mutant.ir.json", "range.smt2", "acceptance.smt2", "mutation.smt2"]:
+            (PROOFS / filename).write_bytes((temp / filename).read_bytes())
         report = {
             "schema_version": 1,
             "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
             "puzzle": "bounded-counter",
+            "authoring": authoring,
+            "toolchain": cargo_manifest["compiler"].splitlines()[0],
+            "rue_revision": cargo_manifest["rue_revision"],
             "source": str(SOURCE),
             "source_sha256": sha256(ROOT / SOURCE),
             "ir": "proofs/bounded-counter/program.ir.json",
@@ -175,7 +235,7 @@ fn main() {
             "mutation": {
                 "description": "Remove only the outer counter < 1000 assertion; retain checked increment",
                 "specification": "proofs/bounded-counter/range.spec.json",
-                "specification_sha256": sha256(PROOFS / "range.spec.json"),
+                "specification_sha256": sha256(specifications["range"]),
                 "query": "proofs/bounded-counter/mutation.smt2",
                 "query_sha256": sha256(PROOFS / "mutation.smt2"),
                 "result": mutation,
@@ -187,13 +247,14 @@ fn main() {
                 "Assumes successful ABI decoding of canonical typed values; byte semantics unsupported",
                 "Does not prove rustc MIR extraction, SMT translation, Rue optimization, or CLVM lowering",
                 "Witness execution is tested evidence, not compiler preservation",
+                "Authoring hashes cover declared Cargo inputs, not the complete effective build environment",
                 "Not a claim of complete puzzle security or spend-bundle validity",
             ],
         }
         output = args.output if args.output.is_absolute() else ROOT / args.output
         output.parent.mkdir(parents=True, exist_ok=True)
         write_json(output, report)
-        print(f"PASS: source-derived range + acceptance; nonvacuity; guard mutation; native/CLVM witness replay -> {output}")
+        print(f"PASS: Cargo-derived range + acceptance; nonvacuity; guard mutation; native/CLVM witness replay -> {output}")
 
 
 if __name__ == "__main__":

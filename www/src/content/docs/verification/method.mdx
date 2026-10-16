@@ -5,6 +5,7 @@ description: Read the native, differential, generated-input, ledger, mutation, a
 
 import EvidenceSummary from '../../../components/EvidenceSummary.astro';
 import RuntimeVersions from '../../../components/RuntimeVersions.astro';
+import { totals, format } from '../../../lib/data';
 
 <EvidenceSummary />
 
@@ -15,12 +16,17 @@ No passing suite establishes a general absence of vulnerabilities.
 The report includes exact local source dependencies explicitly declared by
 each fixture manifest. Site checks compare their paths, source text, and
 SHA-256 values against the repository, alongside the entrypoint and reference.
-This prevents a changed SDK module from leaving stale displayed evidence;
-it is not an automatically discovered complete dependency graph.
+Both validation and proof reports also record the package, library, export
+mapping, and hashed local inputs declared in `puzzles/authoring.json`. The site
+requires these records to agree and match current files. This prevents a
+changed SDK or Cargo input from leaving stale displayed evidence; it is not an
+automatically discovered complete transitive dependency graph.
 
 ## Native Rust and independent Chialisp
 
-The same Rust fixture has a native reference execution. Its solution decoder
+The Rust fixtures are annotated exports of the real `oxide-puzzles` Cargo
+library. Validation extracts that package once and its native oracle links the
+same library. The native solution decoder
 enforces the fixture ABI; rejection is compared as carefully as successful
 output. An authored Chialisp reference is compiled by Chia Network's Rust
 Chialisp compiler, not by Oxide's lowering code.
@@ -43,8 +49,9 @@ condition costs and total transaction admission cost.
 
 ## Actual coin-set validation
 
-Eight examples produce conditions and have ledger scenarios. The ninth is a
-pure counter. Simulator checks use the actual compiled Rust reveal and verify
+The report contains {format(totals.coinPuzzles)} condition-producing examples
+and {format(totals.pureFunctions)} pure-function examples. Only coin puzzles
+have ledger scenarios. Simulator checks use the actual compiled Rust reveal and verify
 coin-state transitions, exact recipients/totals, signatures, input amount
 assertions, locks, repeated spends, and rollback where relevant.
 

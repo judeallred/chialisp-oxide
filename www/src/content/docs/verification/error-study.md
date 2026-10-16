@@ -42,9 +42,9 @@ the additional CLVM subset check. The two boundaries are tested separately.
 The standalone compatibility regression `newtype_swap.rs` fails with `E0308`, expected `PuzzleHash`,
 found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
 `Amount`. The driver test requires both names in the Rust diagnostic and no
-emitted IR. The standalone corpus still uses `sdk/oxide.rs`, which imports the
-same ordinary `domain.rs` source as the SDK crate; it is not evidence of a complete Cargo
-migration. The Cargo integration separately compares actual generated outputs
+emitted IR. The corpus itself now imports the real SDK crate from the
+`oxide-puzzles` Cargo library; standalone compatibility regressions remain
+separate. The Cargo integration also compares actual generated outputs
 with and without optimization and under the changed feature cap.
 
 These direct API mixups are compile-time errors when those typed helpers are

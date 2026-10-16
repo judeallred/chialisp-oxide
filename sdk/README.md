@@ -7,12 +7,13 @@ New Cargo consumer experiments use the actual, unpublished
 [`examples/cargo-puzzles`](../examples/cargo-puzzles). See the
 [Cargo launcher](../crates/cargo-oxide/README.md) for the current prototype flow.
 
-`oxide.rs` remains a source-only compatibility module for the existing
-standalone-file corpus and its historical tests. It defines nominal types and
-named condition constructors with the same inner wire representations as the
-crate API. Its presence does not mean the paired corpus has migrated to Cargo
-dependencies. The two modules' wrappers are distinct Rust types; use the
-appropriate interface for the experiment rather than mixing them implicitly.
+`oxide.rs` remains a source-only compatibility module for standalone compiler
+regressions. The paired corpus is now the real
+[`oxide-puzzles` Cargo library](../puzzles), with annotated exports and a direct
+dependency on `oxide-sdk`. Native tests, differential validation, and proof
+extraction use that library. The compatibility module imports the same domain
+implementation, but defines distinct Rust types in its local module; it is not
+the corpus authoring interface.
 
 The `#[repr(transparent)]` wrappers have exactly one field and no custom drop.
 The compiler erases validated wrappers to the inner wire type. Rust distinguishes

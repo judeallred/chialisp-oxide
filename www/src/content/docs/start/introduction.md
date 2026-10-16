@@ -40,10 +40,10 @@ entry states its policy and the obligations outside it.
 
 ## What the current examples represent
 
-The Cargo consumer example demonstrates package/SDK authoring separately from
-the older standalone-file comparison harness. The nine paired lab fixtures
-still use that harness; their source strings, dependencies, and evidence remain
-explicit. Cargo support does not mean arbitrary cross-crate Rust libraries are
+The consumer example and paired laboratory fixtures are ordinary Cargo packages
+with real SDK dependencies and annotated exports. The corpus lives in the
+`oxide-puzzles` workspace library; both CLVM extraction and the native oracle
+use that same library. Cargo support does not mean arbitrary cross-crate Rust libraries are
 accepted for CLVM, or that a native Cargo test validates a coin spend.
 
 The examples are original teaching implementations with authored Chialisp

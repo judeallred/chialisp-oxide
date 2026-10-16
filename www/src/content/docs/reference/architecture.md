@@ -42,11 +42,12 @@ carry `CoinId` or `PuzzleHash` runtime tags. Concrete vetted SDK calls can cross
 the crate boundary; arbitrary dependency bodies cannot. Constructor validation
 is not executed during solution decoding.
 
-The standalone comparison corpus uses a compatibility path in `sdk/oxide.rs`
-to the same ordinary `crates/oxide-sdk/src/domain.rs` source as the real crate.
-Its reports record the dependency sources explicitly. The
-new Cargo consumer fixture separately exercises the real SDK crate, multiple
-annotations, features, generated source, and native-only allocation code.
+The corpus is the real `oxide-puzzles` Cargo library, with annotated modules
+registered in `puzzles/lib.rs` and a dependency on `oxide-sdk`. Validation
+extracts all declared exports in one Cargo build; its native oracle links that
+same library. A separate consumer fixture additionally exercises feature flags,
+generated source, and native-only allocation code. `sdk/oxide.rs` remains only
+for standalone compiler regressions, outside the corpus authoring path.
 
 ## Cargo extraction is a compiler integration, not a target name
 
@@ -75,10 +76,13 @@ implementation is a Cargo-driven MIR adapter into Rue, with no `--target clvm`
 workflow. The repository's authoring research documents the wider backend and
 proof-tool comparisons.
 
-Corpus manifests explicitly enumerate local source dependencies. The report
-records each dependency's path, source, and SHA-256; the site verifies those
-records against the current files. This is fixture-level dependency evidence,
-not an automatically discovered complete compiler source map. CI also
+`puzzles/authoring.json` explicitly declares the Cargo package, library,
+export/source mapping, and local input files. Both validation and proof reports
+record their hashes; the proof also identifies its selected counter export.
+The site checks both sets against current files and requires their agreement.
+Per-fixture dependency records additionally retain complete source text and
+hashes. These are declared local inputs, not an automatically discovered
+complete transitive dependency graph. CI also
 recompiles the corpus and compares the committed report before Pages deploys
 the successful commit.
 

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "mode": "cargo_library",
+  "package": "oxide-puzzles",
+  "manifest": "puzzles/Cargo.toml",
+  "library": "puzzles/lib.rs",
+  "exports": {
+    "boolean-gate": {
+      "entry": "oxide_puzzles::boolean_gate::puzzle",
+      "source": "puzzles/boolean-gate/puzzle.rs"
+    },
+    "bounded-counter": {
+      "entry": "oxide_puzzles::bounded_counter::puzzle",
+      "source": "puzzles/bounded-counter/puzzle.rs"
+    },
+    "capped-payment": {
+      "entry": "oxide_puzzles::capped_payment::puzzle",
+      "source": "puzzles/capped-payment/puzzle.rs"
+    },
+    "fixed-payment": {
+      "entry": "oxide_puzzles::fixed_payment::puzzle",
+      "source": "puzzles/fixed-payment/puzzle.rs"
+    },
+    "recovery-payment": {
+      "entry": "oxide_puzzles::recovery_payment::puzzle",
+      "source": "puzzles/recovery-payment/puzzle.rs"
+    },
+    "signature-payment": {
+      "entry": "oxide_puzzles::signature_payment::puzzle",
+      "source": "puzzles/signature-payment/puzzle.rs"
+    },
+    "split-payment": {
+      "entry": "oxide_puzzles::split_payment::puzzle",
+      "source": "puzzles/split-payment/puzzle.rs"
+    },
+    "timelocked-payment": {
+      "entry": "oxide_puzzles::timelocked_payment::puzzle",
+      "source": "puzzles/timelocked-payment/puzzle.rs"
+    },
+    "two-signature-payment": {
+      "entry": "oxide_puzzles::two_signature_payment::puzzle",
+      "source": "puzzles/two-signature-payment/puzzle.rs"
+    }
+  },
+  "inputs": [
+    ".cargo/config.toml",
+    "Cargo.lock",
+    "Cargo.toml",
+    "crates/oxide-macros/Cargo.toml",
+    "crates/oxide-macros/src/lib.rs",
+    "crates/oxide-sdk/Cargo.toml",
+    "crates/oxide-sdk/src/domain.rs",
+    "crates/oxide-sdk/src/lib.rs",
+    "puzzles/Cargo.toml",
+    "puzzles/authoring.json",
+    "puzzles/boolean-gate/puzzle.rs",
+    "puzzles/bounded-counter/puzzle.rs",
+    "puzzles/capped-payment/puzzle.rs",
+    "puzzles/fixed-payment/puzzle.rs",
+    "puzzles/fixture_keys.rs",
+    "puzzles/lib.rs",
+    "puzzles/recovery-payment/puzzle.rs",
+    "puzzles/signature-payment/puzzle.rs",
+    "puzzles/split-payment/puzzle.rs",
+    "puzzles/timelocked-payment/puzzle.rs",
+    "puzzles/two-signature-payment/puzzle.rs",
+    "rust-toolchain.toml"
+  ]
+}

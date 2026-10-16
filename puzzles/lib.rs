@@ -1,0 +1,22 @@
+//! WIP teaching puzzles. Never use these fixtures with real funds.
+
+mod fixture_keys;
+
+#[path = "boolean-gate/puzzle.rs"]
+pub mod boolean_gate;
+#[path = "bounded-counter/puzzle.rs"]
+pub mod bounded_counter;
+#[path = "capped-payment/puzzle.rs"]
+pub mod capped_payment;
+#[path = "fixed-payment/puzzle.rs"]
+pub mod fixed_payment;
+#[path = "recovery-payment/puzzle.rs"]
+pub mod recovery_payment;
+#[path = "signature-payment/puzzle.rs"]
+pub mod signature_payment;
+#[path = "split-payment/puzzle.rs"]
+pub mod split_payment;
+#[path = "timelocked-payment/puzzle.rs"]
+pub mod timelocked_payment;
+#[path = "two-signature-payment/puzzle.rs"]
+pub mod two_signature_payment;

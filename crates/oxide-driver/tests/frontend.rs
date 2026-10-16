@@ -1,4 +1,8 @@
-use std::{path::Path, process::Command};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 fn compile(fixture: &str) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_oxide-driver"))
@@ -138,23 +142,49 @@ fn compiled_vm_preserves_overflow_strictness_and_branch_laziness() {
 
 #[test]
 fn real_rust_sources_match_native_chialisp_and_consensus_corpus() {
+    struct Scratch(PathBuf);
+    impl Drop for Scratch {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+    let scratch = Scratch(std::env::temp_dir().join(format!(
+            "oxide-cargo-corpus-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        )));
+    let driver = Path::new(env!("CARGO_BIN_EXE_oxide-driver"));
+    let cargo = driver.with_file_name("cargo-oxide");
+    assert!(
+        cargo.is_file(),
+        "run cargo build --workspace before testing Cargo corpus extraction"
+    );
+    let output = Command::new(cargo)
+        .args(["build", "--manifest-path"])
+        .arg(oxide_corpus::root().join("puzzles/Cargo.toml"))
+        .args(["--locked", "--offline", "--output-dir"])
+        .arg(&scratch.0)
+        .env("OXIDE_DRIVER", driver)
+        .output()
+        .expect("run genuine Cargo corpus extraction");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let bundle = cargo_oxide::load_bundle(&scratch.0).unwrap();
+    assert_eq!(bundle.manifest["package"], "oxide-puzzles");
+    assert_eq!(bundle.programs.len(), oxide_corpus::PUZZLES.len());
     for slug in oxide_corpus::PUZZLES {
-        let output = Command::new(env!("CARGO_BIN_EXE_oxide-driver"))
-            .arg(
-                oxide_corpus::root()
-                    .join("puzzles")
-                    .join(slug)
-                    .join("puzzle.rs"),
-            )
-            .output()
-            .expect("run rustc-backed driver on corpus source");
-        assert!(
-            output.status.success(),
-            "{slug}: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-        let program: oxide_ir::Program = serde_json::from_slice(&output.stdout).unwrap();
-        let report = oxide_corpus::validate(slug, &program)
+        let name = format!("oxide_puzzles::{}::puzzle", slug.replace('-', "_"));
+        let program = bundle
+            .programs
+            .get(&name)
+            .unwrap_or_else(|| panic!("missing Cargo export {name}"));
+        let report = oxide_corpus::validate(slug, program)
             .unwrap_or_else(|error| panic!("{slug}: {error:#}"));
         assert!(report.validated);
         assert!(!report.cases.is_empty());

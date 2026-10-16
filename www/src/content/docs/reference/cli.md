@@ -1,6 +1,6 @@
 ---
 title: Compiler commands
-description: Use cargo oxide for annotated Cargo libraries and the standalone harness for corpus comparison and VM execution.
+description: Build annotated Cargo exports, validate the genuine Cargo corpus, select serialized artifacts, and inspect regression-only standalone extraction.
 ---
 
 ## Cargo authoring prototype
@@ -71,69 +71,106 @@ it fresh; dependency builds remain cached for that driver identity. An explicit
 host analysis target separates library extraction from native build scripts
 and procedural macros. It is not a CLVM machine target.
 
-## Internal standalone comparison harness
+## Build the validated puzzle library
 
-The nine-puzzle paired corpus still uses `./scripts/oxide`. This command builds
-the pinned driver and comparison CLI before invoking it. Run it from the
-repository root. After a successful build, `target/debug/oxide` invokes that
-CLI directly. This harness remains useful for compiler and ABI experiments;
-it is separate from the Cargo authoring flow above.
-
-### Build a fixture
+The corpus itself is the ordinary `oxide-puzzles` workspace package, declared
+in `puzzles/Cargo.toml`. Its modules export annotated functions such as
+`oxide_puzzles::capped_payment::puzzle`:
 
 ```sh
-./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/capped
-./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/capped-unoptimized --no-optimize
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path puzzles/Cargo.toml --locked
+cargo oxide check --manifest-path puzzles/Cargo.toml --locked --no-optimize
 ```
 
-Here `--output` is a file prefix. The command emits `.ir.json`, `.clvm.hex`,
-`.clvm.txt`, and `.artifact.json`. The artifact includes byte count, tree hash,
-backend options, hex, and disassembly, and is printed to standard output.
+The workspace output root is `target/oxide/artifacts/`. Read `latest.json`,
+then its bundle manifest, and select the full export name. The entry records
+its IR, serialized CLVM, and artifact paths relative to that bundle.
 
-### Execute serialized CLVM
+### Execute a selected export
+
+After building the workspace binaries and puzzle bundle, this example selects
+the capped-payment export from the real manifest and runs its CLVM:
 
 ```sh
-./scripts/oxide run target/capped.clvm.hex --solution '(500)' --max-cost 1000000
-./scripts/oxide run target/capped.clvm.hex --solution '(1001)' --max-cost 1000000
+python3 - <<'PYTHON'
+import json
+from pathlib import Path
+import subprocess
+
+root = Path('target/oxide/artifacts')
+pointer = json.loads((root / 'latest.json').read_text())
+manifest_path = root / pointer['manifest']
+manifest = json.loads(manifest_path.read_text())
+entry = next(item for item in manifest['entries']
+             if item['entry'] == 'oxide_puzzles::capped_payment::puzzle')
+subprocess.run(['target/debug/oxide', 'run',
+                str(manifest_path.parent / entry['clvm']),
+                '--solution', '(500)', '--max-cost', '1000000'], check=True)
+PYTHON
 ```
 
-The first input satisfies the cap; the second rejects. `run` prints a JSON
-execution report with outcome, successful cost when available, and diagnostics.
-Rejection exits with status 2. The default cost ceiling is 1,000,000; set it
-explicitly in reproducible experiments.
+`(500)` satisfies the cap; `(1001)` rejects. `run` prints JSON with outcome,
+successful cost when available, and diagnostics. Rejection exits with status 2.
+The default cost ceiling is 1,000,000; set it explicitly for reproducible runs.
 
 A CLVM result is not a ledger transaction. `run` cannot establish that
 signatures, amount assertions, or time conditions hold in a spend bundle.
 Use the ledger simulator for those obligations.
 
-### Regenerate the registered corpus
+## Replay a linked native function
 
 ```sh
+target/debug/oxide native bounded-counter --solution '(999)'
+target/debug/oxide native bounded-counter --solution '(1000)'
+```
+
+The first command returns an accepted JSON outcome with `output_hex` equal to
+`8203e8`, the serialized integer 1,000. The second returns a rejected policy
+outcome. Both policy outcomes exit with status 0; invocation errors, unknown
+slugs, and stale native-oracle inputs exit nonzero.
+
+This helper applies the canonical codec and invokes the actual linked Cargo
+function. It does not execute CLVM or validate a ledger spend. Its compiled
+input snapshot is checked against `puzzles/authoring.json`; a deliberately
+changed declared input has been tested to reject until the native oracle is
+rebuilt. This prevents changed declared Cargo inputs from silently using an old
+native policy, without claiming a complete transitive dependency fingerprint.
+
+## Regenerate the registered corpus
+
+```sh
+cargo build --workspace --locked
 ./scripts/oxide validate --output corpus/validation.json
 ```
 
-This extracts each registered fixture, compiles both Rust optimizer modes and
-an independent Chialisp reference, compares named and generated inputs against
-native execution, and tests the optimized coin puzzles in the ledger simulator.
-A divergence fails the run. These fixtures still use the standalone harness;
-the Cargo consumer tests are additional evidence rather than a migration of
-this corpus.
+Validation builds the Cargo puzzle package once, selects the declared exports,
+compiles each IR program in both backend modes, and compiles the authored
+Chialisp references independently. The native oracle links that same Cargo
+library. Named and generated inputs compare native output/rejection with all
+three CLVM paths; optimized coin puzzles also run in the ledger simulator.
+A divergence fails the run.
 
-The report embeds exact sources, declared source dependencies, and runtime
-versions. The documentation gate rejects stale source strings or dependency
-hashes, changed manifest cases, disagreed outcomes, failed ledger checks, or
-stale formal inputs.
+`puzzles/authoring.json` declares package, library, export/source mapping, and
+local Cargo inputs. Validation and source-derived proof reports record the
+same input hashes. The documentation gate checks those fingerprints, exact
+fixture/dependency sources, manifest cases, backend agreement, ledger checks,
+and formal inputs. These explicit local records are not a complete fingerprint
+of all transitive Cargo dependencies.
 
-### Inspect frontend IR directly
+## Standalone compiler regressions
 
-The standalone driver selects a free function named `puzzle` by default:
+Direct source-file extraction remains a research and regression interface.
+It is no longer the corpus authoring path. Use a standalone fixture rather
+than passing a Cargo module that requires external dependency metadata:
 
 ```sh
+./scripts/oxide build crates/oxide-driver/tests/fixtures/guarded_payment.rs --output target/research
 cargo build -p oxide-driver --locked
-target/debug/oxide-driver puzzles/bounded-counter/puzzle.rs --output target/counter.ir.json
+target/debug/oxide-driver crates/oxide-driver/tests/fixtures/guarded_payment.rs --output target/research.ir.json
 ```
 
-The driver accepts `--entry NAME` for another function. That standalone option
-is not an `oxide build` flag; Cargo mode instead discovers annotated exports.
-Keep compiler-private APIs isolated in the driver when investigating diagnostics
-or extending the subset.
+The standalone driver selects the free function named `puzzle` by default and
+accepts `--entry NAME`. That option is not an `oxide build` flag; Cargo mode
+instead discovers annotated exports. Keep compiler-private APIs isolated in
+the driver when investigating diagnostics or extending the subset.

@@ -7,9 +7,10 @@
   compiler resource limits. The driver is compiler-private and host checked.
 - An unpublished Cargo SDK and marker macro, multiple annotated exports, normal
   native checks/tests, and Cargo-driven CLVM extraction with real features and
-  generated source. Existing paired corpus fixtures retain their standalone harness.
+  generated source. The paired corpus is the real `oxide-puzzles` Cargo library;
+  native execution, CLVM extraction, and proof replay use that same package.
 - Nominal one-field transparent wrappers and typed condition helpers in the SDK
-  crate and corpus compatibility module; domain swaps fail Rust checking while
+  crate; domain swaps fail Rust checking while
   wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
@@ -19,6 +20,8 @@
   standalone regressions for signatures/replay/messages/conservation/rollback.
 - Source-derived SMT queries with independent specifications, nonvacuity,
   counterexample replay, mutation control, and fail-closed solver handling.
+- Shared declared Cargo input/export provenance in validation and proof reports,
+  checked against current local files before publishing documentation.
 - Rue identity-product optimizer panic regression/fix, source provenance, plus strict truthiness/failure preservation; upstream issues
   https://github.com/xch-dev/rue/issues/108 and https://github.com/xch-dev/rue/issues/109.
 - Searchable Astro/Starlight documentation in www, generated from source/evidence.
@@ -34,7 +37,10 @@
 3. Migrate actual canonical tutorials and CHIP puzzle implementations, recording
    exact source/license/revision, module identity constraints, behavior, and
    integration compatibility. The current original teaching examples do not
-   count as completed CHIP ports; inventory has 98 planned source entries.
+   count as completed CHIP ports; the page/CHIP inventory has 98 source entries.
+   The separate example inventory records exact pinned primer/concept snippets
+   and workflow gaps. Closed Intro expressions are first candidates; their
+   original environment behavior must remain distinct from the typed Rust ABI.
 4. Extend formal modeling to byte encodings/cryptographic assumptions, state
    transitions, and compiler preservation. Evaluate Lean for stable IR rules.
 5. Add larger adversarial fuzzing, upgrade/fork matrices, and independent audits.

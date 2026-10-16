@@ -7,8 +7,8 @@ puzzle laboratory, formal evidence, and a separately filterable migration
 inventory.
 Authoring guides lead with the real unpublished Cargo SDK and annotated exports.
 Their consumer examples are imported directly from `../examples/cargo-puzzles`;
-the nine-puzzle laboratory still reports the separate standalone comparison
-harness. Both paths use the same ordinary SDK domain source. Full recorded
+the laboratory reports annotated exports of the real `oxide-puzzles` Cargo
+library. Validation and the native oracle use that same library and SDK. Full recorded
 dependency sources, including public fixture-key bytes, remain available in
 expandable drawers. Comparisons stack at narrow content widths; wrapped code
 keeps its original copied line breaks.
@@ -25,8 +25,8 @@ pnpm preview
 ```
 
 Requires Node 24 or later. Run from `www/`. Build data comes from the actual
-checked-in `../corpus/validation.json`, `../corpus/proofs.json`, and
-`../corpus/inventory.json`. The site refuses a validation report with no puzzles
+checked-in `../corpus/validation.json`, `../corpus/proofs.json`,
+`../corpus/inventory.json`, and `../corpus/tutorial-examples.json`. The site refuses a validation report with no puzzles
 or unvalidated examples. Regenerate compiler evidence from the repository root
 before publishing changed puzzles; never edit displayed metrics by hand.
 Both `check` and `build` compare report source strings, vectors, policy scope,
@@ -37,6 +37,12 @@ the site build rather than silently displaying obsolete results.
 Explicitly declared source dependencies are checked by path, content, and
 SHA-256 as well. Their enumeration comes from the fixture manifest, not an
 automatic compiler source-map claim.
+Both proof and validation authoring records must match `puzzles/authoring.json`
+and the current hashes of every declared local Cargo input, with the counter's
+proof export identified explicitly.
+The example inventory is displayed separately as unimplemented source research.
+Its pinned pages, license, and exact source spans are hashed against the local
+snapshot; they do not increase validated-puzzle counts.
 
 The Pages configuration is `site: https://judeallred.github.io` and
 `base: /chialisp-oxide`. Keep every internal route and static resource under

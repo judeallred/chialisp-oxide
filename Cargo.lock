@@ -2011,11 +2011,13 @@ name = "oxide-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "cargo-oxide",
  "hex",
  "oxide-backend-experiment",
  "oxide-corpus",
  "oxide-ir",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -2029,6 +2031,8 @@ dependencies = [
  "oxide-backend-experiment",
  "oxide-chialisp",
  "oxide-ir",
+ "oxide-puzzles",
+ "oxide-sdk",
  "oxide-simulator",
  "rue-clvm",
  "serde",
@@ -2040,6 +2044,7 @@ dependencies = [
 name = "oxide-driver"
 version = "0.1.0"
 dependencies = [
+ "cargo-oxide",
  "oxide-backend-experiment",
  "oxide-chialisp",
  "oxide-corpus",
@@ -2068,6 +2073,13 @@ name = "oxide-macros"
 version = "0.1.0"
 dependencies = [
  "syn 2.0.119",
+]
+
+[[package]]
+name = "oxide-puzzles"
+version = "0.1.0"
+dependencies = [
+ "oxide-sdk",
 ]
 
 [[package]]

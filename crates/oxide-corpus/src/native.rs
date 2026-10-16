@@ -1,27 +1,14 @@
 //! Reference execution calls the actual Rust sources also supplied to rustc-driver.
 #![allow(clippy::type_complexity)] // Heterogeneous condition tuples are the current teaching ABI.
-#![allow(clippy::duplicate_mod)] // Standalone fixtures deliberately keep distinct local SDK types.
 use anyhow::{Result, bail, ensure};
 use clvmr::{Allocator, NodePtr, allocator::SExp, serde::node_to_bytes};
 use num_bigint::{BigInt, Sign};
-#[path = "../../../puzzles/capped-payment/puzzle.rs"]
-mod capped;
-#[path = "../../../puzzles/bounded-counter/puzzle.rs"]
-mod counter;
-#[path = "../../../puzzles/fixed-payment/puzzle.rs"]
-mod fixed;
-#[path = "../../../puzzles/boolean-gate/puzzle.rs"]
-mod gate;
-#[path = "../../../puzzles/two-signature-payment/puzzle.rs"]
-mod multisig;
-#[path = "../../../puzzles/recovery-payment/puzzle.rs"]
-mod recovery;
-#[path = "../../../puzzles/signature-payment/puzzle.rs"]
-mod signature;
-#[path = "../../../puzzles/split-payment/puzzle.rs"]
-mod split;
-#[path = "../../../puzzles/timelocked-payment/puzzle.rs"]
-mod timelock;
+use oxide_puzzles::{
+    boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
+    fixed_payment as fixed, recovery_payment as recovery, signature_payment as signature,
+    split_payment as split, timelocked_payment as timelock, two_signature_payment as multisig,
+};
+use oxide_sdk::{Amount, Message32, PublicKey, PuzzleHash, Timestamp};
 
 trait Encode {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr>;
@@ -79,40 +66,32 @@ impl<A: Encode, B: Encode, C: Encode, D: Encode> Encode for (A, B, C, D) {
         list(a, &[w, x, y, z])
     }
 }
-// Each standalone puzzle includes its own nominal SDK module. Encode these
-// source types independently of the compiler's transparent-newtype erasure.
-macro_rules! encode_domains {
-    ($($puzzle:ident),+ $(,)?) => {$(
-        impl Encode for $puzzle::oxide::Amount {
-            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-                self.mojos().encode(a)
-            }
-        }
-        impl Encode for $puzzle::oxide::Timestamp {
-            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-                self.unix_seconds().encode(a)
-            }
-        }
-        impl Encode for $puzzle::oxide::PuzzleHash {
-            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-                self.0.encode(a)
-            }
-        }
-        impl Encode for $puzzle::oxide::PublicKey {
-            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-                self.0.encode(a)
-            }
-        }
-        impl Encode for $puzzle::oxide::Message32 {
-            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-                self.0.encode(a)
-            }
-        }
-    )+};
+// Encode domain values independently of the compiler's newtype erasure.
+impl Encode for Amount {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.mojos().encode(a)
+    }
 }
-encode_domains!(
-    capped, fixed, gate, multisig, recovery, signature, split, timelock
-);
+impl Encode for Timestamp {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.unix_seconds().encode(a)
+    }
+}
+impl Encode for PuzzleHash {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+impl Encode for PublicKey {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+impl Encode for Message32 {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
 
 fn output(v: impl Encode) -> Result<Vec<u8>> {
     let mut a = Allocator::new();
@@ -201,15 +180,11 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             }
             "capped-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(capped::puzzle(capped::oxide::Amount::from_mojos(uint(
-                    &a, args[0],
-                )?)))
+                output(capped::puzzle(Amount::from_mojos(uint(&a, args[0])?)))
             }
             "split-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(split::puzzle(split::oxide::Amount::from_mojos(uint(
-                    &a, args[0],
-                )?)))
+                output(split::puzzle(Amount::from_mojos(uint(&a, args[0])?)))
             }
             "timelocked-payment" => {
                 ensure!(args.is_empty(), "arity");
@@ -225,21 +200,17 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             }
             "signature-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(signature::puzzle(signature::oxide::Message32(bytes32(
-                    &a, args[0],
-                )?)))
+                output(signature::puzzle(Message32(bytes32(&a, args[0])?)))
             }
             "two-signature-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(multisig::puzzle(multisig::oxide::Message32(bytes32(
-                    &a, args[0],
-                )?)))
+                output(multisig::puzzle(Message32(bytes32(&a, args[0])?)))
             }
             "recovery-payment" => {
                 ensure!(args.len() == 2, "arity");
                 output(recovery::puzzle(
                     boolean(&a, args[0])?,
-                    recovery::oxide::Message32(bytes32(&a, args[1])?),
+                    Message32(bytes32(&a, args[1])?),
                 ))
             }
             _ => bail!("unknown native fixture {slug}"),

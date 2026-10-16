@@ -27,6 +27,38 @@ fn extract(source: &Path) -> Result<Program> {
     program.validate()?;
     Ok(program)
 }
+fn extract_corpus(authoring: &oxide_corpus::Authoring) -> Result<cargo_oxide::ArtifactBundle> {
+    let compiler = std::env::current_exe()?.with_file_name("cargo-oxide");
+    let output = tempfile::tempdir()?;
+    let status = Command::new(&compiler)
+        .args(["build", "--locked", "--manifest-path"])
+        .arg(oxide_corpus::root().join(&authoring.manifest))
+        .arg("--output-dir")
+        .arg(output.path())
+        .status()
+        .with_context(|| format!("run {}; build cargo-oxide first", compiler.display()))?;
+    ensure!(status.success(), "Cargo corpus extraction failed");
+    let bundle = cargo_oxide::load_bundle(output.path())?;
+    ensure!(
+        bundle.manifest["package"] == authoring.package,
+        "unexpected Cargo corpus package"
+    );
+    let expected = authoring
+        .exports
+        .values()
+        .map(|export| export.entry.clone())
+        .collect::<std::collections::BTreeSet<_>>();
+    ensure!(
+        bundle
+            .programs
+            .keys()
+            .cloned()
+            .collect::<std::collections::BTreeSet<_>>()
+            == expected,
+        "Cargo corpus exports do not match declared entries"
+    );
+    Ok(bundle)
+}
 fn option(args: &[String], key: &str) -> Result<Option<String>> {
     if let Some(index) = args.iter().position(|a| a == key) {
         Ok(Some(
@@ -97,23 +129,32 @@ fn main() -> Result<()> {
             let path = PathBuf::from(
                 option(&args, "--output")?.unwrap_or_else(|| "corpus/validation.json".into()),
             );
+            let authoring = oxide_corpus::authoring()?;
+            let bundle = extract_corpus(&authoring)?;
             let mut reports = vec![];
             for slug in oxide_corpus::PUZZLES {
                 eprintln!("Validating {slug}");
-                let program = extract(
-                    &oxide_corpus::root()
-                        .join("puzzles")
-                        .join(slug)
-                        .join("puzzle.rs"),
-                )?;
-                reports.push(oxide_corpus::validate(slug, &program)?);
+                let export = &authoring.exports[*slug];
+                let program = &bundle.programs[&export.entry];
+                reports.push(oxide_corpus::validate(slug, program)?);
             }
             let compiler = Command::new(driver_path()?)
                 .arg("--compiler-version")
                 .output()?;
             ensure!(compiler.status.success(), "query active rustc version");
             let compiler = String::from_utf8(compiler.stdout)?;
-            let report = json!({"schema_version":1,"toolchain":compiler.trim(),"rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
+            ensure!(
+                bundle.manifest["compiler"]
+                    .as_str()
+                    .and_then(|version| version.lines().next())
+                    == Some(compiler.trim()),
+                "Cargo extraction and validation compiler versions differ"
+            );
+            ensure!(
+                oxide_corpus::authoring()? == authoring,
+                "Cargo inputs changed during corpus validation"
+            );
+            let report = json!({"schema_version":1,"authoring":authoring,"toolchain":compiler.trim(),"rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
             }
@@ -124,6 +165,15 @@ fn main() -> Result<()> {
                 path.display()
             );
         }
+        "native" => {
+            let slug = args
+                .get(1)
+                .context("usage: oxide native SLUG --solution '(...)'")?;
+            let solution = option(&args, "--solution")?.context("--solution required")?;
+            oxide_corpus::authoring()?;
+            let outcome = oxide_corpus::native_execute(slug, &solution)?;
+            println!("{}", serde_json::to_string_pretty(&outcome)?);
+        }
         "--help" | "-h" | "help" => usage(),
         _ => bail!("unknown command {command}"),
     }
@@ -131,6 +181,6 @@ fn main() -> Result<()> {
 }
 fn usage() {
     println!(
-        "oxide build SOURCE.rs --output PREFIX [--no-optimize]\noxide run PROGRAM.clvm.hex --solution '(...)' [--max-cost N]\noxide validate --output corpus/validation.json"
+        "oxide build SOURCE.rs --output PREFIX [--no-optimize]\noxide run PROGRAM.clvm.hex --solution '(...)' [--max-cost N]\noxide validate --output corpus/validation.json\noxide native SLUG --solution '(...)'"
     );
 }
