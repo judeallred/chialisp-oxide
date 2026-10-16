@@ -62,6 +62,22 @@ Rust CLVM, independently compiled Chialisp CLVM, and Rue source compiled with
 optimization off/on. The scalar examples also
 have generated sweeps around their bounds.
 
+Rust's enabled pipeline first runs the typed IR tree-guard pass and then Rue
+LIR optimization; its disabled pipeline runs neither. Rue source off/on controls
+only its LIR optimizer. The report records this distinction in
+`optimization_pipeline`, alongside the historical `optimize_lir` build flag.
+The comparison contract covers rejection and exact returned bytes, while costs
+and error strings may differ.
+
+The typed IR pass also has an independently implemented bounded interpreter and
+tree/expression matrix. It checks original and rewritten behavior, repeated
+optimization, lazy branches, discarded tuple/scalar failures, malformed scalar
+encodings, and multiple argument identities against actual CLVM executions.
+The highest argument-mask bit and invalid public inputs have separate analysis
+controls. The factory's structural model checks the source and rewritten IR
+against its independent specification and their equivalence; that is narrower
+than proving the pass correct for all programs.
+
 The report records serialized bytes, disassembly, tree hash, byte size, and
 per-case execution cost. A rejected run may have no returned cost; it must not
 be displayed as a zero-cost execution. VM execution cost is separate from

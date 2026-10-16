@@ -39,13 +39,17 @@ NORMALIZATION = "Only absolute repository prefixes inside Reject.message diagnos
 SCOPE = {
     "kind": "structural_ir_model",
     "domain": "All finite atom/pair trees with arbitrary finite byte-sequence atoms; no numeric canonicalization or tail restriction.",
-    "excludes": ["rustc extraction preservation", "SMT-translator correctness proof", "CLVM lowering/serialization preservation", "Rue optimization preservation", "VM cost/resource equivalence", "Rust canonical module identity", "consensus/authorization/security proof"],
+    "excludes": ["rustc extraction preservation", "SMT-translator correctness proof", "CLVM lowering/serialization preservation", "Rue optimization preservation", "VM cost/resource equivalence", "module identity inferred from the model proof", "consensus/authorization/security proof"],
 }
 BINARIES = {name: ROOT / f"target/debug/{name}" for name in [
     "cargo-chialisp-oxide", "chialisp-oxide-driver", "chialisp-oxide", "chialisp-oxide-verifier", "chialisp-oxide-tree-reference",
 ]}
 ARTIFACTS = {"program.ir.json", "accept-atom.ir.json", "wrong-quote.ir.json", "atom-domain.smt2",
-             "pair-domain.smt2", "atom-case.smt2", "pair-case.smt2", "accept-atom.smt2", "wrong-quote.smt2"}
+             "pair-domain.smt2", "atom-case.smt2", "pair-case.smt2", "accept-atom.smt2", "wrong-quote.smt2",
+             "optimized.ir.json", "optimized-atom-domain.smt2", "optimized-pair-domain.smt2",
+             "optimized-atom-case.smt2", "optimized-pair-case.smt2", "equivalence-atom-domain.smt2",
+             "equivalence-pair-domain.smt2", "equivalence-atom-case.smt2", "equivalence-pair-case.smt2",
+             "unsafe-guard-before.ir.json", "unsafe-guard-after.ir.json", "unsafe-guard.smt2"}
 
 
 def require(condition, message):
@@ -260,6 +264,90 @@ def replay(program_path, witness, temp, name):
     return {"native_original": native, "rust_original": rust, "canonical_reference": reference["runs"][0]["outcome"]}, reference
 
 
+def optimized_shape(program):
+    """Independent expected p2 rewrite; this does not implement the optimizer."""
+    mutants(program)  # Check the complete source-derived guard/construction shape.
+    result = copy.deepcopy(program)
+    result["program"]["body"] = copy.deepcopy(program["program"]["body"]["else_value"]["then_value"])
+    return result
+
+
+def unsafe_guard_control(program):
+    """Synthetic negative control, explicitly separate from the Cargo puzzle."""
+    before = copy.deepcopy(program)
+    before["program"]["name"] = "synthetic_unsafe_guard_drop"
+    kept = {"op": "tree_atom", "value": {"op": "atom", "hex": "aa"}}
+    before["program"]["body"] = {
+        "op": "if", "condition": {"op": "tree_is_pair", "value": {"op": "arg", "index": 0}},
+        "then_value": kept,
+        "else_value": {"op": "reject", "message": "Synthetic guard rejects atom inputs"},
+    }
+    after = copy.deepcopy(before)
+    after["program"]["body"] = copy.deepcopy(kept)
+    return before, after
+
+
+def query_files(stage, queries, prefix):
+    result = {}
+    for shape in ["atom", "pair"]:
+        names = {"domain": f"{prefix}{shape}-domain.smt2", "counterexample": f"{prefix}{shape}-case.smt2"}
+        for kind, name in names.items():
+            key = f"{shape}_nonvacuity" if kind == "domain" else f"{shape}_counterexample"
+            (stage / name).write_text(queries[key])
+        result[shape] = {key: f"{DIRECTORY}/{name}" for key, name in names.items()}
+    return result
+
+
+def generate_optimization(stage, temp, original):
+    verifier = BINARIES["chialisp-oxide-verifier"]
+    before_path, after_path = stage / "program.ir.json", stage / "optimized.ir.json"
+    optimized = json.loads(run([verifier, before_path, "--optimize-ir"]))
+    require(optimized == optimized_shape(original), "Actual optimizer did not produce the independently expected p2 rewrite")
+    write_json(after_path, optimized)
+    proof = json.loads(run([verifier, after_path, "--tree", ROOT / SPECIFICATION]))
+    require(proof["status"] == "proven", "Rewritten IR does not satisfy the independent canonical specification")
+    queries = query_files(stage, json.loads(run([verifier, after_path, "--tree", ROOT / SPECIFICATION, "--emit-json"])), "optimized-")
+    cases = []
+    for case in proof["cases"]:
+        observed, _ = replay(after_path, case["domain_nonvacuity"], temp, f"optimized-{case['input_shape']}")
+        cases.append({**case, "queries": queries[case["input_shape"]], "replay": observed})
+    equivalence = json.loads(run([verifier, before_path, "--tree-equivalent", after_path]))
+    require(equivalence["status"] == "proven", "Actual before/after structural IR differ")
+    queries = query_files(stage, json.loads(run([verifier, before_path, "--tree-equivalent", after_path, "--emit-json"])), "equivalence-")
+    equivalence["cases"] = [{**case, "queries": queries[case["input_shape"]]} for case in equivalence["cases"]]
+    control_before, control_after = unsafe_guard_control(original)
+    control_before_path, control_after_path = stage / "unsafe-guard-before.ir.json", stage / "unsafe-guard-after.ir.json"
+    write_json(control_before_path, control_before)
+    write_json(control_after_path, control_after)
+    # The real optimizer must keep this guard: its successful branch does not
+    # evaluate a pair projection. The deliberately unsafe edit must be refuted.
+    require(json.loads(run([verifier, control_before_path, "--optimize-ir"])) == control_before,
+            "Actual optimizer removed a guard without a required pair projection")
+    result = json.loads(run([verifier, control_before_path, "--tree-equivalent", control_after_path], expected=1))
+    require(result["status"] == "refuted", "Unsafe guard-removal control was not refuted")
+    witness = result["cases"][0]["counterexample"]
+    require(witness is not None and isinstance(tree(witness["environment"]), bytes), "Unsafe guard removal needs an actual atom witness")
+    witness_path = temp / "unsafe-guard.witness.json"
+    write_json(witness_path, witness)
+    guarded = json.loads(run([verifier, control_before_path, "--tree-replay", witness_path]))
+    unguarded = json.loads(run([verifier, control_after_path, "--tree-replay", witness_path]))
+    check_replays(guarded, {"status": "rejected"})
+    check_replays(unguarded, {"status": "accepted", "output_hex": wire(b"\xaa").hex()})
+    query = json.loads(run([verifier, control_before_path, "--tree-equivalent", control_after_path, "--emit-json"]))["atom_counterexample"]
+    (stage / "unsafe-guard.smt2").write_text(query)
+    return {
+        "pass": "required_pair_projection_guard_elision",
+        "ir": {"path": f"{DIRECTORY}/optimized.ir.json", "sha256": sha(after_path)},
+        "proof": {"status": "proven", "cases": cases}, "equivalence": equivalence,
+        "artifacts": {"source": json.loads(run([verifier, before_path, "--artifacts"])),
+                      "rewritten": json.loads(run([verifier, after_path, "--artifacts"]))},
+        "control": {"id": "unsafe-guard-drop", "origin": "synthetic structural IR; not a source-derived puzzle",
+                    "before_ir": f"{DIRECTORY}/unsafe-guard-before.ir.json", "after_ir": f"{DIRECTORY}/unsafe-guard-after.ir.json",
+                    "query": f"{DIRECTORY}/unsafe-guard.smt2", "result": result, "counterexample": witness,
+                    "replay": {"guarded": guarded, "unguarded": unguarded}, "detected": True},
+    }
+
+
 def generate(output):
     specification()
     canonical_source()
@@ -314,6 +402,7 @@ def generate(output):
             mutation_reports.append({"id": identity, "description": "Replace the atom-case rejection with a successful empty atom" if identity == "accept-atom" else "Change only the constructed quote opcode atom from01 to02",
                                      "ir": f"{DIRECTORY}/{identity}.ir.json", "query": f"{DIRECTORY}/{identity}.smt2", "result": result,
                                      "counterexample": witness, "replay": {**observed, "mutant_ir": mutated}, "detected": True})
+        optimization = generate_optimization(stage, temp, program)
         require(authoring() == current and implementation_sources() == before, "Declared policy/model/compiler inputs changed during proof/replay")
         artifact_records = [{"path": f"{DIRECTORY}/{name}", "sha256": sha(stage / name)} for name in sorted(ARTIFACTS)]
         reference.pop("runs")
@@ -322,13 +411,104 @@ def generate(output):
                   "ir": {"path": f"{DIRECTORY}/program.ir.json", "sha256": sha(stage / "program.ir.json"), "diagnostic_normalization": NORMALIZATION},
                   "implementation_sources": before, "scope": SCOPE,
                   "reference": {"source": REFERENCE, "source_sha256": REFERENCE_SHA, "published_artifact": PUBLISHED, **reference},
-                  "proof": {"status": "proven", "cases": cases}, "mutations": mutation_reports, "artifacts": artifact_records}
+                  "proof": {"status": "proven", "cases": cases}, "mutations": mutation_reports,
+                  "optimization": optimization, "artifacts": artifact_records}
         # Publish the report last; interrupted artifact writes cannot masquerade
         # as current evidence because the read-only gate checks every hash.
         for name in sorted(ARTIFACTS):
             (ROOT / DIRECTORY / name).write_bytes((stage / name).read_bytes())
         validate(report)
         write_json(output, report)
+
+
+def artifact_hash(encoded):
+    """Independently hash ordinary serialized atom/pair artifacts, not source IR."""
+    require(isinstance(encoded, str) and re.fullmatch(r"(?:[0-9a-f]{2})+", encoded), "Invalid compiled artifact hex")
+    data = bytes.fromhex(encoded)
+    require(len(data) <= 1_048_576, "Compiled artifact exceeds checker bound")
+    position, nodes = 0, 0
+    def read(depth):
+        nonlocal position, nodes
+        nodes += 1
+        require(depth <= 256 and nodes <= 20_000 and position < len(data), "Malformed compiled artifact tree")
+        prefix = data[position]
+        position += 1
+        if prefix == 255:
+            return hashlib.sha256(b"\x02" + read(depth + 1) + read(depth + 1)).digest()
+        if prefix <= 127:
+            payload = bytes([prefix])
+        else:
+            mask, count = 128, 0
+            while prefix & mask:
+                count += 1
+                mask >>= 1
+            require(count <= 6 and position + count - 1 <= len(data), "Malformed compiled atom header")
+            size = prefix & (mask - 1)
+            for _ in range(count - 1):
+                size = (size << 8) | data[position]
+                position += 1
+            require(position + size <= len(data), "Truncated compiled atom")
+            payload = data[position:position + size]
+            position += size
+        return hashlib.sha256(b"\x01" + payload).digest()
+    digest = read(0)
+    require(position == len(data), "Trailing compiled artifact bytes")
+    return digest.hex()
+
+
+def validate_optimization(value, original):
+    require(value["pass"] == "required_pair_projection_guard_elision", "Changed optimization claim")
+    path = f"{DIRECTORY}/optimized.ir.json"
+    require(value["ir"] == {"path": path, "sha256": sha(ROOT / path)}
+            and load_json(ROOT / path) == optimized_shape(original), "Rewritten IR differs from the reviewed canonical construction")
+    for key, prefix in [("proof", "optimized-"), ("equivalence", "equivalence-")]:
+        proof = value[key]
+        require(proof["status"] == "proven" and [case["input_shape"] for case in proof["cases"]] == ["atom", "pair"],
+                "Missing optimized-specification or before/after equivalence obligation")
+        for case in proof["cases"]:
+            shape, witness = case["input_shape"], case["domain_nonvacuity"]
+            require(case["counterexample"] is None and (isinstance(tree(witness["environment"]), bytes)) == (shape == "atom"),
+                    "Vacuous or failed optimized/equivalence proof")
+            require(case["queries"] == {"domain": f"{DIRECTORY}/{prefix}{shape}-domain.smt2",
+                    "counterexample": f"{DIRECTORY}/{prefix}{shape}-case.smt2"}, "Wrong optimized/equivalence query binding")
+            if key == "proof":
+                observed, desired = case["replay"], expected(witness)
+                require(outcome(observed["native_original"]) == desired
+                        and outcome(observed["canonical_reference"]) == desired, "Rewritten witness differs from native/canonical reference")
+                check_replays(observed["rust_original"], desired)
+    artifacts = value["artifacts"]
+    require(set(artifacts) == {"source", "rewritten"}, "Missing before/after compiled artifact evidence")
+    for kind in ["source", "rewritten"]:
+        require(len(artifacts[kind]) == 2 and [row["optimize"] for row in artifacts[kind]] == [False, True],
+                "Missing before/after compilation mode")
+        for row in artifacts[kind]:
+            require(type(row["optimize"]) is bool and type(row["bytes"]) is int
+                    and row["bytes"] == len(row["clvm_hex"]) // 2 and row["tree_hash"] == artifact_hash(row["clvm_hex"]),
+                    "Compiled artifact byte count or independently computed tree hash differs")
+            if row["optimize"]:
+                require(row["clvm_hex"] == CLVM_HEX and row["tree_hash"] == TREE_HASH,
+                        "Optimized canonical module identity has not been achieved")
+    require(artifacts["source"][0]["clvm_hex"] != CLVM_HEX,
+            "Expected a genuine unoptimized source baseline for the measured hash-gap experiment")
+    require(artifacts["rewritten"][0]["bytes"] < artifacts["source"][0]["bytes"],
+            "Explicit IR rewrite did not reduce the genuinely unoptimized artifact")
+    control = value["control"]
+    require(control["id"] == "unsafe-guard-drop" and control["origin"] == "synthetic structural IR; not a source-derived puzzle"
+            and control["detected"] is True and control["query"] == f"{DIRECTORY}/unsafe-guard.smt2", "False or mislabeled unsafe-rule control")
+    before, after = unsafe_guard_control(original)
+    for key, expected_ir in [("before_ir", before), ("after_ir", after)]:
+        name = "before" if key == "before_ir" else "after"
+        require(control[key] == f"{DIRECTORY}/unsafe-guard-{name}.ir.json" and load_json(ROOT / control[key]) == expected_ir,
+                "Unsafe-rule control changed unrelated IR")
+    result, witness = control["result"], control["counterexample"]
+    require(result["status"] == "refuted" and [case["input_shape"] for case in result["cases"]] == ["atom", "pair"]
+            and result["cases"][0]["counterexample"] == witness and isinstance(tree(witness["environment"]), bytes),
+            "Unsafe rule lacks an actual atom counterexample")
+    for case in result["cases"]:
+        require((isinstance(tree(case["domain_nonvacuity"]["environment"]), bytes)) == (case["input_shape"] == "atom"),
+                "Missing unsafe-rule domain witness")
+    check_replays(control["replay"]["guarded"], {"status": "rejected"})
+    check_replays(control["replay"]["unguarded"], {"status": "accepted", "output_hex": wire(b"\xaa").hex()})
 
 
 def validate(report):
@@ -381,6 +561,7 @@ def validate(report):
         mutated = {"status": "accepted", "output_hex": "80"} if identity == "accept-atom" else expected(witness, b"\x02")
         require(mutated != expected(witness), "Mutation witness has no observable policy difference")
         check_replays(observed["mutant_ir"], mutated)
+    validate_optimization(report["optimization"], load_json(ir_path))
 
 
 class ProofControls(unittest.TestCase):
@@ -406,6 +587,29 @@ class ProofControls(unittest.TestCase):
             with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError, TypeError)):
                 validate(changed)
 
+    def test_optimization_evidence_cannot_hide_a_failed_proof_or_hash_gap(self):
+        original = load_json(OUTPUT)
+        validate(original)
+        for mutation in ("ir", "equivalence", "specification", "domain", "replay", "artifact", "hash", "baseline", "control", "witness", "control_replay", "origin"):
+            changed = copy.deepcopy(original)
+            value = changed["optimization"]
+            if mutation == "ir": value["ir"]["sha256"] = "0" * 64
+            elif mutation == "equivalence": value["equivalence"]["status"] = "refuted"
+            elif mutation == "specification": value["proof"]["cases"][1]["counterexample"] = value["proof"]["cases"][1]["domain_nonvacuity"]
+            elif mutation == "domain": value["equivalence"]["cases"][0]["domain_nonvacuity"] = value["equivalence"]["cases"][1]["domain_nonvacuity"]
+            elif mutation == "replay": value["proof"]["cases"][1]["replay"]["rust_original"][0]["outcome"]["output_hex"] = "80"
+            elif mutation == "artifact":
+                value["artifacts"]["rewritten"][1].update(bytes=1, clvm_hex="01", tree_hash=artifact_hash("01"))
+            elif mutation == "hash": value["artifacts"]["rewritten"][0]["tree_hash"] = "0" * 64
+            elif mutation == "baseline":
+                value["artifacts"]["source"][0] = copy.deepcopy(value["artifacts"]["rewritten"][0])
+            elif mutation == "control": value["control"]["result"]["status"] = "proven"
+            elif mutation == "witness": value["control"]["counterexample"] = value["equivalence"]["cases"][1]["domain_nonvacuity"]
+            elif mutation == "control_replay": value["control"]["replay"]["guarded"][0]["outcome"] = {"status": "accepted", "output_hex": "81aa", "cost": 1}
+            else: value["control"]["origin"] = "source-derived canonical puzzle"
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError, TypeError)):
+                validate(changed)
+
     def test_guard_matcher_and_metadata_normalization_cannot_hide_policy_edits(self):
         original = load_json(ROOT / DIRECTORY / "program.ir.json")
         variants = mutants(original)
@@ -420,6 +624,9 @@ class ProofControls(unittest.TestCase):
             self.assertEqual(tree({"kind": "atom", "hex": byte.hex()}), byte)
         self.assertEqual(wire((b"\x01", b"")), bytes.fromhex("ff0180"))
         self.assertEqual(wire((b"\x00\x01", b"\x00")), bytes.fromhex("ff82000100"))
+        self.assertEqual(artifact_hash(CLVM_HEX), TREE_HASH)
+        for malformed in ["", "ff", "81", "01ff", "fe"]:
+            with self.subTest(serialization=malformed), self.assertRaises(ValueError): artifact_hash(malformed)
 
 
 def main():

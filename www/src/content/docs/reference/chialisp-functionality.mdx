@@ -162,7 +162,12 @@ Keep the original source unchanged and report the observed differences.
 
 The [canonical p2_conditions factory](/chialisp-oxide/tutorials/p2-conditions/)
 now exercises explicit raw-tree Rust construction and matching, exact original
-source, produced-program execution and published module identity. Its structural
+source, produced-program execution and published module identity.
+Optimized Rust, independent Chialisp, and optimized Rue now reproduce the exact
+published nine-byte module and tree hash. The unoptimized artifacts differ.
+Rust's typed IR guard pass retains checked projections, then Rue LIR completes
+the enabled pipeline. This identity is measured for one factory; it does not
+establish general canonical or curried-instance compatibility. Its structural
 IR-model proof is separate from compiler preservation. Broader compatibility still
 needs unbounded integers, recursion, dynamic program execution and
 primitive-by-primitive validation. No unsafe opaque extern intrinsic should bypass those obligations.

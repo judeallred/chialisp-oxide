@@ -371,6 +371,58 @@ pub fn emit_tree(program: &Program, specification: &TreeSpecification) -> Result
     })
 }
 
+/// Compare two actual structural expression trees using the symbolic execution
+/// semantics, independently of any optimizer's syntactic side-condition test.
+/// Rejection diagnostics and VM cost are outside this equivalence relation.
+pub fn emit_tree_equivalence(before: &Program, after: &Program) -> Result<TreeQueries> {
+    for program in [before, after] {
+        program
+            .validate()
+            .context("invalid structural equivalence IR")?;
+        ensure!(
+            program.environment == Environment::Raw
+                && program.parameters.len() == 1
+                && program.parameters[0].ty == Type::Tree
+                && program.result == Type::Tree,
+            "structural equivalence requires one raw tree parameter and a tree result"
+        );
+    }
+    let mut tr = Translation::default();
+    let before = tr.expression(&before.body)?;
+    let after = tr.expression(&after.body)?;
+    let empty = format!("(atom {})", sequence("")?);
+    let before_value = before.value.unwrap_or(Value::Tree(empty.clone()));
+    let after_value = after.value.unwrap_or(Value::Tree(empty));
+    let mismatch = format!(
+        "(or (not (= {} {})) (and {} {} (not (= {} {}))))",
+        before.success,
+        after.success,
+        before.success,
+        after.success,
+        before_value.tree()?,
+        after_value.tree()?
+    );
+    let base = format!(
+        "; Structural IR equivalence only: rejection/output equality, excluding diagnostics, cost and compiler preservation.\n(set-logic ALL)\n(set-option :pp.min-alias-size 1000000)\n(declare-datatypes ((Tree 0)) (((atom (atom_bytes {SEQUENCE})) (pair (pair_first Tree) (pair_rest Tree)))))\n(declare-const env Tree)\n{}",
+        tr.text
+    );
+    let case = |shape: &str| {
+        let domain = format!("{base}(assert ((_ is {shape}) env))\n");
+        (
+            format!("{domain}(check-sat)\n"),
+            format!("{domain}(assert {mismatch})\n(check-sat)\n"),
+        )
+    };
+    let (atom_nonvacuity, atom_counterexample) = case("atom");
+    let (pair_nonvacuity, pair_counterexample) = case("pair");
+    Ok(TreeQueries {
+        atom_nonvacuity,
+        atom_counterexample,
+        pair_nonvacuity,
+        pair_counterexample,
+    })
+}
+
 fn byte_sequence_sort(value: &SExpression) -> bool {
     let SExpression::List(items) = value else {
         return false;
@@ -525,7 +577,20 @@ pub fn verify_tree(
     specification: &TreeSpecification,
     config: &SolverConfig,
 ) -> Result<TreeVerification> {
-    let queries = emit_tree(program, specification)?;
+    verify_tree_queries(emit_tree(program, specification)?, config)
+}
+
+/// Prove equivalence in the structural IR model, without asserting compiler or
+/// optimizer implementation correctness for expressions beyond these inputs.
+pub fn verify_tree_equivalence(
+    before: &Program,
+    after: &Program,
+    config: &SolverConfig,
+) -> Result<TreeVerification> {
+    verify_tree_queries(emit_tree_equivalence(before, after)?, config)
+}
+
+fn verify_tree_queries(queries: TreeQueries, config: &SolverConfig) -> Result<TreeVerification> {
     let mut cases = vec![];
     for (input_shape, nonvacuity, counterexample) in [
         (

@@ -77,11 +77,51 @@ runtime allocation or general program evaluation. The scalar verifier rejects
 tree expressions, including expressions in unchosen branches, instead of
 silently interpreting them under integer semantics.
 
+## Prove one actual optimization step
+
+The factory's Rust pattern match introduces explicit pair checks. A typed-IR
+pass removes a pair guard only when every successful evaluation of its kept
+branch requires a checked first/rest projection of that same argument. The
+projection still rejects atoms. Facts from strict operands combine; facts from
+lazy branches must hold in both branches. The pass keeps the full external ABI
+validation and never cancels the required projection.
+
+The report contains the actual rewritten IR, not a separately written ideal
+program. Z3 compares the actual original and rewritten expression trees over
+the same arbitrary finite environment. A mismatch means different acceptance,
+or different output when both accept. Both atom and pair domains have checked
+witnesses; their counterexample queries are unsatisfiable. The rewritten IR
+also satisfies the independent `p2_conditions` specification.
+
+Actual compilation is recorded separately: source-derived IR produces 65 bytes
+without optimization and the canonical 9 bytes with optimization. Rewritten IR
+produces 13 bytes without Rue optimization and 9 with it. Optimized Rust,
+independently compiled Chialisp, and optimized Rue therefore reproduce the
+published bytes and tree hash. This identity is measured from compiled artifacts;
+it is not inferred from the SMT result. Rust optimization enables the typed-IR
+pass followed by Rue LIR optimization; Rust's unoptimized mode enables neither.
+
+The negative control is deliberately unsafe: a pair-only guard around a
+constant result has no required projection. Removing it would accept atoms.
+The real optimizer keeps the guard; an explicitly labeled synthetic IR edit
+removes it, and the solver finds an atom counterexample. Both guarded VM builds
+reject that witness and both edited builds accept it. This control tests the
+equivalence checker's ability to distinguish a superficially similar bad rule.
+
+Independent bounded interpreter/VM tests additionally cover nested guards,
+strict discarded operands, lazy branches, different arguments, checked
+arithmetic, tuple fields, malformed typed environments, and repeated
+optimization. These executed tests complement the model proof for this factory.
+They do not establish a universal theorem for the optimization algorithm, Rue's
+passes, or source-to-CLVM compilation. Cost and diagnostic strings can change;
+the equivalence relation covers rejection and successful output only.
+
 ## Remaining trust boundaries
 
-These checks assume successful decoding of canonical typed scalar values.
-They do not prove the ABI decoder, rustc MIR extraction, SMT translation,
-Rue optimizer, or CLVM lowering. Byte semantics are outside the scalar model.
+The scalar checks assume successfully decoded canonical typed values. The
+structural checks instead model whole raw trees. Neither establishes the ABI
+decoder, rustc MIR extraction, SMT translation, Rue optimizer, or CLVM lowering.
+Byte semantics are outside the scalar model.
 The counter is not a condition-producing puzzle, and its proof does not
 establish spend-bundle validity or economic security.
 

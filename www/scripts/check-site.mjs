@@ -2,6 +2,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
@@ -57,6 +58,33 @@ for (const name of ['validation', 'proofs', 'tree-proofs', 'inventory', 'tutoria
 }
 const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
 const proofs = JSON.parse(await readFile(path.join(root, 'reports/proofs.json'), 'utf8'));
+const treeProofs = JSON.parse(await readFile(path.join(root, 'reports/tree-proofs.json'), 'utf8'));
+const formal = await html(path.join(root, 'verification/formal/index.html'));
+const structuralTutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
+const structuralDirectory = path.join(root, 'reports/structural');
+const structuralBasenames = [];
+assert.equal(treeProofs.artifacts.length, 21, 'Expected the explicitly allowlisted structural proof artifacts');
+for (const artifact of treeProofs.artifacts) {
+  assert.match(artifact.path, /^proofs\/p2-conditions\/[a-z][a-z0-9-]*(?:\.ir\.json|\.smt2)$/, 'Unexpected structural source path');
+  const basename = path.basename(artifact.path);
+  structuralBasenames.push(basename);
+  const published = await readFile(path.join(structuralDirectory, basename));
+  const source = await readFile(new URL(`../../${artifact.path}`, import.meta.url));
+  assert.deepEqual(published, source, `${basename}: published structural artifact bytes differ from repository`);
+  for (const bytes of [published, source]) {
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), artifact.sha256, `${basename}: structural artifact hash mismatch`);
+  }
+  const link = `href="${base}reports/structural/${basename}"`;
+  assert(formal.includes(link) && structuralTutorial.includes(link), `${basename}: missing direct proof download link`);
+}
+assert.deepEqual((await readdir(structuralDirectory)).sort(), structuralBasenames.sort(), 'Unexpected or missing published structural artifact');
+for (const label of ['Before/after IR equivalence', 'Unsafe guard removal: refuted', 'Exact bytes and hash']) {
+  assert(formal.includes(label), `Missing actual optimization evidence: ${label}`);
+}
+assert.equal(treeProofs.optimization.equivalence.status, 'proven');
+assert.equal(treeProofs.optimization.proof.status, 'proven');
+assert.equal(treeProofs.optimization.control.result.status, 'refuted');
+assert.equal(treeProofs.optimization.control.detected, true);
 assert.equal(validation.authoring.mode, 'cargo_library', 'Published validation must use real Cargo authoring');
 const { entry: proofEntry, ...proofInputs } = proofs.authoring;
 assert.equal(proofEntry, validation.authoring.exports['bounded-counter'].entry, 'Published proof has the wrong Cargo export');
@@ -92,6 +120,11 @@ for (const puzzle of validation.puzzles) {
     }
     assert(puzzle.factory_checks.length > 0 && puzzle.module_identity, `${puzzle.slug}: missing factory evidence`);
     assert.deepEqual(puzzle.simulator, [], 'A factory must not claim direct ledger scenarios');
+    for (const backend of ['rust_mir', 'chialisp', 'rue_source']) {
+      const artifact = puzzle.artifacts.find(row => row.backend === backend && row.optimize_lir);
+      assert.equal(artifact.clvm_hex, puzzle.module_identity.upstream_hex, `${backend}: canonical factory bytes must match`);
+      assert.equal(artifact.tree_hash, puzzle.module_identity.upstream_tree_hash, `${backend}: canonical factory hash must match`);
+    }
     const applications = puzzle.factory_checks.reduce((n, row) => n + row.application_runs.length, 0);
     assert(detail.includes(`${applications} second-stage VM executions`), 'Factory application count must come from the report');
     const tutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
@@ -158,7 +191,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions']) {
+for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -170,4 +203,4 @@ for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 7 JSON reports, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 7 JSON reports, ${structuralBasenames.length} exact structural downloads, and live Pagefind queries`);

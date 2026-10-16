@@ -47,8 +47,9 @@ cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --l
 cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --no-optimize
 ```
 
-`--no-optimize` disables Rue LIR optimization; it does not disable Rust checks,
-ABI validation, or bounded arithmetic. Existing compiler wrappers are rejected
+`--no-optimize` skips both the typed IR tree-guard pass and Rue LIR optimization
+for Rust exports. The default runs those passes in that order. Rust checks,
+ABI validation, and bounded arithmetic remain active in both modes. Existing compiler wrappers are rejected
 rather than silently composed with the extraction wrapper.
 
 ### Output bundles
@@ -132,8 +133,10 @@ slugs, and stale native-oracle inputs exit nonzero.
 
 This helper applies the canonical codec and invokes the actual linked Cargo
 policy. Explicit ignored-environment nullary exports parse the supplied CLVM
-tree but do not impose an argument-list or typed-scalar check. Other exports
-retain their strict fixture ABI. The native helper does not execute the VM or
+tree but do not impose an argument-list or typed-scalar check. Raw-tree exports
+pass the whole environment as borrowed
+tree data; their source determines shape checks. Default exports retain their
+strict fixture ABI. The native helper does not execute the VM or
 ledger.
 Its compiled input snapshot is checked against `puzzles/authoring.json`; a deliberately
 changed declared input has been tested to reject until the native oracle is
@@ -153,6 +156,12 @@ Chialisp references independently. The native oracle links that same Cargo
 library. Named and generated inputs compare native output/rejection with all
 five CLVM builds (Chialisp, Rust off/on, and Rue source off/on); optimized coin puzzles from each language also run separately in the ledger simulator.
 A divergence fails the run.
+
+The report's `optimization_pipeline` distinguishes Rust's two optimization
+passes from the Rue source compiler's LIR pass. The existing `optimize_lir`
+boolean names each off/on build for compatibility; read it together with that
+metadata. Rejection and exact returned bytes are compared; optimization may
+change execution costs and rejection diagnostics.
 
 `puzzles/authoring.json` declares package, library, export/source mapping, and
 local Cargo inputs. Validation and source-derived proof reports record the

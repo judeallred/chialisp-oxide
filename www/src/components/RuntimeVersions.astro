@@ -4,6 +4,8 @@ import { report } from '../lib/data';
 <dl class="versions">
   <div><dt>Rust analysis</dt><dd>{report.toolchain}</dd></div>
   <div><dt>Rue upstream revision</dt><dd><code>{report.rue_revision}</code></dd></div>
+  <div><dt>Optimized Rust path</dt><dd>Typed IR pair-guard simplification, then Rue LIR optimization. Unoptimized Rust skips both passes.</dd></div>
+  <div><dt>Local Rue fixes</dt><dd>{report.rue_local_patches.map((url, index) => <><a href={url}>#{new URL(url).pathname.split('/').pop()}</a>{index + 1 < report.rue_local_patches.length ? ', ' : ''}</>)}</dd></div>
   <div><dt>Differential execution</dt><dd>{report.execution_vm}</dd></div>
   <div><dt>Ledger simulator</dt><dd>{report.simulator.sdk}; {report.simulator.consensus}</dd></div>
   <div><dt>Simulator VM / network</dt><dd>{report.simulator.vm}; {report.simulator.network}</dd></div>

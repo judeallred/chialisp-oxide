@@ -1,0 +1,35 @@
+{
+  "ir_version": 3,
+  "environment": "raw",
+  "program": {
+    "name": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tree"
+    },
+    "body": {
+      "op": "tree_pair",
+      "first": {
+        "op": "tree_atom",
+        "value": {
+          "op": "atom",
+          "hex": "01"
+        }
+      },
+      "rest": {
+        "op": "tree_first",
+        "value": {
+          "op": "arg",
+          "index": 0
+        }
+      }
+    }
+  }
+}

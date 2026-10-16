@@ -265,6 +265,13 @@ The first raw-tree witness is the exact canonical `p2_conditions` factory.
 It uses ordinary borrowed Rust enum matching and the SDK `quote` helper, with
 an explicit whole-environment ABI. Its report checks the factory result, applies
 the returned program, and separately compares published module identity.
+Optimized Rust now reproduces the published nine-byte module exactly, as do
+the independent Chialisp compiler and optimized Rue source. Unoptimized Rust
+and Rue have different artifacts. Rust's enabled pipeline runs the conservative
+typed IR tree-guard pass followed by Rue LIR; the first projection still rejects
+atom environments after a redundant guard is removed. The report records both
+pipelines and actual byte/hash comparisons. This one measured factory identity
+does not establish general module or curried-instance compatibility.
 The structural tree model proves its stated IR specification, not compiler
 preservation. Broader numeric compatibility still needs native arbitrary-precision
 semantics, reviewed SDK identity, and explicit target operations. A native Rust builder that embeds

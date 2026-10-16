@@ -120,6 +120,18 @@ specified bounds and acceptance, detects a removed guard, and replays witnesses
 through native Rust and both CLVM optimization modes. These are **IR-model
 proofs**, not proofs of compiler preservation or absence of all security flaws.
 
+Optimized Rust now reproduces the published **nine-byte `p2_conditions` module
+and its exact tree hash**, alongside independently compiled Chialisp and Rue.
+A conservative typed-IR pass removes a pair guard only when a required checked
+projection still rejects atoms. The structural verifier checks the actual
+before/after IR for equal acceptance and output over arbitrary finite trees;
+an unsafe guard-removal control must produce a replayable counterexample.
+Independent interpreter/VM comparisons also cover strict evaluation, lazy
+branches, overflow, malformed environments, and repeated optimization. This
+does not prove the optimizer for every program or preserve execution costs and
+diagnostic strings. See the [factory walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-conditions/)
+and [formal evidence](https://judeallred.github.io/chialisp-oxide/verification/formal/).
+
 ## Functionality and source coverage
 
 [The functionality map](docs/chialisp-functionality.md) distinguishes Rust’s
@@ -129,6 +141,9 @@ Borrowed raw-tree construction/matching and explicit whole-environment exports
 are implemented; recursive tree processing, arbitrary-precision integers, hashing and crypto,
 currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
+The [runtime-call experiment](docs/runtime-calls.md) validates finite CLVM
+self/mutual call tables and VM cost limits. It is a backend experiment;
+recursive Rust calls remain unsupported pending explicit call and binding IR.
 
 [The published-source catalog](corpus/published-puzzles.json) enumerates pinned
 repository trees and records its exact discovery scope. It includes Chialisp,

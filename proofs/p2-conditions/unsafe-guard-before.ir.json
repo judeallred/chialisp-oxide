@@ -1,0 +1,39 @@
+{
+  "ir_version": 3,
+  "environment": "raw",
+  "program": {
+    "name": "synthetic_unsafe_guard_drop",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tree"
+    },
+    "body": {
+      "op": "if",
+      "condition": {
+        "op": "tree_is_pair",
+        "value": {
+          "op": "arg",
+          "index": 0
+        }
+      },
+      "then_value": {
+        "op": "tree_atom",
+        "value": {
+          "op": "atom",
+          "hex": "aa"
+        }
+      },
+      "else_value": {
+        "op": "reject",
+        "message": "Synthetic guard rejects atom inputs"
+      }
+    }
+  }
+}

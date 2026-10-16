@@ -2,7 +2,7 @@ use chialisp_oxide_ir::{Environment, Expr, Parameter, Program, Type};
 use chialisp_oxide_verifier::{
     Obligation, Predicate, ReplayOutcome, SolverConfig, Specification, TreeShape,
     TreeSpecification, TreeTerm, TreeValue, TreeVerification, TreeWitness, emit, emit_tree,
-    replay_tree, verify_tree,
+    replay_tree, verify_tree, verify_tree_equivalence,
 };
 
 fn atom(hex: &str) -> Expr {
@@ -122,6 +122,112 @@ fn symbolic_atom_pair_cases_are_nonvacuous_and_replay_in_both_vm_modes() {
 }
 
 #[test]
+fn actual_guard_optimization_preserves_the_independent_structural_specification() {
+    let before = original();
+    let after = chialisp_oxide_ir::optimize(&before).unwrap();
+    assert_ne!(
+        serde_json::to_value(&before.body).unwrap(),
+        serde_json::to_value(&after.body).unwrap(),
+        "this proof must exercise an actual rewrite"
+    );
+    for p in [&before, &after] {
+        assert!(matches!(
+            verify_tree(p, &specification(), &SolverConfig::default()).unwrap(),
+            TreeVerification::Proven { .. }
+        ));
+    }
+    assert!(matches!(
+        verify_tree_equivalence(&before, &after, &SolverConfig::default()).unwrap(),
+        TreeVerification::Proven { .. }
+    ));
+}
+
+#[test]
+fn symbolic_equivalence_detects_unsafe_guard_elision_without_required_projection() {
+    let kept = atom("aa");
+    let before = program(Expr::If {
+        condition: Box::new(Expr::TreeIsPair {
+            value: Box::new(arg()),
+        }),
+        then_value: Box::new(kept.clone()),
+        else_value: Box::new(reject()),
+    });
+    let actual = chialisp_oxide_ir::optimize(&before).unwrap();
+    assert!(matches!(
+        verify_tree_equivalence(&before, &actual, &SolverConfig::default()).unwrap(),
+        TreeVerification::Proven { .. }
+    ));
+    let unsafe_after = program(kept);
+    let TreeVerification::Refuted { cases } =
+        verify_tree_equivalence(&before, &unsafe_after, &SolverConfig::default()).unwrap()
+    else {
+        panic!("removing this guard changes atom rejection to acceptance")
+    };
+    let witness = cases[0].counterexample.clone().unwrap();
+    compare_vm(&before, witness.environment.clone(), None);
+    compare_vm(&unsafe_after, witness.environment, Some(value("aa")));
+}
+
+#[test]
+fn symbolic_equivalence_checks_lazy_and_atom_projection_counterexamples() {
+    let kept = [
+        Expr::If {
+            condition: Box::new(Expr::Bool { value: false }),
+            then_value: Box::new(Expr::TreeFirst {
+                value: Box::new(arg()),
+            }),
+            else_value: Box::new(atom("aa")),
+        },
+        Expr::TreeAtom {
+            value: Box::new(Expr::TreeAtomValue {
+                value: Box::new(arg()),
+            }),
+        },
+    ];
+    for kept in kept {
+        let before = program(Expr::If {
+            condition: Box::new(Expr::TreeIsPair {
+                value: Box::new(arg()),
+            }),
+            then_value: Box::new(kept.clone()),
+            else_value: Box::new(reject()),
+        });
+        let after = chialisp_oxide_ir::optimize(&before).unwrap();
+        assert!(matches!(
+            verify_tree_equivalence(&before, &after, &SolverConfig::default()).unwrap(),
+            TreeVerification::Proven { .. }
+        ));
+        let TreeVerification::Refuted { cases } =
+            verify_tree_equivalence(&before, &program(kept), &SolverConfig::default()).unwrap()
+        else {
+            panic!("an unexecuted or atom-only projection cannot require a pair")
+        };
+        assert!(cases[0].counterexample.is_some());
+    }
+    let before = program(Expr::If {
+        condition: Box::new(Expr::TreeIsPair {
+            value: Box::new(arg()),
+        }),
+        then_value: Box::new(Expr::Sequence {
+            first: Box::new(Expr::TreeRest {
+                value: Box::new(arg()),
+            }),
+            then_value: Box::new(atom("aa")),
+        }),
+        else_value: Box::new(reject()),
+    });
+    let after = chialisp_oxide_ir::optimize(&before).unwrap();
+    assert_ne!(
+        serde_json::to_value(&before.body).unwrap(),
+        serde_json::to_value(&after.body).unwrap()
+    );
+    assert!(matches!(
+        verify_tree_equivalence(&before, &after, &SolverConfig::default()).unwrap(),
+        TreeVerification::Proven { .. }
+    ));
+}
+
+#[test]
 fn atom_acceptance_and_quote_constructor_mutations_are_refuted_and_replayed() {
     let mut guard_mutant = original();
     let Expr::If { else_value, .. } = &mut guard_mutant.body else {
@@ -159,6 +265,14 @@ fn atom_acceptance_and_quote_constructor_mutations_are_refuted_and_replayed() {
         panic!("constructor mutation was not detected")
     };
     let witness = cases[1].counterexample.clone().unwrap();
+    let TreeVerification::Refuted { cases } =
+        verify_tree_equivalence(&original(), &constructor_mutant, &SolverConfig::default())
+            .unwrap()
+    else {
+        panic!("unchanged acceptance with a changed output must not be equivalent")
+    };
+    assert!(cases[0].counterexample.is_none());
+    assert!(cases[1].counterexample.is_some());
     let TreeValue::Pair { first, .. } = &witness.environment else {
         panic!("pair witness expected")
     };

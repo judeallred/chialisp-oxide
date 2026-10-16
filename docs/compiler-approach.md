@@ -350,7 +350,9 @@ expansion limits before Rue code generation. Unsupported MIR fails closed.
 
 Thirteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
-compilation. Rust and Rue each run with LIR optimization off/on. Eight coin
+compilation. Rust optimization on runs the typed IR tree-guard pass followed by
+Rue LIR optimization; off runs neither. Rue source uses its LIR off/on switch.
+The validation report records these pipelines explicitly. Eight coin
 fixtures additionally have 30 ledger scenarios executed for each language
 (90 ledger executions). Nine original teaching examples
 are separate from three exact canonical Intro expressions; the latter use an
@@ -377,8 +379,22 @@ passes the whole environment to one tree parameter. Default strict decoding
 and version-2 ignored nullary exports keep their contracts. Native codecs use
 an arena and iterative traversals; generated inputs include large atoms and
 deep improper trees. Produced programs are executed separately from factories.
-Chialisp and optimized Rue match the published module; Rust's hash differs.
-Neither this port nor its structural IR model proves compiler preservation.
+Chialisp, optimized Rust, and optimized Rue now match the exact published
+nine-byte module and tree hash; unoptimized Rust and Rue remain different.
+The owned IR pass removes a pair guard only when every successful evaluation
+of its retained branch requires a checked first/rest projection of that same
+argument. Projections preserve atom rejection. Its independent bounded
+interpreter/VM matrix covers lazy branches, strict discarded fields and scalar
+work, multiple argument identities, canonical integer decoding and overflow.
+Structural proof experiments additionally compare the source-derived and
+rewritten factory models. This is not a general compiler-preservation proof,
+and optimization may change costs and rejection diagnostics.
+
+The [runtime-call experiment](runtime-calls.md) exercises finite compiler-owned
+function tables, self/mutual calls, and VM cost exhaustion directly in LIR.
+It does not implement recursive Rust extraction. Its proposed call/binding IR
+also records strict evaluation and divergence obligations that must be met
+before extending the current finite-expression optimizer.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving

@@ -267,6 +267,12 @@ impl Lower<'_> {
     }
 }
 pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
+    let optimized = if optimize {
+        Some(crate::optimize(program)?)
+    } else {
+        None
+    };
+    let program = optimized.as_ref().unwrap_or(program);
     program.validate()?;
     let mut lower = Lower {
         arena: Arena::new(),

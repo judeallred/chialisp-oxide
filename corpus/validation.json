@@ -170,6 +170,21 @@
     ]
   },
   "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",
+  "optimization_pipeline": {
+    "rue_source": {
+      "optimized": [
+        "rue_lir"
+      ],
+      "unoptimized": []
+    },
+    "rust_mir": {
+      "optimized": [
+        "typed_ir_tree_guards",
+        "rue_lir"
+      ],
+      "unoptimized": []
+    }
+  },
   "puzzles": [
     {
       "artifacts": [
@@ -8214,11 +8229,11 @@
         },
         {
           "backend": "rust_mir",
-          "bytes": 57,
-          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0180ffff01ff04ffff0101ff0280ffff01ff088080ff0180ffff01ff088080ff0180",
-          "disassembly": "(a (i (l 1) (q 2 (i (l 1) (q 4 (q . 1) 2) (q 8)) 1) (q 8)) 1)",
+          "bytes": 9,
+          "clvm_hex": "ff04ffff0101ff0280",
+          "disassembly": "(c (q . 1) 2)",
           "optimize_lir": true,
-          "tree_hash": "bf6cda87626f57498939d2a5261c2cd4c8d9e92e25ebc8742ef93d6970b3869b"
+          "tree_hash": "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36"
         },
         {
           "backend": "chialisp",
@@ -8267,7 +8282,7 @@
               "backend": "rust_mir",
               "execution": {
                 "cost": null,
-                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "error": "PathIntoAtom",
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8331,7 +8346,7 @@
               "backend": "rust_mir",
               "execution": {
                 "cost": null,
-                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "error": "PathIntoAtom",
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8395,7 +8410,7 @@
               "backend": "rust_mir",
               "execution": {
                 "cost": null,
-                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "error": "PathIntoAtom",
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8459,7 +8474,7 @@
               "backend": "rust_mir",
               "execution": {
                 "cost": null,
-                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "error": "PathIntoAtom",
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8524,7 +8539,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff0180",
@@ -8594,7 +8609,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff0105",
@@ -8664,7 +8679,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff01820001",
@@ -8734,7 +8749,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff01ff0102",
@@ -8804,7 +8819,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff0105",
@@ -8874,7 +8889,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff0105",
@@ -8944,7 +8959,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff01ffff82000100ff0203",
@@ -9014,7 +9029,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 665,
+                "cost": 119,
                 "error": null,
                 "outcome": {
                   "output_hex": "ff01ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080",
@@ -11199,8 +11214,8 @@
           {
             "backend": "rust_mir",
             "optimize_lir": true,
-            "serialized_bytes_equal": false,
-            "tree_hash_equal": false
+            "serialized_bytes_equal": true,
+            "tree_hash_equal": true
           },
           {
             "backend": "chialisp",
@@ -11297,7 +11312,9 @@
   ],
   "rue_local_patches": [
     "https://github.com/xch-dev/rue/issues/108",
-    "https://github.com/xch-dev/rue/issues/109"
+    "https://github.com/xch-dev/rue/issues/109",
+    "https://github.com/xch-dev/rue/issues/110",
+    "https://github.com/xch-dev/rue/issues/111"
   ],
   "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
   "schema_version": 1,

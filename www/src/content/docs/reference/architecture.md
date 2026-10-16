@@ -12,6 +12,7 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → rustc nightly-2026-07-14 analysis + borrow checking
   → typed MIR, supported-feature validation
   → chialisp-oxide-ir: pure expressions + explicit logical types
+  → optional typed IR tree-guard pass
   → Rue LIR
   → optional Rue LIR optimizer
   → Rue CLVM code generation
@@ -44,7 +45,7 @@ These crates remain unpublished; use checkout path dependencies or a reviewed
 pinned Git revision.
 
 The IR represents arguments, tuples, fixed bytes, fixed-width integers,
-branches, operations, explicit rejection, and sequencing. Its validator infers
+branches, raw atom/pair operations, explicit rejection, and sequencing. Its validator infers
 expression types and rejects mismatches or unsupported operations before code
 generation. Serialization is a boundary contract, not a reason to trust a
 handwritten IR document.
@@ -57,8 +58,9 @@ is not executed during solution decoding.
 
 Entry metadata can explicitly mark a parameterless export's environment as
 ignored. The IR/backend then omit argument decoding for that export, preserving
-the behavior of canonical closed Chialisp expressions. The default strict ABI
-and all parameterized exports retain their complete boundary checks.
+the behavior of canonical closed Chialisp expressions. The separate version-3
+raw ABI passes the whole environment to one structurally checked borrowed-tree
+parameter. Default exports retain the exact typed argument-list ABI.
 
 The corpus is the real `chialisp-oxide-puzzles` Cargo library, with annotated modules
 registered in `puzzles/lib.rs` and a dependency on `chialisp-oxide`. Validation
@@ -104,6 +106,31 @@ complete transitive dependency graph. CI also
 recompiles the corpus and compares the committed report before Pages deploys
 the successful commit.
 
+## Conservative tree-guard optimization
+
+The owned typed IR pass can remove a pair-shape guard with a rejecting alternative
+when every successful evaluation of the retained branch requires a checked
+first/rest projection of that same tree argument. The projection remains in
+the program, so atom inputs still reject. The analysis respects strict tuple
+fields and sequencing, lazy branch selection, and distinct argument identities.
+It does not remove environment ABI validation.
+
+For the canonical `p2_conditions` port, this exposes the simple quote construction
+to Rue LIR and produces the exact published nine-byte module. Unoptimized Rust
+still has a different artifact. The [factory walkthrough](/chialisp-oxide/tutorials/p2-conditions/)
+separates this measured module identity from broader compiler preservation.
+
+Rust optimization on runs this pass and then Rue LIR optimization. Off skips
+both; `--no-optimize` selects that baseline. Rue source comparisons use only
+their frontend's LIR optimization switch. The report records both pipelines,
+including the legacy `optimize_lir` field name. Execution costs and rejection
+diagnostics need not be identical across modes.
+
+Independent bounded interpreter/VM tests exercise original, rewritten, and
+repeatedly rewritten IR. The structural proof experiment additionally compares
+the source-derived and rewritten factory models. These checks do not establish
+compiler preservation or a universal proof of the pass for every program.
+
 ## Why the Rue optimizer
 
 The project pins Rue revision
@@ -119,7 +146,11 @@ provenance. A local identity-product fix prevents an optimizer panic for
 applies the fix to both direct LIR emission and the Rue-source comparison path.
 The import also fixes a strict-evaluation regression in truthiness folding,
 tracked in [Rue issue 109](https://github.com/xch-dev/rue/issues/109). These are
-recorded local changes to the pinned revision, not unmodified upstream.
+recorded local changes to the pinned revision. Further checked-in fixes retain
+required pair-projection failures during reconstruction
+([issue 110](https://github.com/xch-dev/rue/issues/110)) and the explicit nil
+environment of quoted execution ([issue 111](https://github.com/xch-dev/rue/issues/111)).
+Each has an execution-based regression and a standalone upstream patch.
 
 Entering at LIR also bypasses Rue frontend and earlier lowering work. chialisp-oxide is
 responsible for correct environments, paths, representations, evaluation

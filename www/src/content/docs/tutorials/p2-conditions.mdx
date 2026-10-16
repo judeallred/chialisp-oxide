@@ -69,10 +69,19 @@ ff04ffff0101ff0280
 
 Its CLVM tree hash is
 `1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36`.
-The independent pinned Chialisp compiler reproduces those exact bytes. The
-[lab report](/chialisp-oxide/lab/p2-conditions/) compares every Rust and Rue
-build's actual bytes and tree hash with that published module; it shows
-matches and differences rather than inferring identity from matching outputs.
+The independent pinned Chialisp compiler, optimized Rust, and optimized Rue
+all reproduce those exact bytes and tree hash. Unoptimized Rust is 65 bytes;
+unoptimized Rue is 13 bytes, and their module hashes differ. The
+[lab report](/chialisp-oxide/lab/p2-conditions/) records every build's actual
+identity comparison separately from its executed input/output checks.
+
+Rust's enabled pipeline first removes redundant pair guards in typed IR, then
+runs Rue LIR optimization. The remaining first projection still rejects atom
+environments. This is a general conservative IR rule checked against the actual
+expression structure; it grants no special meaning to the puzzle or SDK helper's
+name. Rust's disabled pipeline runs neither pass. The
+[architecture guide](/chialisp-oxide/reference/architecture/#conservative-tree-guard-optimization)
+explains the analysis and its limits.
 
 This is the **factory module's** hash. Different payloads generally produce
 different quoted programs with their own tree hashes. A protocol commitment
@@ -114,7 +123,9 @@ it is not itself another CLVM executor.
 The structural proof experiment has a separate IR-model scope: accepted pairs,
 rejected atoms, preserved payload structure, irrelevant tails, and a deliberately
 broken factory must be related to the extracted IR and witness replays. Such a
-model proof does not establish the correctness of rustc extraction, CLVM
+model is also checked after the IR rewrite, with a separate equivalence query
+for the original and rewritten factory. This is not a proof of the optimization
+pass for arbitrary IR. These model checks do not establish the correctness of rustc extraction, CLVM
 lowering, the VM, or arbitrary Rust programs. Consult the generated proof
 report and its stated assumptions before interpreting it as a stronger claim.
 

@@ -129,6 +129,9 @@ cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.j
 cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.json --emit
 cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.json --emit-json
 cargo run --locked -p chialisp-oxide-verifier -- program.json --tree-replay tree.witness.json
+cargo run --locked -p chialisp-oxide-verifier -- program.json --optimize-ir > optimized.json
+cargo run --locked -p chialisp-oxide-verifier -- program.json --tree-equivalent optimized.json
+cargo run --locked -p chialisp-oxide-verifier -- program.json --artifacts
 
 # Source-derived Cargo export, independent canonical compilation and mutations:
 python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
@@ -148,6 +151,26 @@ pipeline requires the exact published p2_conditions artifact before comparing
 Rust/native/CLVM witness results. Stored IR normalizes only repository prefixes
 inside diagnostic `Reject.message` metadata; operators, values, types and policy
 structure remain those from the Cargo export.
+
+The pipeline separately stores the real IR optimizer's result and checks it
+against both the independent canonical specification and the original IR. The
+equivalence query compares rejection and successful tree outputs over all finite
+raw environments, using the symbolic execution semantics rather than repeating
+the optimizer's required-projection analysis. This proves these particular IR
+expressions equivalent in the model; it is not a general proof of the optimizer
+implementation. Rejection diagnostics and execution cost may differ.
+
+Artifact evidence records four compilation paths. `compile(original, false)`
+bypasses both the owned IR pass and Rue LIR optimization;
+`compile(original, true)` applies both. Compiling the explicitly rewritten IR
+with either setting independently exposes its emitted bytes and tree hash. The
+script requires canonical module identity for the two paths with Rue LIR
+optimization enabled. The rewritten path with optimization disabled retains
+ordinary projection code and is measured separately. Module identity comes from
+the actual artifacts, not the semantic proof. A synthetic control removes a guard whose
+kept branch has no required pair projection. The solver must find an atom
+counterexample, and both VM modes must reproduce its changed acceptance. This
+control is labeled synthetic rather than attributed to the Cargo puzzle.
 
 The tree result is a **structural IR-model proof**. It does not prove rustc
 extraction, the SMT translation, CLVM opcode/serialization semantics, Rue

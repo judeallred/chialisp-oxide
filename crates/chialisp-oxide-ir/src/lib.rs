@@ -1,8 +1,10 @@
 //! Pure, typed expression IR between checked Rust MIR and Rue's CLVM backend.
 mod lower;
+mod optimize;
 mod validate;
 mod wire;
 pub use lower::compile;
+pub use optimize::optimize;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

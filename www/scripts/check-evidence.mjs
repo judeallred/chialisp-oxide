@@ -23,6 +23,11 @@ async function checkRecordedHash(filename, expected) {
 const report = JSON.parse(await read('corpus/validation.json'));
 const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
 assert.equal(report.schema_version, 1);
+assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
+assert.deepEqual(report.optimization_pipeline, {
+  rust_mir: { unoptimized: [], optimized: ['typed_ir_tree_guards', 'rue_lir'] },
+  rue_source: { unoptimized: [], optimized: ['rue_lir'] },
+}, 'The recorded optimization pipeline is missing or unsupported');
 assert(report.puzzles.length > 0, 'A successful validation report is required');
 const configuration = JSON.parse(await read('puzzles/authoring.json'));
 assert.equal(configuration.schema_version, 1, 'Missing Cargo authoring schema');

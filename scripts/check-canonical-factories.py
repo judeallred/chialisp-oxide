@@ -198,6 +198,8 @@ def validate(report, reader=read_source):
         require(comparison["serialized_bytes_equal"] == (artifacts[key]["clvm_hex"] == CANONICAL_HEX), "Incorrect serialized identity claim")
         require(comparison["tree_hash_equal"] == (artifacts[key]["tree_hash"] == CANONICAL_HASH), "Incorrect module hash claim")
     require(comparisons[("chialisp", True)]["serialized_bytes_equal"], "Independent Chialisp compiler must reproduce the published artifact")
+    for backend in ("rust_mir", "rue_source"):
+        require(comparisons[(backend, True)]["serialized_bytes_equal"], f"Optimized {backend} must reproduce the published artifact")
     require([(case["label"], case["solution"]) for case in puzzle["cases"]] == [(case["label"], case["solution"]) for case in manifest["cases"]], "Named factory vectors changed")
     accepted = {}
     for case in puzzle["cases"]:
@@ -225,6 +227,15 @@ def validate(report, reader=read_source):
 
 
 def self_test(report):
+    def lose_optimized_identity(puzzle):
+        original = next(item for item in puzzle["artifacts"] if item["backend"] == "rust_mir" and not item["optimize_lir"])
+        replacement = copy.deepcopy(original)
+        replacement["optimize_lir"] = True
+        index = next(i for i, item in enumerate(puzzle["artifacts"]) if item["backend"] == "rust_mir" and item["optimize_lir"])
+        puzzle["artifacts"][index] = replacement
+        comparison = next(row for row in puzzle["module_identity"]["comparisons"] if row["backend"] == "rust_mir" and row["optimize_lir"])
+        comparison.update(serialized_bytes_equal=False, tree_hash_equal=False)
+
     false_metadata = json.loads(read_source("puzzles/p2-conditions/puzzle.json"))
     false_metadata["provenance"]["upstream"]["git_blob_sha1"] = "0" * 40
     mutations = [
@@ -234,6 +245,7 @@ def self_test(report):
         ("matching false manifest/report blob metadata", lambda p: p["provenance"]["upstream"].update(git_blob_sha1="0" * 40), {"puzzles/p2-conditions/puzzle.json": json.dumps(false_metadata).encode()}),
         ("missing backend", lambda p: p["artifacts"].pop(), {}),
         ("false module identity", lambda p: p["module_identity"]["comparisons"][0].update(serialized_bytes_equal=not p["module_identity"]["comparisons"][0]["serialized_bytes_equal"]), {}),
+        ("lost optimized Rust canonical identity with consistent flags", lose_optimized_identity, {}),
         ("missing produced program", lambda p: p["factory_checks"].pop(), {}),
         ("wrong returned program", lambda p: p["factory_checks"][0].update(program_hex="01"), {}),
         ("normalized padded payload", lambda p: next(row for row in p["factory_checks"] if row["environment"] == "(0x0001)").update(expected_output_hex="01"), {}),

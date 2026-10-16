@@ -130,6 +130,14 @@ def check_report(report):
 
 def check_sources(report, root, require_rue=False):
     root = root.resolve()
+    if require_rue:
+        require(report.get("optimization_pipeline") == {
+            "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
+            "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+        }, "Missing or unsupported recorded optimization pipeline")
+        require(report.get("rue_local_patches") == [
+            f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111)
+        ], "Incomplete Rue local patch provenance")
     for puzzle in report["puzzles"]:
         source = root / "puzzles" / puzzle["slug"] / "puzzle.rs"
         require(source.read_bytes().decode() == puzzle["source"],

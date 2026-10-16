@@ -10,6 +10,12 @@ use std::path::{Path, PathBuf};
 
 pub const MAX_COST: u64 = 1_000_000;
 pub const RUE_REV: &str = "245c107a8e795229ea08097142f005a4c0d91075";
+pub const RUE_LOCAL_PATCHES: &[&str] = &[
+    "https://github.com/xch-dev/rue/issues/108",
+    "https://github.com/xch-dev/rue/issues/109",
+    "https://github.com/xch-dev/rue/issues/110",
+    "https://github.com/xch-dev/rue/issues/111",
+];
 
 pub fn fixture(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))

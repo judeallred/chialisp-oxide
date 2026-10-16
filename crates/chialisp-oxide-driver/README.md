@@ -152,6 +152,10 @@ reference or trait-operator semantics to the compiler.
 
 Tree support closes a data-model gap; it does not provide unbounded integer
 arithmetic, recursive tree traversal, hashing, or dynamic CLVM application.
-Source and value equivalence also do not establish byte/hash/cost identity with
-a canonical module. The `p2_conditions` Rust port currently compiles to a
-different module hash from its canonical Chialisp source.
+Source and value equivalence alone do not establish byte/hash/cost identity
+with a canonical module. The optimized `p2_conditions` Rust port now reproduces
+the published nine-byte module and tree hash; its unoptimized artifact differs.
+The backend first applies a conservative typed IR pair-guard pass, then Rue LIR
+optimization. Checked projections retain atom rejection when a redundant guard
+is removed. This measured identity for one factory does not establish general
+module compatibility or compiler preservation.

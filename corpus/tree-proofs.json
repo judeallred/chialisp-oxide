@@ -229,7 +229,7 @@
     },
     {
       "path": "crates/chialisp-oxide-cli/src/main.rs",
-      "sha256": "e26a1f8a55b51a3cdf14e474253d80ce6a1771f3ad7f9259bc9b2b6db3a3fd03"
+      "sha256": "d1774be5346e47c8fc02a01800d8294d311f7f17b4567cf560313d5dd3a5fe16"
     },
     {
       "path": "crates/chialisp-oxide-corpus/Cargo.toml",
@@ -301,11 +301,15 @@
     },
     {
       "path": "crates/chialisp-oxide-ir/src/lib.rs",
-      "sha256": "657cf741a4c902bc4c2c5c346ec549c7ae15ee8cf80760969e6043022cc823d0"
+      "sha256": "5e9d82130ccda04688752157812a1195a69514e13565201c2a4a2a4836de637a"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/lower.rs",
-      "sha256": "bc54b3886a54e612cbd01542078e46ef0761dd91c0a713f3585b39124135b75c"
+      "sha256": "589c0c52568441b08179ef59e107f587618fd3cf3e9604f4dbd3772a55935e9a"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/optimize.rs",
+      "sha256": "25ce0814d62aee21e5fdc22feee2a36d8966f667fe7cb9453cfccb7fb0570942"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/validate.rs",
@@ -333,11 +337,11 @@
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/lib.rs",
-      "sha256": "5cdd5ceb7a79510af703383e67717e0ca5d5016364f92047a913217fcffb8c70"
+      "sha256": "085a605322d950458e6b883433aa59662ff601726e4096202ed76bbdc9243cbf"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/main.rs",
-      "sha256": "7b6c6e1cc379302f762c9f25312a6e13bdb59de92bcb96c364ba51455cd47ed2"
+      "sha256": "54430a245a58203e7738fe6dae7e62b1801c3d820b5149196353ae0b016e95b4"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/replay.rs",
@@ -345,7 +349,7 @@
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/tree.rs",
-      "sha256": "759bf95b37c6e3aada7e4a9d343bbd0a2e2db41bef261ec9bdbf544ddc2c9dc4"
+      "sha256": "32915064efbc981837c9623043d07999bb4add654205155ae24f55a7b4290e95"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/tree_witness.rs",
@@ -357,7 +361,7 @@
     },
     {
       "path": "experiments/backend/src/lib.rs",
-      "sha256": "d1951747f5e8c7a36211453a3e4cb8ce7d0fb3c4da9522e62490b460f1d541b8"
+      "sha256": "26cc0ee352ce766d30306ce8bb26e2ebce2d6162b31c8004b8c7e1cef8d88f7a"
     },
     {
       "path": "experiments/backend/src/main.rs",
@@ -385,7 +389,7 @@
     },
     {
       "path": "scripts/check-tree-proofs.py",
-      "sha256": "d328eee978bad6ace80b12181e1eea608ea8554b2f840d2a16c31ec59be349ed"
+      "sha256": "81c964073ed35541c42ed9fdec115aa7a71187e459fa99383f97231b07dc8970"
     },
     {
       "path": "vendor/rue-lir/Cargo.toml",
@@ -445,7 +449,7 @@
       "CLVM lowering/serialization preservation",
       "Rue optimization preservation",
       "VM cost/resource equivalence",
-      "Rust canonical module identity",
+      "module identity inferred from the model proof",
       "consensus/authorization/security proof"
     ]
   },
@@ -492,7 +496,7 @@
               "optimize": true,
               "outcome": {
                 "status": "rejected",
-                "error": "Raise(NodePtr(SmallAtom, 0))"
+                "error": "PathIntoAtom"
               }
             }
           ],
@@ -541,7 +545,7 @@
               "outcome": {
                 "status": "accepted",
                 "output_hex": "ff0180",
-                "cost": 665
+                "cost": 119
               }
             }
           ],
@@ -619,7 +623,7 @@
             "optimize": true,
             "outcome": {
               "status": "rejected",
-              "error": "Raise(NodePtr(SmallAtom, 0))"
+              "error": "PathIntoAtom"
             }
           }
         ],
@@ -729,7 +733,7 @@
             "outcome": {
               "status": "accepted",
               "output_hex": "ff0180",
-              "cost": 665
+              "cost": 119
             }
           }
         ],
@@ -752,7 +756,7 @@
             "outcome": {
               "status": "accepted",
               "output_hex": "ff0280",
-              "cost": 665
+              "cost": 119
             }
           }
         ]
@@ -760,6 +764,264 @@
       "detected": true
     }
   ],
+  "optimization": {
+    "pass": "required_pair_projection_guard_elision",
+    "ir": {
+      "path": "proofs/p2-conditions/optimized.ir.json",
+      "sha256": "cf053a3f7d49bfd75ca92bce71a8daff6378b9649be57b287a73425e832f0d3c"
+    },
+    "proof": {
+      "status": "proven",
+      "cases": [
+        {
+          "input_shape": "atom",
+          "domain_nonvacuity": {
+            "environment": {
+              "kind": "atom",
+              "hex": ""
+            }
+          },
+          "counterexample": null,
+          "queries": {
+            "domain": "proofs/p2-conditions/optimized-atom-domain.smt2",
+            "counterexample": "proofs/p2-conditions/optimized-atom-case.smt2"
+          },
+          "replay": {
+            "native_original": {
+              "status": "rejected"
+            },
+            "rust_original": [
+              {
+                "optimize": false,
+                "outcome": {
+                  "status": "rejected",
+                  "error": "InvalidOpArg(NodePtr(SmallAtom, 0), \"first of non-cons\")"
+                }
+              },
+              {
+                "optimize": true,
+                "outcome": {
+                  "status": "rejected",
+                  "error": "PathIntoAtom"
+                }
+              }
+            ],
+            "canonical_reference": {
+              "error": "PathIntoAtom",
+              "status": "rejected"
+            }
+          }
+        },
+        {
+          "input_shape": "pair",
+          "domain_nonvacuity": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          },
+          "counterexample": null,
+          "queries": {
+            "domain": "proofs/p2-conditions/optimized-pair-domain.smt2",
+            "counterexample": "proofs/p2-conditions/optimized-pair-case.smt2"
+          },
+          "replay": {
+            "native_original": {
+              "status": "accepted",
+              "output_hex": "ff0180"
+            },
+            "rust_original": [
+              {
+                "optimize": false,
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "ff0180",
+                  "cost": 146
+                }
+              },
+              {
+                "optimize": true,
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "ff0180",
+                  "cost": 119
+                }
+              }
+            ],
+            "canonical_reference": {
+              "cost": 119,
+              "output_hex": "ff0180",
+              "status": "accepted"
+            }
+          }
+        }
+      ]
+    },
+    "equivalence": {
+      "status": "proven",
+      "cases": [
+        {
+          "input_shape": "atom",
+          "domain_nonvacuity": {
+            "environment": {
+              "kind": "atom",
+              "hex": ""
+            }
+          },
+          "counterexample": null,
+          "queries": {
+            "domain": "proofs/p2-conditions/equivalence-atom-domain.smt2",
+            "counterexample": "proofs/p2-conditions/equivalence-atom-case.smt2"
+          }
+        },
+        {
+          "input_shape": "pair",
+          "domain_nonvacuity": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          },
+          "counterexample": null,
+          "queries": {
+            "domain": "proofs/p2-conditions/equivalence-pair-domain.smt2",
+            "counterexample": "proofs/p2-conditions/equivalence-pair-case.smt2"
+          }
+        }
+      ]
+    },
+    "artifacts": {
+      "source": [
+        {
+          "bytes": 65,
+          "clvm_hex": "ff02ffff03ffff20ffff07ff018080ffff01ff0880ffff01ff02ffff03ffff07ff0180ffff01ff04ffff0101ffff05ff018080ffff01ff088080ff018080ff0180",
+          "optimize": false,
+          "tree_hash": "4c8bb2fb381e23ef970590ea543cfe4adc76ee0880d18dd3e54139b2072fdc4b"
+        },
+        {
+          "bytes": 9,
+          "clvm_hex": "ff04ffff0101ff0280",
+          "optimize": true,
+          "tree_hash": "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36"
+        }
+      ],
+      "rewritten": [
+        {
+          "bytes": 13,
+          "clvm_hex": "ff04ffff0101ffff05ff018080",
+          "optimize": false,
+          "tree_hash": "fdf5f273490662dd3b4a8a93ce124e680786bd4a0dd863b4bed7386411c44a89"
+        },
+        {
+          "bytes": 9,
+          "clvm_hex": "ff04ffff0101ff0280",
+          "optimize": true,
+          "tree_hash": "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36"
+        }
+      ]
+    },
+    "control": {
+      "id": "unsafe-guard-drop",
+      "origin": "synthetic structural IR; not a source-derived puzzle",
+      "before_ir": "proofs/p2-conditions/unsafe-guard-before.ir.json",
+      "after_ir": "proofs/p2-conditions/unsafe-guard-after.ir.json",
+      "query": "proofs/p2-conditions/unsafe-guard.smt2",
+      "result": {
+        "status": "refuted",
+        "cases": [
+          {
+            "input_shape": "atom",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "atom",
+                "hex": ""
+              }
+            },
+            "counterexample": {
+              "environment": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          },
+          {
+            "input_shape": "pair",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            },
+            "counterexample": null
+          }
+        ]
+      },
+      "counterexample": {
+        "environment": {
+          "kind": "atom",
+          "hex": ""
+        }
+      },
+      "replay": {
+        "guarded": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "rejected",
+              "error": "Raise(NodePtr(SmallAtom, 0))"
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "rejected",
+              "error": "Raise(NodePtr(SmallAtom, 0))"
+            }
+          }
+        ],
+        "unguarded": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "81aa",
+              "cost": 20
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "81aa",
+              "cost": 20
+            }
+          }
+        ]
+      },
+      "detected": true
+    }
+  },
   "artifacts": [
     {
       "path": "proofs/p2-conditions/accept-atom.ir.json",
@@ -778,6 +1040,42 @@
       "sha256": "831641ede3e0ee436030377a446fe23a33e30a4ef28b8d456eb880764b64151d"
     },
     {
+      "path": "proofs/p2-conditions/equivalence-atom-case.smt2",
+      "sha256": "ae7ad1d88d0cc75adc089dcb7e6e3bb5c8fa44e48bddb3a68e561327ed0b6cfa"
+    },
+    {
+      "path": "proofs/p2-conditions/equivalence-atom-domain.smt2",
+      "sha256": "74ec24dc7c6a46ed6885ce230111438bfe336bfb6120ca4d1a845ef6eb6cb308"
+    },
+    {
+      "path": "proofs/p2-conditions/equivalence-pair-case.smt2",
+      "sha256": "fdc6541f1412a11af7d577efd5e0534d7d04da76163c0ec7109d5c5bf46c0d46"
+    },
+    {
+      "path": "proofs/p2-conditions/equivalence-pair-domain.smt2",
+      "sha256": "4333bef4ad8c0d1e28146166f4ef63ce29789e006e15bc3568ffd6794f2146f2"
+    },
+    {
+      "path": "proofs/p2-conditions/optimized-atom-case.smt2",
+      "sha256": "7e45c85a39e1b0fdd7d945f9787078184c1f05bd804f55a57a03b5702e01f69d"
+    },
+    {
+      "path": "proofs/p2-conditions/optimized-atom-domain.smt2",
+      "sha256": "fa41317f6d8166e86cdcaf1d9724063aeb63d345bda0a733a00824fb2800b7db"
+    },
+    {
+      "path": "proofs/p2-conditions/optimized-pair-case.smt2",
+      "sha256": "713a5ee4db66bcb83d491a1da179cf7013331f482b65cd791ba151565490b1b8"
+    },
+    {
+      "path": "proofs/p2-conditions/optimized-pair-domain.smt2",
+      "sha256": "d9add51eba7b9e8488303eb68b47cd16f435b03d0977ad546a24f4ec1795b78d"
+    },
+    {
+      "path": "proofs/p2-conditions/optimized.ir.json",
+      "sha256": "cf053a3f7d49bfd75ca92bce71a8daff6378b9649be57b287a73425e832f0d3c"
+    },
+    {
       "path": "proofs/p2-conditions/pair-case.smt2",
       "sha256": "7a863bd66ffa48305d6322288c4ab05c701fcb4e33419144be675748a8fe4b72"
     },
@@ -788,6 +1086,18 @@
     {
       "path": "proofs/p2-conditions/program.ir.json",
       "sha256": "c6f06ccea73d8ac8fdfaaa924cf29c5f63a08fc1dab5853b1d8d3d1c287da930"
+    },
+    {
+      "path": "proofs/p2-conditions/unsafe-guard-after.ir.json",
+      "sha256": "e6aaafebe0ccf667898896bc457da941b3edca3b6bfca2f93bf6184b5d04d51d"
+    },
+    {
+      "path": "proofs/p2-conditions/unsafe-guard-before.ir.json",
+      "sha256": "2cbd404e9513c4445d7bc5be76f0c7a103a9870994d35a42c854f9e02349f220"
+    },
+    {
+      "path": "proofs/p2-conditions/unsafe-guard.smt2",
+      "sha256": "ab9e595b4d298e262b3e2daffc909c89ba4ede36dcd528f485d41a2710ffee3d"
     },
     {
       "path": "proofs/p2-conditions/wrong-quote.ir.json",

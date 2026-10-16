@@ -11,7 +11,7 @@ mod tree_witness;
 pub use replay::{Replay, ReplayOutcome, replay};
 pub use tree::{
     TreeCase, TreeQueries, TreeShape, TreeSpecification, TreeTerm, TreeVerification, emit_tree,
-    verify_tree,
+    emit_tree_equivalence, verify_tree, verify_tree_equivalence,
 };
 pub use tree_witness::{TreeValue, TreeWitness, replay_tree};
 

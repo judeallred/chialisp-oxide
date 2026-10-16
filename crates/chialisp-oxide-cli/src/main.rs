@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, bail, ensure};
-use chialisp_oxide_backend_experiment::{Outcome, RUE_REV, artifact, execute};
+use chialisp_oxide_backend_experiment::{Outcome, RUE_LOCAL_PATCHES, RUE_REV, artifact, execute};
 use chialisp_oxide_ir::Program;
 use serde_json::json;
 use std::{
@@ -166,7 +166,18 @@ fn main() -> Result<()> {
                 chialisp_oxide_corpus::authoring()? == authoring,
                 "Cargo inputs changed during corpus validation"
             );
-            let report = json!({"schema_version":1,"authoring":authoring,"toolchain":compiler.trim(),"rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
+            let report = json!({
+                "schema_version": 1, "authoring": authoring,
+                "toolchain": compiler.trim(), "rue_revision": RUE_REV,
+                "rue_local_patches": RUE_LOCAL_PATCHES,
+                "optimization_pipeline": {
+                    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
+                    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]}
+                },
+                "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",
+                "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11"},
+                "puzzles": reports
+            });
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
             }
