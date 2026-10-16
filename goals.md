@@ -17,3 +17,10 @@ Next phase of the Rust → CLVM compiler project. Goal: prove out and validate t
 
 Related: [Code] xch.nyc: Rust → Rue compiler prototype (https://trello.com/c/zsnMy0l7)
 Part of [Code] xch.nyc (https://trello.com/c/JJAi4Vdo)
+
+## Puzzle testability and security confidence
+- Make native execution, differential CLVM tests, malformed-input tests, property-based tests, and reproducible cost reports part of the puzzle authoring workflow.
+- Validate complete coin spends in a simulator, including signatures, announcements, timelocks, and adversarial compositions.
+- Explore Lean proofs and SMT/model checking for explicit authorization, conservation, state-transition, and compiler-preservation properties.
+- State each claim's assumptions, checked scope, and remaining gaps. Passing tests or proving an abstract model must not be presented as proof that a puzzle has no security breaches.
+- Include mutation controls: deliberately remove security checks and require the verification system to detect the resulting counterexample.

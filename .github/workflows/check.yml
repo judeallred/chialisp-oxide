@@ -1,0 +1,27 @@
+name: Experiments
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust
+        run: rustup show active-toolchain
+      - run: cargo fmt --all --check
+      - run: cargo test --workspace --locked
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Produce comparison report
+        run: cargo run --locked -p oxide-backend-experiment > backend-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-comparison
+          path: backend-report.json
+  policy-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y z3
+      - run: z3 --version
+      - run: python3 scripts/check-proofs.py

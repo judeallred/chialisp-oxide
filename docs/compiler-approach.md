@@ -1,6 +1,8 @@
 # Rust → CLVM: research and proposed approach
 
-Research date: 2026-10-16. Status: proposal, not a validated compiler implementation.
+Research date: 2026-10-16. Status: backend experiment implemented; Rust frontend
+not yet implemented. See [measured results](../experiments/backend/README.md) and
+[verification strategy](verification.md).
 
 ## Recommendation
 
@@ -266,7 +268,8 @@ backend. Each dependency upgrade must pass the semantic corpus before adoption.
 - Exact rustc hooks, monomorphization access, and toolchain compatibility require
   the first feasibility spike.
 - Full Rust support is not proposed. Supported semantics must grow with tests.
-- No performance, security improvement, or bytecode-equivalence claim has been
-  measured yet. This turn inspected upstream code; it did not build a compiler.
+- The first backend experiment measures byte size, VM cost, output equivalence,
+  and hash differences for one small policy. These findings do not establish
+  performance or correctness for the future Rust compiler.
 - Keep original source attribution and license records for copied tutorials and
   puzzle implementations. No license for this new project has been selected.

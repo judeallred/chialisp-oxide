@@ -1,0 +1,11 @@
+// Backend experiment, not an authorized payment puzzle: anyone may invoke it.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Int, nil);
+    let amount = solution.first;
+    assert amount >= 0;
+    assert amount <= 1000;
+    [CreateCoin {
+        puzzle_hash: 0x0000000000000000000000000000000000000000000000000000000000000000,
+        amount,
+    }]
+}

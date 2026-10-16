@@ -1,0 +1,545 @@
+{
+  "backends": [
+    {
+      "artifact": {
+        "backend": "reference_clvm",
+        "bytes": 214,
+        "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff018203e9ffff05ff018080ffff01ff04ffff04ffff0133ffff04ffff01a00000000000000000000000000000000000000000000000000000000000000000ffff04ffff05ff0180ff80808080ff8080ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+        "disassembly": "(a (i (l 1) (q 2 (i (= (r 1) ()) (q 2 (i (l (f 1)) (q 8) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 1001) (f 1)) (q 4 (c (q . 51) (c (q . 0x0000000000000000000000000000000000000000000000000000000000000000) (c (f 1) ()))) ()) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1)",
+        "optimize_lir": false,
+        "tree_hash": "f06de6b2a87ce8c64c8602415c6331207191c8c003319c35b758b5de8d8a1852"
+      },
+      "cases": [
+        {
+          "execution": {
+            "cost": 3042,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff808080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0)"
+        },
+        {
+          "execution": {
+            "cost": 3046,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1)"
+        },
+        {
+          "execution": {
+            "cost": 3050,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8203e88080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1000)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(-1)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1001)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "()"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "((1))"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "InvalidOpArg(NodePtr(Pair, 89), \"= used on list\")",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1 2)"
+        },
+        {
+          "execution": {
+            "cost": 3050,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8200018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0x0001)"
+        }
+      ]
+    },
+    {
+      "artifact": {
+        "backend": "rue_source",
+        "bytes": 315,
+        "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ff01808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ff01808080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff01ff02ffff03ffff20ffff15ff80ff028080ffff01ff02ffff03ffff20ffff15ff02ffff018203e88080ffff01ff04ffff04ffff0133ffff04ffff01a00000000000000000000000000000000000000000000000000000000000000000ffff04ff02ff80808080ff8080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff05ff0180ff018080ffff01ff088080ff0180",
+        "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (not (l (f 1))) (q 2 (i (a (i (not (l (r 1))) (q 2 (i (= (r 1) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (q 2 (i (not (> () 2)) (q 2 (i (not (> 2 (q . 1000))) (q 4 (c (q . 51) (c (q . 0x0000000000000000000000000000000000000000000000000000000000000000) (c 2 ()))) ()) (q 8)) 1) (q 8)) 1) (c (f 1) 1)) (q 8)) 1)",
+        "optimize_lir": false,
+        "tree_hash": "aa1830bcfc3bad8aeb1c55eaf2038fe7ad7a5fa86e82644f36d02bc44f331234"
+      },
+      "cases": [
+        {
+          "execution": {
+            "cost": 5059,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff808080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0)"
+        },
+        {
+          "execution": {
+            "cost": 5063,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1)"
+        },
+        {
+          "execution": {
+            "cost": 5067,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8203e88080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1000)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(-1)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1001)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "()"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "((1))"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1 2)"
+        },
+        {
+          "execution": {
+            "cost": 5067,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8200018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0x0001)"
+        }
+      ]
+    },
+    {
+      "artifact": {
+        "backend": "rue_source",
+        "bytes": 277,
+        "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0280ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff0180ffff01ff02ffff03ff03ffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff01ff02ffff03ffff15ff80ff0280ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0133ffff04ffff01a00000000000000000000000000000000000000000000000000000000000000000ffff04ff02ff80808080ff808080ff018080ff0180ffff04ff02ff018080ffff01ff088080ff0180",
+        "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (l 2) (q) (q 2 (i (a (i (l 3) (q) (q 2 (i 3 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (q 2 (i (> () 2) (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 51) (c (q . 0x0000000000000000000000000000000000000000000000000000000000000000) (c 2 ()))) ())) 1)) 1) (c 2 1)) (q 8)) 1)",
+        "optimize_lir": true,
+        "tree_hash": "c63e14c4696d701523e7f74948559d8df225b01d2bff93d0b489515c869747ef"
+      },
+      "cases": [
+        {
+          "execution": {
+            "cost": 3985,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff808080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0)"
+        },
+        {
+          "execution": {
+            "cost": 3989,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1)"
+        },
+        {
+          "execution": {
+            "cost": 3993,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8203e88080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1000)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(-1)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1001)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "()"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "((1))"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1 2)"
+        },
+        {
+          "execution": {
+            "cost": 3993,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8200018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0x0001)"
+        }
+      ]
+    },
+    {
+      "artifact": {
+        "backend": "direct_lir",
+        "bytes": 214,
+        "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff018203e9ffff05ff018080ffff01ff04ffff04ffff0133ffff04ffff01a00000000000000000000000000000000000000000000000000000000000000000ffff04ffff05ff0180ff80808080ff8080ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+        "disassembly": "(a (i (l 1) (q 2 (i (= (r 1) ()) (q 2 (i (l (f 1)) (q 8) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 1001) (f 1)) (q 4 (c (q . 51) (c (q . 0x0000000000000000000000000000000000000000000000000000000000000000) (c (f 1) ()))) ()) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1)",
+        "optimize_lir": false,
+        "tree_hash": "f06de6b2a87ce8c64c8602415c6331207191c8c003319c35b758b5de8d8a1852"
+      },
+      "cases": [
+        {
+          "execution": {
+            "cost": 3042,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff808080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0)"
+        },
+        {
+          "execution": {
+            "cost": 3046,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1)"
+        },
+        {
+          "execution": {
+            "cost": 3050,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8203e88080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1000)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(-1)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1001)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "()"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "((1))"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "InvalidOpArg(NodePtr(Pair, 89), \"= used on list\")",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1 2)"
+        },
+        {
+          "execution": {
+            "cost": 3050,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8200018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0x0001)"
+        }
+      ]
+    },
+    {
+      "artifact": {
+        "backend": "direct_lir",
+        "bytes": 188,
+        "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff018203e9ff0280ffff01ff04ffff04ffff0133ffff04ffff01a00000000000000000000000000000000000000000000000000000000000000000ffff04ff02ff80808080ff8080ffff01ff088080ff0180ffff01ff088080ff018080ff018080ff0180ffff01ff088080ff0180",
+        "disassembly": "(a (i (l 1) (q 2 (i 3 (q 8) (q 2 (i (l 2) (q 8) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 1001) 2) (q 4 (c (q . 51) (c (q . 0x0000000000000000000000000000000000000000000000000000000000000000) (c 2 ()))) ()) (q 8)) 1) (q 8)) 1)) 1)) 1) (q 8)) 1)",
+        "optimize_lir": true,
+        "tree_hash": "ccbfb323901117ab15a6b585bc63e1fd369175922dccd97f9f57d8785d48b0c0"
+      },
+      "cases": [
+        {
+          "execution": {
+            "cost": 2745,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff808080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0)"
+        },
+        {
+          "execution": {
+            "cost": 2749,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1)"
+        },
+        {
+          "execution": {
+            "cost": 2753,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8203e88080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(1000)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(-1)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1001)"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "()"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "((1))"
+        },
+        {
+          "execution": {
+            "cost": null,
+            "error": "Raise(NodePtr(SmallAtom, 0))",
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          "solution": "(1 2)"
+        },
+        {
+          "execution": {
+            "cost": 2753,
+            "error": null,
+            "outcome": {
+              "output_hex": "ffff33ffa00000000000000000000000000000000000000000000000000000000000000000ff8200018080",
+              "status": "accepted"
+            }
+          },
+          "solution": "(0x0001)"
+        }
+      ]
+    }
+  ],
+  "dialect": "MEMPOOL_MODE",
+  "experiment": "capped-payment-backends-v1",
+  "limitations": [
+    "No Rust frontend yet",
+    "Handwritten CLVM reference, not compiled Chialisp",
+    "No authorization or spend-bundle validation",
+    "Not a production puzzle"
+  ],
+  "max_cost": 1000000,
+  "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
+  "runtime": "clvmr 0.21.0"
+}
