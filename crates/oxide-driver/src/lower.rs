@@ -11,6 +11,8 @@ use rustc_middle::{
 };
 use rustc_span::Span;
 
+mod newtypes;
+
 pub struct Lowerer<'tcx> {
     tcx: TyCtxt<'tcx>,
     blocks: Cell<usize>,
@@ -164,6 +166,10 @@ impl<'tcx> Lowerer<'tcx> {
                     }
                     return Ok((Type::Tuple { items: vec![element; len] }, nodes));
                 }
+            }
+            ty::Adt(..) => {
+                let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
+                return self.lower_type(inner, span, depth + 1);
             }
             _ => return Err(self.error(span, format!("unsupported Rust type `{ty}`; use bool, fixed-width integers, tuples or fixed arrays"))),
         };
@@ -451,7 +457,7 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn place(
         &self,
-        _body: &Body<'tcx>,
+        body: &Body<'tcx>,
         place: Place<'tcx>,
         locals: &[Option<Expr>],
         span: Span,
@@ -459,19 +465,27 @@ impl<'tcx> Lowerer<'tcx> {
         let mut value = locals[place.local.index()]
             .clone()
             .ok_or_else(|| self.error(span, "MIR reads an uninitialized local"))?;
+        let mut current_ty = body.local_decls[place.local].ty;
         for projection in place.projection {
             match projection {
-                ProjectionElem::Field(index, _) => {
-                    value = match value {
-                        Expr::Tuple { items } => items
-                            .get(index.index())
-                            .cloned()
-                            .ok_or_else(|| self.error(span, "invalid tuple field"))?,
-                        other => Expr::Field {
-                            value: Box::new(other),
-                            index: index.index(),
-                        },
-                    };
+                ProjectionElem::Field(index, field_ty) => {
+                    if self.transparent_inner(current_ty, span)?.is_some() {
+                        if index.index() != 0 {
+                            return Err(self.error(span, "transparent newtypes have only field 0"));
+                        }
+                    } else {
+                        value = match value {
+                            Expr::Tuple { items } => items
+                                .get(index.index())
+                                .cloned()
+                                .ok_or_else(|| self.error(span, "invalid tuple field"))?,
+                            other => Expr::Field {
+                                value: Box::new(other),
+                                index: index.index(),
+                            },
+                        };
+                    }
+                    current_ty = field_ty;
                 }
                 ProjectionElem::ConstantIndex {
                     offset,
@@ -488,6 +502,10 @@ impl<'tcx> Lowerer<'tcx> {
                             index: offset as usize,
                         },
                     };
+                    let ty::Array(element, _) = current_ty.kind() else {
+                        return Err(self.error(span, "constant indexing requires a fixed array"));
+                    };
+                    current_ty = *element;
                 }
                 _ => {
                     return Err(self.error(
@@ -512,14 +530,27 @@ impl<'tcx> Lowerer<'tcx> {
             locals[place.local.index()] = Some(value);
             return Ok(());
         }
-        let fields: Vec<_> = place
-            .projection
-            .iter()
-            .map(|projection| match projection {
-                ProjectionElem::Field(index, _) => Ok(index.index()),
-                _ => Err(self.error(span, "only tuple-field assignment is supported")),
-            })
-            .collect::<Result<_, _>>()?;
+        let mut current_ty = body.local_decls[place.local].ty;
+        let mut fields = Vec::new();
+        for projection in place.projection {
+            match projection {
+                ProjectionElem::Field(index, field_ty) => {
+                    if self.transparent_inner(current_ty, span)?.is_some() {
+                        if index.index() != 0 {
+                            return Err(self.error(span, "transparent newtypes have only field 0"));
+                        }
+                    } else {
+                        fields.push(index.index());
+                    }
+                    current_ty = field_ty;
+                }
+                _ => {
+                    return Err(
+                        self.error(span, "only tuple/newtype-field assignment is supported")
+                    );
+                }
+            }
+        }
         let ty = self.ty(body.local_decls[place.local].ty, span)?;
         let base = locals[place.local.index()]
             .take()
@@ -625,6 +656,20 @@ impl<'tcx> Lowerer<'tcx> {
                         self.byte_array(items, span)
                     }
                     AggregateKind::Array(_) => Ok(Expr::Tuple { items }),
+                    AggregateKind::Adt(id, _, args, _, _) => {
+                        let rust_ty = Ty::new_adt(self.tcx, self.tcx.adt_def(*id), args);
+                        self.transparent_inner(rust_ty, span)?.ok_or_else(|| {
+                            self.error(span, "expected a transparent newtype aggregate")
+                        })?;
+                        self.ty(rust_ty, span)?;
+                        let [value] = items.try_into().map_err(|_| {
+                            self.error(
+                                span,
+                                "transparent newtype aggregate requires exactly one field",
+                            )
+                        })?;
+                        Ok(value)
+                    }
                     _ => Err(self.error(span, "structs, enums and closures are not yet supported")),
                 }
             }

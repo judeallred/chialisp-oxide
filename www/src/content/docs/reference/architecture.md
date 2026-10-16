@@ -31,6 +31,20 @@ expression types and rejects mismatches or unsupported operations before code
 generation. Serialization is a boundary contract, not a reason to trust a
 handwritten IR document.
 
+The driver checks nominal transparent wrappers as Rust types, then erases them
+to the supported inner type before emitting IR. The IR and CLVM wire ABI do not
+carry `CoinId` or `PuzzleHash` runtime tags. The local source-only SDK supplies
+named condition helpers; its capped-payment use is compiled through the same
+MIR path and compared against native execution and the Chialisp reference.
+Constructor validation is not executed during solution decoding.
+
+Corpus manifests explicitly enumerate local source dependencies. The report
+records each dependency's path, source, and SHA-256; the site verifies those
+records against the current files. This is fixture-level dependency evidence,
+not an automatically discovered complete compiler source map. CI also
+recompiles the corpus and compares the committed report before Pages deploys
+the successful commit.
+
 ## Why the Rue optimizer
 
 The project pins Rue revision

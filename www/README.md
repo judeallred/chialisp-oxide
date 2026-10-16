@@ -5,6 +5,9 @@ uses a custom green/oxide editorial theme, accessible framework navigation,
 code-copy controls, responsive Rust/Chialisp source comparisons, a filterable
 puzzle laboratory, formal evidence, and a separately filterable migration
 inventory.
+The laboratory also compares serialized bytes between optimization modes and
+against Chialisp, with exact replacement offsets and explicit hash-compatibility
+scope; byte similarity is not presented as a semantic proof.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -21,8 +24,12 @@ or unvalidated examples. Regenerate compiler evidence from the repository root
 before publishing changed puzzles; never edit displayed metrics by hand.
 Both `check` and `build` compare report source strings, vectors, policy scope,
 and provenance to the local fixtures, check backend agreement and ledger
-results, and verify the formal report's source/IR hashes. Stale evidence fails
+results, and verify the formal report's source, IR, mutant IR, specifications,
+and SMT query hashes. Stale evidence fails
 the site build rather than silently displaying obsolete results.
+Explicitly declared source dependencies are checked by path, content, and
+SHA-256 as well. Their enumeration comes from the fixture manifest, not an
+automatic compiler source-map claim.
 
 The Pages configuration is `site: https://judeallred.github.io` and
 `base: /chialisp-oxide`. Keep every internal route and static resource under

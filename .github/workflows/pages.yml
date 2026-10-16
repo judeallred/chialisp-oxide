@@ -1,10 +1,13 @@
 name: Deploy documentation
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["Compiler and verification"]
+    types: [completed]
     branches: [main]
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 concurrency:
@@ -12,9 +15,23 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Require successful compiler verification for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          verified_runs=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/workflows/check.yml/runs" -f head_sha="$VERIFIED_SHA" -f branch=main -f event=push -f status=success --jq '.total_count')
+          test "$verified_runs" -gt 0
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: www/package.json

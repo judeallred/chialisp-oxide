@@ -18,3 +18,5 @@ Use docs/compiler-approach.md for architectural context and docs/verification.md
 - Run python3 scripts/check-proofs.py for proof/model changes. Run pnpm site checks/build when www changes.
 - Push completed, verified work to origin; inspect CI and fix failures. Record remaining substantive work for continuation.
 - When finding a Rue bug, search upstream issues first, then file or update an xch-dev/rue issue with pinned revision, minimal repro, observed/expected behavior, and a patch containing a failing regression test plus fix. Link local patches to the issue. The user explicitly authorized upstream bug reports; no extra confirmation is needed.
+- Regenerate corpus evidence only after formatting Rust sources: build workspace, run `target/debug/oxide validate --output corpus/validation.json`, then `python3 scripts/check-ir-proofs.py --output corpus/proofs.json`. The site rejects stale source/manifests/proof hashes.
+- Keep Pages publication gated on successful compiler verification for the exact main commit, and verify the live evidence endpoint after deployment.

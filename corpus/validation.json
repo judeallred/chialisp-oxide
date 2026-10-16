@@ -233,6 +233,7 @@
       ],
       "slug": "fixed-payment",
       "source": "// Permissionless fixture: fixes the recipient and amount, but has no owner key.\npub fn puzzle() -> ((u64, u64), (u64, [u8; 32], u64)) {\n    ((73, 1000), (51, [0x42; 32], 1000))\n}\n",
+      "source_dependencies": [],
       "title": "Fixed Payment",
       "validated": true
     },
@@ -240,19 +241,19 @@
       "artifacts": [
         {
           "backend": "rust_mir",
-          "bytes": 1547,
-          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dffff05ff01808080ffff01ff02ffff03ffff09ffff0dffff05ff018080ff8080ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff80808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff010180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff010080ffff01ff0880ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff80808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff010080ffff01ff02ffff03ffff0affff0cffff05ff0180ffff0101ffff010280ffff017f80ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff80808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff0181ff80ffff01ff02ffff03ffff0affff018180ffff0cffff05ff0180ffff0101ffff01028080ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff80808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff80808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff018080ff018080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
-          "disassembly": "(a (i (l 1) (q 2 (i (l (f 1)) (q 8) (q 2 (i (> (q . 10) (strlen (f 1))) (q 2 (i (= (strlen (f 1)) ()) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (strlen (f 1)) (q . 1)) (q 2 (i (= (substr (f 1) () (q . 1)) (q . 0x00)) (q 8) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (= (substr (f 1) () (q . 1)) (q . 0x00)) (q 2 (i (>s (substr (f 1) (q . 1) (q . 2)) (q . 127)) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (substr (f 1) () (q . 1)) (q . -1)) (q 2 (i (>s (q . -128) (substr (f 1) (q . 1) (q . 2))) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1)) 1)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1)",
+          "bytes": 2027,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dffff05ff01808080ffff01ff02ffff03ffff09ffff0dffff05ff018080ff8080ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff010180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff010080ffff01ff0880ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff010080ffff01ff02ffff03ffff0affff0cffff05ff0180ffff0101ffff010280ffff017f80ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0cffff05ff0180ff80ffff010180ffff0181ff80ffff01ff02ffff03ffff0affff018180ffff0cffff05ff0180ffff0101ffff01028080ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff15ffff05ff0180ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ffff05ff018080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff02ffff03ffff09ffff20ffff15ffff05ff0180ffff018203e88080ff8080ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ffff05ff0180ff80808080ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff018080ff018080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l (f 1)) (q 8) (q 2 (i (> (q . 10) (strlen (f 1))) (q 2 (i (= (strlen (f 1)) ()) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (strlen (f 1)) (q . 1)) (q 2 (i (= (substr (f 1) () (q . 1)) (q . 0x00)) (q 8) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (= (substr (f 1) () (q . 1)) (q . 0x00)) (q 2 (i (>s (substr (f 1) (q . 1) (q . 2)) (q . 127)) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (substr (f 1) () (q . 1)) (q . -1)) (q 2 (i (>s (q . -128) (substr (f 1) (q . 1) (q . 2))) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (> (f 1) (q . -1)) (q 2 (i (> (q . 0x010000000000000000) (f 1)) (q 2 (i (= (r 1) ()) (q 2 (i (= (not (> (f 1) (q . 1000))) ()) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c (f 1) ()))) ()))))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1)) 1)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1)",
           "optimize_lir": false,
-          "tree_hash": "63d688bab86a650b82542a21e175e8a072ab684a2cf49eb70791bb23ea9eb959"
+          "tree_hash": "63e06cbf31dc5b69edf52c6fef6489934a9b95234b5623d8d7a6ba7092ac9c5a"
         },
         {
           "backend": "rust_mir",
-          "bytes": 1325,
-          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dff028080ffff01ff02ffff03ffff0dff0280ffff01ff02ffff03ffff09ffff0dff0280ffff010180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff010080ffff01ff0880ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff80808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff010080ffff01ff02ffff03ffff0affff0cff02ffff0101ffff010280ffff017f80ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff80808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff0181ff80ffff01ff02ffff03ffff0affff018180ffff0cff02ffff0101ffff01028080ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff80808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff80808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff018080ff018080ff0180ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff80808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
-          "disassembly": "(a (i (l 1) (q 2 (i (l 2) (q 8) (q 2 (i (> (q . 10) (strlen 2)) (q 2 (i (strlen 2) (q 2 (i (= (strlen 2) (q . 1)) (q 2 (i (= (substr 2 () (q . 1)) (q . 0x00)) (q 8) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (= (substr 2 () (q . 1)) (q . 0x00)) (q 2 (i (>s (substr 2 (q . 1) (q . 2)) (q . 127)) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))) 1)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (substr 2 () (q . 1)) (q . -1)) (q 2 (i (>s (q . -128) (substr 2 (q . 1) (q . 2))) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))) 1)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1)) 1)) 1) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 4 (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1)",
+          "bytes": 1785,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dff028080ffff01ff02ffff03ffff0dff0280ffff01ff02ffff03ffff09ffff0dff0280ffff010180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff010080ffff01ff0880ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff8080808080808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff010080ffff01ff02ffff03ffff0affff0cff02ffff0101ffff010280ffff017f80ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff8080808080808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff09ffff0cff02ff80ffff010180ffff0181ff80ffff01ff02ffff03ffff0affff018180ffff0cff02ffff0101ffff01028080ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff8080808080808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff8080808080808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff018080ff018080ff0180ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff03ffff15ff02ffff018203e880ffff01ff0880ffff01ff06ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff06ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ffff04ffff04ffff0149ffff04ffff018203e8ff808080ffff04ffff04ffff0133ffff04ffff01a04242424242424242424242424242424242424242424242424242424242424242ffff04ff02ff80808080ff8080808080808080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l 2) (q 8) (q 2 (i (> (q . 10) (strlen 2)) (q 2 (i (strlen 2) (q 2 (i (= (strlen 2) (q . 1)) (q 2 (i (= (substr 2 () (q . 1)) (q . 0x00)) (q 8) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))))))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (= (substr 2 () (q . 1)) (q . 0x00)) (q 2 (i (>s (substr 2 (q . 1) (q . 2)) (q . 127)) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))))))) 1)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (= (substr 2 () (q . 1)) (q . -1)) (q 2 (i (>s (q . -128) (substr 2 (q . 1) (q . 2))) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))))))) 1)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))))))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1)) 1)) 1) (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q 2 (i 3 (q 8) (q 2 (i (> 2 (q . 1000)) (q 8) (q 6 (c (c (q . 73) (c (q . 1000) ())) (r (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) (c (c (q . 73) (c (q . 1000) ())) (c (c (q . 51) (c (q . \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\") (c 2 ()))) ()))))))) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1)",
           "optimize_lir": true,
-          "tree_hash": "202c894e2d2d7e384ff471a0024049b99ab3defce34031b42523c60f00910d0f"
+          "tree_hash": "fbebe85e30f28da40b67ca3fd5c430aa4e21bd1f1eaef1a41c9dc323f12ded49"
         },
         {
           "backend": "chialisp",
@@ -274,7 +275,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 6063,
+                "cost": 6725,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff808080",
@@ -286,7 +287,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 5159,
+                "cost": 5794,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff808080",
@@ -320,7 +321,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 7692,
+                "cost": 8354,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8201f48080",
@@ -332,7 +333,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 6706,
+                "cost": 7341,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8201f48080",
@@ -366,7 +367,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 7692,
+                "cost": 8354,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080",
@@ -378,7 +379,7 @@
             {
               "backend": "rust_mir",
               "execution": {
-                "cost": 6706,
+                "cost": 7341,
                 "error": null,
                 "outcome": {
                   "output_hex": "ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080",
@@ -664,7 +665,7 @@
               "backend": "rust_mir",
               "execution": {
                 "cost": null,
-                "error": "InvalidOpArg(NodePtr(Pair, 658), \"= used on list\")",
+                "error": "InvalidOpArg(NodePtr(Pair, 813), \"= used on list\")",
                 "outcome": {
                   "status": "rejected"
                 }
@@ -811,7 +812,14 @@
         }
       ],
       "slug": "capped-payment",
-      "source": "// Permissionless fixture: any caller may select an amount within the cap.\npub fn puzzle(amount: u64) -> ((u64, u64), (u64, [u8; 32], u64)) {\n    assert!(amount <= 1000);\n    ((73, 1000), (51, [0x42; 32], amount))\n}\n",
+      "source": "// Permissionless fixture: any caller may select an amount within the cap.\n#[path = \"../../sdk/oxide.rs\"]\npub mod oxide;\n\npub fn puzzle(amount: oxide::Amount) -> (oxide::AssertMyAmount, oxide::CreateCoin) {\n    assert!(amount.0 <= 1000);\n    (\n        oxide::assert_my_amount(oxide::Amount(1000)),\n        oxide::create_coin(oxide::PuzzleHash([0x42; 32]), amount),\n    )\n}\n",
+      "source_dependencies": [
+        {
+          "path": "sdk/oxide.rs",
+          "sha256": "73eefc69626fc50a599fc97216387aa89884a09ae94c00216b5430811aed2362",
+          "source": "//! Source-only puzzle helpers for the currently supported compiler subset.\n//!\n//! Include this module in a standalone puzzle. Transparent wrappers retain Rust\n//! nominal type checking but erase to their scalar CLVM wire representations.\n//! Their constructors validate no cryptographic property; callers still supply\n//! untrusted bytes and the ABI validates only encoding, length, and range.\n#![allow(dead_code)]\n\n#[repr(transparent)]\npub struct PuzzleHash(pub [u8; 32]);\n#[repr(transparent)]\npub struct CoinId(pub [u8; 32]);\n#[repr(transparent)]\npub struct PublicKey(pub [u8; 48]);\n#[repr(transparent)]\npub struct Message32(pub [u8; 32]);\n#[repr(transparent)]\npub struct Amount(pub u64);\n#[repr(transparent)]\npub struct Timestamp(pub u64);\n\npub type CreateCoin = (u64, PuzzleHash, Amount);\npub type AggSigMe = (u64, PublicKey, Message32);\npub type AssertMyAmount = (u64, Amount);\npub type AssertSecondsAbsolute = (u64, Timestamp);\n\npub fn create_coin(destination: PuzzleHash, amount: Amount) -> CreateCoin {\n    (51, destination, amount)\n}\npub fn agg_sig_me(public_key: PublicKey, message: Message32) -> AggSigMe {\n    (50, public_key, message)\n}\npub fn assert_my_amount(amount: Amount) -> AssertMyAmount {\n    (73, amount)\n}\npub fn assert_seconds_absolute(time: Timestamp) -> AssertSecondsAbsolute {\n    (81, time)\n}\n"
+        }
+      ],
       "title": "Capped Payment",
       "validated": true
     },
@@ -1391,6 +1399,7 @@
       ],
       "slug": "split-payment",
       "source": "// Two fixed recipients share exactly 1000; first_amount controls the split.\npub fn puzzle(first_amount: u64) -> ((u64, u64), (u64, [u8; 32], u64), (u64, [u8; 32], u64)) {\n    assert!(first_amount <= 1000);\n    let second_amount = 1000 - first_amount;\n    (\n        (73, 1000),\n        (51, [0x42; 32], first_amount),\n        (51, [0x43; 32], second_amount),\n    )\n}\n",
+      "source_dependencies": [],
       "title": "Split Payment",
       "validated": true
     },
@@ -1631,6 +1640,7 @@
       ],
       "slug": "timelocked-payment",
       "source": "// Permissionless after the absolute timestamp; intended to demonstrate consensus checks.\npub fn puzzle() -> ((u64, u64), (u64, u64), (u64, [u8; 32], u64)) {\n    ((81, 100), (73, 1000), (51, [0x42; 32], 1000))\n}\n",
+      "source_dependencies": [],
       "title": "Timelocked Payment",
       "validated": true
     },
@@ -2001,6 +2011,7 @@
       ],
       "slug": "signature-payment",
       "source": "// Fixed owner key; AGG_SIG_ME binds the caller-supplied message to this coin.\npub fn puzzle(message: [u8; 32]) -> ((u64, [u8; 48], [u8; 32]), (u64, u64), (u64, [u8; 32], u64)) {\n    (\n        (\n            50,\n            [\n                0x8b, 0xc6, 0x1e, 0x93, 0x38, 0x0f, 0x34, 0x27, 0xed, 0x2a, 0xce, 0x81, 0x3f, 0xdf,\n                0xf6, 0x75, 0x04, 0xf5, 0x52, 0x68, 0xa9, 0x9a, 0x72, 0xce, 0xa5, 0x71, 0x33, 0xc2,\n                0xb3, 0x2a, 0x1d, 0x83, 0x6f, 0xd5, 0x23, 0x81, 0xae, 0x9c, 0xa1, 0x09, 0x57, 0x55,\n                0x7b, 0x80, 0x06, 0x40, 0x59, 0xe5,\n            ],\n            message,\n        ),\n        (73, 1000),\n        (51, [0x42; 32], 1000),\n    )\n}\n",
+      "source_dependencies": [],
       "title": "Signature Payment",
       "validated": true
     },
@@ -2376,6 +2387,7 @@
       ],
       "slug": "two-signature-payment",
       "source": "// Both independent owner keys must sign the coin-bound message.\npub fn puzzle(\n    message: [u8; 32],\n) -> (\n    (u64, [u8; 48], [u8; 32]),\n    (u64, [u8; 48], [u8; 32]),\n    (u64, u64),\n    (u64, [u8; 32], u64),\n) {\n    (\n        (\n            50,\n            [\n                0x8b, 0xc6, 0x1e, 0x93, 0x38, 0x0f, 0x34, 0x27, 0xed, 0x2a, 0xce, 0x81, 0x3f, 0xdf,\n                0xf6, 0x75, 0x04, 0xf5, 0x52, 0x68, 0xa9, 0x9a, 0x72, 0xce, 0xa5, 0x71, 0x33, 0xc2,\n                0xb3, 0x2a, 0x1d, 0x83, 0x6f, 0xd5, 0x23, 0x81, 0xae, 0x9c, 0xa1, 0x09, 0x57, 0x55,\n                0x7b, 0x80, 0x06, 0x40, 0x59, 0xe5,\n            ],\n            message,\n        ),\n        (\n            50,\n            [\n                0xb4, 0x7f, 0xa1, 0xe1, 0x51, 0x62, 0xa5, 0xb1, 0xf9, 0x44, 0x4d, 0x1a, 0xae, 0x57,\n                0xd1, 0x31, 0xa1, 0xd5, 0xc9, 0x8b, 0xad, 0xe8, 0xf8, 0xe9, 0x3b, 0x8e, 0xbf, 0xe1,\n                0x64, 0x9b, 0x95, 0xc5, 0x57, 0x87, 0xb8, 0x73, 0x1d, 0x2f, 0x1a, 0x06, 0x38, 0xb3,\n                0xe1, 0xd2, 0x3a, 0xda, 0x48, 0xe8,\n            ],\n            message,\n        ),\n        (73, 1000),\n        (51, [0x42; 32], 1000),\n    )\n}\n",
+      "source_dependencies": [],
       "title": "Two Signature Payment",
       "validated": true
     },
@@ -2793,6 +2805,7 @@
       ],
       "slug": "recovery-payment",
       "source": "// Owner can spend now; recovery key can spend after absolute time 100.\npub fn puzzle(\n    recovery: bool,\n    message: [u8; 32],\n) -> (\n    (u64, [u8; 48], [u8; 32]),\n    (u64, u64),\n    (u64, u64),\n    (u64, [u8; 32], u64),\n) {\n    let key = if recovery {\n        [\n            0xb4, 0x7f, 0xa1, 0xe1, 0x51, 0x62, 0xa5, 0xb1, 0xf9, 0x44, 0x4d, 0x1a, 0xae, 0x57,\n            0xd1, 0x31, 0xa1, 0xd5, 0xc9, 0x8b, 0xad, 0xe8, 0xf8, 0xe9, 0x3b, 0x8e, 0xbf, 0xe1,\n            0x64, 0x9b, 0x95, 0xc5, 0x57, 0x87, 0xb8, 0x73, 0x1d, 0x2f, 0x1a, 0x06, 0x38, 0xb3,\n            0xe1, 0xd2, 0x3a, 0xda, 0x48, 0xe8,\n        ]\n    } else {\n        [\n            0x8b, 0xc6, 0x1e, 0x93, 0x38, 0x0f, 0x34, 0x27, 0xed, 0x2a, 0xce, 0x81, 0x3f, 0xdf,\n            0xf6, 0x75, 0x04, 0xf5, 0x52, 0x68, 0xa9, 0x9a, 0x72, 0xce, 0xa5, 0x71, 0x33, 0xc2,\n            0xb3, 0x2a, 0x1d, 0x83, 0x6f, 0xd5, 0x23, 0x81, 0xae, 0x9c, 0xa1, 0x09, 0x57, 0x55,\n            0x7b, 0x80, 0x06, 0x40, 0x59, 0xe5,\n        ]\n    };\n    let unlock_at = if recovery { 100 } else { 0 };\n    (\n        (50, key, message),\n        (81, unlock_at),\n        (73, 1000),\n        (51, [0x42; 32], 1000),\n    )\n}\n",
+      "source_dependencies": [],
       "title": "Recovery Payment",
       "validated": true
     },
@@ -3352,6 +3365,7 @@
       "simulator": [],
       "slug": "bounded-counter",
       "source": "// Pure arithmetic example, not a coin puzzle: checked Rust u64 increment.\npub fn puzzle(counter: u64) -> u64 {\n    assert!(counter < 1000);\n    counter + 1\n}\n",
+      "source_dependencies": [],
       "title": "Bounded Counter",
       "validated": true
     },
@@ -3713,6 +3727,7 @@
       ],
       "slug": "boolean-gate",
       "source": "// Pure predicate-gated fixture, not authorization: callers control the boolean.\npub fn puzzle(allow: bool) -> ((u64, [u8; 32], u64),) {\n    assert!(allow);\n    ((51, [0x42; 32], 1000),)\n}\n",
+      "source_dependencies": [],
       "title": "Boolean Gate",
       "validated": true
     }

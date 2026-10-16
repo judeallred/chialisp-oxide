@@ -46,6 +46,22 @@ Tuples are proper lists whose fields are recursively validated. Unit is the
 empty list. These are explicit logical layouts, independent of Rust memory
 layout, alignment, or endianness.
 
+## Nominal wrappers erase to the inner encoding
+
+A supported local, single-field `#[repr(transparent)]` wrapper preserves Rust's
+source-level type identity but adds no CLVM wrapper node or domain tag.
+`PuzzleHash([u8; 32])` is the same 32-byte atom as its inner array; `Amount(u64)`
+is the same canonical numeric atom as its inner integer. A one-argument
+`puzzle(amount: Amount)` therefore takes `(500)`, not `((500))`.
+
+ABI decoding does not run a Rust constructor or custom validator. It enforces
+the erased inner type's encoding, length, and range, not a domain-specific
+invariant. A correctly sized atom is not proof that its bytes name the intended
+puzzle. Keep policy assertions and authorization checks explicit. Nested
+supported wrappers erase recursively; general structs and enums remain
+unsupported. See the [typed SDK tutorial](/chialisp-oxide/tutorials/typed-sdk/)
+for supported declarations and observed compile-fail diagnostics.
+
 ## Returning conditions
 
 ```rust
@@ -59,8 +75,10 @@ The result is a proper list containing `(73 1000)` and
 The repeated destination bytes describe the recipient puzzle hash, not an
 address string.
 
-The current examples use ordinary integer-tagged tuples for conditions. They
-do **not** yet provide nominal `Amount`, `PuzzleHash`, or `Condition` SDK types.
-An incorrect numeric opcode can therefore compile. The
-[condition reference](/chialisp-oxide/reference/conditions/) and simulator tests
-remain necessary checks until a typed SDK replaces this raw interface.
+The source-only SDK now provides nominal `Amount`, `PuzzleHash`, `CoinId`,
+`PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
+The capped-payment fixture uses these helpers. Other fixtures still illustrate
+the raw tuple interface, and SDK condition result aliases also remain tuples.
+There is no closed nominal `Condition` enum: an incorrect manually constructed
+opcode can still compile. The [condition reference](/chialisp-oxide/reference/conditions/)
+and simulator tests remain necessary policy checks.

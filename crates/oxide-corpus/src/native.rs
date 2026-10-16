@@ -78,6 +78,17 @@ impl<A: Encode, B: Encode, C: Encode, D: Encode> Encode for (A, B, C, D) {
         list(a, &[w, x, y, z])
     }
 }
+impl Encode for capped::oxide::Amount {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+impl Encode for capped::oxide::PuzzleHash {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+
 fn output(v: impl Encode) -> Result<Vec<u8>> {
     let mut a = Allocator::new();
     let node = v.encode(&mut a)?;
@@ -165,7 +176,7 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             }
             "capped-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(capped::puzzle(uint(&a, args[0])?))
+                output(capped::puzzle(capped::oxide::Amount(uint(&a, args[0])?)))
             }
             "split-payment" => {
                 ensure!(args.len() == 1, "arity");

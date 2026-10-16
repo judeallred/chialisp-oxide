@@ -19,8 +19,9 @@ is between 1 and 1,000 and equals the input plus one. The acceptance obligation
 says that, for a successfully decoded typed `u64`, execution succeeds exactly
 when input is below 1,000.
 
-The report includes the source and IR hashes so the model can be tied to the
-specific compiled fixture. A satisfying input demonstrates nonvacuity: the
+The report includes source, original/mutant IR, specification, and SMT query
+hashes so the model and obligations can be tied to the specific compiled
+fixture. The site verifies those files before building. A satisfying input demonstrates nonvacuity: the
 property is not “proved” merely because every input rejects. That witness is
 replayed in native Rust and both CLVM optimization modes.
 

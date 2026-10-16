@@ -8,6 +8,11 @@ which assumptions. “Written in Rust” is not a security property by itself.
 Rue already has types and diagnostics, so benefits shared with Rue should not
 be described as unique Rust advantages.
 
+The primitive regression `type_error.rs` evaluates `amount + true` for a
+`u64` amount. Rust rejects it with `E0277`, “cannot add `bool` to `u64`,” before
+the driver can emit IR. This is distinct from a malformed solution, which is
+constructed after compilation and must reject at runtime.
+
 ## Checked before CLVM generation
 
 Rust's own analysis rejects incompatible source types and invalid borrows. The
@@ -24,6 +29,22 @@ Rue also rejects many ordinary type mistakes. Chialisp's untyped atoms and
 pairs make more representation errors possible unless explicit checks are
 written. Side-by-side references show the runtime checks needed for an
 equivalent ABI, rather than presenting a shorter unsafe reference as equivalent.
+
+## Domain swaps rejected by the typed SDK
+
+The supported source-only SDK distinguishes `CoinId` from `PuzzleHash` and
+`Amount` from `Timestamp` with single-field transparent nominal wrappers.
+The actual `newtype_swap.rs` fixture fails with `E0308`, expected `PuzzleHash`,
+found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
+`Amount`. The driver test requires both names in the Rust diagnostic and no
+emitted IR. The capped-payment corpus fixture now uses the same SDK helpers.
+
+These direct API mixups are compile-time errors when those typed helpers are
+used. Public fields still allow deliberate unwrap/rewrap, and raw tuple
+construction remains available. Rue's nominal struct types provide analogous
+domain distinctions; this is not a uniquely Rust protection. See the
+[SDK tutorial](/chialisp-oxide/tutorials/typed-sdk/) for the actual source and
+reproduction commands.
 
 ## Rejected at the puzzle boundary
 
@@ -59,10 +80,16 @@ puzzle exploit was assessed.
 
 ## Still possible to get wrong
 
-The present condition API uses raw tuple opcodes and byte arrays. A wrong
-condition number, confused byte domain, wrong key, destination, fee, timelock,
-or signature commitment can compile. Nominal SDK types are a future goal, not
-an implemented guarantee in these fixtures.
+The named SDK helpers prevent direct source-level domain swaps, but their
+condition aliases still expose tuple representations. A wrong manually written
+condition number, deliberate byte rewrap, wrong key, destination, fee,
+timelock, or signature commitment can compile. Most existing teaching fixtures
+also retain raw tuples to make their condition structure visible.
+
+Transparent wrappers add no runtime domain tags. ABI decoding checks the inner
+encoding and does not invoke constructors or validate their custom invariants.
+An attacker can supply any correctly sized bytes at a `PuzzleHash` boundary;
+Rust's source type does not authenticate their meaning.
 
 A caller-controlled boolean can gate rejection but cannot authenticate a
 caller. A fixed recipient can constrain payment but cannot require ownership.

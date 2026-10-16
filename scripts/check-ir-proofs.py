@@ -90,7 +90,7 @@ def main():
             write_json(witness, result["nonvacuity"])
             replay = json.loads(run([VERIFIER, program_path, "--replay", witness]))
             check_replays(replay, "accepted")
-            checks.append({"name": name, "specification": str(specification.relative_to(ROOT)), "result": result, "clvm_nonvacuity_replay": replay})
+            checks.append({"name": name, "specification": str(specification.relative_to(ROOT)), "specification_sha256": sha256(specification), "query": str((PROOFS / f"{name}.smt2").relative_to(ROOT)), "query_sha256": sha256(PROOFS / f"{name}.smt2"), "result": result, "clvm_nonvacuity_replay": replay})
 
         # Fail if rustc's assertion structure changes. Remove precisely the cap
         # guard while retaining the entire checked-arithmetic continuation.
@@ -168,10 +168,16 @@ fn main() {
             "source_sha256": sha256(ROOT / SOURCE),
             "ir": "proofs/bounded-counter/program.ir.json",
             "ir_sha256": sha256(program_path),
+            "mutant_ir": "proofs/bounded-counter/mutant.ir.json",
+            "mutant_ir_sha256": sha256(mutant_path),
             "solver": run(["z3", "--version"]).strip(),
             "checks": checks,
             "mutation": {
                 "description": "Remove only the outer counter < 1000 assertion; retain checked increment",
+                "specification": "proofs/bounded-counter/range.spec.json",
+                "specification_sha256": sha256(PROOFS / "range.spec.json"),
+                "query": "proofs/bounded-counter/mutation.smt2",
+                "query_sha256": sha256(PROOFS / "mutation.smt2"),
                 "result": mutation,
                 "original_clvm_replay": original_replay,
                 "mutant_clvm_replay": mutant_replay,

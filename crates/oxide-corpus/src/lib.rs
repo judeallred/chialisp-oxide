@@ -5,6 +5,7 @@ use anyhow::{Context, Result, ensure};
 use oxide_backend_experiment::{Artifact, Execution, MAX_COST, Outcome, artifact, execute};
 use oxide_ir::Program;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 pub const PUZZLES: &[&str] = &[
     "fixed-payment",
@@ -36,6 +37,8 @@ pub struct Manifest {
     pub security_scope: String,
     pub provenance: serde_json::Value,
     pub cases: Vec<Case>,
+    #[serde(default)]
+    pub source_dependencies: Vec<String>,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -51,6 +54,12 @@ pub struct CaseReport {
     pub runs: Vec<Run>,
 }
 #[derive(Serialize)]
+pub struct SourceDependency {
+    pub path: String,
+    pub sha256: String,
+    pub source: String,
+}
+#[derive(Serialize)]
 pub struct PuzzleReport {
     pub slug: String,
     pub title: String,
@@ -59,6 +68,7 @@ pub struct PuzzleReport {
     pub provenance: serde_json::Value,
     pub source: String,
     pub reference: String,
+    pub source_dependencies: Vec<SourceDependency>,
     pub artifacts: Vec<Artifact>,
     pub cases: Vec<CaseReport>,
     pub generated_cases: usize,
@@ -108,6 +118,23 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     let manifest: Manifest =
         serde_json::from_str(&std::fs::read_to_string(dir.join("puzzle.json"))?)?;
     let reference = std::fs::read_to_string(dir.join("reference.clsp"))?;
+    let source_dependencies = manifest
+        .source_dependencies
+        .iter()
+        .map(|path| -> Result<SourceDependency> {
+            let resolved = root().join(path).canonicalize()?;
+            ensure!(
+                resolved.starts_with(root()),
+                "fixture dependency escapes repository"
+            );
+            let source = std::fs::read_to_string(resolved)?;
+            Ok(SourceDependency {
+                path: path.clone(),
+                sha256: hex::encode(Sha256::digest(source.as_bytes())),
+                source,
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
     let source = std::fs::read_to_string(dir.join("puzzle.rs"))?;
     let original =
         oxide_chialisp::compile(&reference).with_context(|| format!("compile Chialisp {slug}"))?;
@@ -146,6 +173,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         provenance: manifest.provenance,
         source,
         reference,
+        source_dependencies,
         artifacts,
         cases,
         generated_cases,

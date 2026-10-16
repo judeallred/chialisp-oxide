@@ -1,0 +1,94 @@
+---
+import type { Artifact, PuzzleReport } from '../lib/data';
+import { compareSerializedBytes } from '../../scripts/test-artifact-diff.mjs';
+
+interface Props { puzzle: PuzzleReport; }
+const { puzzle } = Astro.props;
+const optimized = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir);
+const unoptimized = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && !artifact.optimize_lir);
+const reference = puzzle.artifacts.find(artifact => artifact.backend === 'chialisp');
+if (!optimized || !unoptimized || !reference) throw new Error(`Missing compiled-byte comparison artifact: ${puzzle.slug}`);
+const comparison = (title: string, before: Artifact, beforeLabel: string, after: Artifact, afterLabel: string) => ({
+  title, before, beforeLabel, after, afterLabel,
+  diff: compareSerializedBytes(before.clvm_hex, after.clvm_hex),
+  hashMatches: before.tree_hash === after.tree_hash,
+});
+const comparisons = [
+  comparison('Rust optimization off → on', unoptimized, 'Rust · optimization off', optimized, 'Rust · optimization on'),
+  comparison('Chialisp reference → optimized Rust', reference, 'Chialisp reference', optimized, 'Rust · optimization on'),
+];
+const offset = (value: number) => `0x${value.toString(16).padStart(6, '0')}`;
+const byteCount = (value: number) => `${value.toLocaleString('en-US')} ${value === 1 ? 'byte' : 'bytes'}`;
+const lines = (hex: string, start: number, marker: string) => {
+  const rows = [];
+  for (let index = 0; index < hex.length; index += 32) {
+    rows.push(`${marker} ${offset(start + index / 2)}  ${hex.slice(index, index + 32).match(/../g)!.join(' ')}`);
+  }
+  return rows.join('\n');
+};
+---
+<section class="artifact-diffs" aria-label="Serialized-byte comparisons">
+  <h3>Serialized-byte diffs</h3>
+  <p class="method">Each comparison elides the longest shared byte prefix and a non-overlapping shared suffix. The remaining middle is one replacement range, with zero-based byte offsets and an exclusive end. This is not an instruction-aligned or minimal-edit diff.</p>
+  {comparisons.map(({ title, beforeLabel, afterLabel, diff, hashMatches }) => (
+    <details class="byte-diff">
+      <summary>
+        <span class="comparison-title">{title}</span>
+        <span class="diff-count">{diff.identical ? 'identical bytes' : `−${byteCount(diff.before.bytes)} / +${byteCount(diff.after.bytes)}`}</span>
+      </summary>
+      <div class="comparison-body">
+        <p class="hash-scope">{hashMatches
+          ? 'The recorded CLVM tree hashes match for this pair.'
+          : 'The recorded CLVM tree hashes differ: these artifacts have different puzzle hashes. Tested behavior does not establish canonical module-hash compatibility.'}</p>
+        {diff.identical ? <p class="identical">All {byteCount(diff.before.total)} match; there is no replaced range.</p> : (
+          <>
+            <p class="shared">Unchanged: {byteCount(diff.prefixBytes)} at the start · {byteCount(diff.suffixBytes)} at the end.</p>
+            <div class="byte-columns" data-pagefind-ignore>
+              {[
+                { label: beforeLabel, marker: '-', range: diff.before, kind: 'removed' },
+                { label: afterLabel, marker: '+', range: diff.after, kind: 'added' },
+              ].map(({ label, marker, range, kind }) => (
+                <section class:list={['byte-column', kind]} aria-label={`${kind === 'removed' ? 'Removed from' : 'Added to'} ${label}: ${byteCount(range.bytes)} in replacement range`}>
+                  <h4><span aria-hidden="true">{marker}</span> {label}</h4>
+                  <p class="range"><code>[{offset(range.offset)}, {offset(range.end)})</code> · {byteCount(range.bytes)} / {byteCount(range.total)} total</p>
+                  {range.bytes
+                    ? <pre tabindex="0" aria-label={`${label} replacement bytes; each row starts with its byte offset`}><code>{lines(range.hex, range.offset, marker)}</code></pre>
+                    : <p class="empty">∅ · No bytes on this side of the replacement.</p>}
+                </section>
+              ))}
+            </div>
+            <p class="full-artifacts">The artifact panels below contain the complete serialized bytes and disassembly. Byte similarity alone says nothing about semantic equivalence.</p>
+          </>
+        )}
+      </div>
+    </details>
+  ))}
+</section>
+
+<style>
+  .artifact-diffs { margin-block: 1.5rem; }
+  h3 { margin-block: 0 .5rem; font-size: 1.1rem; }
+  .method, .hash-scope, .shared, .full-artifacts, .identical { font-size: .78rem; color: var(--sl-color-gray-2); line-height: 1.7; }
+  .byte-diff { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; overflow: hidden; }
+  summary { cursor: pointer; padding: .9rem 1rem; font-size: .8rem; }
+  summary:hover { background: var(--sl-color-bg-sidebar); }
+  summary:focus-visible, pre:focus-visible { outline: 2px solid var(--sl-color-accent); outline-offset: -2px; }
+  .comparison-title { font-weight: 600; }
+  .diff-count { display: inline-block; margin-inline-start: .8rem; color: var(--sl-color-gray-2); font: .66rem var(--sl-font-mono); }
+  .comparison-body { border-top: 1px solid var(--oxide-line); padding: .2rem 1rem .75rem; }
+  .byte-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin-block: .8rem; }
+  .byte-column { min-width: 0; border: 1px solid var(--oxide-line); border-radius: 4px; overflow: hidden; }
+  h4 { font-size: .75rem; padding: .7rem .8rem 0; margin: 0; letter-spacing: normal; }
+  .removed h4 { color: var(--sl-color-accent-high); }
+  .added h4 { color: var(--oxide-green); }
+  .range { color: var(--sl-color-gray-2); font-size: .62rem; margin: .35rem .8rem .7rem; line-height: 1.6; }
+  .range code { background: none; padding: 0; font-size: inherit; }
+  pre { background: var(--sl-color-bg-sidebar); color: var(--sl-color-gray-1); padding: .8rem; margin: 0; max-height: 23rem; overflow: auto; font: .61rem/1.8 var(--sl-font-mono); }
+  pre code { font: inherit; }
+  .empty { padding: .8rem; font-size: .72rem; color: var(--sl-color-gray-2); border-top: 1px solid var(--oxide-line); margin: 0; }
+  .full-artifacts { font-size: .72rem; }
+  @media (max-width: 50rem) {
+    .byte-columns { grid-template-columns: minmax(0, 1fr); }
+    .diff-count { display: block; margin: .35rem 0 0 1rem; }
+  }
+</style>

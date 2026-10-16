@@ -18,6 +18,9 @@ checks diagnostics, and then lowers typed MIR. Printed MIR is not parsed.
   are rejected because their formatting calls are outside the current subset.
 - Local, non-generic helper functions, inlined into pure expressions.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
+- Local, nongeneric, single-field `#[repr(transparent)]` nominal wrappers over
+  supported nonzero-size values. Rust checks their identity; lowering erases
+  them to the inner ABI type. See [typed puzzle helpers](/chialisp-oxide/tutorials/typed-sdk/).
 - Supported MIR constant array projections. Ordinary indexing that needs an
   index local or reference is rejected.
 
@@ -27,10 +30,16 @@ not use Rust's native in-memory layout as an on-chain ABI.
 ## Rejected features
 
 References, generic functions, external function calls, recursion, loops,
-allocation, structs/enums, casts, floating point, shifts, bitwise arithmetic,
+allocation, general structs/enums, casts, floating point, shifts, bitwise arithmetic,
 division, and remainder are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
 `-Funsafe-code`, including unsafe code that MIR might otherwise eliminate.
+
+The transparent-wrapper exception requires a local, nongeneric declaration
+with exactly one supported nonzero-size field, no custom `Drop`, and no
+macro-generated declaration. Extra fields, even zero-size ones, are rejected.
+This support does not make ordinary structs, enums, or external wrapper types
+available on-chain.
 
 The internal IR enumerates some future operations. An enum variant is not a
 supported language feature: validation rejects operations without implemented,

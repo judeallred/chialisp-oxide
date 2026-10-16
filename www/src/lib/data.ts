@@ -17,6 +17,7 @@ export interface PuzzleReport {
   security_scope: string;
   provenance: { classification: string; references: string[] };
   source: string;
+  source_dependencies: { path: string; sha256: string; source: string }[];
   reference: string;
   artifacts: Artifact[];
   cases: { label: string; solution: string; native: Outcome; runs: { backend: string; optimize_lir: boolean; execution: { outcome: Outcome; cost: number | null; error: string | null } }[] }[];

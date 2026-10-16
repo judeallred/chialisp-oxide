@@ -1,5 +1,11 @@
 // Permissionless fixture: any caller may select an amount within the cap.
-pub fn puzzle(amount: u64) -> ((u64, u64), (u64, [u8; 32], u64)) {
-    assert!(amount <= 1000);
-    ((73, 1000), (51, [0x42; 32], amount))
+#[path = "../../sdk/oxide.rs"]
+pub mod oxide;
+
+pub fn puzzle(amount: oxide::Amount) -> (oxide::AssertMyAmount, oxide::CreateCoin) {
+    assert!(amount.0 <= 1000);
+    (
+        oxide::assert_my_amount(oxide::Amount(1000)),
+        oxide::create_coin(oxide::PuzzleHash([0x42; 32]), amount),
+    )
 }

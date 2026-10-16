@@ -291,6 +291,11 @@ source-derived IR-model proofs and attack replay. `www` renders these reports.
 The imported Rue LIR includes a reproduced optimizer panic fix and retains 44
 upstream/regression tests. The upstream report is xch-dev/rue#108.
 
+Restricted one-field transparent wrappers now preserve Rust nominal type checks
+while erasing to the documented inner ABI. The capped-payment source uses named
+SDK condition helpers, with explicit negative domain-mixup tests. Constructors
+are not invoked on raw solutions and impose no hidden runtime invariants.
+
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving
 lowering, broader byte/crypto proof semantics, and verified compiler-preservation

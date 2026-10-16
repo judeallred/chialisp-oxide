@@ -14,7 +14,7 @@ general-purpose wallet.
 
 ## Separate the two checks
 
-The Rust parameter type requires a canonical unsigned 64-bit integer. The
+The `Amount` wrapper erases to a canonical unsigned 64-bit integer. The
 assertion requires that already decoded value to be within the payment cap.
 An attacker must pass both the ABI check and the application policy.
 

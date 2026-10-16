@@ -60,8 +60,10 @@ Actions at https://judeallred.github.io/chialisp-oxide/.
 - [Initial backend experiment](experiments/backend/README.md)
 - [Chialisp tutorials/reference](https://chialisp.com/)
 
-The current compiler rejects loops, recursion, allocation, external calls,
-references, structs/enums, casts, division/remainder, and other unsupported MIR.
+The compiler supports restricted single-field transparent newtypes, allowing
+nominal domain checks in the source-only [SDK](sdk/README.md). General structs
+and enums, loops, recursion, allocation, external calls, references, casts,
+division/remainder, and other unsupported MIR remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. No production security audit has been
 completed. The vendored Rue identity-product fix is reported upstream as

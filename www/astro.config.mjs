@@ -22,6 +22,7 @@ export default defineConfig({
         { label: 'Learn by building', items: [
           { label: 'Your first payment', slug: 'tutorials/first-payment' },
           { label: 'Validate untrusted inputs', slug: 'tutorials/input-validation' },
+          { label: 'Use typed puzzle helpers', slug: 'tutorials/typed-sdk' },
           { label: 'Split a payment', slug: 'tutorials/split-payment' },
           { label: 'Require signatures', slug: 'tutorials/signatures' },
           { label: 'Time & recovery', slug: 'tutorials/recovery' },

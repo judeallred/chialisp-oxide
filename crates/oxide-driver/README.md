@@ -21,6 +21,10 @@ The initial subset supports:
 
 - `bool`; `u8` through `u128`; `i8` through `i128`; unit; tuples and fixed arrays
   of at most 256 items. Byte arrays have a distinct byte-string ABI.
+- Local, non-generic `#[repr(transparent)]` structs with exactly one field,
+  no custom `Drop`, a nonzero layout, and a recursively supported inner type.
+  Rustc checks nominal distinctions such as `PuzzleHash` versus `CoinId` before
+  lowering; wrapper construction and field projection erase to the inner ABI.
 - Local values, tuple fields, comparisons, `!bool`, `if`, integer/boolean
   `match`, and acyclic control flow.
 - Checked `+`, `-`, `*`, with overflow becoming puzzle rejection. Overflow
@@ -34,7 +38,7 @@ The initial subset supports:
   indexing is rejected when it requires an index local or reference.
 
 References, generic functions, external calls, recursion, loops, allocation,
-structs/enums, casts, floats, shifts, bitwise arithmetic, and division/remainder
+ordinary structs/enums, casts, floats, shifts, bitwise arithmetic, and division/remainder
 are rejected. Panic messages and formatted assertions currently require
 unsupported Rust formatting calls and are rejected. Unsafe Rust is forbidden by rustc's `-Funsafe-code`, including
 code that MIR might otherwise eliminate. Each unsupported MIR diagnostic carries
@@ -56,3 +60,12 @@ does not imply that ordinary Rust libraries can run on CLVM.
 The output is the typed `oxide-ir` JSON contract. The CLVM backend validates
 the whole contract again and validates untrusted solution encodings before
 evaluating the puzzle body.
+
+Transparent wrappers carry **source-level nominal identity**, not wire tags.
+`PuzzleHash([u8; 32])` and `CoinId([u8; 32])` both decode as exactly 32 bytes.
+Decoding does not run a wrapper constructor or establish user-defined constructor
+invariants. Explicit puzzle checks must enforce those invariants at runtime.
+Zero-sized wrappers, multiple-field transparent structs (including extra
+zero-sized fields), generic wrappers, external wrappers such as `NonZeroU64`,
+custom destructors, and macro-generated wrapper declarations are rejected.
+Named aggregate constants and borrowed wrapper methods remain unsupported.

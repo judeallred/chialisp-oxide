@@ -14,7 +14,7 @@ async function files(directory) {
 
 const built = await files(root);
 const pages = built.filter(file => file.endsWith('.html'));
-assert(pages.length >= 30, 'Expected the full documentation and puzzle corpus');
+assert(pages.length >= 31, 'Expected the full documentation and puzzle corpus');
 const cache = new Map();
 const html = async file => {
   if (!cache.has(file)) cache.set(file, await readFile(file, 'utf8'));
@@ -53,6 +53,16 @@ for (const name of ['validation', 'proofs', 'inventory']) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
 }
+const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
+for (const puzzle of validation.puzzles) {
+  const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
+  assert(detail.includes('Serialized-byte diffs'), `${puzzle.slug}: missing compiled-output comparison`);
+  for (const dependency of puzzle.source_dependencies) {
+    assert(detail.includes(dependency.sha256), `${puzzle.slug}: missing source dependency provenance`);
+  }
+}
+const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
+assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
 
 // Execute the real built Pagefind WebAssembly index in Node. Its fetches are
 // served from dist; no server, browser, network access, or fake search required.
@@ -67,7 +77,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();

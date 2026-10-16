@@ -12,6 +12,12 @@ Every validated fixture is compared through independently executed paths. The
 goal is to make a wrong assumption fail visibly at more than one boundary.
 No passing suite establishes a general absence of vulnerabilities.
 
+The report includes exact local source dependencies explicitly declared by
+each fixture manifest. Site checks compare their paths, source text, and
+SHA-256 values against the repository, alongside the entrypoint and reference.
+This prevents a changed SDK module from leaving stale displayed evidence;
+it is not an automatically discovered complete dependency graph.
+
 ## Native Rust and independent Chialisp
 
 The same Rust fixture has a native reference execution. Its solution decoder

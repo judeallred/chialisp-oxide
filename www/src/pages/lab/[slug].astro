@@ -2,6 +2,7 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { Code } from '@astrojs/starlight/components';
 import SourcePair from '../../components/SourcePair.astro';
+import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
 import { puzzles, format, href, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
@@ -20,11 +21,13 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   <h2 id="sources">Compare the sources</h2>
   <p>These are the exact source strings recorded in the validation report. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
   <SourcePair slug={puzzle.slug} />
+  {puzzle.source_dependencies.map(dependency => <details class="artifact"><summary>Source dependency: {dependency.path}</summary><p class="quiet">SHA-256: <code class="dependency-hash">{dependency.sha256}</code>. Recorded from this fixture’s explicitly enumerated dependency manifest.</p><Code code={dependency.source.trim()} lang="rust" title={dependency.path} /></details>)}
   <h2 id="artifacts">Compiled artifacts</h2>
   <p>All three programs are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
   <div class="table-scroll"><table><caption>Serialized program sizes and tree hashes</caption><thead><tr><th scope="col">Backend</th><th scope="col">Optimization</th><th scope="col">Bytes</th><th scope="col">CLVM tree hash</th></tr></thead><tbody>
     {puzzle.artifacts.map(artifact => <tr><th scope="row">{artifact.backend === 'rust_mir' ? 'Rust MIR → Rue' : 'Chialisp reference'}</th><td>{artifact.optimize_lir ? 'on' : 'off'}</td><td>{format(artifact.bytes)}</td><td class="hash"><code>{artifact.tree_hash}</code></td></tr>)}
   </tbody></table></div>
+  <ArtifactDiff puzzle={puzzle} />
   {puzzle.artifacts.map(artifact => <details class="artifact"><summary>{artifact.backend === 'rust_mir' ? 'Rust' : 'Chialisp'} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary><div data-pagefind-ignore><Code code={artifact.disassembly} lang="lisp" /><Code code={artifact.clvm_hex} lang="text" /></div></details>)}
   <p class="quiet">The disassembler can print mnemonic names for numeric atoms inside quoted data. A name such as <code>g1_negate</code> in a returned condition list does not mean that operator is executed; inspect the quoted context and serialized bytes.</p>
   <h2 id="vectors">Adversarial input vectors</h2>
@@ -54,5 +57,6 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   .outcome { font-size: .73rem; color: var(--sl-color-gray-2); } .outcome.accepted { color: var(--oxide-green); }
   td small { display: block; color: var(--sl-color-gray-3); font: .6rem var(--sl-font-mono); margin-top: .3rem; white-space: nowrap; }
   .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
+  .dependency-hash { overflow-wrap: anywhere; }
   summary { cursor: pointer; } .artifact div { margin-top: 1rem; } .scenarios { list-style: none; padding: 0; } .scenarios li { margin: .75rem 0; }
 </style>

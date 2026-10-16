@@ -10,7 +10,7 @@
     "check": "node scripts/check-evidence.mjs && astro check",
     "build": "node scripts/check-evidence.mjs && astro build",
     "preview": "astro preview",
-    "test:site": "node scripts/check-site.mjs"
+    "test:site": "node scripts/test-artifact-diff.mjs && node scripts/check-site.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.6",
