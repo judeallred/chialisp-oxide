@@ -173,6 +173,14 @@ vectors; the report includes hashes, sizes, costs, and reproducible commands.
 
 ### 2. Expand semantics from tutorial needs
 
+Treat [chialisp.com](https://chialisp.com/) as a primary source for the
+tutorial corpus and language/VM reference material. Inventory its examples,
+operators, conditions, costs, optimization, common issues, attacks and
+countermeasures, debugging, primitives, and CLVM sections alongside the primer
+and concepts. Use documented pitfalls as inputs to the error study and negative
+test corpus. Record each source URL and revision when importing examples; verify
+consensus-sensitive behavior against the pinned runtime and Chia implementation.
+
 Add features only when demanded by executable examples. Start from the official
 [Chialisp primer](https://chialisp.com/chialisp-primer/),
 [concepts](https://chialisp.com/chialisp-concepts/), and
