@@ -1,0 +1,26 @@
+---
+import proof from '../../../corpus/proofs.json';
+import { href } from '../lib/data';
+const counterexample = proof.mutation.result.counterexample.arguments.map(a => a.value).join(', ');
+---
+<section class="formal-evidence" aria-label="Generated formal evidence">
+  <p class="eyebrow">Generated from corpus/proofs.json</p>
+  <dl>
+    <div><dt>Model scope</dt><dd>{proof.scope}</dd></div>
+    <div><dt>Solver</dt><dd>{proof.solver}</dd></div>
+    {proof.checks.map(check => <div><dt>{check.name} obligation</dt><dd><span class="badge success">{check.result.status}</span> · successful input witness: <code>{check.result.nonvacuity.arguments.map(argument => argument.value).join(', ')}</code></dd></div>)}
+    <div><dt>Guard-removal mutation</dt><dd><span class="badge success">counterexample detected</span> · input <code>{counterexample}</code></dd></div>
+    <div><dt>Original native replay</dt><dd>{proof.mutation.original_native_replay.status}</dd></div>
+    <div><dt>Original CLVM replay</dt><dd>{proof.mutation.original_clvm_replay.map(r => `${r.optimize ? 'optimized' : 'unoptimized'}: ${r.outcome.status}`).join(' · ')}</dd></div>
+    <div><dt>Mutant CLVM replay</dt><dd>{proof.mutation.mutant_clvm_replay.map(r => `${r.optimize ? 'optimized' : 'unoptimized'}: ${r.outcome.status}`).join(' · ')}</dd></div>
+  </dl>
+  <p class="quiet">Reported limitations</p>
+  <ul>{proof.limitations.map(limitation => <li>{limitation}</li>)}</ul>
+  <a href={href('reports/proofs.json')}>Download the complete formal evidence →</a>
+</section>
+<style>
+  .formal-evidence { padding: 1.5rem; border: 1px solid var(--oxide-line); border-radius: 6px; background: var(--sl-color-bg-sidebar); }
+  dl { margin-block: 1rem; font-size: .84rem; }
+  dl div { margin-block: .8rem; } dt { color: var(--sl-color-gray-2); font-size: .75rem; } dd { margin: .2rem 0 0; }
+  ul { font-size: .8rem; padding-inline-start: 1.3rem; color: var(--sl-color-gray-2); }
+</style>

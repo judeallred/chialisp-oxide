@@ -1,0 +1,62 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { entries, href } from '../../lib/data';
+import inventory from '../../../../corpus/inventory.json';
+const tutorials = entries.filter(e => e.kind === 'tutorial').length;
+const chips = entries.filter(e => e.kind === 'chip').length;
+---
+<StarlightPage frontmatter={{ title: 'Tutorial and CHIP inventory', description: 'A versioned source inventory with honest migration status and immutable provenance.' }}>
+  <p class="eyebrow">Coverage is a tracked obligation</p>
+  <p>The working examples and the migration goal are different sets. This inventory indexes {entries.length} source entries: {tutorials} tutorial pages, {chips} numbered CHIPs, language references, protocol primitives, and grandfathered or obsolete standards. A familiar concept in an original fixture does not complete a canonical protocol migration.</p>
+  <div class="callout-note">These entries remain planned and unvalidated as migrations. Page indexing is not exhaustive example discovery. Direct puzzle links are leads; linked implementation licenses and complete module sets still need review.</div>
+  <form class="inventory-filters" role="search" aria-label="Filter source inventory">
+    <label>Search source inventory<input id="inventory-query" type="search" placeholder="Try singleton, NFT, signature, or CHIP number" /></label>
+    <label>Source kind<select id="inventory-kind"><option value="all">All source kinds</option>{['tutorial','reference','primitive','chip','grandfathered','proposal'].map(kind => <option value={kind}>{kind}</option>)}</select></label>
+  </form>
+  <p id="inventory-count" class="quiet" aria-live="polite">{entries.length} source entries</p>
+  <div class="inventory-scroll"><table><caption>Versioned upstream sources and migration status</caption><thead><tr><th scope="col">Source</th><th scope="col">Kind / upstream status</th><th scope="col">Migration</th><th scope="col">Pinned source</th></tr></thead><tbody>
+    {entries.map(entry => <tr data-inventory data-kind={entry.kind} data-search={`${entry.id} ${entry.title}`.toLowerCase()}>
+      <th scope="row"><a href={entry.url}>{entry.title}</a><small>{entry.id}</small></th>
+      <td>{entry.kind}<small>{'chip_status' in entry ? entry.chip_status : 'Chialisp documentation'}</small></td>
+      <td><span class="badge">{entry.implementation_status}</span><small>{entry.validation_status.replaceAll('_',' ')}</small></td>
+      <td><a href={`${entry.source.repository}/blob/${entry.source.revision}/${entry.source.path}`}><code>{entry.source.revision.slice(0, 9)}</code></a></td>
+    </tr>)}
+  </tbody></table></div>
+  <p id="inventory-empty" hidden>No sources match this filter.</p>
+  <h2>What promotion requires</h2>
+  <p>Enumerate each upstream example or module, pin its canonical implementation and license, add paired local source, and link a reproducible differential report. Add ledger evidence for coin behavior and record module-hash identity obligations. The inventory validator rejects validation claims without implemented sources and evidence paths.</p>
+  <p>Draft, stagnant, withdrawn, obsolete, and grandfathered entries remain visible. The upstream status describes a proposal’s process state, not whether Oxide supports its puzzle or whether it contains one.</p>
+  <p>Snapshot: {inventory.snapshot_date}. <a href={href('reports/inventory.json')}>Download inventory and source leads</a> · <a href={href('lab/')}>Inspect implemented original examples</a>.</p>
+</StarlightPage>
+<script>
+  const query = document.querySelector<HTMLInputElement>('#inventory-query')!;
+  const kind = document.querySelector<HTMLSelectElement>('#inventory-kind')!;
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-inventory]')];
+  const update = () => {
+    let count = 0;
+    for (const row of rows) {
+      row.hidden = !(row.dataset.search!.includes(query.value.trim().toLowerCase()) && (kind.value === 'all' || row.dataset.kind === kind.value));
+      if (!row.hidden) count++;
+    }
+    document.querySelector('#inventory-count')!.textContent = `${count} source ${count === 1 ? 'entry' : 'entries'}`;
+    document.querySelector<HTMLElement>('#inventory-empty')!.hidden = count > 0;
+  };
+  query.addEventListener('input', update);
+  kind.addEventListener('change', update);
+</script>
+<style>
+  .inventory-filters { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 2rem; }
+  label { display: grid; gap: .4rem; color: var(--sl-color-gray-2); font-size: .8rem; }
+  input, select { width: 100%; background: var(--sl-color-bg-sidebar); color: var(--sl-color-white); border: 1px solid var(--oxide-line); border-radius: 5px; padding: .75rem; font: inherit; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--sl-color-accent); outline-offset: 2px; }
+  #inventory-count { font: .75rem var(--sl-font-mono); margin-block: 1rem; }
+  .inventory-scroll { max-width: 100%; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .8rem; }
+  caption { text-align: start; color: var(--sl-color-gray-3); font-size: .7rem; margin-bottom: .75rem; }
+  th, td { padding: .85rem .7rem; border-bottom: 1px solid var(--oxide-line); text-align: start; vertical-align: top; }
+  thead th { background: var(--sl-color-bg-sidebar); color: var(--sl-color-gray-2); font-weight: 500; }
+  tbody th { font-weight: 500; min-width: 12rem; } td { min-width: 7rem; }
+  small { display: block; color: var(--sl-color-gray-3); font-size: .65rem; margin-top: .3rem; }
+  tr[hidden] { display: none; }
+  @media (max-width: 40rem) { .inventory-filters { grid-template-columns: 1fr; } }
+</style>

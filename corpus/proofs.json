@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
+  "puzzle": "bounded-counter",
+  "source": "puzzles/bounded-counter/puzzle.rs",
+  "source_sha256": "09d70bf52e301252235c6e3f86a7cda3a69dc7809ad0257da77b49f6d6b4d912",
+  "ir": "proofs/bounded-counter/program.ir.json",
+  "ir_sha256": "e583407ac8763425a5a075d5159aa76f88017598472b35d0c5d1689dba9312ef",
+  "solver": "Z3 version 4.15.4 - 64 bit",
+  "checks": [
+    {
+      "name": "range",
+      "specification": "proofs/bounded-counter/range.spec.json",
+      "result": {
+        "status": "proven",
+        "nonvacuity": {
+          "arguments": [
+            {
+              "kind": "int",
+              "value": "488"
+            }
+          ]
+        }
+      },
+      "clvm_nonvacuity_replay": [
+        {
+          "optimize": false,
+          "outcome": {
+            "status": "accepted",
+            "output_hex": "8201e9",
+            "cost": 15749
+          }
+        },
+        {
+          "optimize": true,
+          "outcome": {
+            "status": "accepted",
+            "output_hex": "8201e9",
+            "cost": 14456
+          }
+        }
+      ],
+      "native_nonvacuity_replay": {
+        "status": "accepted",
+        "value": 489
+      }
+    },
+    {
+      "name": "acceptance",
+      "specification": "proofs/bounded-counter/acceptance.spec.json",
+      "result": {
+        "status": "proven",
+        "nonvacuity": {
+          "arguments": [
+            {
+              "kind": "int",
+              "value": "488"
+            }
+          ]
+        }
+      },
+      "clvm_nonvacuity_replay": [
+        {
+          "optimize": false,
+          "outcome": {
+            "status": "accepted",
+            "output_hex": "8201e9",
+            "cost": 15749
+          }
+        },
+        {
+          "optimize": true,
+          "outcome": {
+            "status": "accepted",
+            "output_hex": "8201e9",
+            "cost": 14456
+          }
+        }
+      ],
+      "native_nonvacuity_replay": {
+        "status": "accepted",
+        "value": 489
+      }
+    }
+  ],
+  "mutation": {
+    "description": "Remove only the outer counter < 1000 assertion; retain checked increment",
+    "result": {
+      "status": "refuted",
+      "counterexample": {
+        "arguments": [
+          {
+            "kind": "int",
+            "value": "1023"
+          }
+        ]
+      },
+      "nonvacuity": {
+        "arguments": [
+          {
+            "kind": "int",
+            "value": "9223372036854775807"
+          }
+        ]
+      }
+    },
+    "original_clvm_replay": [
+      {
+        "optimize": false,
+        "outcome": {
+          "status": "rejected",
+          "error": "Raise(NodePtr(SmallAtom, 0))"
+        }
+      },
+      {
+        "optimize": true,
+        "outcome": {
+          "status": "rejected",
+          "error": "Raise(NodePtr(SmallAtom, 0))"
+        }
+      }
+    ],
+    "mutant_clvm_replay": [
+      {
+        "optimize": false,
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "820400",
+          "cost": 14775
+        }
+      },
+      {
+        "optimize": true,
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "820400",
+          "cost": 13672
+        }
+      }
+    ],
+    "original_native_replay": {
+      "status": "rejected"
+    }
+  },
+  "limitations": [
+    "Assumes successful ABI decoding of canonical typed values; byte semantics unsupported",
+    "Does not prove rustc MIR extraction, SMT translation, Rue optimization, or CLVM lowering",
+    "Witness execution is tested evidence, not compiler preservation",
+    "Not a claim of complete puzzle security or spend-bundle validity"
+  ]
+}

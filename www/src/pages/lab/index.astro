@@ -1,0 +1,68 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import EvidenceSummary from '../../components/EvidenceSummary.astro';
+import { puzzles, optimized, acceptedCosts, format, href } from '../../lib/data';
+---
+<StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect real Rust and Chialisp sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
+  <p class="eyebrow">Executable examples / generated evidence</p>
+  <p>Eight condition-producing coin puzzles and one pure arithmetic example. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp, input vectors, and ledger scenarios.</p>
+  <EvidenceSummary />
+  <form class="filters" role="search" aria-label="Filter puzzle examples">
+    <label>Find a puzzle<input id="puzzle-query" type="search" placeholder="Try signature, recovery, or amount" autocomplete="off" /></label>
+    <label>Result kind<select id="puzzle-kind"><option value="all">All examples</option><option value="coin_puzzle">Coin puzzles</option><option value="pure_function">Pure functions</option></select></label>
+  </form>
+  <p id="puzzle-count" class="quiet" aria-live="polite">{puzzles.length} examples</p>
+  <div class="puzzle-grid">
+    {puzzles.map(puzzle => {
+      const artifact = optimized(puzzle);
+      const costs = acceptedCosts(puzzle);
+      return <article class="puzzle-card" data-puzzle data-kind={puzzle.kind} data-search={`${puzzle.title} ${puzzle.security_scope}`.toLowerCase()}>
+        <div class="card-top"><span class="badge success">{puzzle.validated ? 'validated' : 'pending'}</span><span class="kind">{puzzle.kind === 'pure_function' ? 'pure function' : 'coin puzzle'}</span></div>
+        <h2><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></h2>
+        <p>{puzzle.security_scope}</p>
+        <dl><div><dt>Optimized size</dt><dd>{format(artifact.bytes)} B</dd></div><div><dt>Accepted VM cost</dt><dd>{costs.length ? `${format(Math.min(...costs))}–${format(Math.max(...costs))}` : 'No accepted named case'}</dd></div></dl>
+        <div class="card-bottom"><span>{puzzle.cases.length} named · {format(puzzle.generated_cases)} generated</span><a href={href(`lab/${puzzle.slug}/`)} aria-label={`Inspect ${puzzle.title}`}>Inspect evidence →</a></div>
+      </article>;
+    })}
+  </div>
+  <p id="puzzle-empty" hidden>No examples match. Try a broader search or select all examples.</p>
+  <div class="callout-note">Costs above are successful CLVM execution costs for named cases, not total transaction costs. The examples are original teaching implementations. They do not mark canonical CHIP puzzles as migrated.</div>
+  <p><a href={href('reports/validation.json')}>Download the complete validation report</a> · <a href={href('verification/method/')}>Read the verification method</a></p>
+</StarlightPage>
+<script>
+  const query = document.querySelector<HTMLInputElement>('#puzzle-query')!;
+  const kind = document.querySelector<HTMLSelectElement>('#puzzle-kind')!;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-puzzle]')];
+  const update = () => {
+    let count = 0;
+    for (const card of cards) {
+      card.hidden = !(card.dataset.search!.includes(query.value.toLowerCase().trim()) && (kind.value === 'all' || card.dataset.kind === kind.value));
+      if (!card.hidden) count++;
+    }
+    document.querySelector('#puzzle-count')!.textContent = `${count} ${count === 1 ? 'example' : 'examples'}`;
+    document.querySelector<HTMLElement>('#puzzle-empty')!.hidden = count > 0;
+  };
+  query.addEventListener('input', update);
+  kind.addEventListener('change', update);
+</script>
+<style>
+  .filters { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-block: 2rem .8rem; }
+  label { display: grid; gap: .4rem; color: var(--sl-color-gray-2); font-size: .8rem; }
+  input, select { width: 100%; background: var(--sl-color-bg-sidebar); border: 1px solid var(--oxide-line); border-radius: 5px; padding: .75rem; color: var(--sl-color-white); font: inherit; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--sl-color-accent); outline-offset: 2px; }
+  #puzzle-count { font: .75rem var(--sl-font-mono); }
+  .puzzle-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .puzzle-card { padding: 1.35rem; border: 1px solid var(--oxide-line); border-radius: 6px; display: flex; flex-direction: column; }
+  .puzzle-card[hidden] { display: none; }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .kind { color: var(--sl-color-gray-3); font: .65rem var(--sl-font-mono); }
+  .puzzle-card h2 { font-size: 1.35rem; margin: 1rem 0 .5rem; }
+  h2 a { color: var(--sl-color-white); text-decoration: none; }
+  h2 a:hover { color: var(--sl-color-accent-high); }
+  .puzzle-card p { font-size: .84rem; color: var(--sl-color-gray-2); line-height: 1.65; margin: 0; flex: 1; }
+  dl { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: 1.4rem 0; }
+  dt { color: var(--sl-color-gray-3); font-size: .68rem; } dd { margin: .2rem 0 0; font: .78rem var(--sl-font-mono); }
+  .card-bottom { border-top: 1px solid var(--oxide-line); padding-top: .8rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; justify-content: space-between; font-size: .72rem; }
+  .card-bottom span { color: var(--sl-color-gray-3); }
+  @media (max-width: 45rem) { .puzzle-grid { grid-template-columns: 1fr; } .filters { grid-template-columns: 1fr; } }
+</style>

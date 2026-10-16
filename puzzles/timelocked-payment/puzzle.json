@@ -1,0 +1,32 @@
+{
+  "slug": "timelocked-payment",
+  "title": "Timelocked Payment",
+  "kind": "coin_puzzle",
+  "security_scope": "Permissionless fixed payout after absolute time 100.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-primer/",
+      "https://chialisp.com/chialisp-concepts/"
+    ]
+  },
+  "cases": [
+    {
+      "label": "empty",
+      "solution": "()"
+    },
+    {
+      "label": "extra arguments",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "atom solution",
+      "solution": "1"
+    },
+    {
+      "label": "nested argument",
+      "solution": "((1))"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+; Authored comparison reference for the same explicit ABI, not a canonical module replacement.
+(mod solution
+  (defun uint (v)
+    (if (l v) (x)
+      (if (> (strlen v) 9) (x)
+        (if (any (> 0 v) (> v 18446744073709551615)) (x)
+          (if (= (strlen v) 0) 1
+            (if (= (substr v 0 1) 0x00)
+              (if (= (strlen v) 1) (x)
+                (if (>s (substr v 1 2) 0x7f) 1 (x))) 1))))))
+  (defun boolean (v) (if (l v) (x) (if (any (= v ()) (= v 1)) 1 (x))))
+  (defun bytes32 (v) (if (l v) (x) (if (= (strlen v) 32) 1 (x))))
+  (defun run (amount) (if (boolean amount) (if amount (list (list 51 0x4242424242424242424242424242424242424242424242424242424242424242 1000)) (x)) (x)))
+  (if (l solution) (if (= (r solution) ()) (run (f solution)) (x)) (x))
+)

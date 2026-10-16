@@ -1,0 +1,32 @@
+{
+  "obligation": {
+    "obligation": "on_success",
+    "property": {
+      "predicate": "all",
+      "items": [
+        {
+          "predicate": "compare",
+          "relation": "ge",
+          "left": { "term": "output", "fields": [] },
+          "right": { "term": "int", "value": "1" }
+        },
+        {
+          "predicate": "compare",
+          "relation": "le",
+          "left": { "term": "output", "fields": [] },
+          "right": { "term": "int", "value": "1000" }
+        },
+        {
+          "predicate": "compare",
+          "relation": "eq",
+          "left": { "term": "output", "fields": [] },
+          "right": {
+            "term": "add",
+            "left": { "term": "input", "argument": 0, "fields": [] },
+            "right": { "term": "int", "value": "1" }
+          }
+        }
+      ]
+    }
+  }
+}

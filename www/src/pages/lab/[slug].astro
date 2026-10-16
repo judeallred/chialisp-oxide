@@ -1,0 +1,58 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { Code } from '@astrojs/starlight/components';
+import SourcePair from '../../components/SourcePair.astro';
+import RuntimeVersions from '../../components/RuntimeVersions.astro';
+import { puzzles, format, href, type PuzzleReport } from '../../lib/data';
+export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
+const { puzzle } = Astro.props as { puzzle: PuzzleReport };
+const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,slug:'artifacts',text:'Compiled artifacts'}, {depth:2,slug:'vectors',text:'Adversarial input vectors'}, {depth:2,slug:'ledger',text:'Ledger validation'}, {depth:2,slug:'provenance',text:'Provenance and versions'}];
+---
+<StarlightPage frontmatter={{ title: puzzle.title, description: puzzle.security_scope }} headings={headings}>
+  <p class="eyebrow"><a href={href('lab/')}>Puzzle laboratory</a> / {puzzle.slug}</p>
+  <p><span class="badge success">validated report</span> <span class="badge">{puzzle.kind === 'pure_function' ? 'pure function · not a coin puzzle' : 'condition-producing coin puzzle'}</span></p>
+  <p class="scope">{puzzle.security_scope}</p>
+  <div class="metric-grid">
+    <div class="metric"><strong>{puzzle.cases.length}</strong><span>named vectors</span></div>
+    <div class="metric"><strong>{format(puzzle.generated_cases)}</strong><span>generated inputs</span></div>
+    <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
+  </div>
+  <h2 id="sources">Compare the sources</h2>
+  <p>These are the exact source strings recorded in the validation report. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
+  <SourcePair slug={puzzle.slug} />
+  <h2 id="artifacts">Compiled artifacts</h2>
+  <p>All three programs are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
+  <div class="table-scroll"><table><caption>Serialized program sizes and tree hashes</caption><thead><tr><th scope="col">Backend</th><th scope="col">Optimization</th><th scope="col">Bytes</th><th scope="col">CLVM tree hash</th></tr></thead><tbody>
+    {puzzle.artifacts.map(artifact => <tr><th scope="row">{artifact.backend === 'rust_mir' ? 'Rust MIR → Rue' : 'Chialisp reference'}</th><td>{artifact.optimize_lir ? 'on' : 'off'}</td><td>{format(artifact.bytes)}</td><td class="hash"><code>{artifact.tree_hash}</code></td></tr>)}
+  </tbody></table></div>
+  {puzzle.artifacts.map(artifact => <details class="artifact"><summary>{artifact.backend === 'rust_mir' ? 'Rust' : 'Chialisp'} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary><div data-pagefind-ignore><Code code={artifact.disassembly} lang="lisp" /><Code code={artifact.clvm_hex} lang="text" /></div></details>)}
+  <p class="quiet">The disassembler can print mnemonic names for numeric atoms inside quoted data. A name such as <code>g1_negate</code> in a returned condition list does not mean that operator is executed; inspect the quoted context and serialized bytes.</p>
+  <h2 id="vectors">Adversarial input vectors</h2>
+  <p>Each named vector records native Rust and three CLVM executions. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? ' around the scalar policy boundary' : ''}. A rejected VM run has no returned successful cost.</p>
+  <div class="table-scroll"><table><caption>Named input outcomes and successful VM execution costs</caption><thead><tr><th scope="col">Case / solution</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th></tr></thead><tbody>
+    {puzzle.cases.map(test => <tr><th scope="row">{test.label}<code class="solution">{test.solution}</code></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span></td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}
+  </tbody></table></div>
+  <p class="quiet">Execution cost excludes consensus condition costs and overall spend-bundle admission overhead. Accepted outputs and exact rejection diagnostics are available in the <a href={href('reports/validation.json')}>downloadable report</a>.</p>
+  <h2 id="ledger">Ledger validation</h2>
+  {puzzle.simulator.length ? <ul class="scenarios">{puzzle.simulator.map(scenario => <li><span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}</li>)}</ul> : <div class="callout-note">This pure function returns an integer, not a condition list. Ledger validation is not applicable; a successful counter result is not presented as a valid coin spend.</div>}
+  <h2 id="provenance">Provenance and versions</h2>
+  <p><strong>{puzzle.provenance.classification}.</strong> This fixture is not claimed as a canonical protocol replacement or completed CHIP migration.</p>
+  <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
+  <RuntimeVersions />
+  <p>Reproduce this corpus with <code>./scripts/oxide validate --output corpus/validation.json</code>. Read <a href={href('verification/method/')}>the validation method and remaining assumptions</a> before interpreting a pass.</p>
+</StarlightPage>
+<style>
+  h2 { margin: 2.7rem 0 1rem; } .scope { font-size: 1.05rem; }
+  .table-scroll { max-width: 100%; overflow-x: auto; margin: 1.3rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+  caption { text-align: start; font-size: .7rem; color: var(--sl-color-gray-3); margin-bottom: .6rem; }
+  th, td { text-align: start; padding: .75rem .65rem; border-bottom: 1px solid var(--oxide-line); vertical-align: top; }
+  thead th { font-weight: 500; color: var(--sl-color-gray-2); background: var(--sl-color-bg-sidebar); }
+  th { min-width: 7rem; } td { min-width: 5rem; }
+  .hash { min-width: 12rem; max-width: 19rem; overflow-wrap: anywhere; font-size: .66rem; }
+  .solution { display: block; color: var(--sl-color-gray-3); font-size: .65rem; margin-top: .4rem; overflow-wrap: anywhere; max-width: 18rem; }
+  .outcome { font-size: .73rem; color: var(--sl-color-gray-2); } .outcome.accepted { color: var(--oxide-green); }
+  td small { display: block; color: var(--sl-color-gray-3); font: .6rem var(--sl-font-mono); margin-top: .3rem; white-space: nowrap; }
+  .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
+  summary { cursor: pointer; } .artifact div { margin-top: 1rem; } .scenarios { list-style: none; padding: 0; } .scenarios li { margin: .75rem 0; }
+</style>

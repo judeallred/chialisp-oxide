@@ -1,0 +1,56 @@
+---
+title: Require a key—or two keys
+description: Understand AGG_SIG_ME, complete spend validation, public fixture keys, and two-signature policy.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+
+An amount guard or caller-controlled boolean does not establish ownership. The
+signature-payment fixture returns an `AGG_SIG_ME` condition for a fixed public
+key, asserts the input amount, and creates the fixed recipient coin.
+
+<SourcePair slug="signature-payment" />
+
+## The signed message is not the whole signature context
+
+Condition 50 includes a public key and a message. The consensus engine binds
+that message to the spent coin's ID and the network signature domain. A valid
+signature for one coin must not authorize a different otherwise identical coin.
+
+The message is a `[u8; 32]` argument and therefore one atom of exactly 32 bytes.
+Its correct shape does not mean the application chose the right message
+commitment. This fixture fixes the payment policy, so selecting another message
+does not change the recipient or amount. More flexible delegated policies need
+an explicit commitment to the authorized action.
+
+## Test the aggregate signature
+
+Plain CLVM execution only returns the signature condition. The ledger suite
+submits a missing aggregate signature and requires rejection with rollback,
+then signs with the expected key and checks the exact payment. The simulator
+infrastructure also tests reuse against a different coin.
+
+The fixture keys come from public deterministic seeds `[0x17; 32]` and
+`[0x18; 32]`. Reproduce their public values with:
+
+```sh
+cargo run -p oxide-simulator --example fixture-keys --locked
+```
+
+These keys are intentionally public and must never control real funds.
+
+## Require both signatures
+
+The two-signature fixture emits two `AGG_SIG_ME` conditions. The aggregate
+signature must satisfy both keys; this is an explicit two-of-two policy, not a
+general threshold-signature implementation.
+
+<SourcePair slug="two-signature-payment" />
+
+Its ledger report includes a single-signer rejection as well as a successful
+two-key spend. Read the complete cases in the
+[signature lab](/chialisp-oxide/lab/signature-payment/) and
+[two-signature lab](/chialisp-oxide/lab/two-signature-payment/).
+
+To add an alternative delayed authority, continue to
+[time and recovery](/chialisp-oxide/tutorials/recovery/).

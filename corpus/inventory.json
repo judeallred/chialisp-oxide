@@ -1,0 +1,2386 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-10-16",
+  "scope": {
+    "description": "Versioned source inventory, separate from implementation and verification results. It indexes every Markdown page in the pinned chialisp-web docs directory and every entry in the pinned CHIP index; it does not yet enumerate every example or follow every reference implementation.",
+    "tutorial_source_revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+    "chip_index_revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+    "migration_claim": "No tutorial or CHIP is marked migrated merely because a smaller original regression fixture exercises the same concept.",
+    "validation_status_values": [
+      "not_run",
+      "differential_only",
+      "simulator_checked"
+    ],
+    "promotion_requirement": "A status beyond not_run requires linked local source and a reproducible evidence report; retain unsupported cases and hash-identity obligations explicitly."
+  },
+  "condition_opcode_provenance": {
+    "documentation": "https://chialisp.com/conditions/",
+    "documentation_source": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/conditions.md",
+    "consensus_crate": "chia-consensus 0.36.1",
+    "consensus_source": "https://github.com/Chia-Network/chia_rs/blob/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-consensus/src/opcodes.rs",
+    "conditions": [
+      {
+        "opcode": 50,
+        "name": "AGG_SIG_ME"
+      },
+      {
+        "opcode": 51,
+        "name": "CREATE_COIN"
+      },
+      {
+        "opcode": 60,
+        "name": "CREATE_COIN_ANNOUNCEMENT"
+      },
+      {
+        "opcode": 61,
+        "name": "ASSERT_COIN_ANNOUNCEMENT"
+      },
+      {
+        "opcode": 66,
+        "name": "SEND_MESSAGE"
+      },
+      {
+        "opcode": 67,
+        "name": "RECEIVE_MESSAGE"
+      },
+      {
+        "opcode": 73,
+        "name": "ASSERT_MY_AMOUNT"
+      },
+      {
+        "opcode": 81,
+        "name": "ASSERT_SECONDS_ABSOLUTE"
+      },
+      {
+        "opcode": 83,
+        "name": "ASSERT_HEIGHT_ABSOLUTE"
+      }
+    ]
+  },
+  "entries": [
+    {
+      "id": "chialisp:attacks-and-countermeasures",
+      "kind": "reference",
+      "title": "Attacks and Countermeasures",
+      "url": "https://chialisp.com/attacks-and-countermeasures/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/attacks-and-countermeasures.md",
+        "sha256": "7cfa568d44742eaa3d56c99d5b294c35e302b353575ecf4a65c37de8130d7358",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-concepts/condition-morphing",
+      "kind": "tutorial",
+      "title": "Condition Morphing",
+      "url": "https://chialisp.com/chialisp-condition-morphing/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-concepts/condition-morphing.md",
+        "sha256": "574a9d19ed7ac9e45800c813bbfaddfde572e70112ebad4e89599bb041b9f9a2",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-concepts/currying",
+      "kind": "tutorial",
+      "title": "Currying",
+      "url": "https://chialisp.com/chialisp-currying/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-concepts/currying.md",
+        "sha256": "14f8af299408e3f75a87bd1ee764e446a0f577eab463b90bdc4b84a551eb1872",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-concepts/inner-puzzles",
+      "kind": "tutorial",
+      "title": "Inner Puzzles",
+      "url": "https://chialisp.com/chialisp-inner-puzzles/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-concepts/inner-puzzles.md",
+        "sha256": "e5e23b0a2dbd6848c1a48418509005b56466105fa49621a41e38b0ade8a4e603",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-primer/bls-signatures",
+      "kind": "tutorial",
+      "title": "5. BLS Signatures",
+      "url": "https://chialisp.com/chialisp-bls-signatures/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-primer/bls-signatures.md",
+        "sha256": "815426d2cd31a8d02fec0a23aa9a4855783746cd58e410644073711003242855",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-primer/first-smart-coin",
+      "kind": "tutorial",
+      "title": "4. First Smart Coin",
+      "url": "https://chialisp.com/chialisp-first-smart-coin/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-primer/first-smart-coin.md",
+        "sha256": "a5b853e43991789723f3522a524ff8e6a512869e780d437d04b019aba145747f",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": [],
+      "security_note": "Password-coin lesson is intentionally insecure. Preserve its attack explanation; never present it as a secure spending pattern."
+    },
+    {
+      "id": "chialisp:chialisp-primer/intro",
+      "kind": "tutorial",
+      "title": "1. Intro to Chialisp",
+      "url": "https://chialisp.com/chialisp-primer/intro/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-primer/intro.md",
+        "sha256": "51b8bb2f6dd551e0843bc94d4b32a790bf8b135c9a66b0727b8881f9b0fe6cd4",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-primer/testnet-setup",
+      "kind": "tutorial",
+      "title": "3. Testnet Setup",
+      "url": "https://chialisp.com/chialisp-testnet-setup/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-primer/testnet-setup.md",
+        "sha256": "213bb3f9136b6d65213d43bc57a565f6412d20a397e82d8caa6d7b945e846e83",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:chialisp-primer/using-modules",
+      "kind": "tutorial",
+      "title": "2. Using Modules",
+      "url": "https://chialisp.com/chialisp-using-modules/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/chialisp-primer/using-modules.md",
+        "sha256": "d5716fa4e742c3c300d45cb562abcc3bdae5624cbe78767502ba5e6c40463696",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:clvm",
+      "kind": "reference",
+      "title": "CLVM",
+      "url": "https://chialisp.com/clvm/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/clvm.md",
+        "sha256": "9f1e7754c6107d54e4600403e1e040ab6c0229bbc9da6662c740213130ad17ed",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:commands",
+      "kind": "reference",
+      "title": "Commands",
+      "url": "https://chialisp.com/commands/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/commands.md",
+        "sha256": "de8ba5244b75d158461062b551b2f104979d064756605f3bdbea33de35c8878a",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:common_issues",
+      "kind": "reference",
+      "title": "Common Issues",
+      "url": "https://chialisp.com/common_issues/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/common_issues.md",
+        "sha256": "c0b1304bd3d34c0ce52679fae73db888b174ee9e108676b863b6bd94040e4a71",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Yakuhito/tibet/blob/b37c51f38dbdd5f4426ac4fa55c76fcef0f522d0/clsp/liquidity_tail.clsp#L55C22-L55C22",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Yakuhito/tibet/blob/ee9223e8fa91a3258ea972dd7401f5b59f69323e/clsp/liquidity_tail.clsp#L46C39-L46C39",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:conditions",
+      "kind": "reference",
+      "title": "Conditions",
+      "url": "https://chialisp.com/conditions/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/conditions.md",
+        "sha256": "3f1d1197f47700d90e60bab1bcc601f2e17f6f6adaaf130caba74eb994626517",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": [],
+      "security_note": "Prefer SEND_MESSAGE/RECEIVE_MESSAGE in new compositions; retain announcements only where required by existing protocols."
+    },
+    {
+      "id": "chialisp:costs",
+      "kind": "reference",
+      "title": "Costs",
+      "url": "https://chialisp.com/costs/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/costs.md",
+        "sha256": "218dab32047bf1370597ddc8d485460f33a508dc030f6d5a38f640baf254d168",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:debugging",
+      "kind": "reference",
+      "title": "Debugging",
+      "url": "https://chialisp.com/debugging/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/debugging.md",
+        "sha256": "24639169f131a411111d94c5f1f084cb683256623fb2aa1dddfebca63c0b82b8",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:examples",
+      "kind": "reference",
+      "title": "Examples",
+      "url": "https://chialisp.com/examples/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/examples.md",
+        "sha256": "e1bf2183d73ae9aa6ae67034c25acf9911b024f89057f555eb19e70fcc801a11",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:intro",
+      "kind": "reference",
+      "title": "About Chialisp",
+      "url": "https://chialisp.com/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/intro.md",
+        "sha256": "5a15d1811e044d97a4be2e3e228fbcffced4a20240e4a3299501413265301c72",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:modern-chialisp",
+      "kind": "reference",
+      "title": "Modern Chialisp",
+      "url": "https://chialisp.com/modern-chialisp/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/modern-chialisp.md",
+        "sha256": "b32a9b2e2780e4ac5205a2b78178b8e46f02c4a02d602c296b1fc3f32e4a30b8",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:operators",
+      "kind": "reference",
+      "title": "Operators",
+      "url": "https://chialisp.com/operators/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/operators.md",
+        "sha256": "316a903d8e960b8a3e4dcaf22758b1d9faba627e3f961be3c315f27fc924a375",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:optimization",
+      "kind": "reference",
+      "title": "Optimization",
+      "url": "https://chialisp.com/optimization/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/optimization.md",
+        "sha256": "8a136f329d21be309a9642fa8efedc0397bb5799a132946a0741c32f1fd66ccb",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/cats",
+      "kind": "primitive",
+      "title": "CATs",
+      "url": "https://chialisp.com/cats/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/cats.md",
+        "sha256": "788c1092234a4637afd8af64631acb6396326efd91ed57d2c452bb7c4c3f007b",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/cat_v2.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/delegated_tail.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/everything_with_signature.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/genesis_by_coin_id.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/dids",
+      "kind": "primitive",
+      "title": "DIDs",
+      "url": "https://chialisp.com/dids/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/dids.md",
+        "sha256": "9a553afd9a39f1858115ec0bc5fac6b106eb9221892d2eae032e9006bc149aae",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/164fd158c8626893bc45ba00b87ae69d2ab5f8b7/chia/wallet/puzzles/did_innerpuz.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/nfts",
+      "kind": "primitive",
+      "title": "NFTs",
+      "url": "https://chialisp.com/nfts/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/nfts.md",
+        "sha256": "b6eefb6d9750c7275de8545cba97558e4fb2f5932ab28afc2fd9d0a490f5b06c",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/164fd158c8626893bc45ba00b87ae69d2ab5f8b7/chia/wallet/puzzles/nft_metadata_updater_default.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/164fd158c8626893bc45ba00b87ae69d2ab5f8b7/chia/wallet/puzzles/nft_ownership_layer.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/164fd158c8626893bc45ba00b87ae69d2ab5f8b7/chia/wallet/puzzles/nft_state_layer.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/offers",
+      "kind": "primitive",
+      "title": "Offers",
+      "url": "https://chialisp.com/offers/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/offers.md",
+        "sha256": "5b0b434859b9cb7a9266833bbc04a6e88ff95ce4ae2abe0d9ff18457566fa213",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/8224d2fd657780b224a1fc40d3081ce734d70016/chia/wallet/puzzles/settlement_payments.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/pooling",
+      "kind": "primitive",
+      "title": "Pooling",
+      "url": "https://chialisp.com/pooling/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/pooling.md",
+        "sha256": "8f10a10a51a644159e15c3e0c0e117663a956bdb8bd4476849b808d2d652fa7d",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/singletons",
+      "kind": "primitive",
+      "title": "Singletons",
+      "url": "https://chialisp.com/singletons/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/singletons.md",
+        "sha256": "6c5d8e82ecde9f363d3c93caa85a98c69284ec7a53e5550d7c65be59a024cc64",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/8b70466a70388d0fff437d138192ba38faf92be8/chia/wallet/puzzles/singleton_top_layer_v1_1.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/p2_singleton.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/singleton_launcher.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:primitives/standard-transactions",
+      "kind": "primitive",
+      "title": "Standard Transactions",
+      "url": "https://chialisp.com/standard-transactions/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/primitives/standard-transactions.md",
+        "sha256": "ec5f3b53f6e1e888d2991b9fde262bc89da242bc19b44caebb962a76efd542bd",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/fad414132e6950e79e805629427af76bf9ddcbc5/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chialisp:syntax",
+      "kind": "reference",
+      "title": "Syntax",
+      "url": "https://chialisp.com/syntax/",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chialisp-web",
+        "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+        "path": "docs/syntax.md",
+        "sha256": "cbda18042ea214aa53d6dfbb7c0b88308da0c6cfbb6ced0e86700e7ab5b22fa6",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0001",
+      "kind": "chip",
+      "number": 1,
+      "title": "CHia Improvement Proposal (CHIP) process",
+      "chip_status": "Living",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0001.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0001.md",
+        "license": "Apache-2.0",
+        "sha256": "ed69621888b7802a183847c698dfdfa4d61960f0e639f30d208513c272fe6f5f"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0055",
+      "kind": "chip",
+      "number": 55,
+      "title": "CATalog",
+      "chip_status": "Draft",
+      "url": "https://github.com/Chia-Network/chips/pull/212",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0059",
+      "kind": "chip",
+      "number": 59,
+      "title": "Pooling v2",
+      "chip_status": "Draft",
+      "url": "https://github.com/Chia-Network/chips/pull/203",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0060",
+      "kind": "chip",
+      "number": 60,
+      "title": "Titled CATs",
+      "chip_status": "Draft",
+      "url": "https://github.com/Chia-Network/chips/pull/205",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0061",
+      "kind": "chip",
+      "number": 61,
+      "title": "Remote compact VDF proofs",
+      "chip_status": "Draft",
+      "url": "https://github.com/Chia-Network/chips/pull/209",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0064",
+      "kind": "chip",
+      "number": 64,
+      "title": "Cyberphysics Chia Continuum",
+      "chip_status": "Draft",
+      "url": "https://github.com/Chia-Network/chips/pull/221",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0048",
+      "kind": "chip",
+      "number": 48,
+      "title": "New Proof of Space",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/160",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0049",
+      "kind": "chip",
+      "number": 49,
+      "title": "3.0 Fork Info",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/161",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0056",
+      "kind": "chip",
+      "number": 56,
+      "title": "Fee CATs",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/194",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0057",
+      "kind": "chip",
+      "number": 57,
+      "title": "Silent Payments",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/198",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0058",
+      "kind": "chip",
+      "number": 58,
+      "title": "Parallel Voting at Scale",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/202",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0062",
+      "kind": "chip",
+      "number": 62,
+      "title": "The Forge: Weighted N-Asset AMM",
+      "chip_status": "Review",
+      "url": "https://github.com/Chia-Network/chips/pull/217",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0063",
+      "kind": "chip",
+      "number": 63,
+      "title": "Minimum Fee for Block Creation",
+      "chip_status": "Review (Fast Track)",
+      "url": "https://github.com/Chia-Network/chips/pull/219",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0002",
+      "kind": "chip",
+      "number": 2,
+      "title": "dApp Protocol",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0002.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0002.md",
+        "license": "Apache-2.0",
+        "sha256": "5873dba4feecccec96666264efa8e3c65eca90cd1b11e253c35f1dffc4195eec"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0004",
+      "kind": "chip",
+      "number": 4,
+      "title": "DID1",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0004.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0004.md",
+        "license": "Apache-2.0",
+        "sha256": "b6da56b90f96d2632a0d944d7af9fd575f3494f6e76e22ab99baa0ec82afc9a7"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/76ac3a8d2b0b7ad115be88a5ad718c29d7901760/chia/wallet/did_wallet/puzzles/did_innerpuz.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/76ac3a8d2b0b7ad115be88a5ad718c29d7901760/chia/wallet/puzzles/singleton_launcher.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/76ac3a8d2b0b7ad115be88a5ad718c29d7901760/chia/wallet/puzzles/singleton_top_layer_v1_1.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0005",
+      "kind": "chip",
+      "number": 5,
+      "title": "NFT1",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0005.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0005.md",
+        "license": "Apache-2.0",
+        "sha256": "a0477126d49a226e591c25e0a851c23213bdc43625f047dab0851b5355a64617"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/nft_metadata_updater_default.clvm",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/nft_metadata_updater_updateable.clvm",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/nft_ownership_transfer_program_one_way_claim_with_royalties.clvm",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/main/chia/wallet/puzzles/nft_state_layer.clvm",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0007",
+      "kind": "chip",
+      "number": 7,
+      "title": "Off-Chain metadata format for NFT1",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0007.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0007.md",
+        "license": "Apache-2.0",
+        "sha256": "1d6d1d40a827f5abbbbdf35e6fd491336923d0f9db38f47c6cab496bd380ba08"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0008",
+      "kind": "chip",
+      "number": 8,
+      "title": "Split Royalties for NFT1",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0008.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0008.md",
+        "license": "Apache-2.0",
+        "sha256": "220b24da16151ec7ffc60d1e20e6042e8b818b21733961384654a5b22e8877a6"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/greimela/chialisp/blob/main/royalty_share/clsp/p2_royalty_share_arbitrary_shares/p2_royalty_share_arbitrary_shares_rest_to_last.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0009",
+      "kind": "chip",
+      "number": 9,
+      "title": "Name Service Wallet Address Resolution",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0009.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0009.md",
+        "license": "Apache-2.0",
+        "sha256": "821e6b2841cf37a3e9d10c115d380a884f3f3506bfa5229f95df16fdfd28eec4"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0011",
+      "kind": "chip",
+      "number": 11,
+      "title": "CLVM BLS Additions",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0011.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0011.md",
+        "license": "Apache-2.0",
+        "sha256": "10930e8d33ff39c028095b8360674eb3dc87e54cfb78c3b4617e7b73488053aa"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0012",
+      "kind": "chip",
+      "number": 12,
+      "title": "Plot Filter Reduction",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0012.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0012.md",
+        "license": "Apache-2.0",
+        "sha256": "44b417823a7d20c1d15535eddce974982aaaa61f40a43b0ed0974d8c1a374e57"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0014",
+      "kind": "chip",
+      "number": 14,
+      "title": "Chialisp ASSERT_BEFORE_* conditions",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0014.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0014.md",
+        "license": "Apache-2.0",
+        "sha256": "2efe798644084ab8ed81440710e96704bfe2e79ebb5da903e8c7dc3536ed4d69"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0015",
+      "kind": "chip",
+      "number": 15,
+      "title": "NFT1 metadata extension",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0015.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0015.md",
+        "license": "Apache-2.0",
+        "sha256": "23f8639ab10003e92a4d64a54f4568ba098240883d8549efddeb099036d4bd86"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0020",
+      "kind": "chip",
+      "number": 20,
+      "title": "Wallet Hinted Coin Discovery",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0020.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0020.md",
+        "license": "Apache-2.0",
+        "sha256": "948351632af2b5120764517af93819bdb6fee2ae24e8664f8787f1517fe6bafa"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0021",
+      "kind": "chip",
+      "number": 21,
+      "title": "NFT Fusion Puzzle",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0021.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0021.md",
+        "license": "Apache-2.0",
+        "sha256": "756df7c9d73341ffa21d36c70e560ec4b7b860949b556369a7293be1e1012cde"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0022",
+      "kind": "chip",
+      "number": 22,
+      "title": "Enhanced Harvester Protocol",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0022.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0022.md",
+        "license": "Apache-2.0",
+        "sha256": "7ba1811e6b6af771e6378cff65beccc0f46dc8b12bb75c328b9b0a295a2d43d0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0025",
+      "kind": "chip",
+      "number": 25,
+      "title": "Chialisp Message Conditions",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0025.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0025.md",
+        "license": "Apache-2.0",
+        "sha256": "6c38e6727c23478eac82adcc57d32af0c1501bb4e8c6137e2a541188653e9beb"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0026",
+      "kind": "chip",
+      "number": 26,
+      "title": "New Wallet Sync Protocol",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0026.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0026.md",
+        "license": "Apache-2.0",
+        "sha256": "6d16495b0c29a5ae91a88ce3599f4ba1098f1485818848fce4ea10e82d329365"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0027",
+      "kind": "chip",
+      "number": 27,
+      "title": "Signer Protocol Wallet APIs",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0027.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0027.md",
+        "license": "Apache-2.0",
+        "sha256": "f205109b7d1f99b254adddd8ee5e01a555b8b4a54da120319a1f854f50da6eee"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0028",
+      "kind": "chip",
+      "number": 28,
+      "title": "Blind Signer Translation",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0028.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0028.md",
+        "license": "Apache-2.0",
+        "sha256": "d49d74fc3f35ba9c7820e19aae549ff61d159581c7a40892a9d4cc208d77f17c"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0029",
+      "kind": "chip",
+      "number": 29,
+      "title": "Signer Protocol Serialization",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0029.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0029.md",
+        "license": "Apache-2.0",
+        "sha256": "f9dd2ebc11bc5fe247ff61d5d0012eb36d7170daa0d9c3083ccf40c24b27adb7"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0030",
+      "kind": "chip",
+      "number": 30,
+      "title": "Wallet Signer BLOB Subdivision",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0030.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0030.md",
+        "license": "Apache-2.0",
+        "sha256": "27ac9fff362166250176aeda336135b0ca796527862ac18d5a2ef4f7b566bcba"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0031",
+      "kind": "chip",
+      "number": 31,
+      "title": "Wallet Signer QR Transportation",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0031.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0031.md",
+        "license": "Apache-2.0",
+        "sha256": "1db4c712f8adb7c7266717f38172873bfd4c433b12f4c32a6e687154602c591f"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0033",
+      "kind": "chip",
+      "number": 33,
+      "title": "Add additional partial headers",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0033.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0033.md",
+        "license": "Apache-2.0",
+        "sha256": "fab9bdf63e1bdc1fb8076165bcce03d6794468cda38ad4f5e1dc7eb8ea88417c"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0035",
+      "kind": "chip",
+      "number": 35,
+      "title": "DataLayer Delegation Capabilities",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0035.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0035.md",
+        "license": "Apache-2.0",
+        "sha256": "07ffe11c6e951e700d21376a0770133406fa49c8469371e1067a2fa05b04d5ea"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/164fd158c8626893bc45ba00b87ae69d2ab5f8b7/chia/wallet/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clvm",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/8fcfd20d8893df17c7a497797ac17cb66c7862d7/chia/wallet/nft_wallet/puzzles/nft_state_layer.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/8fcfd20d8893df17c7a497797ac17cb66c7862d7/chia/wallet/puzzles/singleton_top_layer_v1_1.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Datalayer-Storage/DataLayer-Driver/blob/main/puzzles/delegation_layer.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Datalayer-Storage/DataLayer-Driver/blob/main/puzzles/writer_filter.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0036",
+      "kind": "chip",
+      "number": 36,
+      "title": "keccak256 CLVM operator",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0036.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0036.md",
+        "license": "Apache-2.0",
+        "sha256": "383fc23c092e272cb157032e0de2be4b30c19856405b3de4520862753804260b"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0037",
+      "kind": "chip",
+      "number": 37,
+      "title": "EIP-712 Wallet Puzzle",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0037.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0037.md",
+        "license": "Apache-2.0",
+        "sha256": "ae7eff3b74a9114a7afbfeb3d28a40e776acbdccec6b233f72376a1c5fdcb5f9"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0038",
+      "kind": "chip",
+      "number": 38,
+      "title": "Revocable CATs",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0038.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0038.md",
+        "license": "Apache-2.0",
+        "sha256": "af980793d9d0f48f561ab7e4d1ffa7303a1bdc8fdf10deb60706a2c804fd4b2b"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/cat_puzzles/cat_v2.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/cat_puzzles/everything_with_singleton.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/vc_puzzles/revocation_layer.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0039",
+      "kind": "chip",
+      "number": 39,
+      "title": "Fee Service Standard",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0039.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0039.md",
+        "license": "Apache-2.0",
+        "sha256": "13ce804c8c89ebf700ba0185c92951536956467de6f8329a0cd20691085a8e16"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0040",
+      "kind": "chip",
+      "number": 40,
+      "title": "everything_with_singleton TAIL",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0040.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0040.md",
+        "license": "Apache-2.0",
+        "sha256": "444ed518bf87398014720f2f4cb027e9bbd18c667d791be25a2f9bf85fe19654"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/cat_puzzles/everything_with_signature.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia_puzzles/blob/b90dcd6c48e748c9c3e83c9133022c7599eebb50/puzzles/cat_puzzles/everything_with_singleton.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0041",
+      "kind": "chip",
+      "number": 41,
+      "title": "Streaming Puzzle",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0041.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0041.md",
+        "license": "Apache-2.0",
+        "sha256": "2d01b4016ebe5a483416fea31134483a9597798c1436f021f975a86f8deb3eb4"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Yakuhito/streaming/blob/ceae7e4925f43c022ba913f8c41371b039784a8c/puzzles/stream.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0042",
+      "kind": "chip",
+      "number": 42,
+      "title": "Protected Single Sided Offers",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0042.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0042.md",
+        "license": "Apache-2.0",
+        "sha256": "a957e754f3bafa352eb4771937b74fba4bfde4144f653b7bc7e4399f0afc3aae"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0043",
+      "kind": "chip",
+      "number": 43,
+      "title": "Meta Inner Puzzle Spec (MIPS)",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0043.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0043.md",
+        "license": "Apache-2.0",
+        "sha256": "d0f7c279518c35e41401c7b28f44ceee88a1eb841be96aa50ae03a653b423604"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/quex.multi_sig_chialisp_drivers/chia/wallet/puzzles/custody/architecture_puzzles/delegated_puzzle_feeder.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/quex.multi_sig_chialisp_drivers/chia/wallet/puzzles/custody/architecture_puzzles/m_of_n.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Chia-Network/chia-blockchain/blob/quex.multi_sig_chialisp_drivers/chia/wallet/puzzles/custody/architecture_puzzles/restrictions.clsp",
+          "revision_pinned": false,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0044",
+      "kind": "chip",
+      "number": 44,
+      "title": "Clawback Standard v2",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0044.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0044.md",
+        "license": "Apache-2.0",
+        "sha256": "a20206f4308548850435c6ab13e7d5a1866d9d8cce19ff52372b6f28a2c6689f"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0045",
+      "kind": "chip",
+      "number": 45,
+      "title": "Options contracts",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0045.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0045.md",
+        "license": "Apache-2.0",
+        "sha256": "61b981ba7fa17966ee0710c61baaaa5d62389b09aadca422c536515ef1223e6f"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0047",
+      "kind": "chip",
+      "number": 47,
+      "title": "NFC Offer Data",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0047.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0047.md",
+        "license": "Apache-2.0",
+        "sha256": "52616f6b8b5c6fc6d9533ce655a90a623c69fdc8869f90fd0962216c830a3d49"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0050",
+      "kind": "chip",
+      "number": 50,
+      "title": "Action Layer and Slots",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0050.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0050.md",
+        "license": "Apache-2.0",
+        "sha256": "47bd4ee8c9574dd9d9d1131d5bb4897d753baa82d72eea185684d43b7201c721"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Yakuhito/slot-machine/blob/2d37ba1014e14220c26a0541b5d3199f9d15ec21/rue-puzzles/singleton/action.rue",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Yakuhito/slot-machine/blob/2d37ba1014e14220c26a0541b5d3199f9d15ec21/rue-puzzles/singleton/finalizer.rue",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Yakuhito/slot-machine/blob/2d37ba1014e14220c26a0541b5d3199f9d15ec21/rue-puzzles/singleton/reserve_finalizer.rue",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Yakuhito/slot-machine/blob/2d37ba1014e14220c26a0541b5d3199f9d15ec21/rue-puzzles/singleton/slot.rue",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0051",
+      "kind": "chip",
+      "number": 51,
+      "title": "Reward Distributor",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0051.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0051.md",
+        "license": "Apache-2.0",
+        "sha256": "249a09638f05291a8e580cb23dd9ab84456658ad9e5b10efcfe7f06277901fd4"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0052",
+      "kind": "chip",
+      "number": 52,
+      "title": "Partial Offers",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0052.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0052.md",
+        "license": "Apache-2.0",
+        "sha256": "eeb90eaf394b888de4642fc9278bdf53856558db951768bedbb83ba4b433b882"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Yakuhito/partial/blob/28bda1e7c82a978db70e261479761a06ed71e58d/puzzles/partial.rue",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        },
+        {
+          "url": "https://github.com/Yakuhito/partial/blob/baca3c925c2b2f67cded467064af19008d3278ae/puzzles/partial.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0054",
+      "kind": "chip",
+      "number": 54,
+      "title": "XCHandles",
+      "chip_status": "Final",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/CHIPs/chip-0054.md",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "CHIPs/chip-0054.md",
+        "license": "Apache-2.0",
+        "sha256": "4232565f955f612230908538a76c7b8bb59548043947102c6b0dac8318a416b2"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "has_linked_puzzle_source",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [
+        {
+          "url": "https://github.com/Yakuhito/slot-machine/blob/de863376d921b2d0fe9fcddb8c860f52e1958a30/puzzles/nft/any_metadata.clsp",
+          "revision_pinned": true,
+          "discovery_status": "linked_by_source_not_yet_verified",
+          "license": null
+        }
+      ],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0016",
+      "kind": "chip",
+      "number": 16,
+      "title": "VC1 standard",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/65",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0017",
+      "kind": "chip",
+      "number": 17,
+      "title": "VC metadata structure",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/66",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0018",
+      "kind": "chip",
+      "number": 18,
+      "title": "KYC-VC proof structure",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/67",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0019",
+      "kind": "chip",
+      "number": 19,
+      "title": "Restricted CAT standard",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/68",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0023",
+      "kind": "chip",
+      "number": 23,
+      "title": "On-chain voting standard",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/90",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0024",
+      "kind": "chip",
+      "number": 24,
+      "title": "DAO1 standard",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/93",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0046",
+      "kind": "chip",
+      "number": 46,
+      "title": "Detecting Dishonest NFT Offers",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/151",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0053",
+      "kind": "chip",
+      "number": 53,
+      "title": "Secure the Bag for distributed payouts",
+      "chip_status": "Stagnant",
+      "url": "https://github.com/Chia-Network/chips/pull/183",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0003",
+      "kind": "chip",
+      "number": 3,
+      "title": "Minimum Fee",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/13",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0006",
+      "kind": "chip",
+      "number": 6,
+      "title": "DID External Identity Linking",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/12",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0010",
+      "kind": "chip",
+      "number": 10,
+      "title": "Owner-Editable Metadata Format for NFT1",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/33",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0013",
+      "kind": "chip",
+      "number": 13,
+      "title": "Tighten plot filter rules",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/57",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0032",
+      "kind": "chip",
+      "number": 32,
+      "title": "Block NoSSD",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/111",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "chip:0034",
+      "kind": "chip",
+      "number": 34,
+      "title": "Keccak and base64 operators",
+      "chip_status": "Withdrawn",
+      "url": "https://github.com/Chia-Network/chips/pull/116",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "proposal_indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "grandfathered:cat1",
+      "kind": "grandfathered",
+      "title": "CAT1",
+      "chip_status": "Obsolete",
+      "url": "https://github.com/Chia-Network/chips/blob/6fa7625dfcc895177dbecac20c838498e6a60ceb/README.md#obsolete",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed",
+      "puzzle_scope": "superseded_by_cat2",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "grandfathered:singletons",
+      "kind": "grandfathered",
+      "title": "Singletons",
+      "chip_status": "Grandfathered",
+      "url": "https://chialisp.com/singletons",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "grandfathered:pooling",
+      "kind": "grandfathered",
+      "title": "Pooling",
+      "chip_status": "Grandfathered",
+      "url": "https://chialisp.com/pooling",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "grandfathered:cat2",
+      "kind": "grandfathered",
+      "title": "CAT2",
+      "chip_status": "Grandfathered",
+      "url": "https://chialisp.com/cats",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "grandfathered:offers",
+      "kind": "grandfathered",
+      "title": "Offers",
+      "chip_status": "Grandfathered",
+      "url": "https://chialisp.com/offers",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    },
+    {
+      "id": "proposal:auction",
+      "kind": "proposal",
+      "title": "Auction Standard",
+      "chip_status": "Under Consideration",
+      "url": "https://github.com/Chia-Network/chips/pull/24",
+      "source": {
+        "repository": "https://github.com/Chia-Network/chips",
+        "revision": "6fa7625dfcc895177dbecac20c838498e6a60ceb",
+        "path": "README.md",
+        "license": "Apache-2.0"
+      },
+      "inventory_status": "indexed_reference_discovery_incomplete",
+      "puzzle_scope": "pending_review",
+      "implementation_status": "planned",
+      "validation_status": "not_run",
+      "puzzle_references": [],
+      "local_examples": [],
+      "evidence": []
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+title: Time and a recovery branch
+description: Return consensus timelocks, select a recovery key, and verify that both key and delay are required.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+
+Time is a condition, not a clock read. A CLVM puzzle cannot inspect the current
+chain timestamp; it returns a requirement for the consensus engine to check.
+
+## Begin with the timelock
+
+<SourcePair slug="timelocked-payment" />
+
+Condition 81 asserts an absolute timestamp. The small value 100 exists for a
+deterministic simulator scenario. It does not mean “wait 100 seconds after this
+coin is created.” Before that timestamp the ledger rejects the spend; after
+advancing simulator time, the same puzzle can produce its intended payment.
+
+This fixture is permissionless after maturity. A timelock alone does not add
+an owner key.
+
+## Add two different authorization paths
+
+<SourcePair slug="recovery-payment" />
+
+The owner branch selects the owner public key and a zero absolute lock. The
+recovery branch selects the recovery public key and absolute timestamp 100.
+Both paths require a signature, check the input coin amount, and pay the same
+fixed destination.
+
+The `recovery` boolean comes from the solution and is attacker-controlled. That
+is acceptable only because selecting the branch also selects its required key
+and lock. The boolean itself supplies no authority.
+
+## Check the complete policy
+
+The ledger scenarios must establish that missing signatures reject, the owner
+path succeeds with its key, the recovery path requires both its key and the
+delay, and failed transactions leave state unchanged. The report lists the
+executed scenario names rather than implying every possible recovery threat
+has been covered.
+
+Inspect the [timelock report](/chialisp-oxide/lab/timelocked-payment/) and
+[recovery report](/chialisp-oxide/lab/recovery-payment/). A production recovery
+design needs deliberate absolute-versus-relative timing, key management,
+destination policy, and adversarial composition review beyond this fixture.

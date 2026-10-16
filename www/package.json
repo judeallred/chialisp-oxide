@@ -1,0 +1,23 @@
+{
+  "name": "chialisp-oxide-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "dev": "astro dev",
+    "check": "node scripts/check-evidence.mjs && astro check",
+    "build": "node scripts/check-evidence.mjs && astro build",
+    "preview": "astro preview",
+    "test:site": "node scripts/check-site.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.4.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "5.9.3"
+  }
+}

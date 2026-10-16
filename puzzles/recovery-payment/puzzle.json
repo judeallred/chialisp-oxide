@@ -1,0 +1,48 @@
+{
+  "slug": "recovery-payment",
+  "title": "Recovery Payment",
+  "kind": "coin_puzzle",
+  "security_scope": "Immediate owner key or delayed recovery key; both fixed payout.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-primer/",
+      "https://chialisp.com/chialisp-concepts/"
+    ]
+  },
+  "cases": [
+    {
+      "label": "owner",
+      "solution": "(() 0xabababababababababababababababababababababababababababababababab)"
+    },
+    {
+      "label": "recovery",
+      "solution": "(1 0xabababababababababababababababababababababababababababababababab)"
+    },
+    {
+      "label": "invalid bool",
+      "solution": "(2 0xabababababababababababababababababababababababababababababababab)"
+    },
+    {
+      "label": "short message",
+      "solution": "(1 0xab)"
+    },
+    {
+      "label": "empty",
+      "solution": "()"
+    },
+    {
+      "label": "extra arguments",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "atom solution",
+      "solution": "1"
+    },
+    {
+      "label": "nested argument",
+      "solution": "((1))"
+    }
+  ]
+}

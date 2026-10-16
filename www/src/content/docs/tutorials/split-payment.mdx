@@ -1,0 +1,42 @@
+---
+title: Split a payment without creating value
+description: Use checked subtraction, a bounded caller input, and exact recipient assertions.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+
+The first recipient receives `first_amount`; the second receives
+`1000 - first_amount`. Both destination hashes are fixed. The caller selects
+the split, and the input amount is checked by a consensus condition.
+
+<SourcePair slug="split-payment" />
+
+## Why the guard comes before subtraction
+
+Rust's checked subtraction must reject when `first_amount > 1000`. The explicit
+assertion makes the intended policy readable and gives formal specifications a
+clear predicate. Even if the assertion were accidentally removed, checked
+integer arithmetic must not silently wrap or become a negative CLVM amount.
+
+For a valid input, the outputs sum to exactly 1,000. A transaction-level
+conservation check alone would not prove the two intended recipients receive
+the correct amounts: a different recipient or an unintended fee could still
+conserve value. The corpus checks exact recipient hashes and amounts.
+
+## Exercise the extremes
+
+At zero, the first output has amount zero and the second has amount 1,000.
+At 1,000, the allocation reverses. At 1,001, policy and subtraction are outside
+the accepted range. The manifest and generated-input sweep compare both Rust
+backends against native execution and the independently compiled reference.
+
+```sh
+./scripts/oxide build puzzles/split-payment/puzzle.rs --output target/split
+./scripts/oxide validate --output corpus/validation.json
+```
+
+Read [the split-payment report](/chialisp-oxide/lab/split-payment/) for the
+actual accepted/rejected vectors, artifacts, and simulator checks. These
+destinations are fixed teaching values; choosing real recipients requires
+explicit hash handling and tests, not substituting address text into the byte
+array.

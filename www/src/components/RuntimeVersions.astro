@@ -1,0 +1,17 @@
+---
+import { report } from '../lib/data';
+---
+<dl class="versions">
+  <div><dt>Rust analysis</dt><dd>{report.toolchain}</dd></div>
+  <div><dt>Rue upstream revision</dt><dd><code>{report.rue_revision}</code></dd></div>
+  <div><dt>Differential execution</dt><dd>{report.execution_vm}</dd></div>
+  <div><dt>Ledger simulator</dt><dd>{report.simulator.sdk}; {report.simulator.consensus}</dd></div>
+  <div><dt>Simulator VM / network</dt><dd>{report.simulator.vm}; {report.simulator.network}</dd></div>
+</dl>
+<style>
+  .versions { border: 1px solid var(--oxide-line); border-radius: 6px; overflow: hidden; font-size: .84rem; }
+  .versions div { display: grid; grid-template-columns: 12rem minmax(0,1fr); gap: 1rem; padding: .85rem 1rem; }
+  .versions div + div { border-top: 1px solid var(--oxide-line); }
+  dt { color: var(--sl-color-gray-2); } dd { margin: 0; overflow-wrap: anywhere; } code { font-size: .7rem; }
+  @media (max-width: 35rem) { .versions div { grid-template-columns: 1fr; gap: .2rem; } }
+</style>

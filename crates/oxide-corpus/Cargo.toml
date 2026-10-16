@@ -1,0 +1,17 @@
+[package]
+name = "oxide-corpus"
+version = "0.1.0"
+edition = "2024"
+publish = false
+[dependencies]
+anyhow = "1"
+oxide-ir = { path = "../oxide-ir" }
+oxide-chialisp = { path = "../oxide-chialisp" }
+oxide-simulator = { path = "../oxide-simulator" }
+oxide-backend-experiment = { path = "../../experiments/backend" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+num-bigint = "0.4"
+clvmr = "=0.21.0"
+hex = "0.4"
+rue-clvm = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }

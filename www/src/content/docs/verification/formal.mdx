@@ -1,0 +1,65 @@
+---
+title: Formal checks with explicit limits
+description: Inspect source-derived IR obligations, solver witnesses, and replayed mutation counterexamples without claiming compiler preservation.
+---
+
+import FormalEvidence from '../../../components/FormalEvidence.astro';
+
+The formal companion works on typed scalar expressions in the actual
+source-derived IR. Independently written specifications describe the intended
+counter policy. Z3 looks for a violating input; its statuses and replay
+evidence are recorded rather than translated into a blanket security claim.
+
+<FormalEvidence />
+
+## What is specified
+
+For `bounded-counter`, the range obligation says that every successful result
+is between 1 and 1,000 and equals the input plus one. The acceptance obligation
+says that, for a successfully decoded typed `u64`, execution succeeds exactly
+when input is below 1,000.
+
+The report includes the source and IR hashes so the model can be tied to the
+specific compiled fixture. A satisfying input demonstrates nonvacuity: the
+property is not “proved” merely because every input rejects. That witness is
+replayed in native Rust and both CLVM optimization modes.
+
+## Show that a broken guard is caught
+
+The mutation removes only the outer `counter < 1000` assertion and retains
+checked increment. The solver must produce a counterexample to the range
+specification. The original native function and both original CLVM programs
+must reject it; both mutated CLVM programs must accept the now-out-of-policy
+result.
+
+This connects a model-level finding to executed artifacts. Witness replay is
+still test evidence, not a universal compiler-preservation theorem.
+
+## Reproduce the formal run
+
+With Z3 installed:
+
+```sh
+python3 scripts/check-ir-proofs.py
+```
+
+The earlier hand-authored capped-payment integer-policy experiment is separate:
+
+```sh
+python3 scripts/check-proofs.py
+```
+
+That earlier model is not a proof derived from every puzzle's source. Keep
+its evidence distinct from the source-derived counter obligations.
+
+## The trust boundary remains
+
+These checks assume successful decoding of canonical typed scalar values.
+They do not prove the ABI decoder, rustc MIR extraction, SMT translation,
+Rue optimizer, or CLVM lowering. Byte semantics are outside the scalar model.
+The counter is not a condition-producing puzzle, and its proof does not
+establish spend-bundle validity or economic security.
+
+Lean remains an option for future semantics and compiler-preservation work.
+The implemented formal mechanism here is SMT/model checking with Z3; the
+repository does not claim a completed Lean proof of the compiler.

@@ -1,0 +1,17 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { puzzles } from '../lib/data';
+interface Props { slug: string; }
+const puzzle = puzzles.find(p => p.slug === Astro.props.slug);
+if (!puzzle) throw new Error(`Missing validated source pair: ${Astro.props.slug}`);
+---
+<div class="split-source">
+  <section class="source-column" aria-label="Rust source">
+    <div class="source-label"><span class="badge success">Rust</span> puzzle.rs · compiled from MIR</div>
+    <Code code={puzzle.source.trim()} lang="rust" />
+  </section>
+  <section class="source-column" aria-label="Chialisp reference source">
+    <div class="source-label"><span class="badge">Chialisp</span> reference.clsp · independent compiler</div>
+    <Code code={puzzle.reference.trim()} lang="lisp" />
+  </section>
+</div>

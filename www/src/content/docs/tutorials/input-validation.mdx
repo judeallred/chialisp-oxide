@@ -1,0 +1,52 @@
+---
+title: Treat the solution as hostile
+description: Explore the capped-payment ABI, canonical integers, branch rejection, and fee policy.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+
+The capped-payment function lets a caller choose an amount from zero through
+1,000. The input coin must have amount 1,000; the payment goes to a fixed
+destination, and any remainder is a fee. This is a teaching policy, not a
+general-purpose wallet.
+
+<SourcePair slug="capped-payment" />
+
+## Separate the two checks
+
+The Rust parameter type requires a canonical unsigned 64-bit integer. The
+assertion requires that already decoded value to be within the payment cap.
+An attacker must pass both the ABI check and the application policy.
+
+`(500)` pays 500 and permits a 500-mojo fee. `(1000)` pays the entire input.
+`(1001)` violates the policy. `(-1)` violates the unsigned type. `(0x0001)`
+violates canonical integer encoding even though its numeric value is one.
+
+The longer reference function spells out all those conditions. A short
+Chialisp example containing only `amount <= 1000` would not be an equivalent
+reference: it could accept negatives, pairs, extra arguments, or padded atoms.
+
+## Probe the boundary
+
+```text
+(0)                     accepted; zero payment, full remainder fee
+(1000)                  accepted; cap boundary
+(1001)                  rejected; above cap
+(-1)                    rejected; unsigned parameter
+(0x0001)                rejected; padded integer
+((1))                   rejected; pair where an integer atom is required
+(1 2 3)                 rejected; wrong function arity
+18446744073709551616     rejected; not the required solution list
+```
+
+These examples explain expected behavior. The actual case outcomes, generated
+range, and backend agreement are rendered from the report in
+[the capped-payment lab](/chialisp-oxide/lab/capped-payment/).
+
+## Define the fee policy deliberately
+
+A cap alone does not conserve output value. Here a caller may choose a small
+payment and burn the rest as a fee. If that is undesirable, the policy must
+create a change coin, enforce an exact split, or require authority. Continue to
+[split a payment](/chialisp-oxide/tutorials/split-payment/) to preserve the full
+1,000-mojo output total across two fixed recipients.

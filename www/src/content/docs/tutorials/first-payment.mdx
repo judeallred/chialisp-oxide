@@ -1,0 +1,50 @@
+---
+title: Your first fixed payment
+description: Compile a small condition-producing Rust function and distinguish the result from authorization and a valid ledger spend.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+
+Start with a puzzle that makes exactly two promises: the input coin has amount
+1,000, and the output sends 1,000 to the fixed 32-byte destination `0x42…42`.
+It makes no ownership promise. Anyone may trigger this payment.
+
+## Read the Rust result
+
+<SourcePair slug="fixed-payment" />
+
+The outer tuple becomes a proper condition list. `(73, 1000)` asserts the input
+amount. `(51, destination, 1000)` creates the recipient coin. The Chialisp
+reference additionally shows the explicit zero-argument solution check. Oxide
+derives that boundary check from the Rust function signature.
+
+## Compile the actual file
+
+```sh
+./scripts/oxide build puzzles/fixed-payment/puzzle.rs --output target/fixed
+```
+
+The solution is the empty list `()`. A bare atom, extra arguments, or nested
+arguments are not alternative encodings of the same zero-argument call. They
+must reject in both optimized and unoptimized programs.
+
+## Validate a spend, not only an output
+
+The ledger scenario creates a fixture coin locked to the actual compiled tree
+hash, constructs its reveal and solution, and submits a spend bundle. It then
+checks the created recipient and total, rejects a second spend, and tests an
+input coin with the wrong amount.
+
+The wrong-amount case is especially useful: CLVM can return `(73 1000)` for a
+1,001-mojo input, but the ledger must reject it. Plain VM execution does not
+provide authenticated coin context.
+
+See the [fixed-payment evidence](/chialisp-oxide/lab/fixed-payment/) for measured
+costs, exact compiled bytes and hashes, vectors, and ledger scenario results.
+
+## What to change next
+
+Choose [a bounded amount](/chialisp-oxide/tutorials/input-validation/) when a
+caller may select how much is paid. Use [a signature](/chialisp-oxide/tutorials/signatures/)
+when a particular key must authorize the spend. Those are different policies;
+adding types does not select the intended policy for you.

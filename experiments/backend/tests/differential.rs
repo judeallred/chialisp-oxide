@@ -164,3 +164,8 @@ fn weakened_upper_bound_is_detected_in_executable_clvm() {
         expected("1001")
     );
 }
+
+#[test]
+fn zero_cost_does_not_disable_the_execution_budget() {
+    assert!(execute(&reference().unwrap(), "(1)", 0).is_err());
+}

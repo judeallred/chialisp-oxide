@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/.."
+cargo build --locked -p oxide-cli -p oxide-driver
+exec ./target/debug/oxide "$@"

@@ -1,0 +1,153 @@
+{
+  "name": "puzzle",
+  "parameters": [
+    {
+      "name": "counter",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": false
+      }
+    }
+  ],
+  "result": {
+    "kind": "int",
+    "bits": 64,
+    "signed": false
+  },
+  "body": {
+    "op": "if",
+    "condition": {
+      "op": "binary",
+      "kind": "eq",
+      "left": {
+        "op": "binary",
+        "kind": "lt",
+        "left": {
+          "op": "arg",
+          "index": 0
+        },
+        "right": {
+          "op": "int",
+          "value": "1000",
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        },
+        "ty": {
+          "kind": "int",
+          "bits": 64,
+          "signed": false
+        }
+      },
+      "right": {
+        "op": "bool",
+        "value": false
+      },
+      "ty": {
+        "kind": "bool"
+      }
+    },
+    "then_value": {
+      "op": "reject",
+      "message": "puzzles/bounded-counter/puzzle.rs:3:5: 3:28: Rust panic/assertion rejects the puzzle"
+    },
+    "else_value": {
+      "op": "sequence",
+      "first": {
+        "op": "tuple",
+        "items": [
+          {
+            "op": "binary",
+            "kind": "add",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          {
+            "op": "bool",
+            "value": false
+          }
+        ]
+      },
+      "then_value": {
+        "op": "if",
+        "condition": {
+          "op": "not",
+          "value": {
+            "op": "bool",
+            "value": false
+          }
+        },
+        "then_value": {
+          "op": "sequence",
+          "first": {
+            "op": "binary",
+            "kind": "add",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "then_value": {
+            "op": "binary",
+            "kind": "add",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/bounded-counter/puzzle.rs:4:5: 4:16: Rust assertion failed"
+        }
+      }
+    }
+  }
+}

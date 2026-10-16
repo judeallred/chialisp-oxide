@@ -1,14 +1,14 @@
 # Rust → CLVM: research and proposed approach
 
-Research date: 2026-10-16. Status: backend experiment implemented; Rust frontend
-not yet implemented. See [measured results](../experiments/backend/README.md) and
+Research date: 2026-10-16. Status: pinned rustc-driver frontend, typed IR, direct Rue backend,
+paired puzzle corpus, simulator checks, and source-derived SMT experiments implemented. See [measured results](../experiments/backend/README.md) and
 [verification strategy](verification.md).
 
 ## Recommendation
 
 Build a compiler for a documented subset of real Rust. Use rustc for name
 resolution, type checking, trait resolution, and borrow checking; lower supported
-MIR into a small, typed clispOx IR; reuse Rue compiler infrastructure to lower,
+MIR into a small, typed oxide IR; reuse Rue compiler infrastructure to lower,
 optimize, and generate CLVM. Generated Rue source is a bootstrap option, not a
 required intermediate. Integrating or adapting Rue compiler source directly into
 this repository is explicitly acceptable, including for the first working slice.
@@ -17,10 +17,10 @@ Choose the integration boundary through a small comparative experiment.
 Proposed pipeline:
 
 ```text
-Rust puzzle crate + clispOx SDK
+Rust puzzle crate + oxide SDK
     → pinned rustc, with all required Rust checks completed
     → reachable, monomorphized MIR + supported-feature validation
-    → clispOx typed, pure IR + explicit puzzle ABI
+    → oxide typed, pure IR + explicit puzzle ABI
     → Rue backend integration (source emission or adapted compiler IR/lowering)
     → Rue LIR optimizer → CLVM serialization
     → clvmr execution + native Rust / Chialisp comparison
@@ -273,3 +273,25 @@ backend. Each dependency upgrade must pass the semantic corpus before adoption.
   performance or correctness for the future Rust compiler.
 - Keep original source attribution and license records for copied tutorials and
   puzzle implementations. No license for this new project has been selected.
+
+
+## Implementation update
+
+The first comparative experiment favored direct LIR for a tiny policy. We now
+use a pinned rustc 1.97.1 driver with package-scoped compiler-private access,
+complete Rust analysis, and explicit borrow-check forcing. It emits validated
+oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed-width
+checked arithmetic, strict unused failures, lazy branches, and compile-time
+expansion limits before Rue code generation. Unsupported MIR fails closed.
+
+Nine source pairs are validated by the native source functions, independent
+Chialisp compilation, both optimization settings, and 30 ledger scenarios.
+`corpus/validation.json` contains the evidence; `corpus/proofs.json` records
+source-derived IR-model proofs and attack replay. `www` renders these reports.
+The imported Rue LIR includes a reproduced optimizer panic fix and retains 44
+upstream/regression tests. The upstream report is xch-dev/rue#108.
+
+Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
+and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving
+lowering, broader byte/crypto proof semantics, and verified compiler-preservation
+links. The initial teaching corpus does not complete the tutorial/CHIP inventory.

@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""Check provenance and prevent unsupported coverage claims in the inventory."""
+
+from collections import Counter
+import json
+from pathlib import Path
+import re
+import sys
+
+
+ROOT = Path(__file__).resolve().parents[1]
+IMPLEMENTATION_STATES = {"planned", "in_progress", "implemented", "excluded"}
+VALIDATION_STATES = {"not_run", "differential_only", "simulator_checked"}
+
+
+def validate(inventory: dict, root: Path = ROOT) -> list[str]:
+    errors = []
+    if inventory.get("schema_version") != 1:
+        errors.append("unsupported schema_version")
+    entries = inventory.get("entries", [])
+    if not entries:
+        errors.append("inventory has no entries")
+    ids = Counter(entry.get("id") for entry in entries)
+    errors.extend(f"duplicate id: {key}" for key, count in ids.items() if count > 1)
+    for entry in entries:
+        identity = entry.get("id", "<missing id>")
+        source = entry.get("source", {})
+        if not re.fullmatch(r"[a-f0-9]{40}", source.get("revision", "")):
+            errors.append(f"{identity}: source revision must be an immutable Git commit")
+        if not source.get("repository", "").startswith("https://github.com/"):
+            errors.append(f"{identity}: missing upstream repository")
+        if not source.get("path") or not source.get("license"):
+            errors.append(f"{identity}: missing upstream path or source license")
+        implementation = entry.get("implementation_status")
+        validation = entry.get("validation_status")
+        if implementation not in IMPLEMENTATION_STATES:
+            errors.append(f"{identity}: unknown implementation_status {implementation}")
+        if validation not in VALIDATION_STATES:
+            errors.append(f"{identity}: unknown validation_status {validation}")
+        if validation != "not_run":
+            if implementation != "implemented":
+                errors.append(f"{identity}: validation requires an implemented example")
+            if not entry.get("local_examples") or not entry.get("evidence"):
+                errors.append(f"{identity}: validation requires source and evidence paths")
+        for filename in entry.get("local_examples", []) + entry.get("evidence", []):
+            path = (root / filename).resolve()
+            if not path.is_relative_to(root) or not path.is_file():
+                errors.append(f"{identity}: invalid local source/evidence path: {filename}")
+        for reference in entry.get("puzzle_references", []):
+            url = reference.get("url", "")
+            pinned = bool(re.search(r"/blob/[a-f0-9]{40}/", url))
+            if reference.get("revision_pinned") != pinned:
+                errors.append(f"{identity}: incorrect pin claim for {url}")
+    return errors
+
+
+def main() -> int:
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "corpus/inventory.json"
+    inventory = json.loads(path.read_text())
+    errors = validate(inventory)
+    if errors:
+        print("\n".join(errors), file=sys.stderr)
+        return 1
+    entries = inventory["entries"]
+    categories = Counter(entry["kind"] for entry in entries)
+    checked = sum(entry["validation_status"] != "not_run" for entry in entries)
+    print(f"{len(entries)} source entries; {checked} with migration evidence")
+    print(", ".join(f"{count} {kind}" for kind, count in sorted(categories.items())))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,44 @@
+{
+  "slug": "boolean-gate",
+  "title": "Boolean Gate",
+  "kind": "coin_puzzle",
+  "security_scope": "Caller-controlled boolean demonstrates rejection; it is not authentication.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-primer/",
+      "https://chialisp.com/chialisp-concepts/"
+    ]
+  },
+  "cases": [
+    {
+      "label": "true",
+      "solution": "(1)"
+    },
+    {
+      "label": "false",
+      "solution": "(())"
+    },
+    {
+      "label": "invalid boolean",
+      "solution": "(2)"
+    },
+    {
+      "label": "empty",
+      "solution": "()"
+    },
+    {
+      "label": "extra arguments",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "atom solution",
+      "solution": "1"
+    },
+    {
+      "label": "nested argument",
+      "solution": "((1))"
+    }
+  ]
+}

@@ -1,27 +1,48 @@
-name: Experiments
+name: Compiler and verification
 on: [push, pull_request]
 permissions:
   contents: read
 jobs:
-  backend:
+  compiler:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install pinned Rust
+      - name: Install solver
+        run: sudo apt-get update && sudo apt-get install -y z3
+      - name: Install pinned Rust and compiler components
         run: rustup show active-toolchain
       - run: cargo fmt --all --check
+      - run: cargo build --workspace --locked
       - run: cargo test --workspace --locked
+      - name: Test patched upstream optimizer
+        run: cargo test --locked -p rue-lir@0.11.0
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
-      - name: Produce comparison report
-        run: cargo run --locked -p oxide-backend-experiment > backend-report.json
+      - run: python3 corpus/validate_inventory.py
+      - run: python3 scripts/check-proofs.py
+      - name: Derive and check proofs from Rust source
+        run: python3 scripts/check-ir-proofs.py --output corpus/proofs.json
+      - name: Validate Rust, Chialisp, native execution, and complete spends
+        run: target/debug/oxide validate --output corpus/validation.json
       - uses: actions/upload-artifact@v4
         with:
-          name: backend-comparison
-          path: backend-report.json
-  policy-model:
+          name: compiler-validation
+          path: |
+            corpus/validation.json
+            corpus/proofs.json
+            proofs/bounded-counter/
+  docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y z3
-      - run: z3 --version
-      - run: python3 scripts/check-proofs.py
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: www/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: www/pnpm-lock.yaml
+      - run: pnpm --dir www install --frozen-lockfile
+      - run: pnpm --dir www check
+      - run: pnpm --dir www build
+      - run: pnpm --dir www test:site

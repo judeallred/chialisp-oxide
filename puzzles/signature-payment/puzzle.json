@@ -1,0 +1,44 @@
+{
+  "slug": "signature-payment",
+  "title": "Signature Payment",
+  "kind": "coin_puzzle",
+  "security_scope": "One fixed owner key with AGG_SIG_ME; fixed 1000 payout.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-primer/",
+      "https://chialisp.com/chialisp-concepts/"
+    ]
+  },
+  "cases": [
+    {
+      "label": "message",
+      "solution": "(0xabababababababababababababababababababababababababababababababab)"
+    },
+    {
+      "label": "short bytes",
+      "solution": "(0xab)"
+    },
+    {
+      "label": "zero message",
+      "solution": "(0x0000000000000000000000000000000000000000000000000000000000000000)"
+    },
+    {
+      "label": "empty",
+      "solution": "()"
+    },
+    {
+      "label": "extra arguments",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "atom solution",
+      "solution": "1"
+    },
+    {
+      "label": "nested argument",
+      "solution": "((1))"
+    }
+  ]
+}

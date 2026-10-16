@@ -1,0 +1,18 @@
+[package]
+name = "oxide-simulator"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1"
+chia-bls = "=0.36.1"
+chia-protocol = "=0.36.1"
+chia-sdk-test = { version = "=0.36.0", default-features = false }
+clvm-utils = "=0.36.1"
+clvmr = "=0.16.2"
+
+[dev-dependencies]
+hex = "0.4"
+oxide-chialisp = { path = "../oxide-chialisp" }
+sha2 = "0.10"

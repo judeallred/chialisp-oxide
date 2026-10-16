@@ -1,0 +1,21 @@
+[package]
+name = "rue-lir"
+version = "0.11.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Pinned Rue LIR with documented optimizer regressions and fixes"
+authors = ["Brandon Haggstrom <me@rigidnetwork.com>"]
+repository = "https://github.com/xch-dev/rue"
+[dependencies]
+id-arena = "=2.2.1"
+clvmr = "=0.21.0"
+clvm-traits = "0.51.0"
+thiserror = "2"
+num-bigint = "0.4"
+num-integer = "0.1"
+sha2 = "0.10"
+sha3 = "0.10"
+colored = "3"
+rue-clvm = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }
+[dev-dependencies]
+expect-test = "1.5.1"

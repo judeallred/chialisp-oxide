@@ -133,6 +133,10 @@ pub struct Execution {
     pub error: Option<String>,
 }
 pub fn execute(program: &[u8], solution: &str, max_cost: u64) -> Result<Execution> {
+    anyhow::ensure!(
+        max_cost > 0,
+        "max_cost must be positive; zero means unlimited in clvmr"
+    );
     let mut a = Allocator::new();
     let program = node_from_bytes(&mut a, program)?;
     let env = rue_clvm::assemble(&mut a, solution)?;

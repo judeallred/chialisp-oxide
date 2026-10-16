@@ -1,0 +1,64 @@
+{
+  "slug": "split-payment",
+  "title": "Split Payment",
+  "kind": "coin_puzzle",
+  "security_scope": "Permissionless split between two fixed recipients; preserves 1000 total.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-primer/",
+      "https://chialisp.com/chialisp-concepts/"
+    ]
+  },
+  "cases": [
+    {
+      "label": "minimum",
+      "solution": "(0)"
+    },
+    {
+      "label": "middle",
+      "solution": "(500)"
+    },
+    {
+      "label": "maximum",
+      "solution": "(1000)"
+    },
+    {
+      "label": "over cap",
+      "solution": "(1001)"
+    },
+    {
+      "label": "negative",
+      "solution": "(-1)"
+    },
+    {
+      "label": "padded integer",
+      "solution": "(0x0001)"
+    },
+    {
+      "label": "u64 max",
+      "solution": "(18446744073709551615)"
+    },
+    {
+      "label": "too large",
+      "solution": "(18446744073709551616)"
+    },
+    {
+      "label": "empty",
+      "solution": "()"
+    },
+    {
+      "label": "extra arguments",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "atom solution",
+      "solution": "1"
+    },
+    {
+      "label": "nested argument",
+      "solution": "((1))"
+    }
+  ]
+}

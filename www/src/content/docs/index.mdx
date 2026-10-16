@@ -1,0 +1,68 @@
+---
+title: Chialisp Oxide
+description: Compile a deliberate subset of real Rust to CLVM, then inspect independent Chialisp comparisons and actual coin-spend validation.
+template: splash
+hero:
+  title: Rust in. Confidence earned.
+  tagline: Build Chia puzzles in real Rust. Compile through Rue’s optimizer. Examine the bytes, the costs, and the spends that actually pass.
+  actions:
+    - text: Compile your first puzzle
+      link: /chialisp-oxide/start/quickstart/
+      icon: right-arrow
+    - text: Open the puzzle lab
+      link: /chialisp-oxide/lab/
+      variant: secondary
+---
+
+import EvidenceSummary from '../../components/EvidenceSummary.astro';
+import SourcePair from '../../components/SourcePair.astro';
+
+<div className="oxide-home">
+
+<p className="eyebrow">Compiler experiments / executable documentation</p>
+
+<EvidenceSummary />
+
+## From a Rust function to a real coin spend
+
+Rust handles names, types, and borrow checks. Oxide lowers a deliberately small
+subset of checked MIR into a pure IR. Rue optimizes the result and emits CLVM.
+Independent Chialisp references and a ledger simulator make the result inspectable.
+
+<div className="pipeline" aria-label="Compiler pipeline">
+  <div><span>01 / CHECK</span><strong>Real Rust</strong><small>rustc analysis, types, and borrow checking</small></div>
+  <div><span>02 / LOWER</span><strong>Typed, pure IR</strong><small>Explicit encodings, checked integers, strict failure</small></div>
+  <div><span>03 / COMPILE</span><strong>Rue → CLVM</strong><small>Direct LIR integration; no Rue text required</small></div>
+  <div><span>04 / VERIFY</span><strong>Actual spends</strong><small>Differential execution and coin-set validation</small></div>
+</div>
+
+## A payment you can read—and challenge
+
+This fixture pays a fixed destination and requires a 1,000-mojo input coin.
+It is permissionless: a fixed recipient does not imply an owner signature.
+The longer Chialisp reference makes its untrusted-solution checks explicit.
+
+<SourcePair slug="fixed-payment" />
+
+<a href="/chialisp-oxide/lab/fixed-payment/">Inspect this puzzle’s compiled artifacts and adversarial cases →</a>
+
+## Learn the policy. Inspect the evidence.
+
+<div className="chapter-grid">
+  <a className="chapter" href="/chialisp-oxide/tutorials/first-payment/"><small>01 / START SMALL</small><strong>Your first payment</strong><p>Understand condition tuples, solution encodings, and the difference between a VM result and a valid spend.</p></a>
+  <a className="chapter" href="/chialisp-oxide/tutorials/signatures/"><small>02 / REQUIRE AUTHORITY</small><strong>Signatures and recovery</strong><p>Bind authorization to a coin, require two keys, and understand a delayed recovery branch.</p></a>
+  <a className="chapter" href="/chialisp-oxide/verification/method/"><small>03 / TRY TO BREAK IT</small><strong>Validate the whole spend</strong><p>Exercise malformed trees, overflow, missing signatures, overspending, early timelocks, and rollback.</p></a>
+  <a className="chapter" href="/chialisp-oxide/coverage/"><small>04 / TRACK THE GAPS</small><strong>Follow the source inventory</strong><p>Browse tutorials and CHIPs with pinned provenance. Original teaching fixtures do not count as protocol migrations.</p></a>
+</div>
+
+## Confidence has a scope
+
+The current compiler is an experimental subset, not a general Rust target or an
+audited wallet. The lab exposes measured evidence and the remaining assumptions.
+Formal models are labeled separately from end-to-end compiler proofs. Canonical
+CHIP module hashes remain compatibility requirements, even when tests agree.
+
+Start with [what works today](/chialisp-oxide/reference/supported-rust/), then read
+[the validation method](/chialisp-oxide/verification/method/) before extending a puzzle.
+
+</div>
