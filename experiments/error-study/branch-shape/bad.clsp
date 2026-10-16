@@ -1,0 +1,5 @@
+; Bug: the unused else branch returns a condition instead of a condition list.
+(mod (PAY RECIPIENT AMOUNT)
+  (if PAY
+    (list (list 51 RECIPIENT AMOUNT))
+    (list 51 RECIPIENT AMOUNT)))

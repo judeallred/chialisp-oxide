@@ -1,0 +1,24 @@
+// Authored Rue comparison of the paired policy, with explicit untrusted ABI checks.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Int, nil);
+    let amount = canonical_u64(solution.first);
+    assert amount <= COIN_AMOUNT;
+    [AssertMyAmount { amount: COIN_AMOUNT },
+     CreateCoin { puzzle_hash: RECIPIENT, amount }]
+}
+
+const COIN_AMOUNT: Int = 1000;
+const RECIPIENT: Bytes32 = 0x4242424242424242424242424242424242424242424242424242424242424242;
+
+// Rue Int is unbounded and does not imply the canonical Rust u64 wire ABI.
+// Keep these checks explicit instead of depending on numeric normalization.
+fn canonical_u64(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length <= 9;
+    assert value >= 0;
+    assert value <= 18446744073709551615;
+    assert encoded.length == 0
+        || substr(encoded, 0, 1) != 0x00
+        || (encoded.length > 1 && (substr(encoded, 1, 2) as Int) < 0);
+    value
+}

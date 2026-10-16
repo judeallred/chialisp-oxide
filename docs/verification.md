@@ -1,7 +1,7 @@
 # Verification strategy
 
-Current implementation: twelve source-derived Rust/Chialisp examples, 97 explicit
-vectors, 3,831 generated integer/tree cases, and 30 complete-spend simulator scenarios.
+Current implementation: twelve Chialisp/Rust/Rue source comparisons, 97 explicit
+vectors, 3,831 generated integer/tree cases, and 30 complete-spend simulator scenarios executed for each language (90 executions).
 Nine are original teaching fixtures; three preserve exact canonical Intro
 expressions and their ignored environments. These pure-expression ports have
 finite differential evidence, no ledger claims, and no whole-page completion.

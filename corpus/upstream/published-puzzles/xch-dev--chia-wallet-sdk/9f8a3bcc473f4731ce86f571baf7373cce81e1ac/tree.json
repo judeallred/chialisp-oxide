@@ -1,0 +1,4621 @@
+{
+  "schema_version": 1,
+  "repository": "xch-dev/chia-wallet-sdk",
+  "revision": "9f8a3bcc473f4731ce86f571baf7373cce81e1ac",
+  "visibility": "public",
+  "private": false,
+  "visibility_metadata_url": "https://api.github.com/repos/xch-dev/chia-wallet-sdk",
+  "commit_url": "https://github.com/xch-dev/chia-wallet-sdk/commit/9f8a3bcc473f4731ce86f571baf7373cce81e1ac",
+  "root_tree_sha1": "765048a5494ca398ef017715b3981e8c2e396e23",
+  "truncated": false,
+  "enumeration_url": "https://api.github.com/repos/xch-dev/chia-wallet-sdk/git/trees/765048a5494ca398ef017715b3981e8c2e396e23?recursive=1",
+  "entries": [
+    {
+      "path": ".cargo",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8e2346a100dfe39f2f88d9ab03fa6b61f7dc025a"
+    },
+    {
+      "path": ".cargo/config.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ac2b23f81468463fa64b8d33becb590396eecf20",
+      "size_bytes": 81
+    },
+    {
+      "path": ".github",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6a6a35c57b937346a86a6d9c2aad487560503836"
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "de0a44fc752ad0cd84c76a14b0c791fa3330d5de",
+      "size_bytes": 518
+    },
+    {
+      "path": ".github/workflows",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b2649de90b7d054049b9bb3c75909560377917a9"
+    },
+    {
+      "path": ".github/workflows/napi.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "12ee64c8de5ec7fbc8618e091750e81144683126",
+      "size_bytes": 9930
+    },
+    {
+      "path": ".github/workflows/pyo3.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d48d08ca5e81bbda6c8e8b1d98ccb05fa817664e",
+      "size_bytes": 9574
+    },
+    {
+      "path": ".github/workflows/rust.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7a0a722fc9b0e73d455119244230c162da1577ec",
+      "size_bytes": 3505
+    },
+    {
+      "path": ".github/workflows/wasm.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d211a6106b29420813d6e46d4be775bfe1a3cae2",
+      "size_bytes": 1822
+    },
+    {
+      "path": ".gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e4968cb89ad3eed271c82280c04cafb3c7f163e9",
+      "size_bytes": 71
+    },
+    {
+      "path": ".prettierrc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "75fa1341235eeb981f6bf67b2e8cb071229b132a",
+      "size_bytes": 20
+    },
+    {
+      "path": ".rustfmt.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f216078d96fdb19df0b120685e346b3197a47e89",
+      "size_bytes": 17
+    },
+    {
+      "path": "Cargo.lock",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "259210d959188c357f9b29f8b73e436bda1801ee",
+      "size_bytes": 124309
+    },
+    {
+      "path": "Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b5087eb49106be5f5c2bc85750a78bb10653767e",
+      "size_bytes": 6145
+    },
+    {
+      "path": "LICENSE",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e4a1a8b23f7e0ac3f4d948fcf466b5163827358b",
+      "size_bytes": 11351
+    },
+    {
+      "path": "README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6c3f73eeeaa382c4107856a7fca609871ad322a2",
+      "size_bytes": 1530
+    },
+    {
+      "path": "bindings",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "25659456cf483f846a5d50e32225a5dddd9fd52e"
+    },
+    {
+      "path": "bindings.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "307ab2eb054c294a13a33cd2ef06c16ec8871697",
+      "size_bytes": 5737
+    },
+    {
+      "path": "bindings/action_system.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8aa1ad752324e6b7ba6a5ee6c2a7487db7cfb9a4",
+      "size_bytes": 8404
+    },
+    {
+      "path": "bindings/address.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d8bfac3ff009ec96386b5be587532bac2659fb32",
+      "size_bytes": 329
+    },
+    {
+      "path": "bindings/bls.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4470b48b487ded661a5c559f14ebb96427debdbc",
+      "size_bytes": 3256
+    },
+    {
+      "path": "bindings/catalog_registry.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d975262b8230a0005cf2ad22c19b6a1df003d8df",
+      "size_bytes": 7345
+    },
+    {
+      "path": "bindings/clear_signing.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "aa4626ec507f8f7034e7d54ff7f9cc6d7def26a3",
+      "size_bytes": 8254
+    },
+    {
+      "path": "bindings/clvm.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "31d1e7ef91c1b7175f2d7b7d278d4f2cb6278ff7",
+      "size_bytes": 18850
+    },
+    {
+      "path": "bindings/clvm_types.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f76732c6d7471661b7c6a159d8a43e1b63ccba2b",
+      "size_bytes": 1512
+    },
+    {
+      "path": "bindings/coin.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70bc730504359697d3213f7241b795ee4e584b5c",
+      "size_bytes": 1270
+    },
+    {
+      "path": "bindings/conditions.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e118593008cf7ceab92ba3c878ef52ee6a133175",
+      "size_bytes": 5375
+    },
+    {
+      "path": "bindings/constants.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "40d97f3fec47930ef89041bd4c39cd519fa555a6",
+      "size_bytes": 64
+    },
+    {
+      "path": "bindings/eip712.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "30257c8e09ec03efce46506a4f25a5dc8266892b",
+      "size_bytes": 791
+    },
+    {
+      "path": "bindings/full_node_simulator.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e2a47c8562266c1cc774ef0f745bf46daf242650",
+      "size_bytes": 6316
+    },
+    {
+      "path": "bindings/merkle_tree.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d926a016edbf817a8ca9da84f2e43d9057756c2c",
+      "size_bytes": 158
+    },
+    {
+      "path": "bindings/mips.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "73fd8c6a115266c41c705e463cc0c7388ddaf06d",
+      "size_bytes": 14830
+    },
+    {
+      "path": "bindings/mnemonic.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "85c0feaa13fd154ee102be754ad6b1def83acb14",
+      "size_bytes": 804
+    },
+    {
+      "path": "bindings/offer.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ab6acbbc030fbadffb23a999a69b5c884383fcda",
+      "size_bytes": 7423
+    },
+    {
+      "path": "bindings/peer.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "91837fd9ae20b820dabe2ccfca6c6e1b0ecb33b2",
+      "size_bytes": 4071
+    },
+    {
+      "path": "bindings/program.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ee6ea4b2d8d456c530abe6ece478216e98fa7ea9",
+      "size_bytes": 6046
+    },
+    {
+      "path": "bindings/puzzles.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fb1720063e54c01ec7e4d00e7f408705962b76a1",
+      "size_bytes": 24108
+    },
+    {
+      "path": "bindings/reward_distributor.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1525e63c9bee18971ecd6a797ec5c4af8dcf3b2a",
+      "size_bytes": 20852
+    },
+    {
+      "path": "bindings/rpc.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cb90a9f8b86d3098961e3825193fd12344122c74",
+      "size_bytes": 16442
+    },
+    {
+      "path": "bindings/secp.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "996952f7b586f57016c2a30d8e96966f29248b35",
+      "size_bytes": 2305
+    },
+    {
+      "path": "bindings/simulator.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bb0df188fa943ef883d1c158179dbc2c0005f68d",
+      "size_bytes": 3922
+    },
+    {
+      "path": "bindings/utils.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0f59cff82808cbbd228fe0cacfec9f948447d963",
+      "size_bytes": 1281
+    },
+    {
+      "path": "bindings/xchandles_registry.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b6fa735aedd3a6deb64e3aa5d615ceb93cc27201",
+      "size_bytes": 18190
+    },
+    {
+      "path": "crates",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7aa9b6679bb1f14c25e324e0052746d2536d265c"
+    },
+    {
+      "path": "crates/chia-sdk-bindings",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4f1d051bbf9c9ba53af02f1c0f32be02ec2993aa"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cb0cac4e2231d487d91f4b3b3b911c7ac1517651",
+      "size_bytes": 2021
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "64a112fd3589fc84f9c3d3c75d809cc4439847d2"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy-macro",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "d7f42e8120229699ceadc32db4efeda4a81b1710"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy-macro/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "00cea895824c90e83af9a59c1750919a53fdd357",
+      "size_bytes": 1489
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy-macro/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f84ead7f99acd2967d03adfe136c3f5ca3f854b4"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy-macro/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d7df186f378cb5ef3a4ca92684a02251e872489b",
+      "size_bytes": 69430
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4fb5dcfd92a49973e0c72e4a3e21490316617812",
+      "size_bytes": 1425
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "885ba4c55174daba6a9c11fa606788247d5da751"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "60cb50cc9e48453d59607a5fc0849c4b8d7ff4fd",
+      "size_bytes": 6481
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/src/napi_impls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9451daf4fc004196382188fadba27a19e59e7e83",
+      "size_bytes": 7374
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/src/pyo3_impls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f374d7d6a06121c9b0b3ce10c6b20580bc59480b",
+      "size_bytes": 2974
+    },
+    {
+      "path": "crates/chia-sdk-bindings/bindy/src/wasm_impls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6a5d8756f756a704971fc50e8e8f405f53caa37c",
+      "size_bytes": 7345
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "05bfc00b6cc03c0415cb532cbf43d5c8dfdd635a"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "5380a215f158a2395db67523504dec27ca2cba7e"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fdc6d8051f9c1db027147995b7bbf970e5693707",
+      "size_bytes": 238
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer/catalog_registry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "762e8a04bc980975be97bea472140e95cae02e59",
+      "size_bytes": 19214
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer/medieval_vault.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f01dc013ab326d05f268239e93f0aa617ed3c809",
+      "size_bytes": 1837
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer/reward_distributor.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c0452be13a1b8b44147e67e9e73049dbf178e395",
+      "size_bytes": 34056
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer/slots.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cc261c6e1aaf30dbdef1e942124ab6db4b2c5d1d",
+      "size_bytes": 3231
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_layer/xchandles_registry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7a23ded522d8a20f81b9a78c24be9c81d04bfecc",
+      "size_bytes": 63756
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/action_system.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e2703a29b272153487b05762b0f79eddab6f304",
+      "size_bytes": 19330
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/address.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c958b3e5fb3379b527fa6d0632329f8936539030",
+      "size_bytes": 529
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/bls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "be950feebb8d0038871927184633b6188c2b0335",
+      "size_bytes": 6256
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/clear_signing.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3b11f32ab6667d6196879b685ac70371ac94f200",
+      "size_bytes": 19542
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/clvm.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "64ec4cf6c91c204b696de646e503f8d87abb2a8f",
+      "size_bytes": 31890
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/clvm_types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "20117baccd7c7a4c895e8a68ef4f040fd9e7e42e",
+      "size_bytes": 3553
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/coin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "acd3c218bb8da978cb5debed4afe7169ca71e114",
+      "size_bytes": 791
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/compact_representation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "10f8c43c1428f8cee5a002361ad418e6bfe7c59d",
+      "size_bytes": 463
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/conditions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70f157d3216e103b415fa55f30c42e02b97c7b88",
+      "size_bytes": 7504
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/constants.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6332015b765d618c2055160aaeb262c34a29f981",
+      "size_bytes": 6035
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/convert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e574cb12ef775546d54f138580a6e9f665b4719f",
+      "size_bytes": 916
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/eip712.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cef04899bf72f5677cf2618722ab468fa9ca4a71",
+      "size_bytes": 1974
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/full_node_simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "96cb5eeefd3aa8e73b9855a4b40390e6d9673585",
+      "size_bytes": 11458
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/key_pairs.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0b4fd553e5de1fa0efd738d642501923079a34b6",
+      "size_bytes": 2534
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8146e1f5952478c0b55247b01d62ce58ad45a508",
+      "size_bytes": 4704
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/merkle_tree.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fec6a6167e9dfc5e0874b41c8f7e29a5031df830",
+      "size_bytes": 84
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f4ff924c6e825b6ae5b3d2dd37b699539a558b34"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2aee43cd2b77825acc45df55bf4f830dc6831336",
+      "size_bytes": 1684
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips/members.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7b826c8c61a29d3b47374437a3d992bb33655fe4",
+      "size_bytes": 4339
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips/memos.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cb5be460c9f438fbc6ca59d39927274a567cb93d",
+      "size_bytes": 25789
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips/restrictions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "94f0535e9cb90c1df6a685f11de906061ad20a1b",
+      "size_bytes": 3171
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mips/spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8241dfdac68ccd638291a4f9b26f37c763bdbe22",
+      "size_bytes": 16591
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/mnemonic.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f00925dc4d0ff7310059471a669fd570fe834a56",
+      "size_bytes": 1288
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/offer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "51740aafbda51fdbe858b30ecd59353478c990b6",
+      "size_bytes": 17244
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/peer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2618bdddc850e71c29ae38c1cfcb057c6b2bfa41",
+      "size_bytes": 5604
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/program.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6beeb529ba754743efdc1d51cdc8da51b3793b64",
+      "size_bytes": 10081
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "74603c2652a702ddbc4a1e8c58e65774ca488f88"
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "38eb4b27313273a223028bbe6c79a5bda482003e",
+      "size_bytes": 11179
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/bulletin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9a770e05725e061236e5256079565120bbb401f9",
+      "size_bytes": 1455
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9218cb3f14078fc9471532645e176c23b3ca5525",
+      "size_bytes": 2106
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/clawback.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cf889776e02cf93fbf581c980236bcdad45095ae",
+      "size_bytes": 1555
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/clawback_v2.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3aeeef034b4b383f3e162c2dfe15e7d51fba7ac6",
+      "size_bytes": 2540
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/datastore.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4b38a6a7fd8adda684f043772ecca1d09dc6cb36",
+      "size_bytes": 15252
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/did.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a87667cfae0445402493ce5f2857fa8479e3a80d",
+      "size_bytes": 3440
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/nft.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "359afbe29498ab44d9590ded2bcc586473a5f914",
+      "size_bytes": 5256
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/option.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2ab0d64a1aac37220c6c4383335702e854518e0b",
+      "size_bytes": 6749
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/p2_next_reward_distributor_epoch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0a65d49f8e02c5f05c0b9b8ee7d3c04ccbab8cfb",
+      "size_bytes": 3660
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/p2_parent_coin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8d376d3aa39b15b74636d9970ebd2c4dd09e4216",
+      "size_bytes": 1106
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/puzzle/streamed_asset.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "af61128fc9e1e2cdb25286088dbb474a9461d352",
+      "size_bytes": 2428
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/rpc.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4a3687f130c584da738e79efb3b05e058cb71401",
+      "size_bytes": 8958
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/secp.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2bca79c2852679902e0b35e75594f2fe0ad41828",
+      "size_bytes": 3248
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "16f24202710490d306b787f426ac15cc7b470d2b",
+      "size_bytes": 3787
+    },
+    {
+      "path": "crates/chia-sdk-bindings/src/utils.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "88fb5b216e05f2c7b0acb9bededdc5654ee3cac5",
+      "size_bytes": 1566
+    },
+    {
+      "path": "crates/chia-sdk-cli",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "d48fa8165795133ffab365b11f023a0725db3642"
+    },
+    {
+      "path": "crates/chia-sdk-cli/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ff201efdb79b4d6a223b234cf4d0b3e4f6d249dc",
+      "size_bytes": 584
+    },
+    {
+      "path": "crates/chia-sdk-cli/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "304caded692706291b6802cf899d6d4148f703f7"
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/args.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "64a1a935e1c9fb5ec0d1fc0d28a5bbecf544f5d1",
+      "size_bytes": 452
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/commands",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6b864425ac75086b72ba7dc88caeba3426bc559f"
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/commands.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "81dc8b47b026c6c576548470e1f072f859b7d4d4",
+      "size_bytes": 63
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/commands/decode.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5eba737b9e4acc5f39cf979c51640955f7ef3f04",
+      "size_bytes": 237
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/commands/encode.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cd0bc137f1ac02779cabcb0075b613b63dc64edf",
+      "size_bytes": 287
+    },
+    {
+      "path": "crates/chia-sdk-cli/src/main.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "881584c2785a222c773a3c4b648b5527d36efb5a",
+      "size_bytes": 312
+    },
+    {
+      "path": "crates/chia-sdk-client",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "ba5b30b5d9e35e4902da73ade194d95267c072b5"
+    },
+    {
+      "path": "crates/chia-sdk-client/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6ecfc0c5b794a91b458e3bbe730f2d06bb738384",
+      "size_bytes": 1448
+    },
+    {
+      "path": "crates/chia-sdk-client/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "9c1206783299b83f71f6db8b2df490185774c4fd"
+    },
+    {
+      "path": "crates/chia-sdk-client/src/client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "df7a462efaeccd98961d6aeb05c5baf1aee0e39e",
+      "size_bytes": 3339
+    },
+    {
+      "path": "crates/chia-sdk-client/src/connect.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "dbb70ae9fadbf374694a09a9e302d747c4b848fe",
+      "size_bytes": 1718
+    },
+    {
+      "path": "crates/chia-sdk-client/src/error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e05ff3e4e6dd56338ac7134da5651504b7379f55",
+      "size_bytes": 1650
+    },
+    {
+      "path": "crates/chia-sdk-client/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fca64f9de7726ec3e66e92593a215fe09654d4be",
+      "size_bytes": 601
+    },
+    {
+      "path": "crates/chia-sdk-client/src/network.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "59046bd48938f0bc2479063bef34272f247bf7c4",
+      "size_bytes": 2618
+    },
+    {
+      "path": "crates/chia-sdk-client/src/peer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "108553f2075acafeb4a73b264c9795efc115c32b",
+      "size_bytes": 12478
+    },
+    {
+      "path": "crates/chia-sdk-client/src/rate_limiter.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c55fea74e66c7eaa4e080507d6bfad1473a76379",
+      "size_bytes": 3661
+    },
+    {
+      "path": "crates/chia-sdk-client/src/rate_limits.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8bba56e534069572e2c489cf81c8a879c795ec75",
+      "size_bytes": 8687
+    },
+    {
+      "path": "crates/chia-sdk-client/src/request_map.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2ed78f92c4d2f5c0e2217d229b8287afb11d4ad8",
+      "size_bytes": 1472
+    },
+    {
+      "path": "crates/chia-sdk-client/src/tls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "da78238127bfc0044b125bf76932bff92038425e",
+      "size_bytes": 4890
+    },
+    {
+      "path": "crates/chia-sdk-coinset",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7b690d4a41ce8de1b8c79b830b4a7eea6c80264c"
+    },
+    {
+      "path": "crates/chia-sdk-coinset/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d4e5e543dcb464dabdab0e651e80f0c4e5c7d112",
+      "size_bytes": 937
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e5e5f2f61ba2781bd491f19dc6db6d2f0f8ad3df"
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/chia_rpc_client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "21a1032476571162ec8f9850293641095532d310",
+      "size_bytes": 43936
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/coinset_client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b70979da73aad831bc2849a7a6afd5cbc157d13f",
+      "size_bytes": 1029
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/full_node_client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "74f1c80c6af1afb9090401c9fda0ab845be1a365",
+      "size_bytes": 1473
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "98915c652a2e8303376ca298e7e1ead9871b249d",
+      "size_bytes": 451
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/mock_client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "92e578718f09bf5a97d3250d378ac6f4275ca5e9",
+      "size_bytes": 1685
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/models.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "df0441c0cdb1b7b6abaa6afe4c7a7e23c54f4ad1",
+      "size_bytes": 4181
+    },
+    {
+      "path": "crates/chia-sdk-coinset/src/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e6c7ea4934028f9abe4231a4320626c17edda996",
+      "size_bytes": 444
+    },
+    {
+      "path": "crates/chia-sdk-daemon",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "9ea576d68fd65b58fc78ae7e798e6ebbf1e65872"
+    },
+    {
+      "path": "crates/chia-sdk-daemon/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "74614392f79faed2337082000891c177ef652cbe",
+      "size_bytes": 1096
+    },
+    {
+      "path": "crates/chia-sdk-daemon/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fdbffa507fc666018b70ec953127c6a23efcf30b",
+      "size_bytes": 2417
+    },
+    {
+      "path": "crates/chia-sdk-daemon/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "382b55c6fc7690eb2f243ac024770d50529368c6"
+    },
+    {
+      "path": "crates/chia-sdk-daemon/src/client.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b104e9cbdb43de65f04bde9ecc29dd2553fa6268",
+      "size_bytes": 17000
+    },
+    {
+      "path": "crates/chia-sdk-daemon/src/error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "279dcf727df177e15ccca867757394cf7f435025",
+      "size_bytes": 564
+    },
+    {
+      "path": "crates/chia-sdk-daemon/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "04f5f51ce62cad6950e2645bb1e96c044db1b8a4",
+      "size_bytes": 146
+    },
+    {
+      "path": "crates/chia-sdk-daemon/src/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3b8a8ba093d4b448f304e71ecad9d20fb19657b3",
+      "size_bytes": 626
+    },
+    {
+      "path": "crates/chia-sdk-driver",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "9cf43238dad3c42052aa10bb62b94eb8f39215a4"
+    },
+    {
+      "path": "crates/chia-sdk-driver/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "48118132cb4279785cc2695193e426f0369768ce",
+      "size_bytes": 2001
+    },
+    {
+      "path": "crates/chia-sdk-driver/docs.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ec2941c58efefa5f36001c55547ad92f7636eb9f",
+      "size_bytes": 2193
+    },
+    {
+      "path": "crates/chia-sdk-driver/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "57dbe5d270f8f1b71ea573777c3b47e44cc5c13a"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a47b080187727c153a1d7af8a1986ce963fb0d9b"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bc711e2b0f8e389cf749ecce1a0640027e285578",
+      "size_bytes": 3673
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/action.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b32ba7d4a1d91a9ef93de4b8cb56c6417d4f8d09",
+      "size_bytes": 14114
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/asset.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "aed9718dd334f88028160df09dc827ce62814587",
+      "size_bytes": 2740
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/deltas.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8155df78832280af0c76e481a9b4975712048040",
+      "size_bytes": 3636
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/fungible_spends.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ab9c49affdba83e74773a8581fda70a894ad6c26",
+      "size_bytes": 16748
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/id.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "523814d55797ebb16c70e582faf5c79c0fde6d37",
+      "size_bytes": 543
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/output.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1a1d6880a334320efeddbbdad02a3ea7496de3d9",
+      "size_bytes": 2547
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/relation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b425367c097b1625ca6930af2ea4189300cc190b",
+      "size_bytes": 1293
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/singleton_spends.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8c0cad280ae3ebfbd9068d66f5652bbfed0e3fef",
+      "size_bytes": 22827
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spend_kind",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4a806b1aa854ebe4b10cd4f65701c587c88b2721"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spend_kind.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5637734a736e27b2958f13af5a0e67c70e0db10a",
+      "size_bytes": 5341
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spend_kind/conditions_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1882acbf1a9b00737ec18fd6759ad601fc602ab2",
+      "size_bytes": 3501
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spend_kind/settlement_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a6e94f751033b91ce50f6d0480fa47cc4bb5d01b",
+      "size_bytes": 1549
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spendable_asset.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "195bac7d567c630532fb3c113159e201c4d3fff6",
+      "size_bytes": 1662
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/spends.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5a279c0106569dc2073b5cacf0214060bfa7c287",
+      "size_bytes": 27232
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/action_system/tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f068cf78ae8107fc8640368c0256602d2019a400",
+      "size_bytes": 75654
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "539d5dbefe7b59e846cc230f320a0c2afbde8bda"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d3cd8cc96c841e46ee666b56c9d999a084676e99",
+      "size_bytes": 396
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/create_did.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "db1af661fbfc6e6688de77be1957fe96044610ac",
+      "size_bytes": 3399
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/fee.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3800f9b3cee7823b7b59bae7fb671d901c62f6ad",
+      "size_bytes": 2376
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/issue_cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1f2463f76a17c466207f48e264049b7173da8d7f",
+      "size_bytes": 8986
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/melt_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "167b5c9331564203d291a9106d304de7257b63a2",
+      "size_bytes": 6620
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/mint_nft.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7dabe0e3546007f6ab31a5376470c4d0df22cd6d",
+      "size_bytes": 12625
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/mint_option.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d1a81a5e1592510de32a78e3cdc37617d6cb820c",
+      "size_bytes": 10169
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/run_tail.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4a57c7c696b78453fa052487189e11480b6cd0b2",
+      "size_bytes": 7998
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/send.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ab584d14a7007856ff3cf1b00d9663c0f6acfb6a",
+      "size_bytes": 16279
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/settle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6fd61dfe20e79d754cb0c7654133757acaa50011",
+      "size_bytes": 8082
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/update_did.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "52b9d045bfcbf90834a62090669b48ff207dbd42",
+      "size_bytes": 6275
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/actions/update_nft.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7412cd3a2ee20d47fc0cf6928c798ef875ef171c",
+      "size_bytes": 18406
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "5a4b9577b27affdd8da20dd36cd2cdcb61c6d183"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "972d5e06cdce7b600bf19c9210e4314048a54561",
+      "size_bytes": 590
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/children.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3e4430114709c7b49c1b0bf81249917819c3c527",
+      "size_bytes": 8178
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/delegated_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eadbe442a656e6dd949d2a075df2736adfdaee39",
+      "size_bytes": 1669
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/facts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "907a7e568e6ce2983bd7ac2619fede1b066fda62",
+      "size_bytes": 2685
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/inner_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d3d254547032e4003d65fc5badd772a10600ccb2",
+      "size_bytes": 6693
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/issuance.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2eabd504746d7a353023b70a1a4da8d2a4fafa59",
+      "size_bytes": 1993
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/linked_offer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "af640cc91e67ac5b8c57d4fd4dc3f138370242c4",
+      "size_bytes": 3081
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/memos.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "aa9d6faba41c88813024221eb91018350c542b33",
+      "size_bytes": 3735
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/parsed_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ed9184e3877a8fb994bb9428386a9b7e4ef3d469",
+      "size_bytes": 3067
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/requested_payments.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "aea1c312c9ee118ce5ebaec6657c8b200bc2c028",
+      "size_bytes": 6215
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/reveals.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "32c9c285e352061902540c7f2d308ea093f9df9d",
+      "size_bytes": 5696
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/signing.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8cf08218abb8a98fe15afd6d3886bd92ee269fca",
+      "size_bytes": 6074
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0b0502a2cd3b75f11e823b91dacd9b31ee36f3ff",
+      "size_bytes": 81278
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/vault_message.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3dba06b942ae695ac40a8c1a066fc48b248ff806",
+      "size_bytes": 1141
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/vault_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "41cad2d27e1bc9dac718e1159dd2489af90c8a1a",
+      "size_bytes": 4698
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/clear_signing/vault_transaction.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7b5bc98091060585588c3405fde7c420d47d48ad",
+      "size_bytes": 21031
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/driver_error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "659e1167aad49017bdd8ed652e7e2e64206549ba",
+      "size_bytes": 6087
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/hashed_ptr.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "35cd8186a8f8d1bafca1d0ca90b6196319220c6a",
+      "size_bytes": 5109
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a0b3b38d2bd29468794015abf58559e24dabb47c",
+      "size_bytes": 3126
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b19a6b94ca81c8114acabea7b6f2088434b819e9"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "447945f5d855347b6037a281679f87459d78a870",
+      "size_bytes": 1510
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "46b0159bba5f9289d350be6d3ee8d37b6878c37b"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7a15f4e9f63083470e69cc670d5da66f4378ba65",
+      "size_bytes": 448
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/action_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e859486dc3eae8e51577a760cf5657ebf4c125c0",
+      "size_bytes": 13894
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3b28abbf00a3e8ac9cb1a861d170839b252f71bf"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3dc52fbfee5cc4d6f8010ec93e5cdc18d310cf24",
+      "size_bytes": 175
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/catalog",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2bc101e00bf267d7b1e750bcd7dbb72f48b88d2b"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/catalog.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "40f5995fbebf6c2838fda2240f3e2440f8894e17",
+      "size_bytes": 106
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/catalog/action_log.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "012ef388bf9f8f79983c093a2ab529de9f7ec999",
+      "size_bytes": 2705
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/catalog/refund.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "626d0cc88cadc4e03bab45a662651b2bea8d3e7a",
+      "size_bytes": 6199
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/catalog/register.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "76c0668d22e7bc170875654d82fd3515ad2bc00c",
+      "size_bytes": 8740
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/delegated_state.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ad38ee576f0b7f65658746a467ff26598afc6b63",
+      "size_bytes": 2395
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "540f8bcac43325d14d311bc1f2bebe7e54d42ae6"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0a551d4e6e18210ca6eb62479e9e11490a3678b0",
+      "size_bytes": 485
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/action_log.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "debc1d6d83868637bae63362d5028f1a60f7a988",
+      "size_bytes": 9032
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/add_entry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d774f798413c69fffb659f8e86ecfe97bb65b513",
+      "size_bytes": 4483
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/add_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f431d5fed39b2f82b9f802a4210fbd5a68dbb8bc",
+      "size_bytes": 3301
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/commit_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4e04975e2aeff745f98f029b4fa9a7813141853d",
+      "size_bytes": 6453
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/initiate_payout.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "789ca799dd66fa9a018d3d6a1eb02db9d2df79b0",
+      "size_bytes": 7200
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/new_epoch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a7ae8e6b8144bc5d7fa06a3bab4a49de1eab3dee",
+      "size_bytes": 5482
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/refresh.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f84c29f13ee64f0ae18427a3652fd9daa7a548ac",
+      "size_bytes": 18457
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/remove_entry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "edebc13665dceddfd42b0dd69c6548a83249c8f8",
+      "size_bytes": 5520
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/stake.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "de36c9f0062d510b27349cae58b4e7cc0237c138",
+      "size_bytes": 30871
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/sync.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2f184f8ccf410d615641744222de83bccec33e50",
+      "size_bytes": 2443
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/unstake.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "feaf25729f2406d361a97d242bacb264b3db1f0e",
+      "size_bytes": 20248
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/reward_distributor/withdraw_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c0c9bc125c20f20eed52db8e92f4644bba9c1db8",
+      "size_bytes": 5843
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8502480b996f5dc41bda54bfe74b35c7109ebc47"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ec80be115d3fc22b7e0ef72682f148723dd6660",
+      "size_bytes": 295
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/action_log.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "dcb700a6179b7b8459ca01b06631671378baf882",
+      "size_bytes": 9782
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/execute_update.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9cebfdb60be5013bb5a262f75aa3ab1c81a024ee",
+      "size_bytes": 7377
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/expire.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "22443d3d321e420b95e25e8e907232991ef8e9dc",
+      "size_bytes": 15919
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/extend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b4c4817a6b784ed7eaba91c1da22ae4e0c0e227a",
+      "size_bytes": 6201
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/initiate_update.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e1558644b8f727cac1630a1212c4f201f24d36ba",
+      "size_bytes": 5458
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/oracle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9eae0570cacbbd1b7f83b40b080f67fd7b3ba983",
+      "size_bytes": 2729
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/refund.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "308d056bf5311dd5786760de0176b055104ee7d6",
+      "size_bytes": 6710
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/actions/xchandles/register.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "73e559d06e6f4ddcaf51c1ed54eb6ec9a651a56f",
+      "size_bytes": 19863
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/conditions_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "45eb902d17fd263b4c5ce8062035915f6a192e84",
+      "size_bytes": 1810
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/m_of_n_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b5e35abab1d8f2fbf79f4e1690bff54edf2c905f",
+      "size_bytes": 3768
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/p2_delegated_by_singleton_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b42881708e15884e5af410eff8584b8bc1b442b0",
+      "size_bytes": 2171
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/precommit_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "86634de2383933887926ca3426a1e44800d09f51",
+      "size_bytes": 10121
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/singleton_action.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "53657b1a9f7c67686c69db1a59201c1d9ae74219",
+      "size_bytes": 673
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/action_layer/state_scheduler_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7231303dd9f80a71e3cccf53ce41c0df80491e1f",
+      "size_bytes": 8512
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/augmented_condition_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cc9c100cfa5374b481a4a6f5f5fcc698ec97a420",
+      "size_bytes": 2096
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/bulletin_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ff7637528a7c19ec98654a29eea21a8cc16a921b",
+      "size_bytes": 2746
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/cat_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1a6776639ee74f60708a224de1d30189767bb327",
+      "size_bytes": 5567
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/datalayer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c26d98b102007a701c8dce41506c0f34011212d5"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/datalayer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "11709bdbebc1de0afe38d8aafeb5077982028aa5",
+      "size_bytes": 1482
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/datalayer/delegation_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f2e69678cb20ac2f836002ef21c7212928c99329",
+      "size_bytes": 2446
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/datalayer/oracle_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e86041abf95f135883df1e3dc122bf45e390ea3c",
+      "size_bytes": 2812
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/datalayer/writer_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "668f91005fcfe746af0603439bcc6a5b8b6f8cb6",
+      "size_bytes": 3207
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/did_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7cbe8c6efaf02b88d57846957c6de6d914727348",
+      "size_bytes": 5091
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/mips",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f59817c14781b1fa943bf4e01e3c70674e8f1209"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/mips.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "88402e610b03bfa2f52cb1c4d1624426a294f904",
+      "size_bytes": 198
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/mips/delegated_puzzle_feeder_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ff0401a6d8699c5ba2029236f3ee30ad07c66c6b",
+      "size_bytes": 2463
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/mips/index_wrapper_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "10428ed0c687d558f2419a1531ed7de2e39c0076",
+      "size_bytes": 1885
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/mips/singleton_member_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "94c6723369bf9ba99c6d1daab05af199f5a56391",
+      "size_bytes": 1900
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/nft_ownership_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7e9be4bf2d672213ef3a227b72d5af87a443be41",
+      "size_bytes": 3819
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/nft_state_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ec56bbb7a5fb40845031c995bfecb5f3dd083835",
+      "size_bytes": 4306
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/option_contract_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5b0d8b2b6d9d65feba634169461160ecefc5ef61",
+      "size_bytes": 3179
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_controller_puzzle_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9eb15e3e0dad8442d25d61bab32ff620c1d6a43e",
+      "size_bytes": 5054
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_curried_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f922d6d363828f4a005431345f2c0d254548eff6",
+      "size_bytes": 1570
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_delegated_conditions_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3c4e39d638efaae162d2088cafc22bd40803f8bd",
+      "size_bytes": 2226
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_eip712_message_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c85f959f3e5e7a54b4c806bceedc0ba761db6939",
+      "size_bytes": 11879
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_one_of_many_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70ecff3b7b7066b9c24de90e3dae88b21f72d212",
+      "size_bytes": 2128
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_parent.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "832a75722e12512eddab29deb3d8bc43f2d3dc69",
+      "size_bytes": 2320
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/p2_singleton_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f472a7f15b80aab2b3cefb8dab41391a106ca4f2",
+      "size_bytes": 5252
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/revocation_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8f410a9bdbc6da25b33f939b0b15049e32960f68",
+      "size_bytes": 2292
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/royalty_transfer_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "91d5bc56927bc0afb4a86f691216e98e1ccd78c9",
+      "size_bytes": 3511
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/settlement_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "722b644430709f3e69f68dec6f8a3ba8057abde2",
+      "size_bytes": 1260
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/singleton_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "22e32720a8c7e0bf68f499a876b145415a2b4a4e",
+      "size_bytes": 4460
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/standard_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "893f9740f0359dbc90bc0b7e484e4dbdcca22a2c",
+      "size_bytes": 4567
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/layers/streaming_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8bdbadd9ba61952a78c81a540299046024aa86fe",
+      "size_bytes": 6998
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "be2234a97a2ab490ee1afd1168c277f5b84f6450",
+      "size_bytes": 848
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c49436b01ababacb899d7bae110e45fefe01c19e"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "547b58c286ca983bee8c9df17fa96c07c9017f58",
+      "size_bytes": 356
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/asset_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "83af884a9a9e59dc648910e3fde8a41433129e2e",
+      "size_bytes": 3751
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/compress.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e3cb751f90acf165c5fe3b0854b82b42d0c8fb5",
+      "size_bytes": 11240
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/offer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "62258b79974fc657a27e04eab09949c46881f49c",
+      "size_bytes": 31549
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/offer_amounts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bcf36f6073efa5f739dc000bc8f021e7169c5802",
+      "size_bytes": 1815
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/offer_coins.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "30229566e98d6ee5bbc047965cb83a25a3857d03",
+      "size_bytes": 9810
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/requested_payments.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "06369b222639f9cb649669055e1748444a2c5576",
+      "size_bytes": 9375
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/royalty.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "153e0298beff7a8d8e35e2d199ad2c714d880b7a",
+      "size_bytes": 6616
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e098fe4d2adc0cbcf818b6d5ff2f05c52a99c916"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/cat_for_xch.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "60094e2e9c2ea04025989ad956a9df618137d3a3",
+      "size_bytes": 1209
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/compressed.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "43e36b45e2957e5d8b1bb632025908d698261c16",
+      "size_bytes": 2455
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/decompressed.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0eb46828bb9ac7a2d27938a372336505cf40ea26",
+      "size_bytes": 14781
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/nft_for_xch.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0cd98d26e1b78491f8fffd0e79554efa94c9fede",
+      "size_bytes": 1839
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/revocable_cat_for_xch.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "949bddd6c00d588a24c68e00b510fd7a5a6520e1",
+      "size_bytes": 3004
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/offers/test_data/xch_for_cat.offer",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9814a4e86842b816b64c8be79bbe65de1f045658",
+      "size_bytes": 1002
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b1c09d2df7f79042395792147e540a4a6d10a53c"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2329aeafce984721933ae3da7617d3e6f47be075",
+      "size_bytes": 779
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1064d02954f0b836b8a197b40246a00c244a3ef0"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "32c67150b11c29c8f1362d75bab3d853e5bc782d",
+      "size_bytes": 1022
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/cat_maker.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c85d48468952e0aba5eabd35d3dd9e1726e347dd",
+      "size_bytes": 3304
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/catalog_registry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "71512a2826d11bb204d89fe815aee8e697afa603",
+      "size_bytes": 14555
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/catalog_registry_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7a269fcb0876725a73717d157de2748c09431d4d",
+      "size_bytes": 4831
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/catalog_registry_prefix.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "36b4abbef5338433b95b7a45dde302d81096d8a4",
+      "size_bytes": 760
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/launch_drivers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "58840c68fa3ee6d420c9b5b6041ca2a417d8251b",
+      "size_bytes": 202802
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/medieval_vault.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b49d8b32c185e5aae0888effff675eaed1717388",
+      "size_bytes": 13433
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/medieval_vault_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6a751e068308cd737e4b089de21b5fc01fbfd8a7",
+      "size_bytes": 1762
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/precommit_coin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fef63721eeadb2c7611fa6e50012679eee17c4ed",
+      "size_bytes": 4911
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/reserve.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6f99732ce4ba1c9352c42259d0ae0c725a1e83bb",
+      "size_bytes": 6250
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/reward_distributor.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "23d6fa265d5f02a422c5af296f6ed15519638c72",
+      "size_bytes": 31554
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/reward_distributor_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4c6cac042b7c80eb114e976eee8016f9aaa9f741",
+      "size_bytes": 13139
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/reward_distributor_prefix.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1062ba74035e894b1d5bf5155fc30ce22e85e99a",
+      "size_bytes": 3563
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/slot.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "21b306ec47081dc1bd538601495fb6792be1249d",
+      "size_bytes": 2375
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/state_scheduler.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8eff11cecb03767112231bda53395fc9b5bdc81e",
+      "size_bytes": 18772
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/state_scheduler_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "720a2703fc1b003cf9dca223519e8741b1f17a70",
+      "size_bytes": 10534
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/uniqueness_prelauncher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "538e5f4850fb02da6b7ec1c83b25489dc01a7805",
+      "size_bytes": 2539
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/xchandles_registry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f487fbc098c349ce4fdad920c5534bb5401056b7",
+      "size_bytes": 24289
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/xchandles_registry_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "94c74f67eff1bea42d0402e9735f2a0e0fa3a331",
+      "size_bytes": 6067
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/action_layer/xchandles_registry_prefix.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "88e62bc111fce522462b9db5e59f8df5c1079155",
+      "size_bytes": 3095
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/bulletin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bbf0b3236ca2487c4105f58bc7d91a2d91f67be5",
+      "size_bytes": 4929
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f50e48aed4c2bbfb7ab2a72e6a60a0199c750d64"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "169c58391fd7537692b2caf62c3ec498d5f716ec",
+      "size_bytes": 34802
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat/cat_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "94c90d8ef0fcd9de018e5f517e4cef2f0b228909",
+      "size_bytes": 4545
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat/cat_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b4bbf7e4bcee2066e1bdcfdc470b523e6c0e06ce",
+      "size_bytes": 460
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat/parsed_cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d2b6309dd66c237ab9f4d9f8911c2eaae011f680",
+      "size_bytes": 216
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/cat/single_cat_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "830a07fe5e7707be4e8d0dfe54f35397b47d16c0",
+      "size_bytes": 790
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/clawback.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "13d0bdc5da74f70faa539bf6851d80dcc20d1cb3",
+      "size_bytes": 19344
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/clawback_v2.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f626369978d1998919ffad0887091d4e8f99e1b5",
+      "size_bytes": 22784
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/datalayer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f464a2a44f9b1e692af650f8240dded24b816ac0"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/datalayer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d5d270aca73dc45c79c6ff24974722fec3d9c8b4",
+      "size_bytes": 109
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/datalayer/datastore.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8653b6051007e68d975763dce5a82cb9ed763e88",
+      "size_bytes": 87646
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/datalayer/datastore_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ef11a3e8031473704ec698af617c5a3c69158efd",
+      "size_bytes": 11518
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/datalayer/datastore_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "068936e848e3d1e4e0662a15bf29583482d33e89",
+      "size_bytes": 6217
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/did",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "081d193692b8ec22b64c3aba2cfab78cba080157"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/did.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a23758bd9001fd1593746b151b7b9f1e894657c1",
+      "size_bytes": 21577
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/did/did_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6799a887067aa10988f723affd5c95c43097fb1a",
+      "size_bytes": 5901
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/did/did_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "889c608138b198193d6f1b33e8f310d9d0665a74",
+      "size_bytes": 2123
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/intermediate_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4c0332013b42bfeb1ba925e75051e367bb7a3493",
+      "size_bytes": 3210
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2815fda9dba2a79695819f4a46828271de5be3a4",
+      "size_bytes": 7148
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6158fbc573dbbadfb6b083da8004608dea84b2ce"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "786a292341f80f1d0fb8858484661e91ab048ae5",
+      "size_bytes": 243
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/inner_puzzle_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e6b573ab52aaf765258235c00687b12bbd47844d",
+      "size_bytes": 9888
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/m_of_n.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f750c4cad9753e65283868bdcd3c9fe7c727f066",
+      "size_bytes": 6737
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e0e47deb84848d5fc51156a9dbffb94c95fb58ce"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8978b638edad10ea8f9b36402ea766cb4a64cd60",
+      "size_bytes": 26846
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo/parsed_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e196a1d129ff0d292c76d3b2400d9e7286f47664",
+      "size_bytes": 952
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo/parsed_restriction.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0de504f14d84284f9cd4d61104cd13b462ef2695",
+      "size_bytes": 508
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo/parsed_wrapper.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "66566d8fc08b7f1b7b6d13a4cf22d4ffd539fd14",
+      "size_bytes": 594
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo/tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "65af6bc73a5c33e4a5642afeaa65dbeb924e8505",
+      "size_bytes": 35103
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/memo/vault_tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a83383a3384a8fee91d744cd4588be34deaa3ffd",
+      "size_bytes": 28994
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/mips_spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a788078eac95643b27f42f71584ad80f6dc26c62",
+      "size_bytes": 835
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/mips_spend_kind.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7d42473e4c8a767a3358a37e4ea1982494a0f30b",
+      "size_bytes": 988
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/mips/restriction.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "13ebd576d211ccdbf41e896bef5191665aaeae09",
+      "size_bytes": 280
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "cad3f26c772e18a116baf31e8b814977806d9676"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "15144b9a8b9c1d0195469b432a9c14cdea6b0c93",
+      "size_bytes": 20396
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft/metadata_update.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e646b09b83bcb797bd996070ea94bba1bde9b273",
+      "size_bytes": 1865
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft/nft_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eaceb21c7eec570c106de3dc50f48916f8b56ef8",
+      "size_bytes": 11214
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft/nft_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2c80c2692a619a070a06501a005319fc108c3c47",
+      "size_bytes": 8943
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/nft/nft_mint.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "10be4cf4498d0a6f881b9c1b9750b5234d590e26",
+      "size_bytes": 919
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "417473142f8106482b118f39c1a96c5d721716e4"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "82656ca1e3ca6f33f213181e104afc33b9badd29",
+      "size_bytes": 242
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option/option_contract.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7c279a5d120144a0f5ee96869355d2f9f211829d",
+      "size_bytes": 31050
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option/option_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d9bb4cf124a0a5780269ae31a20de2abae79d35a",
+      "size_bytes": 3547
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option/option_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ef39b5ec77cb54b96afe1ebd528eeac83f9e60b",
+      "size_bytes": 7756
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option/option_metadata.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6b61e6e0a03c78e488ecd8a432881092ea9bf14c",
+      "size_bytes": 1348
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/option/option_underlying.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e50fb7b1a89486d02db2970377e04544d305053c",
+      "size_bytes": 7103
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/p2_parent_coin.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6a3bf611a25f242e6766e6a3c8463d958865f626",
+      "size_bytes": 13722
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fde69188981d851c9fb5cf4eeae6bd40af395feb",
+      "size_bytes": 2915
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/streamed_asset.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7492439d6b3aeee8b191a750241985031b38b0fb",
+      "size_bytes": 26141
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8c58b3f74afa118483511dddff5197da7e32386d"
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "085dcb64d20fa90acb21a5fb7b8feffa685cf3ab",
+      "size_bytes": 17793
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault/p2_conditions_or_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ac0811abe5c66f0de9a0183bc61486f42746bcde",
+      "size_bytes": 9586
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault/p2_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ac3967f8c3ffe7d59f96bf1348221dc18c6d5362",
+      "size_bytes": 1493
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault/vault_info.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cdfcbf81365192d8868032abe89349eaf72697c4",
+      "size_bytes": 574
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/primitives/vault/vault_launcher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b8e35a8d9eae221d1343e36b7d2ed988e188a90a",
+      "size_bytes": 927
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "329ad9217c8e76804fde48af835aa81cf2838293",
+      "size_bytes": 3729
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/spend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "720bfc06264bfae24437ad091bd5f439298e98c2",
+      "size_bytes": 253
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/spend_bundle_cost.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7738fec3d8ceeb24e4cdc67e17e11c3988ee8f58",
+      "size_bytes": 1201
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/spend_context.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0f5a5f5fa3ce4379079a696240cc019b1de29cfa",
+      "size_bytes": 5791
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/spend_with_conditions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8d7e2dd035ebc9832d71b4288e01a515677a6d88",
+      "size_bytes": 261
+    },
+    {
+      "path": "crates/chia-sdk-driver/src/test_wallet.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "03bdfc9e8259fc60e7444b6ab020c9ae0581aae6",
+      "size_bytes": 16656
+    },
+    {
+      "path": "crates/chia-sdk-signer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a8243e80e62c0849ab60228f04c3226250daa130"
+    },
+    {
+      "path": "crates/chia-sdk-signer/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1e09c6ae8bf51dfc1ccbd6b44f684a2a5b167d07",
+      "size_bytes": 1159
+    },
+    {
+      "path": "crates/chia-sdk-signer/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1288742259478cd18f9514839bc34cfe64735d66"
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/bls",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6509fc157678989eb0f57d8a4b77d31ff8b9c88c"
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/bls.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "532df0072ae474dfbe5834d399f7a0cb06222d6e",
+      "size_bytes": 117
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/bls/agg_sig_constants.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "45a97c6e30bac19be9d5ae2cb66661ba6f345566",
+      "size_bytes": 2566
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/bls/required_bls_signature.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70520fa43d0137cea577f76d4766531add27fae2",
+      "size_bytes": 10996
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3c8d0a9d39c52e3dc28ce8bfb3e9685463a837ba",
+      "size_bytes": 1031
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "602be1709eaf78e35dea37c16ffa3d8cc97d2ed8",
+      "size_bytes": 137
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/required_signature.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "97493bb02eb3a1d0555918fc64d0523e7fd21844",
+      "size_bytes": 18939
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/secp",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e58fd149ca6c632a8aaabde53400f0cabccd68c7"
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/secp.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d8f5317368634e34481c086ad3ebfa49b1ad12ce",
+      "size_bytes": 109
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/secp/required_secp_signature.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c728823cbb26873eca520ba89f51c23d4958ff5c",
+      "size_bytes": 587
+    },
+    {
+      "path": "crates/chia-sdk-signer/src/secp/secp_dialect.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6227d8f42f963ac1f6ee29157860fa0c2069321b",
+      "size_bytes": 5268
+    },
+    {
+      "path": "crates/chia-sdk-test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1a6b0efb49ddbb5346d48f8a8863a03ae949a7a1"
+    },
+    {
+      "path": "crates/chia-sdk-test/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f2e2358bb0e9c32d482983a0828ad224a8356e47",
+      "size_bytes": 2535
+    },
+    {
+      "path": "crates/chia-sdk-test/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7e1680c5a1c7e21104c434d8d45d358ad4d722c9"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/announcements.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0a511c8baeb509e1c66499576135acae443e286b",
+      "size_bytes": 5249
+    },
+    {
+      "path": "crates/chia-sdk-test/src/benchmark.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c618830676a5d24ea79c224801b905525484b5ca",
+      "size_bytes": 2574
+    },
+    {
+      "path": "crates/chia-sdk-test/src/error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "49e695275fe21439a30d06595bf0f905f481cf43",
+      "size_bytes": 5271
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "635ca43d1dca94d47732f42bf8ed98923377f375"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1543216c6978947ad39db4cf12e5604585e9ca08",
+      "size_bytes": 8129
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/chain.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6488904ebb0f083ea5ccc08ae67dfc2a8bccaa44",
+      "size_bytes": 10966
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/fast_forward.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "075fda54649a402e37d82a998d34b683e6fbb775",
+      "size_bytes": 20709
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/push_tx.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2862060fb5b63ecfa1946bf7a59b2dee8148b29d",
+      "size_bytes": 7621
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/queries.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e756e3ebcf110cc992820976928d7f888d32a6f8",
+      "size_bytes": 11985
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/state.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4e797b8da7de5f101f5b3588aabc1ebdbc8f7ade",
+      "size_bytes": 9388
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/state_dump",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "81846bac5beba04795ae94aa2f94459f19d3ec1f"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/state_dump.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5d02ea56a7b3c3cba546fe40549426d37c0e255a",
+      "size_bytes": 5390
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/state_dump/restore.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "50bd294136d5927da57268ff82d66704146ba15e",
+      "size_bytes": 12806
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "54c802dc21c3e8dff65e1ac24fe1c417c032f1dd"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "96c442594bdcbdba395bb30addc5a9d1855d3411",
+      "size_bytes": 74
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/tests/dump_restore.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fdbc776a331460221aa210ebb3d2802291c3a164",
+      "size_bytes": 13485
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/tests/integration.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c93d59871139cc64b35a7c986cad76fa6c672da4",
+      "size_bytes": 14123
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/tests/mempool.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1bc00b6c3662de4cda6af0bab29a6f601e299d01",
+      "size_bytes": 4734
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "36f2e48056f106e9d4ef4ee713cc9af523a770ef",
+      "size_bytes": 2646
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator/validation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5dfa14c39c5b5b4bc8564ea88a19a6a44953c644",
+      "size_bytes": 8750
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "91d357d06e609e18cce474bfe06f8d6ccc57313f"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fd5f9123be886f1ce2d48bef9a89c856f58554c6",
+      "size_bytes": 128
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/handlers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bf59719fa73f499047f6882eb465b15a9d3bc8d2",
+      "size_bytes": 13238
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/push_tx.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bba1edeae71eca5f88e1a86ebfd1244cc4ce7181",
+      "size_bytes": 2876
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/server.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a2917fd28cdca6fae924a3515bfb192289531695",
+      "size_bytes": 1142
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/state.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "714b6f64de0bfe0c6f78e5be351672988a43b928",
+      "size_bytes": 119
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/tests.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9b35b523821f862532eff6f9636954c87db11b27",
+      "size_bytes": 20607
+    },
+    {
+      "path": "crates/chia-sdk-test/src/full_node_simulator_http/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "386df4b5f11cc254785256dc7517168f940ff959",
+      "size_bytes": 5116
+    },
+    {
+      "path": "crates/chia-sdk-test/src/key_pairs.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "585b1bc4c8a58286f23fa9a79e09b5f35702d665",
+      "size_bytes": 3838
+    },
+    {
+      "path": "crates/chia-sdk-test/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a87908c46d128a7a8b8d6bad846a2c9a55f1dfb8",
+      "size_bytes": 1627
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8dffc3f049aa170233d2148ddcf60bd6ceb3db3f"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d1253f7efdd276e36d534045202e69318dcf5dbb",
+      "size_bytes": 27596
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator/config.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0beecb39fc6af6c01372083ef744dc0acf937882",
+      "size_bytes": 591
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator/error.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1d5aa0c11915a8a6dabf71aecf81c94754ec7d23",
+      "size_bytes": 1014
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator/peer_map.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70d5c830bbcecb10dfb7556c54063b9dd08e0a8d",
+      "size_bytes": 797
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator/subscriptions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "36362e57dd49d6c066bb4160899a28d4123158d2",
+      "size_bytes": 3274
+    },
+    {
+      "path": "crates/chia-sdk-test/src/peer_simulator/ws_connection.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a1ad969c59e01345cf2db27dc656938411d42e82",
+      "size_bytes": 20084
+    },
+    {
+      "path": "crates/chia-sdk-test/src/simulator",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3a55d4d06d57909355ea93c1e55e0da3a62ad2ff"
+    },
+    {
+      "path": "crates/chia-sdk-test/src/simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6475445d68169eeb10e0a4cfc27d22ad7dcef518",
+      "size_bytes": 10962
+    },
+    {
+      "path": "crates/chia-sdk-test/src/simulator/config.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "44706d6968d29bf302c00e93e8614698a3d16095",
+      "size_bytes": 681
+    },
+    {
+      "path": "crates/chia-sdk-test/src/simulator/data.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "17269848e7a5fa53995d331a17b0ee499b0883ba",
+      "size_bytes": 1041
+    },
+    {
+      "path": "crates/chia-sdk-test/src/spend_bundle_validation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "66f6bf8eac7a2ec500695cb70b25d4da2bd5db48",
+      "size_bytes": 11797
+    },
+    {
+      "path": "crates/chia-sdk-test/src/transaction.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2bc2df93c306f489ac7d3c581fcf3db625bf51a9",
+      "size_bytes": 1190
+    },
+    {
+      "path": "crates/chia-sdk-test/src/validate_clvm_and_signature.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "36e997205f63b13f550944b074c541d8170ce85a",
+      "size_bytes": 4695
+    },
+    {
+      "path": "crates/chia-sdk-types",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "dea1e1b1f532002293194d16a75037aded1070ad"
+    },
+    {
+      "path": "crates/chia-sdk-types/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c3bcbcbe0542e19e9f38e8a8fcabebde35b107f5",
+      "size_bytes": 1456
+    },
+    {
+      "path": "crates/chia-sdk-types/compile_chialisp_test.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "12e2d2267de62a81e232d0803bad8aba12c9443f",
+      "size_bytes": 45
+    },
+    {
+      "path": "crates/chia-sdk-types/compile_rue_test.rue",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "acb719cc861c8e9011e97c711e0b46fba9b18487",
+      "size_bytes": 151
+    },
+    {
+      "path": "crates/chia-sdk-types/derive",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6e5f8a80979238292a19cfc6d738abdc225d819a"
+    },
+    {
+      "path": "crates/chia-sdk-types/derive/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e6578fc55ccbf65b29fb8581888dda52b0183311",
+      "size_bytes": 609
+    },
+    {
+      "path": "crates/chia-sdk-types/derive/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7cf97123368ab49ca2f037842443e9dfc4c49f65"
+    },
+    {
+      "path": "crates/chia-sdk-types/derive/src/impl_conditions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "31ca866d685ca341f75591d9476bbc6dc1447e3a",
+      "size_bytes": 11539
+    },
+    {
+      "path": "crates/chia-sdk-types/derive/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "efbe1f1b0523687b4257a13af1066ca9502c47f5",
+      "size_bytes": 189
+    },
+    {
+      "path": "crates/chia-sdk-types/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1db7eabb97184351b0a2953d9d85edec9c8c1d16"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "0f74e030ad40dc4a1a916869ba34bb30f59209d8"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "49141c89c653e0afef29bc1b6a7454b6387ac34d",
+      "size_bytes": 5264
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition/agg_sig.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bd075c7617907e6e1b1dd322ae91bb9549b88fb8",
+      "size_bytes": 2797
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition/announcements.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9ea9f893452607c4adf9e561b05f23f8d9080e5a",
+      "size_bytes": 484
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition/list.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ad2517d25c9f68a9fc632af7cf54df7b2f96945e",
+      "size_bytes": 3208
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition/messages.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f47326fcaf112d421b62f8fe03cb76c07b0474d9",
+      "size_bytes": 1767
+    },
+    {
+      "path": "crates/chia-sdk-types/src/condition/nfts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "22dd6a2b4d0dbc19c7bb6d229524bc44c31a712c",
+      "size_bytes": 739
+    },
+    {
+      "path": "crates/chia-sdk-types/src/constants.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "021ed82c9b1c126d1fec5732d5b313134e7cc32f",
+      "size_bytes": 4744
+    },
+    {
+      "path": "crates/chia-sdk-types/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "184680f2e86866cefe188136a36b1a318efd89b5",
+      "size_bytes": 376
+    },
+    {
+      "path": "crates/chia-sdk-types/src/load_clvm.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "59a53499d7c278dd62d0ed3f81dbd34b1696bf48",
+      "size_bytes": 8881
+    },
+    {
+      "path": "crates/chia-sdk-types/src/merkle_tree.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2ca983fbc6cbc1b1c8fd67ce4196a8247f207a25",
+      "size_bytes": 11958
+    },
+    {
+      "path": "crates/chia-sdk-types/src/payment_assertion.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5b2fb3d5786d0e964ed5b401df8b60f95b4b8a29",
+      "size_bytes": 1132
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzle_mod.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "29a3cee13b919d5a6170b9f2206540e2dc5dedc9",
+      "size_bytes": 5018
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "03185b1f1a1d4a715af6a7ab456f01b4ae1aab2f"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b1c65933a735a524d114ce1ac5cd28f6a5d36d23",
+      "size_bytes": 1413
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "9af0d15f7c5467cb698230d573ebf60973e2a98d"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "12eeca005bf614e753927b2b0d9561ee8e08e953",
+      "size_bytes": 5816
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fad6592088f16f69dab77cb0c17b7bd682ed1c0e",
+      "size_bytes": 3290
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "0aecaac23be6e9a6faa74e34c51608d3aaa9ea77"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3dc52fbfee5cc4d6f8010ec93e5cdc18d310cf24",
+      "size_bytes": 175
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/catalog",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "41bda8d079725110c42d180a6fb77c19ecf519ec"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/catalog.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ab90b7fb94338e6b294f5d011b6fc3794df87c54",
+      "size_bytes": 67
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/catalog/refund.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "48288156865c23a000f499a25a53c1951a67aca0",
+      "size_bytes": 3958
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/catalog/register.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0e3e14893fb63ef96accbe1b02f3b8fdc3f93f64",
+      "size_bytes": 8516
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/delegated_state.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "858604c534e71ce515f16a071f7c7e42c77c04dc",
+      "size_bytes": 2492
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b506abbafcf8e9f6fc4d8c3b339110e48f36e98c"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "26205c240ae9b2a1c9cc3eedbb9bcf8ced5a29d9",
+      "size_bytes": 574
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/add_entry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "604d168c28b3f9a7ede4e9d9053db626a08bc704",
+      "size_bytes": 2383
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/add_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b2e98ddca88bda5c795a15130934818016a9839a",
+      "size_bytes": 2164
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/commit_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6d8ee0727b09aa7d073748ee06612414154d7675",
+      "size_bytes": 3697
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/initiate_payout.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8d63e93aa8045e086093c77866f755c9d07905c5",
+      "size_bytes": 5691
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/locking_puzzles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2c2b38a2deb93193053e2c2ff0558e822fbb2fce"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/locking_puzzles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1e44e8b8d4740d6efab94f73cd5b62407a142885",
+      "size_bytes": 114
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/locking_puzzles/cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e1658fac7f6920255e804df0fb0b5646ccc925c",
+      "size_bytes": 2861
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/locking_puzzles/nfts_from_did.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a48c87c687327ff44b63457513c0536c8d8b130d",
+      "size_bytes": 5111
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/locking_puzzles/nfts_from_dl.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "46634ec948648c9083b37c49fec7e9ed8b637a53",
+      "size_bytes": 5292
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/new_epoch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "23fbcfbf27bbfd3bde4b90cd2c35cdfe718f7a59",
+      "size_bytes": 2977
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/refresh_nfts_from_dl.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c442d09eb433e3f2ca17491e541001c9e7116a13",
+      "size_bytes": 8155
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/remove_entry.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "59b828ede90e8cfb42faf3e414a6587d398fec40",
+      "size_bytes": 2889
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/stake.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8b587a6fbacb2434a1276617ae385ec27971ceb9",
+      "size_bytes": 3610
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/sync.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1d505c2308fe5c1a3b44a5e727daa536fe4760d3",
+      "size_bytes": 1541
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/unlocking_puzzles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "33df120f555d418aadb842b092b0ea8148366614"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/unlocking_puzzles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9f649ff1f5683872b93ab407dfb9042a34be02de",
+      "size_bytes": 53
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/unlocking_puzzles/cat.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ef83d692ae6f04e754da36fc99e639629f4678c5",
+      "size_bytes": 2731
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/unlocking_puzzles/nfts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7243803b7b74a8fb2e1deb01711de623e95f9247",
+      "size_bytes": 4009
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/unstake.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fc429197478070c06bb9002425cf965286de1a90",
+      "size_bytes": 2987
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/reward_distributor/withdraw_incentives.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cfdba8340e548eb31874cab1dc1e59d121ad974d",
+      "size_bytes": 3131
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "fb9c4c9022d7345296c688656a662b0bf59dedd1"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6934a49381ffeb5d657839f2fbcff8d51346c9c2",
+      "size_bytes": 305
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/execute_update.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b93dd385ea04d6d9b4379c28925528f2d866656d",
+      "size_bytes": 4037
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/expire.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e5bf615847631574eeb67ac4f7127ab15d5aa0b0",
+      "size_bytes": 5126
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/extend.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d7d91e9b822519a3686afad1b4c5abc5f846d59c",
+      "size_bytes": 3210
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/initiate_update.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a39ca869b92435e43d33483432235f22c2e795ae",
+      "size_bytes": 3085
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/oracle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a82c1ca78dc138146c51b7789be283437917c8f3",
+      "size_bytes": 1961
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/pricing_puzzles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3f128c1505b9b312552a7b0282b0e12b3ca0c52b"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/pricing_puzzles.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ed1b6adf0df14b34817cdc2eb1bb9c0e5d556c89",
+      "size_bytes": 89
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/pricing_puzzles/exponential_premium.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "12fd4aacdb4e5e248547dceb696cdee4daa4e488",
+      "size_bytes": 2792
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/pricing_puzzles/factor.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5d5cb3be56d6ca6ba150a473f0124921f3a4f901",
+      "size_bytes": 4159
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/refund.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "62da6bb11f8dc6f48b63cab5fba483a5983c98cb",
+      "size_bytes": 3405
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/actions/xchandles/register.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0673a9e92174c07b925bd07120b0a55dfb4d2ba5",
+      "size_bytes": 5544
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/any_metadata_updater.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2ebbe287e7bf5185d580482421e2f646fc379f7f",
+      "size_bytes": 642
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_makers",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4f19bfa133eb27072af4c008cbebc91b8775814b"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_makers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "35adeb99e20afbc78b722882b4d853c0bf1c8493",
+      "size_bytes": 96
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_makers/default.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1375769ecf675374d35febad9edd6b495c1bc95f",
+      "size_bytes": 1477
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_makers/revocable.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1d409062a6049112642b2d31778860d776abd84d",
+      "size_bytes": 2354
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_makers/xch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e6e31f7b983f3e054307f516178390f8a70880fc",
+      "size_bytes": 639
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/cat_nft_metadata.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c33bda33517b7d8e552f0fed466cd249600d0efe",
+      "size_bytes": 4996
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/compact_representation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3091539e20cb48165203e83604de1a0636a17f01",
+      "size_bytes": 1743
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "372f376bee1a9b7ebd972c8a9c4e093c37796392",
+      "size_bytes": 3063
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/handle_nft_metadata.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "582f56f5fbbf7e22e6d28c5f01ffe3e1f16b2ddd",
+      "size_bytes": 5899
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/p2_delegated_by_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "120a0c8bfa1b166c79bb4ab860cbc9c5d9811394",
+      "size_bytes": 3063
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/p2_m_of_n_delegate_direct.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4d5126df2327c864c1d0f0f425b9ad06e3ba8c00",
+      "size_bytes": 2691
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/p2_next_reward_distributor_epoch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6e34ec91a5bc936e587a0e081742a75c187b0b85",
+      "size_bytes": 3177
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/precommit_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ec6bd48ebab874f664bfaab7bda095ca96d7639a",
+      "size_bytes": 2178
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/reserve_finalizer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "689894e29cda7dba5a2bd6f019d1af9bac1d28d0",
+      "size_bytes": 5942
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d42edb68cdf05f97acbc4bfc03084f2438728ac0",
+      "size_bytes": 2604
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/slot_values.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bbd43cb671e44177b1c137c6242140f1bc9b612e",
+      "size_bytes": 14207
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/state_scheduler.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "79b913ee9638c25de8803e8f57bc7e3ee1df42e0",
+      "size_bytes": 2356
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/action_layer/uniqueness_prelauncher.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "74278cbc83267c23886852bb85561abb6adadde7",
+      "size_bytes": 1044
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/augmented_condition.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b3acc27dfb7ff1fc419bbd60b0c76049fadde01c",
+      "size_bytes": 1052
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/datalayer",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2f399f2f43596a47faaeb05be044235cbf020a45"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/datalayer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "758b0f154e0b457d13b44788efed2534bd9c1edc",
+      "size_bytes": 154
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/datalayer/delegation_layer.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f38ac8d3b2007ed7d7325d19f6afd553e7c25533",
+      "size_bytes": 4068
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/datalayer/dl_metadata_updater.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8f4619a7da671c3ba3b55f33dce64b3fbc9c0429",
+      "size_bytes": 882
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/datalayer/writer_filter.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "87387fe4f977a6072a70fa92d3000a4845f21110",
+      "size_bytes": 1461
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/eip712.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "793417e65387ac39cfb88fa86b7af3d435853273",
+      "size_bytes": 2339
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/everything_with_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7418c2eda30b167d01da7ee2a40d3d2c778411c5",
+      "size_bytes": 1444
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "cc2d2377351aad7bdd14366681313deb06fbf5fc"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "67cec6b27ce44d769607132134d33616bb740c12",
+      "size_bytes": 394
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/add_delegated_puzzle_wrapper.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9e9121c28be340542d267278003d2dcd1bcae1ec",
+      "size_bytes": 1155
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/delegated_puzzle_feeder.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3fad1d157041297e79e19fcce1a3fd4d3616f610",
+      "size_bytes": 1175
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/index_wrapper.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "baf12f9eb2bf6942414165eb45352b42b4a38be8",
+      "size_bytes": 850
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/m_of_n.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f729f198e2265a89bac7efa3efbc046af485723d",
+      "size_bytes": 888
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2c4320c041c6fc7776cbec2b99d12872cbb47425"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ef5ed967ebc64164f5f9f9519230c0fbf0cb1dc",
+      "size_bytes": 857
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/bls_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1ac5a2e03be1fce85c524096c7436fd911259730",
+      "size_bytes": 597
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/bls_member_puzzle_assert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "70d08366efb9764fa3c82ed2ee95ccb9a51b9df9",
+      "size_bytes": 689
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/bls_taproot_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d206cddb4cc8923ed791eba81825817177528e10",
+      "size_bytes": 1009
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/bls_taproot_member_puzzle_assert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e18d79bba52d534530fcd4b7552eb2adaafe931a",
+      "size_bytes": 1132
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/eip712_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b9248066e7efb09d7f1fb347db7ef924845d099f",
+      "size_bytes": 6101
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/fixed_puzzle_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c2ab1f831608eaa4e5a1395e226ab65939153121",
+      "size_bytes": 677
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/k1_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e784dc0cd5a839a073e54289ac8a9bd3a4987e13",
+      "size_bytes": 972
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/k1_member_puzzle_assert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "728f95c93f71f2c74f4bff078c9666fa82d88a4f",
+      "size_bytes": 1133
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/passkey_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7043f120dd7eaab84a7298c17d22e96cdee91146",
+      "size_bytes": 951
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/passkey_member_puzzle_assert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1e7d3e48f461e7b4a3708144a12ea62626805fd6",
+      "size_bytes": 1059
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/r1_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bc7df62a80225a710a63ec9d379ef9d24201a78a",
+      "size_bytes": 972
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/r1_member_puzzle_assert.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a55f158fd044baeec13016eb548f825f872e267a",
+      "size_bytes": 1133
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/singleton_member.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "254758c23d63cdfbe9ab10196e77cc682ac2461e",
+      "size_bytes": 1182
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/members/singleton_member_with_mode.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7e156f3e4a665e0706a1b25fab20a615991db4ee",
+      "size_bytes": 1308
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/n_of_n.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "64312bca991ef2a1b8d38841ff9aa7633e1a6751",
+      "size_bytes": 804
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/one_of_n.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a2d1147d673a65592395f64521d97c6b4beb1b77",
+      "size_bytes": 1046
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/restrictions",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "cbd8f335f58c7cbcbddf0dd16b70d1c6a847cd2a"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/restrictions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e7828b1bde4ca351ff05f327d43f40be911cde24",
+      "size_bytes": 1638
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/restrictions/enforce_delegated_puzzle_wrappers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3f585aa34bf6c3a14dcf40866b815c1e2144c7e4",
+      "size_bytes": 1490
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/restrictions/force_1_of_2_restricted_variable.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "542c6356f283c9e876fd9c216eeb8e8e481ec95d",
+      "size_bytes": 2123
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c1e204cdf034a5ec0254651809b4d2feca517eb8"
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "910ae32eb6178ad5941491eeedad459dee11c724",
+      "size_bytes": 385
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/force_assert_coin_announcement.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "57066523ec733edd5232cbaafe43474abd4713e1",
+      "size_bytes": 488
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/force_coin_message.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fd3cf46e5cc30d80cd3c8b7f2eeb378fd5e7abe3",
+      "size_bytes": 418
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/force_singleton_recreation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "30a89519cdaff7e13b9baa0a2e809332463bc433",
+      "size_bytes": 1205
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/prevent_condition_opcode.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d65bcf9e0cd708220efff46b50ee63df5687b533",
+      "size_bytes": 673
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/prevent_multiple_create_coins.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6c054b9b9d8cea3ff9dbfdcf098d718fd2d41306",
+      "size_bytes": 482
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mips/wrappers/timelock.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c412abb0b55970689c8c90727de54f6535d06300",
+      "size_bytes": 540
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/mods.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "702b120c1408cbeabcb645fdc8d34d4074c21a3c",
+      "size_bytes": 1147
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/option_contract.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a7a5e54dee540f26c8daa4fb65d1d68eb0b9a6e4",
+      "size_bytes": 3302
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_controller_puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "65d20bda33fd47596ab93429ca014ee9ad856d04",
+      "size_bytes": 2473
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_curried.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e691122b55bf4875a1b45410cab0a9bb8759073",
+      "size_bytes": 1632
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_delegated_conditions.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "785da94042d06e1b548433e2de69598942dd67ad",
+      "size_bytes": 1026
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_eip712_message.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "18db915ede4541a5be2b4c904ca0ec424bd7c589",
+      "size_bytes": 3641
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_one_of_many.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3020cf87a4bd3be673d6737d20b53be2c3e67ebb",
+      "size_bytes": 1033
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_parent.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "85ffa985027ae775b1d2885ce91eb525b9f704e2",
+      "size_bytes": 1324
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/p2_singleton.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0824d19cbed26c8203d3b8194e3dd3b099c04fd9",
+      "size_bytes": 1357
+    },
+    {
+      "path": "crates/chia-sdk-types/src/puzzles/revocation.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e95c687e88d5e43745e089e9cc59c3165833a069",
+      "size_bytes": 1239
+    },
+    {
+      "path": "crates/chia-sdk-types/src/run_puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f966bdd6ef212aff13168debb1d3864c48d12c80",
+      "size_bytes": 1773
+    },
+    {
+      "path": "crates/chia-sdk-utils",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "bfd08f73012dc6b8ccbbad50bdcd7da69e99bba9"
+    },
+    {
+      "path": "crates/chia-sdk-utils/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9b5c403e7db4d055884a573021058b10c457aef8",
+      "size_bytes": 735
+    },
+    {
+      "path": "crates/chia-sdk-utils/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b24450a845137b67605aadd7d3c3106d2ff90455"
+    },
+    {
+      "path": "crates/chia-sdk-utils/src/bech32.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4b25f0c1a65743943dec9e98e38a718339f409f8",
+      "size_bytes": 3834
+    },
+    {
+      "path": "crates/chia-sdk-utils/src/coin_selection.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5ab930ea932cf2c7bdef2d7fabe640bff71a64fe",
+      "size_bytes": 9014
+    },
+    {
+      "path": "crates/chia-sdk-utils/src/hex.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e51308939ff4cef4b10bcb05858a50f50fb89036",
+      "size_bytes": 234
+    },
+    {
+      "path": "crates/chia-sdk-utils/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "932706c98a9d995de52a8dec1d019b88356d937d",
+      "size_bytes": 104
+    },
+    {
+      "path": "examples",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3f06dfadc87e42585a38d268ae1f0c379e636123"
+    },
+    {
+      "path": "examples/address_conversion.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8ac420ea8901cf31d2ddcf21a99a147cec44d4a8",
+      "size_bytes": 584
+    },
+    {
+      "path": "examples/cat_spends.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bffb46c3515407ca6c05763f70e112bbfc83bc3d",
+      "size_bytes": 1185
+    },
+    {
+      "path": "examples/custom_p2_puzzle.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c1cbd4e6cce261435ef374c89da7691a675e2460",
+      "size_bytes": 4176
+    },
+    {
+      "path": "examples/puzzles",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "37ec3c546f7b810e4bb8bddac7bc767e384e214e"
+    },
+    {
+      "path": "examples/puzzles/custom_p2_puzzle.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bf98bd82de8b12520f292553dedd0af305c2b4c9",
+      "size_bytes": 449
+    },
+    {
+      "path": "examples/puzzles/custom_p2_puzzle.clsp.hex",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "df08fceaf804ca6d706d5f66ed9412e44c879f6d",
+      "size_bytes": 278
+    },
+    {
+      "path": "examples/spend_simulator.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "82859e21d9a1209831310ae6c8e3888a932993d1",
+      "size_bytes": 1053
+    },
+    {
+      "path": "napi",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b00925c23e557e7d31c549c544dc837581170d3b"
+    },
+    {
+      "path": "napi/.gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e7ad6386255effa2ae14079f02669c1ff6db4333",
+      "size_bytes": 21
+    },
+    {
+      "path": "napi/.npmignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ec144db2a71186bfded92e36187ea7b5b6eb7c95",
+      "size_bytes": 122
+    },
+    {
+      "path": "napi/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "93bd6b9212303d4fc40a0aeecb603c184cec4d73",
+      "size_bytes": 1605
+    },
+    {
+      "path": "napi/__test__",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4aad0b95352075e3d172645d75472cd080cc6424"
+    },
+    {
+      "path": "napi/__test__/action_system.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1ae15d87369e5c80acd1c6404ae696dc4711c0d6",
+      "size_bytes": 27292
+    },
+    {
+      "path": "napi/__test__/bulletins.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4a9c25324e04c3b8f86117182023fe8a6e91ba0b",
+      "size_bytes": 1927
+    },
+    {
+      "path": "napi/__test__/cats.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7956db0467c6cb902646689b475f1a1e1e55664d",
+      "size_bytes": 4814
+    },
+    {
+      "path": "napi/__test__/clawbacks.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "19dcc620e1330bedb960edb6b6f730e919c7b2f5",
+      "size_bytes": 2955
+    },
+    {
+      "path": "napi/__test__/clear_signing.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5e63661653c6e0ea1290a851b579cd0a04bd5b61",
+      "size_bytes": 11216
+    },
+    {
+      "path": "napi/__test__/conversions.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "79a7d8cb8330ff8a65ebab0fbc1689ee0a76aa14",
+      "size_bytes": 2135
+    },
+    {
+      "path": "napi/__test__/full_node_simulator.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6a177f953ba0a388f2a55fa786eb7ce2bf6229ef",
+      "size_bytes": 4786
+    },
+    {
+      "path": "napi/__test__/index.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5b4e88bce0c4cab2fb75d59ad89291579564d126",
+      "size_bytes": 8898
+    },
+    {
+      "path": "napi/__test__/mips_memos.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a07b2b1f98cbe86fc92acabb0bf63cf7617016c9",
+      "size_bytes": 25653
+    },
+    {
+      "path": "napi/__test__/napi.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5b7ad6d965e24e6e6d7c9003a1c3e6acadb57063",
+      "size_bytes": 1352
+    },
+    {
+      "path": "napi/__test__/nfts.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "869878ec0141a42335c119596b6132e5ede808a8",
+      "size_bytes": 3660
+    },
+    {
+      "path": "napi/__test__/offers.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "55c7f0a5d686a6daba5e1c3dc27ff2b7f6cfa772",
+      "size_bytes": 1555
+    },
+    {
+      "path": "napi/__test__/options.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "dc0902876041ef389147c4939371c5f76a05cad4",
+      "size_bytes": 3820
+    },
+    {
+      "path": "napi/__test__/vaults.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3c90a6233a33255c000f3ab3bb8485988f1491ff",
+      "size_bytes": 21822
+    },
+    {
+      "path": "napi/build.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0311b4eb59aeaa1eb99418cfdba26fde20ab09b5",
+      "size_bytes": 207
+    },
+    {
+      "path": "napi/index.d.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e7b60f62abb0b4fbc0017fba1e3f4736df9a0eab",
+      "size_bytes": 188307
+    },
+    {
+      "path": "napi/index.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "93208ff50e6a5bc3e71a33a1f8f40ff315f9f3d5",
+      "size_bytes": 60216
+    },
+    {
+      "path": "napi/npm",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "30fd95632bc5f92344cd0df76670d17cb89cdda8"
+    },
+    {
+      "path": "napi/npm/darwin-arm64",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3ca183baf9bb20b614f39161e9fd939cf99308dd"
+    },
+    {
+      "path": "napi/npm/darwin-arm64/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6499fb7981c508afcfc246a7705de8864c803e52",
+      "size_bytes": 100
+    },
+    {
+      "path": "napi/npm/darwin-arm64/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f42d1660a79f05e1152f914774d2467bc4f61957",
+      "size_bytes": 387
+    },
+    {
+      "path": "napi/npm/darwin-universal",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "55c9856c78c8b15c1511d4741f7af75ea3aca0ce"
+    },
+    {
+      "path": "napi/npm/darwin-universal/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "093e963fab83ace4ae35a2b2aa4710f2df61b664",
+      "size_bytes": 106
+    },
+    {
+      "path": "napi/npm/darwin-universal/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "45c4c2c32fda228ac0260dc74bf426274dfc565b",
+      "size_bytes": 371
+    },
+    {
+      "path": "napi/npm/darwin-x64",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4316214a365e24bee56a30edb8b81da729be7319"
+    },
+    {
+      "path": "napi/npm/darwin-x64/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "47b13f895f95ccd634ce845d9fe005d7e5964e15",
+      "size_bytes": 97
+    },
+    {
+      "path": "napi/npm/darwin-x64/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3615f6d955fb2bef0ac7b80d0b12b04885b79f3d",
+      "size_bytes": 379
+    },
+    {
+      "path": "napi/npm/linux-arm64-gnu",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "dcd8ac56493f5ef01e52b372bbddd9ab882f8705"
+    },
+    {
+      "path": "napi/npm/linux-arm64-gnu/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "686095aa74da0891f63a3e6aae9d984abdbd2498",
+      "size_bytes": 108
+    },
+    {
+      "path": "napi/npm/linux-arm64-gnu/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "430f004a82f7d404d4cf35abadba0b03c07e6ff7",
+      "size_bytes": 424
+    },
+    {
+      "path": "napi/npm/linux-x64-gnu",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "9e2ebe507cb0e3c77ca8b88524b8dc6b1e49afac"
+    },
+    {
+      "path": "napi/npm/linux-x64-gnu/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4666288237aef501baaece8d0d0764caffbd3188",
+      "size_bytes": 105
+    },
+    {
+      "path": "napi/npm/linux-x64-gnu/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9a773429d86edbf48ca52625b951735b7a180568",
+      "size_bytes": 416
+    },
+    {
+      "path": "napi/npm/win32-x64-msvc",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "cc6a40b5f3cbfd626bd7ad7bfcdf749b094db3af"
+    },
+    {
+      "path": "napi/npm/win32-x64-msvc/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "069e941339b11b9377766413409e934c950ac6bb",
+      "size_bytes": 104
+    },
+    {
+      "path": "napi/npm/win32-x64-msvc/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "205a37f994e66b3251b06da750b85835213c64c3",
+      "size_bytes": 390
+    },
+    {
+      "path": "napi/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5c85cb9dc24acc8ebfbd22a6c05eb70c0fda8fc9",
+      "size_bytes": 1651
+    },
+    {
+      "path": "napi/pnpm-lock.yaml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "06de530178533e3cfdd92b63fb9d5d757ab62ce5",
+      "size_bytes": 78248
+    },
+    {
+      "path": "napi/register-ts-node.cjs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "353f337a3a05941abb590c5f956578435dd1ea99",
+      "size_bytes": 695
+    },
+    {
+      "path": "napi/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a826ec9b6b144b5a151e5256641bde6de4ba1b91"
+    },
+    {
+      "path": "napi/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "58b23ea86eef405b9114aadb3726eff584748b91",
+      "size_bytes": 9053
+    },
+    {
+      "path": "napi/tsconfig.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3ca737065447dd3a6cfd26c8df368ce921bb56fa",
+      "size_bytes": 159
+    },
+    {
+      "path": "pyo3",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7e884f4cf2a45d47ea5ae5500a1388dd644c355b"
+    },
+    {
+      "path": "pyo3/.gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c8f044299db349ac25f6c879e789b07fff045e5c",
+      "size_bytes": 686
+    },
+    {
+      "path": "pyo3/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "326052ff107b3653e5303d296b6afd9fd30998d3",
+      "size_bytes": 964
+    },
+    {
+      "path": "pyo3/build.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e72dbff1ceabc3949ffdcab302120347efbe422b",
+      "size_bytes": 125
+    },
+    {
+      "path": "pyo3/chia_wallet_sdk.pyi",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "65264a5a18d8ce2ee4788f2fc0aba0ff5af6b950",
+      "size_bytes": 167295
+    },
+    {
+      "path": "pyo3/pyproject.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c3c08005815af7d80c310584040ea3ecfdf3a5da",
+      "size_bytes": 446
+    },
+    {
+      "path": "pyo3/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4e0eabf188fed039d475c6a0425c6b6a91dd5b4a"
+    },
+    {
+      "path": "pyo3/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9e705e17f5c6af0c489690cab1a3ab8645646816",
+      "size_bytes": 9282
+    },
+    {
+      "path": "pyo3/stub-generator",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e2d0c68743a58d3534052480907df8289357b57d"
+    },
+    {
+      "path": "pyo3/stub-generator/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "94fde0cd6aa2cd58b6d148e34d257b738bd80653",
+      "size_bytes": 141
+    },
+    {
+      "path": "pyo3/stub-generator/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "572f9269ebd7b4dd318ada025ef62e74c9c488f7"
+    },
+    {
+      "path": "pyo3/stub-generator/src/main.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c42fb136951512874b551fba9c4736a3aceca759",
+      "size_bytes": 157
+    },
+    {
+      "path": "pyo3/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "08aa163ab9f69893f331afd63dbcc4d0bad1422d"
+    },
+    {
+      "path": "pyo3/tests/test_pyo3.py",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7173ed727dcf55d068e157fe5e6466b8831ca9d7",
+      "size_bytes": 6397
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e77343fd8c950f74b6d8ba3835b89d6463a2d652",
+      "size_bytes": 230
+    },
+    {
+      "path": "src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "0706dd3a0068e24499e02cd34ef6da19c19f6aca"
+    },
+    {
+      "path": "src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "76030d4c4e6d794378ca6beb0755b75c6a8b7529",
+      "size_bytes": 787
+    },
+    {
+      "path": "src/prelude.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "19dd3401fbda99e47c42ac9d8d54d42748efb027",
+      "size_bytes": 1690
+    },
+    {
+      "path": "wasm",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b8a326b0d971c7bb6019a147ee1bee240db9fa71"
+    },
+    {
+      "path": "wasm/.gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e6e9079112c35b9e11136485f0ebce73aeecbb8e",
+      "size_bytes": 32
+    },
+    {
+      "path": "wasm/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b1214a2e3f1ec91e9ab3e4b49e6a2d1e5643a2a9",
+      "size_bytes": 1113
+    },
+    {
+      "path": "wasm/__test__",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a7d1e8887083b2328c90dcf0d6db75c14f9b5c95"
+    },
+    {
+      "path": "wasm/__test__/wasm.spec.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "40c6a6485c8842bae71729a73b7df96aabd8b0de",
+      "size_bytes": 3961
+    },
+    {
+      "path": "wasm/build.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e72dbff1ceabc3949ffdcab302120347efbe422b",
+      "size_bytes": 125
+    },
+    {
+      "path": "wasm/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6e88f6b82761aae8aec8706bc1b63a587a8c6bbe",
+      "size_bytes": 366
+    },
+    {
+      "path": "wasm/pnpm-lock.yaml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "687eeeb005a595411a3d468c8569af92d9847803",
+      "size_bytes": 42826
+    },
+    {
+      "path": "wasm/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2a209a3f8bf8e9773d1aae4865507b288ba1775e"
+    },
+    {
+      "path": "wasm/src/lib.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2bc8ccfd6e1df53380e7e1d0115a2a706b083e8a",
+      "size_bytes": 10397
+    },
+    {
+      "path": "wasm/tsconfig.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "72c61c7914a003512845caf0fe6e73c50c81b85d",
+      "size_bytes": 194
+    }
+  ]
+}

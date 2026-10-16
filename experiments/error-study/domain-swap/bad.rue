@@ -1,0 +1,7 @@
+// Bytes32 models width, but these two values have different policy meanings.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Bytes32, (Bytes32, (Int, nil)));
+    let coin_id = solution.rest.first;
+    let amount = solution.rest.rest.first;
+    [CreateCoin { puzzle_hash: coin_id, amount }]
+}

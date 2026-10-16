@@ -22,7 +22,7 @@ requires these records to agree and match current files. This prevents a
 changed SDK or Cargo input from leaving stale displayed evidence; it is not an
 automatically discovered complete transitive dependency graph.
 
-## Native Rust and independent Chialisp
+## Native Rust, Chialisp, and Rue
 
 The Rust fixtures are annotated exports of the real `chialisp-oxide-puzzles` Cargo
 library. Validation extracts that package once and its native oracle links the
@@ -32,7 +32,13 @@ output. Chialisp is compiled by Chia Network's Rust compiler, independently of
 chialisp-oxide's lowering code. Authored `mod` references enforce the strict
 teaching-fixture ABI. The canonical closed expressions instead use the raw
 expression compilation stage and explicitly ignore their environment in both
-the Rust export and original Chialisp.
+the Rust export, original Chialisp, and authored Rue translation.
+
+Rue is separately compiled from each recorded `puzzle.rue` by its pinned
+frontend, with LIR optimization off and on. Its standard condition types and
+explicit environment guards are real source, not Rust-generated Rue text or
+wrapped CLVM. Rue’s unbounded `Int` needs explicit canonical `u64` checks in
+these comparison policies. Those guards remain visible in the source.
 
 The report separates {format(totals.originalExamples)} original teaching
 comparisons from {format(totals.canonicalPorts)} canonical tutorial expression
@@ -44,7 +50,8 @@ fixture do not make it a canonical protocol module.
 
 The Rust source compiles through typed MIR into both backend modes. Each named
 input compares native output/rejection against unoptimized Rust CLVM, optimized
-Rust CLVM, and independently compiled Chialisp CLVM. The scalar examples also
+Rust CLVM, independently compiled Chialisp CLVM, and Rue source compiled with
+optimization off/on. The scalar examples also
 have generated sweeps around their bounds.
 
 The report records serialized bytes, disassembly, tree hash, byte size, and
@@ -56,7 +63,8 @@ condition costs and total transaction admission cost.
 
 The report contains {format(totals.coinPuzzles)} condition-producing examples
 and {format(totals.pureFunctions)} pure-function examples. Only coin puzzles
-have ledger scenarios. Simulator checks use the actual compiled Rust reveal and verify
+have ledger scenarios. The same scenarios run separately with Rust, Chialisp, and Rue reveals;
+{format(totals.ledger)} scenario definitions produce {format(totals.ledgerExecutions)} ledger executions. They verify
 coin-state transitions, exact recipients/totals, signatures, input amount
 assertions, locks, repeated spends, and rollback where relevant.
 

@@ -3,14 +3,14 @@ title: Treat the solution as hostile
 description: Explore the capped-payment ABI, canonical integers, branch rejection, and fee policy.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 The capped-payment function lets a caller choose an amount from zero through
 1,000. The input coin must have amount 1,000; the payment goes to a fixed
 destination, and any remainder is a fee. This is a teaching policy, not a
 general-purpose wallet.
 
-<SourcePair slug="capped-payment" />
+<SourceComparison slug="capped-payment" />
 
 ## Separate the two checks
 

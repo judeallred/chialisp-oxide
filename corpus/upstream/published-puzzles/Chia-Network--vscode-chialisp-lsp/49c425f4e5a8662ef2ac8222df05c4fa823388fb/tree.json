@@ -1,0 +1,1025 @@
+{
+  "schema_version": 1,
+  "repository": "Chia-Network/vscode-chialisp-lsp",
+  "revision": "49c425f4e5a8662ef2ac8222df05c4fa823388fb",
+  "visibility": "public",
+  "private": false,
+  "visibility_metadata_url": "https://api.github.com/repos/Chia-Network/vscode-chialisp-lsp",
+  "commit_url": "https://github.com/Chia-Network/vscode-chialisp-lsp/commit/49c425f4e5a8662ef2ac8222df05c4fa823388fb",
+  "root_tree_sha1": "48e3c34e04c961cbabafc9ae97c197e3cf247b3e",
+  "truncated": false,
+  "enumeration_url": "https://api.github.com/repos/Chia-Network/vscode-chialisp-lsp/git/trees/48e3c34e04c961cbabafc9ae97c197e3cf247b3e?recursive=1",
+  "entries": [
+    {
+      "path": ".github",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2bf43cbbbfe125dc7e756d50e2182f9061783d43"
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c93468889d07a9f0813553995065cdb34bfcc894",
+      "size_bytes": 2036
+    },
+    {
+      "path": ".github/workflows",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "bef5b73e9e385db39cd994b75396034f77150693"
+    },
+    {
+      "path": ".github/workflows/check-commit-signing.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "333ece39de84806d3e789dd2f6ef129181f41ff1",
+      "size_bytes": 662
+    },
+    {
+      "path": ".github/workflows/dependency-review.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "34d46b80f4bf7318573bff706ff7a3a5304ff2b6",
+      "size_bytes": 1245
+    },
+    {
+      "path": ".github/workflows/nightly-dev.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "29da9f307151930b0ffcbfb9ee0f293e4ab92c33",
+      "size_bytes": 3768
+    },
+    {
+      "path": ".github/workflows/publish.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b9f04986a79c615aa73c580eadce67a008f6469f",
+      "size_bytes": 2905
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c1b9137d0dedb57f4f2368624bd641dc8ca3e327",
+      "size_bytes": 1810
+    },
+    {
+      "path": ".github/workflows/wasm-test.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b597e76490a5c4d028da28d1799942bc5a3cd959",
+      "size_bytes": 810
+    },
+    {
+      "path": ".gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "87e91fc4f5766465f028b9de7de3a07fbc6af0c1",
+      "size_bytes": 104
+    },
+    {
+      "path": ".vscode",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "89d6546175c5823466f3fbd429e9dd75cff8afe1"
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3ac9aeb61e496888ca93a841e732dc9a752184a4",
+      "size_bytes": 169
+    },
+    {
+      "path": ".vscode/launch.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "670d6e66ced4912e36e6905aeb898a8501c27afd",
+      "size_bytes": 928
+    },
+    {
+      "path": ".vscode/settings.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "30bf8c2d3f11630391958c9635172e63ee1a2122",
+      "size_bytes": 444
+    },
+    {
+      "path": ".vscode/tasks.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3b17e53b62cc6ffaacd997adeb1915422fb6858f",
+      "size_bytes": 366
+    },
+    {
+      "path": ".vscodeignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c9db852b8d8f6f21e1e2961f16980bb32024967f",
+      "size_bytes": 174
+    },
+    {
+      "path": "CHANGELOG.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "06ae0b2cc628e42ab52fb0469d9aa44ac9521609",
+      "size_bytes": 481
+    },
+    {
+      "path": "LICENSE",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "size_bytes": 11347
+    },
+    {
+      "path": "Makefile",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "62cb0eb48b767d2581ba6d387da956b5ef20a882",
+      "size_bytes": 211
+    },
+    {
+      "path": "README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2e02309e237f1b3dbaade325bb670c0ed6f79e7d",
+      "size_bytes": 2089
+    },
+    {
+      "path": "debug",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "890e8d1e3f3017e530f5465a1a77f765e0a4a77b"
+    },
+    {
+      "path": "debug/build",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "29a422c19251aeaeb907175e9b3219a9bed6c616"
+    },
+    {
+      "path": "debug/build/.keep",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size_bytes": 0
+    },
+    {
+      "path": "debug/package-lock.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0b7c9598990aeda77dad9a428d33319646667ca7",
+      "size_bytes": 89743
+    },
+    {
+      "path": "debug/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1651dab397d4f37b1c7040c644539c19879eba72",
+      "size_bytes": 205
+    },
+    {
+      "path": "debug/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "151be83b65dbdb9cabefdb7f0ab7e895ea46a094"
+    },
+    {
+      "path": "debug/src/runner.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ba0dc46ac8160ea6c8592997bb1f3e463b5c9604",
+      "size_bytes": 4291
+    },
+    {
+      "path": "debug/src/stdin_reader.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2f5648564b6a697f1d26b71df532777ab527ebd3",
+      "size_bytes": 2920
+    },
+    {
+      "path": "debug/test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "e31ab951f0d778394455441764b58cf4d3b0e29c"
+    },
+    {
+      "path": "debug/test/stdin_reader.test.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "77c2e5cd2d9af9109b90795dfb85ffc5716e87dd",
+      "size_bytes": 1288
+    },
+    {
+      "path": "debug/webpack.config.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "95118f288f69f9f86e40e730c0b0b25a921b4408",
+      "size_bytes": 423
+    },
+    {
+      "path": "eslint.config.mjs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eda7fe0b3a93ba0f1bf37fbabfcf7b7d3225b4fe",
+      "size_bytes": 690
+    },
+    {
+      "path": "images",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "067c9febd0a5e0263b6f2abb6dd4a87c773c6c2b"
+    },
+    {
+      "path": "images/chialisp.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ec07f0b448215d963ceadfc4321309b9820e0a65",
+      "size_bytes": 12609
+    },
+    {
+      "path": "images/chialisp_dark.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "43027a30c5fdaa9f50f9cce6d22fbaa8ed8ccb38",
+      "size_bytes": 3947
+    },
+    {
+      "path": "images/chialisp_light.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "aa1f91e4a69559e1123b2db77393d6a1cf775acb",
+      "size_bytes": 5443
+    },
+    {
+      "path": "language-configuration.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ccf286f03b7715125eb26c8ec20e8c9f4ece335c",
+      "size_bytes": 279
+    },
+    {
+      "path": "package-lock.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "db5c877148966114ce1dbad193543c4feea2fb26",
+      "size_bytes": 306924
+    },
+    {
+      "path": "package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1494c10f833c009e818069c968fad38f67bf6cd7",
+      "size_bytes": 5878
+    },
+    {
+      "path": "resources",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3e9c8946464aaca78fb590d3d7b0374f5a6472bf"
+    },
+    {
+      "path": "resources/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a228de05a8da433f7bc2544bbfe4cf4dde9161df"
+    },
+    {
+      "path": "resources/tests/prog",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "503e2fca7f38f603c7f8a3ee5fa90956124f4f91"
+    },
+    {
+      "path": "resources/tests/prog/program2.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e1ef8adb3addad3ae854201404285ae02a8562f7",
+      "size_bytes": 51
+    },
+    {
+      "path": "resources/tests/std",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6615a0336bef64e61dbd9a17999fbb6ccdd9f2a3"
+    },
+    {
+      "path": "resources/tests/std/assert.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "20239ac12e193a46e40b6565fe9e67b5deef7eaf",
+      "size_bytes": 170
+    },
+    {
+      "path": "resources/tests/std/reverse.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bea14151d9f3f1439f9755899850e5c413f52123",
+      "size_bytes": 182
+    },
+    {
+      "path": "runner",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c546c18e123c65b5c19a54272ab0335eb00a2783"
+    },
+    {
+      "path": "runner/build",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "29a422c19251aeaeb907175e9b3219a9bed6c616"
+    },
+    {
+      "path": "runner/build/.keep",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size_bytes": 0
+    },
+    {
+      "path": "runner/package-lock.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "168917e7d00fa119c6b5504d218cd0e82c932111",
+      "size_bytes": 154619
+    },
+    {
+      "path": "runner/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d37a9699177362acf0bd6bf6a5a576f5424c7cc0",
+      "size_bytes": 370
+    },
+    {
+      "path": "runner/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f1fed45d3d2727fd2b1e4e18035d3f3efa600655"
+    },
+    {
+      "path": "runner/src/index.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ffda67aeae452fe790a792a549e2290f4691dda9",
+      "size_bytes": 2547
+    },
+    {
+      "path": "runner/src/stdin_reader.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "52cf70aaea3d3ff5d707f7c6b028355489e52d54",
+      "size_bytes": 2960
+    },
+    {
+      "path": "runner/test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "398b93e00ae2d28b6ef9b0db8d40bae2da7bbdf0"
+    },
+    {
+      "path": "runner/test/test.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0ba76c3c1f75f580981ac484775036fbd4a1f113",
+      "size_bytes": 800
+    },
+    {
+      "path": "runner/webpack.config.cjs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6bc001c80fb612a624f0d7362feb42ad07133ac9",
+      "size_bytes": 437
+    },
+    {
+      "path": "schema",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "76394c674b180adba3ae8ba0690798ed9a6ec96b"
+    },
+    {
+      "path": "schema/chialisp_properties.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ac6987e60b948a8d8fa2a38b361b32bffe33864a",
+      "size_bytes": 1278
+    },
+    {
+      "path": "src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "58a09163d221b917ddbe3c4376166ec72238da25"
+    },
+    {
+      "path": "src/constants.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5cf3a147de76eabf2099d155fa8df852b11fdb19",
+      "size_bytes": 142
+    },
+    {
+      "path": "src/dbg.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6c5b50b1a04ee6df933386497bcf8a302da91920",
+      "size_bytes": 8550
+    },
+    {
+      "path": "src/extension.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "373ecd6982657d34feb9bc25315df9185883b0a9",
+      "size_bytes": 2156
+    },
+    {
+      "path": "src/logger.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "887999764764f2842e2fde68c58cb2e4b174010d",
+      "size_bytes": 487
+    },
+    {
+      "path": "src/lsp.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "71b65993d6bff0569d3bb453d33f8d6b531ddc86",
+      "size_bytes": 10017
+    },
+    {
+      "path": "src/test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1addb2d5bddd1b4f75e5210c841a959a16491adc"
+    },
+    {
+      "path": "src/test/runTest.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "27b3ceb22f86ed1d54bbe0670606733a7bbcde99",
+      "size_bytes": 647
+    },
+    {
+      "path": "src/test/suite",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "19de7509ff5334b1662873e0e131a7a816c4e0d1"
+    },
+    {
+      "path": "src/test/suite/extension.test.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ca0ab419826dfd117400aa7547eb48d4022d89b",
+      "size_bytes": 459
+    },
+    {
+      "path": "src/test/suite/index.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d1a3514bbb2f6686ed9992b9d918c45c7898f367",
+      "size_bytes": 731
+    },
+    {
+      "path": "src/utils.ts",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "dfb39a1238d9bff94691e1a8c81b0c56a0eb9641",
+      "size_bytes": 1742
+    },
+    {
+      "path": "syntaxes",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "435d5c1d943e7cd7b290875767095d0e0a4d8f26"
+    },
+    {
+      "path": "syntaxes/chialisp.tmGrammar.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ceaf649a6f096500d8a75b08b133320eb941536",
+      "size_bytes": 519
+    },
+    {
+      "path": "test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6d846d686edf8f18bcfbffb769fa2e1e00a3407b"
+    },
+    {
+      "path": "test/Dockerfile",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e4aa889c1148f4dc903589cb46c61077dda88f5",
+      "size_bytes": 143
+    },
+    {
+      "path": "test/classic-arg-decode.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bae03d47fe3f6592c9730d4f93d1ac13844bd36a",
+      "size_bytes": 74
+    },
+    {
+      "path": "test/classic-arg-decode.sym",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "43effe299b7ba8702c12da9ce854554f874af16b",
+      "size_bytes": 73
+    },
+    {
+      "path": "test/collatz.cl",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c38c8dc88dfb93bafde63bc15717679f35df81f5",
+      "size_bytes": 663
+    },
+    {
+      "path": "test/config",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "933098dcec99275a0c7f3b2d44b1b383a112414f"
+    },
+    {
+      "path": "test/config/code-server",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "717baf91dac67bf15b94a67797a1166cc94fea38"
+    },
+    {
+      "path": "test/config/code-server/config.yaml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f66eda569abadc784c54caa78935772c867b3018",
+      "size_bytes": 88
+    },
+    {
+      "path": "test/fact.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a90d094c31608e517d6212adb0db7a05d80b45fd",
+      "size_bytes": 96
+    },
+    {
+      "path": "test/fact.clvm",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7ef136a79cb82ed85bf3d8e822006d1c7a725caa",
+      "size_bytes": 135
+    },
+    {
+      "path": "test/fact.hex",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "569209341898a9b016ea7b604a230590dbee1756",
+      "size_bytes": 239
+    },
+    {
+      "path": "test/fact.sym",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fb729c496c6110c733b4e022e2aaf26bc01e84f8",
+      "size_bytes": 5634
+    },
+    {
+      "path": "test/include",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "de684c182aa4f7d473eaf42c9b955321b53257b7"
+    },
+    {
+      "path": "test/include/fact.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6e74d64f7396213fac926840532211b4d45c304e",
+      "size_bytes": 59
+    },
+    {
+      "path": "test/include/test-inc.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6341fc26ad4e8c2d316bc6633a5c4e6d6adf003c",
+      "size_bytes": 21
+    },
+    {
+      "path": "test/launch.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b3bc9e143542476246911db0fc1a3d913dee5a77",
+      "size_bytes": 610
+    },
+    {
+      "path": "test/module-stdlib",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c749bb665b7153747ff05bfb097ce4e9cad3de1e"
+    },
+    {
+      "path": "test/module-stdlib/std",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6615a0336bef64e61dbd9a17999fbb6ccdd9f2a3"
+    },
+    {
+      "path": "test/module-stdlib/std/assert.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "20239ac12e193a46e40b6565fe9e67b5deef7eaf",
+      "size_bytes": 170
+    },
+    {
+      "path": "test/module-stdlib/std/reverse.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bea14151d9f3f1439f9755899850e5c413f52123",
+      "size_bytes": 182
+    },
+    {
+      "path": "test/module.clsp",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "009595facb1ef2036b949081171f8ac5c125a8dd",
+      "size_bytes": 134
+    },
+    {
+      "path": "test/package-lock.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "930fcf6c22bb975c0af4e1ac3d9076605ea73b87",
+      "size_bytes": 174701
+    },
+    {
+      "path": "test/package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2ee3a12a1a75fd899e57788875e7166dc452555f",
+      "size_bytes": 341
+    },
+    {
+      "path": "test/run-server.sh",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6969b05c8fabe32c6cc456d311210eae20492655",
+      "size_bytes": 310
+    },
+    {
+      "path": "test/test",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "255c31b04a7685b177ff9a16998579edfceaf169"
+    },
+    {
+      "path": "test/test.sh",
+      "kind": "blob",
+      "mode": "100755",
+      "git_sha1": "0b78713723b50759322cda6449234ed99949f68c",
+      "size_bytes": 340
+    },
+    {
+      "path": "test/test/test.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f7d7a3634bf6e334e502a4a1b2d1f3599c679771",
+      "size_bytes": 18780
+    },
+    {
+      "path": "test/wait-for-it.sh",
+      "kind": "blob",
+      "mode": "100755",
+      "git_sha1": "7976d64102484a696fe1061b2a75c19f5bd1946d",
+      "size_bytes": 5604
+    },
+    {
+      "path": "tsconfig.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "55539228dcab9de6c400da556a01b96cf0985c6f",
+      "size_bytes": 627
+    },
+    {
+      "path": "vsc-extension-quickstart.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "04a57fc6a315ebed0ec36459a06555044345cbc6",
+      "size_bytes": 2792
+    },
+    {
+      "path": "wasm",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "91f3109a438aaaab5f176bf0ad41f31ad68ebeea"
+    },
+    {
+      "path": "wasm/Cargo.lock",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f0f530d554cc9b64a8d0c301212fc70def4da622",
+      "size_bytes": 39077
+    },
+    {
+      "path": "wasm/Cargo.toml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "25b574a6b54ec95f5629d45f8ed057301c4af90d",
+      "size_bytes": 840
+    },
+    {
+      "path": "wasm/README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4ceeb774bc3360f71205bc8fdd751cd2bd9615be",
+      "size_bytes": 577
+    },
+    {
+      "path": "wasm/pkg",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "29a422c19251aeaeb907175e9b3219a9bed6c616"
+    },
+    {
+      "path": "wasm/pkg/.keep",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size_bytes": 0
+    },
+    {
+      "path": "wasm/resources",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "6847097c6b1d6c6d55cec355495ebb024e69cb2f"
+    },
+    {
+      "path": "wasm/resources/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "375267e6d98e72a1f16d938febee5164213898f3"
+    },
+    {
+      "path": "wasm/resources/tests/breaking_message_list_1.txt",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3277c2f53b76e40ed30f8328b221d6bbd1cf1464",
+      "size_bytes": 30858
+    },
+    {
+      "path": "wasm/resources/tests/condition_codes.clvm",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f8f607ccda38a95fa42c275f639dd73964d89b4b",
+      "size_bytes": 1114
+    },
+    {
+      "path": "wasm/resources/tests/std",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "c36d60522bf92980606d2ab0a88be3d74f5bdbaf"
+    },
+    {
+      "path": "wasm/resources/tests/std/reverse.clinc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "bea14151d9f3f1439f9755899850e5c413f52123",
+      "size_bytes": 182
+    },
+    {
+      "path": "wasm/resources/tests/t1.cl",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1c8e0718b7976de55e3ec553c07969b581841c78",
+      "size_bytes": 7
+    },
+    {
+      "path": "wasm/resources/tests/wrong_not_found_error.txt",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4e32657113fb4ecf5f72bcd93962fdc134695678",
+      "size_bytes": 10161
+    },
+    {
+      "path": "wasm/src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1de01617684ab7eda961b2768c2335180da23231"
+    },
+    {
+      "path": "wasm/src/api.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "62415f3f5121524b9b45533608ce0ed34f72ff50",
+      "size_bytes": 6143
+    },
+    {
+      "path": "wasm/src/dbg",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2699ad75fed9c1fb7f0f67bfc62b8d8d0b12b472"
+    },
+    {
+      "path": "wasm/src/dbg/compopts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2f3e0bfe07af6ab2fcaacca4e862ccda177aae22",
+      "size_bytes": 4010
+    },
+    {
+      "path": "wasm/src/dbg/handler.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "255d25c8bad63193c845e0807f522c6e2e57f658",
+      "size_bytes": 61189
+    },
+    {
+      "path": "wasm/src/dbg/mod.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b9bebd5e80bf4619eee71245a39ca64e88dcaca2",
+      "size_bytes": 95
+    },
+    {
+      "path": "wasm/src/dbg/obj.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8fa96ac4b63cfacb89bbb37694a46f426fafdfb9",
+      "size_bytes": 25413
+    },
+    {
+      "path": "wasm/src/dbg/server.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "96282234b50dd2ee7a439dc965edd014f724d966",
+      "size_bytes": 1857
+    },
+    {
+      "path": "wasm/src/dbg/source.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c2bfce8dee8c9fa05dc2e1dcc8f20188ccb3b567",
+      "size_bytes": 8903
+    },
+    {
+      "path": "wasm/src/dbg/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b8d088773efdf7985dc9adc4c51d9ab91ccff900",
+      "size_bytes": 874
+    },
+    {
+      "path": "wasm/src/interfaces.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "541b00c3d0b38e8ccea9dc4f39b87c83df9b1da7",
+      "size_bytes": 1011
+    },
+    {
+      "path": "wasm/src/lsp",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "5309545ce42db3c25e3dbcd7d8dc05bd22253e01"
+    },
+    {
+      "path": "wasm/src/lsp/completion.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "78266043204e6b278e668a9a7fd976e0e7e56ceb",
+      "size_bytes": 6377
+    },
+    {
+      "path": "wasm/src/lsp/compopts.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cf35c0478e3a20ca44248dafe4b45dc73676dcfd",
+      "size_bytes": 5245
+    },
+    {
+      "path": "wasm/src/lsp/handler.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "03be8a272c6dfb0ac3d6cca17de816a8317ed2cf",
+      "size_bytes": 20202
+    },
+    {
+      "path": "wasm/src/lsp/mod.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f685ac4563e29a9c381b2a0a554f225982d37158",
+      "size_bytes": 464
+    },
+    {
+      "path": "wasm/src/lsp/parse.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5bdd3a94bc66621f39ce2815699ced103ec72d82",
+      "size_bytes": 30430
+    },
+    {
+      "path": "wasm/src/lsp/patch.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eccd3891b4b5ecb9433480901b40974a3725e69c",
+      "size_bytes": 6790
+    },
+    {
+      "path": "wasm/src/lsp/reparse.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3e0df6590946e11a6981fca42b8a8837784815a8",
+      "size_bytes": 28901
+    },
+    {
+      "path": "wasm/src/lsp/resolve.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fa32389c5d851d3a22878d12daf24753cccf3221",
+      "size_bytes": 8988
+    },
+    {
+      "path": "wasm/src/lsp/semtok.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d73351995abc08aae253d5330214585b1c93d687",
+      "size_bytes": 26739
+    },
+    {
+      "path": "wasm/src/lsp/types.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ac526863dcd9e11f16a948779500e097dabfa702",
+      "size_bytes": 38707
+    },
+    {
+      "path": "wasm/src/mod.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "67ad1476ac8423016d4e950151369fd2538c59bc",
+      "size_bytes": 163
+    },
+    {
+      "path": "wasm/src/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a20337a386ab32c4309ffac75ba8c3091d285314"
+    },
+    {
+      "path": "wasm/src/tests/mod.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8756ece03361c13082dcb3016c30f475692fbb95",
+      "size_bytes": 76715
+    },
+    {
+      "path": "wasm/src/tests/obj.rs",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "90f23c7a7d5e90426a9fc213cc5814d057c5fe8d",
+      "size_bytes": 3175
+    },
+    {
+      "path": "wasm/tests",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "fe43be96c75c0b923c1aa16eacaddaf61808d57e"
+    },
+    {
+      "path": "wasm/tests/index.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4750105ef770db1ae2f66e2208f9fab923d2cce4",
+      "size_bytes": 2724
+    },
+    {
+      "path": "wasm/tests/test-data",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "fbe821e6a438d01be196515fc38f7b14dbf5d3f1"
+    },
+    {
+      "path": "wasm/tests/test-data/fact.cl",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a6687a3925d598f0079a4b2a56b0a4107a372e46",
+      "size_bytes": 212
+    },
+    {
+      "path": "wasm/tests/test-data/fact.clvm.hex",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "38eb18da5dd21964c05b0b94d86822104d2ff910",
+      "size_bytes": 291
+    },
+    {
+      "path": "wasm/tests/test-data/fact.sym",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7283d94678bcbf28621dbc43514f21b213b89367",
+      "size_bytes": 6875
+    },
+    {
+      "path": "wasm/tests/test-data/pwcoin.cl",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f65f7136b08e444c1b930f894214154659e42fab",
+      "size_bytes": 561
+    }
+  ]
+}

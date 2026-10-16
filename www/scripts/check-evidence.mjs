@@ -1,4 +1,5 @@
 import { readFile, realpath } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -64,6 +65,14 @@ for (const puzzle of report.puzzles) {
     assert.equal(source, dependency.source, `${puzzle.slug}/${dependency.path}: source dependency changed`);
     assert.equal(createHash('sha256').update(source).digest('hex'), dependency.sha256, `${puzzle.slug}/${dependency.path}: source dependency hash changed`);
   }
+  assert.equal(puzzle.rue.path, `puzzles/${puzzle.slug}/puzzle.rue`, `${puzzle.slug}: Rue source identity`);
+  assert.equal(await read(puzzle.rue.path), puzzle.rue.source, `${puzzle.slug}: stale Rue source`);
+  await checkRecordedHash(puzzle.rue.path, puzzle.rue.sha256);
+  assert.deepEqual(puzzle.rue.dependencies.map(item => item.path).sort(), [...(manifest.rue_dependencies ?? [])].sort(), `${puzzle.slug}: Rue imports changed`);
+  for (const dependency of puzzle.rue.dependencies) {
+    assert.equal(await recordedSource(dependency.path), dependency.source, `${puzzle.slug}: stale Rue dependency`);
+    await checkRecordedHash(dependency.path, dependency.sha256);
+  }
   assert.deepEqual(puzzle.cases.map(({ label, solution }) => ({ label, solution })), manifest.cases, `${puzzle.slug}: test vectors changed`);
   assert.equal(puzzle.security_scope, manifest.security_scope, `${puzzle.slug}: policy scope changed`);
   assert.equal(puzzle.title, manifest.title, `${puzzle.slug}: title changed`);
@@ -72,20 +81,25 @@ for (const puzzle of report.puzzles) {
   for (const field of ['environment', 'reference_mode']) {
     assert.equal(puzzle[field], manifest[field], `${puzzle.slug}: ${field} contract changed`);
   }
-  assert.equal(puzzle.artifacts.length, 3, `${puzzle.slug}: missing compiler path`);
+  assert.equal(puzzle.artifacts.length, 5, `${puzzle.slug}: missing compiler path`);
   const paths = list => list.map(item => `${item.backend}:${item.optimize_lir}`).sort();
-  const expectedPaths = ['chialisp:true', 'rust_mir:false', 'rust_mir:true'];
+  const expectedPaths = ['chialisp:true', 'rue_source:false', 'rue_source:true', 'rust_mir:false', 'rust_mir:true'];
   assert.deepEqual(paths(puzzle.artifacts), expectedPaths, `${puzzle.slug}: incorrect compiler paths`);
   for (const artifact of puzzle.artifacts) {
     assert.equal(artifact.bytes, artifact.clvm_hex.length / 2, `${puzzle.slug}: wrong serialized size`);
     assert.match(artifact.tree_hash, /^[a-f0-9]{64}$/);
   }
   for (const test of puzzle.cases) {
-    assert.equal(test.runs.length, 3, `${puzzle.slug}/${test.label}: missing execution`);
+    assert.equal(test.runs.length, 5, `${puzzle.slug}/${test.label}: missing execution`);
     assert.deepEqual(paths(test.runs), expectedPaths, `${puzzle.slug}/${test.label}: incorrect execution paths`);
     for (const run of test.runs) assert.deepEqual(run.execution.outcome, test.native, `${puzzle.slug}/${test.label}: outcomes disagree`);
   }
   assert(puzzle.simulator.every(scenario => scenario.passed), `${puzzle.slug}: failed ledger scenario`);
+  if (puzzle.kind === 'coin_puzzle') {
+    assert.deepEqual(puzzle.simulator_comparisons.map(run => `${run.backend}:${run.optimize_lir}`).sort(), ['chialisp:true', 'rue_source:true']);
+    for (const run of puzzle.simulator_comparisons) assert.deepEqual(run.scenarios, puzzle.simulator, `${puzzle.slug}: ${run.backend} ledger behavior differs`);
+  } else assert.deepEqual(puzzle.simulator_comparisons, [], `${puzzle.slug}: pure function claims ledger comparisons`);
+
 }
 const proof = JSON.parse(await read('corpus/proofs.json'));
 assert.equal(proof.schema_version, 1);
@@ -164,5 +178,10 @@ for (const example of tutorialExamples.examples) {
   canonicalPorts++;
 }
 assert.equal(canonicalPorts, report.puzzles.filter(puzzle => puzzle.provenance.classification === 'canonical_tutorial_port').length, 'Untracked canonical-port claim in report');
-console.log(`Evidence current: ${slugs.size} Cargo source pairs, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
+console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
+
+// Discovery and negative studies have independent offline freshness/claim gates.
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check']]) {
+  process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
+}

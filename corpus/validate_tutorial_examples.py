@@ -153,7 +153,7 @@ def check_promotion(row, excerpt, report, root):
     for case in puzzle["cases"]:
         require(case["native"] == expected, f"{slug}: native result differs from the independent source expectation")
         require({(run["backend"], run["optimize_lir"]) for run in case["runs"]}
-                == {("rust_mir", False), ("rust_mir", True), ("chialisp", True)},
+                == {("rust_mir", False), ("rust_mir", True), ("chialisp", True), ("rue_source", False), ("rue_source", True)},
                 f"{slug}: missing independent reference or optimization setting")
         require(all(run["execution"]["outcome"] == expected for run in case["runs"]),
                 f"{slug}: compiled result differs from the independent source expectation")

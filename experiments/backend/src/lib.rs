@@ -1,12 +1,9 @@
 //! Backend feasibility harness. This does not compile Rust source yet.
-use anyhow::{Context, Result, bail};
+use anyhow::Result;
 use clvmr::serde::{node_from_bytes, node_to_bytes};
 use clvmr::{Allocator, ChiaDialect, MEMPOOL_MODE, NodePtr, run_program};
 use id_arena::Arena;
-use rue_compiler::{Compiler, FileTree, normalize_path};
-use rue_diagnostic::DiagnosticSeverity;
 use rue_lir::{CodegenOptions, Lir, LirId};
-use rue_options::CompilerOptions;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
@@ -27,33 +24,7 @@ pub fn native(amount: &num_bigint::BigInt) -> bool {
 }
 
 pub fn compile_rue(optimize: bool) -> Result<Vec<u8>> {
-    let path = fixture("puzzle.rue").canonicalize()?;
-    let options = CompilerOptions {
-        optimize_lir: optimize,
-        // Hold other optimization options constant to isolate LIR optimization.
-        auto_inline: true,
-        optimize_static_pairs: false,
-        debug_symbols: false,
-        ..CompilerOptions::default()
-    };
-    let mut compiler = Compiler::new(options);
-    let tree = FileTree::compile_file(&mut compiler, &path)?;
-    let diagnostics = compiler.take_diagnostics();
-    for diagnostic in &diagnostics {
-        if diagnostic.kind.severity() == DiagnosticSeverity::Error {
-            bail!("{}", diagnostic.message(path.parent().unwrap()));
-        }
-    }
-    let mut allocator = Allocator::new();
-    let program = tree
-        .main(
-            &mut compiler,
-            &mut allocator,
-            &normalize_path(&path)?,
-            path.parent().unwrap().to_owned(),
-        )?
-        .context("Rue main missing")?;
-    Ok(node_to_bytes(&allocator, program)?)
+    chialisp_oxide_rue::compile_file(&fixture("puzzle.rue"), optimize)
 }
 
 fn atom(a: &mut Arena<Lir>, value: i64) -> LirId {

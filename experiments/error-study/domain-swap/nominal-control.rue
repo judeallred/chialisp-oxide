@@ -1,0 +1,18 @@
+// Positive static-check control: Rue can encode the same domain distinction.
+struct StudyPuzzleHash {
+    bytes: Bytes32,
+}
+
+struct StudyCoinId {
+    bytes: Bytes32,
+}
+
+fn payment(destination: StudyPuzzleHash, amount: Int) -> List<Condition> {
+    [CreateCoin { puzzle_hash: destination.bytes, amount }]
+}
+
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Bytes32, (Bytes32, (Int, nil)));
+    let coin_id = StudyCoinId { bytes: solution.rest.first };
+    payment(coin_id, solution.rest.rest.first)
+}

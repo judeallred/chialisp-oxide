@@ -1,0 +1,35 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { puzzles, canonicalExample } from '../lib/data';
+interface Props { slug: string; }
+const puzzle = puzzles.find(p => p.slug === Astro.props.slug);
+if (!puzzle) throw new Error(`Missing validated source comparison: ${Astro.props.slug}`);
+const canonical = canonicalExample(puzzle);
+---
+<div class="source-comparison">
+  <div class="split-source">
+    <section class="source-column" aria-label="Chialisp source" data-language="chialisp">
+      <div class="source-label"><span class="badge">{canonical ? 'Original Chialisp expression' : 'Chialisp reference'}</span> independent compiler · {canonical ? 'no source wrapper' : 'same tested ABI'}</div>
+      <Code code={puzzle.reference} lang="lisp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
+    </section>
+    <section class="source-column" aria-label="Rust source" data-language="rust">
+      <div class="source-label"><span class="badge success">Rust policy</span> exact recorded source · compiled from MIR</div>
+      <Code code={puzzle.source} lang="rust" title={`puzzles/${puzzle.slug}/puzzle.rs`} wrap preserveIndent />
+    </section>
+    <section class="source-column" aria-label="Rue source" data-language="rue">
+      <div class="source-label"><span class="badge">Rue policy</span> independent Rue source compilation · same tested ABI</div>
+      <Code code={puzzle.rue.source} lang="rust" title={puzzle.rue.path} wrap preserveIndent />
+    </section>
+  </div>
+  <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
+  {canonical && <p class="source-note">The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment. <a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
+  {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].length > 0 && <div class="source-dependencies">
+    <p class="source-note">Supporting files are recorded separately so fixture data and helper definitions do not obscure the puzzle policy.</p>
+    {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].map(dependency => <details class="source-dependency" data-source-dependency={dependency.path}>
+      <summary>{dependency.path.endsWith('/fixture_keys.rs') ? 'Public fixture key bytes' : 'Supporting source'}: <code>{dependency.path}</code></summary>
+      <p class="source-note">Complete source from this fixture’s declared dependencies. SHA-256: <code class="dependency-hash" data-pagefind-ignore>{dependency.sha256}</code>.</p>
+      {dependency.path.endsWith('/fixture_keys.rs') && <p class="source-note">These deterministic public test keys have publicly known secret seeds. Never use them for real funds.</p>}
+      <Code code={dependency.source} lang={dependency.path.endsWith('.clsp') ? 'lisp' : 'rust'} title={dependency.path} wrap preserveIndent />
+    </details>)}
+  </div>}
+</div>

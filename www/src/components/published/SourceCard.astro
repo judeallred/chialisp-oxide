@@ -1,0 +1,47 @@
+---
+import { artifactLabel, languageLabels } from './catalog.mjs';
+interface Source {
+  id: string; repository: string; revision: string; path: string; language: string;
+  classification: string; artifact_kind: string; git_blob_sha1: string;
+  size_bytes: number; source_url: string; license: string;
+}
+interface Repository { license: { source_url: string | null }; }
+interface Props { source?: Source; repository?: Repository; fallback: string; }
+const { source, repository, fallback } = Astro.props;
+---
+<article class="published-card" data-source-id={source?.id}>
+  <div class="source-badges"><span class="language" data-field="language">{source ? languageLabels[source.language] : ''}</span><span data-field="role">{source ? artifactLabel(source.artifact_kind) : ''}</span></div>
+  <h4><a data-field="source-link" href={source?.source_url ?? fallback}>{source?.path.split('/').at(-1)}</a></h4>
+  <p class="source-path"><code data-field="path">{source?.path}</code></p>
+  <p class="source-repository"><span data-field="repository">{source?.repository}</span> · <span data-field="classification">{source?.classification.replaceAll('_', ' ')}</span></p>
+  <p class="source-status">Discovery only · not validated by this inventory</p>
+  <details class="source-provenance">
+    <summary>Revision, license, and file fingerprint</summary>
+    <dl>
+      <div><dt>Commit</dt><dd><a data-field="commit-link" href={source ? `https://github.com/${source.repository}/commit/${source.revision}` : fallback}><code data-field="revision">{source?.revision}</code></a></dd></div>
+      <div><dt>Repository license</dt><dd><span data-field="license">{source?.license === 'NOASSERTION' ? 'NOASSERTION · not classified' : source?.license}</span> <a data-field="license-link" href={repository?.license.source_url ?? fallback} hidden={!repository?.license.source_url}>View recorded license file</a></dd></div>
+      <div><dt>Git blob SHA-1</dt><dd><code data-field="blob">{source?.git_blob_sha1}</code></dd></div>
+      <div><dt>Tracked file size</dt><dd data-field="size">{source ? `${source.size_bytes.toLocaleString('en-US')} bytes` : ''}</dd></div>
+    </dl>
+    <p class="fingerprint-scope">The blob fingerprints tracked file bytes, including hex text. It is not a CLVM tree hash. Repository license metadata does not establish the license of every file.</p>
+  </details>
+</article>
+<style>
+  .published-card { border: 1px solid var(--oxide-line); border-radius: 6px; padding: 1.2rem 1.3rem; min-width: 0; }
+  .source-badges { display: flex; flex-wrap: wrap; gap: .45rem .7rem; font-size: .68rem; color: var(--sl-color-gray-2); }
+  .language { font-weight: 700; color: var(--sl-color-accent-high); }
+  h4 { margin: .5rem 0 .3rem; font-size: 1.03rem; overflow-wrap: anywhere; }
+  .source-path { margin: .3rem 0; font-size: .74rem; overflow-wrap: anywhere; }
+  .source-path code { background: none; padding: 0; }
+  .source-repository, .source-status { margin: .4rem 0; font-size: .74rem; color: var(--sl-color-gray-2); overflow-wrap: anywhere; }
+  .source-status { font-size: .67rem; }
+  details { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--oxide-line); }
+  summary { cursor: pointer; font-size: .73rem; }
+  dl { font-size: .7rem; margin: .8rem 0; }
+  dl div { margin-block: .6rem; }
+  dt { color: var(--sl-color-gray-3); }
+  dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+  dd a[data-field='license-link'] { display: block; }
+  dd a[hidden] { display: none; }
+  .fingerprint-scope { font-size: .68rem; color: var(--sl-color-gray-2); line-height: 1.6; }
+</style>

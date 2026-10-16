@@ -86,13 +86,14 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Twelve paired Rust/Chialisp examples: nine original teaching fixtures covering
+Twelve Chialisp/Rust/Rue source comparisons: nine original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, and a bounded counter;
 plus three canonical closed expressions from the pinned Chialisp Intro. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-optimized/unoptimized CLVM, 97 explicit vectors, 3,831 generated integer/tree
-cases, and 30 complete-spend scenarios. Only the eight condition-producing
+97 explicit vectors and 3,831 generated integer/tree cases against five CLVM
+builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty
+complete-spend scenarios run separately in all three languages (90 ledger executions). Only the eight condition-producing
 teaching fixtures have ledger scenarios; pure language results are not spends.
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
@@ -103,6 +104,8 @@ cargo test --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 python3 corpus/validate_inventory.py
 python3 corpus/validate_tutorial_examples.py
+python3 corpus/validate_published_puzzles.py --self-test
+python3 scripts/check-error-study.py
 python3 scripts/check-proofs.py
 python3 scripts/check-ir-proofs.py --output corpus/proofs.json
 ```
@@ -112,10 +115,29 @@ specified bounds and acceptance, detects a removed guard, and replays witnesses
 through native Rust and both CLVM optimization modes. These are **IR-model
 proofs**, not proofs of compiler preservation or absence of all security flaws.
 
+## Functionality and source coverage
+
+[The functionality map](docs/chialisp-functionality.md) distinguishes Rust’s
+ability to express an operation, support in this compiler, executable witnesses,
+and missing preservation proofs. Full Chialisp parity is **not yet established**.
+Dynamic trees/lists, arbitrary-precision integers, recursion, hashing and crypto,
+currying, and runtime program evaluation remain compiler work; primitive Rust
+integers must keep their checked finite semantics.
+
+[The published-source catalog](corpus/published-puzzles.json) enumerates pinned
+repository trees and records its exact discovery scope. It includes Chialisp,
+Rue, Rust builders, bindings and host tooling with separate classifications;
+source discovery does not mean a file has been ported, executed, or audited.
+
+The dedicated [error study](https://judeallred.github.io/chialisp-oxide/verification/error-study/)
+executes limited Chialisp test suites that miss concrete bugs, then records the
+Rust diagnostics that reject the corresponding source mistakes. It also keeps a
+policy bug that Rust still compiles as a negative control.
+
 ## Documentation
 
 The searchable Astro/Starlight site is in [www](www). It includes tutorials,
-source comparisons, a puzzle laboratory, measured bytecode/cost differences,
+three-language source comparisons, a puzzle laboratory, measured bytecode/cost differences,
 verification results, supported Rust/ABI references, and a pinned coverage
 inventory. Run `pnpm --dir www install && pnpm --dir www dev` for a local preview.
 GitHub Pages deployment builds www with pnpm and deploys www/dist through GitHub

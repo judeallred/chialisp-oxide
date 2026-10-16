@@ -3,7 +3,7 @@ title: Puzzle ABI
 description: Exact solution shape, canonical integers, booleans, bytes, tuples, and condition-list results.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 Every solution is an attacker-controlled CLVM tree. A Rust signature describes
 the accepted boundary values; it does not make raw CLVM input trusted. The
@@ -81,7 +81,7 @@ for supported declarations and observed compile-fail diagnostics.
 The actual fixed-payment source names its policy and constructs conditions
 through typed helpers:
 
-<SourcePair slug="fixed-payment" />
+<SourceComparison slug="fixed-payment" />
 
 At the wire level, the result is a proper list containing `(73 1000)` and
 `(51 0x4242…4242 1000)`. Those are `ASSERT_MY_AMOUNT` and `CREATE_COIN` conditions.

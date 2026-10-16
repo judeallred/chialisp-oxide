@@ -1,0 +1,12 @@
+// Authored Rue comparison of the paired policy, with explicit untrusted ABI checks.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is nil;
+    [AssertSecondsAbsolute { seconds: UNLOCK_AT },
+     AssertMyAmount { amount: COIN_AMOUNT },
+     CreateCoin { puzzle_hash: RECIPIENT, amount: COIN_AMOUNT }]
+}
+
+const COIN_AMOUNT: Int = 1000;
+const RECIPIENT: Bytes32 = 0x4242424242424242424242424242424242424242424242424242424242424242;
+// Absolute Unix timestamp in the mock chain, not a relative delay.
+const UNLOCK_AT: Int = 100;

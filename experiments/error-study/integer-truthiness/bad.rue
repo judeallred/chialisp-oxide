@@ -1,0 +1,11 @@
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Int, (Bytes32, (Int, nil)));
+    let approved = solution.first;
+    let recipient = solution.rest.first;
+    let amount = solution.rest.rest.first;
+    if approved {
+        [CreateCoin { puzzle_hash: recipient, amount }]
+    } else {
+        raise;
+    }
+}

@@ -1,0 +1,190 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import catalog from '../../../../corpus/published-puzzles.json';
+import { href, format } from '../../lib/data';
+import SourceCard from '../../components/published/SourceCard.astro';
+import { languageLabels, roleOptions, pageSize, selectSources } from '../../components/published/catalog.mjs';
+const initial = selectSources(catalog.sources);
+const reportUrl = href('reports/published-puzzles.json');
+const repositories = new Map(catalog.repositories.map(repository => [repository.repository, repository]));
+const contributingRepositories = catalog.repositories.filter(repository => repository.selected_files > 0).length;
+const headings = [{depth:2,slug:'browse',text:'Find source files'}, {depth:2,slug:'rust-roles',text:'What Rust entries mean'}, {depth:2,slug:'scope',text:'Discovery scope and limits'}];
+---
+<StarlightPage frontmatter={{ title: 'Published puzzle source catalog', description: 'Browse pinned Chialisp, Rue, CLVM, and Rust source discovery with explicit roles, license provenance, and validation limits.' }} headings={headings}>
+  <p class="eyebrow">Source discovery / pinned Git snapshots</p>
+  <p>The snapshot covers {format(catalog.summary.repositories)} pinned repositories; {format(contributingRepositories)} contain {format(catalog.summary.source_files)} selected tracked files. Find Chialisp and Rue programs, CLVM artifacts, libraries, examples, and Rust tooling without treating them as the same kind of puzzle.</p>
+  <div class="catalog-scope-note">This is a discovery catalog, not all published or deployed puzzles. It creates no new port, execution, audit, or compatibility claim. <a href={href('lab/')}>The working comparison corpus</a> has separate source and validation evidence.</div>
+  <ul class="language-summary" aria-label="Selected files by source language">
+    {Object.entries(catalog.summary.by_language).map(([language, count]) => <li><strong>{format(count)}</strong> {languageLabels[language]}</li>)}
+  </ul>
+  <h2 id="browse">Find source files</h2>
+  <p class="catalog-help">The first view shows puzzle/program source. Change the role to find libraries, tests, compiled artifacts, or host Rust. Search matches repository names, paths, language, role, classification, and recorded license; every word must match. At most {pageSize} results appear per page.</p>
+  <div class="catalog-browser" data-catalog-browser data-report-url={reportUrl} data-pagefind-ignore>
+    <form class="catalog-filters" role="search" aria-label="Filter published source files">
+      <fieldset disabled>
+        <legend class="sr-only">Source catalog filters</legend>
+        <label class="query-label">Search paths and metadata<input type="search" name="q" placeholder="Try singleton, p2_delegated, CAT, or recovery" autocomplete="off" /></label>
+        <label>Language<select name="language"><option value="all">All languages</option>{Object.entries(languageLabels).map(([value, label]) => <option value={value}>{label}</option>)}</select></label>
+        <label>Source role<select name="role"><option value="all">All roles</option>{roleOptions.map(role => <option value={role.value} selected={role.value === 'programs'}>{role.label}</option>)}</select></label>
+        <label>Repository<select name="repository"><option value="all">All {catalog.repositories.length} repositories</option>{catalog.repositories.map(repository => <option value={repository.repository}>{repository.repository} · {repository.selected_files} files</option>)}</select></label>
+        <div class="filter-actions"><button type="submit">Apply filters</button><button type="reset" class="secondary">Reset</button></div>
+      </fieldset>
+    </form>
+    <div class="catalog-shortcuts" aria-label="Common source views" data-pagefind-ignore>
+      <span>Explore:</span><button type="button" data-preset="canonical" disabled>Chia puzzle repository</button><button type="button" data-preset="rue" disabled>Rue examples</button><button type="button" data-preset="rust" disabled>Rust → CLVM source</button><button type="button" data-preset="builders" disabled>Rust host builders</button>
+    </div>
+    <p class="catalog-status" role="status" aria-live="polite" aria-atomic="true">Showing {initial.start}–{initial.end} of {format(initial.total)} program-source files. Loading full catalog controls…</p>
+    <noscript><p>The first {pageSize} source links below work without JavaScript. Full filters and pagination require JavaScript; <a href={reportUrl}>download the complete catalog</a> to inspect every record.</p></noscript>
+    <section aria-label="Published source search results" data-pagefind-ignore>
+      <h3 class="results-heading" tabindex="-1" data-results-heading>Matching source files</h3>
+      <div class="catalog-result-list" data-catalog-results>{initial.entries.map(source => <SourceCard source={source} repository={repositories.get(source.repository)} fallback={reportUrl} />)}</div>
+      <p data-catalog-empty hidden>No source files match these filters. Broaden the role or language, or clear a search word.</p>
+      <nav class="catalog-pagination" aria-label="Source result pages"><button type="button" data-page="previous" disabled>Previous</button><span data-page-label>Page 1 of {initial.pages}</span><button type="button" data-page="next" disabled>Next</button></nav>
+    </section>
+    <template data-source-template><SourceCard fallback={reportUrl} /></template>
+  </div>
+  <h2 id="rust-roles">What Rust entries mean</h2>
+  <p>A Rust file near a puzzle is often host software, not Rust source compiled into CLVM. The catalog records these roles separately:</p>
+  <ul>
+    <li><strong>Rust → CLVM source:</strong> annotated puzzle source candidates, with compilation evidence established separately by a report.</li>
+    <li><strong>Host puzzle builders:</strong> native code assembling, currying, or spending programs; its Rust body is not thereby an on-chain program.</li>
+    <li><strong>Types and bindings:</strong> interfaces to existing puzzles or serialized CLVM, including generated bindings.</li>
+    <li><strong>Host/tool modules and tests:</strong> wallet, VM, compiler, application, negative-test, and fuzzing code.</li>
+  </ul>
+  <p>Roles and “official,” “community,” or “test” classifications come from deterministic path triage. They help discovery and can group mixed content; they do not certify semantics, authorship, deployment, or security. A source-file count is not a distinct-puzzle count.</p>
+  <h2 id="scope">Discovery scope and limits</h2>
+  <p>Observed {catalog.observed_at}. {catalog.scope.claim} Repository search is bounded to the recorded seed list and public queries. Each source link includes its exact commit, and its repository license metadata remains visibly separate from a file-level license review.</p>
+  <details class="catalog-limitations"><summary>Read the complete recorded limitations</summary><ul>{catalog.scope.limitations.map(limitation => <li>{limitation}</li>)}</ul></details>
+  <p><a href={reportUrl}>Download the full source catalog and discovery provenance</a> · <a href={href('coverage/')}>Tutorial and CHIP migration inventory</a> · <a href={href('verification/method/')}>How executed evidence is established</a></p>
+</StarlightPage>
+
+<script>
+  import { artifactLabel, languageLabels, selectSources } from '../../components/published/catalog.mjs';
+  const browser = document.querySelector<HTMLElement>('[data-catalog-browser]')!;
+  const form = browser.querySelector<HTMLFormElement>('form')!;
+  const fieldset = form.querySelector('fieldset')!;
+  const query = form.elements.namedItem('q') as HTMLInputElement;
+  const language = form.elements.namedItem('language') as HTMLSelectElement;
+  const role = form.elements.namedItem('role') as HTMLSelectElement;
+  const repository = form.elements.namedItem('repository') as HTMLSelectElement;
+  const status = browser.querySelector<HTMLElement>('[role="status"]')!;
+  const results = browser.querySelector<HTMLElement>('[data-catalog-results]')!;
+  const empty = browser.querySelector<HTMLElement>('[data-catalog-empty]')!;
+  const pageLabel = browser.querySelector<HTMLElement>('[data-page-label]')!;
+  const previous = browser.querySelector<HTMLButtonElement>('[data-page="previous"]')!;
+  const next = browser.querySelector<HTMLButtonElement>('[data-page="next"]')!;
+  const template = browser.querySelector<HTMLTemplateElement>('[data-source-template]')!;
+  const shortcuts = [...browser.querySelectorAll<HTMLButtonElement>('[data-preset]')];
+  let page = 1;
+  let timer: ReturnType<typeof setTimeout>;
+
+  interface Source { id:string; repository:string; revision:string; path:string; language:string; classification:string; artifact_kind:string; git_blob_sha1:string; size_bytes:number; source_url:string; license:string; }
+  interface Repository { repository:string; license:{source_url:string|null}; }
+  const safeExternal = (value: string) => {
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || url.hostname !== 'github.com') throw new Error('Unexpected source URL');
+    return url.href;
+  };
+
+  async function start() {
+    const response = await fetch(browser.dataset.reportUrl!);
+    if (!response.ok) throw new Error(`Catalog request failed: ${response.status}`);
+    const catalog = await response.json() as { schema_version:number; sources:Source[]; repositories:Repository[] };
+    if (catalog.schema_version !== 1 || !Array.isArray(catalog.sources)) throw new Error('Unsupported catalog schema');
+    const repositories = new Map(catalog.repositories.map(repo => [repo.repository, repo]));
+    const params = new URLSearchParams(location.search);
+    query.value = params.get('q') ?? '';
+    for (const [control, name] of [[language,'language'],[role,'role'],[repository,'repository']] as const) {
+      const value = params.get(name);
+      if (value && [...control.options].some(option => option.value === value)) control.value = value;
+    }
+    page = Number(params.get('page') ?? 1);
+
+    const render = (moveFocus = false) => {
+      const selection = selectSources(catalog.sources, {query:query.value,language:language.value,role:role.value,repository:repository.value}, page);
+      page = selection.page;
+      const nodes = selection.entries.map((source: Source) => {
+        const fragment = template.content.cloneNode(true) as DocumentFragment;
+        const card = fragment.querySelector<HTMLElement>('article')!;
+        card.dataset.sourceId = source.id;
+        const text = (field:string, value:string) => { card.querySelector<HTMLElement>(`[data-field="${field}"]`)!.textContent = value; };
+        text('language', languageLabels[source.language] ?? source.language);
+        text('role', artifactLabel(source.artifact_kind));
+        text('source-link', source.path.split('/').at(-1)!);
+        text('path', source.path); text('repository', source.repository);
+        text('classification', source.classification.replaceAll('_',' '));
+        text('revision', source.revision); text('blob', source.git_blob_sha1);
+        text('license', source.license === 'NOASSERTION' ? 'NOASSERTION · not classified' : source.license);
+        text('size', `${source.size_bytes.toLocaleString('en-US')} bytes`);
+        card.querySelector<HTMLAnchorElement>('[data-field="source-link"]')!.href = safeExternal(source.source_url);
+        card.querySelector<HTMLAnchorElement>('[data-field="commit-link"]')!.href = safeExternal(`https://github.com/${source.repository}/commit/${source.revision}`);
+        const licenseLink = card.querySelector<HTMLAnchorElement>('[data-field="license-link"]')!;
+        const license = repositories.get(source.repository)?.license.source_url;
+        licenseLink.hidden = !license;
+        if (license) licenseLink.href = safeExternal(license);
+        return fragment;
+      });
+      results.replaceChildren(...nodes);
+      empty.hidden = selection.total !== 0;
+      previous.disabled = page <= 1; next.disabled = page >= selection.pages;
+      pageLabel.textContent = `Page ${page} of ${selection.pages}`;
+      status.textContent = `${selection.start}–${selection.end} of ${selection.total.toLocaleString('en-US')} matching files. Discovery records, not validation claims.`;
+      const updated = new URL(location.href);
+      updated.search = '';
+      if (query.value.trim()) updated.searchParams.set('q', query.value.trim());
+      if (language.value !== 'all') updated.searchParams.set('language',language.value);
+      if (role.value !== 'programs') updated.searchParams.set('role',role.value);
+      if (repository.value !== 'all') updated.searchParams.set('repository',repository.value);
+      if (page !== 1) updated.searchParams.set('page',String(page));
+      history.replaceState(null,'',updated);
+      if (moveFocus) browser.querySelector<HTMLElement>('[data-results-heading]')!.focus();
+    };
+    const resetPage = () => { page = 1; render(); };
+    form.addEventListener('submit', event => { event.preventDefault(); clearTimeout(timer); resetPage(); });
+    query.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(resetPage,180); });
+    for (const control of [language,role,repository]) control.addEventListener('change',resetPage);
+    form.addEventListener('reset', () => { clearTimeout(timer); setTimeout(resetPage,0); });
+    previous.addEventListener('click', () => { page--; render(true); });
+    next.addEventListener('click', () => { page++; render(true); });
+    for (const button of shortcuts) button.addEventListener('click', () => {
+      clearTimeout(timer); query.value = ''; language.value = 'all'; role.value = 'programs'; repository.value = 'all';
+      if (button.dataset.preset === 'canonical') repository.value = 'Chia-Network/chia_puzzles';
+      if (button.dataset.preset === 'rue') { language.value = 'rue'; role.value = 'examples'; }
+      if (button.dataset.preset === 'rust') language.value = 'rust';
+      if (button.dataset.preset === 'builders') { language.value = 'rust'; role.value = 'builders'; }
+      resetPage();
+    });
+    render(); fieldset.disabled = false;
+    for (const button of shortcuts) button.disabled = false;
+  }
+  start().catch(() => { status.textContent = 'Full catalog controls could not load. The source links below and the complete JSON download remain available.'; });
+</script>
+
+<style>
+  .catalog-scope-note { padding: 1rem 1.2rem; border-inline-start: 3px solid var(--sl-color-accent); background: var(--sl-color-bg-sidebar); font-size: .88rem; }
+  .language-summary { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; padding: 0; list-style: none; font-size: .77rem; color: var(--sl-color-gray-2); }
+  .language-summary strong { color: var(--sl-color-text); }
+  .catalog-help { font-size: .85rem; }
+  fieldset { border: 1px solid var(--oxide-line); padding: 1.1rem; border-radius: 6px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .8rem; }
+  label { display: grid; gap: .35rem; font-size: .77rem; color: var(--sl-color-gray-2); min-width: 0; }
+  .query-label { grid-column: 1/-1; }
+  input, select { width: 100%; min-width: 0; border: 1px solid var(--oxide-line); border-radius: 4px; background: var(--sl-color-bg-sidebar); color: var(--sl-color-text); padding: .65rem .7rem; font: inherit; }
+  button { border: 1px solid var(--oxide-line); border-radius: 4px; background: var(--sl-color-bg-sidebar); color: var(--sl-color-text); padding: .55rem .8rem; font: inherit; font-size: .76rem; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--sl-color-accent); }
+  button:disabled { opacity: .55; cursor: default; }
+  input:focus-visible,select:focus-visible,button:focus-visible { outline: 2px solid var(--sl-color-accent); outline-offset: 3px; }
+  .filter-actions { display: flex; align-items: end; gap: .5rem; }
+  .filter-actions button[type='submit'] { background: var(--sl-color-accent-low); }
+  .catalog-shortcuts { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-block: .8rem; font-size: .7rem; }
+  .catalog-shortcuts button { padding: .3rem .5rem; font-size: .66rem; }
+  .catalog-status { min-height: 2.7em; font: .72rem/1.6 var(--sl-font-mono); color: var(--sl-color-gray-2); margin-block: 1rem; }
+  .catalog-result-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+  .results-heading { font-size: 1.1rem; }
+  .results-heading:focus { outline: 2px solid var(--sl-color-accent); outline-offset: 4px; }
+  .catalog-pagination { display: flex; align-items: center; justify-content: space-between; gap: .7rem; margin-block: 1.2rem; }
+  .catalog-pagination span { font-size: .75rem; color: var(--sl-color-gray-2); }
+  .catalog-limitations { border: 1px solid var(--oxide-line); border-radius: 5px; padding: 1rem; font-size: .85rem; }
+  .catalog-limitations summary { cursor: pointer; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  @media (max-width: 42rem) { .catalog-result-list { grid-template-columns: 1fr; } fieldset { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,173 @@
+---
+title: Chialisp functionality
+description: Published-source discovery, native Rust feasibility, implemented compiler support, and the remaining proof obligations.
+---
+
+**Rust can express CLVM computations. This prototype does not yet compile all
+Chialisp functionality from Rust, and no universal preservation or security
+proof is provided. It is not ready for use with funds.**
+
+The [published-source catalog](/chialisp-oxide/published/) separates puzzle
+sources, libraries, tests, generated artifacts, Rust builders, and host tooling.
+It records complete selected file sets at exact repository commits. A file in
+that catalog has been discovered; it has not thereby been ported or verified.
+Discovery queries explicitly use `is:public`; every enumerated repository also
+has captured public-visibility metadata checked by the validator.
+
+The existing [Rust CLVM interpreter](https://github.com/Chia-Network/clvm_rs/tree/5692395a4ef0776a08c10aaaa66406e0408dd5f0)
+is a concrete witness that Rust can implement the machine's computations.
+Embedding an interpreter or precompiled puzzle does not prove this compiler's
+Rust-to-CLVM lowering, cost compatibility, or preservation of a canonical hash.
+
+## Read each claim separately
+
+1. **Native expressibility:** an algorithm and its wire/error semantics can be
+   implemented in Rust.
+2. **Compiler support:** the checked Rust program lowers through the supported
+   MIR, IR, optimizer, and VM path.
+3. **Executed evidence:** named native/Chialisp/CLVM cases agree, including
+   adversarial shapes and failure paths.
+4. **Formal assurance:** a stated property follows under explicit semantics and
+   assumptions. Bounded models and finite tests are not universal proofs.
+5. **Interoperability:** required bytes, module/instance hashes, costs, and
+   consensus composition agree. Equal outputs alone do not establish this.
+
+Current evidence is visible in the [lab](/chialisp-oxide/lab/) and
+[verification method](/chialisp-oxide/verification/method/). The
+[supported Rust subset](/chialisp-oxide/reference/supported-rust/) remains the
+authoritative description of accepted source.
+
+## Feature families and the current gap
+
+The [Chialisp operator reference](https://chialisp.com/operators/) groups the
+language operations. Activation and precise behavior depend on the selected VM
+and consensus context. The table describes compiler support, not the
+capabilities of every native Rust crate.
+
+| Feature | Native Rust route | Current compiler | Needed for broader support |
+| --- | --- | --- | --- |
+| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Fixed tuples/unit/bytes only | Raw-tree SDK/IR, codecs, malformed projections |
+| Environment paths and argument patterns | Explicit projections | Exact typed lists; ignored environment only for nullary exports | Separate versioned raw/prefix policy |
+| Quote and dynamic apply | Data trees and an interpreter | Literals supported; no source-level general apply | Program/environment types, strictness, dialect and cost rules |
+| Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Canonical fixed-width integers only | Explicit unbounded numeric semantics and resource policy |
+| Addition, subtraction, multiplication | Checked primitives or big integers | Checked fixed-width operations | Preserve overflow distinctions; never silently widen Rust arithmetic |
+| Division, remainder, modular exponentiation | Specified integer algorithms | Rejected | Floor versus truncating division, signs, zero and boundary cases |
+| Raw equality, ordering and truthiness | Separate byte/number/tree operations | Typed scalar comparison and canonical `bool` | Padding, nil/nonempty truth, eager versus short-circuit effects |
+| Lazy/strict conditionals and failure | Branches and explicit evaluation | Rust lazy branches and plain assertions | General strict-conditional and raw failure-value contracts |
+| Variable bytes and bit operations | Byte collections and integer operations | Fixed bytes/static projections; bit operations rejected | Dynamic lengths, slices, sign extension, shifts and costs |
+| SHA-256, tree hashes, Keccak, coin IDs | Reviewed algorithms and exact encodings | Carrying constants is supported; computing these is not | Native/VM vectors, domain separation, activation and cost |
+| BLS and secp operations | Reviewed crypto libraries | No on-chain crypto-op lowering | Encodings, invalid points/signatures, subgroup/DST rules and cost |
+| Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
+| Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
+| Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
+| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Reachable recursion/loops/allocation/closures rejected | Runtime calls or justified loop lowering, environments and resource bounds |
+| Currying and nested/standard puzzles | Explicit program trees | No general curry/delegated-program API | Canonical module/instance hashes and composition validation |
+| Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
+| Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
+| Host I/O, clocks, randomness, network state | Native Rust facilities | No implicit puzzle capability | Explicit committed inputs or consensus conditions |
+
+## Pinned operator audit
+
+The differential backend uses `clvmr 0.21.0`. The locked crate's dialect,
+interpreter, numeric, and crypto source files match the Git blob IDs in
+[clvm_rs at this exact commit](https://github.com/Chia-Network/clvm_rs/tree/5692395a4ef0776a08c10aaaa66406e0408dd5f0).
+The complete-spend simulator instead pins consensus 0.36.1 and CLVM 0.16.2;
+evidence from that simulator does not activate new operations in another pin.
+
+| Opcode(s) | Runtime names, in order | Current authoring coverage |
+| --- | --- | --- |
+| 1, 2, 36 | `q`, `a`, `softfork` | Literal subset; no general apply or softfork API |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products/branches/assertions/comparisons only |
+| 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering |
+| 16–18 | `+`, `-`, `*` | Checked fixed widths |
+| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons; remaining operations rejected |
+| 29, 30 | `point_add` (docs: `g1_add`), `pubkey_for_exp` | Missing |
+| 32–34 | `not`, `any`, `all` | `not` on Rust `bool`; no explicit strict variadic `any`/`all` API |
+| 48–51 | `coinid`, `g1_subtract`, `g1_multiply`, `g1_negate` | Missing |
+| 52–55 | `g2_add`, `g2_subtract`, `g2_multiply`, `g2_negate` | Missing |
+| 56–59 | `g1_map`, `g2_map`, `bls_pairing_identity`, `bls_verify` | Missing |
+| 60, 61 | `modpow`, `%` | Missing; `modpow` additionally gated |
+| 62, 63 | `keccak256`, `sha256tree` | Missing and flag/extension dependent |
+| 64, 65 | `secp256k1_verify`, `secp256r1_verify` | Missing and flag gated |
+| `0x13d61f00`, `0x1c3a8f00` | Four-byte secp256k1/secp256r1 verification encodings | VM dispatch has these separately; no source lowering |
+| Other/reserved bytes | Unknown/reserved-operator behavior | Backend rejects unknown operators |
+
+Unquoted program atoms also traverse environment paths. Source aliases are
+compiler-version dependent: the pinned Chialisp primitive map uses `point_add`
+and the four-byte secp encodings. Do not infer source-spelling support from a
+newer documentation name or a runtime dispatch entry.
+
+The pin exposes `CANONICAL_INTS`, `NO_UNKNOWN_OPS`, `LIMIT_HEAP`,
+`RELAXED_BLS`, `LIMIT_SOFTFORK`, `ENABLE_GC`, `LIMITS`,
+`ENABLE_KECCAK_OPS_OUTSIDE_GUARD`, `DISABLE_OP`, `ENABLE_SHA256_TREE`,
+`ENABLE_SECP_OPS`, `MALACHITE`, and `NEW_COST_MODEL` flags. The backend's
+`MEMPOOL_MODE` combines `NO_UNKNOWN_OPS`, `LIMIT_HEAP`, `DISABLE_OP`,
+`CANONICAL_INTS`, and `LIMIT_SOFTFORK`.
+
+- `DISABLE_OP` blocks `modpow` unless `NEW_COST_MODEL` is selected.
+- Keccak requires the recognized extension context or outside-guard flag;
+  opcode 63 and one-byte secp opcodes require their dedicated flags.
+- Relaxed BLS validation, revised costs/guards, allocator limits, and unknown-
+  operator handling are semantic configuration, not defaults to infer.
+- New operators or activation contexts outside the reviewed pins remain outside
+  the coverage claim.
+
+## Compile-time constructs and consensus conditions
+
+Chialisp has source constructs beyond its VM opcodes: `mod`, argument patterns,
+`defun`, `defun-inline`, `defconstant`, `defconst`, `let`, `let*`, `assign`,
+`assign-inline`, `assign-lambda`, `lambda`, `defmacro`, `defmac`, `qq`,
+`unquote`, `include`, `import`, `export`, `defalias`, `embed-file`, and
+`compile-file`, plus dialect includes and library-defined macros such as `if`
+and `list`. See the pinned
+[frontend](https://github.com/Chia-Network/chialisp/blob/3b264eeef50af4ea5ad18ed655dee9d01c70e068/src/compiler/frontend.rs)
+and [preprocessor](https://github.com/Chia-Network/chialisp/blob/3b264eeef50af4ea5ad18ed655dee9d01c70e068/src/compiler/preprocessor/mod.rs).
+Rust has routes for compile-time expansion, but each route must preserve
+binding, staging, failure order and reproducible inputs; it is not already
+implemented Chialisp compatibility. User-defined macros make surface syntax
+open-ended.
+
+Conditions are returned consensus data. The SDK currently names only
+`CREATE_COIN`, `AGG_SIG_ME`, `ASSERT_MY_AMOUNT`, and
+`ASSERT_SECONDS_ABSOLUTE`. The wider condition surface includes the other
+aggregate-signature bindings, fees, announcements, concurrent-spend assertions,
+coin messages, introspection, relative/absolute and before-time locks, ephemeral
+coin rules, `REMARK`, condition extensions, and unknown/two-byte condition
+encoding/cost rules. Representing a tuple does not establish
+its protocol invariants or activation/cost behavior. A `SOFTFORK` condition is
+distinct from the `softfork` VM operator. Returning a signature condition is
+also distinct from implementing a BLS verification opcode.
+
+## Semantics that must stay explicit
+
+- Rust signed division truncates; CLVM's documented division floors. A direct
+  spelling substitution is insufficient.
+- Fixed-width overflow, numeric padding, raw-tree shape, and truthiness are
+  observable. A typed adapter can intentionally restrict them, but must say so.
+- Ignored environments are an explicit nullary opt-in. They do not turn typed
+  parameters into unchecked or raw arguments.
+- Equal behavior on tested inputs does not imply equal canonical module or
+  curried-instance hashes. Those identities can already be committed on-chain.
+- VM runtime cost alone is not a whole-transaction cost or consensus proof.
+- Native I/O and build-time generation must not become hidden puzzle inputs.
+
+## Next useful work
+
+The pinned
+[module-add example](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L21-L23)
+fits today's compiler as an `i64` addition function. It should be labeled a
+**bounded strict-ABI adapter**: the original accepts signed unbounded numeric
+atoms and projects arguments without the Rust ABI's exact-list restriction.
+Keep the original source unchanged and report the observed differences.
+
+Closer compatibility needs an explicit tree/unbounded-integer SDK and IR route,
+followed by recursion, dynamic program composition, and primitive-by-primitive
+validation. No unsafe opaque extern intrinsic should bypass those obligations.
+Conservative constant folding/sharing is another useful compiler task, provided
+failure, overflow and branch behavior remain covered.
+
+The longer repository document
+[chialisp-functionality.md](https://github.com/judeallred/chialisp-oxide/blob/main/docs/chialisp-functionality.md)
+records the operator-family matrix, pinned primary sources, discovery rules,
+and the translation/protocol obligations. This is a plan for closing gaps,
+not a claim that they are closed.

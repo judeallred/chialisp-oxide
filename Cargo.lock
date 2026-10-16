@@ -678,16 +678,14 @@ name = "chialisp-oxide-backend-experiment"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chialisp-oxide-rue",
  "clvmr 0.21.0",
  "hex",
  "id-arena",
  "num-bigint",
  "proptest",
  "rue-clvm",
- "rue-compiler 0.11.0",
- "rue-diagnostic 0.11.0",
  "rue-lir 0.11.0",
- "rue-options 0.11.0",
  "serde",
  "serde_json",
  "sha2 0.10.9",
@@ -717,6 +715,7 @@ dependencies = [
  "chialisp-oxide-ir",
  "chialisp-oxide-puzzles",
  "chialisp-oxide-reference",
+ "chialisp-oxide-rue",
  "chialisp-oxide-simulator",
  "clvmr 0.21.0",
  "hex",
@@ -778,6 +777,20 @@ dependencies = [
  "chialisp",
  "clvmr 0.16.2",
  "clvmr 0.21.0",
+]
+
+[[package]]
+name = "chialisp-oxide-rue"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clvmr 0.21.0",
+ "hex",
+ "rue-clvm",
+ "rue-compiler 0.11.0",
+ "rue-diagnostic 0.11.0",
+ "rue-options 0.11.0",
+ "serde_json",
 ]
 
 [[package]]

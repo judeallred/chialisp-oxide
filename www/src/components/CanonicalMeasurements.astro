@@ -9,7 +9,7 @@ const rows = examples.map(puzzle => {
     const execution = empty.runs.find(run => run.backend === backend && run.optimize_lir === optimize)!.execution;
     return { artifact, cost: execution.cost };
   };
-  return { puzzle, original: metric('chialisp', true), off: metric('rust_mir', false), on: metric('rust_mir', true) };
+  return { puzzle, original: metric('chialisp', true), off: metric('rust_mir', false), on: metric('rust_mir', true), rueOff: metric('rue_source', false), rueOn: metric('rue_source', true) };
 });
 const metricLabel = ({ artifact, cost }: { artifact: Artifact; cost: number | null }) =>
   `${format(artifact.bytes)} bytes / ${cost === null ? 'cost unavailable' : `${format(cost)} cost`}`;
@@ -19,11 +19,11 @@ const costlier = rows.filter(row => row.on.cost !== null && row.original.cost !=
 <div class="measurements-scroll">
   <table>
     <caption>Recorded program size and VM cost for the empty environment; transaction costs are not applicable</caption>
-    <thead><tr><th scope="col">Expression</th><th scope="col">Original Chialisp</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Rust-on vs original hash</th></tr></thead>
-    <tbody>{rows.map(({ puzzle, original, off, on }) => <tr>
+    <thead><tr><th scope="col">Expression</th><th scope="col">Original Chialisp</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th><th scope="col">Rust-on / Rue-on vs original hash</th></tr></thead>
+    <tbody>{rows.map(({ puzzle, original, off, on, rueOff, rueOn }) => <tr>
       <th scope="row"><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></th>
-      <td>{metricLabel(original)}</td><td>{metricLabel(off)}</td><td>{metricLabel(on)}</td>
-      <td>{on.artifact.tree_hash === original.artifact.tree_hash ? 'matches' : 'differs'}</td>
+      <td>{metricLabel(original)}</td><td>{metricLabel(off)}</td><td>{metricLabel(on)}</td><td>{metricLabel(rueOff)}</td><td>{metricLabel(rueOn)}</td>
+      <td>{on.artifact.tree_hash === original.artifact.tree_hash ? 'matches' : 'differs'} / {rueOn.artifact.tree_hash === original.artifact.tree_hash ? 'matches' : 'differs'}</td>
     </tr>)}</tbody>
   </table>
 </div>

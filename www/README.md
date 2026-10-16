@@ -2,7 +2,7 @@
 
 Astro 7 + Starlight, with pnpm and Pagefind static full-text search. The site
 uses a custom green/oxide editorial theme, accessible framework navigation,
-code-copy controls, responsive Rust/Chialisp source comparisons, a filterable
+code-copy controls, responsive Chialisp/Rust/Rue source comparisons, a filterable
 puzzle laboratory, formal evidence, and a separately filterable migration
 inventory.
 Authoring guides lead with the real unpublished Cargo SDK and annotated exports.
@@ -13,7 +13,7 @@ dependency sources, including public fixture-key bytes, remain available in
 expandable drawers. Comparisons stack at narrow content widths; wrapped code
 keeps its original copied line breaks.
 The laboratory also compares serialized bytes between optimization modes and
-against Chialisp, with exact replacement offsets and explicit hash-compatibility
+between all three languages, with exact replacement offsets and explicit hash-compatibility
 scope; byte similarity is not presented as a semantic proof.
 
 ```sh
@@ -58,3 +58,10 @@ Deployment is configured by the repository-level Pages workflow, with GitHub
 Actions selected as the Pages source. This directory also builds as a
 standalone static artifact for local review. Keep the documented site/base
 settings aligned with the selected repository and hosting configuration.
+
+The lab compares actual Chialisp, Rust, and Rue source and five compiled builds.
+The published-source catalog provides bounded metadata search and pagination;
+Rust host builders and generated bindings are distinct from Rust→CLVM puzzle
+sources. The dedicated error study is driven by actual missed-test witnesses
+and compiler diagnostics, including policy bugs that still compile. Six report
+endpoints are checked against their source/proof/discovery inputs before build.

@@ -15,10 +15,11 @@
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - Nine original teaching examples plus three exact canonical Intro expressions,
-  independently compiled Chialisp references, the actual Rust functions as native
+  side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
   oracles, 97 explicit and 3,831 generated integer/tree vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
-- Thirty complete-spend scenarios through chia-wallet-sdk's simulator, plus
+- Thirty complete-spend scenarios run separately for Rust, Chialisp, and Rue
+  (90 ledger executions) through chia-wallet-sdk's simulator, plus
   standalone regressions for signatures/replay/messages/conservation/rollback.
 - Source-derived SMT queries with independent specifications, nonvacuity,
   counterexample replay, mutation control, and fail-closed solver handling.
@@ -27,6 +28,14 @@
 - Rue identity-product optimizer panic regression/fix, source provenance, plus strict truthiness/failure preservation; upstream issues
   https://github.com/xch-dev/rue/issues/108 and https://github.com/xch-dev/rue/issues/109.
 - Searchable Astro/Starlight documentation in www, generated from source/evidence.
+- Executable error studies: intentionally limited Chialisp tests miss concrete
+  bugs rejected by native Rust type/name checking; a missing-cap negative
+  control keeps policy mistakes and shared Rue guarantees explicit.
+- Published-source discovery across 98 pinned repository trees and 3,582 selected
+  files, with path/role/license provenance and offline tree reconstruction.
+  This is source discovery, not 3,582 validated or distinct puzzles.
+- An explicit functionality/operator map separates native expressibility,
+  implemented compiler support, witnesses, activation rules, and missing proofs.
 
 ## Next compiler and puzzle work
 

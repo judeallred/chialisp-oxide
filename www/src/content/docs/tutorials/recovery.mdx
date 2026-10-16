@@ -3,14 +3,14 @@ title: Time and a recovery branch
 description: Return consensus timelocks, select a recovery key, and verify that both key and delay are required.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 Time is a condition, not a clock read. A CLVM puzzle cannot inspect the current
 chain timestamp; it returns a requirement for the consensus engine to check.
 
 ## Begin with the timelock
 
-<SourcePair slug="timelocked-payment" />
+<SourceComparison slug="timelocked-payment" />
 
 `assert_seconds_absolute(UNLOCK_AT)` names the time requirement, and
 `Timestamp::from_unix_seconds` states its unit and reference point. The
@@ -24,7 +24,7 @@ an owner key.
 
 ## Add two different authorization paths
 
-<SourcePair slug="recovery-payment" />
+<SourceComparison slug="recovery-payment" />
 
 The owner branch selects `OWNER` and `OWNER_UNLOCK_AT`, the Unix epoch, so it
 adds no wait. The recovery branch selects `RECOVERY_SIGNER` and

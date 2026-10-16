@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.28.2",
-  "engines": { "node": ">=24.0.0" },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "check": "node scripts/check-evidence.mjs && astro check",
     "build": "node scripts/check-evidence.mjs && astro build",
     "preview": "astro preview",
-    "test:site": "node scripts/test-artifact-diff.mjs && node scripts/check-site.mjs"
+    "test:site": "node scripts/test-artifact-diff.mjs && node scripts/test-published-catalog.mjs && node scripts/check-site.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.6",

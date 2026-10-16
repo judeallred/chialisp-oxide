@@ -348,9 +348,11 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Twelve source pairs in the real Cargo library are validated by its native functions,
-independent Chialisp compilation, and both optimization settings. Eight coin
-fixtures additionally have 30 ledger scenarios. Nine original teaching examples
+Twelve Chialisp/Rust/Rue source comparisons use the actual Cargo library
+functions as native oracles, independent Chialisp compilation, and Rue source
+compilation. Rust and Rue each run with LIR optimization off/on. Eight coin
+fixtures additionally have 30 ledger scenarios executed for each language
+(90 ledger executions). Nine original teaching examples
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.

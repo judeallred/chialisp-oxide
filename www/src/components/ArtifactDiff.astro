@@ -7,7 +7,9 @@ const { puzzle } = Astro.props;
 const optimized = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir);
 const unoptimized = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && !artifact.optimize_lir);
 const reference = puzzle.artifacts.find(artifact => artifact.backend === 'chialisp');
-if (!optimized || !unoptimized || !reference) throw new Error(`Missing compiled-byte comparison artifact: ${puzzle.slug}`);
+const rue = puzzle.artifacts.find(artifact => artifact.backend === 'rue_source' && artifact.optimize_lir);
+const rueUnoptimized = puzzle.artifacts.find(artifact => artifact.backend === 'rue_source' && !artifact.optimize_lir);
+if (!optimized || !unoptimized || !reference || !rue || !rueUnoptimized) throw new Error(`Missing compiled-byte comparison artifact: ${puzzle.slug}`);
 const comparison = (title: string, before: Artifact, beforeLabel: string, after: Artifact, afterLabel: string) => ({
   title, before, beforeLabel, after, afterLabel,
   diff: compareSerializedBytes(before.clvm_hex, after.clvm_hex),
@@ -16,6 +18,9 @@ const comparison = (title: string, before: Artifact, beforeLabel: string, after:
 const comparisons = [
   comparison('Rust optimization off → on', unoptimized, 'Rust · optimization off', optimized, 'Rust · optimization on'),
   comparison('Chialisp reference → optimized Rust', reference, 'Chialisp reference', optimized, 'Rust · optimization on'),
+  comparison('Chialisp reference → optimized Rue', reference, 'Chialisp reference', rue, 'Rue · optimization on'),
+  comparison('Optimized Rust → optimized Rue', optimized, 'Rust · optimization on', rue, 'Rue · optimization on'),
+  comparison('Rue optimization off → on', rueUnoptimized, 'Rue · optimization off', rue, 'Rue · optimization on'),
 ];
 const offset = (value: number) => `0x${value.toString(16).padStart(6, '0')}`;
 const byteCount = (value: number) => `${value.toLocaleString('en-US')} ${value === 1 ? 'byte' : 'bytes'}`;

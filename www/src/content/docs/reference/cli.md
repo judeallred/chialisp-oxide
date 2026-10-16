@@ -151,7 +151,7 @@ Validation builds the Cargo puzzle package once, selects the declared exports,
 compiles each IR program in both backend modes, and compiles the authored
 Chialisp references independently. The native oracle links that same Cargo
 library. Named and generated inputs compare native output/rejection with all
-three CLVM paths; optimized coin puzzles also run in the ledger simulator.
+five CLVM builds (Chialisp, Rust off/on, and Rue source off/on); optimized coin puzzles from each language also run separately in the ledger simulator.
 A divergence fails the run.
 
 `puzzles/authoring.json` declares package, library, export/source mapping, and

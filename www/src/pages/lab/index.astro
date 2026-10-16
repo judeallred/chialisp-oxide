@@ -3,9 +3,9 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import EvidenceSummary from '../../components/EvidenceSummary.astro';
 import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../lib/data';
 ---
-<StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect real Rust and Chialisp sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
+<StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect Chialisp, Rust, and Rue sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
   <p class="eyebrow">Executable examples / generated evidence</p>
-  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles and {format(totals.pureFunctions)} pure-function examples, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp, input vectors, and ledger scenarios.</p>
+  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles and {format(totals.pureFunctions)} pure-function examples, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp and Rue source builds, input vectors, and ledger scenarios.</p>
   <p>{format(totals.canonicalPorts)} canonical tutorial expressions and {format(totals.originalExamples)} original teaching fixtures are tracked separately. <a href={href('tutorials/canonical-intro/')}>Read how the original Intro expressions preserve their environment behavior.</a></p>
   <EvidenceSummary />
   <form class="filters" role="search" aria-label="Filter puzzle examples">
@@ -21,7 +21,7 @@ import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../l
         <div class="card-top"><span class="badge success">{puzzle.validated ? 'validated' : 'pending'}</span><span class="kind">{puzzle.kind === 'pure_function' ? 'pure function' : 'coin puzzle'}</span></div>
         <h2><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></h2>
         <p>{puzzle.security_scope}</p>
-        <dl><div><dt>Optimized size</dt><dd>{format(artifact.bytes)} B</dd></div><div><dt>Accepted VM cost</dt><dd>{costs.length ? `${format(Math.min(...costs))}–${format(Math.max(...costs))}` : 'No accepted named case'}</dd></div></dl>
+        <dl><div><dt>Rust optimized size</dt><dd>{format(artifact.bytes)} B</dd></div><div><dt>Rust accepted VM cost</dt><dd>{costs.length ? `${format(Math.min(...costs))}–${format(Math.max(...costs))}` : 'No accepted named case'}</dd></div></dl>
         <div class="card-bottom"><span>{puzzle.cases.length} named · {format(puzzle.generated_cases)} generated</span><a href={href(`lab/${puzzle.slug}/`)} aria-label={`Inspect ${puzzle.title}`}>Inspect evidence →</a></div>
       </article>;
     })}

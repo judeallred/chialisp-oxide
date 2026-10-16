@@ -3,7 +3,7 @@ title: Your first fixed payment
 description: Compile a small condition-producing Rust function and distinguish the result from authorization and a valid ledger spend.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 This paired fixture is an annotated module in the `chialisp-oxide-puzzles` Cargo library.
 For the SDK dependency and export setup, start with
@@ -15,7 +15,7 @@ It makes no ownership promise. Anyone may trigger this payment.
 
 ## Read the Rust result
 
-<SourcePair slug="fixed-payment" />
+<SourceComparison slug="fixed-payment" />
 
 `COIN_AMOUNT` names the amount in mojos; `RECIPIENT` names the fixed puzzle hash.
 `assert_my_amount(COIN_AMOUNT)` binds the actual input amount, and

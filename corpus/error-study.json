@@ -1,0 +1,1027 @@
+{
+  "schema_version": 1,
+  "scope": "Original deliberately faulty teaching fixtures. Weak suites assert exact outcomes but intentionally omit a distinguishing input. These are host Rust compiler/tests and independent Chialisp/Rue VM executions, not Rust-to-CLVM or consensus proofs.",
+  "toolchain": {
+    "rustc": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)",
+    "reference": "chialisp 0.4.6",
+    "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075"
+  },
+  "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",
+  "sources": [
+    {
+      "path": ".cargo/config.toml",
+      "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "fa4d64b5b8e555b80e861f44790bf0ed16a0ca35590e51150ccd339b359c3814"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "892ba719d2540966df47bee4c6224e41b48486843544010847f6ddd95f204ee4"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/Cargo.toml",
+      "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/src/lib.rs",
+      "sha256": "0750b4e71c2b72452b5b0a941bc0dd7019e250e4813a051c80f5c02141b47a15"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/Cargo.toml",
+      "sha256": "d257e578bed7b7860470e15e5cd46d76fd27a08f729f3dee15977587e9f0be45"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/src/lib.rs",
+      "sha256": "7127e7c0ee3b7b372a307f18189c81d98d21fc82c39674ca3f1e9a9375c35894"
+    },
+    {
+      "path": "crates/chialisp-oxide-rue/Cargo.toml",
+      "sha256": "0da434bb74475d0be1b038f5833ed24ff3353d4c2360920ef98c89bc19da8360"
+    },
+    {
+      "path": "crates/chialisp-oxide-rue/src/lib.rs",
+      "sha256": "235307244c950ce59315737dfedbea342a89572b3c7be7a76c8f05fc74946e6d"
+    },
+    {
+      "path": "crates/chialisp-oxide/Cargo.toml",
+      "sha256": "c8a769ec22fb8e55f522a8c5a30b16a3a33c6731a967265cedfb29247c2795a6"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/domain.rs",
+      "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "sha256": "fef6e9cf79d70dd2bae57e20886d70694c5662a11c5ea3fe8f1a61ea9ea39449"
+    },
+    {
+      "path": "experiments/backend/Cargo.toml",
+      "sha256": "818e3aede229ed34825debc1a33734d483bbbb24a8bbd1d99bdb1e63f90dc371"
+    },
+    {
+      "path": "experiments/backend/src/lib.rs",
+      "sha256": "d1951747f5e8c7a36211453a3e4cb8ce7d0fb3c4da9522e62490b460f1d541b8"
+    },
+    {
+      "path": "experiments/error-study/branch-shape/bad.clsp",
+      "sha256": "38dbb06fd2398a72da489b2c94a4ef00fb097f08f66e6df5631866c0f8d8595d"
+    },
+    {
+      "path": "experiments/error-study/branch-shape/bad.rs",
+      "sha256": "27af779a039dfa7f5c65d403cb8fa69fb9cffb0ebe02ed376e5ae5bbba3728ed"
+    },
+    {
+      "path": "experiments/error-study/branch-shape/bad.rue",
+      "sha256": "bc5921e621d66735d056a236d8e085162fce051a064035f5495285603c3bc0d4"
+    },
+    {
+      "path": "experiments/error-study/branch-shape/fixed.rs",
+      "sha256": "9ef50ff33b90ba9fcb56ba1aea2a2e255c77e3f3bbe85e8a8e307f7f6b15e0b0"
+    },
+    {
+      "path": "experiments/error-study/bridge.rs",
+      "sha256": "a105c7d87a3e52ee93cf07f852aa416f5950d894fff31c15fbd6170a8013e22d"
+    },
+    {
+      "path": "experiments/error-study/domain-swap/bad.clsp",
+      "sha256": "ed1d33409f18506547ef511cde35902e6bd867f328f5cfeb83076d63b3c21009"
+    },
+    {
+      "path": "experiments/error-study/domain-swap/bad.rs",
+      "sha256": "7187acb41db74728388534d41fb833539fe13e69a0e0154cd546a10a4da0a8d1"
+    },
+    {
+      "path": "experiments/error-study/domain-swap/bad.rue",
+      "sha256": "9fd8e0b5485fa40e87bbd29ab29d072066cd65ffa64e70b03c61346ba8eb53fc"
+    },
+    {
+      "path": "experiments/error-study/domain-swap/fixed.rs",
+      "sha256": "ba00fac0c021b43c1f6ec354cd2ce0b204828cd5739009da4eb03e4bd1819996"
+    },
+    {
+      "path": "experiments/error-study/domain-swap/nominal-control.rue",
+      "sha256": "75ff6890adad5e326878fa55b0362ddb87802195f46d699c199783ae453ed5d1"
+    },
+    {
+      "path": "experiments/error-study/integer-truthiness/bad.clsp",
+      "sha256": "1f1979b28ac3512754539731435d163a75b71c70f1c79f708467a689f33fd038"
+    },
+    {
+      "path": "experiments/error-study/integer-truthiness/bad.rs",
+      "sha256": "43f715573d8f26c83b30635eccb7463848c77284ba975ea23c723565d6ef4c83"
+    },
+    {
+      "path": "experiments/error-study/integer-truthiness/bad.rue",
+      "sha256": "25f27f77ca0af362c8ce350346aaadb59c9d95165d7d681e2332527e9967f916"
+    },
+    {
+      "path": "experiments/error-study/integer-truthiness/fixed.rs",
+      "sha256": "38ad8f93addde9b5ae6db85bab92af9d2b7c5a81089627ee131864793a436084"
+    },
+    {
+      "path": "experiments/error-study/missing-cap/bad.clsp",
+      "sha256": "2cb18ab160bd6505fe626a45e65c4a3ecc09ffe264cfc364703b2ae61c3c9493"
+    },
+    {
+      "path": "experiments/error-study/missing-cap/bad.rs",
+      "sha256": "3f3934ffb9aa3d576c0004e118627d23cc90562456bd117e2943b40ae136c73c"
+    },
+    {
+      "path": "experiments/error-study/missing-cap/bad.rue",
+      "sha256": "953b5b9e9c77d8f8ac6503ebce35583ea636e823f9367480dcab93b1e410df8d"
+    },
+    {
+      "path": "experiments/error-study/missing-cap/fixed.rs",
+      "sha256": "fc158be7c0b2178715dc72efc0a09142b8190ca0337cc650635f25be113d9060"
+    },
+    {
+      "path": "experiments/error-study/studies.json",
+      "sha256": "069d19c102786791ef180c7c9b24dbf475b28518cb20b654ea48fbbce5a85841"
+    },
+    {
+      "path": "experiments/error-study/unresolved-name/bad.clsp",
+      "sha256": "03b1bac380270537b3e7e03bc337248e3824688de6dee637770f3a3f8ce445f6"
+    },
+    {
+      "path": "experiments/error-study/unresolved-name/bad.rs",
+      "sha256": "97104b43f5723c44c980319f57ba1b4d0dbc8b51ce23b707daa0cb474c3890bc"
+    },
+    {
+      "path": "experiments/error-study/unresolved-name/bad.rue",
+      "sha256": "c660c1f258bd96b5f3470c3e66fdf7518447ba1cf03c7097ffc1b0626b913b66"
+    },
+    {
+      "path": "experiments/error-study/unresolved-name/fixed.rs",
+      "sha256": "ae2f43523936569301817e0d552134419e0d20d6b3ca2df86fa87a3d3ea77189"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+    },
+    {
+      "path": "scripts/cargo_authoring.py",
+      "sha256": "4baa7744958581e712c0e2887b805b8b04efd4e10f23d4a711e072352e468bbb"
+    },
+    {
+      "path": "scripts/check-error-study.py",
+      "sha256": "4715551858067151151c5c95de7ccc50f3644e5133cd53c542ff5c596b77cde5"
+    }
+  ],
+  "studies": [
+    {
+      "id": "domain-swap",
+      "title": "Coin ID used as a payment destination",
+      "category": "rust_typecheck",
+      "claim": "Distinct SDK CoinId and PuzzleHash types reject this direct argument swap, even though both contain 32 bytes.",
+      "limitations": [
+        "The guarantee relies on choosing distinct domain types. Deliberately wrapping coin_id.0 as PuzzleHash still compiles and needs policy review.",
+        "The equal-width Rue Bytes32 annotations do not express distinct domains. A separately executed Rue distinct-struct control rejects the same domain swap; this is not a unique Rust capability."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/domain-swap/bad.clsp",
+        "rust_bad": "experiments/error-study/domain-swap/bad.rs",
+        "rust_fixed": "experiments/error-study/domain-swap/fixed.rs",
+        "rue": "experiments/error-study/domain-swap/bad.rue",
+        "rue_nominal_control": "experiments/error-study/domain-swap/nominal-control.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 5 (c 11 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "0879656bea271181241b26a9da11452708fafd0f68e2e8f02043a53830377fb9"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal fixture identities, seven mojos",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080"
+              },
+              "execution": {
+                "cost": 420,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal fixture identities, nine mojos",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080"
+              },
+              "execution": {
+                "cost": 420,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and coin ID",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+            },
+            "execution": {
+              "cost": 420,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n  --> <repo>/experiments/error-study/domain-swap/bad.rs:4:18\n   |\n 4 |     (create_coin(coin_id, amount),)\n   |      ----------- ^^^^^^^ expected `PuzzleHash`, found `CoinId`\n   |      |\n   |      arguments to this function are incorrect\n   |\nnote: function defined here\n  --> crates/chialisp-oxide/src/domain.rs:65:8\n   |\n65 | pub fn create_coin(destination: PuzzleHash, amount: Amount) -> CreateCoin {\n   |        ^^^^^^^^^^^\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "destination_is_the_recipient_even_when_coin_id_has_the_same_width",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 555,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff20ffff07ffff05ff01808080ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff012080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ff0180808080ffff01ff02ffff03ffff09ffff0dffff05ffff06ff01808080ffff012080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ffff06ffff06ff01808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ffff06ff018080808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ffff06ffff06ff018080808080ffff01ff02ffff03ffff09ffff06ffff06ffff06ff01808080ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ffff05ffff06ff018080ffff04ffff05ffff06ffff06ff01808080ff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (a (i (not (l (f 1))) (q 2 (i (= (strlen (f 1)) (q . 32)) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (i (a (i (l (r 1)) (q 2 (i (a (i (a (i (not (l (f (r 1)))) (q 2 (i (= (strlen (f (r 1))) (q . 32)) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (i (a (i (l (r (r 1))) (q 2 (i (a (i (not (l (f (r (r 1))))) (q 2 (i (a (i (not (l (r (r (r 1))))) (q 2 (i (= (r (r (r 1))) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c (f (r 1)) (c (f (r (r 1))) ()))) ()) (q 8)) 1)",
+            "optimize_lir": false,
+            "tree_hash": "f5fc299694c54585dfd46992e0d5542bd9650135d526464a93c7339f81c8318b"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal fixture identities, seven mojos",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080"
+              },
+              "execution": {
+                "cost": 7522,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal fixture identities, nine mojos",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080"
+              },
+              "execution": {
+                "cost": 7522,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and coin ID",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+            },
+            "execution": {
+              "cost": 7522,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 441,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff07ff0280ffff0180ffff01ff02ffff03ffff09ffff0dff0280ffff012080ffff01ff0101ffff018080ff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff07ff0580ffff0180ffff01ff02ffff03ffff09ffff0dff0580ffff012080ffff01ff0101ffff018080ff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff01ff02ffff03ffff02ffff03ffff07ff0b80ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0f80ffff0180ffff01ff02ffff03ff0fffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (a (i (l 2) (q) (q 2 (i (= (strlen 2) (q . 32)) (q 1 . 1) (q)) 1)) 1) (q 2 (i (a (i (l 3) (q 2 (i (a (i (a (i (l 5) (q) (q 2 (i (= (strlen 5) (q . 32)) (q 1 . 1) (q)) 1)) 1) (q 2 (i (a (i (l 7) (q 2 (i (a (i (l 11) (q) (q 2 (i (a (i (l 15) (q) (q 2 (i 15 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c 5 (c 11 ()))) ()) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "0c39fafd402c3532e718ee4ade6a2ee09883c931d5577161dd89e71514bec5f9"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal fixture identities, seven mojos",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080"
+              },
+              "execution": {
+                "cost": 5935,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal fixture identities, nine mojos",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080"
+              },
+              "execution": {
+                "cost": 5935,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and coin ID",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+            },
+            "execution": {
+              "cost": 5935,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rue_nominal_control": [
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot assign `StudyCoinId` to `StudyPuzzleHash` without a cast, since they are semantically different at nominal-control.rue:17:13",
+          "optimize_lir": false,
+          "status": "compile_rejected"
+        },
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot assign `StudyCoinId` to `StudyPuzzleHash` without a cast, since they are semantically different at nominal-control.rue:17:13",
+          "optimize_lir": true,
+          "status": "compile_rejected"
+        }
+      ]
+    },
+    {
+      "id": "branch-shape",
+      "title": "Untested branch returns a condition instead of a condition list",
+      "category": "rust_typecheck",
+      "claim": "The declared Rust return type requires both returning branches to produce a one-element condition tuple.",
+      "limitations": [
+        "Consistent types do not establish correct condition opcodes or authorization. Both branches could return the same wrong well-typed policy.",
+        "The study evaluates CLVM return trees; it does not submit a coin spend to consensus."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/branch-shape/bad.clsp",
+        "rust_bad": "experiments/error-study/branch-shape/bad.rs",
+        "rust_fixed": "experiments/error-study/branch-shape/fixed.rs",
+        "rue": "experiments/error-study/branch-shape/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 65,
+            "clvm_hex": "ff02ffff03ff02ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080ffff01ff04ffff0133ffff04ff05ffff04ff0bff8080808080ff0180",
+            "disassembly": "(a (i 2 (q 4 (c (q . 51) (c 5 (c 11 ()))) ()) (q 4 (q . 51) (c 5 (c 11 ())))) 1)",
+            "optimize_lir": true,
+            "tree_hash": "c702402755e75cbade173e4ad38c1f27bd9c67d335a312f88aad4f498eeaed93"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "true branch, seven mojos",
+              "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 677,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "true branch, nine mojos",
+              "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080"
+              },
+              "execution": {
+                "cost": 677,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "previously untested false branch",
+            "input": "(() 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+            },
+            "execution": {
+              "cost": 582,
+              "error": null,
+              "outcome": {
+                "output_hex": "ff33ffa04242424242424242424242424242424242424242424242424242424242424242ff0780",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n --> <repo>/experiments/error-study/branch-shape/bad.rs:7:9\n  |\n3 | pub fn puzzle(pay: bool, recipient: PuzzleHash, amount: Amount) -> (CreateCoin,) {\n  |                                                                    ------------- expected `((u64, PuzzleHash, Amount),)` because of return type\n...\n7 |         create_coin(recipient, amount)\n  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected a tuple with 1 element, found one with 3 elements\n  |\n  = note: expected tuple `((u64, PuzzleHash, Amount),)`\n             found tuple `(u64, PuzzleHash, Amount)`\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "both_branches_have_the_declared_condition_list_shape",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot assign `(CreateCoin, nil) | CreateCoin` to `List<Condition>`, since they are incompatible at bad.rue:1:46",
+          "optimize_lir": false,
+          "status": "compile_rejected"
+        },
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot assign `(CreateCoin, nil) | CreateCoin` to `List<Condition>`, since they are incompatible at bad.rue:1:46",
+          "optimize_lir": true,
+          "status": "compile_rejected"
+        }
+      ]
+    },
+    {
+      "id": "integer-truthiness",
+      "title": "Approval code two is accidentally treated as true",
+      "category": "rust_typecheck",
+      "claim": "Rust rejects an integer directly used as an if condition; it requires an explicit boolean expression.",
+      "limitations": [
+        "Rust does not select the intended boolean expression. Writing approved != 0 would recreate the policy bug and compile.",
+        "The corrected fixture explicitly asserts approved == 1 at runtime; this policy is not proved by the type checker.",
+        "This host-only study does not claim project ABI or Rust-to-CLVM validation."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/integer-truthiness/bad.clsp",
+        "rust_bad": "experiments/error-study/integer-truthiness/bad.rs",
+        "rust_fixed": "experiments/error-study/integer-truthiness/fixed.rs",
+        "rue": "experiments/error-study/integer-truthiness/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 47,
+            "clvm_hex": "ff02ffff03ff02ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i 2 (q 4 (c (q . 51) (c 5 (c 11 ()))) ()) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "15c94b8bf8c4b1d8f42cb0bb133dc7751fdccbe3204a5f2acb876545d683e623"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "approval code one",
+              "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 677,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "approval code zero",
+              "input": "(() 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "rejected"
+              },
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "nonzero approval code two",
+            "input": "(2 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 677,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n --> <repo>/experiments/error-study/integer-truthiness/bad.rs:4:8\n  |\n4 |     if approved {\n  |        ^^^^^^^^ expected `bool`, found `u64`\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "approval_one_produces_the_intended_payment",
+              "event": "ok"
+            },
+            {
+              "name": "approval_zero_is_rejected",
+              "event": "ok"
+            },
+            {
+              "name": "nonzero_approval_two_is_also_rejected",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot compare `Int` to `Bool` without a type guard, since the runtime value must be constrained at bad.rue:6:8",
+          "optimize_lir": false,
+          "status": "compile_rejected"
+        },
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot compare `Int` to `Bool` without a type guard, since the runtime value must be constrained at bad.rue:6:8",
+          "optimize_lir": true,
+          "status": "compile_rejected"
+        }
+      ]
+    },
+    {
+      "id": "unresolved-name",
+      "title": "A misspelled name survives an untested classic Chialisp branch",
+      "category": "rust_name_resolution",
+      "claim": "Rust resolves the amount name in both branches before tests execute; an undeclared amout cannot compile.",
+      "limitations": [
+        "This behavior is measured with the classic chialisp 0.4.6 compiler path, not claimed for every Chialisp dialect or linter.",
+        "A typo that names another existing variable can still compile and requires stronger types or tests."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/unresolved-name/bad.clsp",
+        "rust_bad": "experiments/error-study/unresolved-name/bad.rs",
+        "rust_fixed": "experiments/error-study/unresolved-name/fixed.rs",
+        "rue": "experiments/error-study/unresolved-name/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 26,
+            "clvm_hex": "ff02ffff03ff02ffff0105ffff01ff0185616d6f757480ff0180",
+            "disassembly": "(a (i 2 (q . 5) (q 1 . \"amout\")) 1)",
+            "optimize_lir": true,
+            "tree_hash": "5cdeebaddff0d89deb9292c4dec26bb65eb6860b96584c62028082b9b2393762"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "primary branch, seven",
+              "input": "(1 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "07"
+              },
+              "execution": {
+                "cost": 309,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "primary branch, nine",
+              "input": "(1 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "09"
+              },
+              "execution": {
+                "cost": 309,
+                "error": null,
+                "outcome": {
+                  "output_hex": "09",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "previously untested alternative branch",
+            "input": "(() 7)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "07"
+            },
+            "execution": {
+              "cost": 277,
+              "error": null,
+              "outcome": {
+                "output_hex": "85616d6f7574",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0425",
+              "message": "cannot find value `amout` in this scope",
+              "rendered": "error[E0425]: cannot find value `amout` in this scope\n --> <repo>/experiments/error-study/unresolved-name/bad.rs:2:34\n  |\n2 |     if primary { amount } else { amout }\n  |                                  ^^^^^\n  |\nhelp: a local variable with a similar name exists\n  |\n2 |     if primary { amount } else { amount }\n  |                                      +\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "both_branches_return_the_supplied_amount",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Undeclared symbol `amout` at bad.rue:3:54",
+          "optimize_lir": false,
+          "status": "compile_rejected"
+        },
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Undeclared symbol `amout` at bad.rue:3:54",
+          "optimize_lir": true,
+          "status": "compile_rejected"
+        }
+      ]
+    },
+    {
+      "id": "missing-cap",
+      "title": "Negative control: missing policy cap still compiles",
+      "category": "runtime_policy_control",
+      "claim": "A u64 return type does not prove the independently specified output limit of 1000.",
+      "limitations": [
+        "Both the Chialisp and native Rust bugs compile. The missed witness needs a policy assertion, stronger tests or a separately stated model specification.",
+        "The existing bounded-counter SMT study verifies its explicit IR model; this experiment is not a compiler-preservation proof."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/missing-cap/bad.clsp",
+        "rust_bad": "experiments/error-study/missing-cap/bad.rs",
+        "rust_fixed": "experiments/error-study/missing-cap/fixed.rs",
+        "rue": "experiments/error-study/missing-cap/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 9,
+            "clvm_hex": "ff10ff02ffff010180",
+            "disassembly": "(+ 2 (q . 1))",
+            "optimize_lir": true,
+            "tree_hash": "9df8d4d222276747372a532a1cd736cdd5c6800c39906c9695489d36286ed215"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "minimum",
+              "input": "(0)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "01"
+              },
+              "execution": {
+                "cost": 821,
+                "error": null,
+                "outcome": {
+                  "output_hex": "01",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "small value",
+              "input": "(7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 824,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "output exceeds the independently specified cap",
+            "input": "(1000)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 837,
+              "error": null,
+              "outcome": {
+                "output_hex": "8203e9",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "accepted",
+          "diagnostics": []
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "accepted_boundary_is_within_the_cap",
+              "event": "ok"
+            },
+            {
+              "name": "input_at_the_cap_is_rejected",
+              "event": "ok"
+            }
+          ]
+        },
+        "limited_native_suite": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "ordinary_small_values_pass",
+              "event": "ok"
+            }
+          ]
+        },
+        "expanded_native_witness": {
+          "exit_code": 101,
+          "tests": [
+            {
+              "name": "independent_output_cap_catches_the_missing_guard",
+              "event": "failed",
+              "stdout": "\nthread 'independent_output_cap_catches_the_missing_guard' (<thread>) panicked at <repo>/experiments/error-study/missing-cap/bad.rs:13:5:\nassertion failed: puzzle(1000) <= 1000\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 185,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ff01808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ff01808080ffff01ff02ffff03ffff09ffff06ff0180ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff10ffff05ff0180ffff010180ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (not (l (f 1))) (q 2 (i (a (i (not (l (r 1))) (q 2 (i (= (r 1) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 16 (f 1) (q . 1)) (q 8)) 1)",
+            "optimize_lir": false,
+            "tree_hash": "93672be454e877af05ef12a941469a89d98b4fd240b1d80c9be1327670e32b3a"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "minimum",
+              "input": "(0)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "01"
+              },
+              "execution": {
+                "cost": 3264,
+                "error": null,
+                "outcome": {
+                  "output_hex": "01",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "small value",
+              "input": "(7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 3267,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "output exceeds the independently specified cap",
+            "input": "(1000)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 3280,
+              "error": null,
+              "outcome": {
+                "output_hex": "8203e9",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 155,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0280ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff0180ffff01ff02ffff03ff03ffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff10ff02ffff010180ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (l 2) (q) (q 2 (i (a (i (l 3) (q) (q 2 (i 3 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 16 2 (q . 1)) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "6247551dc386e0f1947c1fd3a713712ba167cddeab277900150a1fd517d72429"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "minimum",
+              "input": "(0)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "01"
+              },
+              "execution": {
+                "cost": 2592,
+                "error": null,
+                "outcome": {
+                  "output_hex": "01",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "small value",
+              "input": "(7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 2595,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "output exceeds the independently specified cap",
+            "input": "(1000)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 2608,
+              "error": null,
+              "outcome": {
+                "output_hex": "8203e9",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,8 @@ hero:
 ---
 
 import EvidenceSummary from '../../components/EvidenceSummary.astro';
-import SourcePair from '../../components/SourcePair.astro';
+import SourceComparison from '../../components/SourceComparison.astro';
+import ErrorStudySummary from '../../components/ErrorStudySummary.astro';
 import { totals } from '../../lib/data';
 
 <div className="oxide-home">
@@ -28,7 +29,7 @@ import { totals } from '../../lib/data';
 
 Rust handles names, types, and borrow checks. chialisp-oxide lowers a deliberately small
 subset of checked MIR into a pure IR. Rue optimizes the result and emits CLVM.
-Independent Chialisp references and a ledger simulator make the result inspectable.
+Independent Chialisp and Rue source compilations, plus a ledger simulator, make the result inspectable.
 
 <div className="pipeline" aria-label="Compiler pipeline">
   <div><span>01 / CHECK</span><strong>Real Rust</strong><small>rustc analysis, types, and borrow checking</small></div>
@@ -43,7 +44,7 @@ This fixture pays a fixed destination and requires a 1,000-mojo input coin.
 It is permissionless: a fixed recipient does not imply an owner signature.
 The longer Chialisp reference makes its untrusted-solution checks explicit.
 
-<SourcePair slug="fixed-payment" />
+<SourceComparison slug="fixed-payment" />
 
 <a href="/chialisp-oxide/lab/fixed-payment/">Inspect this puzzle’s compiled artifacts and adversarial cases →</a>
 
@@ -66,20 +67,25 @@ primer or a CHIP migration.
   <a className="chapter" href="/chialisp-oxide/coverage/"><small>04 / TRACK THE GAPS</small><strong>Follow the source inventory</strong><p>Browse tutorials and CHIPs with pinned provenance. Original teaching fixtures do not count as protocol migrations.</p></a>
 </div>
 
-## Errors rejected before CLVM generation
+## Errors that Rust makes impossible
 
-- Passing a `CoinId` directly to the SDK's `create_coin`, which requires a
-  `PuzzleHash`.
-- Passing an `Amount` directly to `assert_seconds_absolute`, which requires a
-  `Timestamp`.
-- Mixing incompatible primitive types, such as adding `true` to a `u64`.
+These faulty Chialisp examples pass deliberately limited tests that assert exact
+outputs. A distinguishing input exposes each bug. The corresponding Rust source
+mistakes fail type or name checking before they can become CLVM.
 
-These cases are executable compile-fail regressions. The domain protections
-apply at named SDK call sites; public fields still permit explicit unwrap and
-rewrap. Rue can express analogous nominal distinctions. [Run the actual SDK
-examples](/chialisp-oxide/tutorials/typed-sdk/) and read the [full error
-study](/chialisp-oxide/verification/error-study/) for the remaining runtime and
-policy obligations.
+<ErrorStudySummary />
+
+## Published puzzles and functionality gaps
+
+[Browse the published-source catalog](/chialisp-oxide/published/) to discover
+pinned Chialisp, Rue, and Rust files across official and community repositories.
+Discovery, working translations, and validated coin behavior remain separate.
+
+[The functionality map](/chialisp-oxide/reference/chialisp-functionality/)
+shows what this compiler supports and what remains missing. General Rust
+expressibility is not a proof of compiler parity. Dynamic trees, unbounded
+integers, recursion, hashing and crypto, currying, and runtime program evaluation
+remain explicit backend work.
 
 ## Experimental evidence has limits
 

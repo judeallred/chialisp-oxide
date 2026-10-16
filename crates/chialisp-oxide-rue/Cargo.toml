@@ -1,0 +1,17 @@
+[package]
+name = "chialisp-oxide-rue"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1"
+clvmr = "=0.21.0"
+rue-compiler = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }
+rue-options = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }
+rue-diagnostic = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }
+
+[dev-dependencies]
+hex = "0.4"
+serde_json = "1"
+rue-clvm = { git = "https://github.com/xch-dev/rue", rev = "245c107a8e795229ea08097142f005a4c0d91075" }

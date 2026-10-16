@@ -3,13 +3,13 @@ title: Require a key—or two keys
 description: Understand AGG_SIG_ME, complete spend validation, public fixture keys, and two-signature policy.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 An amount guard or caller-controlled boolean does not establish ownership. The
 signature-payment fixture returns an `AGG_SIG_ME` condition for a fixed public
 key, asserts the input amount, and creates the fixed recipient coin.
 
-<SourcePair slug="signature-payment" />
+<SourceComparison slug="signature-payment" />
 
 ## The signed message is not the whole signature context
 
@@ -51,7 +51,7 @@ The two-signature fixture emits two `AGG_SIG_ME` conditions. The aggregate
 signature must satisfy both keys; this is an explicit two-of-two policy, not a
 general threshold-signature implementation.
 
-<SourcePair slug="two-signature-payment" />
+<SourceComparison slug="two-signature-payment" />
 
 Its ledger report includes a single-signer rejection as well as a successful
 two-key spend. Read the complete cases in the

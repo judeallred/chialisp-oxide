@@ -62,6 +62,8 @@ pub struct Manifest {
     pub environment: Environment,
     #[serde(default)]
     pub reference_mode: ReferenceMode,
+    #[serde(default)]
+    pub rue_dependencies: Vec<String>,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -83,6 +85,19 @@ pub struct SourceDependency {
     pub source: String,
 }
 #[derive(Serialize)]
+pub struct RueSource {
+    pub path: String,
+    pub sha256: String,
+    pub source: String,
+    pub dependencies: Vec<SourceDependency>,
+}
+#[derive(Serialize)]
+pub struct SimulatorComparison {
+    pub backend: String,
+    pub optimize_lir: bool,
+    pub scenarios: Vec<spends::Scenario>,
+}
+#[derive(Serialize)]
 pub struct PuzzleReport {
     pub slug: String,
     pub title: String,
@@ -95,11 +110,13 @@ pub struct PuzzleReport {
     pub reference_mode: ReferenceMode,
     pub source: String,
     pub reference: String,
+    pub rue: RueSource,
     pub source_dependencies: Vec<SourceDependency>,
     pub artifacts: Vec<Artifact>,
     pub cases: Vec<CaseReport>,
     pub generated_cases: usize,
     pub simulator: Vec<spends::Scenario>,
+    pub simulator_comparisons: Vec<SimulatorComparison>,
     pub validated: bool,
 }
 fn expectation(slug: &str, solution: &str) -> Result<Outcome> {
@@ -177,6 +194,30 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         })
         .collect::<Result<Vec<_>>>()?;
     let source = std::fs::read_to_string(dir.join("puzzle.rs"))?;
+    let rue_path = format!("puzzles/{slug}/puzzle.rue");
+    let rue_source = std::fs::read_to_string(dir.join("puzzle.rue"))?;
+    let rue = RueSource {
+        path: rue_path,
+        sha256: hex::encode(Sha256::digest(rue_source.as_bytes())),
+        source: rue_source,
+        dependencies: manifest
+            .rue_dependencies
+            .iter()
+            .map(|path| -> Result<SourceDependency> {
+                let resolved = root().join(path).canonicalize()?;
+                ensure!(
+                    resolved.starts_with(root()),
+                    "Rue dependency escapes repository"
+                );
+                let source = std::fs::read_to_string(resolved)?;
+                Ok(SourceDependency {
+                    path: path.clone(),
+                    sha256: hex::encode(Sha256::digest(source.as_bytes())),
+                    source,
+                })
+            })
+            .collect::<Result<_>>()?,
+    };
     let original = match manifest.reference_mode {
         ReferenceMode::Module => chialisp_oxide_reference::compile(&reference),
         ReferenceMode::Expression => chialisp_oxide_reference::compile_expression(&reference),
@@ -190,7 +231,27 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         ),
         ("rust_mir", true, chialisp_oxide_ir::compile(program, true)?),
         ("chialisp", true, original),
+        (
+            "rue_source",
+            false,
+            chialisp_oxide_rue::compile_file(&dir.join("puzzle.rue"), false)?,
+        ),
+        (
+            "rue_source",
+            true,
+            chialisp_oxide_rue::compile_file(&dir.join("puzzle.rue"), true)?,
+        ),
     ];
+    ensure!(
+        std::fs::read_to_string(dir.join("puzzle.rue"))? == rue.source,
+        "Rue source changed during compilation"
+    );
+    for dependency in &rue.dependencies {
+        ensure!(
+            std::fs::read_to_string(root().join(&dependency.path))? == dependency.source,
+            "Rue dependency changed during compilation"
+        );
+    }
     let mut cases = vec![];
     for case in manifest.cases {
         let (native, runs) = compare(slug, &case.solution, &programs)?;
@@ -223,6 +284,19 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         "pure_function" => vec![],
         kind => anyhow::bail!("unknown corpus kind {kind}"),
     };
+    let mut simulator_comparisons = vec![];
+    if manifest.kind == "coin_puzzle" {
+        for (backend, optimize, code) in programs
+            .iter()
+            .filter(|(backend, opt, _)| *opt && *backend != "rust_mir")
+        {
+            simulator_comparisons.push(SimulatorComparison {
+                backend: (*backend).into(),
+                optimize_lir: *optimize,
+                scenarios: spends::validate(slug, code)?,
+            });
+        }
+    }
     Ok(PuzzleReport {
         slug: manifest.slug,
         title: manifest.title,
@@ -233,11 +307,13 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         reference_mode: manifest.reference_mode,
         source,
         reference,
+        rue,
         source_dependencies,
         artifacts,
         cases,
         generated_cases,
         simulator,
+        simulator_comparisons,
         validated: true,
     })
 }

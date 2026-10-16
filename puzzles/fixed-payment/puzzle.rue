@@ -1,0 +1,9 @@
+// Authored Rue comparison of the paired policy, with explicit untrusted ABI checks.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is nil;
+    [AssertMyAmount { amount: COIN_AMOUNT },
+     CreateCoin { puzzle_hash: RECIPIENT, amount: COIN_AMOUNT }]
+}
+
+const COIN_AMOUNT: Int = 1000;
+const RECIPIENT: Bytes32 = 0x4242424242424242424242424242424242424242424242424242424242424242;

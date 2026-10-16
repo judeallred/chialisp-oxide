@@ -74,3 +74,20 @@ contract and observed output. Run `python3 corpus/validate_tutorial_examples.py`
 to check those bindings and `--self-test` to exercise rejection controls. Nine
 other programs, the naming variant, and supporting workflows remain unrun;
 partial Intro progress does not complete its parent page or the primer.
+
+## Three-language comparisons and discovery
+
+Every current fixture records Chialisp, Rust, and independently compiled Rue
+source. Five CLVM builds cover Chialisp, Rust off/on, and Rue off/on. The same
+30 ledger scenarios run separately for each language. Rue source hashes and
+local dependencies are recorded separately from Rust's Cargo authoring inputs.
+The `add-rue` baseline comparison preserves every preexisting Rust/Chialisp
+artifact, cost, outcome and ledger result while admitting only the added Rue
+evidence.
+
+`published-puzzles.json` and `validate_published_puzzles.py` catalog concrete
+source files in pinned public repository trees. Its discovery query snapshot,
+classifications, license metadata and omissions are explicit. This catalog does
+not mark sources as ported or verified. `error-study.json` is independent
+executed evidence for the deliberately faulty fixtures in
+`experiments/error-study`; reproduce it with `python3 scripts/check-error-study.py`.

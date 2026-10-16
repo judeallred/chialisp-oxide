@@ -1,0 +1,3 @@
+; Policy expects approval code exactly 1, but Chialisp tests atom truthiness.
+(mod (APPROVED RECIPIENT AMOUNT)
+  (if APPROVED (list (list 51 RECIPIENT AMOUNT)) (x)))

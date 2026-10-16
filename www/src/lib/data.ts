@@ -22,10 +22,12 @@ export interface PuzzleReport {
   source: string;
   source_dependencies: { path: string; sha256: string; source: string }[];
   reference: string;
+  rue: { path: string; sha256: string; source: string; dependencies: { path: string; sha256: string; source: string }[] };
   artifacts: Artifact[];
   cases: { label: string; solution: string; native: Outcome; runs: { backend: string; optimize_lir: boolean; execution: { outcome: Outcome; cost: number | null; error: string | null } }[] }[];
   generated_cases: number;
   simulator: { name: string; passed: boolean; scope: string }[];
+  simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: { name: string; passed: boolean; scope: string }[] }[];
   validated: boolean;
 }
 export interface Authoring {
@@ -64,6 +66,7 @@ export const canonicalExample = (puzzle: PuzzleReport) => tutorialExamples.find(
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const href = (path: string) => `${base}/${path.replace(/^\//, '')}`;
 export const format = (value: number) => new Intl.NumberFormat('en-US').format(value);
+export const backendLabel = (backend: string) => ({ rust_mir: 'Rust', chialisp: 'Chialisp', rue_source: 'Rue' })[backend] ?? backend;
 export const optimized = (puzzle: PuzzleReport) => puzzle.artifacts.find(a => a.backend === 'rust_mir' && a.optimize_lir)!;
 export const acceptedCosts = (puzzle: PuzzleReport) => puzzle.cases.flatMap(c => c.runs.filter(r => r.backend === 'rust_mir' && r.optimize_lir && r.execution.outcome.status === 'accepted' && r.execution.cost !== null).map(r => r.execution.cost!));
 export const totals = {
@@ -71,6 +74,7 @@ export const totals = {
   vectors: puzzles.reduce((sum, p) => sum + p.cases.length, 0),
   generated: puzzles.reduce((sum, p) => sum + p.generated_cases, 0),
   ledger: puzzles.reduce((sum, p) => sum + p.simulator.length, 0),
+  ledgerExecutions: puzzles.reduce((sum, p) => sum + p.simulator.length + p.simulator_comparisons.reduce((n, run) => n + run.scenarios.length, 0), 0),
   coinPuzzles: puzzles.filter(puzzle => puzzle.kind === 'coin_puzzle').length,
   pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
   canonicalPorts: puzzles.filter(puzzle => canonicalExample(puzzle)).length,

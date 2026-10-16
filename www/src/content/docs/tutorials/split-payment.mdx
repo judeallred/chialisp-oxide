@@ -3,13 +3,13 @@ title: Split a payment without creating value
 description: Use checked subtraction, a bounded caller input, and exact recipient assertions.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 `FIRST_RECIPIENT` receives `first_amount`; `SECOND_RECIPIENT` receives
 the rest of `COIN_AMOUNT`. Both destination hashes are fixed. The caller selects
 the split, and the input amount is checked by a consensus condition.
 
-<SourcePair slug="split-payment" />
+<SourceComparison slug="split-payment" />
 
 ## Why the guard comes before subtraction
 

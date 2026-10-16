@@ -51,7 +51,7 @@ for (const file of pages) {
   }
 }
 
-for (const name of ['validation', 'proofs', 'inventory', 'tutorial-examples']) {
+for (const name of ['validation', 'proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study']) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
 }
@@ -71,14 +71,15 @@ const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).ma
 let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
+  for (const language of ['chialisp', 'rust', 'rue']) assert(detail.includes(`data-language="${language}"`), `${puzzle.slug}: missing ${language} side-by-side source column`);
   assert(detail.includes('Serialized-byte diffs'), `${puzzle.slug}: missing compiled-output comparison`);
   assert(detail.includes(validation.authoring.exports[puzzle.slug].entry), `${puzzle.slug}: missing actual Cargo export identity`);
   const copied = [...detail.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
-  for (const [label, source] of [['Rust', puzzle.source], ['Chialisp', puzzle.reference], ...puzzle.source_dependencies.map(dependency => [dependency.path, dependency.source])]) {
+  for (const [label, source] of [['Rust', puzzle.source], ['Chialisp', puzzle.reference], ['Rue', puzzle.rue.source], ...[...puzzle.source_dependencies, ...puzzle.rue.dependencies].map(dependency => [dependency.path, dependency.source])]) {
     assert(copied.includes(normalizedCode(source)), `${puzzle.slug}: copy payload changed ${label} source`);
     checkedSourceCopies++;
   }
-  for (const dependency of puzzle.source_dependencies) {
+  for (const dependency of [...puzzle.source_dependencies, ...puzzle.rue.dependencies]) {
     assert(detail.includes(dependency.sha256), `${puzzle.slug}: missing source dependency provenance`);
     assert(detail.includes(`data-source-dependency="${dependency.path}"`), `${puzzle.slug}: missing expandable dependency source`);
     if (dependency.path.endsWith('/fixture_keys.rs')) {
@@ -116,6 +117,20 @@ for (const example of tutorialExamples.examples) {
 }
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 const homepage = await html(path.join(root, 'index.html'));
+assert(homepage.includes('Errors that Rust makes impossible'), 'Missing dedicated static-error section');
+const study = JSON.parse(await readFile(path.join(root, 'reports/error-study.json'), 'utf8'));
+const studyPage = await html(path.join(root, 'verification/error-study/index.html'));
+for (const example of study.studies) {
+  assert(studyPage.includes(example.title), `${example.id}: missing executable error study`);
+  if (example.category === 'rust_typecheck') assert(homepage.includes(example.title), `${example.id}: missing actual diagnostic summary`);
+}
+assert(studyPage.includes('E0308') && studyPage.includes('E0425'), 'Missing captured Rust diagnostic references');
+const functionality = await html(path.join(root, 'reference/chialisp-functionality/index.html'));
+assert(functionality.includes('proof') && functionality.includes('recursion'), 'Missing explicit functionality and parity gaps');
+const catalog = await html(path.join(root, 'published/index.html'));
+const published = JSON.parse(await readFile(path.join(root, 'reports/published-puzzles.json'), 'utf8'));
+assert(catalog.includes('Published') && catalog.includes('not'), 'Missing source catalog scope');
+assert(published.scope.not_internet_exhaustive, 'Source discovery must retain its bounded search scope');
 const heroTitle = homepage.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, '');
 assert.match(heroTitle ?? '', /WIP prototype.*not ready for use/i, 'Homepage must lead with the prototype status');
 
@@ -132,7 +147,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -144,4 +159,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 4 JSON reports, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 6 JSON reports, and live Pagefind queries`);

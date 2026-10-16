@@ -1,0 +1,992 @@
+{
+  "schema_version": 1,
+  "repository": "dinkoduric/chialisp-web",
+  "revision": "0aa104ed8e91c1ad45cecd86f2dc42bde044abb7",
+  "visibility": "public",
+  "private": false,
+  "visibility_metadata_url": "https://api.github.com/repos/dinkoduric/chialisp-web",
+  "commit_url": "https://github.com/dinkoduric/chialisp-web/commit/0aa104ed8e91c1ad45cecd86f2dc42bde044abb7",
+  "root_tree_sha1": "d7f2ba42259a30b5163015fb0140ea7d401d73dd",
+  "truncated": false,
+  "enumeration_url": "https://api.github.com/repos/dinkoduric/chialisp-web/git/trees/d7f2ba42259a30b5163015fb0140ea7d401d73dd?recursive=1",
+  "entries": [
+    {
+      "path": ".dockerignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "93f13619916123cf5434dab2ffcc8263c7420af1",
+      "size_bytes": 27
+    },
+    {
+      "path": ".github",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "4025457af727e612b6906afaccafe3e60d03b9f2"
+    },
+    {
+      "path": ".github/workflows",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "3b823ff9e38fb5f9059f1e4ffaf046f1435a4945"
+    },
+    {
+      "path": ".github/workflows/deploy-pages.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2c7510eecbfa044b83fadf627dea3a84ffaa3389",
+      "size_bytes": 536
+    },
+    {
+      "path": ".gitignore",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5242be22876df2eb07f8d341a970edfaf23cf374",
+      "size_bytes": 297
+    },
+    {
+      "path": ".prettierrc",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1fb73bc2e2b4e9265054ab0a6c1b1c8e5cad6fa6",
+      "size_bytes": 43
+    },
+    {
+      "path": "Dockerfile",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b38970abfa951d2e7a05d5f54964516a502c43fb",
+      "size_bytes": 157
+    },
+    {
+      "path": "LICENSE",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "caca5955a31bd110464a32e0ced77c566154a247",
+      "size_bytes": 11309
+    },
+    {
+      "path": "README.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5892655efe0f6efa1bbf657e528fb3e9d3fad82d",
+      "size_bytes": 1328
+    },
+    {
+      "path": "babel.config.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e00595dae7d69190e2a9d07202616c2ea932e487",
+      "size_bytes": 89
+    },
+    {
+      "path": "docker-compose.yml",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "668c2198203082a10dfc4a239e5120dbbad0e375",
+      "size_bytes": 230
+    },
+    {
+      "path": "docs",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "bf8d68460822d1435f561736a3a1e4d2ffcb3c37"
+    },
+    {
+      "path": "docs/clvm.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "15c6fd82a749ae98ba5d873c415e7fb67aa90cae",
+      "size_bytes": 10026
+    },
+    {
+      "path": "docs/commands.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a2c9708619081958226228547ef04c2444aba13f",
+      "size_bytes": 3144
+    },
+    {
+      "path": "docs/costs.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0b59faeaed67b67aa27e6da963c0f0a10988defd",
+      "size_bytes": 26717
+    },
+    {
+      "path": "docs/debugging.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "01c6e856fa75b0030e85e5c7e826498f76bcdcd0",
+      "size_bytes": 6003
+    },
+    {
+      "path": "docs/examples.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "477f75c2f006d3509909f05824fe8f02d41d23ab",
+      "size_bytes": 2039
+    },
+    {
+      "path": "docs/intro.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2683ee114502ec3bee679846391a95cfba0f29e6",
+      "size_bytes": 1911
+    },
+    {
+      "path": "docs/operators.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "51e97e03f3758ab07cf33e27b512dd7327d3b201",
+      "size_bytes": 9165
+    },
+    {
+      "path": "docs/optimization.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "209be5203eec5f49a78d0a5f87cdb010d878da0f",
+      "size_bytes": 3303
+    },
+    {
+      "path": "docs/primitives",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "2fe9254412a77a333b09f6de6349d23c1f66f60f"
+    },
+    {
+      "path": "docs/primitives/cats.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "16432726e754251b98231599bc8ca25b6f16ba6d",
+      "size_bytes": 36697
+    },
+    {
+      "path": "docs/primitives/dids.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "69ad8cc0465e8bbd4b36d7915e0f29e0641d28d3",
+      "size_bytes": 7473
+    },
+    {
+      "path": "docs/primitives/nfts.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "603ec865815b7e721153c908de4fd82a51a960d5",
+      "size_bytes": 11220
+    },
+    {
+      "path": "docs/primitives/offers.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "78d69c5addc275e442b944d26d716018acc7b028",
+      "size_bytes": 15599
+    },
+    {
+      "path": "docs/primitives/pooling.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "adc285e87f1d2d921ed45c078a4fa6240391b547",
+      "size_bytes": 20494
+    },
+    {
+      "path": "docs/primitives/singletons.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1f258678b00db5c7b0a43f4af9ccb6f680f4d10c",
+      "size_bytes": 24571
+    },
+    {
+      "path": "docs/primitives/standard-transactions.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "64d26888240c4809ec55c0705b6a93d4a0220e2c",
+      "size_bytes": 12331
+    },
+    {
+      "path": "docs/syntax.md",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4efde315359979b7cb37ed0f4b4ebe4e6e7ea13d",
+      "size_bytes": 4844
+    },
+    {
+      "path": "docusaurus.config.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5bc1eb5411d4f0a236560e5a97b51157feb2a6f8",
+      "size_bytes": 3138
+    },
+    {
+      "path": "package.json",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9f8b36ce672984828da571600fe097fd76fd7404",
+      "size_bytes": 1033
+    },
+    {
+      "path": "sidebars.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "edb08619eadd70d3415c012bd5bfbdc5b04a539c",
+      "size_bytes": 595
+    },
+    {
+      "path": "src",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "cc4e042a6e8d1bcde8a956090cf5e66bc7b554b5"
+    },
+    {
+      "path": "src/css",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "dc369d0cfd6d486a1e899f9ebc20b101d3674331"
+    },
+    {
+      "path": "src/css/custom.css",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4f1a0f555b2c5100cc17471bdb71fcc751746776",
+      "size_bytes": 1305
+    },
+    {
+      "path": "src/theme",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f45b6e83b3e58bba5df0b61ca34d4e41780ceea5"
+    },
+    {
+      "path": "src/theme/prism-chialisp.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "edfe4efd2b7deb7d5369d76213f9e65522791cc1",
+      "size_bytes": 4345
+    },
+    {
+      "path": "src/theme/prism-dark-theme-chialisp.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ca179f415c189383b6fa22c8ee48da8d14d098a7",
+      "size_bytes": 1099
+    },
+    {
+      "path": "src/theme/prism-include-languages.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cbbfc08c05e647b446dfd30c6cfca21fb7727e0e",
+      "size_bytes": 760
+    },
+    {
+      "path": "src/theme/prism-light-theme-chialisp.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "778d510f6f7ca33e428b393718f68b44d9130002",
+      "size_bytes": 1025
+    },
+    {
+      "path": "static",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "71ad4695957b7edfa2d8b52d22aacfe10303abe8"
+    },
+    {
+      "path": "static/.nojekyll",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size_bytes": 0
+    },
+    {
+      "path": "static/CNAME",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6b9eed885c6f183deec5fca34b68abba16ea5f82",
+      "size_bytes": 13
+    },
+    {
+      "path": "static/files",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f61ead985998c0dbd8a6ce6d7e70c2bb4024e3cb"
+    },
+    {
+      "path": "static/files/Piggybank_Example.zip",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e826a2993e367b372ae6cc6c22a496108ae9b868",
+      "size_bytes": 14024
+    },
+    {
+      "path": "static/files/tutorials",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "39ce9486dce330b1a22f33288ee5d5730cef5b4e"
+    },
+    {
+      "path": "static/files/tutorials/4-Securing_a_Smart_Coin_Slides-Chialisp.pdf",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "54e369cd975a0e479a0596ca935ddd044e44a4c4",
+      "size_bytes": 274321
+    },
+    {
+      "path": "static/files/tutorials/Piggybank_Example.zip",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e826a2993e367b372ae6cc6c22a496108ae9b868",
+      "size_bytes": 14024
+    },
+    {
+      "path": "static/img",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1aa93dab54954509da166b18ba0757f07b3064bd"
+    },
+    {
+      "path": "static/img/coin_lifecycle_testing.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a29dd7ac30cef6dd06469a69309933113e22c579",
+      "size_bytes": 19209
+    },
+    {
+      "path": "static/img/favicon.ico",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "da20ef2f7e38d65d88bcf1f598b87fb0d1c0a1ec",
+      "size_bytes": 15406
+    },
+    {
+      "path": "static/img/full_logo.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0f85221614fb6e2b91ac9194ef1fcba70d646bb8",
+      "size_bytes": 4411
+    },
+    {
+      "path": "static/img/full_logo_white.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a9e874e431b7b869e88ee2172af33df981f0d815",
+      "size_bytes": 4416
+    },
+    {
+      "path": "static/img/logo.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "887c1b506325267526a905838c54e7b8f24d27bf",
+      "size_bytes": 2959
+    },
+    {
+      "path": "static/img/offers_img",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "a0c1b66d05a2447320fc53ae907e0cda82471259"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "7c4cb45fc481793fd75ee3a883588ed14b97aab3"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f86f8ce03c96cf2106cac7cb3abeb16907ffbfd6"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/1_actions.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "44595c746a3c3f2b9a67b05a4c791d58d3107acc",
+      "size_bytes": 55199
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/2_cancel.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "febc67aca33bf929488485b522114bcb05e8cb16",
+      "size_bytes": 64518
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/3_cancel_on_chain.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7032ead6d8be946f029a673e8d926c97f970c9b1",
+      "size_bytes": 85190
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/4_cancel_off_chain.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "fe0a8574154c924ff721cf43e02ddeb8e801a2d6",
+      "size_bytes": 91763
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/5_pending_cancel.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "92fe3aeac683a4f4513fee20bb372c48f4e85a2d",
+      "size_bytes": 65412
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/cancel/6_cancelled.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "14ef58198705e79b1709e61bf9253e2ccfc7e7fb",
+      "size_bytes": 64528
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8a7f57ba7be929dacff284c0d2029a8010f55aa6"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/01_xch_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "50d0880c933658715e02d680ea7f5ef97856953e",
+      "size_bytes": 29359
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/02_ckc_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4429e1de1764257fe4dec49c92a0db206e960ae8",
+      "size_bytes": 29459
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/03_100xch_for_1mckc.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0c5c9ae54ce003db10a63c9f186e7900fed33020",
+      "size_bytes": 39989
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/04_100xch_for_1mckc_fail.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4d955b474899924eac7d0a94efa1ad4b7d7f9973",
+      "size_bytes": 45838
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/05_accept_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c90cddd49e929715e71e1c11f9f0105c774ba439",
+      "size_bytes": 40421
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/06_insufficient_funds.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b45a1d69d77fd4f0b94aa333a6d7e61cc2bd2750",
+      "size_bytes": 49748
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/07_0.1xch_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9ce042783bbdc3c93ee256d8cb115e1a80fa5f3b",
+      "size_bytes": 33641
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/08_0.25_shibe_for_0.1_xch.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "faa3c2e31a82eba06ee3866ca6f6de679cc0345b",
+      "size_bytes": 41394
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/09_accept_unknown_warning.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ef6b54aeada14a4906530a3571642720001eba93",
+      "size_bytes": 78033
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/10_unknown_success.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8316493342748924137ceb7c0a54f37f5002ab85",
+      "size_bytes": 58082
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/11_invalid_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b6ab3764527db560194981493dda9440e7b3bb39",
+      "size_bytes": 46278
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/12_0.1xch_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7fab6df070d39413873134c03a278723a1d7cc4e",
+      "size_bytes": 33742
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/13_1usds_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3aea004c86e0a7cb01794ef9c36b4e98567adc7f",
+      "size_bytes": 32895
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/14_view_offer_0.1xch_10usds.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "05ff0f3dee057d80eeae77f98b9092a54aef57ac",
+      "size_bytes": 36278
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/15_cancel_off_chain.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7adc5a53c37c213856a84f1c31d7041dd40cee0d",
+      "size_bytes": 90089
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/16_canceled_off_chain.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a98e052ba59a0503af47471c9f053531e863b7ec",
+      "size_bytes": 26750
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/17_accept_a_canceled_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f2333192295ee53e99df0832c19e18fb434b7c79",
+      "size_bytes": 35286
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/18_confirmed_canceled_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "9c46292db3dff49c0627b5d2e4aa3b5a9a0186d4",
+      "size_bytes": 27401
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/19_0xch_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cf28ee18b7cb6e3b6b2f8d80142e9e028a88dfd8",
+      "size_bytes": 35827
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/20_11usds_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "33bd43e0ac73a3ba21e7ae8b0de90a1b516398ce",
+      "size_bytes": 33305
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/21_1xch_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f1ed585186815a64e3eda2e45a4a8375ff4bc846",
+      "size_bytes": 33030
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/22_0usds_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8e1cd68162814717df890b5c534bf010022edb2c",
+      "size_bytes": 28926
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/23_pending_accept.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "5096bbe3a1156f88f23a6d0bc82e869870e5767f",
+      "size_bytes": 26562
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/24_show_details.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "63714d43998fa3531041050e11d131c05a544e02",
+      "size_bytes": 35003
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/25_one_coin.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "79ce2f4717209bb51138db4693c16678800c492b",
+      "size_bytes": 12633
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/26_cant_send_offer_pending.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "abd8ade72c1dbf88dfbe3fdfe22140640ff15e7a",
+      "size_bytes": 81592
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/27_send_0.1xch_to_self.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1072a4592b4ca95ac0fb50db88934e921ef21316",
+      "size_bytes": 24522
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/28_0.1_coin_in_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0fd4a14e33b603145a5c4fc47dbc43df9e4477d7",
+      "size_bytes": 12505
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/29_0.1xch_available.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a47821faf2c1d2ce30672a9b4298085cb2ca9b9f",
+      "size_bytes": 30927
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/issues/30_send_while_offer_pending.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "779e603a02b70874fcf7383e3bce2232912eef30",
+      "size_bytes": 69392
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_accept",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "f28e83b9c6596dcaf5710e16594017da8a9443f7"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_accept/1_multiple_accept_dialog.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "04820e26eb81306c13130b53ae2cda25e13c2d9d",
+      "size_bytes": 43926
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_accept/2_confirmed.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "4243c3f564bc70f7f1197e06fb6c6f0835fd9b98",
+      "size_bytes": 23450
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_accept/3_ckc_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8c75ac9f5957030802f28e6b39af909a39d0fd9a",
+      "size_bytes": 35340
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_accept/4_usds_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0a3049c3d420538f901b767e847143342448b81c",
+      "size_bytes": 34274
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_create",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "b522fa85f75ce9d26f099925c79d89f8832cc730"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_create/1_plus_buttons.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f084b1a89c14ccf0783e61502cf2fc57ff1973a2",
+      "size_bytes": 38454
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_create/2_save_multiple_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "ffa224f33148321693b4401c43baeb0b4fc5ff5b",
+      "size_bytes": 52399
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_multiple_create/3_manage_multiple.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "051921672543fc545b2e0848783938098e9d4a57",
+      "size_bytes": 78386
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "ecfb82f30a6908cdbd7153c3daee8717b4f3ebc2"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/10_wallet_post_trade.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "b3209de56e3d4c94b1afcdd6eb79bf6cf2b1530f",
+      "size_bytes": 33784
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/1_chia_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "1c2e632ce396528550c230c122ae438df2618d13",
+      "size_bytes": 32123
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/2_view_an_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "011bc52b618b45c3a64fdfebd7f88eaf5e036a79",
+      "size_bytes": 46879
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/3_select_offer_file.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "124a0efcd9b606b75a7d7781347539ecc9615ea8",
+      "size_bytes": 29639
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/4_open.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "046da5757e98ce42e3bb769069923680f5c4598b",
+      "size_bytes": 29648
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/5_accept_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "438e547f11a430707ac0bb2e76ebc546d2a1883c",
+      "size_bytes": 39238
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/6_accept_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d39638a6e968daef8e16e3b2c96faf1928e58d81",
+      "size_bytes": 59581
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/7_success.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eb904b31950550596d2d1827b0ef4629ebe111c4",
+      "size_bytes": 52196
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/8_pending_confirm.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "61f2f3504b46c9a61c56c279328f8c9304546f42",
+      "size_bytes": 65319
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_accept/9_confirmed.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f0f2fecf8173dfbdb48778ab772bb5e3e216b1be",
+      "size_bytes": 25972
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "1a11b8f3fc15a18030ea0b21be7c1b64e943132b"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/1_usds_wallet.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a2e9284d60c829da6fa7fc5b5ce538e1198dfc81",
+      "size_bytes": 31264
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/2_create_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "eec9f382f585543dbbeec0d248b417c6b9ba7cbe",
+      "size_bytes": 45340
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/3_save_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "090a48a9d39badd772dbd8d198eea9d768efa0ed",
+      "size_bytes": 40788
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/4_save_dialog.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c92ab8e18ff6c6b314a5b862e146fbc7c6998312",
+      "size_bytes": 61263
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/5_share_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a7db127fa6b12df0915ee4207c906ad217125cdb",
+      "size_bytes": 86236
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/6_share_on_offer_bin.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "0b47bbd5ad698ee1db49cfb7a0ff6f3fbaf7b469",
+      "size_bytes": 70847
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/7_view_on_offer_bin.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "798bca868411f5d8dc5d97d7d04b80625c6734bb",
+      "size_bytes": 83392
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/offer_single_create/8_pending_accept.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "742699171ef0a7d7184ee23f69f01a23f2dcbe75",
+      "size_bytes": 65576
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/unknown_cat",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "247402e5a17596968d2735b4845d36703bbcbf2f"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/unknown_cat/1_unknown_cat.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3011d288411ad86b77ff2b9cb213461effeee1db",
+      "size_bytes": 33088
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/wallet_add",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "13d8407eb79892f7a4a1b57a60a69f092cfff954"
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/wallet_add/1_xch_balance.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "d41467d378d162d343903081c2302ef8e8faae3b",
+      "size_bytes": 35981
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/wallet_add/2_add_usds.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "8056e27f2eaa42aa4c61830985071d1ad6da5681",
+      "size_bytes": 31651
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/wallet_add/3_adding_usds_token.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "6cad5b7aa69e0764a22b885232f15611541f8c94",
+      "size_bytes": 30243
+    },
+    {
+      "path": "static/img/offers_img/gui_tutorial/wallet_add/4_two_wallets.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "cbe98e43520aa6862a2dc81aa6a44f4835be151a",
+      "size_bytes": 34490
+    },
+    {
+      "path": "static/img/offers_img/offers",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "d182a62ce1b6923ffd56d548221f9708c3c11b40"
+    },
+    {
+      "path": "static/img/offers_img/offers/1_alice_1_xch.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "f4b8f9410dc113cb35a68cc4eabaf36fc712a822",
+      "size_bytes": 32869
+    },
+    {
+      "path": "static/img/offers_img/offers/2_offer_1_xch_251_ckc.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "03f32c48e9d9e68da2e575c76e71cdd7898d9103",
+      "size_bytes": 31682
+    },
+    {
+      "path": "static/img/offers_img/offers/3_bob_view_xch_ckc_offer.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "2d361750bfa271b8ff93d12b6d5954578956be08",
+      "size_bytes": 26525
+    },
+    {
+      "path": "static/img/offers_img/offers/4_alice_251_ckc.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "dea2392bf80a573861f3fc7668679b67b2b19df0",
+      "size_bytes": 34334
+    },
+    {
+      "path": "static/img/offers_img/offers/5_bob_1_xch.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "63dc47a3ca7156a7b5dc6734dac351eaa8aa3824",
+      "size_bytes": 32882
+    },
+    {
+      "path": "static/img/tools_and_setup_graphic.png",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "7d5e07eef2c53312e4f060114b984ca50db4e36d",
+      "size_bytes": 12381
+    },
+    {
+      "path": "static/img/undraw_docusaurus_mountain.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "431cef2f7fece86b135fe8fa5bae5b4ff168d9e9",
+      "size_bytes": 31457
+    },
+    {
+      "path": "static/img/undraw_docusaurus_react.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "e417050433381b4ca4d82ea00ce935167613e97f",
+      "size_bytes": 35968
+    },
+    {
+      "path": "static/img/undraw_docusaurus_tree.svg",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "a05cc03dda90ff2852b222d01757cbb9f9cd1885",
+      "size_bytes": 11784
+    },
+    {
+      "path": "static/js",
+      "kind": "tree",
+      "mode": "040000",
+      "git_sha1": "8cf9fbb7cd336f4d432ec757e383082fa136ebc2"
+    },
+    {
+      "path": "static/js/matomo.js",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "c914fcdf13e13d5358551f0c4f18aebad2b6921e",
+      "size_bytes": 489
+    },
+    {
+      "path": "yarn.lock",
+      "kind": "blob",
+      "mode": "100644",
+      "git_sha1": "3b7fdc49e50c240f841ea53077f6cea0563bd76e",
+      "size_bytes": 345594
+    }
+  ]
+}

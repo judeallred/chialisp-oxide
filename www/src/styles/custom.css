@@ -76,7 +76,7 @@ a[aria-current='page'] { border-radius: 4px; }
 .pipeline span { display: block; font: .65rem var(--sl-font-mono); color: var(--sl-color-accent-high); margin-bottom: .55rem; }
 .pipeline strong { font-size: .95rem; }
 .pipeline small { display: block; color: var(--sl-color-gray-2); font-size: .75rem; margin-top: .4rem; line-height: 1.6; }
-:root:has(.source-comparison) { --sl-content-width: 72rem; }
+:root:has(.source-comparison) { --sl-content-width: 90rem; }
 .sl-markdown-content:has(.source-comparison) > p { max-width: 76ch; }
 .source-comparison { container-type: inline-size; margin-block: 1.5rem; }
 .split-source { display: grid; grid-template-columns: minmax(0,1fr); gap: 1.5rem; }
@@ -88,8 +88,8 @@ a[aria-current='page'] { border-radius: 4px; }
 .source-dependency summary { cursor: pointer; font-size: .85rem; overflow-wrap: anywhere; }
 .source-dependency summary:focus-visible { outline: 2px solid var(--sl-color-accent); outline-offset: 4px; }
 .dependency-hash { overflow-wrap: anywhere; }
-@container (min-width: 61rem) {
-  .split-source { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@container (min-width: 57rem) {
+  .split-source { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .callout-note { padding: 1rem 1.25rem; border-inline-start: 3px solid var(--sl-color-accent); background: var(--sl-color-bg-sidebar); font-size: .9rem; margin-block: 1.4rem; }
 .oxide-home .chapter-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin: 1.5rem 0 3rem; }

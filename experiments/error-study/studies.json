@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "scope": "Original deliberately faulty teaching fixtures. Weak suites assert exact outcomes but intentionally omit a distinguishing input. These are host Rust compiler/tests and independent Chialisp/Rue VM executions, not Rust-to-CLVM or consensus proofs.",
+  "studies": [
+    {
+      "id": "domain-swap",
+      "title": "Coin ID used as a payment destination",
+      "category": "rust_typecheck",
+      "rust_error": "E0308",
+      "claim": "Distinct SDK CoinId and PuzzleHash types reject this direct argument swap, even though both contain 32 bytes.",
+      "limitations": [
+        "The guarantee relies on choosing distinct domain types. Deliberately wrapping coin_id.0 as PuzzleHash still compiles and needs policy review.",
+        "The equal-width Rue Bytes32 annotations do not express distinct domains. A separately executed Rue distinct-struct control rejects the same domain swap; this is not a unique Rust capability."
+      ],
+      "weak_suite": [
+        {
+          "name": "equal fixture identities, seven mojos",
+          "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7)",
+          "expected": {
+            "status": "accepted",
+            "tree": [
+              [
+                51,
+                {
+                  "bytes": "1111111111111111111111111111111111111111111111111111111111111111"
+                },
+                7
+              ]
+            ]
+          }
+        },
+        {
+          "name": "equal fixture identities, nine mojos",
+          "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9)",
+          "expected": {
+            "status": "accepted",
+            "tree": [
+              [
+                51,
+                {
+                  "bytes": "2222222222222222222222222222222222222222222222222222222222222222"
+                },
+                9
+              ]
+            ]
+          }
+        }
+      ],
+      "missed_witness": {
+        "name": "distinct recipient and coin ID",
+        "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7)",
+        "expected": {
+          "status": "accepted",
+          "tree": [
+            [
+              51,
+              {
+                "bytes": "4242424242424242424242424242424242424242424242424242424242424242"
+              },
+              7
+            ]
+          ]
+        }
+      },
+      "sources": {
+        "chialisp": "experiments/error-study/domain-swap/bad.clsp",
+        "rust_bad": "experiments/error-study/domain-swap/bad.rs",
+        "rust_fixed": "experiments/error-study/domain-swap/fixed.rs",
+        "rue": "experiments/error-study/domain-swap/bad.rue",
+        "rue_nominal_control": "experiments/error-study/domain-swap/nominal-control.rue"
+      }
+    },
+    {
+      "id": "branch-shape",
+      "title": "Untested branch returns a condition instead of a condition list",
+      "category": "rust_typecheck",
+      "rust_error": "E0308",
+      "claim": "The declared Rust return type requires both returning branches to produce a one-element condition tuple.",
+      "limitations": [
+        "Consistent types do not establish correct condition opcodes or authorization. Both branches could return the same wrong well-typed policy.",
+        "The study evaluates CLVM return trees; it does not submit a coin spend to consensus."
+      ],
+      "weak_suite": [
+        {
+          "name": "true branch, seven mojos",
+          "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+          "expected": {
+            "status": "accepted",
+            "tree": [
+              [
+                51,
+                {
+                  "bytes": "4242424242424242424242424242424242424242424242424242424242424242"
+                },
+                7
+              ]
+            ]
+          }
+        },
+        {
+          "name": "true branch, nine mojos",
+          "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 9)",
+          "expected": {
+            "status": "accepted",
+            "tree": [
+              [
+                51,
+                {
+                  "bytes": "4242424242424242424242424242424242424242424242424242424242424242"
+                },
+                9
+              ]
+            ]
+          }
+        }
+      ],
+      "missed_witness": {
+        "name": "previously untested false branch",
+        "input": "(() 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+        "expected": {
+          "status": "accepted",
+          "tree": [
+            [
+              51,
+              {
+                "bytes": "4242424242424242424242424242424242424242424242424242424242424242"
+              },
+              7
+            ]
+          ]
+        }
+      },
+      "sources": {
+        "chialisp": "experiments/error-study/branch-shape/bad.clsp",
+        "rust_bad": "experiments/error-study/branch-shape/bad.rs",
+        "rust_fixed": "experiments/error-study/branch-shape/fixed.rs",
+        "rue": "experiments/error-study/branch-shape/bad.rue"
+      }
+    },
+    {
+      "id": "integer-truthiness",
+      "title": "Approval code two is accidentally treated as true",
+      "category": "rust_typecheck",
+      "rust_error": "E0308",
+      "claim": "Rust rejects an integer directly used as an if condition; it requires an explicit boolean expression.",
+      "limitations": [
+        "Rust does not select the intended boolean expression. Writing approved != 0 would recreate the policy bug and compile.",
+        "The corrected fixture explicitly asserts approved == 1 at runtime; this policy is not proved by the type checker.",
+        "This host-only study does not claim project ABI or Rust-to-CLVM validation."
+      ],
+      "weak_suite": [
+        {
+          "name": "approval code one",
+          "input": "(1 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+          "expected": {
+            "status": "accepted",
+            "tree": [
+              [
+                51,
+                {
+                  "bytes": "4242424242424242424242424242424242424242424242424242424242424242"
+                },
+                7
+              ]
+            ]
+          }
+        },
+        {
+          "name": "approval code zero",
+          "input": "(() 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+          "expected": {
+            "status": "rejected"
+          }
+        }
+      ],
+      "missed_witness": {
+        "name": "nonzero approval code two",
+        "input": "(2 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+        "expected": {
+          "status": "rejected"
+        }
+      },
+      "sources": {
+        "chialisp": "experiments/error-study/integer-truthiness/bad.clsp",
+        "rust_bad": "experiments/error-study/integer-truthiness/bad.rs",
+        "rust_fixed": "experiments/error-study/integer-truthiness/fixed.rs",
+        "rue": "experiments/error-study/integer-truthiness/bad.rue"
+      }
+    },
+    {
+      "id": "unresolved-name",
+      "title": "A misspelled name survives an untested classic Chialisp branch",
+      "category": "rust_name_resolution",
+      "rust_error": "E0425",
+      "claim": "Rust resolves the amount name in both branches before tests execute; an undeclared amout cannot compile.",
+      "limitations": [
+        "This behavior is measured with the classic chialisp 0.4.6 compiler path, not claimed for every Chialisp dialect or linter.",
+        "A typo that names another existing variable can still compile and requires stronger types or tests."
+      ],
+      "weak_suite": [
+        {
+          "name": "primary branch, seven",
+          "input": "(1 7)",
+          "expected": {
+            "status": "accepted",
+            "tree": 7
+          }
+        },
+        {
+          "name": "primary branch, nine",
+          "input": "(1 9)",
+          "expected": {
+            "status": "accepted",
+            "tree": 9
+          }
+        }
+      ],
+      "missed_witness": {
+        "name": "previously untested alternative branch",
+        "input": "(() 7)",
+        "expected": {
+          "status": "accepted",
+          "tree": 7
+        }
+      },
+      "sources": {
+        "chialisp": "experiments/error-study/unresolved-name/bad.clsp",
+        "rust_bad": "experiments/error-study/unresolved-name/bad.rs",
+        "rust_fixed": "experiments/error-study/unresolved-name/fixed.rs",
+        "rue": "experiments/error-study/unresolved-name/bad.rue"
+      }
+    },
+    {
+      "id": "missing-cap",
+      "title": "Negative control: missing policy cap still compiles",
+      "category": "runtime_policy_control",
+      "rust_error": null,
+      "claim": "A u64 return type does not prove the independently specified output limit of 1000.",
+      "limitations": [
+        "Both the Chialisp and native Rust bugs compile. The missed witness needs a policy assertion, stronger tests or a separately stated model specification.",
+        "The existing bounded-counter SMT study verifies its explicit IR model; this experiment is not a compiler-preservation proof."
+      ],
+      "weak_suite": [
+        {
+          "name": "minimum",
+          "input": "(0)",
+          "expected": {
+            "status": "accepted",
+            "tree": 1
+          }
+        },
+        {
+          "name": "small value",
+          "input": "(7)",
+          "expected": {
+            "status": "accepted",
+            "tree": 8
+          }
+        }
+      ],
+      "missed_witness": {
+        "name": "output exceeds the independently specified cap",
+        "input": "(1000)",
+        "expected": {
+          "status": "rejected"
+        }
+      },
+      "sources": {
+        "chialisp": "experiments/error-study/missing-cap/bad.clsp",
+        "rust_bad": "experiments/error-study/missing-cap/bad.rs",
+        "rust_fixed": "experiments/error-study/missing-cap/fixed.rs",
+        "rue": "experiments/error-study/missing-cap/bad.rue"
+      }
+    }
+  ]
+}

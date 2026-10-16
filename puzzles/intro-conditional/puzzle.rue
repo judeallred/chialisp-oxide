@@ -1,0 +1,6 @@
+// Authored Rue translation of one pinned canonical Intro expression.
+// The variadic Any parameter deliberately ignores the complete environment.
+fn main(..._environment: Any) -> Int {
+    let selected = if 3 > 2 { 10 } else { 5 };
+    selected * 10
+}

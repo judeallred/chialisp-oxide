@@ -3,7 +3,7 @@ title: Port the canonical Chialisp Intro
 description: Preserve three exact upstream expressions, their ignored environments, and their observed CLVM results.
 ---
 
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 import CanonicalMeasurements from '../../../components/CanonicalMeasurements.astro';
 
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
@@ -38,7 +38,7 @@ apply to supplied serialized inputs.
 
 ## Construct the list
 
-<SourcePair slug="intro-list" />
+<SourceComparison slug="intro-list" />
 
 The observed result is the proper list `(1 2 3)`. The Rust tuple expresses a
 fixed three-element product, not support for general variable-length lists.
@@ -47,7 +47,7 @@ cases, serialized output, program sizes, costs, and tree hashes.
 
 ## Add two constants
 
-<SourcePair slug="intro-add" />
+<SourceComparison slug="intro-add" />
 
 The result is `5`. The Rust `u64` type bounds the expression's values, but all
 constants and intermediates here lie within that range. There are no numeric
@@ -57,7 +57,7 @@ compiled original and both Rust backend modes.
 
 ## Choose a constant and multiply
 
-<SourcePair slug="intro-conditional" />
+<SourceComparison slug="intro-conditional" />
 
 Since `3 > 2`, the chosen value is `10`; multiplying by `10` produces `100`.
 The source contains a conditional, but compilers may fold this constant choice.

@@ -1,112 +1,233 @@
 ---
-title: Errors and the guarantees we actually have
-description: Compare Rust, Chialisp, and Rue protections without attributing Rue's existing type checks uniquely to Rust.
+title: Errors that Rust makes impossible
+description: Execute Chialisp counterexamples that pass limited tests, inspect real Rust compiler failures, and distinguish type guarantees from policy correctness.
 ---
 
-The useful question is which check rules out a concrete failure, and under
-which assumptions. “Written in Rust” is not a security property by itself.
-Rue already has types and diagnostics, so benefits shared with Rue should not
-be described as unique Rust advantages.
+Four faulty Rust programs in this study cannot compile with their declared types
+and names. Their Chialisp counterparts compile, pass two deliberately limited
+exact-output tests each, and then fail a distinguishing input. A fifth study
+shows a policy bug that **Rust also compiles**.
 
-The primitive regression `type_error.rs` evaluates `amount + true` for a
-`u64` amount. Rust rejects it with `E0277`, “cannot add `bool` to `u64`,” before
-the driver can emit IR. This is distinct from a malformed solution, which is
-constructed after compilation and must reject at runtime.
+“Impossible” has a precise scope here: these ill-typed or unresolved programs
+cannot become executable Rust through the tested compiler. It does not mean
+that every program written in Rust implements its intended policy. Deliberate
+conversions, weaker types, wrong constants, missing authorization and an
+incorrect boolean expression can all reintroduce bugs.
 
-## Checked before CLVM generation
+These are original, intentionally faulty teaching fixtures, separate from the
+canonical tutorial ports. The [executed error-study report](../../reports/error-study.json)
+records every asserted result, actual VM output and cost, Rust diagnostic,
+corrected native test, Rue outcome, and declared input SHA-256. The fixture
+manifest is `experiments/error-study/studies.json`.
 
-Rust's own analysis rejects incompatible source types and invalid borrows. The
-frontend's regression fixtures include those errors. Unsupported MIR is
-rejected with a source location; unsafe code is forbidden. These checks help
-prevent invalid programs from reaching the backend within the documented
-subset.
+## What actually ran
 
-The current compiler does not yet support references in accepted puzzle code.
-A borrow-check failure demonstrates that rustc analysis ran; it is not a claim
-of a broad ownership-based on-chain API.
+The study uses the pinned real `rustc 1.99.0-nightly`, the actual
+`chialisp-oxide` SDK crate, Chia's `chialisp 0.4.6` classic compiler, and
+`clvmr 0.21.0` with `MEMPOOL_MODE`. Each Chialisp fixture is independently
+compiled and executed. Rue is separately compiled at the project's pinned
+revision with LIR optimization disabled and enabled; its measured outcomes
+are reported below.
 
-Rue also rejects many ordinary type mistakes. Chialisp's untyped atoms and
-pairs make more representation errors possible unless explicit checks are
-written. Side-by-side references show the runtime checks needed for an
-equivalent ABI, rather than presenting a shorter unsafe reference as equivalent.
+The Rust failures come from normal rustc analysis, not a source-text matcher.
+Corrected fixtures compile as real native test binaries and run eight tests
+in total. **These host-only Rust studies do not establish Rust-to-CLVM
+preservation or transaction admission.** The puzzle laboratory and formal
+pages describe those separate checks.
 
-## Domain swaps rejected by the typed SDK
+The weak suites are concrete, reproducible and intentionally incomplete. Each
+asserts the entire expected output tree or rejection, rather than accepting
+anything that executes. Passing two such tests says nothing about an untested
+branch, a different identifier value, or an excluded approval code.
 
-The actual `chialisp-oxide` crate distinguishes `CoinId` from `PuzzleHash` and
-`Amount` from `Timestamp` with single-field transparent nominal wrappers.
-The Cargo consumer `examples/cargo-invalid`, enabled with `type-error`, fails
-normal `cargo check` because `create_coin` receives a `CoinId` where it requires
-`PuzzleHash`. Its unconfigured division example is valid native Rust but fails
-the additional CLVM subset check. The two boundaries are tested separately.
+## Coin ID used as a payment destination
 
-The standalone compatibility regression `newtype_swap.rs` fails with `E0308`, expected `PuzzleHash`,
-found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
-`Amount`. The driver test requires both names in the Rust diagnostic and no
-emitted IR. The corpus itself now imports the real SDK crate from the
-`chialisp-oxide-puzzles` Cargo library; standalone compatibility regressions remain
-separate. The Cargo integration also compares actual generated outputs
-with and without optimization and under the changed feature cap.
+The Chialisp bug returns a coin ID where the policy requires a recipient puzzle
+hash. Both values are 32-byte atoms:
 
-These direct API mixups are compile-time errors when those typed helpers are
-used. Public fields still allow deliberate unwrap/rewrap, and raw tuple
-construction remains available. Rue's nominal struct types provide analogous
-domain distinctions; this is not a uniquely Rust protection. See the
-[SDK tutorial](/chialisp-oxide/tutorials/typed-sdk/) for the actual source and
-reproduction commands.
+```clojure
+(mod (RECIPIENT COIN_ID AMOUNT)
+  (list (list 51 COIN_ID AMOUNT)))
+```
 
-## Rejected at the puzzle boundary
+The limited tests use identical recipient and coin-ID fixtures: 32 bytes of
+`0x11` with amount 7, then 32 bytes of `0x22` with amount 9. Both exact-output
+assertions pass. The missed witness uses recipient `0x42…42`, coin ID
+`0x99…99`, and amount 7. The program still executes successfully but pays the
+wrong destination in its returned condition.
 
-The generated ABI checks list arity, proper tails, scalar-versus-pair shape,
-canonical booleans, integer bounds, numeric canonicalization, and fixed byte
-lengths. Malformed solutions are runtime rejections, not compile-time
-impossibilities. The caller constructs the raw tree after compilation.
+The Rust attempt uses the SDK's distinct nominal domain types:
 
-The cap and split manifests contain negative, padded, oversized, missing,
-extra, and nested inputs. The lab displays their exact outcomes in all
-compared execution paths.
+```rust
+pub fn puzzle(
+    _recipient: PuzzleHash,
+    coin_id: CoinId,
+    amount: Amount,
+) -> (CreateCoin,) {
+    (create_coin(coin_id, amount),)
+}
+```
 
-## Preserved during lowering
+Real rustc reports **E0308**, expected `PuzzleHash`, found `CoinId`. The
+corrected native test deliberately uses different bytes for the two identities
+and checks the opcode, recipient and amount.
 
-Checked Rust arithmetic must not silently become arbitrary-precision CLVM
-arithmetic. Overflow rejects. Explicit sequencing preserves an unused failing
-operation. Lazy branches must not evaluate an unchosen rejection. Semantic
-regressions test these obligations in both optimizer modes.
+This protection depends on choosing distinct domain types. Both fields are
+public: explicitly writing `PuzzleHash(coin_id.0)` can recreate the mistake.
+The tested Rue counterpart uses `Bytes32` for both meanings and reproduces the
+missed witness in both optimizer modes. A second, actually compiled Rue control defines separate `StudyCoinId` and
+`StudyPuzzleHash` structs. Rue rejects the same direct swap in both modes with
+“Cannot assign `StudyCoinId` to `StudyPuzzleHash`.” This confirms analogous
+nominal domain protection in Rue; the comparison is about these concrete API
+encodings, not a unique capability proved for Rust.
 
-The corpus also exposed an upstream Rue LIR identity-product optimizer panic.
-The focused imported-source fix and regression are tracked in
-[Rue issue 108](https://github.com/xch-dev/rue/issues/108). A compiler dependency
-can contain defects; the test boundary applies to upstream optimizations too.
+## Untested branch returns a condition instead of a condition list
 
-A second reproduced regression shows why strictness matters. A typed Rue list
-containing `1 / 0` correctly rejects without LIR optimization. With automatic
-inlining and optimization, folding the constructed list's truthiness could
-erase evaluation of the failing field and return one instead. The focused fix
-preserves rejection when folding would discard a potentially failing operand.
-The upstream report is [Rue issue 109](https://github.com/xch-dev/rue/issues/109).
-This is a measured compiler-behavior defect with regression cases; no deployed
-puzzle exploit was assessed.
+The true branch returns `((51 recipient amount))`. The false branch omits one
+list layer:
 
-## Still possible to get wrong
+```clojure
+(mod (PAY RECIPIENT AMOUNT)
+  (if PAY
+    (list (list 51 RECIPIENT AMOUNT))
+    (list 51 RECIPIENT AMOUNT)))
+```
 
-The named SDK helpers prevent direct source-level domain swaps, but their
-condition aliases still expose tuple representations. A wrong manually written
-condition number, deliberate byte rewrap, wrong key, destination, fee,
-timelock, or signature commitment can compile. The teaching fixtures now name
-their conditions and policy constants, but aliases still expose tuple layouts.
+Both limited tests select the true branch, with amounts 7 and 9. The witness
+selects the false branch. The VM returns `(51 recipient 7)`, which differs from
+the independently specified `((51 recipient 7))`. This is an observed return-tree
+error; this experiment does not submit the malformed condition list as a spend.
 
-Transparent wrappers add no runtime domain tags. ABI decoding checks the inner
-encoding and does not invoke constructors or validate their custom invariants.
-An attacker can supply any correctly sized bytes at a `PuzzleHash` boundary;
-Rust's source type does not authenticate their meaning.
+The Rust function declares `-> (CreateCoin,)` but its erroneous else branch
+returns `CreateCoin`. rustc reports **E0308** even though no test has selected
+that branch. Rust requires an `if` expression's returning branches to agree
+with the declared result type. [Rust Reference: if expressions](https://doc.rust-lang.org/reference/expressions/if-expr.html#type)
 
-A caller-controlled boolean can gate rejection but cannot authenticate a
-caller. A fixed recipient can constrain payment but cannot require ownership.
-A time condition can mature while the intended authorization is absent.
-The tutorials call out these differences and ledger scenarios exercise the
-specific policies they claim.
+The corrected native test checks both branches. Rue also rejects the faulty
+source in both modes: its diagnostic says the union of `CreateCoin` and a
+one-element condition list cannot be assigned to `List<Condition>`. This is a
+shared static-type benefit, not a Rust-only advantage.
 
-Replay resistance, conservation, atomic compositions, and economic safety need
-explicit specifications and transaction-level tests. The current counter
-model establishes a small typed-scalar invariant; it does not certify an
-arbitrary payment or protocol. Read [the method](/chialisp-oxide/verification/method/)
-and [formal scope](/chialisp-oxide/verification/formal/) with any result.
+## Approval code two is accidentally treated as true
+
+This policy permits only approval code `1`. The faulty Chialisp uses truthiness:
+
+```clojure
+(mod (APPROVED RECIPIENT AMOUNT)
+  (if APPROVED (list (list 51 RECIPIENT AMOUNT)) (x)))
+```
+
+The limited suite verifies code `1` produces the expected payment and code `0`
+rejects. Both tests pass. The missed witness supplies `2`, which also produces
+a payment even though the independent policy expects rejection.
+
+The equivalent Rust attempt writes `if approved` with `approved: u64`.
+rustc reports **E0308**, expected `bool`, found `u64`. Rust does not implicitly
+convert an integer condition into a boolean. [Rust E0308](https://doc.rust-lang.org/error_codes/E0308.html)
+
+Rust makes that implicit conversion impossible; **it does not choose the right
+replacement predicate**. `approved != 0` would compile and reproduce the bug.
+The corrected fixture explicitly asserts `approved == 1` at runtime. Its three
+native tests cover codes `1`, `0` and `2`. This is not an ABI-decoder test or a
+compile-time proof of the approval policy.
+
+Rue also rejects the attempted `Int` condition in both modes, requiring a type
+guard before comparison with `Bool`. This protection is shared.
+
+## A misspelled name survives an untested classic Chialisp branch
+
+The intended alternative branch returns `AMOUNT`; the faulty source says `amout`:
+
+```clojure
+(mod (PRIMARY AMOUNT)
+  (if PRIMARY AMOUNT amout))
+```
+
+The two limited tests select the primary branch and return 7 and 9 as expected.
+The missed input `(() 7)` selects the alternative branch. In the tested classic
+compiler path, the unresolved bare name becomes the atom `amout`: the VM returns
+serialized hex `85616d6f7574` instead of integer 7 (`07`). This is measured classic
+compiler behavior, not a claim about every Chialisp dialect or linter.
+
+The Rust alternative branch also says `amout`, which has no declaration.
+rustc reports **E0425**, cannot find value `amout` in this scope. Name resolution
+checks this branch before any test runs. The corrected native test evaluates
+both branches. [Rust E0425](https://doc.rust-lang.org/error_codes/E0425.html)
+
+Rue rejects the same undeclared symbol in both modes. A misspelling that happens
+to name another valid variable can still compile in either typed language;
+strong domain types and distinguishing tests remain useful.
+
+## Negative control: missing policy cap still compiles
+
+The independently stated policy accepts counters below 1000 and returns the
+increment. Both faulty implementations forget the guard:
+
+```clojure
+(mod (COUNTER) (+ COUNTER 1))
+```
+
+```rust
+pub fn puzzle(counter: u64) -> u64 {
+    counter + 1
+}
+```
+
+The limited Chialisp tests assert `0 → 1` and `7 → 8`. Both pass. The missed
+witness supplies `1000`: execution returns `1001` instead of rejecting.
+**Rust and Rue both compile this bug.** Native Rust's limited test also passes;
+the expanded native assertion `puzzle(1000) <= 1000` fails when actually executed.
+Rue's compiled output reproduces the failure with optimization off and on.
+
+The corrected Rust fixture adds `assert!(counter < 1000)`. Its native tests check
+the accepted boundary and the rejected witness. The stronger property depends
+on the specification and guard, not on `u64` alone. The separate
+[bounded-counter model](../formal/) checks an independently stated property of
+actual source-derived IR and detects a removed guard; its proof scope still
+excludes general compiler preservation.
+
+## Guarantees beyond this study
+
+The default project ABI rejects malformed list shapes, noncanonical booleans,
+padded numbers, out-of-range integers and incorrect fixed byte lengths at
+**runtime**. Those are compiler-generated boundary checks; an attacker can
+construct a malformed tree after Rust compilation. The explicit ignored ABI
+for genuinely nullary exports is a separate contract.
+
+Checked arithmetic, strict failure propagation and lazy branches are backend
+obligations with optimizer-on/off regressions. Native Rust overflow behavior
+also depends on compiler settings; this study explicitly enables overflow
+checks. [Rust Reference: overflow](https://doc.rust-lang.org/reference/expressions/operator-expr.html#overflow)
+
+A wrong well-typed recipient, missing signature, incorrect commitment, missing
+conservation condition or unsafe economic policy can still compile. Transparent
+SDK wrappers add no runtime domain tag or authentication proof. References and
+borrows are not currently part of accepted puzzle code, so native ownership
+checks are not presented as an on-chain ownership API.
+
+## Reproduce and inspect
+
+From the repository root:
+
+```sh
+# Execute the actual compilers, VM cases, compile failures and native tests;
+# compare the resulting evidence with the committed report.
+python3 scripts/check-error-study.py
+
+# Check declared source hashes and recorded claim consistency without rustc.
+python3 scripts/check-error-study.py --check
+
+# Exercise stale-evidence, false-result and wrong-diagnostic controls.
+python3 scripts/check-error-study.py --self-test
+
+# After intentionally reviewing changed evidence, regenerate it.
+python3 scripts/check-error-study.py --write
+```
+
+The execution command uses the pinned toolchain and locked offline Cargo graph,
+then links its small study bridge against artifacts identified by Cargo's JSON
+output. It compiles the committed Rust fixtures directly, without generating a
+duplicate policy or invoking a Rust-looking DSL. Diagnostics normalize repository
+paths and runtime thread IDs; reports retain no temporary build paths or timing
+measurements. Declared source hashes prevent publishing stale evidence but do
+not constitute a complete reproducible-build or compiler-correctness proof.

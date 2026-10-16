@@ -1,0 +1,12 @@
+// Authored Rue comparison of the paired policy, with explicit untrusted ABI checks.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Bytes32, nil);
+    [AggSigMe { public_key: OWNER_PUBLIC_KEY, message: solution.first },
+     AssertMyAmount { amount: COIN_AMOUNT },
+     CreateCoin { puzzle_hash: RECIPIENT, amount: COIN_AMOUNT }]
+}
+
+const COIN_AMOUNT: Int = 1000;
+const RECIPIENT: Bytes32 = 0x4242424242424242424242424242424242424242424242424242424242424242;
+// Public fixture key with a publicly known secret seed; never use for funds.
+const OWNER_PUBLIC_KEY: PublicKey = 0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 as PublicKey;

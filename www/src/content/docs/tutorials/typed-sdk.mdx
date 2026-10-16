@@ -4,7 +4,7 @@ description: Use a real unpublished SDK crate, annotated exports, native tests, 
 ---
 
 import CargoSource from '../../../components/CargoSource.astro';
-import SourcePair from '../../../components/SourcePair.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 import SdkSource from '../../../components/SdkSource.astro';
 import DomainErrorExamples from '../../../components/DomainErrorExamples.astro';
 
@@ -161,7 +161,7 @@ Move checking does not enforce money conservation or prevent double spends.
 
 ## Inspect the independently compared Cargo fixture
 
-<SourcePair slug="capped-payment" />
+<SourceComparison slug="capped-payment" />
 
 This fixture imports `chialisp_oxide` and marks its entry with `#[chialisp_oxide::puzzle]`.
 It is a module of the real `chialisp-oxide-puzzles` Cargo library. The consumer's `pay`

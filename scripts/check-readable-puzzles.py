@@ -10,6 +10,8 @@ comparison permits Rust codegen/cost/diagnostic changes while retaining recorded
 outcomes and independent reference evidence. Cargo-migration mode permits only
 verified Cargo authoring metadata and source-snapshot changes. Explicitly allowing
 added puzzles still compares every baseline puzzle in its original order.
+The add-rue comparison admits newly validated Rue sources/builds and cross-language
+ledger runs while preserving every existing Rust/Chialisp observation.
 """
 
 import argparse
@@ -82,6 +84,10 @@ def check_report(report):
         artifacts = modes(puzzle["artifacts"], slug)
         require({("rust_mir", False), ("rust_mir", True), ("chialisp", True)} <= artifacts.keys(),
                 f"{slug}: missing optimized/unoptimized Rust or independent Chialisp artifact")
+        if "rue" in puzzle:
+            require(artifacts.keys() == {("rust_mir", False), ("rust_mir", True), ("chialisp", True),
+                                         ("rue_source", False), ("rue_source", True)},
+                    f"{slug}: missing independently compiled Rue mode")
         for mode, artifact in artifacts.items():
             value = artifact["clvm_hex"]
             require(isinstance(value, str) and HEX.fullmatch(value), f"{slug} {mode}: bad CLVM hex")
@@ -109,15 +115,32 @@ def check_report(report):
         for scenario in puzzle["simulator"]:
             require(scenario["passed"] is True, f"{slug}: ledger scenario failed: {scenario['name']}")
             ledger += 1
+        if "rue" in puzzle:
+            comparisons = puzzle["simulator_comparisons"]
+            if puzzle["kind"] == "pure_function":
+                require(not comparisons and not puzzle["simulator"], f"{slug}: pure function claims ledger evidence")
+            else:
+                require({(item["backend"], item["optimize_lir"]) for item in comparisons}
+                        == {("chialisp", True), ("rue_source", True)} and len(comparisons) == 2,
+                        f"{slug}: missing Chialisp/Rue ledger comparisons")
+                require(all(item["scenarios"] == puzzle["simulator"] for item in comparisons),
+                        f"{slug}: ledger scenario results differ across languages")
     return len(puzzles), cases, ledger
 
 
-def check_sources(report, root):
+def check_sources(report, root, require_rue=False):
     root = root.resolve()
     for puzzle in report["puzzles"]:
         source = root / "puzzles" / puzzle["slug"] / "puzzle.rs"
         require(source.read_bytes().decode() == puzzle["source"],
                 f"{puzzle['slug']}: report contains stale puzzle source; rerun validation")
+        if require_rue or "rue" in puzzle:
+            rue = puzzle["rue"]
+            require(rue["path"] == f"puzzles/{puzzle['slug']}/puzzle.rue", "Rue source identity mismatch")
+            for dependency in [rue, *rue["dependencies"]]:
+                payload = contained_file(root, dependency["path"]).read_bytes()
+                require(payload.decode() == dependency["source"] and hashlib.sha256(payload).hexdigest() == dependency["sha256"],
+                        f"Stale Rue source: {dependency['path']}")
         seen = set()
         for dependency in puzzle["source_dependencies"]:
             path = dependency["path"]
@@ -160,6 +183,18 @@ def cargo_migration_behavior(report):
     result = behavior(report)
     result.pop("authoring", None)
     return result
+
+
+def before_rue_addition(report):
+    """Project out only the new independently validated Rue evidence."""
+    result = copy.deepcopy(report)
+    for puzzle in result["puzzles"]:
+        puzzle.pop("rue", None)
+        puzzle.pop("simulator_comparisons", None)
+        puzzle["artifacts"] = [item for item in puzzle["artifacts"] if item["backend"] != "rue_source"]
+        for case in puzzle["cases"]:
+            case["runs"] = [item for item in case["runs"] if item["backend"] != "rue_source"]
+    return cargo_migration_behavior(result)
 
 
 def retained_puzzles(baseline, current):
@@ -418,13 +453,46 @@ class ComparisonTests(unittest.TestCase):
                 else:
                     self.assertIsNotNone(compare(changed))
 
+    def test_added_rue_evidence_retains_every_existing_observation(self):
+        baseline = {"puzzles": [{
+            "source": "rust", "source_dependencies": [],
+            "artifacts": [{"backend": "rust_mir", "cost": 20}, {"backend": "chialisp", "cost": 21}],
+            "cases": [{"native": {"status": "accepted"}, "runs": [
+                {"backend": "rust_mir", "cost": 20}, {"backend": "chialisp", "cost": 21}]}],
+            "environment": "strict", "simulator": [{"passed": True}],
+        }]}
+        current = copy.deepcopy(baseline)
+        puzzle = current["puzzles"][0]
+        puzzle.update(rue={"source": "rue"}, simulator_comparisons=[])
+        puzzle["artifacts"].append({"backend": "rue_source", "cost": 19})
+        puzzle["cases"][0]["runs"].append({"backend": "rue_source", "cost": 19})
+        expected = cargo_migration_behavior(baseline)
+        self.assertIsNone(first_difference(expected, before_rue_addition(current)))
+        for field in ("rust_cost", "chialisp_cost", "native", "abi", "ledger", "removed_run"):
+            changed = copy.deepcopy(current)
+            row = changed["puzzles"][0]
+            if field == "rust_cost":
+                row["cases"][0]["runs"][0]["cost"] += 1
+            elif field == "chialisp_cost":
+                row["artifacts"][1]["cost"] += 1
+            elif field == "native":
+                row["cases"][0]["native"]["status"] = "rejected"
+            elif field == "abi":
+                row["environment"] = "ignored"
+            elif field == "ledger":
+                row["simulator"][0]["passed"] = False
+            else:
+                row["cases"][0]["runs"].pop(0)
+            with self.subTest(field=field):
+                self.assertIsNotNone(first_difference(expected, before_rue_addition(changed)))
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--current", type=Path, default=ROOT / "corpus/validation.json")
     parser.add_argument("--baseline", type=Path, help="explicit pre-refactor corpus report")
-    parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration"), default="exact",
-                        help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata")
+    parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration", "add-rue"), default="exact",
+                        help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata; add-rue preserves old builds while admitting independent Rue evidence")
     parser.add_argument("--changes", type=Path, help="write comparison scope and codegen metric changes as JSON")
     parser.add_argument("--allow-added-puzzles", action="store_true",
                         help="with cargo-migration baseline only: compare every original puzzle exactly, allowing additional rows")
@@ -443,13 +511,17 @@ def main():
     try:
         current = load_report(args.current)
         counts = check_report(current)
-        check_sources(current, args.source_root)
+        check_sources(current, args.source_root, require_rue=True)
         check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
         if args.baseline:
             baseline = load_report(args.baseline)
             check_report(baseline)
+            if args.comparison == "add-rue":
+                require(all("rue" not in puzzle and all(item["backend"] != "rue_source" for item in puzzle["artifacts"])
+                            for puzzle in baseline["puzzles"]),
+                        "add-rue comparison requires a baseline without Rue source evidence")
             projection = {"exact": behavior, "semantic": semantic_behavior,
-                          "cargo-migration": cargo_migration_behavior}[args.comparison]
+                          "cargo-migration": cargo_migration_behavior, "add-rue": before_rue_addition}[args.comparison]
             compared = retained_puzzles(baseline, current) if args.allow_added_puzzles else current
             difference = first_difference(projection(baseline), projection(compared))
             require(difference is None, f"{args.comparison.capitalize()} baseline changed: {difference}")
