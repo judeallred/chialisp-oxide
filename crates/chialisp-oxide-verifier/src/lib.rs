@@ -6,7 +6,14 @@
 //! tuples, binary operands, projections, and `Sequence` evaluate strictly.
 
 mod replay;
+mod tree;
+mod tree_witness;
 pub use replay::{Replay, ReplayOutcome, replay};
+pub use tree::{
+    TreeCase, TreeQueries, TreeShape, TreeSpecification, TreeTerm, TreeVerification, emit_tree,
+    verify_tree,
+};
+pub use tree_witness::{TreeValue, TreeWitness, replay_tree};
 
 use anyhow::{Context, Result, bail, ensure};
 use chialisp_oxide_ir::{BinaryOp, Expr, Program, Type};
@@ -263,6 +270,9 @@ impl Translation {
             ),
             Type::Unit => Value::Unit,
             Type::Bytes { .. } => bail!("SMT byte semantics are not implemented"),
+            Type::Tree | Type::Atom => bail!(
+                "scalar SMT does not model raw trees/atoms; use the separate structural checker"
+            ),
         })
     }
     fn select(&mut self, condition: &str, a: Value, b: Value) -> Result<Value> {
@@ -292,6 +302,15 @@ impl Translation {
             Expr::Bool { value } => ("true".into(), Some(Value::Bool(value.to_string()))),
             Expr::Int { value, .. } => ("true".into(), Some(Value::Int(numeral(value)?))),
             Expr::Bytes { .. } => bail!("SMT byte semantics are not implemented"),
+            Expr::Atom { .. }
+            | Expr::TreeAtom { .. }
+            | Expr::TreeAtomValue { .. }
+            | Expr::TreePair { .. }
+            | Expr::TreeIsPair { .. }
+            | Expr::TreeFirst { .. }
+            | Expr::TreeRest { .. } => bail!(
+                "scalar SMT does not model tree expressions; use the separate structural checker"
+            ),
             Expr::Arg { index } => (
                 "true".into(),
                 Some(
@@ -492,6 +511,9 @@ fn default_value(ty: &Type) -> Result<Value> {
         }
         Type::Unit => Value::Unit,
         Type::Bytes { .. } => bail!("SMT byte semantics are not implemented"),
+        Type::Tree | Type::Atom => {
+            bail!("scalar SMT does not model raw trees/atoms; use the separate structural checker")
+        }
     })
 }
 
@@ -592,13 +614,15 @@ enum SExpression {
 }
 
 fn parse_values(text: &str) -> Result<BTreeMap<String, SExpression>> {
-    fn parse(tokens: &[String], index: &mut usize) -> Result<SExpression> {
+    ensure!(text.len() <= 2_097_152, "solver model text too large");
+    fn parse(tokens: &[String], index: &mut usize, depth: usize) -> Result<SExpression> {
+        ensure!(depth <= 256, "solver model nesting limit");
         let token = tokens.get(*index).context("truncated solver value")?;
         *index += 1;
         if token == "(" {
             let mut items = vec![];
             while tokens.get(*index).is_some_and(|t| t != ")") {
-                items.push(parse(tokens, index)?);
+                items.push(parse(tokens, index, depth + 1)?);
             }
             ensure!(
                 tokens.get(*index).is_some_and(|t| t == ")"),
@@ -617,8 +641,9 @@ fn parse_values(text: &str) -> Result<BTreeMap<String, SExpression>> {
         .split_whitespace()
         .map(str::to_owned)
         .collect::<Vec<_>>();
+    ensure!(tokens.len() <= 100_000, "solver model token limit");
     let mut index = 0;
-    let SExpression::List(values) = parse(&tokens, &mut index)? else {
+    let SExpression::List(values) = parse(&tokens, &mut index, 0)? else {
         bail!("expected solver value list")
     };
     ensure!(index == tokens.len(), "unexpected trailing solver values");
@@ -695,6 +720,9 @@ fn witness_value(
         },
         Type::Unit => WitnessValue::Unit,
         Type::Bytes { .. } => bail!("SMT byte semantics are not implemented"),
+        Type::Tree | Type::Atom => {
+            bail!("scalar SMT does not model raw trees/atoms; use the separate structural checker")
+        }
     })
 }
 

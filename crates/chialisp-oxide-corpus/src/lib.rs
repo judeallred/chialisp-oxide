@@ -1,6 +1,8 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
 mod authoring;
+mod factories;
 mod native;
+mod native_tree;
 mod spends;
 use anyhow::{Context, Result, ensure};
 pub use authoring::{Authoring, Export, authoring};
@@ -24,6 +26,7 @@ pub const PUZZLES: &[&str] = &[
     "intro-list",
     "intro-add",
     "intro-conditional",
+    "p2-conditions",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -117,6 +120,10 @@ pub struct PuzzleReport {
     pub generated_cases: usize,
     pub simulator: Vec<spends::Scenario>,
     pub simulator_comparisons: Vec<SimulatorComparison>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub factory_checks: Vec<factories::FactoryCheck>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub module_identity: Option<factories::ModuleIdentity>,
     pub validated: bool,
 }
 fn expectation(slug: &str, solution: &str) -> Result<Outcome> {
@@ -275,13 +282,36 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             generated_cases += 1;
         }
     }
-    let artifacts = programs
+    if manifest.environment == Environment::Raw {
+        for index in 0..2048 {
+            compare(slug, &tree_environment(index, 0), &programs)?;
+            generated_cases += 1;
+        }
+        // Atom widths and a deeper improper spine exercise data independently
+        // of the finite compiler expression/type nesting budgets.
+        for width in [0, 1, 31, 32, 63, 64, 255, 256, 4096, 8192] {
+            let atom = if width == 0 {
+                "()".into()
+            } else {
+                format!("0x{}", "00".repeat(width))
+            };
+            compare(slug, &format!("({atom} . 0x0001)"), &programs)?;
+            generated_cases += 1;
+        }
+        let mut tree = "0x0001".to_string();
+        for _ in 0..128 {
+            tree = format!("({tree} . 0x00)");
+        }
+        compare(slug, &format!("({tree} . 0x0000)"), &programs)?;
+        generated_cases += 1;
+    }
+    let artifacts: Vec<Artifact> = programs
         .iter()
         .map(|(backend, opt, code)| artifact(backend, *opt, code))
         .collect::<Result<_>>()?;
     let simulator = match manifest.kind.as_str() {
         "coin_puzzle" => spends::validate(slug, &programs[1].2)?,
-        "pure_function" => vec![],
+        "pure_function" | "program_factory" => vec![],
         kind => anyhow::bail!("unknown corpus kind {kind}"),
     };
     let mut simulator_comparisons = vec![];
@@ -297,6 +327,18 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             });
         }
     }
+    let (factory_checks, module_identity) = if manifest.kind == "program_factory" {
+        ensure!(
+            slug == "p2-conditions",
+            "factory requires an independent specification"
+        );
+        (
+            factories::validate(&cases)?,
+            Some(factories::identity(&manifest.provenance, &artifacts)?),
+        )
+    } else {
+        (vec![], None)
+    };
     Ok(PuzzleReport {
         slug: manifest.slug,
         title: manifest.title,
@@ -314,6 +356,8 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         generated_cases,
         simulator,
         simulator_comparisons,
+        factory_checks,
+        module_identity,
         validated: true,
     })
 }

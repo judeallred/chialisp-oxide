@@ -4,16 +4,25 @@ import { Code } from '@astrojs/starlight/components';
 import SourceComparison from '../../components/SourceComparison.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, authoring, canonicalExample, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
+import { puzzles, authoring, canonicalExample, canonicalPuzzle, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
+const canonicalModule = canonicalPuzzle(puzzle);
+const factoryGroups = new Map<string, NonNullable<PuzzleReport['factory_checks']>>();
+for (const check of puzzle.factory_checks ?? []) {
+  factoryGroups.set(check.environment, [...(factoryGroups.get(check.environment) ?? []), check]);
+}
+const applicationCount = (puzzle.factory_checks ?? []).reduce((sum, check) => sum + check.application_runs.length, 0);
+const applicationPassed = (check: NonNullable<PuzzleReport['factory_checks']>[number]) => check.application_runs.length > 0 && check.application_runs.every(run => run.execution.outcome.status === 'accepted' && run.execution.outcome.output_hex === check.expected_output_hex);
 const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,slug:'artifacts',text:'Compiled artifacts'}, {depth:2,slug:'vectors',text:'Adversarial input vectors'}, {depth:2,slug:'ledger',text:'Ledger validation'}, {depth:2,slug:'provenance',text:'Provenance and versions'}];
+if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factory',text:'Apply the produced programs'});
 ---
 <StarlightPage frontmatter={{ title: puzzle.title, description: puzzle.security_scope }} headings={headings}>
   <p class="eyebrow"><a href={href('lab/')}>Puzzle laboratory</a> / {puzzle.slug}</p>
-  <p><span class="badge success">validated report</span> <span class="badge">{puzzle.kind === 'pure_function' ? 'pure function · not a coin puzzle' : 'condition-producing coin puzzle'}</span></p>
+  <p><span class="badge success">validated report</span> <span class="badge">{kindLabel(puzzle.kind)}{puzzle.kind === 'program_factory' ? ' · returns a program' : puzzle.kind === 'pure_function' ? ' · not a coin puzzle' : ' · returns conditions'}</span></p>
   {canonical && <p><span class="badge">canonical tutorial expression</span> <a href={canonical.source.url}>{canonical.title}</a> · differential evidence; parent tutorial remains partial</p>}
+  {canonicalModule && <p><span class="badge">canonical puzzle/module port</span> One exact pinned upstream module; source, published artifact identity, and recorded behavior are checked separately.</p>}
   <p class="scope">{puzzle.security_scope}</p>
   <div class="metric-grid">
     <div class="metric"><strong>{puzzle.cases.length}</strong><span>named vectors</span></div>
@@ -21,9 +30,11 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
     <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
   </div>
   <h2 id="sources">Compare the sources</h2>
-  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical ? 'The Chialisp source is the original expression, independently compiled without adding a module wrapper or argument check.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
+  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical || canonicalModule ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
   <p class="callout-note">{puzzle.environment === 'ignored'
     ? <>Environment contract: explicitly ignored. This parameterless export accepts any CLVM tree that the VM can parse and process within its resource limits. It adds no proper-list, arity, or scalar encoding check. <a href={href('reference/abi/#explicitly-ignored-environments')}>Read the opt-in ABI contract.</a></>
+    : puzzle.environment === 'raw'
+    ? <>Environment contract: raw tree. One Rust tree value represents the entire environment, without added argument-list, arity, numeric, or proper-tail decoding. The source determines its own shape checks and payload selection.</>
     : <>Environment contract: strict typed arguments. The entire proper argument list and every declared value encoding are checked before the function body.</>}</p>
   <SourceComparison slug={puzzle.slug} />
   <h2 id="artifacts">Compiled artifacts</h2>
@@ -32,21 +43,32 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
     {puzzle.artifacts.map(artifact => <tr><th scope="row">{artifact.backend === 'rust_mir' ? 'Rust MIR → Rue LIR' : backendLabel(artifact.backend)}</th><td>{artifact.optimize_lir ? 'on' : 'off'}</td><td>{format(artifact.bytes)}</td><td class="hash" data-pagefind-ignore><code>{artifact.tree_hash}</code></td></tr>)}
   </tbody></table></div>
   <ArtifactDiff puzzle={puzzle} />
+  {puzzle.module_identity && <section class="module-identity" aria-label="Published module identity">
+    <h3>Published module identity</h3>
+    <p>Published CLVM tree hash: <code class="dependency-hash" data-pagefind-ignore>{puzzle.module_identity.upstream_tree_hash}</code>. This is the factory/module hash, not the hash of every program it can produce. Equal recorded behavior is separate from byte and hash identity.</p>
+    <div class="table-scroll"><table><caption>Actual comparison with the pinned published module</caption><thead><tr><th scope="col">Build</th><th scope="col">Optimization</th><th scope="col">Serialized bytes</th><th scope="col">Tree hash</th></tr></thead><tbody>{puzzle.module_identity.comparisons.map(comparison => <tr><th scope="row">{backendLabel(comparison.backend)}</th><td>{comparison.optimize_lir ? 'on' : 'off'}</td><td>{comparison.serialized_bytes_equal ? 'matches' : 'differs'}</td><td>{comparison.tree_hash_equal ? 'matches' : 'differs'}</td></tr>)}</tbody></table></div>
+  </section>}
   {puzzle.artifacts.map(artifact => <details class="artifact"><summary>{backendLabel(artifact.backend)} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary><div data-pagefind-ignore><Code code={artifact.disassembly} lang="lisp" /><Code code={artifact.clvm_hex} lang="text" /></div></details>)}
   <p class="quiet">The disassembler can print mnemonic names for numeric atoms inside quoted data. A name such as <code>g1_negate</code> in a returned condition list does not mean that operator is executed; inspect the quoted context and serialized bytes.</p>
   <h2 id="vectors">Adversarial input vectors</h2>
-  <p>Each named vector records native Rust and five CLVM executions: Chialisp, plus Rust and Rue with LIR optimization off/on. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? (puzzle.environment === 'ignored' ? ' over bounded atom and pair trees' : ' around the scalar policy boundary') : ''}. A rejected VM run has no returned successful cost.</p>
+  <p>Each named vector records native Rust and five CLVM executions: Chialisp, plus Rust and Rue with LIR optimization off/on. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? (puzzle.environment === 'ignored' || puzzle.environment === 'raw' ? ' over bounded atom and pair trees' : ' around the scalar policy boundary') : ''}. A rejected VM run has no returned successful cost.</p>
   <div class="table-scroll"><table><caption>Named input outcomes and successful VM execution costs</caption><thead><tr><th scope="col">Case / solution</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th></tr></thead><tbody>
     {puzzle.cases.map(test => <tr><th scope="row">{test.label}<code class="solution">{test.solution}</code></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span></td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}
   </tbody></table></div>
   <p class="quiet">Execution cost excludes consensus condition costs and overall spend-bundle admission overhead. Accepted outputs and exact rejection diagnostics are available in the <a href={href('reports/validation.json')}>downloadable report</a>.</p>
+  {puzzle.kind === 'program_factory' && <section aria-label="Produced program execution checks">
+    <h2 id="factory">Apply the produced programs</h2>
+    <p>The first-stage result is executable CLVM. The report records {puzzle.factory_checks?.length ?? 0} produced-program checks and {applicationCount} second-stage VM executions. Each build’s returned program is applied to the recorded environments and compared with the expected payload bytes. These finite replays are separate from an IR-model proof.</p>
+    {[...factoryGroups].map(([environment, checks]) => <details class="artifact"><summary>Factory environment <code>{environment}</code> · {checks.length} builds</summary><div class="table-scroll" data-pagefind-ignore><table><caption>Second-stage applications of each returned program</caption><thead><tr><th scope="col">Build</th><th scope="col">Returned program</th><th scope="col">Expected payload</th><th scope="col">Applications</th></tr></thead><tbody>{checks.map(check => <tr><th scope="row">{backendLabel(check.backend)} / {check.optimize_lir ? 'on' : 'off'}</th><td class="hash"><code>{check.program_hex}</code></td><td class="hash"><code>{check.expected_output_hex}</code></td><td><span class:list={['outcome',{accepted:applicationPassed(check)}]}>{applicationPassed(check) ? 'pass' : 'fail'}</span><small>{check.application_runs.length} recorded environments</small></td></tr>)}</tbody></table></div></details>)}
+    <p><a href={href('tutorials/p2-conditions/')}>Follow the raw-tree factory walkthrough.</a> Full replay inputs, outputs, costs, and diagnostics remain in the JSON report.</p>
+  </section>}
   <h2 id="ledger">Ledger validation</h2>
   {puzzle.simulator.length ? <div>
     <p>The same {puzzle.simulator.length} complete-spend scenarios execute separately against each language’s compiled program. Equal VM outputs alone do not establish valid coin spends.</p>
     {[{backend: 'rust_mir', scenarios: puzzle.simulator}, ...puzzle.simulator_comparisons].map(run => <details class="artifact"><summary>{backendLabel(run.backend)} · {run.scenarios.length} optimized ledger scenarios</summary><ul class="scenarios">{run.scenarios.map(scenario => <li><span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}</li>)}</ul></details>)}
-  </div> : <div class="callout-note">This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.</div>}
+  </div> : <div class="callout-note">{puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
-  <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
+  <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <p>Rue source SHA-256: <code class="dependency-hash" data-pagefind-ignore>{puzzle.rue.sha256}</code>. It is compiled independently; Rust’s use of Rue LIR does not substitute for this source comparison.</p>
   <RuntimeVersions />

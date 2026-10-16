@@ -19,7 +19,22 @@ impl<'tcx> Lowerer<'tcx> {
         match value {
             // Operands are MIR places/constants, not nested source evaluations.
             // Lowering already rejected unsupported types and projections.
-            Rvalue::Use(..) | Rvalue::Aggregate(..) | Rvalue::Repeat(..) => true,
+            Rvalue::Use(..)
+            | Rvalue::Aggregate(..)
+            | Rvalue::Repeat(..)
+            | Rvalue::Discriminant(..) => true,
+            // Accepted borrows only copy immutable tree/byte values. Their
+            // source place has already been evaluated and type checked.
+            Rvalue::Ref(_, rustc_middle::mir::BorrowKind::Shared, _) => true,
+            // Lowering permits this coercion only for a literal byte array.
+            Rvalue::Cast(
+                rustc_middle::mir::CastKind::PointerCoercion(
+                    ty::adjustment::PointerCoercion::Unsize,
+                    _,
+                ),
+                _,
+                _,
+            ) => true,
             Rvalue::UnaryOp(UnOp::Not, _) => true,
             Rvalue::BinaryOp(op, _) => matches!(
                 op,

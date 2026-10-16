@@ -9,3 +9,6 @@ pub use chialisp_oxide_macros::puzzle;
 
 mod domain;
 pub use domain::*;
+
+mod tree;
+pub use tree::*;

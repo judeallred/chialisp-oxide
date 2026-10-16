@@ -1,0 +1,11 @@
+// Authored Rue translation of the exact pinned Chia p2_conditions factory.
+// This returns a quoted program, not a direct condition-list spend result.
+// Projecting first rejects atom environments; the arbitrary pair tail is unused.
+fn main(...environment: (Any, Any)) -> (Int, Any) {
+    quote_program(environment.first)
+}
+
+// Preserve the complete payload tree; the environment tail is irrelevant.
+inline fn quote_program(value: Any) -> (Int, Any) {
+    (1, value)
+}

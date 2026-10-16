@@ -4,6 +4,7 @@ description: Inspect source-derived IR obligations, solver witnesses, and replay
 ---
 
 import FormalEvidence from '../../../components/FormalEvidence.astro';
+import StructuralEvidence from '../../../components/StructuralEvidence.astro';
 
 The formal companion works on typed scalar expressions in the actual
 source-derived IR. Independently written specifications describe the intended
@@ -53,7 +54,30 @@ python3 scripts/check-proofs.py
 That earlier model is not a proof derived from every puzzle's source. Keep
 its evidence distinct from the source-derived counter obligations.
 
-## The trust boundary remains
+## A separate structural tree model
+
+The [p2_conditions factory](/chialisp-oxide/tutorials/p2-conditions/) adds a
+separate model over arbitrary finite atom/pair trees. Atom contents are byte
+sequences, rather than integers; leading zeros and improper tails are preserved.
+The independent specification requires acceptance exactly for pair environments
+and output `(1 . first(environment))`. Its domains include both atoms and pairs,
+with nonvacuity checks and mutation counterexamples replayed in the VM.
+
+<StructuralEvidence />
+
+```sh
+python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
+```
+
+The [structural report](/chialisp-oxide/reports/tree-proofs.json) includes its
+source-derived IR, independent specification, SMT queries, and replay evidence.
+This is an IR-model proof, not a theorem about all compiled Rust. Recursive
+data in the model does not establish support for recursive Rust functions,
+runtime allocation or general program evaluation. The scalar verifier rejects
+tree expressions, including expressions in unchosen branches, instead of
+silently interpreting them under integer semantics.
+
+## Remaining trust boundaries
 
 These checks assume successful decoding of canonical typed scalar values.
 They do not prove the ABI decoder, rustc MIR extraction, SMT translation,

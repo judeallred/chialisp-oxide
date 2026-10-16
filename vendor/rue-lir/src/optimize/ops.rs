@@ -9,7 +9,7 @@ use sha3::Keccak256;
 use crate::{
     ClvmOp, Lir, LirId, atom_bigint, bigint_atom, first_path,
     optimize::{ArgList, opt_truthy},
-    parent_path, rest_path,
+    rest_path,
 };
 
 // There's no way to optimize an atom
@@ -29,20 +29,12 @@ pub fn opt_quote(arena: &mut Arena<Lir>, value: LirId) -> LirId {
 
 // If the program is quoted, and the environment is the same as the parent,
 // we can skip both quoting and running the program, and just use it directly
-// We can also skip quoting if the program has no path, since it's not going to rely on the environment
 pub fn opt_run(arena: &mut Arena<Lir>, callee: LirId, env: LirId) -> LirId {
-    if let Lir::Quote(value) = arena[callee].clone() {
-        if let Lir::Path(path) = arena[env].clone()
-            && path == BigUint::from(1u8)
-        {
-            return value;
-        }
-
-        if let Lir::Atom(atom) = arena[env].clone()
-            && atom.is_empty()
-        {
-            return value;
-        }
+    if let Lir::Quote(value) = arena[callee].clone()
+        && let Lir::Path(path) = arena[env].clone()
+        && path == BigUint::from(1u8)
+    {
+        return value;
     }
 
     arena.alloc(Lir::Run(callee, env))
@@ -87,16 +79,9 @@ pub fn opt_rest(arena: &mut Arena<Lir>, value: LirId) -> LirId {
 
 // TODO: Optimize pair of div and mod into divmod
 pub fn opt_cons(arena: &mut Arena<Lir>, first: LirId, rest: LirId) -> LirId {
-    if let Lir::Path(f_path) = arena[first].clone()
-        && let Lir::Path(r_path) = arena[rest].clone()
-        && let Some(parent) = parent_path(&f_path)
-        && parent_path(&r_path).as_ref() == Some(&parent)
-        && first_path(&parent) == f_path
-        && rest_path(&parent) == r_path
-    {
-        return arena.alloc(Lir::Path(parent));
-    }
-
+    // Rebuilding (first parent, rest parent) still checks that parent is a
+    // pair. Returning parent directly would accept atoms that both child
+    // paths reject. Keep the checks unless pair-ness is independently proven.
     arena.alloc(Lir::Cons(first, rest))
 }
 

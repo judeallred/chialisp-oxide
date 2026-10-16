@@ -117,8 +117,8 @@ def check_report(report):
             ledger += 1
         if "rue" in puzzle:
             comparisons = puzzle["simulator_comparisons"]
-            if puzzle["kind"] == "pure_function":
-                require(not comparisons and not puzzle["simulator"], f"{slug}: pure function claims ledger evidence")
+            if puzzle["kind"] in ("pure_function", "program_factory"):
+                require(not comparisons and not puzzle["simulator"], f"{slug}: non-spend function claims ledger evidence")
             else:
                 require({(item["backend"], item["optimize_lir"]) for item in comparisons}
                         == {("chialisp", True), ("rue_source", True)} and len(comparisons) == 2,
@@ -376,7 +376,7 @@ class ComparisonTests(unittest.TestCase):
             paths = [".cargo/config.toml", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml",
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
                      "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
-                     "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs",
+                     "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
                      "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:
                 target = root / path

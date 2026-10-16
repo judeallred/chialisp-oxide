@@ -86,15 +86,18 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Twelve Chialisp/Rust/Rue source comparisons: nine original teaching fixtures covering
+Thirteen Chialisp/Rust/Rue source comparisons: nine original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, and a bounded counter;
-plus three canonical closed expressions from the pinned Chialisp Intro. The
+plus three canonical closed expressions from the pinned Chialisp Intro and the
+exact canonical `p2_conditions` program factory. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-97 explicit vectors and 3,831 generated integer/tree cases against five CLVM
+109 explicit vectors and 5,890 generated integer/tree cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty
 complete-spend scenarios run separately in all three languages (90 ledger executions). Only the eight condition-producing
-teaching fixtures have ledger scenarios; pure language results are not spends.
+teaching fixtures have ledger scenarios; pure language results and program
+factories are not direct spends. Factory validation separately executes the
+returned program on four environments for every successful named compiler run.
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
 
@@ -108,6 +111,8 @@ python3 corpus/validate_published_puzzles.py --self-test
 python3 scripts/check-error-study.py
 python3 scripts/check-proofs.py
 python3 scripts/check-ir-proofs.py --output corpus/proofs.json
+python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
+python3 scripts/check-canonical-factories.py --self-test
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently
@@ -120,7 +125,8 @@ proofs**, not proofs of compiler preservation or absence of all security flaws.
 [The functionality map](docs/chialisp-functionality.md) distinguishes Rust’s
 ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
-Dynamic trees/lists, arbitrary-precision integers, recursion, hashing and crypto,
+Borrowed raw-tree construction/matching and explicit whole-environment exports
+are implemented; recursive tree processing, arbitrary-precision integers, hashing and crypto,
 currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
 
@@ -159,7 +165,8 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 The compiler supports restricted single-field transparent newtypes, allowing
 nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
-and enums, loops, recursion, allocation, arbitrary external calls, references, casts,
+and enums outside the restricted borrowed `Tree` shape, loops, recursive calls,
+allocation, arbitrary external calls, general references, casts,
 division/remainder, and other unsupported MIR remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. A separate
@@ -170,6 +177,9 @@ other programs, the naming variant, and supporting workflows remain unrun.
 The parent Intro page remains partial, and no CHIP migration is complete.
 See the [canonical Intro walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/canonical-intro/)
 for exact sources, environment contracts, and measured compiler gaps. No production security audit has been
-completed. The vendored Rue identity-product fix is reported upstream as
-[xch-dev/rue#108](https://github.com/xch-dev/rue/issues/108), with a regression test
-and patch.
+completed. Four vendored Rue fixes have upstream reports with reproductions,
+regression tests and standalone patches: [identity products #108](https://github.com/xch-dev/rue/issues/108),
+[strict truthiness #109](https://github.com/xch-dev/rue/issues/109),
+[pair reconstruction #110](https://github.com/xch-dev/rue/issues/110), and
+[quoted nil environments #111](https://github.com/xch-dev/rue/issues/111).
+See [vendor provenance](vendor/rue-lir/UPSTREAM.md) before upgrading Rue.

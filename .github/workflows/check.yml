@@ -44,14 +44,20 @@ jobs:
       - run: python3 scripts/check-proofs.py
       - name: Derive and check proofs from Rust source
         run: python3 scripts/check-ir-proofs.py --output corpus/proofs.json
+      - name: Check structural raw-tree specification and replay mutants
+        run: |
+          python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
+          python3 scripts/check-tree-proofs.py --self-test
       - name: Validate Rust, Chialisp, native execution, and complete spends
         run: target/debug/chialisp-oxide validate --output corpus/validation.json
       - name: Check readable-source evidence and comparison controls
         run: |
           python3 scripts/check-readable-puzzles.py --self-test
           python3 scripts/check-readable-puzzles.py
+          python3 scripts/check-canonical-factories.py
+          python3 scripts/check-canonical-factories.py --self-test
       - name: Require committed validation data to match current compiler
-        run: git diff --exit-code -- corpus/validation.json
+        run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions
       - uses: actions/upload-artifact@v4
         with:
           name: compiler-validation
@@ -59,6 +65,8 @@ jobs:
             corpus/validation.json
             corpus/proofs.json
             corpus/error-study.json
+            corpus/tree-proofs.json
+            proofs/p2-conditions/
             proofs/bounded-counter/
   docs:
     runs-on: ubuntu-latest

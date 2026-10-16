@@ -26,3 +26,22 @@ The patch includes execution-based regression coverage for both Cons fields and
 five truthiness contexts, with optimization on/off.
 Upstream issue: https://github.com/xch-dev/rue/issues/109
 Patch: ../../patches/rue-truthiness-preserves-failure.patch
+
+Third local fix: src/optimize/ops.rs retains matching first/rest child paths
+inside Cons. Returning their parent directly dropped required pair checks and
+accepted atom inputs that unoptimized CLVM rejected. Execution-based controls
+cover root/nested paths, explicit projections/direct paths, padded atoms, and
+proper/improper pairs, with optimization on/off.
+Upstream issue: https://github.com/xch-dev/rue/issues/110
+Patch: ../../patches/rue-reconstruction-preserves-failure.patch
+Scope and reproduction: ../../patches/rue-reconstruction.md
+
+Fourth local fix: src/optimize/ops.rs retains the explicit nil environment
+when executing a quoted program. Removing it let the quoted body read outer
+data instead, changing returned values and sometimes dropping projection
+failure. Execution-based controls cover nil-bound identity/projections,
+same-environment execution, and constant programs with optimization off/on.
+The valid Rue lambda witness is recorded in the reproduction note.
+Upstream issue: https://github.com/xch-dev/rue/issues/111
+Patch: ../../patches/rue-quoted-run-nil.patch
+Scope and reproduction: ../../patches/rue-quoted-run-nil.md

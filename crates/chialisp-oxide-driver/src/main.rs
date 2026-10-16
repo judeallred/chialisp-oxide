@@ -14,7 +14,7 @@ mod lower;
 
 use std::{io::Write, path::PathBuf};
 
-use chialisp_oxide_ir::{Environment, Expr, Parameter, Program};
+use chialisp_oxide_ir::{Environment, Expr, Parameter, Program, Type};
 use rustc_driver::{Callbacks, Compilation};
 use rustc_hir::def_id::DefId;
 use rustc_middle::ty::TyCtxt;
@@ -156,6 +156,14 @@ impl Driver {
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
+        if environment == Environment::Raw
+            && !matches!(parameters.as_slice(), [Parameter { ty: Type::Tree, .. }])
+        {
+            return Err(format!(
+                "{}: environment = \"raw\" requires exactly one tree parameter",
+                tcx.sess.source_map().span_to_diagnostic_string(body.span)
+            ));
+        }
         let program = Program {
             name,
             environment,

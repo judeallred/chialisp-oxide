@@ -17,7 +17,7 @@ export interface PuzzleReport {
   kind: string;
   security_scope: string;
   provenance: { classification: string; references: string[]; example_id?: string };
-  environment?: 'ignored';
+  environment?: 'ignored' | 'raw';
   reference_mode?: 'expression';
   source: string;
   source_dependencies: { path: string; sha256: string; source: string }[];
@@ -28,6 +28,8 @@ export interface PuzzleReport {
   generated_cases: number;
   simulator: { name: string; passed: boolean; scope: string }[];
   simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: { name: string; passed: boolean; scope: string }[] }[];
+  factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
+  module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   validated: boolean;
 }
 export interface Authoring {
@@ -63,6 +65,8 @@ export const tutorialExamples: TutorialExample[] = tutorialInventory.examples;
 export const canonicalExample = (puzzle: PuzzleReport) => tutorialExamples.find(example =>
   example.implementation_status === 'implemented' && example.validation_status === 'differential_only'
   && example.source_adaptation?.slug === puzzle.slug);
+export const canonicalPuzzle = (puzzle: PuzzleReport) => puzzle.provenance.classification === 'canonical_puzzle_port';
+export const kindLabel = (kind: string) => kind === 'program_factory' ? 'program factory' : kind === 'pure_function' ? 'pure function' : kind === 'coin_puzzle' ? 'coin puzzle' : kind.replaceAll('_', ' ');
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const href = (path: string) => `${base}/${path.replace(/^\//, '')}`;
 export const format = (value: number) => new Intl.NumberFormat('en-US').format(value);
@@ -77,8 +81,10 @@ export const totals = {
   ledgerExecutions: puzzles.reduce((sum, p) => sum + p.simulator.length + p.simulator_comparisons.reduce((n, run) => n + run.scenarios.length, 0), 0),
   coinPuzzles: puzzles.filter(puzzle => puzzle.kind === 'coin_puzzle').length,
   pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
+  programFactories: puzzles.filter(puzzle => puzzle.kind === 'program_factory').length,
   canonicalPorts: puzzles.filter(puzzle => canonicalExample(puzzle)).length,
-  originalExamples: puzzles.filter(puzzle => !canonicalExample(puzzle)).length,
+  canonicalPuzzlePorts: puzzles.filter(puzzle => canonicalPuzzle(puzzle)).length,
+  originalExamples: puzzles.filter(puzzle => !canonicalExample(puzzle) && !canonicalPuzzle(puzzle)).length,
 };
 
 if (validation.schema_version !== 1 || puzzles.length === 0 || puzzles.some(p => !p.validated)) {

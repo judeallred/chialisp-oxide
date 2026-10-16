@@ -110,9 +110,9 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
-| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Fixed products, unit, and fixed bytes only; no general raw-tree ABI | General tree SDK/IR values, malformed projections, strict construction effects, and native/VM codecs |
-| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed argument list; explicit ignored environment only for nullary functions | A separately versioned raw-tree/prefix contract; retain current typed validation |
-| Quote, `q` | Data constructors | Supported scalar/product literals; no arbitrary program/data tree quotation | Quoted-tree preservation and code/data separation |
+| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree::Atom`/`Tree::Pair`, pattern matching and checked projections; native arena codec | Broader byte/number operations, recursive processing and per-operator proofs |
+| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit v3 raw whole-tree export | More argument patterns and deliberate typed adapters without weakening defaults |
+| Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | No user-facing dynamic apply; internal backend applications are not a source API | A reviewed program/environment SDK and IR, dialect rules, failures, and cost bounds |
 | Signed arbitrary-precision numeric atoms | A big-integer implementation with explicit atom codec | Fixed widths 8–128 only; canonical encodings required | Unbounded numeric SDK/IR semantics, padded/negative atoms, result encoding, and resource bounds |
 | `+`, `-`, `*` | Primitive checked arithmetic or explicit big integers | Checked fixed-width operations implemented | Per-operation widening/overflow contract; never silently map Rust overflow to unbounded arithmetic |
@@ -131,7 +131,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | No explicit source support | Exact extension and cost semantics; no assumption that unknown operators are harmless |
 | `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants | General aggregate constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
-| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Recursion, loops, allocation, and recursive types rejected | Runtime function/call IR or justified loop lowering, termination/resource policy, and strictness tests |
+| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Recursive borrowed tree data accepted; recursive calls, loops and allocation rejected | Runtime function/call IR or justified loop lowering, termination/resource policy, and strictness tests |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | No general curry or nested-puzzle API | Exact canonical module and instance identity plus adversarial composition tests |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
@@ -157,8 +157,8 @@ every compiler version.
 
 | Numeric opcode(s) | Names, in opcode order | Rust authoring coverage today |
 | --- | --- | --- |
-| 1, 2, 36 | `q`, `a`, `softfork` | Supported literal subset; no user-facing dynamic apply or softfork API |
-| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products/projections, branches, assertions and scalar comparisons; no general raw-tree operations |
+| 1, 2, 36 | `q`, `a`, `softfork` | Literals and raw-tree `quote`; no user-facing dynamic apply or softfork API |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw tree construction/projections/pair tests, lazy branches, assertions and scalar comparisons |
 | 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering; decoder-generated byte checks do not count as an authoring API |
 | 16–18 | `+`, `-`, `*` | Checked fixed-width arithmetic only |
 | 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons only; remaining operations rejected |
@@ -174,8 +174,9 @@ every compiler version.
 | Other/reserved operator bytes | Unknown-operator dispatch, defined costs or reserved failures | No source API; rejected by the execution backend's `NO_UNKNOWN_OPS` policy |
 
 Unquoted program atoms also traverse environment paths; that interpreter
-behavior is not a missing named opcode in the table. General path/tree access
-is still missing from the Rust SDK/IR.
+behavior is not a missing named opcode in the table. Raw-tree pattern matching
+now provides checked first/rest access; general numeric path traversal is not a
+separate SDK operation.
 
 The pin's flags are `CANONICAL_INTS`, `NO_UNKNOWN_OPS`, `LIMIT_HEAP`,
 `RELAXED_BLS`, `LIMIT_SOFTFORK`, `ENABLE_GC`, `LIMITS`,
@@ -209,8 +210,8 @@ also require distinct treatment:
 
 - `mod`, destructured/dotted argument patterns, named helpers, `defun`,
   `defun-inline`, recursion, and function/lambda environments: Rust has
-  functions and pattern matching, but the current target subset has no general
-  recursive tree or runtime function-value representation.
+  functions and pattern matching. Borrowed recursive tree data is supported;
+  recursive calls and runtime function values remain unsupported.
 - `defconstant`, `defconst`, `let`, `let*`, `assign`, `assign-inline`, and
   `assign-lambda`: preserve binding, evaluation, staging, and failure order.
   Similar Rust syntax does not establish matching semantics.
@@ -260,9 +261,13 @@ compiler. Its exact proper-list ABI and checked overflow differ from the
 original. Test and record those differences instead of weakening default checks
 or editing the original source to hide them.
 
-For closer original semantics, design a distinct tree/number SDK and IR route:
-native arbitrary-precision semantics, deliberate raw/prefix decoding, reviewed
-SDK identity, and explicit target operations. A native Rust builder that embeds
+The first raw-tree witness is the exact canonical `p2_conditions` factory.
+It uses ordinary borrowed Rust enum matching and the SDK `quote` helper, with
+an explicit whole-environment ABI. Its report checks the factory result, applies
+the returned program, and separately compares published module identity.
+The structural tree model proves its stated IR specification, not compiler
+preservation. Broader numeric compatibility still needs native arbitrary-precision
+semantics, reviewed SDK identity, and explicit target operations. A native Rust builder that embeds
 precompiled CLVM, or an opaque extern intrinsic with no checked semantics, does
 not establish that Rust puzzle logic was translated correctly. General recursion
 and delegated-program execution remain additional work.

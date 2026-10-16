@@ -51,7 +51,7 @@ for (const file of pages) {
   }
 }
 
-for (const name of ['validation', 'proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study']) {
+for (const name of ['validation', 'proofs', 'tree-proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study']) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
 }
@@ -85,6 +85,17 @@ for (const puzzle of validation.puzzles) {
     if (dependency.path.endsWith('/fixture_keys.rs')) {
       assert(detail.includes('Public fixture key bytes'), `${puzzle.slug}: fixture keys must be labeled separately`);
     }
+  }
+  if (puzzle.kind === 'program_factory') {
+    for (const label of ['Environment contract: raw tree.', 'returns a program', 'Published module identity', 'Apply the produced programs']) {
+      assert(detail.includes(label), `${puzzle.slug}: missing factory contract/evidence label ${label}`);
+    }
+    assert(puzzle.factory_checks.length > 0 && puzzle.module_identity, `${puzzle.slug}: missing factory evidence`);
+    assert.deepEqual(puzzle.simulator, [], 'A factory must not claim direct ledger scenarios');
+    const applications = puzzle.factory_checks.reduce((n, row) => n + row.application_runs.length, 0);
+    assert(detail.includes(`${applications} second-stage VM executions`), 'Factory application count must come from the report');
+    const tutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
+    assert(tutorial.includes(puzzle.module_identity.upstream_tree_hash), 'Tutorial must bind the published module identity');
   }
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
@@ -147,7 +158,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying']) {
+for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -159,4 +170,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 6 JSON reports, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 7 JSON reports, and live Pagefind queries`);

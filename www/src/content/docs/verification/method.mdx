@@ -34,6 +34,12 @@ teaching-fixture ABI. The canonical closed expressions instead use the raw
 expression compilation stage and explicitly ignore their environment in both
 the Rust export, original Chialisp, and authored Rue translation.
 
+The canonical `p2_conditions` factory uses an explicitly raw whole-tree
+environment in Rust. Its exact original module and Rue source accept arbitrary
+pair tails and payloads. The host codec copies atom bytes without numeric
+interpretation; two iterative traversals avoid using native call-stack depth
+as the input-data limit. The default typed fixtures keep their exact ABI.
+
 Rue is separately compiled from each recorded `puzzle.rue` by its pinned
 frontend, with LIR optimization off and on. Its standard condition types and
 explicit environment guards are real source, not Rust-generated Rue text or
@@ -42,8 +48,10 @@ these comparison policies. Those guards remain visible in the source.
 
 The report separates {format(totals.originalExamples)} original teaching
 comparisons from {format(totals.canonicalPorts)} canonical tutorial expression
-ports, all with explicit provenance. A closed-expression port does not complete
-its parent page or a protocol migration. Familiar condition codes in a teaching
+ports, all with explicit provenance. Another {format(totals.canonicalPuzzlePorts)}
+canonical module port has factory, artifact-identity and second-stage execution
+evidence. These ports do not complete a tutorial page or protocol migration.
+Familiar condition codes in a teaching
 fixture do not make it a canonical protocol module.
 
 ## Optimized and unoptimized CLVM
@@ -62,7 +70,8 @@ condition costs and total transaction admission cost.
 ## Actual coin-set validation
 
 The report contains {format(totals.coinPuzzles)} condition-producing examples
-and {format(totals.pureFunctions)} pure-function examples. Only coin puzzles
+and {format(totals.pureFunctions)} pure-function examples, plus
+{format(totals.programFactories)} program factory. Only coin puzzles
 have ledger scenarios. The same scenarios run separately with Rust, Chialisp, and Rue reveals;
 {format(totals.ledger)} scenario definitions produce {format(totals.ledgerExecutions)} ledger executions. They verify
 coin-state transitions, exact recipients/totals, signatures, input amount
@@ -76,9 +85,20 @@ contains every infrastructure scenario: each report lists its own checks.
 
 A check is more persuasive when a deliberately broken policy fails it. Guard
 removal is modeled and replayed for the counter; the earlier backend experiment
-also contains mutation controls. Model proofs and their assumptions are
+also contains mutation controls. The structural factory model independently
+requires pair-only acceptance and exact quote construction; deliberate atom
+acceptance and a wrong quote opcode must produce replayable counterexamples.
+Model proofs and their assumptions are
 [reported separately](/chialisp-oxide/verification/formal/) from finite
 differential and simulator evidence.
+
+Raw-tree review exposed two additional Rue optimizer discrepancies:
+[pair reconstruction could drop required projection failures](https://github.com/xch-dev/rue/issues/110),
+and [quoted execution could replace an explicit nil environment with outer data](https://github.com/xch-dev/rue/issues/111).
+Both are fixed in this checkout, with test-first reproductions and standalone
+upstream patches. The regressions compare exact outputs and rejection with
+optimization off/on. They illustrate why a source/IR-model proof and optimizer
+preservation remain separate obligations.
 
 ## Runtime boundaries are explicit
 

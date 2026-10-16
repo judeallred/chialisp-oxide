@@ -1,6 +1,6 @@
 //! Execute solver inputs through real compiled CLVM, separately from the model.
 use anyhow::{Context, Result, bail, ensure};
-use chialisp_oxide_ir::{Program, Type};
+use chialisp_oxide_ir::{Environment, Program, Type};
 use clvmr::{
     Allocator, ChiaDialect,
     allocator::NodePtr,
@@ -77,6 +77,10 @@ fn allocate(allocator: &mut Allocator, value: &WitnessValue, ty: &Type) -> Resul
 pub fn replay(program: &Program, witness: &Witness, max_cost: u64) -> Result<Vec<Replay>> {
     ensure!(max_cost > 0, "CLVM replay cost limit must be positive");
     program.validate()?;
+    ensure!(
+        program.environment != Environment::Raw,
+        "scalar witness replay does not encode raw environments; use replay_tree"
+    );
     ensure!(
         witness.arguments.len() == program.parameters.len(),
         "witness argument count mismatch"

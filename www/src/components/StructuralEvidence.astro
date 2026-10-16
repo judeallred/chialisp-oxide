@@ -1,0 +1,20 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import evidence from '../../../corpus/tree-proofs.json';
+import { href } from '../lib/data';
+---
+<section aria-label="Structural IR model evidence" class="structural-evidence">
+  <p><span class="badge success">{evidence.proof.status}</span> <strong>p2_conditions structural IR model</strong></p>
+  <p>{evidence.scope.domain} The independent specification requires pair-only acceptance and exact output <code>(1 . first(environment))</code>.</p>
+  <ul>
+    {evidence.proof.cases.map(check => <li><strong>{check.input_shape} environments:</strong> a solver-produced domain witness is replayed in native Rust, both Rust CLVM builds and independently compiled canonical Chialisp; no counterexample was found to the stated model obligation.</li>)}
+    {evidence.mutations.map(mutation => <li><strong>{mutation.description}:</strong> {mutation.result.status}; {mutation.detected ? 'counterexample detected and replayed' : 'not detected'}.</li>)}
+  </ul>
+  <p>This proves the stated IR-model formulas under their encoded semantics. It does not prove rustc extraction, the model translator, CLVM lowering, optimizer preservation, resource equivalence or consensus security.</p>
+  <details><summary>Inspect the mutation witnesses</summary><div data-pagefind-ignore>{evidence.mutations.map(mutation => <div><p>{mutation.id}</p><Code code={JSON.stringify(mutation.counterexample, null, 2)} lang="json" /></div>)}</div></details>
+  <p><a href={href('reports/tree-proofs.json')}>Download the structural proof, source hashes, queries and replays →</a></p>
+</section>
+<style>
+  .structural-evidence { border: 1px solid var(--oxide-line); border-radius: 6px; padding: 1.2rem; margin-block: 1.5rem; }
+  summary { cursor: pointer; } li { margin-block: .5rem; }
+</style>

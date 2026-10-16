@@ -28,6 +28,7 @@ export default defineConfig({
         ] },
         { label: 'Learn by building', items: [
           { label: 'Port the canonical Intro', slug: 'tutorials/canonical-intro' },
+          { label: 'Build a quoted program', slug: 'tutorials/p2-conditions' },
           { label: 'Your first payment', slug: 'tutorials/first-payment' },
           { label: 'Validate untrusted inputs', slug: 'tutorials/input-validation' },
           { label: 'Use typed puzzle helpers', slug: 'tutorials/typed-sdk' },

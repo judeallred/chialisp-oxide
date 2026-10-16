@@ -1,0 +1,801 @@
+{
+  "schema_version": 1,
+  "authoring": {
+    "mode": "cargo_library",
+    "package": "chialisp-oxide-puzzles",
+    "manifest": "puzzles/Cargo.toml",
+    "library": "puzzles/lib.rs",
+    "exports": {
+      "boolean-gate": {
+        "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
+        "source": "puzzles/boolean-gate/puzzle.rs"
+      },
+      "bounded-counter": {
+        "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
+        "source": "puzzles/bounded-counter/puzzle.rs"
+      },
+      "capped-payment": {
+        "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
+        "source": "puzzles/capped-payment/puzzle.rs"
+      },
+      "fixed-payment": {
+        "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
+        "source": "puzzles/fixed-payment/puzzle.rs"
+      },
+      "intro-add": {
+        "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
+        "source": "puzzles/intro-add/puzzle.rs"
+      },
+      "intro-conditional": {
+        "entry": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+        "source": "puzzles/intro-conditional/puzzle.rs"
+      },
+      "intro-list": {
+        "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
+        "source": "puzzles/intro-list/puzzle.rs"
+      },
+      "p2-conditions": {
+        "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+        "source": "puzzles/p2-conditions/puzzle.rs"
+      },
+      "recovery-payment": {
+        "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
+        "source": "puzzles/recovery-payment/puzzle.rs"
+      },
+      "signature-payment": {
+        "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
+        "source": "puzzles/signature-payment/puzzle.rs"
+      },
+      "split-payment": {
+        "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
+        "source": "puzzles/split-payment/puzzle.rs"
+      },
+      "timelocked-payment": {
+        "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
+        "source": "puzzles/timelocked-payment/puzzle.rs"
+      },
+      "two-signature-payment": {
+        "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
+        "source": "puzzles/two-signature-payment/puzzle.rs"
+      }
+    },
+    "sources": [
+      {
+        "path": ".cargo/config.toml",
+        "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "335c59a9ac3b6279752451a5c07923143555e8fc50ac6b5a014b40be30c79877"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "892ba719d2540966df47bee4c6224e41b48486843544010847f6ddd95f204ee4"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/Cargo.toml",
+        "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/src/lib.rs",
+        "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+      },
+      {
+        "path": "crates/chialisp-oxide/Cargo.toml",
+        "sha256": "c8a769ec22fb8e55f522a8c5a30b16a3a33c6731a967265cedfb29247c2795a6"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/domain.rs",
+        "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/lib.rs",
+        "sha256": "338637a61130db7ae1c1a139d1561fdb7410b6a1eea527081fae1c6d7323f3fc"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/tree.rs",
+        "sha256": "e0ac61bea1dab93e921c2b661acd01cd3622bd845a9af3fed934a755f9517bc7"
+      },
+      {
+        "path": "puzzles/Cargo.toml",
+        "sha256": "5edfdb2b8170c825c7fa5eff6dcb7b99d729c3c65dfc7bbec34598f23ebd448b"
+      },
+      {
+        "path": "puzzles/authoring.json",
+        "sha256": "5003a94f4fbe2de1134943342d978ed0eaf9ecfe8e63b7c2f26a1de2732b3cb7"
+      },
+      {
+        "path": "puzzles/boolean-gate/puzzle.rs",
+        "sha256": "bcf282130a8a5529687cdcb53f45931c6c8de8c0cc67b27c1ac026d04c13656c"
+      },
+      {
+        "path": "puzzles/bounded-counter/puzzle.rs",
+        "sha256": "cc0194ce1a82341e9be0756a91b41872f655fab04ffc653049888bc3e8a88b65"
+      },
+      {
+        "path": "puzzles/capped-payment/puzzle.rs",
+        "sha256": "6c7660ce193f7f941acdd2ffa7e3fbc2c89b0e264f6b9b79e038f9ead9bdbbe9"
+      },
+      {
+        "path": "puzzles/fixed-payment/puzzle.rs",
+        "sha256": "e3d32e261b8403c9bf971f7d6c621552ff9ddf0964413c0e01f838f28540a84f"
+      },
+      {
+        "path": "puzzles/fixture_keys.rs",
+        "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
+      },
+      {
+        "path": "puzzles/intro-add/puzzle.rs",
+        "sha256": "1ec4572c9d4eb3e1c667d6d6b991b6fb159cf9751f08485bf489b6b4be3256e9"
+      },
+      {
+        "path": "puzzles/intro-conditional/puzzle.rs",
+        "sha256": "896429d8aba49868510ff97b890a8d3ef6e1c23bf7a1862b7e523e3a7b9f0694"
+      },
+      {
+        "path": "puzzles/intro-list/puzzle.rs",
+        "sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3"
+      },
+      {
+        "path": "puzzles/lib.rs",
+        "sha256": "57518fc4d8f66a6473ee74ab313efbb1c19474e0b3da68fa2cb48f6b0711e006"
+      },
+      {
+        "path": "puzzles/p2-conditions/puzzle.rs",
+        "sha256": "dece69447759f76a8c5617bcc42efe5607901cd571891e27800cf6b77a385753"
+      },
+      {
+        "path": "puzzles/recovery-payment/puzzle.rs",
+        "sha256": "edbf48beb1d6817e70f6ff1c2f0c9f2ee50f608f1238ce8747b25099d5c5d5e6"
+      },
+      {
+        "path": "puzzles/signature-payment/puzzle.rs",
+        "sha256": "6480ebbb3ed43921781b066906596389830fd8659951faaf8d922dcc0038a2d1"
+      },
+      {
+        "path": "puzzles/split-payment/puzzle.rs",
+        "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
+      },
+      {
+        "path": "puzzles/timelocked-payment/puzzle.rs",
+        "sha256": "dcaf5ffa041c01ac1c627a04b593ea4ed8486207ccfc2ed528f9011aca6a7682"
+      },
+      {
+        "path": "puzzles/two-signature-payment/puzzle.rs",
+        "sha256": "e6da886e56727a918fa8a571b5933d77be550a9ca71f6a788646fc162a3895bf"
+      },
+      {
+        "path": "rust-toolchain.toml",
+        "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+      }
+    ],
+    "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle"
+  },
+  "source": "puzzles/p2-conditions/puzzle.rs",
+  "source_sha256": "dece69447759f76a8c5617bcc42efe5607901cd571891e27800cf6b77a385753",
+  "specification": {
+    "path": "proofs/p2-conditions/specification.json",
+    "sha256": "fc037d61678174e7fa4b62e8bd146150069ddf4cdaa55da0d3ae3c3842debb8a"
+  },
+  "ir": {
+    "path": "proofs/p2-conditions/program.ir.json",
+    "sha256": "c6f06ccea73d8ac8fdfaaa924cf29c5f63a08fc1dab5853b1d8d3d1c287da930",
+    "diagnostic_normalization": "Only absolute repository prefixes inside Reject.message diagnostics become <repo>; all other IR fields are unchanged."
+  },
+  "implementation_sources": [
+    {
+      "path": ".cargo/config.toml",
+      "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "335c59a9ac3b6279752451a5c07923143555e8fc50ac6b5a014b40be30c79877"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "892ba719d2540966df47bee4c6224e41b48486843544010847f6ddd95f204ee4"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp",
+      "sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+      "sha256": "9abaa38029f9c9562e320ccecba0910194869ff96fab14cd0ce0e29a5b1e4761"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/Cargo.toml",
+      "sha256": "ca9839909764255cd7c535043c853cbb4eb219b2fc4a6cab3ba20e5fbbb5fbc5"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/lib.rs",
+      "sha256": "b3fa28c2272547bcfce8980f89820dee9489ac575c3218f0f31b47f9e4522be4"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/main.rs",
+      "sha256": "e4b6f14d5407ce12089737374c77e3a335781b7bc07219d5e8545b16babeaaac"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/options.rs",
+      "sha256": "5081de9ac5cb01a8b6646cd71d46cc55670c5870efb69b60c830bdd1b8b4cafd"
+    },
+    {
+      "path": "crates/chialisp-oxide-cli/Cargo.toml",
+      "sha256": "f2a125e172606717a14642561ac89cf3a3959024e79864506d8124155ccdf22f"
+    },
+    {
+      "path": "crates/chialisp-oxide-cli/src/main.rs",
+      "sha256": "e26a1f8a55b51a3cdf14e474253d80ce6a1771f3ad7f9259bc9b2b6db3a3fd03"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/Cargo.toml",
+      "sha256": "bf55b5a5b01c9d7d91463ba47bc2abac814a158b94c219108f2a0fd561849309"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
+      "sha256": "de9a565ee51ec425483c0b461e297bdfcccaa57a8d766af4ead659fa76337696"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/factories.rs",
+      "sha256": "982357b174890b9e99eaf80bf96565e6d38aeca93770baaf16413641778ea35d"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/lib.rs",
+      "sha256": "badd881dbea7afa25961a6cece5066cd81600430d8cc72931dc40894af7e68c4"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native.rs",
+      "sha256": "c655d9561555ded8c562a0736dac752ce73d22ff392688ec30d8508cea055f5a"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
+      "sha256": "25276798b987eac4786c8c935644f825c72f221394d1dc6f9eb64f9c01eceba1"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/spends.rs",
+      "sha256": "31fb59ae9c84c89e915e1b80186455483c3663fde0ad156e1932a5af17ca728e"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/Cargo.toml",
+      "sha256": "50f85bb2d89a6a135a42980a012460924543ff29824e190c9a09de39bb289e44"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/cargo.rs",
+      "sha256": "0c3a33055990f5dcc6bb189f87d4fd550458d8de07182fd97f30cd6f6d1d3041"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/exports.rs",
+      "sha256": "be58bf1a6daf2d42da0657f16d4e945175d500345c2def0a7cf0a52cde6ec3bf"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower.rs",
+      "sha256": "c097f94777582b71bad897db88a8e0d53c33edfedbca71b753989799ca91e882"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/constants.rs",
+      "sha256": "223ff35ec9c7704a485489a305d14e33f0b8d3efd33569be654fc785fa7d7252"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/newtypes.rs",
+      "sha256": "34fc0e368ddd80f22c0b3b473f538cb7e7f56f6d5769cdab7f8f30544b63760d"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
+      "sha256": "c11192d68f19623951f36fe450cbed8da37ac999a4134494a59595755a14fc9a"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/trees.rs",
+      "sha256": "db26ee2ca5e014b1f3282f84823eff4466e2ea00356eb5e765d972a159c71786"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/main.rs",
+      "sha256": "7a09ba1941a8d943c951d9476521aaf58ec9aad611b92fde637cc774c1f0f549"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/Cargo.toml",
+      "sha256": "1a3f01fba2350d90a107caa7a55d5fe51cd4d8266028a283dfbf2f40bf9a9e56"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/lib.rs",
+      "sha256": "657cf741a4c902bc4c2c5c346ec549c7ae15ee8cf80760969e6043022cc823d0"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/lower.rs",
+      "sha256": "bc54b3886a54e612cbd01542078e46ef0761dd91c0a713f3585b39124135b75c"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/validate.rs",
+      "sha256": "0832f29311549d77e5017ba9b5616fa98d615a386fa8de09234ad2ff50c113ca"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/wire.rs",
+      "sha256": "31877c61ff5feece811b0ebed8c18d76571e73d2d54cd3573709944063ebd796"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/Cargo.toml",
+      "sha256": "d257e578bed7b7860470e15e5cd46d76fd27a08f729f3dee15977587e9f0be45"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/src/lib.rs",
+      "sha256": "7127e7c0ee3b7b372a307f18189c81d98d21fc82c39674ca3f1e9a9375c35894"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/Cargo.toml",
+      "sha256": "56513a084346eba713e7d98c3277f0cc2bf9006f52ef222590ae55f0db682e29"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/bin/chialisp-oxide-tree-reference.rs",
+      "sha256": "d74f56ec0f72d69c51b4113f01753d329fb9ab63771fc5b3ed2620b9f997886e"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/lib.rs",
+      "sha256": "5cdd5ceb7a79510af703383e67717e0ca5d5016364f92047a913217fcffb8c70"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/main.rs",
+      "sha256": "7b6c6e1cc379302f762c9f25312a6e13bdb59de92bcb96c364ba51455cd47ed2"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/replay.rs",
+      "sha256": "ce0636c907306912609834e3869a27bacda1e98872180299914ab3474006a75d"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/tree.rs",
+      "sha256": "759bf95b37c6e3aada7e4a9d343bbd0a2e2db41bef261ec9bdbf544ddc2c9dc4"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/tree_witness.rs",
+      "sha256": "bce1253f78d1418c5828d32680a0e4c6066ca0109f89137ca55427cce653697f"
+    },
+    {
+      "path": "experiments/backend/Cargo.toml",
+      "sha256": "818e3aede229ed34825debc1a33734d483bbbb24a8bbd1d99bdb1e63f90dc371"
+    },
+    {
+      "path": "experiments/backend/src/lib.rs",
+      "sha256": "d1951747f5e8c7a36211453a3e4cb8ce7d0fb3c4da9522e62490b460f1d541b8"
+    },
+    {
+      "path": "experiments/backend/src/main.rs",
+      "sha256": "cfc52705f19aaa2b8ac51a280ece403ce2de8d7215650300de44f36f374128ad"
+    },
+    {
+      "path": "proofs/p2-conditions/specification.json",
+      "sha256": "fc037d61678174e7fa4b62e8bd146150069ddf4cdaa55da0d3ae3c3842debb8a"
+    },
+    {
+      "path": "puzzles/p2-conditions/puzzle.json",
+      "sha256": "ea8df2029c0c4d4896feb9d18672f37540316b2280fe6354eddbe656bd344828"
+    },
+    {
+      "path": "puzzles/p2-conditions/reference.clsp",
+      "sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+    },
+    {
+      "path": "scripts/cargo_authoring.py",
+      "sha256": "467cd602d052c02a9d51115b02766985c0d28e8976267b6dd2637ef38285980b"
+    },
+    {
+      "path": "scripts/check-tree-proofs.py",
+      "sha256": "d328eee978bad6ace80b12181e1eea608ea8554b2f840d2a16c31ec59be349ed"
+    },
+    {
+      "path": "vendor/rue-lir/Cargo.toml",
+      "sha256": "d44a24e3c49e4bdb704514c56fab5af6e7cef89c334932c29ecfdc840480c06e"
+    },
+    {
+      "path": "vendor/rue-lir/src/atom.rs",
+      "sha256": "e8784600d223ef461726b2bc1c34066665c4a1db81caa50709e1c91cb9aa29ca"
+    },
+    {
+      "path": "vendor/rue-lir/src/codegen.rs",
+      "sha256": "00801d11a02ae27fea5e4aeb50dc63f6826c90168c74cdc2961b5081435c53d0"
+    },
+    {
+      "path": "vendor/rue-lir/src/debug_dialect.rs",
+      "sha256": "a760055ef20732c1b385d0f6e3beaf8f57942a5701072e3f1728d43df7f2fb9a"
+    },
+    {
+      "path": "vendor/rue-lir/src/error.rs",
+      "sha256": "62124f7555aa117ca0b6c6a746a8d3d575f8178817351417c6fa286c7d36a5d0"
+    },
+    {
+      "path": "vendor/rue-lir/src/lib.rs",
+      "sha256": "50614e827d657118cbe326bab343ed140725cf7122669597c7fd3ee4383692e5"
+    },
+    {
+      "path": "vendor/rue-lir/src/lir.rs",
+      "sha256": "72374c9316852444345b3c76cb8c0ac7a7a746616da7a9c60127718628bcb372"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize.rs",
+      "sha256": "6740310b3768dae34aa416d5e88e5297793c4e0397cb225d799b50ebbba2dab5"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/arg_list.rs",
+      "sha256": "9be085603f01650f9fd61a9d95fe546eb990cf453263a2e8622c43744c5ef7de"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/ops.rs",
+      "sha256": "6519da986d3ccd5ed7adc374e26a9d1d98c2edb9a881b7ea6d61f96e3467f0fe"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/truthy.rs",
+      "sha256": "c709923342d20c4789ffb4871e3d00f3c09e11bfa45de229279a7a7d3ec369fa"
+    },
+    {
+      "path": "vendor/rue-lir/src/path.rs",
+      "sha256": "b78f6d92f6a5342e425c00d0d3eb4023f0eb443e0f1a8d99505230dd93134f72"
+    }
+  ],
+  "scope": {
+    "kind": "structural_ir_model",
+    "domain": "All finite atom/pair trees with arbitrary finite byte-sequence atoms; no numeric canonicalization or tail restriction.",
+    "excludes": [
+      "rustc extraction preservation",
+      "SMT-translator correctness proof",
+      "CLVM lowering/serialization preservation",
+      "Rue optimization preservation",
+      "VM cost/resource equivalence",
+      "Rust canonical module identity",
+      "consensus/authorization/security proof"
+    ]
+  },
+  "reference": {
+    "source": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp",
+    "source_sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f",
+    "published_artifact": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+    "bytes": 9,
+    "clvm_hex": "ff04ffff0101ff0280",
+    "compiler": "chialisp 0.4.6",
+    "max_cost": 10000000,
+    "tree_hash": "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36",
+    "vm": "clvmr 0.21.0 MEMPOOL_MODE"
+  },
+  "proof": {
+    "status": "proven",
+    "cases": [
+      {
+        "input_shape": "atom",
+        "domain_nonvacuity": {
+          "environment": {
+            "kind": "atom",
+            "hex": ""
+          }
+        },
+        "counterexample": null,
+        "queries": {
+          "domain": "proofs/p2-conditions/atom-domain.smt2",
+          "counterexample": "proofs/p2-conditions/atom-case.smt2"
+        },
+        "replay": {
+          "native_original": {
+            "status": "rejected"
+          },
+          "rust_original": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "rejected",
+                "error": "Raise(NodePtr(SmallAtom, 0))"
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "rejected",
+                "error": "Raise(NodePtr(SmallAtom, 0))"
+              }
+            }
+          ],
+          "canonical_reference": {
+            "error": "PathIntoAtom",
+            "status": "rejected"
+          }
+        }
+      },
+      {
+        "input_shape": "pair",
+        "domain_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "atom",
+              "hex": ""
+            }
+          }
+        },
+        "counterexample": null,
+        "queries": {
+          "domain": "proofs/p2-conditions/pair-domain.smt2",
+          "counterexample": "proofs/p2-conditions/pair-case.smt2"
+        },
+        "replay": {
+          "native_original": {
+            "status": "accepted",
+            "output_hex": "ff0180"
+          },
+          "rust_original": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "ff0180",
+                "cost": 893
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "ff0180",
+                "cost": 665
+              }
+            }
+          ],
+          "canonical_reference": {
+            "cost": 119,
+            "output_hex": "ff0180",
+            "status": "accepted"
+          }
+        }
+      }
+    ]
+  },
+  "mutations": [
+    {
+      "id": "accept-atom",
+      "description": "Replace the atom-case rejection with a successful empty atom",
+      "ir": "proofs/p2-conditions/accept-atom.ir.json",
+      "query": "proofs/p2-conditions/accept-atom.smt2",
+      "result": {
+        "status": "refuted",
+        "cases": [
+          {
+            "input_shape": "atom",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "atom",
+                "hex": ""
+              }
+            },
+            "counterexample": {
+              "environment": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          },
+          {
+            "input_shape": "pair",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            },
+            "counterexample": null
+          }
+        ]
+      },
+      "counterexample": {
+        "environment": {
+          "kind": "atom",
+          "hex": ""
+        }
+      },
+      "replay": {
+        "native_original": {
+          "status": "rejected"
+        },
+        "rust_original": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "rejected",
+              "error": "Raise(NodePtr(SmallAtom, 0))"
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "rejected",
+              "error": "Raise(NodePtr(SmallAtom, 0))"
+            }
+          }
+        ],
+        "canonical_reference": {
+          "error": "PathIntoAtom",
+          "status": "rejected"
+        },
+        "mutant_ir": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "80",
+              "cost": 518
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "80",
+              "cost": 317
+            }
+          }
+        ]
+      },
+      "detected": true
+    },
+    {
+      "id": "wrong-quote",
+      "description": "Change only the constructed quote opcode atom from01 to02",
+      "ir": "proofs/p2-conditions/wrong-quote.ir.json",
+      "query": "proofs/p2-conditions/wrong-quote.smt2",
+      "result": {
+        "status": "refuted",
+        "cases": [
+          {
+            "input_shape": "atom",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "atom",
+                "hex": ""
+              }
+            },
+            "counterexample": null
+          },
+          {
+            "input_shape": "pair",
+            "domain_nonvacuity": {
+              "environment": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            },
+            "counterexample": {
+              "environment": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          }
+        ]
+      },
+      "counterexample": {
+        "environment": {
+          "kind": "pair",
+          "first": {
+            "kind": "atom",
+            "hex": ""
+          },
+          "rest": {
+            "kind": "atom",
+            "hex": ""
+          }
+        }
+      },
+      "replay": {
+        "native_original": {
+          "status": "accepted",
+          "output_hex": "ff0180"
+        },
+        "rust_original": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "ff0180",
+              "cost": 893
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "ff0180",
+              "cost": 665
+            }
+          }
+        ],
+        "canonical_reference": {
+          "cost": 119,
+          "output_hex": "ff0180",
+          "status": "accepted"
+        },
+        "mutant_ir": [
+          {
+            "optimize": false,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "ff0280",
+              "cost": 893
+            }
+          },
+          {
+            "optimize": true,
+            "outcome": {
+              "status": "accepted",
+              "output_hex": "ff0280",
+              "cost": 665
+            }
+          }
+        ]
+      },
+      "detected": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "proofs/p2-conditions/accept-atom.ir.json",
+      "sha256": "078a01c75bf9f47a29ede767446e94dd21ab00716484d73f4fef88765888f6b8"
+    },
+    {
+      "path": "proofs/p2-conditions/accept-atom.smt2",
+      "sha256": "eefdbecd12675ca9b90285dd58d94ac3d8ef8e876cce5ae9e823d6490b355a4e"
+    },
+    {
+      "path": "proofs/p2-conditions/atom-case.smt2",
+      "sha256": "a4cec1dfd3cd4ad999b89b8d2d8d43b1b949ae90d91b600e6ccfbc957d648d26"
+    },
+    {
+      "path": "proofs/p2-conditions/atom-domain.smt2",
+      "sha256": "831641ede3e0ee436030377a446fe23a33e30a4ef28b8d456eb880764b64151d"
+    },
+    {
+      "path": "proofs/p2-conditions/pair-case.smt2",
+      "sha256": "7a863bd66ffa48305d6322288c4ab05c701fcb4e33419144be675748a8fe4b72"
+    },
+    {
+      "path": "proofs/p2-conditions/pair-domain.smt2",
+      "sha256": "8a7c1b6931a7830cb36364677e84dcb257e6ed22e7cb0db9b8418ea97f130056"
+    },
+    {
+      "path": "proofs/p2-conditions/program.ir.json",
+      "sha256": "c6f06ccea73d8ac8fdfaaa924cf29c5f63a08fc1dab5853b1d8d3d1c287da930"
+    },
+    {
+      "path": "proofs/p2-conditions/wrong-quote.ir.json",
+      "sha256": "f6e005060858f54ddb631946eb8517e765b687971fcaff9967c8912ccc519297"
+    },
+    {
+      "path": "proofs/p2-conditions/wrong-quote.smt2",
+      "sha256": "db53a94028a69b8928ff1d9aa8e1cd48e0d354286fa84c6b6ef8027d968c3473"
+    }
+  ]
+}

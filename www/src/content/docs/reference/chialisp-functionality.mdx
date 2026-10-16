@@ -46,9 +46,9 @@ capabilities of every native Rust crate.
 
 | Feature | Native Rust route | Current compiler | Needed for broader support |
 | --- | --- | --- | --- |
-| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Fixed tuples/unit/bytes only | Raw-tree SDK/IR, codecs, malformed projections |
-| Environment paths and argument patterns | Explicit projections | Exact typed lists; ignored environment only for nullary exports | Separate versioned raw/prefix policy |
-| Quote and dynamic apply | Data trees and an interpreter | Literals supported; no source-level general apply | Program/environment types, strictness, dialect and cost rules |
+| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` enum construction/matching and checked projections | Recursive processing, broader operations and preservation proofs |
+| Environment paths and argument patterns | Explicit projections | Typed lists by default; ignored nullary or explicit raw whole-tree exports | Broader patterns and explicit typed adapters |
+| Quote and dynamic apply | Data trees and an interpreter | Literals and `quote(&Tree)` supported; no source-level general apply | Program/environment types, strictness, dialect and cost rules |
 | Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Canonical fixed-width integers only | Explicit unbounded numeric semantics and resource policy |
 | Addition, subtraction, multiplication | Checked primitives or big integers | Checked fixed-width operations | Preserve overflow distinctions; never silently widen Rust arithmetic |
 | Division, remainder, modular exponentiation | Specified integer algorithms | Rejected | Floor versus truncating division, signs, zero and boundary cases |
@@ -76,8 +76,8 @@ evidence from that simulator does not activate new operations in another pin.
 
 | Opcode(s) | Runtime names, in order | Current authoring coverage |
 | --- | --- | --- |
-| 1, 2, 36 | `q`, `a`, `softfork` | Literal subset; no general apply or softfork API |
-| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products/branches/assertions/comparisons only |
+| 1, 2, 36 | `q`, `a`, `softfork` | Literals/raw quote; no general apply or softfork API |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Products, raw tree constructors/projections/pair tests, branches/assertions/scalar comparisons |
 | 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering |
 | 16–18 | `+`, `-`, `*` | Checked fixed widths |
 | 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons; remaining operations rejected |
@@ -160,9 +160,12 @@ fits today's compiler as an `i64` addition function. It should be labeled a
 atoms and projects arguments without the Rust ABI's exact-list restriction.
 Keep the original source unchanged and report the observed differences.
 
-Closer compatibility needs an explicit tree/unbounded-integer SDK and IR route,
-followed by recursion, dynamic program composition, and primitive-by-primitive
-validation. No unsafe opaque extern intrinsic should bypass those obligations.
+The [canonical p2_conditions factory](/chialisp-oxide/tutorials/p2-conditions/)
+now exercises explicit raw-tree Rust construction and matching, exact original
+source, produced-program execution and published module identity. Its structural
+IR-model proof is separate from compiler preservation. Broader compatibility still
+needs unbounded integers, recursion, dynamic program execution and
+primitive-by-primitive validation. No unsafe opaque extern intrinsic should bypass those obligations.
 Conservative constant folding/sharing is another useful compiler task, provided
 failure, overflow and branch behavior remain covered.
 

@@ -1,16 +1,16 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import EvidenceSummary from '../../components/EvidenceSummary.astro';
-import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../lib/data';
+import { puzzles, totals, kindLabel, optimized, acceptedCosts, format, href } from '../../lib/data';
 ---
 <StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect Chialisp, Rust, and Rue sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
   <p class="eyebrow">Executable examples / generated evidence</p>
-  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles and {format(totals.pureFunctions)} pure-function examples, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp and Rue source builds, input vectors, and ledger scenarios.</p>
-  <p>{format(totals.canonicalPorts)} canonical tutorial expressions and {format(totals.originalExamples)} original teaching fixtures are tracked separately. <a href={href('tutorials/canonical-intro/')}>Read how the original Intro expressions preserve their environment behavior.</a></p>
+  <p>{format(totals.coinPuzzles)} condition-producing coin puzzles, {format(totals.pureFunctions)} pure-function examples, and {format(totals.programFactories)} program factories, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp and Rue source builds, input vectors, and applicable ledger or produced-program checks.</p>
+  <p>{format(totals.canonicalPorts)} canonical tutorial expressions, {format(totals.canonicalPuzzlePorts)} canonical puzzle/module ports, and {format(totals.originalExamples)} original teaching fixtures are tracked separately. A program factory emits code; its result is not a direct condition-list spend.</p>
   <EvidenceSummary />
   <form class="filters" role="search" aria-label="Filter puzzle examples">
     <label>Find a puzzle<input id="puzzle-query" type="search" placeholder="Try signature, recovery, or amount" autocomplete="off" /></label>
-    <label>Result kind<select id="puzzle-kind"><option value="all">All examples</option><option value="coin_puzzle">Coin puzzles</option><option value="pure_function">Pure functions</option></select></label>
+    <label>Result kind<select id="puzzle-kind"><option value="all">All examples</option><option value="coin_puzzle">Coin puzzles</option><option value="pure_function">Pure functions</option><option value="program_factory">Program factories</option></select></label>
   </form>
   <p id="puzzle-count" class="quiet" aria-live="polite">{puzzles.length} examples</p>
   <div class="puzzle-grid">
@@ -18,7 +18,7 @@ import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../l
       const artifact = optimized(puzzle);
       const costs = acceptedCosts(puzzle);
       return <article class="puzzle-card" data-puzzle data-kind={puzzle.kind} data-search={`${puzzle.title} ${puzzle.security_scope}`.toLowerCase()}>
-        <div class="card-top"><span class="badge success">{puzzle.validated ? 'validated' : 'pending'}</span><span class="kind">{puzzle.kind === 'pure_function' ? 'pure function' : 'coin puzzle'}</span></div>
+        <div class="card-top"><span class="badge success">{puzzle.validated ? 'validated' : 'pending'}</span><span class="kind">{kindLabel(puzzle.kind)}</span></div>
         <h2><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></h2>
         <p>{puzzle.security_scope}</p>
         <dl><div><dt>Rust optimized size</dt><dd>{format(artifact.bytes)} B</dd></div><div><dt>Rust accepted VM cost</dt><dd>{costs.length ? `${format(Math.min(...costs))}–${format(Math.max(...costs))}` : 'No accepted named case'}</dd></div></dl>
@@ -27,7 +27,7 @@ import { puzzles, totals, optimized, acceptedCosts, format, href } from '../../l
     })}
   </div>
   <p id="puzzle-empty" hidden>No examples match. Try a broader search or select all examples.</p>
-  <div class="callout-note">Costs above are successful CLVM execution costs for named cases, not total transaction costs. Canonical closed expressions are labeled separately from original teaching implementations. Neither group marks canonical CHIP puzzles as migrated.</div>
+  <div class="callout-note">Costs above are successful CLVM execution costs for named cases, not total transaction costs. Canonical tutorial expressions, canonical module ports, and original teaching fixtures have separate provenance. These examples do not mark whole tutorial pages, repositories, or CHIPs as completed.</div>
   <p><a href={href('reports/validation.json')}>Download the complete validation report</a> · <a href={href('verification/method/')}>Read the verification method</a></p>
 </StarlightPage>
 <script>

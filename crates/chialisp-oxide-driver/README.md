@@ -19,16 +19,21 @@ validation of unused parameters. An explicit
 function with no parameters, including no unit or underscore parameters. It
 accepts any CLVM environment tree without decoding it; the Rust function has
 no access to that environment. `environment = "strict"` makes the default
-explicit. The policy changes only input decoding: assertions, discarded
+explicit. `environment = "raw"` instead requires exactly one logical tree
+parameter, ordinarily `&'a chialisp_oxide::Tree<'a>`, and passes the entire
+environment to that parameter. Atom bytes and improper pairs are preserved.
+It does not grant arbitrary evaluation or CLVM operator intrinsics.
+The policy changes only input decoding: assertions, discarded
 failing calculations, and lazy branches retain their usual semantics.
 
 Strict exports retain the `__oxide_puzzle_v1` metadata marker and legacy JSON
 shape. Ignored exports use the distinct
 `__chialisp_oxide_puzzle_v2_environment_ignored` marker and a version-2 JSON
-envelope. Older readers cannot silently interpret that envelope as a strict
-program. The driver checks both markers together, rejects duplicates and
+envelope. Raw exports use `__chialisp_oxide_puzzle_v3_environment_raw` and a
+version-3 envelope. Older readers cannot silently interpret either envelope as
+a strict program. The driver checks all markers together, rejects duplicates and
 conflicting or unknown reserved markers, and independently enforces the
-nullary restriction after Rust checking.
+nullary or single-tree restriction after Rust checking.
 
 Internally, the CLI selects a library package, invokes Cargo with an explicit
 host `--target`, and sets `RUSTC_WRAPPER=chialisp-oxide-driver`, `CHIALISP_OXIDE_CARGO_MODE=1`,
@@ -73,11 +78,20 @@ The supported subset includes:
   before wrapper construction and projection erase to the inner ABI.
 - Local values, tuple fields, comparisons, `!bool`, `if`, integer/boolean
   `match`, and acyclic control flow.
+- Immutable borrowed trees: exactly two enum variants with fields `(&[u8])`
+  and `(&Self, &Self)`, one lifetime, ordinary Rust enum representation, and no
+  destructor. This validates structure rather than names or discriminant order.
+  Local and SDK declarations are accepted; macro-generated declarations are
+  rejected. Shared reborrows, variant matching, projections, constructors and
+  lifetime-only helper functions erase to explicit typed tree operations.
+  `&[u8]` represents an arbitrary atom, distinct from a fixed byte array. Static
+  atom/tree constants lower their inspectable, bounded promoted/CTFE MIR rather
+  than assuming a Rust pointer layout. Dynamic byte-array unsizing is rejected.
 - Checked `+`, `-`, `*`, with overflow becoming puzzle rejection. Overflow
   checking and debug assertions are always enabled, independently of Cargo's
   profile. Explicit wrapping/overflowing methods are rejected.
-- Plain `assert!` as puzzle rejection, and non-generic local or SDK helpers
-  inlined into expressions. Unused failing operations and helper calls remain
+- Plain `assert!` as puzzle rejection, and local or SDK helpers without type or
+  const generics inlined into expressions. Unused failing operations and helper calls remain
   observable through explicit sequence expressions.
 - Byte arrays passed as parameters and constant byte-array construction.
   Named fixed-byte constants, including supported transparent wrappers, are
@@ -88,7 +102,7 @@ The supported subset includes:
 
 Unannotated native functions may use ordinary Rust features, including
 allocation and closures, provided they are not reachable from a puzzle. They
-still undergo Rust checking. References, generics, other external calls,
+still undergo Rust checking. General references, type/const generics, other external calls,
 recursion, loops, allocation, ordinary structs/enums, casts, floats, shifts,
 bitwise arithmetic, division/remainder, and non-Rust function ABIs are rejected
 when encountered in an exported puzzle. Panic messages and formatted
@@ -130,7 +144,14 @@ Decoding does not invoke constructors or establish user-defined invariants;
 puzzle checks must enforce these at runtime. Zero-sized wrappers, multiple
 fields (including extra zero-sized fields), generic wrappers, other external
 wrappers such as `NonZeroU64`, destructors, and macro-generated wrapper
-declarations are rejected. Named tuple/other aggregate constants and borrowed
+declarations are rejected. Apart from the narrowly validated borrowed trees,
+named tuple/other aggregate constants and borrowed
 wrapper methods remain unsupported. The SDK's `Copy` domain values provide
 by-value constructors, unit-explicit getters, and comparisons without adding
 reference or trait-operator semantics to the compiler.
+
+Tree support closes a data-model gap; it does not provide unbounded integer
+arithmetic, recursive tree traversal, hashing, or dynamic CLVM application.
+Source and value equivalence also do not establish byte/hash/cost identity with
+a canonical module. The `p2_conditions` Rust port currently compiles to a
+different module hash from its canonical Chialisp source.

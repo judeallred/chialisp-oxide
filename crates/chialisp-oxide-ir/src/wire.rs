@@ -38,6 +38,7 @@ enum Wire {
 }
 impl Serialize for Program {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.validate_environment().map_err(S::Error::custom)?;
         let fields = FieldsRef {
             name: &self.name,
             parameters: &self.parameters,
@@ -46,19 +47,16 @@ impl Serialize for Program {
         };
         match self.environment {
             Environment::Strict => fields.serialize(serializer),
-            Environment::Ignored => {
-                if !self.parameters.is_empty() {
-                    return Err(S::Error::custom(
-                        "ignored environment requires zero parameters",
-                    ));
-                }
-                EnvelopeRef {
-                    ir_version: 2,
-                    environment: self.environment,
-                    program: fields,
-                }
-                .serialize(serializer)
+            Environment::Ignored | Environment::Raw => EnvelopeRef {
+                ir_version: if self.environment == Environment::Raw {
+                    3
+                } else {
+                    2
+                },
+                environment: self.environment,
+                program: fields,
             }
+            .serialize(serializer),
         }
     }
 }
@@ -67,25 +65,25 @@ impl<'de> Deserialize<'de> for Program {
         let (fields, environment) = match Wire::deserialize(deserializer)? {
             Wire::Strict(fields) => (fields, Environment::Strict),
             Wire::Versioned(envelope) => {
-                if envelope.ir_version != 2 || envelope.environment != Environment::Ignored {
+                if !matches!(
+                    (envelope.ir_version, envelope.environment),
+                    (2, Environment::Ignored) | (3, Environment::Raw)
+                ) {
                     return Err(D::Error::custom(
                         "unsupported IR version or environment policy",
                     ));
                 }
-                if !envelope.program.parameters.is_empty() {
-                    return Err(D::Error::custom(
-                        "ignored environment requires zero parameters",
-                    ));
-                }
-                (envelope.program, Environment::Ignored)
+                (envelope.program, envelope.environment)
             }
         };
-        Ok(Self {
+        let program = Self {
             name: fields.name,
             parameters: fields.parameters,
             result: fields.result,
             body: fields.body,
             environment,
-        })
+        };
+        program.validate_environment().map_err(D::Error::custom)?;
+        Ok(program)
     }
 }

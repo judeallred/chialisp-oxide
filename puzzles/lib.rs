@@ -27,3 +27,6 @@ pub mod intro_add;
 pub mod intro_conditional;
 #[path = "intro-list/puzzle.rs"]
 pub mod intro_list;
+
+#[path = "p2-conditions/puzzle.rs"]
+pub mod p2_conditions;

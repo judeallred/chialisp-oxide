@@ -1,0 +1,137 @@
+diff --git a/crates/rue-lir/src/optimize/ops.rs b/crates/rue-lir/src/optimize/ops.rs
+index f77f09a..2f601d7 100644
+--- a/crates/rue-lir/src/optimize/ops.rs
++++ b/crates/rue-lir/src/optimize/ops.rs
+@@ -9,7 +9,7 @@ use sha3::Keccak256;
+ use crate::{
+     ClvmOp, Lir, LirId, atom_bigint, bigint_atom, first_path,
+     optimize::{ArgList, opt_truthy},
+-    parent_path, rest_path,
++    rest_path,
+ };
+ 
+ // There's no way to optimize an atom
+@@ -87,16 +87,9 @@ pub fn opt_rest(arena: &mut Arena<Lir>, value: LirId) -> LirId {
+ 
+ // TODO: Optimize pair of div and mod into divmod
+ pub fn opt_cons(arena: &mut Arena<Lir>, first: LirId, rest: LirId) -> LirId {
+-    if let Lir::Path(f_path) = arena[first].clone()
+-        && let Lir::Path(r_path) = arena[rest].clone()
+-        && let Some(parent) = parent_path(&f_path)
+-        && parent_path(&r_path).as_ref() == Some(&parent)
+-        && first_path(&parent) == f_path
+-        && rest_path(&parent) == r_path
+-    {
+-        return arena.alloc(Lir::Path(parent));
+-    }
+-
++    // Rebuilding (first parent, rest parent) still checks that parent is a
++    // pair. Returning parent directly would accept atoms that both child
++    // paths reject. Keep the checks unless pair-ness is independently proven.
+     arena.alloc(Lir::Cons(first, rest))
+ }
+ 
+--- /dev/null
++++ b/crates/rue-lir/tests/reconstruction_preserves_failure.rs
+@@ -0,0 +1,101 @@
++use clvmr::{Allocator, ChiaDialect, MEMPOOL_MODE, run_program, serde::node_to_bytes};
++use id_arena::Arena;
++use rue_lir::{CodegenOptions, Lir, first_path, rest_path};
++
++fn reconstruct(
++    parent: u8,
++    projections: bool,
++    optimize: bool,
++    environment: &str,
++) -> Option<Vec<u8>> {
++    let mut arena = Arena::new();
++    let path = parent.into();
++    let (first, rest) = if projections {
++        let value = arena.alloc(Lir::Path(path));
++        (
++            arena.alloc(Lir::First(value)),
++            arena.alloc(Lir::Rest(value)),
++        )
++    } else {
++        (
++            arena.alloc(Lir::Path(first_path(&path))),
++            arena.alloc(Lir::Path(rest_path(&path))),
++        )
++    };
++    let mut root = arena.alloc(Lir::Cons(first, rest));
++    if optimize {
++        root = rue_lir::optimize(&mut arena, root);
++    }
++    let mut allocator = Allocator::new();
++    let program = rue_lir::codegen(
++        &arena,
++        &mut allocator,
++        root,
++        CodegenOptions {
++            optimize_static_pairs: false,
++        },
++    )
++    .unwrap();
++    let environment = rue_clvm::assemble(&mut allocator, environment).unwrap();
++    run_program(
++        &mut allocator,
++        &ChiaDialect::new(MEMPOOL_MODE),
++        program,
++        environment,
++        1_000_000,
++    )
++    .ok()
++    .map(|result| node_to_bytes(&allocator, result.1).unwrap())
++}
++
++#[test]
++fn reconstructing_a_pair_preserves_projection_failure_on_atoms() {
++    for parent in [1, 2, 3] {
++        for projections in [false, true] {
++            for selected in ["()", "1", "0x00", "0x0001", "0xff"] {
++                let environment = match parent {
++                    1 => selected.into(),
++                    2 => format!("({selected} . 7)"),
++                    3 => format!("(7 . {selected})"),
++                    _ => unreachable!(),
++                };
++                for optimize in [false, true] {
++                    assert!(
++                        reconstruct(parent, projections, optimize, &environment).is_none(),
++                        "parent={parent}, projections={projections}, optimize={optimize}, environment={environment} discarded a required pair check",
++                    );
++                }
++            }
++        }
++    }
++}
++
++#[test]
++fn reconstructing_a_valid_pair_preserves_its_exact_atom_bytes_and_tail() {
++    for parent in [1, 2, 3] {
++        for projections in [false, true] {
++            for selected in [
++                "(1 . 2)",
++                "(0x0001 . 0x00)",
++                "((1 . 2) . (3 . 4))",
++                "(() . ())",
++            ] {
++                let environment = match parent {
++                    1 => selected.into(),
++                    2 => format!("({selected} . 7)"),
++                    3 => format!("(7 . {selected})"),
++                    _ => unreachable!(),
++                };
++                let mut allocator = Allocator::new();
++                let expected = rue_clvm::assemble(&mut allocator, selected).unwrap();
++                let expected = node_to_bytes(&allocator, expected).unwrap();
++                for optimize in [false, true] {
++                    assert_eq!(
++                        reconstruct(parent, projections, optimize, &environment),
++                        Some(expected.clone())
++                    );
++                }
++            }
++        }
++    }
++}

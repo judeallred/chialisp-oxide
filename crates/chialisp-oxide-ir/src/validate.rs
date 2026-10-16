@@ -38,11 +38,20 @@ fn validate_type(ty: &Type, depth: usize) -> Result<()> {
     Ok(())
 }
 impl Program {
-    pub fn validate(&self) -> Result<()> {
+    pub(crate) fn validate_environment(&self) -> Result<()> {
         ensure!(
             self.environment != Environment::Ignored || self.parameters.is_empty(),
             "ignored environment requires zero parameters"
         );
+        ensure!(
+            self.environment != Environment::Raw
+                || (self.parameters.len() == 1 && self.parameters[0].ty == Type::Tree),
+            "raw environment requires exactly one tree parameter"
+        );
+        Ok(())
+    }
+    pub fn validate(&self) -> Result<()> {
+        self.validate_environment()?;
         ensure!(self.parameters.len() <= 64, "too many parameters");
         ensure!(self.name.len() <= 256, "program name too long");
         let mut pending = vec![&self.body];
@@ -54,7 +63,9 @@ impl Program {
                 Expr::Int { value, .. } => {
                     ensure!(value.len() <= 64, "integer literal text too large")
                 }
-                Expr::Bytes { hex } => ensure!(hex.len() <= 8192, "byte literal too large"),
+                Expr::Bytes { hex } | Expr::Atom { hex } => {
+                    ensure!(hex.len() <= 8192, "byte literal too large")
+                }
                 Expr::Reject { message } => {
                     ensure!(message.len() <= 4096, "rejection message too large")
                 }
@@ -63,7 +74,17 @@ impl Program {
                     pending.push(left);
                     pending.push(right);
                 }
-                Expr::Not { value } | Expr::Field { value, .. } => pending.push(value),
+                Expr::Not { value }
+                | Expr::Field { value, .. }
+                | Expr::TreeAtom { value }
+                | Expr::TreeAtomValue { value }
+                | Expr::TreeIsPair { value }
+                | Expr::TreeFirst { value }
+                | Expr::TreeRest { value } => pending.push(value),
+                Expr::TreePair { first, rest } => {
+                    pending.push(first);
+                    pending.push(rest);
+                }
                 Expr::If {
                     condition,
                     then_value,
@@ -98,6 +119,55 @@ impl Program {
         ensure!(depth < 256, "expression nesting limit");
         let infer = |e: &Expr| self.infer(e, depth + 1);
         let ty = match expr {
+            Expr::Atom { hex } => {
+                ensure!(hex::decode(hex)?.len() <= 4096, "atom literal too large");
+                Type::Atom
+            }
+            Expr::TreeAtom { value } => {
+                let ty = infer(value)?;
+                ensure!(
+                    ty.is_none() || matches!(ty, Some(Type::Atom | Type::Bytes { .. })),
+                    "tree atom requires atom bytes"
+                );
+                if ty.is_none() {
+                    return Ok(None);
+                }
+                Type::Tree
+            }
+            Expr::TreePair { first, rest } => {
+                let first = infer(first)?;
+                let rest = infer(rest)?;
+                ensure!(
+                    first.is_none() || first == Some(Type::Tree),
+                    "tree pair first requires a tree"
+                );
+                ensure!(
+                    rest.is_none() || rest == Some(Type::Tree),
+                    "tree pair rest requires a tree"
+                );
+                if first.is_none() || rest.is_none() {
+                    return Ok(None);
+                }
+                Type::Tree
+            }
+            Expr::TreeIsPair { value }
+            | Expr::TreeFirst { value }
+            | Expr::TreeRest { value }
+            | Expr::TreeAtomValue { value } => {
+                let ty = infer(value)?;
+                ensure!(
+                    ty.is_none() || ty == Some(Type::Tree),
+                    "tree operation requires a tree"
+                );
+                if ty.is_none() {
+                    return Ok(None);
+                }
+                match expr {
+                    Expr::TreeIsPair { .. } => Type::Bool,
+                    Expr::TreeAtomValue { .. } => Type::Atom,
+                    _ => Type::Tree,
+                }
+            }
             Expr::Unit => Type::Unit,
             Expr::Bool { .. } => Type::Bool,
             Expr::Int { value, ty } => {

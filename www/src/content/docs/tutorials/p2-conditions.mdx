@@ -1,0 +1,122 @@
+---
+title: A canonical factory over raw CLVM trees
+description: Port the exact p2_conditions module, preserve arbitrary tree payloads, and distinguish produced programs from spend conditions.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import StructuralEvidence from '../../../components/StructuralEvidence.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+The pinned [`p2_conditions` module](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp)
+produces a program. It takes a raw tree payload and returns a quote program
+that will return that payload when subsequently applied. Calling the factory
+is a different operation from running its output or admitting a coin spend.
+
+The complete 54-byte original module, its Apache-2.0 repository license, and
+the published compiled artifact are snapshotted at revision
+`cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8`. The Chialisp source below is retained
+byte for byte. No adapter, argument guard, or extra module wrapper is added.
+
+## Read all three sources
+
+<SourceComparison slug="p2-conditions" />
+
+The Rust raw-tree value represents the **whole environment**. It is not a
+single typed argument decoded from an exact one-element list. The Rue source
+likewise projects the first element of an arbitrary pair and leaves its tail
+unconstrained. Each translation constructs a raw quote pair without turning
+the payload into a Rust integer, a proper list, or a validated condition.
+
+## Keep the two stages distinct
+
+For a pair environment `(payload . tail)`, the factory returns
+`(q . payload)`, whose serialized quote opcode is `1`. Applying that returned
+program to any environment returns `payload`.
+
+```text
+factory environment       returned program       applying the returned program
+(5)                       (q . 5)                5
+(5 99)                    (q . 5)                5
+(5 . 99)                  (q . 5)                5
+((1 . 2))                 (q . (1 . 2))          (1 . 2)
+(0x0001)                  (q . 0x0001)           0x0001
+```
+
+The extra list argument and improper tail are accepted and ignored. A nil or
+bare-atom environment rejects because it has no first element. Rejecting
+`(5 . 99)` as a malformed argument list would therefore change the original
+module's behavior.
+
+Padded numeric **atom contents** remain padded: `0x0001` does not become `1`.
+Improper pairs remain improper. This is tree and atom-content preservation,
+not a claim that noncanonical serialization headers are copied unchanged.
+
+A payload such as `((51 destination 1000))` can describe conditions for a
+produced constant puzzle. The factory does not check that its payload is a
+valid condition list, enforce a recipient, or establish authorization. An atom
+payload also produces a program, although that program's result is not a valid
+condition-list spend.
+
+## Compare published module identity
+
+The pinned [published artifact](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex)
+is nine bytes:
+
+```text
+ff04ffff0101ff0280
+```
+
+Its CLVM tree hash is
+`1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36`.
+The independent pinned Chialisp compiler reproduces those exact bytes. The
+[lab report](/chialisp-oxide/lab/p2-conditions/) compares every Rust and Rue
+build's actual bytes and tree hash with that published module; it shows
+matches and differences rather than inferring identity from matching outputs.
+
+This is the **factory module's** hash. Different payloads generally produce
+different quoted programs with their own tree hashes. A protocol commitment
+to a module hash is a separate obligation from finite behavioral agreement.
+
+## Reproduce and challenge the behavior
+
+From the checkout, following the [Cargo quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+python3 scripts/check-canonical-factories.py
+```
+
+Select `chialisp_oxide_puzzles::p2_conditions::puzzle` from the artifact manifest
+using the [execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
+Try nil, atoms, padded payloads, nested improper pairs, extra list arguments,
+and arbitrary environment tails. Inspect the returned program before applying it.
+
+The lab records native Rust and five compiled builds on the named input trees,
+plus generated raw-tree cases. For each accepted named environment, it also
+records applications of each produced program to several different second-stage
+environments. Expected payload bytes are checked separately from the factory's
+returned program bytes. These are actual VM executions; this factory has no
+direct condition-spend ledger claim.
+
+## Read each kind of evidence within its scope
+
+<StructuralEvidence />
+
+The provenance checker independently verifies source/license/artifact hashes,
+the exact original reference, recorded raw-tree results, published-module
+identity comparisons, and second-stage replay records. Its mutation controls
+must reject missing or altered evidence. It checks finite recorded evidence;
+it is not itself another CLVM executor.
+
+The structural proof experiment has a separate IR-model scope: accepted pairs,
+rejected atoms, preserved payload structure, irrelevant tails, and a deliberately
+broken factory must be related to the extracted IR and witness replays. Such a
+model proof does not establish the correctness of rustc extraction, CLVM
+lowering, the VM, or arbitrary Rust programs. Consult the generated proof
+report and its stated assumptions before interpreting it as a stronger claim.
+
+This is one canonical module port. It does not complete `chia_puzzles`, a
+tutorial page, a CHIP, or the [published-source catalog](/chialisp-oxide/published/).

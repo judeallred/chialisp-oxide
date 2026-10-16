@@ -348,7 +348,7 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Twelve Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Thirteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust and Rue each run with LIR optimization off/on. Eight coin
 fixtures additionally have 30 ledger scenarios executed for each language
@@ -357,15 +357,28 @@ are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
-source-derived IR-model proofs and attack replay. `www` renders these reports.
-The imported Rue LIR includes a reproduced optimizer panic fix and retains 44
-upstream/regression tests. The upstream report is xch-dev/rue#108.
+source-derived scalar IR-model proofs and attack replay. A separate
+`corpus/tree-proofs.json` checks the canonical `p2_conditions` factory over
+arbitrary finite trees and byte atoms. `www` renders both reports with explicit
+claim boundaries. The imported Rue LIR carries four reproduced fixes, with
+50 upstream/regression tests and reports xch-dev/rue#108–#111; each new report
+includes an independent regression/fix patch.
 
 Restricted one-field transparent wrappers now preserve Rust nominal type checks
 while erasing to the documented inner ABI. The puzzle sources use named
 SDK condition helpers, with explicit negative domain-mixup tests. The Cargo
 consumer calls helpers through the actual `chialisp-oxide` dependency. Constructors
 are not invoked on raw solutions and impose no hidden runtime invariants.
+
+The canonical `p2_conditions` port adds a restricted immutable borrowed
+`Tree<'a>` enum, real MIR pattern matching and lifetime-only helpers, checked
+projections, and actual promoted constant MIR. Its opt-in version-3 raw ABI
+passes the whole environment to one tree parameter. Default strict decoding
+and version-2 ignored nullary exports keep their contracts. Native codecs use
+an arena and iterative traversals; generated inputs include large atoms and
+deep improper trees. Produced programs are executed separately from factories.
+Chialisp and optimized Rue match the published module; Rust's hash differs.
+Neither this port nor its structural IR model proves compiler preservation.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving

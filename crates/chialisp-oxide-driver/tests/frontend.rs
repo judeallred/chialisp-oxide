@@ -68,7 +68,7 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
         ("casts.rs", "unsupported MIR value"),
         ("overflowing.rs", "external call"),
         ("wrapping.rs", "external call"),
-        ("panic.rs", "generic call"),
+        ("panic.rs", "external call"),
         ("generic.rs", "generic puzzle functions"),
         ("unsafe_fn.rs", "declaration of an `unsafe` function"),
         ("floating.rs", "unsupported Rust type"),
@@ -114,6 +114,34 @@ fn standalone_ignored_marker_uses_the_same_versioned_policy_as_cargo() {
             execute(&bytes, "(1 . 2)", 1_000_000).unwrap().outcome,
             Outcome::Accepted { .. }
         ));
+    }
+}
+
+#[test]
+fn standalone_raw_tree_marker_preserves_the_whole_environment() {
+    use chialisp_oxide_backend_experiment::execute;
+    let output = compile("raw_environment.rs");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(json["ir_version"], 3);
+    assert_eq!(json["environment"], "raw");
+    assert!(json.get("name").is_none());
+    let program: chialisp_oxide_ir::Program = serde_json::from_value(json).unwrap();
+    let reference =
+        chialisp_oxide_reference::compile("(mod (conditions) (qq (q . (unquote conditions))))")
+            .unwrap();
+    for optimize in [false, true] {
+        let bytes = chialisp_oxide_ir::compile(&program, optimize).unwrap();
+        for input in ["()", "0x0001", "(0x0001 . 2)", "((1 . 2) . (3 . 4))"] {
+            assert_eq!(
+                execute(&bytes, input, 1_000_000).unwrap().outcome,
+                execute(&reference, input, 1_000_000).unwrap().outcome
+            );
+        }
     }
 }
 

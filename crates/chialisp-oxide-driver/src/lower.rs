@@ -7,8 +7,8 @@ use chialisp_oxide_ir::{BinaryOp, Expr, Type};
 use rustc_hir::def_id::DefId;
 use rustc_middle::{
     mir::{
-        AggregateKind, BasicBlock, BinOp, Body, Local, Operand, Place, ProjectionElem, Rvalue,
-        START_BLOCK, StatementKind, TerminatorKind, UnOp,
+        AggregateKind, BasicBlock, BinOp, Body, Local, Operand, Place, ProjectionElem, Promoted,
+        Rvalue, START_BLOCK, StatementKind, TerminatorKind, UnOp,
     },
     ty::{self, Ty, TyCtxt},
 };
@@ -17,6 +17,7 @@ use rustc_span::Span;
 mod constants;
 mod newtypes;
 mod totality;
+mod trees;
 
 pub struct Lowerer<'tcx> {
     tcx: TyCtxt<'tcx>,
@@ -24,6 +25,7 @@ pub struct Lowerer<'tcx> {
     expression_work: Cell<usize>,
     active_blocks: Cell<usize>,
     total_functions: RefCell<HashMap<DefId, bool>>,
+    constants: RefCell<Vec<(DefId, Option<Promoted>)>>,
 }
 
 const MAX_EXPRESSION_NODES: usize = 8_192;
@@ -49,6 +51,7 @@ impl<'tcx> Lowerer<'tcx> {
             expression_work: Cell::new(0),
             active_blocks: Cell::new(0),
             total_functions: RefCell::new(HashMap::new()),
+            constants: RefCell::new(Vec::new()),
         }
     }
 
@@ -70,7 +73,17 @@ impl<'tcx> Lowerer<'tcx> {
                     push(left);
                     push(right);
                 }
-                Expr::Not { value } | Expr::Field { value, .. } => push(value),
+                Expr::Not { value }
+                | Expr::Field { value, .. }
+                | Expr::TreeIsPair { value }
+                | Expr::TreeFirst { value }
+                | Expr::TreeRest { value }
+                | Expr::TreeAtom { value }
+                | Expr::TreeAtomValue { value } => push(value),
+                Expr::TreePair { first, rest } => {
+                    push(first);
+                    push(rest);
+                }
                 Expr::If {
                     condition,
                     then_value,
@@ -179,9 +192,14 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
             ty::Adt(..) => {
+                if self.tree_shape(ty, span)?.is_some() { return Ok((Type::Tree, 1)); }
                 let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
                 return self.lower_type(inner, span, depth + 1);
             }
+            ty::Ref(_, inner, ty::Mutability::Not) if self.shared_tree_or_bytes(ty, span)? => {
+                return self.lower_type(*inner, span, depth + 1);
+            }
+            ty::Slice(element) if *element == self.tcx.types.u8 => Type::Atom,
             _ => return Err(self.error(span, format!("unsupported Rust type `{ty}`; use bool, fixed-width integers, tuples or fixed arrays"))),
         };
         Ok((scalar, 1))
@@ -209,7 +227,7 @@ impl<'tcx> Lowerer<'tcx> {
         if stack.contains(&id) || stack.len() >= 32 {
             return Err(self.error(span, "recursion and call depths beyond 32 are unsupported"));
         }
-        if self.tcx.generics_of(id).count() != 0 {
+        if !self.lifetime_parameters_only(id) {
             return Err(self.error(span, "generic puzzle functions are unsupported"));
         }
         let signature = self.tcx.fn_sig(id).instantiate_identity().skip_binder();
@@ -220,6 +238,22 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "unsafe functions are unsupported"));
         }
         let body = self.tcx.optimized_mir(id);
+        stack.push(id);
+        let result = self.lower_body(body, arguments, stack);
+        stack.pop();
+        if result.is_ok() {
+            self.remember_function_totality(id, body);
+        }
+        result
+    }
+
+    fn lower_body(
+        &self,
+        body: &Body<'tcx>,
+        arguments: Vec<Expr>,
+        stack: &mut Vec<DefId>,
+    ) -> Result<Expr, String> {
+        let span = body.span;
         if body.arg_count > 64 || body.local_decls.len() > 2_048 {
             return Err(self.error(span, "function exceeds 64 parameters or 2,048 MIR locals"));
         }
@@ -233,13 +267,7 @@ impl<'tcx> Lowerer<'tcx> {
             self.ty(body.local_decls[local].ty, span)?;
             locals[local.index()] = Some(value);
         }
-        stack.push(id);
-        let result = self.block(body, START_BLOCK, locals, &mut Vec::new(), stack);
-        stack.pop();
-        if result.is_ok() {
-            self.remember_function_totality(id, body);
-        }
-        result
+        self.block(body, START_BLOCK, locals, &mut Vec::new(), stack)
     }
 
     fn block(
@@ -302,7 +330,15 @@ impl<'tcx> Lowerer<'tcx> {
             TerminatorKind::Goto { target } => self.block(body, *target, locals, path, stack)?,
             TerminatorKind::SwitchInt { discr, targets } => {
                 let value = self.operand(body, discr, &locals, span)?;
-                let ty = self.ty(discr.ty(&body.local_decls, self.tcx), span)?;
+                let tree = self.tree_discriminant(body, discr, &locals, span)?;
+                let ty = if tree.is_some() {
+                    Type::Int {
+                        bits: 8,
+                        signed: false,
+                    }
+                } else {
+                    self.ty(discr.ty(&body.local_decls, self.tcx), span)?
+                };
                 let mut result = self.block(
                     body,
                     targets.otherwise(),
@@ -311,11 +347,23 @@ impl<'tcx> Lowerer<'tcx> {
                     stack,
                 )?;
                 for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
-                    let condition = Expr::Binary {
-                        kind: BinaryOp::Eq,
-                        left: Box::new(value.clone()),
-                        right: Box::new(self.scalar(bits, &ty, span)?),
-                        ty: ty.clone(),
+                    let condition = if let Some((is_pair, shape)) = &tree {
+                        if bits == shape.pair.index() as u128 {
+                            is_pair.clone()
+                        } else if bits == shape.atom.index() as u128 {
+                            Expr::Not {
+                                value: Box::new(is_pair.clone()),
+                            }
+                        } else {
+                            Expr::Bool { value: false }
+                        }
+                    } else {
+                        Expr::Binary {
+                            kind: BinaryOp::Eq,
+                            left: Box::new(value.clone()),
+                            right: Box::new(self.scalar(bits, &ty, span)?),
+                            ty: ty.clone(),
+                        }
                     };
                     result = Expr::If {
                         condition: Box::new(condition),
@@ -372,7 +420,11 @@ impl<'tcx> Lowerer<'tcx> {
                         message: self.error(span, "Rust panic/assertion rejects the puzzle"),
                     }
                 } else {
-                    if !generic_args.skip_binder().is_empty() {
+                    if generic_args
+                        .skip_binder()
+                        .iter()
+                        .any(|argument| argument.as_region().is_none())
+                    {
                         return Err(
                             self.error(span, format!("generic call `{name}` is unsupported"))
                         );
@@ -443,6 +495,9 @@ impl<'tcx> Lowerer<'tcx> {
             Operand::Constant(constant) => {
                 let rust_ty = constant.const_.ty();
                 let ty = self.ty(rust_ty, span)?;
+                if matches!(ty, Type::Tree | Type::Atom) || matches!(rust_ty.kind(), ty::Ref(..)) {
+                    return self.borrowed_constant(constant.const_, span);
+                }
                 if ty == Type::Unit {
                     return Ok(Expr::Unit);
                 }
@@ -497,10 +552,44 @@ impl<'tcx> Lowerer<'tcx> {
             .clone()
             .ok_or_else(|| self.error(span, "MIR reads an uninitialized local"))?;
         let mut current_ty = body.local_decls[place.local].ty;
+        let mut variant = None;
         for projection in place.projection {
             match projection {
+                ProjectionElem::Deref
+                    if matches!(current_ty.kind(), ty::Ref(_, _, ty::Mutability::Not))
+                        && self.shared_tree_or_bytes(current_ty, span)? =>
+                {
+                    let ty::Ref(_, inner, _) = current_ty.kind() else {
+                        unreachable!()
+                    };
+                    current_ty = *inner;
+                }
+                ProjectionElem::Downcast(_, index)
+                    if self.tree_shape(current_ty, span)?.is_some() =>
+                {
+                    variant = Some(index)
+                }
                 ProjectionElem::Field(index, field_ty) => {
-                    if self.transparent_inner(current_ty, span)?.is_some() {
+                    if let Some(shape) = self.tree_shape(current_ty, span)? {
+                        let selected = variant.take().ok_or_else(|| {
+                            self.error(span, "tree fields require a validated variant projection")
+                        })?;
+                        value = if selected == shape.atom && index.index() == 0 {
+                            Expr::TreeAtomValue {
+                                value: Box::new(value),
+                            }
+                        } else if selected == shape.pair && index.index() == 0 {
+                            Expr::TreeFirst {
+                                value: Box::new(value),
+                            }
+                        } else if selected == shape.pair && index.index() == 1 {
+                            Expr::TreeRest {
+                                value: Box::new(value),
+                            }
+                        } else {
+                            return Err(self.error(span, "invalid tree variant field"));
+                        };
+                    } else if self.transparent_inner(current_ty, span)?.is_some() {
                         if index.index() != 0 {
                             return Err(self.error(span, "transparent newtypes have only field 0"));
                         }
@@ -624,6 +713,30 @@ impl<'tcx> Lowerer<'tcx> {
     ) -> Result<Expr, String> {
         match value {
             Rvalue::Use(operand, _) => self.operand(body, operand, locals, span),
+            Rvalue::Ref(_, rustc_middle::mir::BorrowKind::Shared, place)
+                if self.shared_tree_or_bytes(place.ty(&body.local_decls, self.tcx).ty, span)? =>
+            {
+                self.place(body, *place, locals, span)
+            }
+            Rvalue::Discriminant(place) => self.tree_discriminant_value(body, *place, locals, span),
+            Rvalue::Cast(
+                rustc_middle::mir::CastKind::PointerCoercion(
+                    rustc_middle::ty::adjustment::PointerCoercion::Unsize,
+                    _,
+                ),
+                operand,
+                target,
+            ) if matches!(target.kind(), ty::Ref(_, inner, ty::Mutability::Not) if matches!(inner.kind(),ty::Slice(element) if *element==self.tcx.types.u8)) =>
+            {
+                let value = self.operand(body, operand, locals, span)?;
+                let Expr::Bytes { hex } = value else {
+                    return Err(self.error(
+                        span,
+                        "dynamic byte-array unsizing is unsupported; use an atom slice",
+                    ));
+                };
+                Ok(Expr::Atom { hex })
+            }
             Rvalue::BinaryOp(op, operands) => {
                 let (left, right) = &**operands;
                 let left_ty = self.ty(left.ty(&body.local_decls, self.tcx), span)?;
@@ -687,8 +800,26 @@ impl<'tcx> Lowerer<'tcx> {
                         self.byte_array(items, span)
                     }
                     AggregateKind::Array(_) => Ok(Expr::Tuple { items }),
-                    AggregateKind::Adt(id, _, args, _, _) => {
+                    AggregateKind::Adt(id, variant, args, _, _) => {
                         let rust_ty = Ty::new_adt(self.tcx, self.tcx.adt_def(*id), args);
+                        if let Some(shape) = self.tree_shape(rust_ty, span)? {
+                            return if *variant == shape.atom {
+                                let [value]: [Expr; 1] = items.try_into().map_err(|_| {
+                                    self.error(span, "tree atom requires one field")
+                                })?;
+                                Ok(Expr::TreeAtom {
+                                    value: Box::new(value),
+                                })
+                            } else {
+                                let [first, rest]: [Expr; 2] = items.try_into().map_err(|_| {
+                                    self.error(span, "tree pair requires two fields")
+                                })?;
+                                Ok(Expr::TreePair {
+                                    first: Box::new(first),
+                                    rest: Box::new(rest),
+                                })
+                            };
+                        }
                         self.transparent_inner(rust_ty, span)?.ok_or_else(|| {
                             self.error(span, "expected a transparent newtype aggregate")
                         })?;

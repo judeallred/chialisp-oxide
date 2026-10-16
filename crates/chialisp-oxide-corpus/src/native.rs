@@ -1,7 +1,7 @@
 //! Reference execution calls the actual Rust sources also supplied to rustc-driver.
 #![allow(clippy::type_complexity)] // Heterogeneous condition tuples are the current teaching ABI.
 use anyhow::{Result, bail, ensure};
-use chialisp_oxide::{Amount, Message32, PublicKey, PuzzleHash, Timestamp};
+use chialisp_oxide::{Amount, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
 use chialisp_oxide_puzzles::{
     boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
     fixed_payment as fixed, intro_add, intro_conditional, intro_list, recovery_payment as recovery,
@@ -99,6 +99,11 @@ fn output(v: impl Encode) -> Result<Vec<u8>> {
     let node = v.encode(&mut a)?;
     Ok(node_to_bytes(&a, node)?)
 }
+impl Encode for Tree<'_> {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        super::native_tree::encode(a, self)
+    }
+}
 fn args(a: &Allocator, mut n: NodePtr) -> Result<Vec<NodePtr>> {
     let mut out = vec![];
     loop {
@@ -176,6 +181,11 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
         // These annotated nullary exports explicitly ignore every assembled tree.
         // Keep the default exact argument decoder for all other policies.
         match slug {
+            "p2-conditions" => {
+                let arena = bumpalo::Bump::new();
+                let tree = super::native_tree::decode(&arena, &a, env)?;
+                return output(chialisp_oxide_puzzles::p2_conditions::puzzle(tree));
+            }
             "intro-list" => return output(intro_list::puzzle()),
             "intro-add" => return output(intro_add::puzzle()),
             "intro-conditional" => return output(intro_conditional::puzzle()),

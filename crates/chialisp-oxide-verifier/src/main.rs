@@ -1,5 +1,8 @@
 use anyhow::{Context, Result, bail};
-use chialisp_oxide_verifier::{SolverConfig, Specification, Verification, emit, replay, verify};
+use chialisp_oxide_verifier::{
+    SolverConfig, Specification, TreeSpecification, TreeVerification, Verification, emit,
+    emit_tree, replay, replay_tree, verify, verify_tree,
+};
 
 fn main() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
@@ -9,6 +12,48 @@ fn main() -> Result<()> {
         )
     };
     let program = serde_json::from_slice(&std::fs::read(program_path).context("read IR program")?)?;
+    if specification_path == "--tree-replay" {
+        let [witness_path] = options else {
+            bail!("--tree-replay requires exactly one witness JSON file")
+        };
+        let witness =
+            serde_json::from_slice(&std::fs::read(witness_path).context("read tree witness")?)?;
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&replay_tree(&program, &witness, 10_000_000)?)?
+        );
+        return Ok(());
+    }
+    if specification_path == "--tree" {
+        let [path, mode @ ..] = options else {
+            bail!("--tree requires a structural specification JSON file")
+        };
+        let specification: TreeSpecification =
+            serde_json::from_slice(&std::fs::read(path).context("read tree specification")?)?;
+        if mode == ["--emit-json"] {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&emit_tree(&program, &specification)?)?
+            );
+        } else if mode == ["--emit"] {
+            let queries = emit_tree(&program, &specification)?;
+            println!(
+                "; Atom domain nonvacuity\n{}\n(reset)\n; Atom counterexample\n{}\n(reset)\n; Pair domain nonvacuity\n{}\n(reset)\n; Pair counterexample\n{}",
+                queries.atom_nonvacuity,
+                queries.atom_counterexample,
+                queries.pair_nonvacuity,
+                queries.pair_counterexample
+            );
+        } else {
+            anyhow::ensure!(mode.is_empty(), "unknown structural option");
+            let result = verify_tree(&program, &specification, &SolverConfig::default())?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+            if !matches!(result, TreeVerification::Proven { .. }) {
+                std::process::exit(1)
+            }
+        }
+        return Ok(());
+    }
     if specification_path == "--replay" {
         let [witness_path] = options else {
             bail!("--replay requires exactly one witness JSON file")

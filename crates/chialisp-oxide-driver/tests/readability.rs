@@ -1,6 +1,7 @@
 use std::{
     path::PathBuf,
     process::Command,
+    sync::atomic::{AtomicUsize, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -10,15 +11,17 @@ use chialisp_oxide_backend_experiment::{Outcome, execute};
 mod native;
 
 struct Source(PathBuf);
+static NEXT_SOURCE: AtomicUsize = AtomicUsize::new(0);
 impl Source {
     fn new(source: &str) -> Self {
         let path = std::env::temp_dir().join(format!(
-            "chialisp-oxide-constant-{}-{}.rs",
+            "chialisp-oxide-constant-{}-{}-{}.rs",
             std::process::id(),
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
-                .as_nanos()
+                .as_nanos(),
+            NEXT_SOURCE.fetch_add(1, Ordering::Relaxed),
         ));
         std::fs::write(&path, source).unwrap();
         Self(path)
@@ -157,18 +160,18 @@ fn nested_transparent_byte_constants_preserve_only_the_inner_bytes() {
 }
 
 #[test]
-fn constants_do_not_enable_references_aggregate_layouts_or_unsafe_memory() {
+fn constants_do_not_enable_general_references_aggregate_layouts_or_unsafe_memory() {
     for (source, diagnostic) in [
         (
             "const DATA:(u64,u64)=(1,2); pub fn puzzle()->(u64,u64) { DATA }",
             "only scalar compile-time constants",
         ),
         (
-            "const DATA:&[u8]=&[1,2]; pub fn puzzle()->&'static [u8] { DATA }",
+            "const DATA:&u64=&7; pub fn puzzle()->&'static u64 { DATA }",
             "unsupported Rust type",
         ),
         (
-            "const DATA:&[u8;32]=&[0;32]; pub fn puzzle()->&'static [u8;32] { DATA }",
+            "const DATA:&(u64,u64)=&(1,2); pub fn puzzle()->&'static (u64,u64) { DATA }",
             "unsupported Rust type",
         ),
         (
@@ -195,6 +198,39 @@ fn constants_do_not_enable_references_aggregate_layouts_or_unsafe_memory() {
         let errors = String::from_utf8_lossy(&output.stderr);
         assert!(errors.contains(diagnostic), "{errors}");
         assert!(!errors.contains("internal compiler error"), "{errors}");
+    }
+}
+
+#[test]
+fn immutable_byte_reference_constants_preserve_exact_bytes_without_pointer_layouts() {
+    for (source, ty, value) in [
+        (
+            "const DATA:&[u8]=&[0,0,1,255]; pub fn puzzle()->&'static [u8] { DATA }",
+            chialisp_oxide_ir::Type::Atom,
+            "0x000001ff".to_owned(),
+        ),
+        (
+            "const DATA:&[u8;32]=&[0;32]; pub fn puzzle()->&'static [u8;32] { DATA }",
+            chialisp_oxide_ir::Type::Bytes { len: 32 },
+            format!("0x{}", "00".repeat(32)),
+        ),
+    ] {
+        let source = Source::new(source);
+        let program = extract(&source.0);
+        assert_eq!(program.result, ty);
+        let reference =
+            chialisp_oxide_reference::compile(&format!("(mod () (q . {value}))")).unwrap();
+        for optimize in [false, true] {
+            let bytes = chialisp_oxide_ir::compile(&program, optimize).unwrap();
+            assert_eq!(
+                execute(&bytes, "()", 1_000_000).unwrap().outcome,
+                execute(&reference, "()", 1_000_000).unwrap().outcome
+            );
+            assert_eq!(
+                execute(&bytes, "(1)", 1_000_000).unwrap().outcome,
+                Outcome::Rejected
+            );
+        }
     }
 }
 

@@ -87,7 +87,76 @@ through `chialisp-oxide native`. Both reports fingerprint the declared local inp
 and lockfile; the proof run rechecks them before publishing. These fingerprints
 do not cover the complete effective build environment or prove preservation.
 
-## Claim scope
+## Separate structural tree checker
+
+The raw-tree checker uses a different symbolic domain: the recursive datatype
+`Tree = Atom(Seq(BitVec8)) | Pair(Tree, Tree)`. Atoms preserve every byte, including
+empty values and numeric padding. The domain includes all finite trees and byte
+sequences; it is not a bounded numeric approximation. This checker requires one
+`Tree` parameter, an explicit raw-environment ABI and a `Tree` result. It models
+tree shape tests, checked first/rest/atom projections, atom/pair construction,
+booleans, lazy branches and strict sequences. Other operations fail closed,
+including operations in an unchosen branch. The scalar checker independently
+rejects tree/atom types and tree expressions instead of silently treating them
+as numbers or typed argument lists.
+
+An independently authored p2_conditions specification is:
+
+```json
+{
+  "acceptance": "pair",
+  "output": {
+    "term": "pair",
+    "first": { "term": "atom", "hex": "01" },
+    "rest": { "term": "first", "value": { "term": "input" } }
+  }
+}
+```
+
+This says an atom environment rejects; a pair `(conditions . arbitrary_tail)`
+returns the quoted program `(1 . conditions)`, preserving the raw payload. It
+does not interpret the payload as valid spend conditions or authenticate a
+spend. Atom and pair cases each have a satisfiable **domain nonvacuity** query
+and a counterexample query. Atom-case nonvacuity intentionally demonstrates a
+rejected input, not a successful execution. Both counterexample queries must
+be unsatisfiable before the structural model is reported proven. A satisfiable
+counterexample produces a concrete raw-tree witness. Stable candidate witnesses
+are checked by the solver only after its general, unrestricted SAT result;
+they do not replace or bound the proof obligation.
+
+```sh
+cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.json
+cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.json --emit
+cargo run --locked -p chialisp-oxide-verifier -- program.json --tree tree.spec.json --emit-json
+cargo run --locked -p chialisp-oxide-verifier -- program.json --tree-replay tree.witness.json
+
+# Source-derived Cargo export, independent canonical compilation and mutations:
+python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
+```
+
+Tree witnesses use `{"environment":{"kind":"atom","hex":"0001"}}` or recursive
+`{"kind":"pair","first":...,"rest":...}` values. Raw replay supplies the entire
+environment directly, without a typed one-argument-list wrapper. Atom hex is
+validated before generating SMT or CLVM. Witness replay has explicit resource
+limits and treats cost exhaustion as an error. Those practical replay limits
+do not narrow the structural model's quantified tree domain.
+
+`chialisp-oxide-tree-reference` separately compiles trusted Chialisp source and
+executes at most 32 witness files with a fixed ten-million-cost limit. Its
+artifact includes serialized bytes and a computed tree hash. The source-derived
+pipeline requires the exact published p2_conditions artifact before comparing
+Rust/native/CLVM witness results. Stored IR normalizes only repository prefixes
+inside diagnostic `Reject.message` metadata; operators, values, types and policy
+structure remain those from the Cargo export.
+
+The tree result is a **structural IR-model proof**. It does not prove rustc
+extraction, the SMT translation, CLVM opcode/serialization semantics, Rue
+optimization, canonical module identity, VM resource behavior or consensus
+security. Source-derived artifacts and actual native/VM witness replays connect
+the pipeline for those executions. There is no general compiler-preservation
+theorem or Lean proof here.
+
+## Scalar claim scope
 
 This is an **IR-model proof over well-typed input values**, using Z3's QF_NIA
 logic. Signed/unsigned integer widths and checked add/subtract/multiply are

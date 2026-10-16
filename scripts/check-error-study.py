@@ -34,11 +34,12 @@ LIBRARIES = {"chialisp_oxide", "chialisp_oxide_reference", "chialisp_oxide_backe
              "chialisp_oxide_rue", "serde_json"}
 DEPENDENCIES = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
                 "crates/chialisp-oxide/Cargo.toml", "crates/chialisp-oxide/src/lib.rs",
-                "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide-macros/Cargo.toml",
+                "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs", "crates/chialisp-oxide-macros/Cargo.toml",
                 "crates/chialisp-oxide-macros/src/lib.rs", "crates/chialisp-oxide-reference/Cargo.toml",
                 "crates/chialisp-oxide-reference/src/lib.rs", "crates/chialisp-oxide-rue/Cargo.toml",
                 "crates/chialisp-oxide-rue/src/lib.rs", "experiments/backend/Cargo.toml",
-                "experiments/backend/src/lib.rs", "scripts/check-error-study.py", "scripts/cargo_authoring.py"]
+                "experiments/backend/src/lib.rs", "vendor/rue-lir/Cargo.toml",
+                "scripts/check-error-study.py", "scripts/cargo_authoring.py"]
 
 
 def require(condition, message):
@@ -53,6 +54,7 @@ def sha256(path):
 def inputs():
     paths = set(DEPENDENCIES)
     paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "experiments/error-study").rglob("*") if path.is_file())
+    paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "vendor/rue-lir/src").rglob("*.rs"))
     return [{"path": path, "sha256": sha256(contained_file(ROOT, path))} for path in sorted(paths)]
 
 

@@ -11,6 +11,27 @@ default ABI validates the complete solution shape and parameter encodings before
 evaluating the function body. A separately declared ignored-environment mode is
 restricted to parameterless exports.
 
+## Explicit raw-tree environments
+
+`#[chialisp_oxide::puzzle(environment = "raw")]` passes the **entire** environment
+to one borrowed `Tree` parameter. It adds no argument-list, numeric-canonicality,
+or tail check. `Tree::Atom(&[u8])` preserves arbitrary atom bytes;
+`Tree::Pair(&Tree, &Tree)` preserves proper and improper pairs. Pattern matching
+can require a pair, bind its children, or accept an atom. Failed projections
+reject; pair construction evaluates both children strictly.
+
+The [canonical p2_conditions port](/chialisp-oxide/tutorials/p2-conditions/)
+uses this contract: `(5 . 99)` supplies one environment tree, rather than failing
+a single-argument-list decoder. Its function requires the environment to be a
+pair, takes its first child and deliberately ignores its rest. The produced
+program `(1 . 5)` returns `5` when subsequently executed.
+
+This is an explicit policy choice. Raw bytes are not validated amounts, hashes,
+conditions or programs. The default typed ABI retains its full checks. The raw
+policy uses IR envelope version 3; ignored nullary exports retain version 2,
+and default strict programs retain their original wire format. A legacy reader
+cannot silently interpret the raw policy as a typed argument list.
+
 ## Function arguments form a proper list
 
 For a single `Amount` or `u64` parameter, the solution is `(42)`,

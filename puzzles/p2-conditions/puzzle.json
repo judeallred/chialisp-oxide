@@ -1,0 +1,104 @@
+{
+  "slug": "p2-conditions",
+  "title": "Canonical p2_conditions program factory",
+  "kind": "program_factory",
+  "environment": "raw",
+  "security_scope": "Canonical program-producing factory, not a direct condition-spend puzzle or authorization policy. A pair environment (conditions . arbitrary_tail) returns the raw quote program (1 . conditions); atom environments reject. The payload is not checked as valid spend conditions. Finite tests and structural IR-model proof obligations do not establish general compiler preservation or production security.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_puzzle_port",
+    "references": [
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "source_path": "puzzles/p2_conditions.clsp",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp",
+      "source_sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f",
+      "git_blob_sha1": "2463aa3be5f64256ead2778f4d177d0080112167"
+    },
+    "license": {
+      "spdx": "Apache-2.0",
+      "source_path": "LICENSE",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c"
+    },
+    "source_adaptation": {
+      "kind": "none",
+      "reference_sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f",
+      "description": "The exact pinned module bytes are retained with no wrapper, guard, or rewritten source."
+    },
+    "upstream_artifact": {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+      "source_url": "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+      "source_sha256": "9abaa38029f9c9562e320ccecba0910194869ff96fab14cd0ce0e29a5b1e4761",
+      "git_blob_sha1": "4183117a35910845167b2ede91e99fbfcd68fd44",
+      "clvm_hex": "ff04ffff0101ff0280",
+      "bytes": 9,
+      "tree_hash": "1c77d7d5efde60a7a1d2d27db6d746bc8e568aea1ef8586ca967a0d60b83cc36"
+    },
+    "module_identity_obligation": "Compare emitted serialized bytes and CLVM tree hashes with the pinned published module. Behavioral agreement alone does not establish module-hash identity or integration compatibility.",
+    "limitations": [
+      "This is one exact canonical program factory, not completion of its repository, a tutorial page, or a CHIP.",
+      "The raw environment is one Rust Tree value representing the entire CLVM tree. Its tail must not be subjected to a strict one-argument-list check.",
+      "Payload atom contents, including padded numeric bytes, and proper/improper tree structure must be preserved; serialized header normalization is not claimed as byte preservation."
+    ]
+  },
+  "cases": [
+    {
+      "label": "nil environment rejects",
+      "solution": "()"
+    },
+    {
+      "label": "bare atom rejects",
+      "solution": "1"
+    },
+    {
+      "label": "negative atom environment rejects",
+      "solution": "-1"
+    },
+    {
+      "label": "padded atom environment rejects",
+      "solution": "0x0001"
+    },
+    {
+      "label": "nil payload",
+      "solution": "(())"
+    },
+    {
+      "label": "atom payload",
+      "solution": "(5)"
+    },
+    {
+      "label": "padded numeric payload",
+      "solution": "(0x0001)"
+    },
+    {
+      "label": "improper payload tree",
+      "solution": "((1 . 2))"
+    },
+    {
+      "label": "extra list arguments ignored",
+      "solution": "(5 99)"
+    },
+    {
+      "label": "improper environment tail ignored",
+      "solution": "(5 . 99)"
+    },
+    {
+      "label": "nested raw payload and padded tail",
+      "solution": "(((0x0001 . 0x00) . (2 . 3)) . 0x0000)"
+    },
+    {
+      "label": "create coin condition payload",
+      "solution": "(((51 0x4242424242424242424242424242424242424242424242424242424242424242 1000)))"
+    }
+  ]
+}

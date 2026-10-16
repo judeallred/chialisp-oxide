@@ -25,10 +25,10 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 - Checked `+`, `-`, and `*`; overflow rejects the puzzle.
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
-- Local, non-generic helper functions, inlined into pure expressions.
+- Local helpers, including lifetime-only generics for borrowed trees, inlined into expressions. Type/const generic functions remain rejected.
 - Named scalar and fixed-byte constants, including supported transparent wrappers
   of those values: typed policy amounts, recipient hashes, and public fixture keys.
-  General reference, pointer, and tuple constants remain unsupported.
+  The restricted tree route also lowers supported promoted shared constants from their real MIR. General pointer and tuple constants remain unsupported.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
 - Nongeneric, single-field `#[repr(transparent)]` nominal wrappers declared
   locally or in the vetted SDK, over supported nonzero-size values.
@@ -47,7 +47,15 @@ not use Rust's native in-memory layout as an on-chain ABI.
 
 ## Rejected features
 
-References, generic functions, arbitrary external function calls, recursion, loops,
+The narrow borrowed-tree exception supports the SDK's immutable `Tree<'a>`
+representation: `Atom(&'a [u8])` and `Pair(&'a Tree<'a>, &'a Tree<'a>)`, shared
+reborrows, construction, pattern matching, lifetime-only helpers and supported
+promoted constants. The frontend validates the actual enum shape and lowers
+real helper/constant MIR; a familiar name does not grant intrinsic semantics.
+It does not admit arbitrary enums, mutable references, allocation, or recursive
+function calls. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
+
+General references, type/const generic functions, arbitrary external function calls, recursion, loops,
 allocation, general structs/enums, casts, floating point, shifts, bitwise arithmetic,
 division, and remainder are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's

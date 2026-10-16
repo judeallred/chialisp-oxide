@@ -95,6 +95,8 @@ impl Lower<'_> {
     }
     fn decode(&mut self, value: LirId, ty: &Type, yes: LirId) -> Result<LirId> {
         Ok(match ty {
+            Type::Tree => yes,
+            Type::Atom => self.scalar(value, yes),
             Type::Unit => {
                 let nil = self.nil();
                 let empty = self.alloc(Lir::Eq(value, nil));
@@ -143,6 +145,29 @@ impl Lower<'_> {
     }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
+            Expr::Atom { hex } => self.bytes(hex::decode(hex)?),
+            Expr::TreeAtom { value } => self.expression(value)?,
+            Expr::TreePair { first, rest } => {
+                let first = self.expression(first)?;
+                let rest = self.expression(rest)?;
+                self.alloc(Lir::Cons(first, rest))
+            }
+            Expr::TreeIsPair { value } => {
+                let value = self.expression(value)?;
+                self.alloc(Lir::Listp(value, true))
+            }
+            Expr::TreeFirst { value } => {
+                let value = self.expression(value)?;
+                self.alloc(Lir::First(value))
+            }
+            Expr::TreeRest { value } => {
+                let value = self.expression(value)?;
+                self.alloc(Lir::Rest(value))
+            }
+            Expr::TreeAtomValue { value } => {
+                let value = self.expression(value)?;
+                self.scalar(value, value)
+            }
             Expr::Unit => self.nil(),
             Expr::Bool { value } => self.int(i64::from(*value)),
             Expr::Int { value, .. } => self.number(value.parse()?),
@@ -249,11 +274,15 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
         args: vec![],
     };
     let env = lower.alloc(Lir::Path(1u8.into()));
-    let mut tail = env;
-    for _ in &program.parameters {
-        let head = lower.alloc(Lir::First(tail));
-        lower.args.push(head);
-        tail = lower.alloc(Lir::Rest(tail));
+    if program.environment == crate::Environment::Raw {
+        lower.args.push(env);
+    } else {
+        let mut tail = env;
+        for _ in &program.parameters {
+            let head = lower.alloc(Lir::First(tail));
+            lower.args.push(head);
+            tail = lower.alloc(Lir::Rest(tail));
+        }
     }
     let body = lower.expression(&program.body)?;
     let types = program
@@ -264,6 +293,7 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
     let mut root = match program.environment {
         crate::Environment::Strict => lower.decode_list(env, &types, body)?,
         crate::Environment::Ignored => body,
+        crate::Environment::Raw => body,
     };
     check_expansion(&lower.arena, root)?;
     if optimize {

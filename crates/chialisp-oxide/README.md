@@ -50,3 +50,15 @@ performs type and borrow checking before typed MIR extraction. Only the
 compiler's documented subset can be reached from an annotated entrypoint.
 The current compiler uses a pinned nightly, not a custom Rust target or a
 stable rustc extension API.
+
+For programs that must manipulate arbitrary CLVM data, the facade also provides
+immutable `Tree<'a>::Atom(&'a [u8])`, `Tree::Pair(&'a Tree, &'a Tree)`, and
+`quote(&Tree)`. These are ordinary Rust declarations and helper bodies; the
+compiler lowers their real MIR. A separately declared
+`#[chialisp_oxide::puzzle(environment = "raw")]` passes the complete environment
+to exactly one tree parameter. The default annotation keeps strict typed-list
+decoding. Raw atom bytes carry no implicit amount, hash, condition, or program
+validation. See the actual [canonical factory source](../../puzzles/p2-conditions/puzzle.rs)
+and its [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-conditions/).
+This narrow representation does not support general enums, mutable references,
+allocation, recursive Rust calls, or runtime program evaluation.

@@ -1,28 +1,30 @@
 ---
 import { Code } from '@astrojs/starlight/components';
-import { puzzles, canonicalExample } from '../lib/data';
+import { puzzles, canonicalExample, canonicalPuzzle } from '../lib/data';
 interface Props { slug: string; }
 const puzzle = puzzles.find(p => p.slug === Astro.props.slug);
 if (!puzzle) throw new Error(`Missing validated source comparison: ${Astro.props.slug}`);
 const canonical = canonicalExample(puzzle);
+const canonicalModule = canonicalPuzzle(puzzle);
 ---
 <div class="source-comparison">
   <div class="split-source">
     <section class="source-column" aria-label="Chialisp source" data-language="chialisp">
-      <div class="source-label"><span class="badge">{canonical ? 'Original Chialisp expression' : 'Chialisp reference'}</span> independent compiler · {canonical ? 'no source wrapper' : 'same tested ABI'}</div>
+      <div class="source-label"><span class="badge">{canonical ? 'Original Chialisp expression' : canonicalModule ? 'Original Chialisp module' : 'Chialisp reference'}</span> independent compiler · {canonical || canonicalModule ? 'no source wrapper' : 'same tested ABI'}</div>
       <Code code={puzzle.reference} lang="lisp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
     </section>
     <section class="source-column" aria-label="Rust source" data-language="rust">
-      <div class="source-label"><span class="badge success">Rust policy</span> exact recorded source · compiled from MIR</div>
+      <div class="source-label"><span class="badge success">Rust source</span> exact recorded source · compiled from MIR</div>
       <Code code={puzzle.source} lang="rust" title={`puzzles/${puzzle.slug}/puzzle.rs`} wrap preserveIndent />
     </section>
     <section class="source-column" aria-label="Rue source" data-language="rue">
-      <div class="source-label"><span class="badge">Rue policy</span> independent Rue source compilation · same tested ABI</div>
+      <div class="source-label"><span class="badge">Rue source</span> independent Rue source compilation · same tested ABI</div>
       <Code code={puzzle.rue.source} lang="rust" title={puzzle.rue.path} wrap preserveIndent />
     </section>
   </div>
   <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
   {canonical && <p class="source-note">The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment. <a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
+  {canonicalModule && <p class="source-note">The original upstream module is retained byte for byte, without an adapter or added argument guard. The raw environment contract and published module identity are recorded separately from finite behavioral comparisons.</p>}
   {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].length > 0 && <div class="source-dependencies">
     <p class="source-note">Supporting files are recorded separately so fixture data and helper definitions do not obscure the puzzle policy.</p>
     {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].map(dependency => <details class="source-dependency" data-source-dependency={dependency.path}>

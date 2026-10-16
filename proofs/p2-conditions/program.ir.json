@@ -1,0 +1,66 @@
+{
+  "ir_version": 3,
+  "environment": "raw",
+  "program": {
+    "name": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tree"
+    },
+    "body": {
+      "op": "if",
+      "condition": {
+        "op": "not",
+        "value": {
+          "op": "tree_is_pair",
+          "value": {
+            "op": "arg",
+            "index": 0
+          }
+        }
+      },
+      "then_value": {
+        "op": "reject",
+        "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+      },
+      "else_value": {
+        "op": "if",
+        "condition": {
+          "op": "tree_is_pair",
+          "value": {
+            "op": "arg",
+            "index": 0
+          }
+        },
+        "then_value": {
+          "op": "tree_pair",
+          "first": {
+            "op": "tree_atom",
+            "value": {
+              "op": "atom",
+              "hex": "01"
+            }
+          },
+          "rest": {
+            "op": "tree_first",
+            "value": {
+              "op": "arg",
+              "index": 0
+            }
+          }
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/p2-conditions/puzzle.rs:8:11: 8:22: unreachable Rust path"
+        }
+      }
+    }
+  }
+}

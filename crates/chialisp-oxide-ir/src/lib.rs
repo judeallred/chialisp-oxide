@@ -8,10 +8,21 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Type {
+    /// An arbitrary immutable CLVM atom; all bytes are significant.
+    Atom,
+    /// An arbitrary immutable CLVM atom/pair tree.
+    Tree,
     Bool,
-    Int { bits: u16, signed: bool },
-    Bytes { len: usize },
-    Tuple { items: Vec<Type> },
+    Int {
+        bits: u16,
+        signed: bool,
+    },
+    Bytes {
+        len: usize,
+    },
+    Tuple {
+        items: Vec<Type>,
+    },
     Unit,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -28,6 +39,8 @@ pub enum Environment {
     Strict,
     /// A genuinely nullary function deliberately accepts every CLVM tree.
     Ignored,
+    /// Pass the complete CLVM environment to one tree parameter without decoding.
+    Raw,
 }
 impl Environment {
     pub fn is_strict(&self) -> bool {
@@ -65,6 +78,28 @@ pub enum BinaryOp {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    Atom {
+        hex: String,
+    },
+    TreeAtom {
+        value: Box<Expr>,
+    },
+    TreeAtomValue {
+        value: Box<Expr>,
+    },
+    TreePair {
+        first: Box<Expr>,
+        rest: Box<Expr>,
+    },
+    TreeIsPair {
+        value: Box<Expr>,
+    },
+    TreeFirst {
+        value: Box<Expr>,
+    },
+    TreeRest {
+        value: Box<Expr>,
+    },
     Unit,
     Bool {
         value: bool,
