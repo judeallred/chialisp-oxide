@@ -22,6 +22,8 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
         errors.append("inventory has no entries")
     ids = Counter(entry.get("id") for entry in entries)
     errors.extend(f"duplicate id: {key}" for key, count in ids.items() if count > 1)
+    example_inventory_path = root / "corpus/tutorial-examples.json"
+    examples = json.loads(example_inventory_path.read_text())["examples"] if example_inventory_path.is_file() else []
     for entry in entries:
         identity = entry.get("id", "<missing id>")
         source = entry.get("source", {})
@@ -51,6 +53,22 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
             pinned = bool(re.search(r"/blob/[a-f0-9]{40}/", url))
             if reference.get("revision_pinned") != pinned:
                 errors.append(f"{identity}: incorrect pin claim for {url}")
+        promoted = [row["id"] for row in examples if row["page_id"] == identity
+                    and row["implementation_status"] == "implemented"]
+        if promoted or "example_coverage" in entry:
+            # An executed expression does not complete the surrounding page's
+            # installation, atom/string demonstrations or host workflows.
+            if identity != "chialisp:chialisp-primer/intro" or set(promoted) != {
+                "chialisp-example:intro-list", "chialisp-example:intro-add", "chialisp-example:intro-conditional",
+            }:
+                errors.append(f"{identity}: individual-example coverage changed without a reviewed page contract")
+            if implementation != "in_progress" or validation != "not_run" or entry.get("local_examples") or entry.get("evidence"):
+                errors.append(f"{identity}: partial example coverage must not promote the complete page")
+            if entry.get("example_coverage") != {
+                "inventory": "corpus/tutorial-examples.json", "implemented_examples": promoted,
+                "scope": "individual_closed_expressions_only",
+            }:
+                errors.append(f"{identity}: missing or stale individual-example coverage links")
     return errors
 
 

@@ -1,7 +1,10 @@
 # Verification strategy
 
-Current implementation: nine source-derived Rust/Chialisp examples, 73 explicit
-vectors, 3,063 generated integer cases, and 30 complete-spend simulator scenarios.
+Current implementation: twelve source-derived Rust/Chialisp examples, 97 explicit
+vectors, 3,831 generated integer/tree cases, and 30 complete-spend simulator scenarios.
+Nine are original teaching fixtures; three preserve exact canonical Intro
+expressions and their ignored environments. These pure-expression ports have
+finite differential evidence, no ledger claims, and no whole-page completion.
 See corpus/validation.json and corpus/proofs.json for actual evidence. The early
 backend-only experiment below remains a baseline; it no longer describes the
 whole project.

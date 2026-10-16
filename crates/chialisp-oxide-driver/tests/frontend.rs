@@ -74,6 +74,10 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
         ("floating.rs", "unsupported Rust type"),
         ("division.rs", "unsupported integer operation"),
         ("recursion.rs", "recursion"),
+        (
+            "ignored_parameter.rs",
+            "requires a function with no parameters",
+        ),
     ] {
         let output = compile(fixture);
         assert!(!output.status.success(), "{fixture} unexpectedly accepted");
@@ -87,6 +91,29 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
             errors.contains(fixture),
             "diagnostic needs a source location: {errors}"
         );
+    }
+}
+
+#[test]
+fn standalone_ignored_marker_uses_the_same_versioned_policy_as_cargo() {
+    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    let output = compile("ignored_environment.rs");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(json["ir_version"], 2);
+    assert!(json.get("name").is_none());
+    let program: chialisp_oxide_ir::Program = serde_json::from_value(json).unwrap();
+    assert_eq!(program.environment, chialisp_oxide_ir::Environment::Ignored);
+    for optimize in [false, true] {
+        let bytes = chialisp_oxide_ir::compile(&program, optimize).unwrap();
+        assert!(matches!(
+            execute(&bytes, "(1 . 2)", 1_000_000).unwrap().outcome,
+            Outcome::Accepted { .. }
+        ));
     }
 }
 

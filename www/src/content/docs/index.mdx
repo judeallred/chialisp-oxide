@@ -16,6 +16,7 @@ hero:
 
 import EvidenceSummary from '../../components/EvidenceSummary.astro';
 import SourcePair from '../../components/SourcePair.astro';
+import { totals } from '../../lib/data';
 
 <div className="oxide-home">
 
@@ -45,6 +46,16 @@ The longer Chialisp reference makes its untrusted-solution checks explicit.
 <SourcePair slug="fixed-payment" />
 
 <a href="/chialisp-oxide/lab/fixed-payment/">Inspect this puzzle’s compiled artifacts and adversarial cases →</a>
+
+## First canonical tutorial ports
+
+The corpus includes {totals.canonicalPorts} exact closed expressions from the
+pinned Chialisp Intro, alongside {totals.originalExamples} original teaching
+fixtures. Their Rust exports preserve the originals’ ignored environments;
+the Chialisp sources receive no module wrapper. [Follow the Intro
+walkthrough](/chialisp-oxide/tutorials/canonical-intro/) to compare sources,
+outputs, costs, and recorded tree hashes. These examples do not complete the
+primer or a CHIP migration.
 
 ## Learn the policy. Inspect the evidence.
 

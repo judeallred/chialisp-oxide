@@ -4,14 +4,16 @@ import { Code } from '@astrojs/starlight/components';
 import SourcePair from '../../components/SourcePair.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, authoring, format, href, type PuzzleReport } from '../../lib/data';
+import { puzzles, authoring, canonicalExample, format, href, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
+const canonical = canonicalExample(puzzle);
 const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,slug:'artifacts',text:'Compiled artifacts'}, {depth:2,slug:'vectors',text:'Adversarial input vectors'}, {depth:2,slug:'ledger',text:'Ledger validation'}, {depth:2,slug:'provenance',text:'Provenance and versions'}];
 ---
 <StarlightPage frontmatter={{ title: puzzle.title, description: puzzle.security_scope }} headings={headings}>
   <p class="eyebrow"><a href={href('lab/')}>Puzzle laboratory</a> / {puzzle.slug}</p>
   <p><span class="badge success">validated report</span> <span class="badge">{puzzle.kind === 'pure_function' ? 'pure function · not a coin puzzle' : 'condition-producing coin puzzle'}</span></p>
+  {canonical && <p><span class="badge">canonical tutorial expression</span> <a href={canonical.source.url}>{canonical.title}</a> · differential evidence; parent tutorial remains partial</p>}
   <p class="scope">{puzzle.security_scope}</p>
   <div class="metric-grid">
     <div class="metric"><strong>{puzzle.cases.length}</strong><span>named vectors</span></div>
@@ -19,7 +21,10 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
     <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
   </div>
   <h2 id="sources">Compare the sources</h2>
-  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
+  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical ? 'The Chialisp source is the original expression, independently compiled without adding a module wrapper or argument check.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
+  <p class="callout-note">{puzzle.environment === 'ignored'
+    ? <>Environment contract: explicitly ignored. This parameterless export accepts any CLVM tree that the VM can parse and process within its resource limits. It adds no proper-list, arity, or scalar encoding check. <a href={href('reference/abi/#explicitly-ignored-environments')}>Read the opt-in ABI contract.</a></>
+    : <>Environment contract: strict typed arguments. The entire proper argument list and every declared value encoding are checked before the function body.</>}</p>
   <SourcePair slug={puzzle.slug} />
   <h2 id="artifacts">Compiled artifacts</h2>
   <p>All three programs are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
@@ -36,9 +41,9 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   </tbody></table></div>
   <p class="quiet">Execution cost excludes consensus condition costs and overall spend-bundle admission overhead. Accepted outputs and exact rejection diagnostics are available in the <a href={href('reports/validation.json')}>downloadable report</a>.</p>
   <h2 id="ledger">Ledger validation</h2>
-  {puzzle.simulator.length ? <ul class="scenarios">{puzzle.simulator.map(scenario => <li><span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}</li>)}</ul> : <div class="callout-note">This pure function returns an integer, not a condition list. Ledger validation is not applicable; a successful counter result is not presented as a valid coin spend.</div>}
+  {puzzle.simulator.length ? <ul class="scenarios">{puzzle.simulator.map(scenario => <li><span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}</li>)}</ul> : <div class="callout-note">This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.</div>}
   <h2 id="provenance">Provenance and versions</h2>
-  <p><strong>{puzzle.provenance.classification}.</strong> This fixture is not claimed as a canonical protocol replacement or completed CHIP migration.</p>
+  <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <RuntimeVersions />
   <details class="source-dependency"><summary>Declared Cargo input hashes</summary><p class="source-note">The validation and proof reports record the same explicitly declared local Cargo inputs. This is not a complete transitive dependency fingerprint.</p><ul>{authoring.sources.map(source => <li><code>{source.path}</code> · <code class="dependency-hash">{source.sha256}</code></li>)}</ul></details>

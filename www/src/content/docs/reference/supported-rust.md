@@ -7,6 +7,11 @@ Cargo supplies the selected library's actual edition, features, dependencies,
 and generated source. Mark each exported free function with
 `#[chialisp_oxide::puzzle]`; several marked functions can coexist without a special
 function name. The annotation preserves the function body.
+For closed expressions that must preserve an unrestricted original environment,
+parameterless exports can explicitly opt into
+`#[chialisp_oxide::puzzle(environment = "ignored")]`. Parameterized functions
+cannot use this option. Ordinary annotations keep the strict typed argument
+ABI; see [ignored environments](/chialisp-oxide/reference/abi/#explicitly-ignored-environments).
 
 Extraction uses `nightly-2026-07-14`, reporting Rust 1.99.0-nightly. Ordinary Rust
 analysis, including type and borrow checking, must succeed before typed MIR

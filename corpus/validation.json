@@ -17,6 +17,18 @@
         "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
         "source": "puzzles/fixed-payment/puzzle.rs"
       },
+      "intro-add": {
+        "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
+        "source": "puzzles/intro-add/puzzle.rs"
+      },
+      "intro-conditional": {
+        "entry": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+        "source": "puzzles/intro-conditional/puzzle.rs"
+      },
+      "intro-list": {
+        "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
+        "source": "puzzles/intro-list/puzzle.rs"
+      },
       "recovery-payment": {
         "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
         "source": "puzzles/recovery-payment/puzzle.rs"
@@ -49,7 +61,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "7daff492a7ea1f5913944bb57bf7c02a66cf1c026946fa171c5a6e4f5680978b"
+        "sha256": "2419d7ee12ac6e7f2f77d79470ce5c72015b5ac91e44229e15e6927407a31950"
       },
       {
         "path": "Cargo.toml",
@@ -61,7 +73,7 @@
       },
       {
         "path": "crates/chialisp-oxide-macros/src/lib.rs",
-        "sha256": "0bb39ed3aa68f3de58bc503f0978ddf0f3e3447c7047b89413728ab9d04a6572"
+        "sha256": "0750b4e71c2b72452b5b0a941bc0dd7019e250e4813a051c80f5c02141b47a15"
       },
       {
         "path": "crates/chialisp-oxide/Cargo.toml",
@@ -81,7 +93,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "54d3bd47c59875dcf99b013d177af2fb4c3bb7d3609a915508a633f270624de9"
+        "sha256": "d4f82cb98705784605d9f3cd9eea0e340c5a71000dcc6241295f328708b082a3"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -104,8 +116,20 @@
         "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
       },
       {
+        "path": "puzzles/intro-add/puzzle.rs",
+        "sha256": "1ec4572c9d4eb3e1c667d6d6b991b6fb159cf9751f08485bf489b6b4be3256e9"
+      },
+      {
+        "path": "puzzles/intro-conditional/puzzle.rs",
+        "sha256": "896429d8aba49868510ff97b890a8d3ef6e1c23bf7a1862b7e523e3a7b9f0694"
+      },
+      {
+        "path": "puzzles/intro-list/puzzle.rs",
+        "sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3"
+      },
+      {
         "path": "puzzles/lib.rs",
-        "sha256": "ee2e38b1eefbbae4e4239219951b4408c305288bccc495505cc355dce0ff15ad"
+        "sha256": "b807d27823d14675f506c25c7e56d209f18e358edb0b95f847b772829bced18d"
       },
       {
         "path": "puzzles/recovery-payment/puzzle.rs",
@@ -3960,6 +3984,1314 @@
         }
       ],
       "title": "Boolean Gate",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 25,
+          "clvm_hex": "ff04ffff0101ffff04ffff0102ffff04ffff0103ff80808080",
+          "disassembly": "(c (q . 1) (c (q . 2) (c (q . 3) ())))",
+          "optimize_lir": false,
+          "tree_hash": "3d32f0f91a5a8bb5f695dce270e6f9939c3cf436f0ad37a61dc84f5fe3e9caf5"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 25,
+          "clvm_hex": "ff04ffff0101ffff04ffff0102ffff04ffff0103ff80808080",
+          "disassembly": "(c (q . 1) (c (q . 2) (c (q . 3) ())))",
+          "optimize_lir": true,
+          "tree_hash": "3d32f0f91a5a8bb5f695dce270e6f9939c3cf436f0ad37a61dc84f5fe3e9caf5"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 9,
+          "clvm_hex": "ff01ff01ff02ff0380",
+          "disassembly": "(q 1 2 3)",
+          "optimize_lir": true,
+          "tree_hash": "73a2b26b6975033213c8c4f48a59aae13c2a5cb7eb5abf945de87fa9236169ae"
+        }
+      ],
+      "cases": [
+        {
+          "label": "empty environment",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        },
+        {
+          "label": "atom environment",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "1"
+        },
+        {
+          "label": "extra list values",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 2 3)"
+        },
+        {
+          "label": "improper pair",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 2)"
+        },
+        {
+          "label": "nested improper tree",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1) . 2)"
+        },
+        {
+          "label": "padded number atom",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x0001"
+        },
+        {
+          "label": "negative atom",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "-1"
+        },
+        {
+          "label": "atom above u64",
+          "native": {
+            "output_hex": "ff01ff02ff0380",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 257,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff01ff02ff0380",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "18446744073709551616"
+        }
+      ],
+      "environment": "ignored",
+      "generated_cases": 256,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "canonical_tutorial_port",
+        "example_id": "chialisp-example:intro-list",
+        "limitations": [
+          "Rust u64 arithmetic is finite; these closed constants fit exactly.",
+          "The original expression is compiled directly without a mod wrapper. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+          "The explicit ignored-environment ABI is limited to genuinely nullary Rust exports."
+        ],
+        "references": [
+          "https://chialisp.com/chialisp-primer/intro/",
+          "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L48-L48"
+        ],
+        "source_adaptation": {
+          "description": "Remove only the shell run command and quotes; preserve expression text and append LF.",
+          "kind": "extract_run_expression",
+          "reference_sha256": "0e3d162801e6efffb81bf63dc9ac03cd4a35530599c8a3a407b1dc0a4e7a3767",
+          "source_span_sha256": "c7d45449eb1073a903960957b4b0769c1eb182b8fef3a2927811726eac05916a"
+        },
+        "upstream": {
+          "end_line": 48,
+          "repository": "https://github.com/Chia-Network/chialisp-web",
+          "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+          "source_path": "docs/chialisp-primer/intro.md",
+          "start_line": 48
+        }
+      },
+      "reference": "(list 1 2 3)\n",
+      "reference_mode": "expression",
+      "security_scope": "Closed tutorial expression returning data, not a coin puzzle or an authorization policy. All CLVM environments are deliberately ignored. Finite differential tests are not a compiler-correctness proof.",
+      "simulator": [],
+      "slug": "intro-list",
+      "source": "// Port of Chialisp Primer / Intro: (list 1 2 3).\n// A Rust tuple is encoded as a proper CLVM list. The environment is unused.\n#[chialisp_oxide::puzzle(environment = \"ignored\")]\npub fn puzzle() -> (u64, u64, u64) {\n    (1, 2, 3)\n}\n",
+      "source_dependencies": [],
+      "title": "Construct the fixed list (1 2 3)",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 227,
+          "clvm_hex": "ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff10ffff0102ffff010380ff808080ffff04ff80ff808080ffff02ffff03ffff20ff8080ffff01ff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff10ffff0102ffff010380ff808080ffff01ff088080ff01808080",
+          "disassembly": "(r (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (+ (q . 2) (q . 3)) ())) (c () ())) (a (i (not ()) (q 2 (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (+ (q . 2) (q . 3)) ())) (q 8)) 1)))",
+          "optimize_lir": false,
+          "tree_hash": "ab738df51784c768ad268ed908aca48fb156223fa2adce119e571bf66c109eb0"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 187,
+          "clvm_hex": "ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0105ff808080ffff04ff80ff808080ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0105ff8080808080",
+          "disassembly": "(r (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 5) ())) (c () ())) (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 5) ()))))",
+          "optimize_lir": true,
+          "tree_hash": "5e921cc442578c516d07084c657352be86cdf343db4e540f67af1002bb6fb983"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 3,
+          "clvm_hex": "ff0105",
+          "disassembly": "(q . 5)",
+          "optimize_lir": true,
+          "tree_hash": "7cfc7490a7f6422a0d3fb594c8503a1cc1a386080e8ac9fe67638408efc5ac2f"
+        }
+      ],
+      "cases": [
+        {
+          "label": "empty environment",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        },
+        {
+          "label": "atom environment",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "1"
+        },
+        {
+          "label": "extra list values",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 2 3)"
+        },
+        {
+          "label": "improper pair",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 2)"
+        },
+        {
+          "label": "nested improper tree",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1) . 2)"
+        },
+        {
+          "label": "padded number atom",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x0001"
+        },
+        {
+          "label": "negative atom",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "-1"
+        },
+        {
+          "label": "atom above u64",
+          "native": {
+            "output_hex": "05",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5978,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 3972,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "05",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "18446744073709551616"
+        }
+      ],
+      "environment": "ignored",
+      "generated_cases": 256,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "canonical_tutorial_port",
+        "example_id": "chialisp-example:intro-add",
+        "limitations": [
+          "Rust u64 arithmetic is finite; these closed constants fit exactly.",
+          "The original expression is compiled directly without a mod wrapper. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+          "The explicit ignored-environment ABI is limited to genuinely nullary Rust exports."
+        ],
+        "references": [
+          "https://chialisp.com/chialisp-primer/intro/",
+          "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L54-L54"
+        ],
+        "source_adaptation": {
+          "description": "Remove only the shell run command and quotes; preserve expression text and append LF.",
+          "kind": "extract_run_expression",
+          "reference_sha256": "d7fe8568a0ea0bd28050576b35d45b6d8ef72712b95d66e689596bb8d2bc36bc",
+          "source_span_sha256": "273b2a19899d2ff42e84ba00de41674441d156672e7dbcc8f5e37f7d6c2d390e"
+        },
+        "upstream": {
+          "end_line": 54,
+          "repository": "https://github.com/Chia-Network/chialisp-web",
+          "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+          "source_path": "docs/chialisp-primer/intro.md",
+          "start_line": 54
+        }
+      },
+      "reference": "(+ 2 3)\n",
+      "reference_mode": "expression",
+      "security_scope": "Closed tutorial expression returning data, not a coin puzzle or an authorization policy. All CLVM environments are deliberately ignored. Finite differential tests are not a compiler-correctness proof.",
+      "simulator": [],
+      "slug": "intro-add",
+      "source": "// Port of Chialisp Primer / Intro: (+ 2 3).\n#[chialisp_oxide::puzzle(environment = \"ignored\")]\npub fn puzzle() -> u64 {\n    2 + 3\n}\n",
+      "source_dependencies": [],
+      "title": "Add the constants 2 and 3",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 487,
+          "clvm_hex": "ff02ffff03ffff09ffff15ffff0103ffff010280ff8080ffff01ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff12ffff0105ffff010a80ff808080ffff04ff80ff808080ffff02ffff03ffff20ff8080ffff01ff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff12ffff0105ffff010a80ff808080ffff01ff088080ff01808080ffff01ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff12ffff010affff010a80ff808080ffff04ff80ff808080ffff02ffff03ffff20ff8080ffff01ff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff12ffff010affff010a80ff808080ffff01ff088080ff0180808080ff0180",
+          "disassembly": "(a (i (= (> (q . 3) (q . 2)) ()) (q 6 (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (* (q . 5) (q . 10)) ())) (c () ())) (a (i (not ()) (q 2 (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (* (q . 5) (q . 10)) ())) (q 8)) 1))) (q 6 (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (* (q . 10) (q . 10)) ())) (c () ())) (a (i (not ()) (q 2 (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (* (q . 10) (q . 10)) ())) (q 8)) 1)))) 1)",
+          "optimize_lir": false,
+          "tree_hash": "406a27cee6ae90dd5ed56ce917284c889fdad3c8ac201bb3d358c6b9f7d12b47"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 401,
+          "clvm_hex": "ff02ffff03ffff15ffff0103ffff010280ffff01ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0164ff808080ffff04ff80ff808080ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0164ff8080808080ffff01ff06ffff04ffff04ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0132ff808080ffff04ff80ff808080ffff02ffff01ff02ffff03ffff15ff02ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0280ffff0102ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff0132ff808080808080ff0180",
+          "disassembly": "(a (i (> (q . 3) (q . 2)) (q 6 (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 100) ())) (c () ())) (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 100) ())))) (q 6 (c (c (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 50) ())) (c () ())) (a (q 2 (i (> 2 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 2) (q . 2) (q 8)) 1) (q 8)) 1) (c (q . 50) ()))))) 1)",
+          "optimize_lir": true,
+          "tree_hash": "f11f9d00cb5dc737a431ef7b298bed207f1b2900d6c3c848fb33c2ce63f9165f"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 3,
+          "clvm_hex": "ff0164",
+          "disassembly": "(q . 100)",
+          "optimize_lir": true,
+          "tree_hash": "a1f68dbff24223121bdb019fa5eb88c1d2e0fe1591783a2cef45b0415d79748e"
+        }
+      ],
+      "cases": [
+        {
+          "label": "empty environment",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        },
+        {
+          "label": "atom environment",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "1"
+        },
+        {
+          "label": "extra list values",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 2 3)"
+        },
+        {
+          "label": "improper pair",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 2)"
+        },
+        {
+          "label": "nested improper tree",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1) . 2)"
+        },
+        {
+          "label": "padded number atom",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x0001"
+        },
+        {
+          "label": "negative atom",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "-1"
+        },
+        {
+          "label": "atom above u64",
+          "native": {
+            "output_hex": "64",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 7381,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4724,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 20,
+                "error": null,
+                "outcome": {
+                  "output_hex": "64",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "18446744073709551616"
+        }
+      ],
+      "environment": "ignored",
+      "generated_cases": 256,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "canonical_tutorial_port",
+        "example_id": "chialisp-example:intro-conditional",
+        "limitations": [
+          "Rust u64 arithmetic is finite; these closed constants fit exactly.",
+          "The original expression is compiled directly without a mod wrapper. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+          "The explicit ignored-environment ABI is limited to genuinely nullary Rust exports."
+        ],
+        "references": [
+          "https://chialisp.com/chialisp-primer/intro/",
+          "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L64-L64"
+        ],
+        "source_adaptation": {
+          "description": "Remove only the shell run command and quotes; preserve expression text and append LF.",
+          "kind": "extract_run_expression",
+          "reference_sha256": "78aae6e1d85cc622a4d0b83380461c8f5b0a90b24264363636f5a553e198f9d2",
+          "source_span_sha256": "9d915651466449758b138823928a435a5f8d83f6785e2254f93ac24be8fb5802"
+        },
+        "upstream": {
+          "end_line": 64,
+          "repository": "https://github.com/Chia-Network/chialisp-web",
+          "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+          "source_path": "docs/chialisp-primer/intro.md",
+          "start_line": 64
+        }
+      },
+      "reference": "(* (if (> 3 2) 10 5) 10)\n",
+      "reference_mode": "expression",
+      "security_scope": "Closed tutorial expression returning data, not a coin puzzle or an authorization policy. All CLVM environments are deliberately ignored. Finite differential tests are not a compiler-correctness proof.",
+      "simulator": [],
+      "slug": "intro-conditional",
+      "source": "// Port of Chialisp Primer / Intro: (* (if (> 3 2) 10 5) 10).\n#[chialisp_oxide::puzzle(environment = \"ignored\")]\npub fn puzzle() -> u64 {\n    let selected = if 3 > 2 { 10 } else { 5 };\n    selected * 10\n}\n",
+      "source_dependencies": [],
+      "title": "Conditional constant multiplication",
       "validated": true
     }
   ],

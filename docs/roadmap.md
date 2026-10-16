@@ -14,8 +14,10 @@
   wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
-- Nine teaching examples, independently compiled Chialisp references, the actual
-  Rust functions as native oracles, 73 explicit and 3,063 generated vectors.
+- Nine original teaching examples plus three exact canonical Intro expressions,
+  independently compiled Chialisp references, the actual Rust functions as native
+  oracles, 97 explicit and 3,831 generated integer/tree vectors. Canonical closed
+  expressions explicitly ignore environments; default typed ABIs remain strict.
 - Thirty complete-spend scenarios through chia-wallet-sdk's simulator, plus
   standalone regressions for signatures/replay/messages/conservation/rollback.
 - Source-derived SMT queries with independent specifications, nonvacuity,
@@ -39,8 +41,11 @@
    integration compatibility. The current original teaching examples do not
    count as completed CHIP ports; the page/CHIP inventory has 98 source entries.
    The separate example inventory records exact pinned primer/concept snippets
-   and workflow gaps. Closed Intro expressions are first candidates; their
-   original environment behavior must remain distinct from the typed Rust ABI.
+   and workflow gaps. Three closed Intro expressions have finite differential
+   validation with their original environment behavior preserved. Their parent
+   page remains partial; the other nine programs, variant, and supporting
+   workflows remain unrun. Next ports need explicit semantic contracts before
+   expanding parameter, list, recursion, hashing, or evaluation support.
 4. Extend formal modeling to byte encodings/cryptographic assumptions, state
    transitions, and compiler preservation. Evaluate Lean for stable IR rules.
 5. Add larger adversarial fuzzing, upgrade/fork matrices, and independent audits.

@@ -34,7 +34,8 @@ can succeed while the transaction fails because a signature is absent, a lock
 has not matured, or more value is created than consumed.
 
 This repository exercises both levels. The pure `bounded-counter` example
-returns an integer and is explicitly not a coin puzzle. A caller-controlled
+and canonical Intro expressions return language values and are explicitly not
+coin-spending policies. A caller-controlled
 boolean gate demonstrates rejection but supplies no authentication. Each lab
 entry states its policy and the obligations outside it.
 
@@ -46,11 +47,12 @@ with real SDK dependencies and annotated exports. The corpus lives in the
 use that same library. Cargo support does not mean arbitrary cross-crate Rust libraries are
 accepted for CLVM, or that a native Cargo test validates a coin spend.
 
-The examples are original teaching implementations with authored Chialisp
-references. They demonstrate a working compiler path and validation workflow.
-They are not audited production modules or completed replacements for canonical
-Chia protocols. The [source inventory](/chialisp-oxide/coverage/) tracks the much
-larger tutorial and CHIP migration goal separately.
+The laboratory separates original teaching implementations with authored
+Chialisp references from [canonical Intro expression ports](/chialisp-oxide/tutorials/canonical-intro/)
+that preserve the pinned originals. Neither group is an audited production
+module or a completed replacement for a canonical Chia protocol. The
+[source inventory](/chialisp-oxide/coverage/) tracks example-level evidence and
+the much larger tutorial and CHIP migration goal separately.
 
 Chialisp's [primer](https://chialisp.com/chialisp-primer/),
 [conditions](https://chialisp.com/conditions/), and

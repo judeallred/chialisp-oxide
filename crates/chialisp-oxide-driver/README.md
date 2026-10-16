@@ -13,6 +13,23 @@ resolution, features, build scripts, procedural macros, and generated source.
 The annotation macro validates function syntax and adds an export marker; it
 preserves the original Rust function tokens and performs no translation.
 
+Exports use a strict, complete typed argument-list ABI by default, including
+validation of unused parameters. An explicit
+`#[chialisp_oxide::puzzle(environment = "ignored")]` is permitted only on a
+function with no parameters, including no unit or underscore parameters. It
+accepts any CLVM environment tree without decoding it; the Rust function has
+no access to that environment. `environment = "strict"` makes the default
+explicit. The policy changes only input decoding: assertions, discarded
+failing calculations, and lazy branches retain their usual semantics.
+
+Strict exports retain the `__oxide_puzzle_v1` metadata marker and legacy JSON
+shape. Ignored exports use the distinct
+`__chialisp_oxide_puzzle_v2_environment_ignored` marker and a version-2 JSON
+envelope. Older readers cannot silently interpret that envelope as a strict
+program. The driver checks both markers together, rejects duplicates and
+conflicting or unknown reserved markers, and independently enforces the
+nullary restriction after Rust checking.
+
 Internally, the CLI selects a library package, invokes Cargo with an explicit
 host `--target`, and sets `RUSTC_WRAPPER=chialisp-oxide-driver`, `CHIALISP_OXIDE_CARGO_MODE=1`,
 `CHIALISP_OXIDE_PRIMARY_PACKAGES` (comma-separated crate names), and `CHIALISP_OXIDE_OUTPUT_DIR`.
@@ -26,7 +43,7 @@ Existing compiler wrappers are currently rejected by the CLI rather than
 composed. The SDK crate is the only permitted external source of lowered
 functions or wrappers; a crate name is not a package authentication boundary.
 
-The nine-puzzle corpus is the `chialisp-oxide-puzzles` Cargo library. Its annotated
+The paired corpus is the `chialisp-oxide-puzzles` Cargo library. Its annotated
 modules export paths such as `chialisp_oxide_puzzles::bounded_counter::puzzle`; the
 native oracle calls those same Rust functions. Corpus validation builds the
 library once through Cargo and loads the typed exports from the fresh bundle.

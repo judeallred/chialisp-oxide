@@ -20,3 +20,10 @@ pub mod split_payment;
 pub mod timelocked_payment;
 #[path = "two-signature-payment/puzzle.rs"]
 pub mod two_signature_payment;
+
+#[path = "intro-add/puzzle.rs"]
+pub mod intro_add;
+#[path = "intro-conditional/puzzle.rs"]
+pub mod intro_conditional;
+#[path = "intro-list/puzzle.rs"]
+pub mod intro_list;

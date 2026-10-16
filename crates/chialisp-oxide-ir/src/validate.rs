@@ -1,4 +1,4 @@
-use crate::{BinaryOp, Expr, Program, Type};
+use crate::{BinaryOp, Environment, Expr, Program, Type};
 use anyhow::{Result, bail, ensure};
 use num_bigint::BigInt;
 
@@ -39,6 +39,10 @@ fn validate_type(ty: &Type, depth: usize) -> Result<()> {
 }
 impl Program {
     pub fn validate(&self) -> Result<()> {
+        ensure!(
+            self.environment != Environment::Ignored || self.parameters.is_empty(),
+            "ignored environment requires zero parameters"
+        );
         ensure!(self.parameters.len() <= 64, "too many parameters");
         ensure!(self.name.len() <= 256, "program name too long");
         let mut pending = vec![&self.body];

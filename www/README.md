@@ -40,9 +40,13 @@ automatic compiler source-map claim.
 Both proof and validation authoring records must match `puzzles/authoring.json`
 and the current hashes of every declared local Cargo input, with the counter's
 proof export identified explicitly.
-The example inventory is displayed separately as unimplemented source research.
+The example inventory displays source research and per-example promotion separately.
 Its pinned pages, license, and exact source spans are hashed against the local
-snapshot; they do not increase validated-puzzle counts.
+snapshot. A promoted canonical expression must additionally match the exact
+extracted reference, Rust source, manifest, report hashes, ignored-environment
+contract, and observed differential outputs. Unimplemented inventory records
+do not increase validated-puzzle counts; example evidence never silently
+completes a whole parent page or CHIP.
 
 The Pages configuration is `site: https://judeallred.github.io` and
 `base: /chialisp-oxide`. Keep every internal route and static resource under

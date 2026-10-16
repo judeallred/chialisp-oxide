@@ -17,6 +17,7 @@ fn number(n: i64) -> Expr {
 }
 fn program(body: Expr, ty: Type, params: Vec<Type>) -> Program {
     Program {
+        environment: chialisp_oxide_ir::Environment::Strict,
         name: "test".into(),
         parameters: params
             .into_iter()
@@ -49,6 +50,58 @@ fn expected(value: &str) -> String {
     let mut a = Allocator::new();
     let ptr = rue_clvm::assemble(&mut a, value).unwrap();
     hex::encode(node_to_bytes(&a, ptr).unwrap())
+}
+#[test]
+fn ignored_environment_is_explicit_and_preserves_effects() {
+    use chialisp_oxide_ir::Environment;
+    let mut closed = program(number(7), int_type(), vec![]);
+    for opt in [false, true] {
+        assert_eq!(run(&closed, "1", opt), None);
+    }
+    closed.environment = Environment::Ignored;
+    for opt in [false, true] {
+        for input in ["()", "1", "0x0001", "(1 2)", "(1 . 2)", "((1) . (2 . 3))"] {
+            assert_eq!(run(&closed, input, opt), Some(expected("7")));
+        }
+        let mut fallible = closed.clone();
+        fallible.body = Expr::Sequence {
+            first: Box::new(Expr::Reject {
+                message: "must fail".into(),
+            }),
+            then_value: Box::new(number(7)),
+        };
+        assert_eq!(run(&fallible, "(1 . 2)", opt), None);
+        fallible.body = Expr::Binary {
+            kind: BinaryOp::Add,
+            left: Box::new(number(255)),
+            right: Box::new(number(1)),
+            ty: int_type(),
+        };
+        assert_eq!(run(&fallible, "1", opt), None);
+        fallible.body = Expr::If {
+            condition: Box::new(Expr::Bool { value: false }),
+            then_value: Box::new(Expr::Reject {
+                message: "unselected".into(),
+            }),
+            else_value: Box::new(number(7)),
+        };
+        assert_eq!(run(&fallible, "1", opt), Some(expected("7")));
+    }
+    closed.parameters.push(Parameter {
+        name: "unused".into(),
+        ty: Type::Unit,
+    });
+    assert!(
+        closed
+            .validate()
+            .unwrap_err()
+            .to_string()
+            .contains("zero parameters")
+    );
+    assert!(compile(&closed, true).is_err());
+    closed.parameters.clear();
+    closed.body = Expr::Arg { index: 0 };
+    assert!(closed.validate().is_err());
 }
 #[test]
 fn identity_multiplication_compiles() {

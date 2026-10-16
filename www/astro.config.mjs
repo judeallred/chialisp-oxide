@@ -26,6 +26,7 @@ export default defineConfig({
           { label: 'What works today', slug: 'reference/supported-rust' },
         ] },
         { label: 'Learn by building', items: [
+          { label: 'Port the canonical Intro', slug: 'tutorials/canonical-intro' },
           { label: 'Your first payment', slug: 'tutorials/first-payment' },
           { label: 'Validate untrusted inputs', slug: 'tutorials/input-validation' },
           { label: 'Use typed puzzle helpers', slug: 'tutorials/typed-sdk' },

@@ -1,0 +1,68 @@
+{
+  "slug": "intro-add",
+  "title": "Add the constants 2 and 3",
+  "kind": "pure_function",
+  "security_scope": "Closed tutorial expression returning data, not a coin puzzle or an authorization policy. All CLVM environments are deliberately ignored. Finite differential tests are not a compiler-correctness proof.",
+  "environment": "ignored",
+  "reference_mode": "expression",
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:intro-add",
+    "references": [
+      "https://chialisp.com/chialisp-primer/intro/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L54-L54"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-primer/intro.md",
+      "start_line": 54,
+      "end_line": 54
+    },
+    "source_adaptation": {
+      "kind": "extract_run_expression",
+      "source_span_sha256": "273b2a19899d2ff42e84ba00de41674441d156672e7dbcc8f5e37f7d6c2d390e",
+      "reference_sha256": "d7fe8568a0ea0bd28050576b35d45b6d8ef72712b95d66e689596bb8d2bc36bc",
+      "description": "Remove only the shell run command and quotes; preserve expression text and append LF."
+    },
+    "limitations": [
+      "Rust u64 arithmetic is finite; these closed constants fit exactly.",
+      "The original expression is compiled directly without a mod wrapper. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+      "The explicit ignored-environment ABI is limited to genuinely nullary Rust exports."
+    ]
+  },
+  "cases": [
+    {
+      "label": "empty environment",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment",
+      "solution": "1"
+    },
+    {
+      "label": "extra list values",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "improper pair",
+      "solution": "(1 . 2)"
+    },
+    {
+      "label": "nested improper tree",
+      "solution": "((1) . 2)"
+    },
+    {
+      "label": "padded number atom",
+      "solution": "0x0001"
+    },
+    {
+      "label": "negative atom",
+      "solution": "-1"
+    },
+    {
+      "label": "atom above u64",
+      "solution": "18446744073709551616"
+    }
+  ]
+}

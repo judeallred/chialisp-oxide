@@ -4,8 +4,9 @@ use anyhow::{Result, bail, ensure};
 use chialisp_oxide::{Amount, Message32, PublicKey, PuzzleHash, Timestamp};
 use chialisp_oxide_puzzles::{
     boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
-    fixed_payment as fixed, recovery_payment as recovery, signature_payment as signature,
-    split_payment as split, timelocked_payment as timelock, two_signature_payment as multisig,
+    fixed_payment as fixed, intro_add, intro_conditional, intro_list, recovery_payment as recovery,
+    signature_payment as signature, split_payment as split, timelocked_payment as timelock,
+    two_signature_payment as multisig,
 };
 use clvmr::{Allocator, NodePtr, allocator::SExp, serde::node_to_bytes};
 use num_bigint::{BigInt, Sign};
@@ -172,6 +173,14 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> Result<Vec<u8>> {
+        // These annotated nullary exports explicitly ignore every assembled tree.
+        // Keep the default exact argument decoder for all other policies.
+        match slug {
+            "intro-list" => return output(intro_list::puzzle()),
+            "intro-add" => return output(intro_add::puzzle()),
+            "intro-conditional" => return output(intro_conditional::puzzle()),
+            _ => (),
+        }
         let args = args(&a, env)?;
         match slug {
             "fixed-payment" => {

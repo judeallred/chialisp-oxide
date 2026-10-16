@@ -1,0 +1,38 @@
+---
+import { puzzles, canonicalExample, format, href, type Artifact } from '../lib/data';
+const examples = puzzles.filter(puzzle => canonicalExample(puzzle));
+const rows = examples.map(puzzle => {
+  const empty = puzzle.cases.find(test => test.solution === '()');
+  if (!empty) throw new Error(`${puzzle.slug}: missing original empty-environment observation`);
+  const metric = (backend: string, optimize: boolean) => {
+    const artifact = puzzle.artifacts.find(artifact => artifact.backend === backend && artifact.optimize_lir === optimize)!;
+    const execution = empty.runs.find(run => run.backend === backend && run.optimize_lir === optimize)!.execution;
+    return { artifact, cost: execution.cost };
+  };
+  return { puzzle, original: metric('chialisp', true), off: metric('rust_mir', false), on: metric('rust_mir', true) };
+});
+const metricLabel = ({ artifact, cost }: { artifact: Artifact; cost: number | null }) =>
+  `${format(artifact.bytes)} bytes / ${cost === null ? 'cost unavailable' : `${format(cost)} cost`}`;
+const larger = rows.filter(row => row.on.artifact.bytes > row.original.artifact.bytes).length;
+const costlier = rows.filter(row => row.on.cost !== null && row.original.cost !== null && row.on.cost > row.original.cost).length;
+---
+<div class="measurements-scroll">
+  <table>
+    <caption>Recorded program size and VM cost for the empty environment; transaction costs are not applicable</caption>
+    <thead><tr><th scope="col">Expression</th><th scope="col">Original Chialisp</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Rust-on vs original hash</th></tr></thead>
+    <tbody>{rows.map(({ puzzle, original, off, on }) => <tr>
+      <th scope="row"><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></th>
+      <td>{metricLabel(original)}</td><td>{metricLabel(off)}</td><td>{metricLabel(on)}</td>
+      <td>{on.artifact.tree_hash === original.artifact.tree_hash ? 'matches' : 'differs'}</td>
+    </tr>)}</tbody>
+  </table>
+</div>
+<p class="quiet">These are measured compiler outputs: optimized Rust is larger in {larger} of {rows.length} examples and uses more VM cost in {costlier} of {rows.length}. The lab retains every full tree hash and serialized program; matching tested values does not make different hashes interchangeable.</p>
+<style>
+  .measurements-scroll { overflow-x: auto; margin-block: 1.4rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .76rem; }
+  caption { text-align: start; color: var(--sl-color-gray-3); font-size: .72rem; margin-bottom: .65rem; }
+  th, td { text-align: start; padding: .7rem; border-bottom: 1px solid var(--oxide-line); vertical-align: top; min-width: 6.5rem; }
+  thead th { background: var(--sl-color-bg-sidebar); }
+  .quiet { font-size: .8rem; }
+</style>

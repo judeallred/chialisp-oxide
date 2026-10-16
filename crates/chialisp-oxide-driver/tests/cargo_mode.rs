@@ -291,7 +291,7 @@ fn exported_unsupported_calls_and_invalid_annotation_targets_fail_closed() {
         ),
         (
             "#[chialisp_oxide::puzzle(invalid)] pub fn entry(value:u64)->u64 { value }",
-            "does not accept arguments",
+            "unknown #[puzzle] option",
         ),
         (
             "#[chialisp_oxide::puzzle] #[chialisp_oxide::puzzle] pub fn entry(value:u64)->u64 { value }",
@@ -321,6 +321,218 @@ fn exported_unsupported_calls_and_invalid_annotation_targets_fail_closed() {
             String::from_utf8_lossy(&output.stderr)
         );
         assert!(fixture.exports().is_empty());
+    }
+}
+
+#[test]
+fn mixed_environment_policies_preserve_defaults_failures_and_lazy_branches() {
+    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_ir::Environment;
+
+    let fixture = Fixture::new();
+    fixture.source(
+        r#"
+        #[chialisp_oxide::puzzle]
+        pub fn default_strict() -> u8 { 7 }
+        #[chialisp_oxide::puzzle(environment = "strict")]
+        pub fn explicit_strict() -> u8 { 7 }
+        #[chialisp_oxide::puzzle(environment = "strict")]
+        pub fn typed_unused(_: u8) -> u8 { 7 }
+        #[chialisp_oxide::puzzle(environment = "ignored")]
+        pub fn ignored() -> u8 { 7 }
+        fn validate(value:u8) { assert!(value > 0); }
+        fn increment(value:u8)->u8 { value + 1 }
+        fn discard(_:u8)->u8 { 7 }
+        fn choose()->bool { false }
+        #[chialisp_oxide::puzzle(environment = "ignored")]
+        pub fn failing_assert() -> u8 { validate(0); 7 }
+        #[chialisp_oxide::puzzle(environment = "ignored")]
+        pub fn failing_discarded_argument() -> u8 { discard(increment(255)) }
+        #[chialisp_oxide::puzzle(environment = "ignored")]
+        pub fn lazy() -> u8 { if choose() { discard(increment(255)) } else { 7 } }
+        "#,
+    );
+    for wrapped in [false, true] {
+        let output = fixture.cargo(wrapped);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    let programs = fixture.exports();
+    assert_eq!(programs.len(), 7);
+    let reference = chialisp_oxide_reference::compile("(mod () (q . 7))").unwrap();
+    let expected = execute(&reference, "()", 1_000_000).unwrap().outcome;
+    // Include atoms, padded integer encodings, proper/improper lists, and
+    // nested trees. These are environments, not a decoded argument list.
+    let environments = [
+        "()",
+        "1",
+        "-1",
+        "0x00",
+        "0x0001",
+        "\"anything\"",
+        "(1 2)",
+        "(1 . 2)",
+        "((1 . 2) (0x00 () (3 . 4)))",
+    ];
+    for program in &programs {
+        let leaf = program.name.rsplit("::").next().unwrap();
+        let ignored = matches!(
+            leaf,
+            "ignored" | "failing_assert" | "failing_discarded_argument" | "lazy"
+        );
+        assert_eq!(program.environment == Environment::Ignored, ignored);
+        let json = serde_json::to_value(program).unwrap();
+        if ignored {
+            assert_eq!(json["ir_version"], 2);
+            assert_eq!(json["environment"], "ignored");
+            assert_eq!(json["program"]["name"], program.name);
+            assert!(json.get("name").is_none());
+        } else {
+            assert!(json.get("ir_version").is_none());
+            assert!(json.get("environment").is_none());
+            assert_eq!(json["name"], program.name);
+        }
+        for optimize in [false, true] {
+            let bytes = chialisp_oxide_ir::compile(program, optimize).unwrap();
+            for environment in environments {
+                let accepted = match leaf {
+                    "ignored" | "lazy" => true,
+                    "default_strict" | "explicit_strict" => environment == "()",
+                    _ => false,
+                };
+                assert_eq!(
+                    execute(&bytes, environment, 1_000_000).unwrap().outcome,
+                    if accepted {
+                        expected.clone()
+                    } else {
+                        Outcome::Rejected
+                    },
+                    "{leaf}, optimize={optimize}, environment={environment}"
+                );
+            }
+            if leaf == "typed_unused" {
+                for environment in ["(1)", "(255)"] {
+                    assert_eq!(
+                        execute(&bytes, environment, 1_000_000).unwrap().outcome,
+                        expected
+                    );
+                }
+                for environment in ["(256)", "(0x0001)", "((1))", "(1 2)"] {
+                    assert_eq!(
+                        execute(&bytes, environment, 1_000_000).unwrap().outcome,
+                        Outcome::Rejected
+                    );
+                }
+            }
+        }
+    }
+    for optimize in [false, true] {
+        let find = |name: &str| {
+            programs
+                .iter()
+                .find(|program| program.name.ends_with(name))
+                .unwrap()
+        };
+        assert_eq!(
+            chialisp_oxide_ir::compile(find("::default_strict"), optimize).unwrap(),
+            chialisp_oxide_ir::compile(find("::explicit_strict"), optimize).unwrap()
+        );
+    }
+}
+
+#[test]
+fn annotation_options_and_ignored_parameters_have_native_compile_errors() {
+    let fixture = Fixture::new();
+    fixture.source(
+        r#"
+        #[chialisp_oxide::puzzle(unknown = "ignored")] pub fn unknown_option() {}
+        #[chialisp_oxide::puzzle(environment = "raw")] pub fn unknown_policy() {}
+        #[chialisp_oxide::puzzle(environment = true)] pub fn not_a_string() {}
+        #[chialisp_oxide::puzzle(environment = "strict", environment = "ignored")]
+        pub fn duplicate_option() {}
+        #[chialisp_oxide::puzzle(environment = "ignored")] pub fn typed(_:u8) {}
+        #[chialisp_oxide::puzzle(environment = "ignored")] pub fn unit(_:()) {}
+        #[chialisp_oxide::puzzle(environment = "ignored")] pub fn destructured(():()) {}
+        "#,
+    );
+    let output = fixture.cargo(false);
+    assert!(!output.status.success());
+    let errors = String::from_utf8_lossy(&output.stderr);
+    for diagnostic in [
+        "unknown #[puzzle] option",
+        "unknown environment policy",
+        "expected string literal",
+        "duplicate #[puzzle] environment option",
+        "requires a function with no parameters",
+    ] {
+        assert!(errors.contains(diagnostic), "{diagnostic}: {errors}");
+    }
+    assert_eq!(
+        errors
+            .matches("requires a function with no parameters")
+            .count(),
+        3
+    );
+    assert!(fixture.exports().is_empty());
+}
+
+#[test]
+fn conflicting_forged_or_misplaced_markers_prevent_every_cargo_export() {
+    let fixture = Fixture::new();
+    for (invalid, diagnostic) in [
+        (
+            r#"#[doc="__oxide_puzzle_v1"] #[doc="__oxide_puzzle_v1"] pub fn invalid() {}"#,
+            "one annotation",
+        ),
+        (
+            r#"#[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] #[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] pub fn invalid() {}"#,
+            "one annotation",
+        ),
+        (
+            r#"#[doc="__oxide_puzzle_v1"] #[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] pub fn invalid() {}"#,
+            "one annotation",
+        ),
+        (
+            r#"#[doc="__oxide_puzzle_v1"] #[doc="__chialisp_oxide_puzzle_v3_raw"] pub fn invalid() {}"#,
+            "unknown #[puzzle] export marker",
+        ),
+        (
+            r#"#[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] pub fn invalid(_:u8) {}"#,
+            "requires a function with no parameters",
+        ),
+        (
+            r#"#[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] pub fn invalid(_:()) {}"#,
+            "requires a function with no parameters",
+        ),
+        (
+            r#"#[doc="__chialisp_oxide_puzzle_v2_environment_ignored"] pub struct Invalid;"#,
+            "on a free function",
+        ),
+        (
+            r#"pub struct Invalid; impl Invalid { #[doc="__oxide_puzzle_v1"] pub fn invalid() {} }"#,
+            "on a free function",
+        ),
+        (
+            r#"#[doc="__oxide_puzzle_v1"] pub const INVALID:u8=7;"#,
+            "on a free function",
+        ),
+        (
+            r#"#[chialisp_oxide::puzzle] #[chialisp_oxide::puzzle(environment="ignored")] pub fn invalid() {}"#,
+            "one annotation",
+        ),
+    ] {
+        fixture.source(&format!(
+            "#[chialisp_oxide::puzzle] pub fn valid()->u8 {{7}}\n{invalid}"
+        ));
+        let output = fixture.cargo(true);
+        assert!(!output.status.success(), "accepted {invalid}");
+        let errors = String::from_utf8_lossy(&output.stderr);
+        assert!(errors.contains(diagnostic), "{invalid}: {errors}");
+        assert!(!errors.contains("internal compiler error"), "{errors}");
+        assert!(fixture.exports().is_empty(), "partial export for {invalid}");
     }
 }
 

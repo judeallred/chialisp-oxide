@@ -7,7 +7,7 @@ pub use authoring::{Authoring, Export, authoring};
 use chialisp_oxide_backend_experiment::{
     Artifact, Execution, MAX_COST, Outcome, artifact, execute,
 };
-use chialisp_oxide_ir::Program;
+use chialisp_oxide_ir::{Environment, Program};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
@@ -21,7 +21,22 @@ pub const PUZZLES: &[&str] = &[
     "recovery-payment",
     "bounded-counter",
     "boolean-gate",
+    "intro-list",
+    "intro-add",
+    "intro-conditional",
 ];
+#[derive(Clone, Copy, Default, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReferenceMode {
+    #[default]
+    Module,
+    Expression,
+}
+impl ReferenceMode {
+    fn is_module(&self) -> bool {
+        matches!(self, Self::Module)
+    }
+}
 pub fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
@@ -43,6 +58,10 @@ pub struct Manifest {
     pub cases: Vec<Case>,
     #[serde(default)]
     pub source_dependencies: Vec<String>,
+    #[serde(default)]
+    pub environment: Environment,
+    #[serde(default)]
+    pub reference_mode: ReferenceMode,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -70,6 +89,10 @@ pub struct PuzzleReport {
     pub kind: String,
     pub security_scope: String,
     pub provenance: serde_json::Value,
+    #[serde(skip_serializing_if = "Environment::is_strict")]
+    pub environment: Environment,
+    #[serde(skip_serializing_if = "ReferenceMode::is_module")]
+    pub reference_mode: ReferenceMode,
     pub source: String,
     pub reference: String,
     pub source_dependencies: Vec<SourceDependency>,
@@ -126,6 +149,15 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     let dir = root().join("puzzles").join(slug);
     let manifest: Manifest =
         serde_json::from_str(&std::fs::read_to_string(dir.join("puzzle.json"))?)?;
+    ensure!(manifest.slug == slug, "corpus manifest slug mismatch");
+    ensure!(
+        program.name == format!("chialisp_oxide_puzzles::{}::puzzle", slug.replace('-', "_")),
+        "corpus export identity mismatch"
+    );
+    ensure!(
+        program.environment == manifest.environment,
+        "corpus environment policy mismatch"
+    );
     let reference = std::fs::read_to_string(dir.join("reference.clsp"))?;
     let source_dependencies = manifest
         .source_dependencies
@@ -145,8 +177,11 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         })
         .collect::<Result<Vec<_>>>()?;
     let source = std::fs::read_to_string(dir.join("puzzle.rs"))?;
-    let original = chialisp_oxide_reference::compile(&reference)
-        .with_context(|| format!("compile Chialisp {slug}"))?;
+    let original = match manifest.reference_mode {
+        ReferenceMode::Module => chialisp_oxide_reference::compile(&reference),
+        ReferenceMode::Expression => chialisp_oxide_reference::compile_expression(&reference),
+    }
+    .with_context(|| format!("compile Chialisp {slug}"))?;
     let programs = vec![
         (
             "rust_mir",
@@ -173,17 +208,29 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             generated_cases += 1;
         }
     }
+    if manifest.environment == Environment::Ignored {
+        for index in 0..256 {
+            compare(slug, &tree_environment(index, 0), &programs)?;
+            generated_cases += 1;
+        }
+    }
     let artifacts = programs
         .iter()
         .map(|(backend, opt, code)| artifact(backend, *opt, code))
         .collect::<Result<_>>()?;
-    let simulator = spends::validate(slug, &programs[1].2)?;
+    let simulator = match manifest.kind.as_str() {
+        "coin_puzzle" => spends::validate(slug, &programs[1].2)?,
+        "pure_function" => vec![],
+        kind => anyhow::bail!("unknown corpus kind {kind}"),
+    };
     Ok(PuzzleReport {
         slug: manifest.slug,
         title: manifest.title,
         kind: manifest.kind,
         security_scope: manifest.security_scope,
         provenance: manifest.provenance,
+        environment: manifest.environment,
+        reference_mode: manifest.reference_mode,
         source,
         reference,
         source_dependencies,
@@ -193,4 +240,26 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         simulator,
         validated: true,
     })
+}
+// A deterministic bounded set of atom, proper-list and improper-pair environments.
+// Unlike a typed argument sweep, it includes numeric encodings that no u64 accepts.
+fn tree_environment(index: usize, depth: usize) -> String {
+    const ATOMS: &[&str] = &[
+        "()",
+        "1",
+        "-1",
+        "0x00",
+        "0x0001",
+        "0x80",
+        "18446744073709551616",
+        "0xffffffffffffffffffffffffffffffff",
+    ];
+    if index < ATOMS.len() || depth == 5 {
+        return ATOMS[index % ATOMS.len()].into();
+    }
+    format!(
+        "({} . {})",
+        tree_environment(index / ATOMS.len(), depth + 1),
+        tree_environment(index % ATOMS.len(), depth + 1)
+    )
 }

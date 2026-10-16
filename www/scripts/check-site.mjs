@@ -99,10 +99,22 @@ for (const name of ['cargo-chialisp-oxide', 'chialisp-oxide-driver', 'cargo chia
 const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
 const coverage = await html(path.join(root, 'coverage/index.html'));
 for (const example of tutorialExamples.examples) {
-  assert(coverage.includes(example.title), `Missing planned canonical example: ${example.id}`);
-  assert.equal(example.implementation_status, 'not_started', 'Canonical ports are not implemented in this snapshot');
-  assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
+  assert(coverage.includes(example.title), `Missing canonical example: ${example.id}`);
+  if (example.implementation_status === 'implemented') {
+    assert.equal(example.validation_status, 'differential_only');
+    const puzzle = validation.puzzles.find(puzzle => puzzle.slug === example.source_adaptation?.slug);
+    assert(puzzle?.validated, `${example.id}: missing canonical validation`);
+    const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
+    assert(detail.includes('Original Chialisp expression') && detail.includes('no source wrapper'), `${example.id}: original source must be labeled`);
+    assert(detail.includes('Environment contract: explicitly ignored.'), `${example.id}: missing original environment contract`);
+    assert.equal(puzzle.environment, 'ignored');
+    assert.equal(puzzle.reference_mode, 'expression');
+  } else {
+    assert.equal(example.implementation_status, 'not_started');
+    assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
+  }
 }
+assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 const homepage = await html(path.join(root, 'index.html'));
 const heroTitle = homepage.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, '');
 assert.match(heroTitle ?? '', /WIP prototype.*not ready for use/i, 'Homepage must lead with the prototype status');

@@ -1,6 +1,7 @@
 //! Pure, typed expression IR between checked Rust MIR and Rue's CLVM backend.
 mod lower;
 mod validate;
+mod wire;
 pub use lower::compile;
 use serde::{Deserialize, Serialize};
 
@@ -18,12 +19,28 @@ pub struct Parameter {
     pub name: String,
     pub ty: Type,
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// How the entry point consumes the untrusted CLVM environment.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Environment {
+    /// Decode an exact, proper list of typed Rust arguments, including arity zero.
+    #[default]
+    Strict,
+    /// A genuinely nullary function deliberately accepts every CLVM tree.
+    Ignored,
+}
+impl Environment {
+    pub fn is_strict(&self) -> bool {
+        *self == Self::Strict
+    }
+}
+#[derive(Debug, Clone)]
 pub struct Program {
     pub name: String,
     pub parameters: Vec<Parameter>,
     pub result: Type,
     pub body: Expr,
+    pub environment: Environment,
 }
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]

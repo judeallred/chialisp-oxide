@@ -55,6 +55,11 @@ carry `CoinId` or `PuzzleHash` runtime tags. Concrete vetted SDK calls can cross
 the crate boundary; arbitrary dependency bodies cannot. Constructor validation
 is not executed during solution decoding.
 
+Entry metadata can explicitly mark a parameterless export's environment as
+ignored. The IR/backend then omit argument decoding for that export, preserving
+the behavior of canonical closed Chialisp expressions. The default strict ABI
+and all parameterized exports retain their complete boundary checks.
+
 The corpus is the real `chialisp-oxide-puzzles` Cargo library, with annotated modules
 registered in `puzzles/lib.rs` and a dependency on `chialisp-oxide`. Validation
 extracts all declared exports in one Cargo build; its native oracle links that
@@ -130,6 +135,10 @@ attribution, and relevant tests.
 ## Independent comparisons
 
 The Chialisp reference compiler is Chia Network's pinned `chialisp 0.4.6`.
+Its module API handles `mod` sources. Raw canonical expressions use a separate
+adapter for the `(opt (com 2))` compilation stage of upstream `run`; it stops
+before execution and adds no module wrapper. Both routes serialize actual
+upstream-generated program code, which then runs in the project's executor.
 It has its own allocator and internal VM version; serialized programs cross
 into the same `clvmr 0.21.0` executor used for Rust outputs. Execution reports
 record `MEMPOOL_MODE` and explicit cost limits.

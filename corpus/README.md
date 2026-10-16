@@ -6,8 +6,9 @@ maps each paired source to its annotated export and declares local Cargo inputs.
 The validation and proof reports record their hashes. Native execution links
 that library; CLVM and proof IR are extracted through Cargo from the same source.
 Run `./scripts/chialisp-oxide validate` and `python3 scripts/check-ir-proofs.py` after
-building the workspace. These original teaching fixtures do not count as
-canonical tutorial or CHIP ports.
+building the workspace. The report separates nine original teaching fixtures
+from three canonical Intro expression ports. Only the latter count toward
+their exact example-level tutorial records; no CHIP port is complete.
 
 `inventory.json` records 98 source entries as of 2026-10-16: all 28 Markdown
 documentation pages in the pinned Chialisp site, all 64 numbered CHIP index
@@ -46,4 +47,30 @@ Run `python3 corpus/validate_inventory.py`. The validator rejects unpinned
 source snapshots, duplicate entries, broken evidence links, and validation
 claims without implemented local sources and evidence. It does not verify
 equivalence by itself; the compiler/VM/simulator suites generate that evidence.
-All migration statuses initially remain `planned` / `not_run`.
+The Intro page is `in_progress` / `not_run`: its three expression records have
+finite differential evidence, while whole-page validation remains incomplete.
+Other page/CHIP entries remain planned and unvalidated.
+
+## First canonical expression ports
+
+`tutorial-examples.json` enumerates twelve distinct programs, one naming variant,
+and supporting workflows in the pinned tutorial snapshot. The first three
+Intro expressions are `implemented` / `differential_only`: `(list 1 2 3)`,
+`(+ 2 3)`, and `(* (if (> 3 2) 10 5) 10)`. Their local reference files extract
+only the original expression from the single-quoted `run` command and append a
+newline. No `mod` wrapper or argument guard is added.
+
+The corresponding Cargo exports explicitly declare
+`#[chialisp_oxide::puzzle(environment = "ignored")]`, restricted to parameterless
+functions. This retains the intended ignored-environment contract instead of
+requiring the strict nullary `()` ABI. Every expression has eight named input
+trees and 256 generated trees compared across native Rust, Rust CLVM in both
+optimizer modes, and independently compiled Chialisp. These are pure language
+results, not ledger spends. Differing tree hashes/costs remain visible.
+
+Each promoted inventory record binds its original span, extracted reference,
+Rust source, manifest, and report by SHA-256, plus the explicit environment
+contract and observed output. Run `python3 corpus/validate_tutorial_examples.py`
+to check those bindings and `--self-test` to exercise rejection controls. Nine
+other programs, the naming variant, and supporting workflows remain unrun;
+partial Intro progress does not complete its parent page or the primer.

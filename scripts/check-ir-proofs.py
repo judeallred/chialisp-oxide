@@ -100,7 +100,10 @@ def load_cargo_program(output, authoring):
         raise SystemExit("Cargo bundle exports differ from declared authoring entries")
     entry = next(entry for entry in entries if entry["entry"] == authoring["entry"])
     path = contained_file(manifest_path.parent, entry["ir"])
-    if load_json(path)["name"] != authoring["entry"]:
+    program = load_json(path)
+    if set(program) != {"name", "parameters", "result", "body"}:
+        raise SystemExit("bounded-counter proof requires the legacy strict-environment IR; refusing an envelope or changed ABI")
+    if program["name"] != authoring["entry"]:
         raise SystemExit("Cargo-exported IR name does not match selected proof entry")
     return path, manifest
 

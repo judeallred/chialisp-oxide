@@ -9,17 +9,16 @@ extern crate rustc_middle;
 extern crate rustc_span;
 
 mod cargo;
+mod exports;
 mod lower;
 
 use std::{io::Write, path::PathBuf};
 
-use chialisp_oxide_ir::{Expr, Parameter, Program};
+use chialisp_oxide_ir::{Environment, Expr, Parameter, Program};
 use rustc_driver::{Callbacks, Compilation};
 use rustc_hir::def_id::DefId;
 use rustc_middle::ty::TyCtxt;
 use sha2::{Digest, Sha256};
-
-const EXPORT_MARKER: &str = "__oxide_puzzle_v1";
 
 struct Driver {
     entry: String,
@@ -67,34 +66,13 @@ impl Driver {
     fn extract<'tcx>(&self, tcx: TyCtxt<'tcx>) -> Result<(), String> {
         if let Some(output) = &self.cargo_output {
             let mut programs = Vec::new();
-            for owner in tcx.hir_body_owners() {
-                let id = owner.to_def_id();
-                let markers = tcx
-                    .hir_attrs(tcx.local_def_id_to_hir_id(owner))
-                    .iter()
-                    .filter(|attribute| {
-                        attribute
-                            .doc_str()
-                            .is_some_and(|text| text.as_str() == EXPORT_MARKER)
-                    })
-                    .count();
-                if markers == 0 {
-                    continue;
-                }
-                if markers != 1 || tcx.def_kind(id) != rustc_hir::def::DefKind::Fn {
-                    return Err(format!(
-                        "{}: #[puzzle] requires one annotation on a free function",
-                        tcx.sess
-                            .source_map()
-                            .span_to_diagnostic_string(tcx.def_span(id))
-                    ));
-                }
+            for (id, environment) in exports::collect(tcx)? {
                 let name = format!(
                     "{}::{}",
                     tcx.crate_name(rustc_hir::def_id::LOCAL_CRATE),
                     tcx.def_path_str(id)
                 );
-                programs.push(self.extract_program(tcx, id, name)?);
+                programs.push(self.extract_program(tcx, id, name, environment)?);
             }
             programs.sort_by(|a, b| a.name.cmp(&b.name));
             std::fs::create_dir_all(output).map_err(|error| error.to_string())?;
@@ -130,7 +108,9 @@ impl Driver {
                 entries.len()
             ));
         }
-        let program = self.extract_program(tcx, entries[0].to_def_id(), self.entry.clone())?;
+        let environment = exports::environment(tcx, entries[0])?.unwrap_or_default();
+        let program =
+            self.extract_program(tcx, entries[0].to_def_id(), self.entry.clone(), environment)?;
         let json = serde_json::to_string_pretty(&program).map_err(|error| error.to_string())?;
         if let Some(path) = &self.output {
             std::fs::write(path, format!("{json}\n")).map_err(|error| error.to_string())?;
@@ -145,8 +125,15 @@ impl Driver {
         tcx: TyCtxt<'tcx>,
         id: DefId,
         name: String,
+        environment: Environment,
     ) -> Result<Program, String> {
         let body = tcx.optimized_mir(id);
+        if environment == Environment::Ignored && body.arg_count != 0 {
+            return Err(format!(
+                "{}: environment = \"ignored\" requires a function with no parameters",
+                tcx.sess.source_map().span_to_diagnostic_string(body.span)
+            ));
+        }
         let lowerer = lower::Lowerer::new(tcx);
         let parameters = body
             .args_iter()
@@ -171,6 +158,7 @@ impl Driver {
             .collect::<Result<Vec<_>, String>>()?;
         let program = Program {
             name,
+            environment,
             result: lowerer.ty(body.return_ty(), body.span)?,
             body: lowerer.function(
                 id,

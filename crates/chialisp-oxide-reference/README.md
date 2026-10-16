@@ -13,9 +13,21 @@ crosses the crate boundary. Tests deserialize the result and execute it with the
 project's `clvmr 0.21.0` and `MEMPOOL_MODE`, so a reference comparison does not
 accidentally execute each compiler's output on a different VM.
 
-Traditional `mod` syntax and the modern `*standard-cl-21*` include are both
-covered. `cargo test -p chialisp-oxide-reference` also checks deterministic output,
+`compile` is the module interface. For a raw classic expression, use
+`compile_expression(source: &str) -> anyhow::Result<Vec<u8>>`. It runs the
+`(opt (com 2))` compilation half of upstream `run`'s
+`(a (opt (com 2)) 3)` pipeline, then returns executable bytes without running
+them. The distinction matters: the module API evaluates a top-level expression,
+so treating that returned value as program code would execute it twice. Neither
+the raw source nor its environment contract is changed by a `mod` wrapper.
+See the pinned upstream [stage definition](https://github.com/Chia-Network/chialisp/blob/32254c8402a3b277b43b1bdad743781f15433b80/src/classic/clvm_tools/stages/mod.rs)
+and [module compiler interface](https://github.com/Chia-Network/chialisp/blob/32254c8402a3b277b43b1bdad743781f15433b80/src/classic/clvm_tools/clvmc.rs).
+
+Traditional `mod` syntax, raw classic expressions, and the modern
+`*standard-cl-21*` include are covered. `cargo test -p chialisp-oxide-reference` also checks deterministic output,
 arithmetic, guarded conditions, rejection, malformed source/input, and lazy
-branches. A reference compilation passing these tests does not establish that
+branches. The three pinned Intro expressions run against eight diverse
+environments; a separate environment-dependent expression confirms the compiler
+does not freeze the result of an earlier evaluation. These tests do not establish that
 the puzzle is safe or equivalent to a Rust puzzle; that requires shared-input
 differential tests and coin-spend validation.

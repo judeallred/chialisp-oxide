@@ -67,6 +67,7 @@ fn acceptance(predicate: P) -> Specification {
 }
 fn program(body: Expr) -> Program {
     Program {
+        environment: chialisp_oxide_ir::Environment::Strict,
         name: "test".into(),
         parameters: vec![Parameter {
             name: "value".into(),
@@ -396,6 +397,7 @@ fn unsupported_or_malformed_inputs_fail_closed() {
 #[test]
 fn unit_and_zero_argument_programs_are_nonvacuous() {
     let p = Program {
+        environment: chialisp_oxide_ir::Environment::Strict,
         name: "unit".into(),
         parameters: vec![],
         result: Type::Unit,

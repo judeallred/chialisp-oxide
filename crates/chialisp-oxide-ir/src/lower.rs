@@ -261,7 +261,10 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
         .iter()
         .map(|p| p.ty.clone())
         .collect::<Vec<_>>();
-    let mut root = lower.decode_list(env, &types, body)?;
+    let mut root = match program.environment {
+        crate::Environment::Strict => lower.decode_list(env, &types, body)?,
+        crate::Environment::Ignored => body,
+    };
     check_expansion(&lower.arena, root)?;
     if optimize {
         root = rue_lir::optimize(&mut lower.arena, root);

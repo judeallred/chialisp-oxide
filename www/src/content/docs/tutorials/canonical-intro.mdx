@@ -1,0 +1,113 @@
+---
+title: Port the canonical Chialisp Intro
+description: Preserve three exact upstream expressions, their ignored environments, and their observed CLVM results.
+---
+
+import SourcePair from '../../../components/SourcePair.astro';
+import CanonicalMeasurements from '../../../components/CanonicalMeasurements.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+The [Chialisp Intro](https://chialisp.com/chialisp-primer/intro/) starts with
+closed expressions: a fixed list, addition, and a conditional multiplication.
+These examples can be ported with the same intended environment and result
+contract, without adding a typed parameter boundary. The evidence below covers
+finite executed cases. They return values for learning the language;
+they are not coin-spending policies.
+
+The originals come from the Apache-2.0 documentation snapshot at
+[`dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8`](https://github.com/Chia-Network/chialisp-web/tree/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8).
+Each local Chialisp source contains exactly the expression inside the tutorial's
+single-quoted `run` argument, followed by a newline. No `mod`, input guard, or
+replacement expression is added. The inventory records the original shell-command
+span, extracted-source hashes, license, Rust source, and validation report.
+
+## Preserve the environment contract
+
+A usual zero-argument Rust export accepts only `()`. Each original expression
+ignores its CLVM environment: a bare atom, a proper list, or an improper pair
+does not change its result. A strict nullary adapter would therefore exclude
+inputs the original accepts.
+
+These exports explicitly use `#[chialisp_oxide::puzzle(environment = "ignored")]`.
+The option is restricted to parameterless functions. It makes the environment
+irrelevant, rather than decoding an arbitrary tree into a Rust value. The
+default annotation retains strict argument-shape and type validation; none of
+the original payment fixtures opts out. VM parsing and execution limits still
+apply to supplied serialized inputs.
+
+## Construct the list
+
+<SourcePair slug="intro-list" />
+
+The observed result is the proper list `(1 2 3)`. The Rust tuple expresses a
+fixed three-element product, not support for general variable-length lists.
+Inspect [the list report](/chialisp-oxide/lab/intro-list/) for actual environment
+cases, serialized output, program sizes, costs, and tree hashes.
+
+## Add two constants
+
+<SourcePair slug="intro-add" />
+
+The result is `5`. The Rust `u64` type bounds the expression's values, but all
+constants and intermediates here lie within that range. There are no numeric
+parameters imposing an additional finite input domain.
+[The addition report](/chialisp-oxide/lab/intro-add/) records the independently
+compiled original and both Rust backend modes.
+
+## Choose a constant and multiply
+
+<SourcePair slug="intro-conditional" />
+
+Since `3 > 2`, the chosen value is `10`; multiplying by `10` produces `100`.
+The source contains a conditional, but compilers may fold this constant choice.
+This example does not test an input-dependent branch or lazy rejection; the
+other teaching and compiler regressions cover those separately.
+Read [the conditional report](/chialisp-oxide/lab/intro-conditional/) to compare
+the emitted artifacts rather than assuming what optimization did.
+
+## Inspect the measured compiler gap
+
+<CanonicalMeasurements />
+
+## Compile the expression, then execute its program
+
+Upstream `run` combines two phases: `(a (opt (com 2)) 3)` compiles its source
+and executes the resulting program in its environment. Our independent
+expression adapter runs only `(opt (com 2))`, serializes the compiled program,
+then executes it in the same pinned VM used for Rust artifacts. The existing
+module-oriented compiler API remains the route for `mod` references.
+
+This distinction prevents treating an already evaluated value as executable
+code. A list beginning with `1`, for example, would then be misread as a CLVM
+quote operation. A regression with an environment-dependent expression checks
+that the adapter compiles code rather than caching an evaluated answer.
+See the [reference adapter](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-reference/README.md).
+
+## Reproduce the comparison
+
+From the checkout, with the pinned toolchain and local tools built as in the
+[quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+```
+
+Select `chialisp_oxide_puzzles::intro_add::puzzle` from the generated manifest
+using the [execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export),
+and try both `()` and `(1 . 2)` as environments. Both produce `5` for this
+closed expression. The native oracle likewise invokes the actual Cargo library;
+it does not run the VM or ledger.
+
+The recorded cases compare exact returned bytes and rejection status across
+native Rust, Rust CLVM with optimization off/on, and independently compiled
+original Chialisp. Artifact comparisons display actual tree-hash matches or
+differences. Finite differential cases do not prove compiler preservation for
+all programs or remove the need to preserve module identity in a protocol.
+
+These three expression ports do not complete the Intro page, the primer, or
+any CHIP. [Coverage](/chialisp-oxide/coverage/) keeps the other examples,
+variable-length lists, recursion, hashing, currying, signing workflows, and
+protocol module obligations visible.

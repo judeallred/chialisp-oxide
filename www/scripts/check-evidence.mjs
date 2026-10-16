@@ -20,6 +20,7 @@ async function checkRecordedHash(filename, expected) {
   assert.equal(createHash('sha256').update(source).digest('hex'), expected, `${filename}: source changed; regenerate evidence`);
 }
 const report = JSON.parse(await read('corpus/validation.json'));
+const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
 assert.equal(report.schema_version, 1);
 assert(report.puzzles.length > 0, 'A successful validation report is required');
 const configuration = JSON.parse(await read('puzzles/authoring.json'));
@@ -68,6 +69,9 @@ for (const puzzle of report.puzzles) {
   assert.equal(puzzle.title, manifest.title, `${puzzle.slug}: title changed`);
   assert.equal(puzzle.kind, manifest.kind, `${puzzle.slug}: result kind changed`);
   assert.deepEqual(puzzle.provenance, manifest.provenance, `${puzzle.slug}: provenance changed`);
+  for (const field of ['environment', 'reference_mode']) {
+    assert.equal(puzzle[field], manifest[field], `${puzzle.slug}: ${field} contract changed`);
+  }
   assert.equal(puzzle.artifacts.length, 3, `${puzzle.slug}: missing compiler path`);
   const paths = list => list.map(item => `${item.backend}:${item.optimize_lir}`).sort();
   const expectedPaths = ['chialisp:true', 'rust_mir:false', 'rust_mir:true'];
@@ -98,7 +102,6 @@ for (const check of [...proof.checks, proof.mutation]) {
 }
 assert(proof.checks.length > 0 && proof.checks.every(check => check.result.status === 'proven'), 'Formal obligation missing or failed');
 assert.equal(proof.mutation.result.status, 'refuted', 'Mutation was not detected');
-const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
 const sourceInventory = JSON.parse(await read('corpus/inventory.json'));
 assert.equal(tutorialExamples.schema_version, 1);
 assert.equal(tutorialExamples.upstream.revision, sourceInventory.scope.tutorial_source_revision, 'Tutorial example pin differs from source inventory');
@@ -113,5 +116,53 @@ for (const snippet of snippets) {
   const text = lines.slice(source.start_line - 1, source.end_line).join('');
   assert.equal(createHash('sha256').update(text).digest('hex'), source.sha256, `${snippet.id}: canonical source span changed`);
 }
+let canonicalPorts = 0;
+for (const example of tutorialExamples.examples) {
+  if (example.implementation_status === 'not_started') {
+    assert.equal(example.validation_status, 'not_run', `${example.id}: unimplemented example has validation claims`);
+    assert.deepEqual(example.local_examples, []);
+    assert.deepEqual(example.evidence, []);
+    assert.equal(example.source_adaptation, undefined, `${example.id}: unimplemented source adaptation`);
+    continue;
+  }
+  assert.equal(example.implementation_status, 'implemented', `${example.id}: unknown implementation status`);
+  assert.equal(example.validation_status, 'differential_only', `${example.id}: unsupported validation claim`);
+  const adaptation = example.source_adaptation;
+  assert(adaptation, `${example.id}: missing exact-source adaptation`);
+  assert.equal(adaptation.operation, 'extract_single_quoted_run_expression');
+  assert.equal(adaptation.source_span_sha256, example.source.sha256);
+  const lines = (await recordedSource(example.source.snapshot)).match(/[^\n]*\n|[^\n]+$/g) ?? [];
+  const span = lines.slice(example.source.start_line - 1, example.source.end_line).join('');
+  const expression = span.match(/^run '([^']+)'\n$/)?.[1];
+  assert(expression, `${example.id}: source is not one exact run expression`);
+  const puzzle = report.puzzles.find(puzzle => puzzle.slug === adaptation.slug);
+  assert(puzzle?.validated, `${example.id}: canonical example has no validated puzzle`);
+  assert.equal(puzzle.provenance.classification, 'canonical_tutorial_port');
+  assert.equal(puzzle.provenance.example_id, example.id);
+  assert.equal(puzzle.environment, 'ignored', `${example.id}: original environment behavior changed`);
+  assert.equal(puzzle.reference_mode, 'expression', `${example.id}: canonical source must use raw-expression compilation`);
+  const contract = example.validation_contract;
+  assert(contract, `${example.id}: missing explicit original validation contract`);
+  assert.equal(contract.abi, 'ignored_environment_nullary');
+  assert.equal(contract.environment, puzzle.environment);
+  assert.equal(contract.reference_mode, puzzle.reference_mode);
+  assert.equal(contract.claim_scope, 'executed_differential_cases_only');
+  assert.equal(contract.ledger, 'not_applicable_pure_function');
+  assert(puzzle.cases.length > 0 && puzzle.cases.every(test => test.native.status === 'accepted' && test.native.output_hex === contract.expected_output_hex), `${example.id}: observed original output differs from its contract`);
+  assert.equal(puzzle.kind, 'pure_function');
+  assert.deepEqual(puzzle.simulator, [], `${example.id}: pure expression must not claim ledger validation`);
+  assert.equal(adaptation.reference, `puzzles/${puzzle.slug}/reference.clsp`);
+  assert.equal(adaptation.rust_source, `puzzles/${puzzle.slug}/puzzle.rs`);
+  assert.equal(adaptation.manifest, `puzzles/${puzzle.slug}/puzzle.json`);
+  assert.equal(adaptation.report, 'corpus/validation.json');
+  for (const field of ['reference', 'rust_source', 'manifest', 'report']) {
+    await checkRecordedHash(adaptation[field], adaptation[`${field}_sha256`]);
+  }
+  assert.equal(puzzle.reference, `${expression}\n`, `${example.id}: original expression was rewritten or wrapped`);
+  assert(example.local_examples.includes(adaptation.reference) && example.local_examples.includes(adaptation.rust_source));
+  assert(example.evidence.includes(adaptation.report));
+  canonicalPorts++;
+}
+assert.equal(canonicalPorts, report.puzzles.filter(puzzle => puzzle.provenance.classification === 'canonical_tutorial_port').length, 'Untracked canonical-port claim in report');
 console.log(`Evidence current: ${slugs.size} Cargo source pairs, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
-console.log(`Tutorial sources current: ${tutorialExamples.examples.length} planned programs, pinned pages/license, and ${snippets.length} exact source spans`);
+console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);

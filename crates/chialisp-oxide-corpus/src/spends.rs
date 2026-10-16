@@ -13,9 +13,6 @@ fn solution(text: &str) -> Result<Vec<u8>> {
     Ok(clvmr::serde::node_to_bytes(&a, node)?)
 }
 pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
-    if slug == "bounded-counter" {
-        return Ok(vec![]);
-    }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {
         "capped-payment" | "split-payment" => "(500)".into(),

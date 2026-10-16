@@ -7,15 +7,30 @@ import SourcePair from '../../../components/SourcePair.astro';
 
 Every solution is an attacker-controlled CLVM tree. A Rust signature describes
 the accepted boundary values; it does not make raw CLVM input trusted. The
-backend validates the complete solution shape and parameter encodings before
-evaluating the function body.
+default ABI validates the complete solution shape and parameter encodings before
+evaluating the function body. A separately declared ignored-environment mode is
+restricted to parameterless exports.
 
 ## Function arguments form a proper list
 
 For a single `Amount` or `u64` parameter, the solution is `(42)`,
 not the bare atom `42`, the pair `(42 . 1)`, or a list
-with extra arguments. A zero-argument function takes `()`. Missing arguments,
+with extra arguments. By default, a zero-argument function takes `()`. Missing arguments,
 improper tails, nested pairs in scalar positions, and additional arguments reject.
+
+## Explicitly ignored environments
+
+`#[chialisp_oxide::puzzle(environment = "ignored")]` opts a parameterless
+export into accepting any CLVM tree without decoding arguments or imposing a
+proper-list shape. It is not available for functions with parameters. The
+default `#[chialisp_oxide::puzzle]` contract is unchanged.
+
+The three [canonical Intro expressions](/chialisp-oxide/tutorials/canonical-intro/)
+use this mode because their original Chialisp programs ignore the environment.
+Both `()` and `(1 . 2)` therefore reach the same closed function. Malformed
+serialized CLVM and VM resource limits still apply; ignoring a tree does not
+make it a typed Rust argument. The payment puzzles retain strict argument
+validation, including their nullary `()` requirement where applicable.
 
 ## Integers are canonical signed atoms with declared bounds
 

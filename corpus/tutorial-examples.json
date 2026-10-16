@@ -15,12 +15,12 @@
     "spdx": "Apache-2.0"
   },
   "scope": {
-    "description": "Source-level program inventory of the eight pinned Chialisp primer/concept tutorials. This is separate from the nine original teaching fixtures and is not migration or validation evidence.",
+    "description": "Source-level program inventory of eight pinned Chialisp primer/concept tutorials. Three closed Intro expressions have executed Cargo/native/original-reference/CLVM evidence; the other nine programs, one naming variant and supporting host workflows remain unimplemented or unrun. The nine original teaching fixtures are a separate corpus.",
     "program_count": 12,
     "variant_count": 1,
     "coverage": "Eight tutorial pages only; reference pages, primitives, CHIP implementations, linked include libraries and host workflows are not claimed complete.",
-    "promotion_requirement": "All records are not_started/not_run with no local ports or evidence. Future promotions require actual source, explicit ABI/semantic contracts, independent original/native/CLVM comparisons and appropriate ledger evidence.",
-    "recommended_contract": "Start with the three closed Intro expressions evaluated only under canonical empty environment (). Record the original's other accepted environments separately; this does not migrate the complete original raw-tree behavior."
+    "promotion_requirement": "Each promotion requires exact pinned source extraction, current Cargo Rust/reference/manifest/report hashes, explicit ABI and semantic scope, independent original/native/CLVM comparisons and appropriate ledger evidence. Individual expression evidence does not complete a tutorial page or CHIP.",
+    "recommended_contract": "The three initial closed-expression ports use an explicit ignored-environment nullary ABI, accepting arbitrary CLVM trees without decoding them as Rust parameters. Evidence covers eight explicit adversarial environments and 256 generated bounded trees per expression; this finite testing is not a compiler-preservation proof."
   },
   "pages": [
     {
@@ -156,27 +156,57 @@
         "representation": "shell_command",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L48-L48"
       },
-      "feasibility": "Recommended first bounded adapter experiment under an explicit nullary ABI contract.",
+      "feasibility": "Implemented as a real Cargo nullary Rust export with an explicit ignored-environment ABI.",
       "semantic_gaps": [
-        "The original closed expression can ignore arbitrary CLVM environments; a Rust nullary ABI requires exactly (). Compare under an explicit empty-environment contract and record excluded raw-tree/extra-environment cases."
+        "The original expression and this export both ignore arbitrary CLVM environments. The explicit ignored ABI is distinct from the default strict Rust tuple ABI and exposes no raw environment to Rust.",
+        "Rust u64 arithmetic is bounded; these fixed closed constants fit exactly. This port does not add general unbounded integers, raw-tree parameters or dynamic list support.",
+        "The report records finite differential observations, not a compiler-preservation or universal equivalence proof. This data-producing expression has no ledger authorization or conservation claim."
       ],
       "notes": [
-        "Inventory only: no original execution, Rust adapter or equivalence result is recorded."
+        "The unwrapped original expression is extracted exactly from the pinned shell command and compiled using the upstream expression compilation stage; the shell run command itself is not executed.",
+        "Eight explicit environments and 256 deterministic bounded trees are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, and independently compiled original Chialisp."
       ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/intro-list/puzzle.rs",
+        "puzzles/intro-list/reference.clsp"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
       "proposed_observations": [
         {
           "solution": "()",
           "expected_output": "(1 2 3)",
-          "basis": "Source expression/arithmetic expectation under the proposed nullary contract; not an executed result.",
-          "validation_status": "not_run"
+          "basis": "Independently specified source/arithmetic expectation, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
         }
-      ]
+      ],
+      "source_adaptation": {
+        "operation": "extract_single_quoted_run_expression",
+        "source_span_sha256": "c7d45449eb1073a903960957b4b0769c1eb182b8fef3a2927811726eac05916a",
+        "reference": "puzzles/intro-list/reference.clsp",
+        "reference_sha256": "0e3d162801e6efffb81bf63dc9ac03cd4a35530599c8a3a407b1dc0a4e7a3767",
+        "rust_source": "puzzles/intro-list/puzzle.rs",
+        "rust_source_sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3",
+        "manifest": "puzzles/intro-list/puzzle.json",
+        "manifest_sha256": "c59e21c8eeff1b08ee017b2b39fcb246eece44529305e3c3a8e3c934e16a9a32",
+        "report": "corpus/validation.json",
+        "report_sha256": "2ab2789b3c7d82000a48f8e8cbad1ee47e93a20592c890eb8b16b51c96f56229",
+        "slug": "intro-list"
+      },
+      "validation_contract": {
+        "abi": "ignored_environment_nullary",
+        "environment": "ignored",
+        "reference_mode": "expression",
+        "expected_output": "(1 2 3)",
+        "expected_output_hex": "ff01ff02ff0380",
+        "claim_scope": "executed_differential_cases_only",
+        "ledger": "not_applicable_pure_function"
+      }
     },
     {
       "id": "chialisp-example:intro-add",
@@ -195,25 +225,57 @@
         "representation": "shell_command",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L54-L54"
       },
-      "feasibility": "Recommended first bounded adapter experiment under an explicit nullary ABI contract.",
+      "feasibility": "Implemented as a real Cargo nullary Rust export with an explicit ignored-environment ABI.",
       "semantic_gaps": [
-        "The original closed expression can ignore arbitrary CLVM environments; a Rust nullary ABI requires exactly (). Compare under an explicit empty-environment contract and record excluded raw-tree/extra-environment cases."
+        "The original expression and this export both ignore arbitrary CLVM environments. The explicit ignored ABI is distinct from the default strict Rust tuple ABI and exposes no raw environment to Rust.",
+        "Rust u64 arithmetic is bounded; these fixed closed constants fit exactly. This port does not add general unbounded integers, raw-tree parameters or dynamic list support.",
+        "The report records finite differential observations, not a compiler-preservation or universal equivalence proof. This data-producing expression has no ledger authorization or conservation claim."
       ],
-      "notes": [],
+      "notes": [
+        "The unwrapped original expression is extracted exactly from the pinned shell command and compiled using the upstream expression compilation stage; the shell run command itself is not executed.",
+        "Eight explicit environments and 256 deterministic bounded trees are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, and independently compiled original Chialisp."
+      ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/intro-add/puzzle.rs",
+        "puzzles/intro-add/reference.clsp"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
       "proposed_observations": [
         {
           "solution": "()",
           "expected_output": "5",
-          "basis": "Source expression/arithmetic expectation under the proposed nullary contract; not an executed result.",
-          "validation_status": "not_run"
+          "basis": "Independently specified source/arithmetic expectation, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
         }
-      ]
+      ],
+      "source_adaptation": {
+        "operation": "extract_single_quoted_run_expression",
+        "source_span_sha256": "273b2a19899d2ff42e84ba00de41674441d156672e7dbcc8f5e37f7d6c2d390e",
+        "reference": "puzzles/intro-add/reference.clsp",
+        "reference_sha256": "d7fe8568a0ea0bd28050576b35d45b6d8ef72712b95d66e689596bb8d2bc36bc",
+        "rust_source": "puzzles/intro-add/puzzle.rs",
+        "rust_source_sha256": "1ec4572c9d4eb3e1c667d6d6b991b6fb159cf9751f08485bf489b6b4be3256e9",
+        "manifest": "puzzles/intro-add/puzzle.json",
+        "manifest_sha256": "4251fbf582ab86e70887ca872fee9a006958431beb58fa8981d1988666662164",
+        "report": "corpus/validation.json",
+        "report_sha256": "2ab2789b3c7d82000a48f8e8cbad1ee47e93a20592c890eb8b16b51c96f56229",
+        "slug": "intro-add"
+      },
+      "validation_contract": {
+        "abi": "ignored_environment_nullary",
+        "environment": "ignored",
+        "reference_mode": "expression",
+        "expected_output": "5",
+        "expected_output_hex": "05",
+        "claim_scope": "executed_differential_cases_only",
+        "ledger": "not_applicable_pure_function"
+      }
     },
     {
       "id": "chialisp-example:intro-conditional",
@@ -232,25 +294,57 @@
         "representation": "shell_command",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/intro.md#L64-L64"
       },
-      "feasibility": "Recommended first bounded adapter experiment under an explicit nullary ABI contract.",
+      "feasibility": "Implemented as a real Cargo nullary Rust export with an explicit ignored-environment ABI.",
       "semantic_gaps": [
-        "The original closed expression can ignore arbitrary CLVM environments; a Rust nullary ABI requires exactly (). Compare under an explicit empty-environment contract and record excluded raw-tree/extra-environment cases."
+        "The original expression and this export both ignore arbitrary CLVM environments. The explicit ignored ABI is distinct from the default strict Rust tuple ABI and exposes no raw environment to Rust.",
+        "Rust u64 arithmetic is bounded; these fixed closed constants fit exactly. This port does not add general unbounded integers, raw-tree parameters or dynamic list support.",
+        "The report records finite differential observations, not a compiler-preservation or universal equivalence proof. This data-producing expression has no ledger authorization or conservation claim."
       ],
-      "notes": [],
+      "notes": [
+        "The unwrapped original expression is extracted exactly from the pinned shell command and compiled using the upstream expression compilation stage; the shell run command itself is not executed.",
+        "Eight explicit environments and 256 deterministic bounded trees are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, and independently compiled original Chialisp."
+      ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/intro-conditional/puzzle.rs",
+        "puzzles/intro-conditional/reference.clsp"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
       "proposed_observations": [
         {
           "solution": "()",
           "expected_output": "100",
-          "basis": "Source expression/arithmetic expectation under the proposed nullary contract; not an executed result.",
-          "validation_status": "not_run"
+          "basis": "Independently specified source/arithmetic expectation, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
         }
-      ]
+      ],
+      "source_adaptation": {
+        "operation": "extract_single_quoted_run_expression",
+        "source_span_sha256": "9d915651466449758b138823928a435a5f8d83f6785e2254f93ac24be8fb5802",
+        "reference": "puzzles/intro-conditional/reference.clsp",
+        "reference_sha256": "78aae6e1d85cc622a4d0b83380461c8f5b0a90b24264363636f5a553e198f9d2",
+        "rust_source": "puzzles/intro-conditional/puzzle.rs",
+        "rust_source_sha256": "896429d8aba49868510ff97b890a8d3ef6e1c23bf7a1862b7e523e3a7b9f0694",
+        "manifest": "puzzles/intro-conditional/puzzle.json",
+        "manifest_sha256": "4eda90304bceb9ede7ee525cc37ba9fbbff04fb6ebdcdcf7d435ef74a9aa8741",
+        "report": "corpus/validation.json",
+        "report_sha256": "2ab2789b3c7d82000a48f8e8cbad1ee47e93a20592c890eb8b16b51c96f56229",
+        "slug": "intro-conditional"
+      },
+      "validation_contract": {
+        "abi": "ignored_environment_nullary",
+        "environment": "ignored",
+        "reference_mode": "expression",
+        "expected_output": "100",
+        "expected_output_hex": "64",
+        "claim_scope": "executed_differential_cases_only",
+        "ledger": "not_applicable_pure_function"
+      }
     },
     {
       "id": "chialisp-example:module-add",
@@ -863,15 +957,16 @@
       "note": "Referenced by an unversioned cdv retrieval command. Pin the actual library repository/revision/path/license/content independently before compilation claims."
     }
   },
-  "recommended_next": [
-    "chialisp-example:intro-list",
-    "chialisp-example:intro-add",
-    "chialisp-example:intro-conditional"
-  ],
+  "recommended_next": [],
   "reproduction": {
     "offline_validation": "python3 corpus/validate_tutorial_examples.py",
     "optional_tree_download": "gh api 'repos/Chia-Network/chialisp-web/git/trees/438fe8ece6587e9d96b40e2a1c03f953d89cf150?recursive=1' > /tmp/chialisp-web-tree.json",
     "optional_tree_verification": "python3 corpus/validate_tutorial_examples.py --upstream-tree /tmp/chialisp-web-tree.json",
     "note": "Snapshot bytes were copied from a pinned checkout and verified against audited GitHub blob IDs and existing page SHA256 records. Default validation is offline; tree download is an explicit manual network audit."
-  }
+  },
+  "initial_port_slice": [
+    "chialisp-example:intro-list",
+    "chialisp-example:intro-add",
+    "chialisp-example:intro-conditional"
+  ]
 }

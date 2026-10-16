@@ -348,8 +348,12 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Nine source pairs in the real Cargo library are validated by its native functions, independent
-Chialisp compilation, both optimization settings, and 30 ledger scenarios.
+Twelve source pairs in the real Cargo library are validated by its native functions,
+independent Chialisp compilation, and both optimization settings. Eight coin
+fixtures additionally have 30 ledger scenarios. Nine original teaching examples
+are separate from three exact canonical Intro expressions; the latter use an
+explicit ignored-environment annotation on parameterless exports and the
+independent compiler's raw-expression stage, without a module wrapper.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived IR-model proofs and attack replay. `www` renders these reports.
 The imported Rue LIR includes a reproduced optimizer panic fix and retains 44

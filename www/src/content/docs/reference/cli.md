@@ -131,8 +131,11 @@ outcome. Both policy outcomes exit with status 0; invocation errors, unknown
 slugs, and stale native-oracle inputs exit nonzero.
 
 This helper applies the canonical codec and invokes the actual linked Cargo
-function. It does not execute CLVM or validate a ledger spend. Its compiled
-input snapshot is checked against `puzzles/authoring.json`; a deliberately
+policy. Explicit ignored-environment nullary exports parse the supplied CLVM
+tree but do not impose an argument-list or typed-scalar check. Other exports
+retain their strict fixture ABI. The native helper does not execute the VM or
+ledger.
+Its compiled input snapshot is checked against `puzzles/authoring.json`; a deliberately
 changed declared input has been tested to reject until the native oracle is
 rebuilt. This prevents changed declared Cargo inputs from silently using an old
 native policy, without claiming a complete transitive dependency fingerprint.

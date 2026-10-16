@@ -59,8 +59,8 @@ initial external calls are restricted to vetted concrete SDK helpers.
 
 ## Build and validate the Cargo corpus
 
-The teaching fixtures are modules of the workspace's `chialisp-oxide-puzzles` library.
-Every entry imports the real SDK and uses `#[chialisp_oxide::puzzle]`. Native tests,
+The fixtures are modules of the workspace's `chialisp-oxide-puzzles` library.
+Every entry uses the real SDK's puzzle annotation. Native tests,
 the differential oracle, and CLVM extraction use that same library:
 
 ```sh
@@ -86,10 +86,14 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Nine paired Rust/Chialisp examples: fixed and capped payments, split payments,
-timelocks, one/two signatures, owner/recovery branches, a boolean gate, and a pure
-bounded counter. The corpus checks native execution, optimized/unoptimized CLVM,
-73 explicit vectors, 3,063 generated integer cases, and 30 complete-spend scenarios.
+Twelve paired Rust/Chialisp examples: nine original teaching fixtures covering
+payments, timelocks, signatures, recovery, a boolean gate, and a bounded counter;
+plus three canonical closed expressions from the pinned Chialisp Intro. The
+Intro ports preserve the exact original expressions and ignored environments
+through explicit parameterless annotations. The corpus checks native execution,
+optimized/unoptimized CLVM, 97 explicit vectors, 3,831 generated integer/tree
+cases, and 30 complete-spend scenarios. Only the eight condition-producing
+teaching fixtures have ledger scenarios; pure language results are not spends.
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
 
@@ -139,9 +143,11 @@ The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. A separate
 [example inventory](corpus/tutorial-examples.json) snapshots 12 concrete tutorial
 programs, their source spans/license, a naming variant, and supporting workflow
-gaps. Every canonical target remains not started / not run; the first closed
-Intro expressions need explicit original-versus-typed-ABI observations before
-being counted as ports. No production security audit has been
+gaps. Three Intro expressions now have finite differential evidence; nine
+other programs, the naming variant, and supporting workflows remain unrun.
+The parent Intro page remains partial, and no CHIP migration is complete.
+See the [canonical Intro walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/canonical-intro/)
+for exact sources, environment contracts, and measured compiler gaps. No production security audit has been
 completed. The vendored Rue identity-product fix is reported upstream as
 [xch-dev/rue#108](https://github.com/xch-dev/rue/issues/108), with a regression test
 and patch.

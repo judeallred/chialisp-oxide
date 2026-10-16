@@ -8,7 +8,8 @@ costs, native/reference outcomes, vectors, and ledger results. No permanent
 compiler-byte baseline is imposed when --baseline is omitted. Explicit semantic
 comparison permits Rust codegen/cost/diagnostic changes while retaining recorded
 outcomes and independent reference evidence. Cargo-migration mode permits only
-verified Cargo authoring metadata and source-snapshot changes.
+verified Cargo authoring metadata and source-snapshot changes. Explicitly allowing
+added puzzles still compares every baseline puzzle in its original order.
 """
 
 import argparse
@@ -158,6 +159,18 @@ def cargo_migration_behavior(report):
     """Current authoring must be verified before permitting its metadata to change."""
     result = behavior(report)
     result.pop("authoring", None)
+    return result
+
+
+def retained_puzzles(baseline, current):
+    """Permit new rows without weakening comparisons of existing puzzles."""
+    expected = [puzzle["slug"] for puzzle in baseline["puzzles"]]
+    require(len(expected) == len(set(expected)), "Baseline has duplicate puzzle slugs")
+    retained = [puzzle for puzzle in current["puzzles"] if puzzle["slug"] in expected]
+    require([puzzle["slug"] for puzzle in retained] == expected,
+            "Baseline puzzles were removed, duplicated, or reordered")
+    result = copy.deepcopy(current)
+    result["puzzles"] = copy.deepcopy(retained)
     return result
 
 
@@ -366,6 +379,46 @@ class ComparisonTests(unittest.TestCase):
                     snapshot(root)
 
 
+    def test_added_puzzles_do_not_hide_existing_artifact_abi_cost_or_policy_changes(self):
+        baseline = copy.deepcopy(self.original)
+        baseline["puzzles"][0]["slug"] = "original"
+        baseline["puzzles"][0]["environment"] = "strict"
+        baseline["puzzles"].append({**copy.deepcopy(baseline["puzzles"][0]), "slug": "second"})
+        current = copy.deepcopy(baseline)
+        current["authoring"] = {"mode": "cargo_library"}  # Freshness checked before comparison.
+        current["puzzles"].insert(1, {**copy.deepcopy(current["puzzles"][0]), "slug": "new"})
+        compare = lambda value: first_difference(cargo_migration_behavior(baseline),
+                                                cargo_migration_behavior(retained_puzzles(baseline, value)))
+        self.assertIsNone(compare(current))
+        self.assertIsNotNone(first_difference(cargo_migration_behavior(baseline),
+                                             cargo_migration_behavior(current)))
+        for mutation in ("artifact", "cost", "abi", "native", "ledger", "remove", "reorder", "duplicate"):
+            changed = copy.deepcopy(current)
+            original = changed["puzzles"][0]
+            if mutation == "artifact":
+                original["artifacts"][0]["clvm_hex"] = "ff0181"
+            elif mutation == "cost":
+                original["cases"][0]["execution"]["cost"] += 1
+            elif mutation == "abi":
+                original["environment"] = "ignored"
+            elif mutation == "native":
+                original["cases"][0]["native"] = {"status": "rejected"}
+            elif mutation == "ledger":
+                original["simulator"][0]["passed"] = False
+            elif mutation == "remove":
+                changed["puzzles"].pop(0)
+            elif mutation == "reorder":
+                changed["puzzles"].reverse()
+            else:
+                changed["puzzles"].append(copy.deepcopy(original))
+            with self.subTest(mutation=mutation):
+                if mutation in ("remove", "reorder", "duplicate"):
+                    with self.assertRaises(ValueError):
+                        compare(changed)
+                else:
+                    self.assertIsNotNone(compare(changed))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--current", type=Path, default=ROOT / "corpus/validation.json")
@@ -373,6 +426,8 @@ def main():
     parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration"), default="exact",
                         help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata")
     parser.add_argument("--changes", type=Path, help="write comparison scope and codegen metric changes as JSON")
+    parser.add_argument("--allow-added-puzzles", action="store_true",
+                        help="with cargo-migration baseline only: compare every original puzzle exactly, allowing additional rows")
     parser.add_argument("--source-root", type=Path, default=ROOT)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
@@ -380,8 +435,10 @@ def main():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(ComparisonTests)
         result = unittest.TextTestRunner().run(suite)
         raise SystemExit(0 if result.wasSuccessful() else 1)
-    if (args.comparison != "exact" or args.changes) and not args.baseline:
+    if (args.comparison != "exact" or args.changes or args.allow_added_puzzles) and not args.baseline:
         parser.error("non-default comparison and --changes require an explicit --baseline")
+    if args.allow_added_puzzles and args.comparison != "cargo-migration":
+        parser.error("--allow-added-puzzles requires --comparison cargo-migration")
     changes = []
     try:
         current = load_report(args.current)
@@ -393,13 +450,16 @@ def main():
             check_report(baseline)
             projection = {"exact": behavior, "semantic": semantic_behavior,
                           "cargo-migration": cargo_migration_behavior}[args.comparison]
-            difference = first_difference(projection(baseline), projection(current))
+            compared = retained_puzzles(baseline, current) if args.allow_added_puzzles else current
+            difference = first_difference(projection(baseline), projection(compared))
             require(difference is None, f"{args.comparison.capitalize()} baseline changed: {difference}")
-            changes = codegen_changes(baseline, current)
+            changes = codegen_changes(baseline, compared)
             if args.changes:
                 args.changes.parent.mkdir(parents=True, exist_ok=True)
                 args.changes.write_text(json.dumps({
                     "schema_version": 1, "comparison": args.comparison,
+                    "allow_added_puzzles": args.allow_added_puzzles,
+                    "baseline_puzzles_compared": len(baseline["puzzles"]),
                     "scope": "Recorded native/reference/CLVM outcomes and ledger scenarios; no universal compiler-preservation proof",
                     "baseline_sha256": hashlib.sha256(args.baseline.read_bytes()).hexdigest(),
                     "current_sha256": hashlib.sha256(args.current.read_bytes()).hexdigest(),
