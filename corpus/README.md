@@ -6,9 +6,16 @@ maps each paired source to its annotated export and declares local Cargo inputs.
 The validation and proof reports record their hashes. Native execution links
 that library; CLVM and proof IR are extracted through Cargo from the same source.
 Run `./scripts/chialisp-oxide validate` and `python3 scripts/check-ir-proofs.py` after
-building the workspace. The report separates nine original teaching fixtures
-from three canonical Intro expression ports. Only the latter count toward
+building the workspace. The report separates ten original teaching fixtures,
+three canonical Intro expression ports and one canonical program factory. Only the Intro ports count toward
 their exact example-level tutorial records; no CHIP port is complete.
+
+The original `rightmost-tree` example compiles checked Rust recursion through a
+finite version-4 function table. Native Rust and five independently built CLVM
+programs compare 13 named and 2,070 generated raw-tree cases, including returned
+atoms up to 8,192 bytes and a right spine of depth 128. The host oracle rejects
+deeper comparison requests as errors, not policy rejection; the compiled helper
+has no depth guard. This pure function has no ledger or model-proof claim.
 
 `inventory.json` records 98 source entries as of 2026-10-16: all 28 Markdown
 documentation pages in the pinned Chialisp site, all 64 numbered CHIP index

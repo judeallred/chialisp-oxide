@@ -16,6 +16,29 @@ cargo build --workspace --locked
 python3 scripts/check-ir-proofs.py --output corpus/proofs.json
 ```
 
+## Runtime IR boundary
+
+The compiler/backend implements version-4 function tables and strict lexical
+bindings. The current scalar and structural **model** APIs do not implement
+calls, bindings, recursion or divergence. `emit`/`verify`, `emit_tree`/`verify_tree`,
+and tree-equivalence queries reject any runtime program before invoking Z3.
+This includes acyclic or unused tables, calls in dead branches, and `Let`/`Local`
+with an empty table; rewriting an unsupported form away is not a proof rule.
+Legacy input formats also reject runtime nodes rather than silently accepting
+new semantics. Conversely, v4 requires a runtime node or a nonempty function
+table: a legacy-only body with `functions: []` fails decoding instead of being
+downgraded into a supported model input. A separately specified acyclic call
+model and recursive termination/induction obligations remain future work.
+
+`replay` and `replay_tree` may execute a finite witness through the implemented
+runtime backend in both optimization modes. Resource/infrastructure failures
+still abort replay, and a successful replay establishes only that execution's
+outcome. It does not admit the program to the SMT model or prove universal
+termination. `tests/runtime_boundaries.rs` exercises all model entry points and
+both replay paths. See [`docs/runtime-calls.md`](../../docs/runtime-calls.md).
+
+## Scalar specifications
+
 For `fn puzzle(counter: u64) -> u64 { assert!(counter < 1000); counter + 1 }`, this
 specification checks the accepted output range without restating the program's
 guard in the translation:
@@ -197,8 +220,9 @@ modeled. Bool, integers, tuples, unit, projections, strict sequences, lazy
 conditionals, comparisons, and rejection are supported. Tuples evaluate every
 field before projection, including fields whose values are discarded.
 
-Byte values, byte operations, division, bitwise operations, loops, recursion,
-hashing, signatures, and chain context are unsupported. Byte operations fail
+Byte values, byte operations, division, bitwise operations, loops, runtime calls,
+lexical bindings, recursion, hashing, signatures, and chain context are
+unsupported by the scalar model. Byte operations fail
 explicitly even in unreachable branches. The model assumes ABI decoding has
 already succeeded; it does not model malformed CLVM trees, noncanonical atoms,
 decoding cost, or exhaustion of VM cost. Runtime adversarial tests cover those

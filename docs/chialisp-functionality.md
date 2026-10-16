@@ -110,7 +110,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
-| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree::Atom`/`Tree::Pair`, pattern matching and checked projections; native arena codec | Broader byte/number operations, recursive processing and per-operator proofs |
+| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree::Atom`/`Tree::Pair`, checked projections and direct recursive traversal; native arena codec | Broader byte/number operations, output ownership and per-operator proofs |
 | Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit v3 raw whole-tree export | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | No user-facing dynamic apply; internal backend applications are not a source API | A reviewed program/environment SDK and IR, dialect rules, failures, and cost bounds |
@@ -131,7 +131,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | No explicit source support | Exact extension and cost semantics; no assumption that unknown operators are harmless |
 | `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants | General aggregate constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
-| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Recursive borrowed tree data accepted; recursive calls, loops and allocation rejected | Runtime function/call IR or justified loop lowering, termination/resource policy, and strictness tests |
+| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; loops/allocation rejected | Exact published list helpers, output ownership, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | No general curry or nested-puzzle API | Exact canonical module and instance identity plus adversarial composition tests |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
@@ -210,8 +210,9 @@ also require distinct treatment:
 
 - `mod`, destructured/dotted argument patterns, named helpers, `defun`,
   `defun-inline`, recursion, and function/lambda environments: Rust has
-  functions and pattern matching. Borrowed recursive tree data is supported;
-  recursive calls and runtime function values remain unsupported.
+  functions and pattern matching. Borrowed recursive trees and direct recursive
+  calls are supported with finite execution witnesses. Closures and indirect
+  function values remain unsupported; finite agreement proves no termination.
 - `defconstant`, `defconst`, `let`, `let*`, `assign`, `assign-inline`, and
   `assign-lambda`: preserve binding, evaluation, staging, and failure order.
   Similar Rust syntax does not establish matching semantics.
@@ -276,8 +277,11 @@ The structural tree model proves its stated IR specification, not compiler
 preservation. Broader numeric compatibility still needs native arbitrary-precision
 semantics, reviewed SDK identity, and explicit target operations. A native Rust builder that embeds
 precompiled CLVM, or an opaque extern intrinsic with no checked semantics, does
-not establish that Rust puzzle logic was translated correctly. General recursion
-and delegated-program execution remain additional work.
+not establish that Rust puzzle logic was translated correctly. Direct recursive
+calls now have Cargo/native/CLVM witnesses and a paired `rightmost-tree` example.
+The current proof models reject runtime IR, including unused runtime functions;
+termination and compiler-preservation proofs remain additional work. Dynamic
+delegated-program execution still needs a source API and explicit semantics.
 
 In parallel, conservative constant folding and sharing can reduce large closed
 programs. Each optimization must preserve failures, overflow, and laziness;

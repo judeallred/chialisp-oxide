@@ -60,5 +60,13 @@ to exactly one tree parameter. The default annotation keeps strict typed-list
 decoding. Raw atom bytes carry no implicit amount, hash, condition, or program
 validation. See the actual [canonical factory source](../../puzzles/p2-conditions/puzzle.rs)
 and its [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-conditions/).
+Direct self/mutual and non-tail recursive calls over this borrowed shape compile
+through version-4 runtime IR with a closed function table and strict bindings.
+See the actual [rightmost-tree source](../../puzzles/rightmost-tree/puzzle.rs)
+and its [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/recursive-trees/).
+Native comparisons use bounded depths; VM resource exhaustion is inconclusive,
+not policy rejection. The current scalar/tree proof models reject runtime IR;
+finite execution does not prove termination or compiler preservation.
+
 This narrow representation does not support general enums, mutable references,
-allocation, recursive Rust calls, or runtime program evaluation.
+allocating output trees, closures, or general runtime program evaluation.

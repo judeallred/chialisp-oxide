@@ -39,6 +39,7 @@ fn resource_and_infrastructure_errors_cannot_become_rejection_evidence() {
 #[test]
 fn actual_assertion_replay_records_typed_raise_in_both_compilation_modes() {
     let program = Program {
+        functions: vec![],
         name: "typed-rejection-evidence".into(),
         environment: Environment::Strict,
         parameters: vec![],

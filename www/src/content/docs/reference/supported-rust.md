@@ -25,7 +25,9 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 - Checked `+`, `-`, and `*`; overflow rejects the puzzle.
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
-- Local helpers, including lifetime-only generics for borrowed trees, inlined into expressions. Type/const generic functions remain rejected.
+- Local/SDK helpers, including lifetime-only generics for borrowed trees. Acyclic
+  source graphs inline into expressions; self, mutual, and non-tail recursion
+  use a closed runtime function table. Type/const generic functions remain rejected.
 - Named scalar and fixed-byte constants, including supported transparent wrappers
   of those values: typed policy amounts, recipient hashes, and public fixture keys.
   The restricted tree route also lowers supported promoted shared constants from their real MIR. General pointer and tuple constants remain unsupported.
@@ -45,6 +47,44 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 Byte arrays and tuple-like products use different encodings. The compiler does
 not use Rust's native in-memory layout as an on-chain ABI.
 
+## Runtime calls and borrowed recursion
+
+Ordinary Rust functions can recurse over the supported immutable tree type:
+
+```rust
+use chialisp_oxide::Tree;
+
+#[chialisp_oxide::puzzle(environment = "raw")]
+pub fn rightmost<'a>(tree: &'a Tree<'a>) -> &'a Tree<'a> {
+    match tree {
+        Tree::Pair(_, rest) => rightmost(rest),
+        Tree::Atom(_) => tree,
+    }
+}
+```
+
+Cargo extraction automatically selects version-4 IR for a reachable recursive
+call graph. Each actual function body is lowered once into a finite closed
+table; calls cannot select code supplied by the solution. Function-local typed
+bindings retain unused calls and prevent reevaluating their results. Argument,
+tuple, pair, and binary operand evaluation is strict and left to right. Each
+callee starts with fresh locals; branch selection remains lazy.
+
+Runtime functions currently reject assignments through tuple/field projections;
+construct and assign a complete value instead. Constants and promoted shared
+values retain their bounded acyclic lowering path. CFG loops, allocating tree
+accumulators, closure captures, and general `apply` remain unsupported. Runtime
+recursion does not bypass rustc borrow checking or permit escaping local
+references. The input-policy attributes are unchanged; see the
+[version-4 wire contract](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers).
+
+Native comparisons use finite depths. Deliberate nontermination runs only inside
+CLVM with a cost bound; resource exhaustion is inconclusive, not policy
+rejection. Current scalar/tree SMT models reject all runtime IR, including dead
+calls and unused tables. Finite witness replay is execution evidence rather than
+a termination or compiler-preservation proof. Durable regressions are documented
+in [runtime calls](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md).
+
 ## Rejected features
 
 The narrow borrowed-tree exception supports the SDK's immutable `Tree<'a>`
@@ -52,10 +92,10 @@ representation: `Atom(&'a [u8])` and `Pair(&'a Tree<'a>, &'a Tree<'a>)`, shared
 reborrows, construction, pattern matching, lifetime-only helpers and supported
 promoted constants. The frontend validates the actual enum shape and lowers
 real helper/constant MIR; a familiar name does not grant intrinsic semantics.
-It does not admit arbitrary enums, mutable references, allocation, or recursive
-function calls. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
+It does not admit arbitrary enums, mutable references, or allocation. Recursive
+functions can traverse these borrowed values without changing Rust ownership. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
 
-General references, type/const generic functions, arbitrary external function calls, recursion, loops,
+General references, type/const generic functions, arbitrary external function calls, CFG loops,
 allocation, general structs/enums, casts, floating point, shifts, bitwise arithmetic,
 division, and remainder are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
@@ -89,21 +129,28 @@ Explicit wrapping and overflowing arithmetic methods are rejected.
 
 Unused failing computations are still significant. If a helper rejects and its
 returned value is unused, strict Rust evaluation requires rejection. The IR's
-sequence nodes preserve this obligation through optimization. A failure in an
-unchosen branch remains lazy.
+sequence nodes retain this obligation for the legacy acyclic route. Runtime
+IR uses strict typed bindings and explicitly evaluates operands once, left to
+right. A failure or diverging call in an unchosen branch remains lazy.
 
 ## Bounded compilation
 
-The frontend limits helper nesting to 32, active control-flow blocks across
-calls to 64, and total visited blocks to 10,000. Expressions are limited to
+The frontend limits legacy helper inlining to 32 calls, active source
+control-flow lowering to 64 blocks, and total visited blocks to 10,000. Expressions are limited to
 8,192 nodes and depth 64, with 500,000 cumulative expression nodes of lowering
 work. Types are limited to 4,096 nodes and depth 32; functions have at most
 64 parameters and 2,048 MIR locals. Aggregate construction and cloning are
 bounded before replication.
 
-The IR independently validates types, expression depths, parameter counts, and
-tuple shapes. These bounds constrain compiler work; they do not establish that
-the emitted CLVM is affordable for every input.
+The IR independently validates the complete entry and every function body:
+64 functions, 64 parameters per function, 20,000 combined expression nodes,
+expression depth 256, 20,000 declared type nodes, type depth 32, and 500,000
+validation-work units. Runtime lowering checks an additional 128 new frame
+bindings beyond arguments and 500,000 work units, including local-type copies,
+before cloning scopes. A later estimated four-million-unit/depth-96 expansion
+check can reject an otherwise structurally valid table. These bounds constrain
+compiler work; they do not establish affordable or terminating execution for
+every input.
 
 ## Host-checked source, not a CLVM rustc target
 

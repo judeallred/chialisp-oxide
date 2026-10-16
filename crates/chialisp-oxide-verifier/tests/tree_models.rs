@@ -53,6 +53,7 @@ fn quote(value: Expr, prefix: &str) -> Expr {
 }
 fn program(body: Expr) -> Program {
     Program {
+        functions: vec![],
         name: "tree-test".into(),
         environment: Environment::Raw,
         parameters: vec![Parameter {
@@ -420,6 +421,7 @@ fn scalar_proofs_reject_tree_signatures_and_even_unreachable_tree_operations() {
         },
     };
     let p = Program {
+        functions: vec![],
         name: "unreachable-tree".into(),
         environment: Environment::Strict,
         parameters: vec![],

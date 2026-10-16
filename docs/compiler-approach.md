@@ -121,7 +121,7 @@ integration, and a rustc backend are separate implementation boundaries;
 describe each according to its actual support in commands and reports.
 
 The bounded read-only Charon comparison favors retaining direct MIR for the
-current acyclic, first-order subset: replacing it adds a new AST adapter and
+current first-order subset: replacing it adds a new AST adapter and
 transformation contract before removing much implemented work. Charon becomes
 more compelling for cross-crate traits, generics, and reference functionalization.
 Its full-MIR sysroot and toolchain costs, presets, and open compatibility work
@@ -348,13 +348,14 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Thirteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Fourteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs the typed IR tree-guard pass followed by
 Rue LIR optimization; off runs neither. Rue source uses its LIR off/on switch.
 The validation report records these pipelines explicitly. Eight coin
 fixtures additionally have 31 ledger scenarios executed for each language
-(93 ledger scenario runs). Nine original teaching examples
+(93 ledger scenario runs). Ten original teaching examples, including recursive
+raw-tree traversal,
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.
@@ -390,11 +391,16 @@ Structural proof experiments additionally compare the source-derived and
 rewritten factory models. This is not a general compiler-preservation proof,
 and optimization may change costs and rejection diagnostics.
 
-The [runtime-call experiment](runtime-calls.md) exercises finite compiler-owned
-function tables, self/mutual calls, and VM cost exhaustion directly in LIR.
-It does not implement recursive Rust extraction. Its proposed call/binding IR
-also records strict evaluation and divergence obligations that must be met
-before extending the current finite-expression optimizer.
+The [runtime-call implementation](runtime-calls.md) now extracts recursive Rust
+call graphs into version-4 IR with typed function tables, direct calls and strict
+lexical bindings. Each function is lowered once; arguments evaluate once in
+source order, and callees have isolated scopes. Source-derived tests cover self,
+mutual and non-tail recursion, unused calls, lazy branches and cost-limited
+divergence. Existing acyclic source exports retain their legacy IR path.
+The pair-guard pass preserves runtime programs unchanged, and the current proof
+models explicitly reject runtime IR. Execution is not a termination or
+compiler-preservation proof. Projected field assignments in runtime functions,
+CFG loops, allocating output trees and dynamic application remain unsupported.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving

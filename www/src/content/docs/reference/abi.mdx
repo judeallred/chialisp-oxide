@@ -28,9 +28,11 @@ program `(1 . 5)` returns `5` when subsequently executed.
 
 This is an explicit policy choice. Raw bytes are not validated amounts, hashes,
 conditions or programs. The default typed ABI retains its full checks. The raw
-policy uses IR envelope version 3; ignored nullary exports retain version 2,
-and default strict programs retain their original wire format. A legacy reader
-cannot silently interpret the raw policy as a typed argument list.
+policy uses IR envelope version 3 when no runtime constructs are present;
+ignored nullary exports then use version 2, and strict programs retain their
+original wire format. Runtime programs use version 4 without changing those
+input policies. A legacy reader cannot silently interpret the raw policy as a
+typed argument list.
 
 ## Function arguments form a proper list
 
@@ -52,6 +54,58 @@ Both `()` and `(1 . 2)` therefore reach the same closed function. Malformed
 serialized CLVM and VM resource limits still apply; ignoring a tree does not
 make it a typed Rust argument. The payment puzzles retain strict argument
 validation, including their nullary `()` requirement where applicable.
+
+## IR version 4 and export markers
+
+Runtime calls add an internal wire version, not another authoring attribute.
+The existing `#[chialisp_oxide::puzzle]` marker selects strict arguments;
+`environment = "ignored"` selects a nullary function, and `environment = "raw"`
+selects one complete tree. Their metadata markers remain respectively
+`__oxide_puzzle_v1`, `__chialisp_oxide_puzzle_v2_environment_ignored`, and
+`__chialisp_oxide_puzzle_v3_environment_raw`. No `environment = "runtime"` or
+version-4 macro marker exists.
+
+A function table or any `Call`, `Let`, or `Local` requires this envelope:
+
+```json
+{
+  "ir_version": 4,
+  "environment": "strict",
+  "program": {
+    "name": "wire-example",
+    "parameters": [],
+    "result": { "kind": "unit" },
+    "body": { "op": "call", "function_id": 0, "arguments": [] },
+    "functions": [
+      {
+        "id": 0,
+        "name": "helper",
+        "parameters": [],
+        "result": { "kind": "unit" },
+        "body": { "op": "unit" }
+      }
+    ]
+  }
+}
+```
+
+This is a wire illustration. Function IDs must equal their table positions.
+Each function has its own parameter and lexical-local scopes. A `Let` carries
+an explicit type, evaluates its initializer once before its body, and checks the
+initializer outside the new binding. Calls evaluate arguments once, left to
+right; a callee receives no caller locals. The table and runtime slots are
+compiler internals and add no wrapper to the submitted solution or returned
+value. Strict external decoding still checks every argument, even when unused,
+before entering the runtime frame. Ignored/raw inputs retain their contracts.
+
+Legacy v1/v2/v3 documents cannot contain these nodes, including inside an
+unchosen branch. Runtime-free programs keep their existing serialization.
+A v4 envelope must contain a runtime node or a nonempty function table;
+`functions: []` with a legacy-only body is invalid, so decoding cannot silently
+downgrade an explicitly versioned request to legacy semantics.
+Current scalar and structural SMT models reject runtime IR even if its table is
+unused; finite VM replay is a separate execution check. See
+[compiler architecture](/chialisp-oxide/reference/architecture/#closed-runtime-functions).
 
 ## Integers are canonical signed atoms with declared bounds
 

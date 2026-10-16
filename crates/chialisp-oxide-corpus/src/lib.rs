@@ -28,6 +28,7 @@ pub const PUZZLES: &[&str] = &[
     "intro-add",
     "intro-conditional",
     "p2-conditions",
+    "rightmost-tree",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -300,6 +301,25 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             tree = format!("({tree} . 0x00)");
         }
         compare(slug, &format!("({tree} . 0x0000)"), &programs)?;
+        generated_cases += 1;
+    }
+    if slug == "rightmost-tree" {
+        // Unlike factory inputs with a wide left payload, these bytes are the
+        // returned atom. The compiled function has no depth or width guard.
+        for width in [0, 1, 31, 32, 63, 64, 255, 256, 4096, 8192] {
+            let atom = if width == 0 {
+                "()".into()
+            } else {
+                format!("0x{}", "00".repeat(width))
+            };
+            compare(slug, &format!("(1 . {atom})"), &programs)?;
+            generated_cases += 1;
+        }
+        let mut tree = "0x0001".to_string();
+        for _ in 0..128 {
+            tree = format!("(0x00 . {tree})");
+        }
+        compare(slug, &tree, &programs)?;
         generated_cases += 1;
     }
     let artifacts: Vec<Artifact> = programs

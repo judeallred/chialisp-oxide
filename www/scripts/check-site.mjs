@@ -152,6 +152,24 @@ for (const puzzle of validation.puzzles) {
     assert(tutorial.includes(puzzle.module_identity.upstream_tree_hash), 'Tutorial must bind the published module identity');
   }
 }
+const recursiveTutorial = await html(path.join(root, 'tutorials/recursive-trees/index.html'));
+const recursivePuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'rightmost-tree');
+assert(recursivePuzzle, 'Missing executed recursive-tree corpus fixture');
+assert.equal(recursivePuzzle.kind, 'pure_function');
+assert.equal(recursivePuzzle.environment, 'raw');
+assert.deepEqual(recursivePuzzle.simulator, [], 'Tree helper must not claim ledger scenarios');
+for (const language of ['chialisp', 'rust', 'rue']) {
+  assert(recursiveTutorial.includes(`data-language="${language}"`), `Recursive tutorial misses ${language} comparison`);
+}
+const recursiveCopies = [...recursiveTutorial.matchAll(/\bdata-code="([^"]*)"/g)]
+  .map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+for (const source of [recursivePuzzle.source, recursivePuzzle.reference, recursivePuzzle.rue.source]) {
+  assert(recursiveCopies.includes(normalizedCode(source)), 'Recursive tutorial copy differs from executed source');
+  checkedSourceCopies++;
+}
+for (const scope of ['version-4 typed IR', 'finite VM budget', 'proper list ends in nil', 'not a port of a published protocol module']) {
+  assert(recursiveTutorial.includes(scope), `Recursive tutorial misses scope: ${scope}`);
+}
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
 for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs']) {
@@ -227,11 +245,15 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence']) {
+for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
     assert(result.url.startsWith(base), `Search result escapes base: ${result.url}`);
+    if (term === 'rightmost') {
+      const matches = await Promise.all(search.results.slice(0, 10).map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/recursive-trees/`), 'Recursive tutorial is not discoverable in search');
+    }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }
   await pagefind.destroy();

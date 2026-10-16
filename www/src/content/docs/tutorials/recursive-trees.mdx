@@ -1,0 +1,117 @@
+---
+title: Follow a tree with recursive Rust
+description: Compare checked Rust, Chialisp and Rue recursion, preserve raw atom bytes, and distinguish a tree helper from a coin policy.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+A CLVM value is either an atom or a pair of values. The
+[`Tree` type](/chialisp-oxide/reference/supported-rust/) makes those two cases
+explicit in ordinary Rust. This example follows each pair's right child until
+it reaches an atom, then returns that atom unchanged.
+
+It is a small language helper. It returns neither spend conditions nor an
+authorization decision, and the corpus submits no ledger transactions for it.
+It is an original teaching example, not a port of a published protocol module.
+
+## Read all three implementations
+
+<SourceComparison slug="rightmost-tree" />
+
+The annotation exports the Rust function through the usual Cargo workflow.
+`environment = "raw"` passes the complete CLVM environment as one logical tree;
+it does not decode a one-element argument list. Rustc checks the function,
+pattern match and lifetimes before CLVM lowering.
+
+`Tree::Pair(_, rest)` binds a shared reference to the right child. The recursive
+call returns a subtree borrowed from the input. The atom arm supplies the base
+case. It never allocates an output node, converts atom bytes into an integer,
+or substitutes a precompiled program for the Rust body.
+
+## Follow pairs, including improper tails
+
+```text
+whole environment                    returned atom
+()                                   ()
+0x00                                 0x00
+0x0001                               0x0001
+(10 . 20)                            20
+((10 . 11) . 0x0001)                  0x0001
+(10 20 30)                           ()
+```
+
+The final example is deliberate. A proper list ends in nil, so following only
+right children reaches nil. This helper does not return the final list element.
+An implementation of `last` needs a different base case and a precise contract
+for empty lists and improper tails.
+
+Padded atoms stay padded. A nonempty zero byte is not nil. The function also
+ignores complete left subtrees; their shape does not affect the result. These
+properties help separate CLVM tree structure from numeric encodings and list
+conventions.
+
+## What the compiler emits
+
+An export with a reachable recursive call graph uses version-4 typed IR. The
+compiler records each reachable function once in a finite function table and
+lowers direct calls to runtime application. Code size does not grow with input
+depth. Acyclic source exports retain their existing compilation path.
+
+Call arguments evaluate once, left to right. A lexical binding evaluates its
+initializer before entering its body, including when the body ignores the
+value. Callees receive fresh argument/local scopes. The input cannot provide
+or select the compiler's callee table. This calling convention grants no
+source-level dynamic `apply` capability.
+
+The [architecture guide](/chialisp-oxide/reference/architecture/) explains the
+frames and optimization boundary. The typed-IR pair-guard optimization leaves
+runtime programs unchanged: a projection after a diverging call cannot justify
+removing an earlier rejection guard. Rue LIR optimization still runs in the
+enabled mode.
+
+## Reproduce the comparisons
+
+Follow the [Cargo quickstart](/chialisp-oxide/start/quickstart/), then run:
+
+```sh
+cargo build --workspace --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-driver --test runtime_calls --locked
+cargo test -p chialisp-oxide-ir --test runtime_evaluation --locked
+cargo test -p chialisp-oxide-ir --test runtime_validation --locked
+```
+
+Select `chialisp_oxide_puzzles::rightmost_tree::puzzle` from the bundle using the
+[execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
+The [lab report](/chialisp-oxide/lab/rightmost-tree/) shows the actual Rust,
+Chialisp and Rue sources, five compiled builds, named outputs, generated cases,
+sizes, costs and tree hashes. Their hashes need not match; this example has no
+canonical module-identity claim.
+
+Native corpus comparisons stay within a checked traversal-depth bound. Deeper
+VM tests are separate. They exercise self and mutual calls, padded leaves and
+non-tail arithmetic recursion. Other controls distinguish an explicit rejection
+before a nonterminating call from a nonterminating call before a rejection;
+only the latter should exhaust the VM cost budget. No native test deliberately
+recurses forever.
+
+## Read the limits
+
+Resource exhaustion is inconclusive, never evidence that a policy rejected an
+attack. Native Rust and CLVM have different stack and resource limits. Finite
+agreement does not prove termination, affordable worst-case cost, or compiler
+preservation for arbitrary recursion.
+
+The scalar and structural model checkers reject runtime IR, including runtime
+nodes hidden in an unused function or dead branch. Their existing two-outcome
+models cannot turn divergence into rejection. Execution-only witness replay is
+still possible within a finite VM budget; that is not a model proof.
+
+Loops, closures, general dynamic application and allocating collections remain
+unsupported. Runtime functions currently reject assignments into projected
+fields; construct and assign a complete supported value instead. The borrowed
+tree representation also cannot return references to stack-local output nodes.
+An accumulating reverse or append needs an explicit Rust ownership design.

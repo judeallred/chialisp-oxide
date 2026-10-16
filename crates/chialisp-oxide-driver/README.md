@@ -26,12 +26,14 @@ It does not grant arbitrary evaluation or CLVM operator intrinsics.
 The policy changes only input decoding: assertions, discarded
 failing calculations, and lazy branches retain their usual semantics.
 
-Strict exports retain the `__oxide_puzzle_v1` metadata marker and legacy JSON
-shape. Ignored exports use the distinct
-`__chialisp_oxide_puzzle_v2_environment_ignored` marker and a version-2 JSON
-envelope. Raw exports use `__chialisp_oxide_puzzle_v3_environment_raw` and a
-version-3 envelope. Older readers cannot silently interpret either envelope as
-a strict program. The driver checks all markers together, rejects duplicates and
+Strict exports retain the `__oxide_puzzle_v1` metadata marker. Ignored exports
+use `__chialisp_oxide_puzzle_v2_environment_ignored`; raw exports use
+`__chialisp_oxide_puzzle_v3_environment_raw`. These markers describe the input
+policy, independently of runtime calls. Runtime-free strict/ignored/raw programs
+retain their legacy/version-2/version-3 JSON respectively; programs with runtime
+nodes or a function table use a version-4 envelope with the same input policy.
+Older readers cannot silently treat a versioned envelope as a strict program.
+The driver checks all markers together, rejects duplicates and
 conflicting or unknown reserved markers, and independently enforces the
 nullary or single-tree restriction after Rust checking.
 
@@ -91,8 +93,10 @@ The supported subset includes:
   checking and debug assertions are always enabled, independently of Cargo's
   profile. Explicit wrapping/overflowing methods are rejected.
 - Plain `assert!` as puzzle rejection, and local or SDK helpers without type or
-  const generics inlined into expressions. Unused failing operations and helper calls remain
-  observable through explicit sequence expressions.
+  const generics. Acyclic source graphs inline into expressions; reachable
+  recursive graphs use a closed runtime function table. Strict bindings retain
+  unused calls and evaluate their arguments once, left to right. Self, mutual,
+  and non-tail recursion are supported within the accepted types/MIR subset.
 - Byte arrays passed as parameters and constant byte-array construction.
   Named fixed-byte constants, including supported transparent wrappers, are
   evaluated by rustc and read only after checking their exact bounded layout,
@@ -103,7 +107,7 @@ The supported subset includes:
 Unannotated native functions may use ordinary Rust features, including
 allocation and closures, provided they are not reachable from a puzzle. They
 still undergo Rust checking. General references, type/const generics, other external calls,
-recursion, loops, allocation, ordinary structs/enums, casts, floats, shifts,
+CFG loops, allocation, ordinary structs/enums, casts, floats, shifts,
 bitwise arithmetic, division/remainder, and non-Rust function ABIs are rejected
 when encountered in an exported puzzle. Panic messages and formatted
 assertions currently require unsupported Rust formatting calls. Unsafe Rust and
@@ -113,21 +117,58 @@ otherwise eliminate. Dependency MIR must be available; missing metadata gets a
 diagnostic rather than an unchecked assumption. Each unsupported MIR diagnostic
 includes its Rust source location.
 
-Strict failure effects are retained at their defining MIR operations. Copies,
-aggregates, and intrinsically total helpers pass previously computed values
+In the legacy acyclic route, strict failure effects are retained at their
+defining MIR operations. Copies, aggregates, and intrinsically total helpers pass previously computed values
 without introducing another failure sequence. A conservative analysis runs
 only after successful lowering; arithmetic, assertions, divergence, and unknown
 operations remain fallible. Its cache holds at most 256 functions, with at most
 1,024 blocks and 8,192 statements inspected per function. Missing or excessive
 cases keep their evaluation effects.
 
-Expansion is limited to 32 nested helpers, 64 active control-flow blocks,
-10,000 total visited blocks, 8,192 nodes per expression, expression depth 64,
+Legacy helper inlining is limited to 32 nested calls. Source expansion allows
+64 active control-flow blocks, 10,000 total visited blocks, 8,192 nodes per
+expression, expression depth 64,
 and 500,000 cumulative expression nodes of lowering work. Argument/environment
 cloning and aggregate construction have separate size checks. Type expansion
 is limited to 4,096 nodes and depth 32 before replicating nested arrays.
 Functions have at most 64 parameters and 2,048 MIR locals. Accepting a function
 does not establish an affordable CLVM execution cost.
+
+## Runtime function extraction
+
+`runtime_functions` discovers a finite graph of actual Rust `DefId`s, validating
+supported signatures and calls before selecting the lowering route. Acyclic
+graphs retain legacy expression extraction. A graph containing recursion becomes
+a dense function table, with the source entry at ID zero and each body lowered
+once in its own argument scope. Shared tree/byte references retain their checked
+Rust lifetime/ownership boundary; no mutable references or closure captures are
+introduced. Supported constants/promoted bodies use the separate legacy
+acyclic lowering path. Runtime projected assignments are explicitly rejected.
+
+Non-atomic MIR definitions and call results become typed lexical `Let`s.
+Previously bound arguments/locals and primitive literals may be forwarded
+without a new binding. This never elides a defining call or checked projection.
+The backend evaluates strict operands once, left to right, through quoted
+continuations; each call receives fresh slots and the compiler-owned table.
+`If` remains lazy. Runtime recursion does not expand the compiler's call stack
+or require a new puzzle attribute.
+
+Discovery allows at most 256 functions/10,000 visited graph blocks; a runtime
+table has at most 64 functions. Each runtime function has at most 2,048 generated
+lexical bindings and retains the source expression/CFG limits above. Backend
+lowering additionally bounds new frame bindings to 128 beyond arguments and
+charges copied lexical types against 500,000 work units before cloning. Later
+codegen has its own estimated four-million-unit/depth-96 expansion check; these
+limits can reject a structurally valid table before emitting CLVM.
+
+Durable source/native/VM tests are in `tests/runtime_calls.rs`; direct IR
+ordering, frame, ABI, and budget tests are in the IR crate's
+`tests/runtime_evaluation.rs` and `tests/runtime_validation.rs`. Intentional
+nontermination runs only inside CLVM with a finite cost limit. Cost, stack, and
+allocator failures are resource/inconclusive outcomes, not policy rejection.
+Current SMT models reject all runtime IR, including unused tables and dead
+calls; finite replay does not prove termination or compiler preservation. See
+[`docs/runtime-calls.md`](../../docs/runtime-calls.md).
 
 This is host-checked Rust, not a rustc CLVM target. Source expansion uses the
 pinned compiler's host configuration, including `cfg(target_*)`,
@@ -150,12 +191,15 @@ wrapper methods remain unsupported. The SDK's `Copy` domain values provide
 by-value constructors, unit-explicit getters, and comparisons without adding
 reference or trait-operator semantics to the compiler.
 
-Tree support closes a data-model gap; it does not provide unbounded integer
-arithmetic, recursive tree traversal, hashing, or dynamic CLVM application.
+Borrowed tree support and runtime calls permit recursive traversal without
+allocating an owned output graph. They do not provide unbounded integer
+arithmetic, hashing, arbitrary application, or a safe allocating accumulator.
 Source and value equivalence alone do not establish byte/hash/cost identity
 with a canonical module. The optimized `p2_conditions` Rust port now reproduces
 the published nine-byte module and tree hash; its unoptimized artifact differs.
-The backend first applies a conservative typed IR pair-guard pass, then Rue LIR
-optimization. Checked projections retain atom rejection when a redundant guard
+For runtime-free programs, the backend first applies a conservative typed IR
+pair-guard pass, then Rue LIR optimization. The owned guard pass skips runtime
+programs because successful-evaluation facts do not establish prompt rejection
+before divergence; Rue LIR optimization still runs in the optimized mode. Checked projections retain atom rejection when a redundant guard
 is removed. This measured identity for one factory does not establish general
 module compatibility or compiler preservation.

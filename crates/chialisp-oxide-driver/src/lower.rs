@@ -16,6 +16,7 @@ use rustc_span::Span;
 
 mod constants;
 mod newtypes;
+mod runtime;
 mod totality;
 mod trees;
 
@@ -40,6 +41,25 @@ impl Drop for BlockDepth<'_> {
 }
 
 impl<'tcx> Lowerer<'tcx> {
+    fn panic_function(&self, id: DefId) -> bool {
+        let language = self.tcx.lang_items();
+        // Display paths are not identities: a local `core::panicking::panic`
+        // is ordinary user code. Diagnostic markers must also belong to the
+        // compiler's actual core crate, not a same-named SDK dependency.
+        if id.is_local()
+            || language
+                .panic_fn()
+                .is_none_or(|panic| panic.krate != id.krate)
+        {
+            return false;
+        }
+        language.panic_fn() == Some(id)
+            || language.panic_fmt() == Some(id)
+            || self
+                .tcx
+                .is_diagnostic_item(rustc_span::Symbol::intern("panic_explicit"), id)
+    }
+
     fn allowed_external(&self, id: DefId) -> bool {
         !id.is_local() && self.tcx.crate_name(id.krate).as_str() == "chialisp_oxide"
     }
@@ -97,7 +117,19 @@ impl<'tcx> Lowerer<'tcx> {
                     push(first);
                     push(then_value);
                 }
-                _ => (),
+                Expr::Call { arguments, .. } => arguments.iter().for_each(push),
+                Expr::Let { value, body, .. } => {
+                    push(value);
+                    push(body);
+                }
+                Expr::Atom { .. }
+                | Expr::Bytes { .. }
+                | Expr::Bool { .. }
+                | Expr::Int { .. }
+                | Expr::Unit
+                | Expr::Arg { .. }
+                | Expr::Local { .. }
+                | Expr::Reject { .. } => (),
             }
         }
         Ok(count)
@@ -212,6 +244,21 @@ impl<'tcx> Lowerer<'tcx> {
         stack: &mut Vec<DefId>,
     ) -> Result<Expr, String> {
         let span = self.tcx.def_span(id);
+        let body = self.function_body(id)?;
+        if stack.contains(&id) || stack.len() >= 32 {
+            return Err(self.error(span, "recursion and call depths beyond 32 are unsupported in compile-time constant/helper inlining"));
+        }
+        stack.push(id);
+        let result = self.lower_body(body, arguments, stack);
+        stack.pop();
+        if result.is_ok() {
+            self.remember_function_totality(id, body);
+        }
+        result
+    }
+
+    fn function_body(&self, id: DefId) -> Result<&'tcx Body<'tcx>, String> {
+        let span = self.tcx.def_span(id);
         if !id.is_local() && !self.allowed_external(id) {
             return Err(self.error(
                 span,
@@ -224,9 +271,6 @@ impl<'tcx> Lowerer<'tcx> {
                 "MIR is unavailable; rebuild target dependencies through cargo chialisp-oxide",
             ));
         }
-        if stack.contains(&id) || stack.len() >= 32 {
-            return Err(self.error(span, "recursion and call depths beyond 32 are unsupported"));
-        }
         if !self.lifetime_parameters_only(id) {
             return Err(self.error(span, "generic puzzle functions are unsupported"));
         }
@@ -238,13 +282,7 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "unsafe functions are unsupported"));
         }
         let body = self.tcx.optimized_mir(id);
-        stack.push(id);
-        let result = self.lower_body(body, arguments, stack);
-        stack.pop();
-        if result.is_ok() {
-            self.remember_function_totality(id, body);
-        }
-        result
+        Ok(body)
     }
 
     fn lower_body(
@@ -412,10 +450,7 @@ impl<'tcx> Lowerer<'tcx> {
                     return Err(self.error(span, "indirect function calls are unsupported"));
                 };
                 let name = self.tcx.def_path_str(*id);
-                if name == "core::panicking::panic"
-                    || name == "core::panicking::panic_fmt"
-                    || name == "core::panicking::panic_explicit"
-                {
+                if self.panic_function(*id) {
                     Expr::Reject {
                         message: self.error(span, "Rust panic/assertion rejects the puzzle"),
                     }

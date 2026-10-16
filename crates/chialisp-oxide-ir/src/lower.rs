@@ -5,6 +5,8 @@ use id_arena::Arena;
 use num_bigint::BigInt;
 use rue_lir::{CodegenOptions, Lir, LirId};
 
+mod runtime;
+
 struct Lower<'a> {
     arena: Arena<Lir>,
     program: &'a Program,
@@ -143,6 +145,58 @@ impl Lower<'_> {
             Ok(self.require(empty, yes))
         }
     }
+    fn field(&mut self, mut base: LirId, index: usize, ty: Option<Type>) -> LirId {
+        if matches!(ty, Some(Type::Bytes { .. })) {
+            let start = self.int(index as i64);
+            let end = self.int(index as i64 + 1);
+            let byte = self.alloc(Lir::Substr(base, start, Some(end)));
+            // Keep a high byte positive, then canonicalize its numeric atom.
+            let zero_byte = self.bytes(vec![0]);
+            let numeric = self.alloc(Lir::Concat(vec![zero_byte, byte]));
+            let zero = self.nil();
+            self.alloc(Lir::Add(vec![zero, numeric]))
+        } else {
+            for _ in 0..index {
+                base = self.alloc(Lir::Rest(base));
+            }
+            self.alloc(Lir::First(base))
+        }
+    }
+    fn binary(&mut self, kind: BinaryOp, l: LirId, r: LirId, ty: &Type) -> Result<LirId> {
+        let root = match kind {
+            BinaryOp::Eq => self.alloc(Lir::Eq(l, r)),
+            BinaryOp::Ne => {
+                let equal = self.alloc(Lir::Eq(l, r));
+                self.alloc(Lir::Not(equal))
+            }
+            BinaryOp::Gt => self.alloc(Lir::Gt(l, r)),
+            BinaryOp::Lt => self.alloc(Lir::Gt(r, l)),
+            BinaryOp::Ge => {
+                let less = self.alloc(Lir::Gt(r, l));
+                self.alloc(Lir::Not(less))
+            }
+            BinaryOp::Le => {
+                let greater = self.alloc(Lir::Gt(l, r));
+                self.alloc(Lir::Not(greater))
+            }
+            BinaryOp::Add => self.alloc(Lir::Add(vec![l, r])),
+            BinaryOp::Sub => self.alloc(Lir::Sub(vec![l, r])),
+            BinaryOp::Mul => self.alloc(Lir::Mul(vec![l, r])),
+            _ => unreachable!("validated operations only"),
+        };
+        Ok(
+            if matches!(kind, BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul) {
+                // Bind once: repeating nested arithmetic would expand exponentially.
+                let local = self.alloc(Lir::Path(2u8.into()));
+                let checked = self.range(local, ty, local)?;
+                let quoted = self.alloc(Lir::Quote(checked));
+                let environment = self.list(&[root]);
+                self.alloc(Lir::Run(quoted, environment))
+            } else {
+                root
+            },
+        )
+    }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
             Expr::Atom { hex } => self.bytes(hex::decode(hex)?),
@@ -173,6 +227,9 @@ impl Lower<'_> {
             Expr::Int { value, .. } => self.number(value.parse()?),
             Expr::Bytes { hex } => self.bytes(hex::decode(hex)?),
             Expr::Arg { index } => self.args[*index],
+            Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
+                anyhow::bail!("runtime nodes require the version-4 lowering")
+            }
             Expr::Reject { .. } => self.reject(),
             Expr::Tuple { items } => {
                 let values = items
@@ -183,23 +240,8 @@ impl Lower<'_> {
             }
             Expr::Field { value, index } => {
                 let ty = self.program.type_of(value)?;
-                let mut base = self.expression(value)?;
-                if matches!(ty, Some(Type::Bytes { .. })) {
-                    let start = self.int(*index as i64);
-                    let end = self.int(*index as i64 + 1);
-                    let byte = self.alloc(Lir::Substr(base, start, Some(end)));
-                    // A zero byte prefix makes values 128..255 positive. Addition
-                    // converts the two bytes to a canonical numeric atom.
-                    let zero_byte = self.bytes(vec![0]);
-                    let numeric = self.alloc(Lir::Concat(vec![zero_byte, byte]));
-                    let zero = self.nil();
-                    self.alloc(Lir::Add(vec![zero, numeric]))
-                } else {
-                    for _ in 0..*index {
-                        base = self.alloc(Lir::Rest(base));
-                    }
-                    self.alloc(Lir::First(base))
-                }
+                let base = self.expression(value)?;
+                self.field(base, *index, ty)
             }
             Expr::Sequence { first, then_value } => {
                 let first = self.expression(first)?;
@@ -229,39 +271,7 @@ impl Lower<'_> {
             } => {
                 let l = self.expression(left)?;
                 let r = self.expression(right)?;
-                let root = match kind {
-                    BinaryOp::Eq => self.alloc(Lir::Eq(l, r)),
-                    BinaryOp::Ne => {
-                        let equal = self.alloc(Lir::Eq(l, r));
-                        self.alloc(Lir::Not(equal))
-                    }
-                    BinaryOp::Gt => self.alloc(Lir::Gt(l, r)),
-                    BinaryOp::Lt => self.alloc(Lir::Gt(r, l)),
-                    BinaryOp::Ge => {
-                        let less = self.alloc(Lir::Gt(r, l));
-                        self.alloc(Lir::Not(less))
-                    }
-                    BinaryOp::Le => {
-                        let greater = self.alloc(Lir::Gt(l, r));
-                        self.alloc(Lir::Not(greater))
-                    }
-                    BinaryOp::Add => self.alloc(Lir::Add(vec![l, r])),
-                    BinaryOp::Sub => self.alloc(Lir::Sub(vec![l, r])),
-                    BinaryOp::Mul => self.alloc(Lir::Mul(vec![l, r])),
-                    _ => unreachable!("validated operations only"),
-                };
-                if matches!(kind, BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul) {
-                    // Bind the arithmetic result once. Repeating the expression
-                    // in both range guards and the return value otherwise grows
-                    // nested checked arithmetic exponentially during codegen.
-                    let local = self.alloc(Lir::Path(2u8.into()));
-                    let checked = self.range(local, ty, local)?;
-                    let quoted = self.alloc(Lir::Quote(checked));
-                    let environment = self.list(&[root]);
-                    self.alloc(Lir::Run(quoted, environment))
-                } else {
-                    root
-                }
+                self.binary(*kind, l, r, ty)?
             }
         })
     }
@@ -290,7 +300,11 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
             tail = lower.alloc(Lir::Rest(tail));
         }
     }
-    let body = lower.expression(&program.body)?;
+    let body = if program.uses_runtime() {
+        runtime::bootstrap(&mut lower)?
+    } else {
+        lower.expression(&program.body)?
+    };
     let types = program
         .parameters
         .iter()

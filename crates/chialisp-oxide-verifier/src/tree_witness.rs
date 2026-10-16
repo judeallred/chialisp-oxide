@@ -132,6 +132,8 @@ impl TreeValue {
 
 /// Execute the complete raw environment, without wrapping it as typed arguments.
 /// Replay limits affect witness execution only, not the symbolic tree domain.
+/// Runtime IR may execute here, but the structural proof model rejects it;
+/// finite VM replay does not establish recursive correctness or termination.
 pub fn replay_tree(program: &Program, witness: &TreeWitness, max_cost: u64) -> Result<Vec<Replay>> {
     ensure!(max_cost > 0, "tree replay cost limit must be positive");
     program.validate()?;

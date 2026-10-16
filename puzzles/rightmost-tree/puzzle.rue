@@ -1,0 +1,13 @@
+// Independently authored raw-tree recursion, not a canonical Rue module.
+// Pair tails are followed; no list-shape, atom-value or numeric checks are added.
+fn main(...environment: Any) -> Any {
+    rightmost(environment)
+}
+
+fn rightmost(value: Any) -> Any {
+    if value is (Any, Any) {
+        rightmost(value.rest)
+    } else {
+        value
+    }
+}

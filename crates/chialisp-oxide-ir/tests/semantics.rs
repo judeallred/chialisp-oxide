@@ -18,6 +18,7 @@ fn number(n: i64) -> Expr {
 }
 fn program(body: Expr, ty: Type, params: Vec<Type>) -> Program {
     Program {
+        functions: vec![],
         environment: chialisp_oxide_ir::Environment::Strict,
         name: "test".into(),
         parameters: params

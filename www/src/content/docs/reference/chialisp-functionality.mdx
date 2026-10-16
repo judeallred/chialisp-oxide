@@ -46,7 +46,7 @@ capabilities of every native Rust crate.
 
 | Feature | Native Rust route | Current compiler | Needed for broader support |
 | --- | --- | --- | --- |
-| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` enum construction/matching and checked projections | Recursive processing, broader operations and preservation proofs |
+| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` construction/matching, checked projections and direct recursive traversal | Output ownership, broader operations and preservation proofs |
 | Environment paths and argument patterns | Explicit projections | Typed lists by default; ignored nullary or explicit raw whole-tree exports | Broader patterns and explicit typed adapters |
 | Quote and dynamic apply | Data trees and an interpreter | Literals and `quote(&Tree)` supported; no source-level general apply | Program/environment types, strictness, dialect and cost rules |
 | Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Canonical fixed-width integers only | Explicit unbounded numeric semantics and resource policy |
@@ -60,7 +60,7 @@ capabilities of every native Rust crate.
 | Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
 | Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
-| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Reachable recursion/loops/allocation/closures rejected | Runtime calls or justified loop lowering, environments and resource bounds |
+| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; loops/allocation/closures rejected | Exact published list helpers, output ownership and termination/resource/preservation proofs |
 | Currying and nested/standard puzzles | Explicit program trees | No general curry/delegated-program API | Canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
 | Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
@@ -169,10 +169,17 @@ Rust's typed IR guard pass retains checked projections, then Rue LIR completes
 the enabled pipeline. This identity is measured for one factory; it does not
 establish general canonical or curried-instance compatibility. Its structural
 IR-model proof is separate from compiler preservation. Broader compatibility still
-needs unbounded integers, recursion, dynamic program execution and
+needs unbounded integers, broader list ownership, dynamic program execution and
 primitive-by-primitive validation. No unsafe opaque extern intrinsic should bypass those obligations.
 Conservative constant folding/sharing is another useful compiler task, provided
 failure, overflow and branch behavior remain covered.
+
+The [recursive-tree walkthrough](/chialisp-oxide/tutorials/recursive-trees/)
+compares an actual Cargo Rust recursive export with independently compiled
+Chialisp and Rue. Runtime function tables are finite and compiler-owned;
+strict bindings preserve argument order and unused computations. This is finite
+execution evidence. The current scalar/structural models reject runtime IR,
+and no general termination or compiler-preservation proof is claimed.
 
 The longer repository document
 [chialisp-functionality.md](https://github.com/judeallred/chialisp-oxide/blob/main/docs/chialisp-functionality.md)

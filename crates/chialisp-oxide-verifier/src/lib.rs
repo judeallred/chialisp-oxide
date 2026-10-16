@@ -2,6 +2,8 @@
 //!
 //! The domain is well-typed scalar/tuple inputs, after successful ABI decoding.
 //! Byte values and byte projections are rejected, including in unreachable code.
+//! Runtime calls, function tables and local bindings are outside both models;
+//! the execution-only replay APIs do not extend these proof semantics.
 //! Rejection and checked arithmetic are modeled explicitly; `If` is lazy while
 //! tuples, binary operands, projections, and `Sequence` evaluate strictly.
 
@@ -298,6 +300,9 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
+                bail!("scalar SMT does not model runtime functions or local bindings")
+            }
             Expr::Unit => ("true".into(), Some(Value::Unit)),
             Expr::Bool { value } => ("true".into(), Some(Value::Bool(value.to_string()))),
             Expr::Int { value, .. } => ("true".into(), Some(Value::Int(numeral(value)?))),
@@ -517,10 +522,21 @@ fn default_value(ty: &Type) -> Result<Value> {
     })
 }
 
+/// Expression-model preflight must examine the whole Program, not just the
+/// reachable entry expression: an unused table or dead branch is still v4 IR.
+fn require_expression_model(program: &Program, model: &str) -> Result<()> {
+    ensure!(
+        !program.uses_runtime(),
+        "{model} does not model runtime functions or local bindings"
+    );
+    Ok(())
+}
+
 /// Generate standalone SMT-LIB2 queries from the same typed IR as the backend.
 /// No puzzle logic is copied into a separate handwritten SMT model.
 pub fn emit(program: &Program, specification: &Specification) -> Result<Queries> {
     program.validate().context("invalid IR")?;
+    require_expression_model(program, "scalar SMT")?;
     let mut tr = Translation::default();
     for (index, parameter) in program.parameters.iter().enumerate() {
         let argument = tr.input(&parameter.ty, &format!("arg_{index}"))?;

@@ -1,0 +1,11 @@
+; Independently authored raw-tree function, not a direct coin-spend puzzle.
+; ENV is the entire environment, including atoms and arbitrary improper tails.
+(mod ENV
+  (defun rightmost (value)
+    (if (l value)
+      (rightmost (r value))
+      value
+    )
+  )
+  (rightmost ENV)
+)

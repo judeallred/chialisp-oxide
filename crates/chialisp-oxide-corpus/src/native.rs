@@ -104,6 +104,26 @@ impl Encode for Tree<'_> {
         super::native_tree::encode(a, self)
     }
 }
+impl Encode for &Tree<'_> {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        super::native_tree::encode(a, self)
+    }
+}
+
+// A host testing bound, never an added policy assertion or rejection outcome.
+fn rightmost_native_depth(mut tree: &Tree<'_>) -> Result<()> {
+    let mut depth = 0;
+    while let Tree::Pair(_, rest) = tree {
+        depth += 1;
+        ensure!(
+            depth <= 128,
+            "rightmost native oracle right-tail depth exceeds 128"
+        );
+        tree = rest;
+    }
+    Ok(())
+}
+
 fn args(a: &Allocator, mut n: NodePtr) -> Result<Vec<NodePtr>> {
     let mut out = vec![];
     loop {
@@ -177,6 +197,16 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if slug == "rightmost-tree" {
+        let arena = bumpalo::Bump::new();
+        let tree = super::native_tree::decode(&arena, &a, env)?;
+        // Keep resource-bound errors outside the policy panic/Result adapter.
+        // They must propagate to the caller, not become Outcome::Rejected.
+        rightmost_native_depth(tree)?;
+        return Ok(Some(output(
+            chialisp_oxide_puzzles::rightmost_tree::puzzle(tree),
+        )?));
+    }
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> Result<Vec<u8>> {
         // These annotated nullary exports explicitly ignore every assembled tree.
         // Keep the default exact argument decoder for all other policies.
@@ -236,4 +266,46 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
         }
     }));
     Ok(result.ok().and_then(Result::ok))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::execute;
+
+    #[test]
+    fn actual_rightmost_rust_preserves_atom_bytes_and_returns_proper_list_nil() {
+        for (input, expected) in [
+            ("()", "80"),
+            ("0x00", "00"),
+            ("0x0001", "820001"),
+            ("(1 2 3)", "80"),
+            ("(1 . 0x0001)", "820001"),
+            ("((8) . 0xffff)", "82ffff"),
+        ] {
+            assert_eq!(
+                hex::encode(execute("rightmost-tree", input).unwrap().unwrap()),
+                expected,
+                "{input}"
+            );
+        }
+    }
+
+    #[test]
+    fn native_recursion_limit_is_host_error_and_never_policy_rejection() {
+        let mut tree = "0x0001".to_string();
+        for _ in 0..128 {
+            tree = format!("(0x00 . {tree})");
+        }
+        assert_eq!(
+            hex::encode(execute("rightmost-tree", &tree).unwrap().unwrap()),
+            "820001"
+        );
+        tree = format!("(0x00 . {tree})");
+        let error = execute("rightmost-tree", &tree).unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains("native oracle right-tail depth exceeds 128")
+        );
+    }
 }

@@ -256,6 +256,7 @@ fn execute(program: &[u8], environment: &Tree) -> Option<Vec<u8>> {
 }
 fn program(body: Expr, arguments: usize, raw: bool) -> Program {
     Program {
+        functions: vec![],
         name: "independent-tree-optimization-study".into(),
         environment: if raw {
             Environment::Raw

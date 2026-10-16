@@ -35,6 +35,7 @@ fn attempt(
     timeout: Duration,
 ) -> anyhow::Result<chialisp_oxide_verifier::Verification> {
     let program = Program {
+        functions: vec![],
         environment: chialisp_oxide_ir::Environment::Strict,
         name: "identity".into(),
         parameters: vec![Parameter {

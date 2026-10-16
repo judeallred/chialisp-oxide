@@ -242,7 +242,7 @@ mapping, cost bounds, or Rue lowering.
 [Pinned Charon overview](https://github.com/AeneasVerif/charon/blob/ca34f9191e19f1edea2efd0c364d9344436a81d5/README.md),
 [Pinned extraction options](https://github.com/AeneasVerif/charon/blob/ca34f9191e19f1edea2efd0c364d9344436a81d5/charon/src/options.rs).
 
-For our current acyclic, first-order subset, the direct adapter already translates
+For our current first-order subset, the direct adapter already translates
 the needed control flow and enforces strict failures. Adopting Charon now adds
 another AST-to-oxide adapter and a new transformation boundary before it removes
 many implemented obligations. Broader Charon feature coverage must not be

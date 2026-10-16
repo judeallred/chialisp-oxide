@@ -11,6 +11,11 @@ use anyhow::Result;
 /// The source program is unchanged; the returned program is validated again.
 pub fn optimize(program: &Program) -> Result<Program> {
     program.validate()?;
+    // Successful-evaluation pair facts do not establish that a projection is
+    // reached before a call diverges. Preserve all guards in runtime programs.
+    if program.uses_runtime() {
+        return Ok(program.clone());
+    }
     let tree_arguments =
         program
             .parameters
@@ -168,6 +173,9 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
         | Expr::Int { .. }
         | Expr::Bool { .. }
         | Expr::Arg { .. }
+        | Expr::Call { .. }
+        | Expr::Let { .. }
+        | Expr::Local { .. }
         | Expr::Unit
         | Expr::Reject { .. }) => (expr, 0),
     }

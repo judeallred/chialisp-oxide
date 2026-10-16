@@ -157,6 +157,8 @@ fn allocate(allocator: &mut Allocator, value: &WitnessValue, ty: &Type) -> Resul
 }
 
 /// Replay canonical typed witnesses with optimized and unoptimized code.
+/// This executes valid IR, including runtime calls/bindings, without extending
+/// the expression models or claiming termination/compiler preservation.
 /// Resource/infrastructure failures cannot masquerade as program rejection.
 pub fn replay(program: &Program, witness: &Witness, max_cost: u64) -> Result<Vec<Replay>> {
     ensure!(max_cost > 0, "CLVM replay cost limit must be positive");

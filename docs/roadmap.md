@@ -14,10 +14,10 @@
   wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
-- Nine original teaching examples, three exact canonical Intro expressions, and
+- Ten original teaching examples, three exact canonical Intro expressions, and
   the canonical `p2_conditions` program factory, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 109 explicit and 5,890 generated integer/tree vectors. Canonical closed
+  oracles, 122 explicit and 7,960 generated integer/tree vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
 - Thirty-one complete-spend scenario groups run separately for Rust, Chialisp, and Rue
   (93 ledger scenario runs) through chia-wallet-sdk's simulator, plus
@@ -25,6 +25,10 @@
 - Borrowed raw atom/pair trees preserve byte contents and improper tails.
   Optimized Rust reproduces the published factory module's bytes and hash;
   its actual IR rewrite has a separate structural-model equivalence check.
+- Checked Rust self/mutual and non-tail recursive calls lower once per function
+  into version-4 typed tables and strict lexical bindings. Ordered failure and
+  divergence controls, fresh callee scopes and pre-lowering resource bounds are
+  tested; existing proof models explicitly reject runtime IR.
 - Typed VM failures distinguish program rejection from resource/infrastructure
   failures. Ledger negatives require exact consensus codes; genuine incomplete
   and wrong signatures reach transaction validation instead of signer preflight.
@@ -49,11 +53,12 @@
 
 ## Next compiler and puzzle work
 
-1. Add explicit call/binding IR and runtime function tables, preserving once-only
-   evaluation, argument order, strict failures and branch laziness. Extend the
-   backend call experiment into real Rust extraction before claiming recursion
-   support. Revisit finite-expression optimization facts before admitting
-   divergence; see [the runtime-call design](runtime-calls.md).
+1. Extend the implemented runtime-call IR and checked Rust recursion to exact
+   published list helpers. The `last_inner` follow-up needs narrow empty-atom
+   matching and an explicit empty/improper-list contract. Accumulating reverse
+   or append needs a genuine ownership design. Preserve strict binding/order,
+   pre-lowering resource bounds and current model/optimizer exclusions; see
+   [runtime calls](runtime-calls.md).
 2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
    hashing/currying intrinsics, and carefully scoped library support.

@@ -56,6 +56,17 @@ pub struct Program {
     pub result: Type,
     pub body: Expr,
     pub environment: Environment,
+    /// A closed, compiler-owned function table; IDs equal their table indices.
+    pub functions: Vec<Function>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Function {
+    pub id: usize,
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub result: Type,
+    pub body: Expr,
 }
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -80,6 +91,19 @@ pub enum BinaryOp {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    Call {
+        function_id: usize,
+        arguments: Vec<Expr>,
+    },
+    Let {
+        local_id: usize,
+        ty: Type,
+        value: Box<Expr>,
+        body: Box<Expr>,
+    },
+    Local {
+        local_id: usize,
+    },
     Atom {
         hex: String,
     },

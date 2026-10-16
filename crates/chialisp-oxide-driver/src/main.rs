@@ -164,18 +164,30 @@ impl Driver {
                 tcx.sess.source_map().span_to_diagnostic_string(body.span)
             ));
         }
-        let program = Program {
-            name,
-            environment,
-            result: lowerer.ty(body.return_ty(), body.span)?,
-            body: lowerer.function(
+        let functions = lowerer.runtime_functions(id)?;
+        let lowered_body = if functions.is_empty() {
+            lowerer.function(
                 id,
                 (0..parameters.len())
                     .map(|index| Expr::Arg { index })
                     .collect(),
                 &mut Vec::new(),
-            )?,
+            )?
+        } else {
+            Expr::Call {
+                function_id: 0,
+                arguments: (0..parameters.len())
+                    .map(|index| Expr::Arg { index })
+                    .collect(),
+            }
+        };
+        let program = Program {
+            name,
+            environment,
+            result: lowerer.ty(body.return_ty(), body.span)?,
+            body: lowered_body,
             parameters,
+            functions,
         };
         program.validate().map_err(|error| {
             format!(

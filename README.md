@@ -86,13 +86,14 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Thirteen Chialisp/Rust/Rue source comparisons: nine original teaching fixtures covering
-payments, timelocks, signatures, recovery, a boolean gate, and a bounded counter;
+Fourteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
+payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
+and recursive raw-tree traversal;
 plus three canonical closed expressions from the pinned Chialisp Intro and the
 exact canonical `p2_conditions` program factory. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-109 explicit vectors and 5,890 generated integer/tree cases against five CLVM
+122 explicit vectors and 7,960 generated integer/tree cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty-one
 complete-spend scenarios run separately in all three languages (93 ledger scenario runs). Only the eight condition-producing
 teaching fixtures have ledger scenarios; pure language results and program
@@ -144,13 +145,17 @@ bundles; a signer preflight error cannot count as ledger rejection.
 [The functionality map](docs/chialisp-functionality.md) distinguishes Rust’s
 ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
-Borrowed raw-tree construction/matching and explicit whole-environment exports
-are implemented; recursive tree processing, arbitrary-precision integers, hashing and crypto,
+Borrowed raw-tree construction/matching, recursive direct calls, and explicit whole-environment exports
+are implemented; arbitrary-precision integers, hashing and crypto,
 currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
-The [runtime-call experiment](docs/runtime-calls.md) validates finite CLVM
-self/mutual call tables and VM cost limits. It is a backend experiment;
-recursive Rust calls remain unsupported pending explicit call and binding IR.
+The [runtime-call implementation](docs/runtime-calls.md) lowers checked Rust
+self/mutual and non-tail recursion through finite compiler-owned function tables
+and strict lexical bindings in version-4 IR. Tests distinguish rejection from
+divergence and check argument order, unused calls, scopes and resource limits.
+The paired [rightmost-tree lesson](https://judeallred.github.io/chialisp-oxide/tutorials/recursive-trees/)
+compares native Rust with independent Chialisp and Rue. These are finite execution
+checks; the model checkers deliberately reject runtime IR.
 
 [The published-source catalog](corpus/published-puzzles.json) enumerates pinned
 repository trees and records its exact discovery scope. It includes Chialisp,
@@ -187,7 +192,7 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 The compiler supports restricted single-field transparent newtypes, allowing
 nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
-and enums outside the restricted borrowed `Tree` shape, loops, recursive calls,
+and enums outside the restricted borrowed `Tree` shape, loops,
 allocation, arbitrary external calls, general references, casts,
 division/remainder, and other unsupported MIR remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all

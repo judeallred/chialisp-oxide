@@ -154,6 +154,7 @@ mod tests {
             this.write(
                 "run/one.ir.json",
                 &serde_json::to_value(Program {
+                    functions: vec![],
                     environment: chialisp_oxide_ir::Environment::Strict,
                     name: "puzzles::one::puzzle".into(),
                     parameters: vec![Parameter {

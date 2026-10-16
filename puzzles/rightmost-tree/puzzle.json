@@ -1,0 +1,80 @@
+{
+  "slug": "rightmost-tree",
+  "title": "Rightmost atom of a raw tree",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Original recursion teaching function, not a coin puzzle, authorization policy, last-list-element helper or published canonical port. Every finite atom/pair tree has an intended result: follow pair tails until an atom and preserve all its bytes. A proper list returns nil. Finite native/VM comparisons do not establish general termination, compiler preservation or equal resource behavior; native comparisons are limited to a right-tail depth of 128.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs"
+  ],
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://doc.rust-lang.org/reference/expressions/match-expr.html",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md",
+      "https://github.com/xch-dev/rue/blob/245c107a8e795229ea08097142f005a4c0d91075/examples/factorial.rue",
+      "https://github.com/xch-dev/rue/blob/245c107a8e795229ea08097142f005a4c0d91075/tests/guards/pairs.rue"
+    ],
+    "limitations": [
+      "The three sources were authored for this example; none is claimed as a migrated published puzzle or tutorial example.",
+      "The environment is the whole raw CLVM tree, not a one-argument list; atom bytes are not interpreted as integers or truth values.",
+      "The host oracle caps right-tail recursion at depth 128 and reports an error beyond that bound; the compiled policy adds no depth guard.",
+      "Named and generated cases connect native execution to independently compiled Chialisp, Rust off/on and Rue off/on only for those executions."
+    ]
+  },
+  "cases": [
+    {
+      "label": "nil atom unchanged",
+      "solution": "()"
+    },
+    {
+      "label": "nonempty zero atom unchanged",
+      "solution": "0x00"
+    },
+    {
+      "label": "padded zero atom unchanged",
+      "solution": "0x0000"
+    },
+    {
+      "label": "padded one atom unchanged",
+      "solution": "0x0001"
+    },
+    {
+      "label": "negative atom bytes unchanged",
+      "solution": "-1"
+    },
+    {
+      "label": "atom above u64 unchanged",
+      "solution": "18446744073709551616"
+    },
+    {
+      "label": "proper list ends at nil, not last item",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "improper pair preserves padded tail",
+      "solution": "(1 . 0x0001)"
+    },
+    {
+      "label": "nested left branch is ignored",
+      "solution": "((1 . 2) . 3)"
+    },
+    {
+      "label": "nested branches preserve rightmost negative padding",
+      "solution": "((0x0001 . 0x00) . (4 . 0xffff))"
+    },
+    {
+      "label": "improper right spine ends at padded zero",
+      "solution": "(1 . (2 . (3 . 0x0000)))"
+    },
+    {
+      "label": "program-shaped side branch is data",
+      "solution": "((8) . 0x0001)"
+    },
+    {
+      "label": "wide final atom preserves leading zeros",
+      "solution": "(1 . 0x0000000000000000000000000000000000000000000000000000000000000001)"
+    }
+  ]
+}

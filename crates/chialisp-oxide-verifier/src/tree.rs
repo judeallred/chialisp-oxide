@@ -4,7 +4,10 @@ use chialisp_oxide_ir::{BinaryOp, Environment, Expr, Program, Type};
 use serde::{Deserialize, Serialize};
 
 use crate::tree_witness::decode_hex;
-use crate::{SExpression, SolverConfig, TreeValue, TreeWitness, parse_values, run, status};
+use crate::{
+    SExpression, SolverConfig, TreeValue, TreeWitness, parse_values, require_expression_model, run,
+    status,
+};
 
 const SEQUENCE: &str = "(Seq (_ BitVec 8))";
 
@@ -158,6 +161,9 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
+                bail!("structural SMT does not model runtime functions or local bindings")
+            }
             Expr::Arg { index: 0 } => ("true".into(), Some(Value::Tree("env".into()))),
             Expr::Atom { hex } | Expr::Bytes { hex } => {
                 ("true".into(), Some(Value::Atom(sequence(hex)?)))
@@ -326,6 +332,7 @@ impl Translation {
 /// checked Rust extraction, optimizer, serialization or ABI code is preserved.
 pub fn emit_tree(program: &Program, specification: &TreeSpecification) -> Result<TreeQueries> {
     program.validate().context("invalid structural IR")?;
+    require_expression_model(program, "structural SMT")?;
     ensure!(
         program.environment == Environment::Raw
             && program.parameters.len() == 1
@@ -379,6 +386,7 @@ pub fn emit_tree_equivalence(before: &Program, after: &Program) -> Result<TreeQu
         program
             .validate()
             .context("invalid structural equivalence IR")?;
+        require_expression_model(program, "structural SMT equivalence")?;
         ensure!(
             program.environment == Environment::Raw
                 && program.parameters.len() == 1

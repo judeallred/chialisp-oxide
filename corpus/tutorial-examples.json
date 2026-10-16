@@ -195,7 +195,7 @@
         "manifest": "puzzles/intro-list/puzzle.json",
         "manifest_sha256": "c59e21c8eeff1b08ee017b2b39fcb246eece44529305e3c3a8e3c934e16a9a32",
         "report": "corpus/validation.json",
-        "report_sha256": "c66fdce7c37620ac116cab4d95efa90750e4b55b83ae0f2d8ad77d7093f895d6",
+        "report_sha256": "b38a3fb1c16eb09379e7b47d008848a7f5ac0df23d2e0ca924fb7dde5148bf32",
         "slug": "intro-list"
       },
       "validation_contract": {
@@ -264,7 +264,7 @@
         "manifest": "puzzles/intro-add/puzzle.json",
         "manifest_sha256": "4251fbf582ab86e70887ca872fee9a006958431beb58fa8981d1988666662164",
         "report": "corpus/validation.json",
-        "report_sha256": "c66fdce7c37620ac116cab4d95efa90750e4b55b83ae0f2d8ad77d7093f895d6",
+        "report_sha256": "b38a3fb1c16eb09379e7b47d008848a7f5ac0df23d2e0ca924fb7dde5148bf32",
         "slug": "intro-add"
       },
       "validation_contract": {
@@ -333,7 +333,7 @@
         "manifest": "puzzles/intro-conditional/puzzle.json",
         "manifest_sha256": "4eda90304bceb9ede7ee525cc37ba9fbbff04fb6ebdcdcf7d435ef74a9aa8741",
         "report": "corpus/validation.json",
-        "report_sha256": "c66fdce7c37620ac116cab4d95efa90750e4b55b83ae0f2d8ad77d7093f895d6",
+        "report_sha256": "b38a3fb1c16eb09379e7b47d008848a7f5ac0df23d2e0ca924fb7dde5148bf32",
         "slug": "intro-conditional"
       },
       "validation_contract": {
@@ -425,11 +425,11 @@
         "representation": "chialisp_source",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L58-L73"
       },
-      "feasibility": "Requires recursion support, integer semantics and explicit execution-cost bounds.",
+      "feasibility": "Direct recursive calls are supported. An exact factorial port still needs the original unbounded integer/ABI semantics and explicit execution-cost bounds.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
         "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately.",
-        "Runtime recursion is unsupported by the current compiler; negative inputs and growth/cost must not be silently narrowed."
+        "Canonical unbounded factorial has not been ported. A fixed-width Rust version would be a bounded adapter; preserve the original negative-input and growth/cost contract."
       ],
       "notes": [
         "The source code returns 1 when number <= 1; the surrounding prose/comments describe different base-case thresholds. Preserve the pinned code and investigate that discrepancy rather than silently repairing the lesson."
@@ -624,7 +624,7 @@
       "feasibility": "Requires runtime inner-puzzle apply, recursive condition traversal and dynamic list/tree semantics.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
-        "Dynamic condition parsing, recursion and runtime apply are unsupported by the current compiler.",
+        "Dynamic condition parsing, accumulating output ownership and runtime apply remain unsupported. Direct recursive calls alone do not implement this published example.",
         "The source rewrites CREATE_COIN as exactly three fields, discarding optional fields such as memos; atom/improper-list tails need observations.",
         "Doubling output requests does not itself establish aggregate funding, conservation or ledger validity."
       ],

@@ -9,6 +9,33 @@ direct ledger admission claims. See `corpus/validation.json`, `corpus/proofs.jso
 and `corpus/tree-proofs.json` for the actual counts, inputs and scope. The early
 backend-only experiment below remains a separate baseline.
 
+## Runtime calls and divergence
+
+Version-4 IR adds compiler-owned function tables and strict typed lexical
+bindings. Real Cargo Rust tests cover self/mutual and non-tail calls, argument
+order, unused results, caller/callee scopes, borrow checking and unsupported
+MIR rejection. The `rightmost-tree` corpus example compares the actual Rust
+function with independent Chialisp and Rue on bounded native inputs. Its
+right-tail depth cap is a host-oracle error beyond 128, not policy rejection;
+the compiled function adds no depth guard. Separate VM tests reach depth 2,048.
+
+Ordering controls require `raise` when rejection precedes a nonterminating
+call, and `cost_exceeded` when nontermination comes first. Nontermination runs
+only in the VM. A measured-cost control distinguishes one bound recursive
+result read twice from two deliberate recursive evaluations. These are finite
+execution witnesses, not universal termination, resource-equivalence or
+compiler-preservation proofs.
+
+Both current model translators reject every runtime program, including unused
+function tables and runtime nodes in dead branches. They cannot map divergence
+into their value/rejection domain. Execution-only replay is still possible but
+aborts on resource or infrastructure errors. The typed-IR pair-guard pass also
+preserves runtime programs unchanged: a later projection cannot justify moving
+an earlier rejection past a potentially diverging call. Before recursive
+operand lowering, active-binding and work budgets prevent shallow wide IR from
+causing unbounded continuation stacks or cloned type storage. See
+[runtime calls](runtime-calls.md) for implementation and durable test paths.
+
 ## VM failures are typed evidence
 
 The shared `chialisp-oxide-vm` crate classifies each `clvmr 0.21.0` error using

@@ -89,7 +89,6 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
         ("unsafe_fn.rs", "declaration of an `unsafe` function"),
         ("floating.rs", "unsupported Rust type"),
         ("division.rs", "unsupported integer operation"),
-        ("recursion.rs", "recursion"),
         (
             "ignored_parameter.rs",
             "requires a function with no parameters",

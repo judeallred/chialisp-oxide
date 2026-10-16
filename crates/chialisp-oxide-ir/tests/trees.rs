@@ -24,6 +24,7 @@ fn reject() -> Box<Expr> {
 }
 fn program(body: Expr, result: Type) -> Program {
     Program {
+        functions: vec![],
         environment: Environment::Raw,
         name: "tree".into(),
         parameters: vec![Parameter {

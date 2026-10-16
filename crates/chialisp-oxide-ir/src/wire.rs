@@ -1,5 +1,5 @@
-//! Preserve the strict v1 wire format; opt-in ABI changes need a versioned envelope.
-use crate::{Environment, Expr, Parameter, Program, Type};
+//! Preserve legacy entry formats; runtime constructs require an explicit v4 envelope.
+use crate::{Environment, Expr, Function, Parameter, Program, Type};
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as _, ser::Error as _};
 
 #[derive(Serialize)]
@@ -30,15 +30,60 @@ struct Envelope {
     environment: Environment,
     program: Fields,
 }
+#[derive(Serialize)]
+struct RuntimeFieldsRef<'a> {
+    name: &'a str,
+    parameters: &'a [Parameter],
+    result: &'a Type,
+    body: &'a Expr,
+    functions: &'a [Function],
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RuntimeFields {
+    name: String,
+    parameters: Vec<Parameter>,
+    result: Type,
+    body: Expr,
+    functions: Vec<Function>,
+}
+#[derive(Serialize)]
+struct RuntimeEnvelopeRef<'a> {
+    ir_version: u32,
+    environment: Environment,
+    program: RuntimeFieldsRef<'a>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct RuntimeEnvelope {
+    ir_version: u32,
+    environment: Environment,
+    program: RuntimeFields,
+}
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Wire {
+    Runtime(RuntimeEnvelope),
     Versioned(Envelope),
     Strict(Fields),
 }
 impl Serialize for Program {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.validate_environment().map_err(S::Error::custom)?;
+        if self.uses_runtime() {
+            return RuntimeEnvelopeRef {
+                ir_version: 4,
+                environment: self.environment,
+                program: RuntimeFieldsRef {
+                    name: &self.name,
+                    parameters: &self.parameters,
+                    result: &self.result,
+                    body: &self.body,
+                    functions: &self.functions,
+                },
+            }
+            .serialize(serializer);
+        }
         let fields = FieldsRef {
             name: &self.name,
             parameters: &self.parameters,
@@ -62,8 +107,35 @@ impl Serialize for Program {
 }
 impl<'de> Deserialize<'de> for Program {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let (fields, environment) = match Wire::deserialize(deserializer)? {
-            Wire::Strict(fields) => (fields, Environment::Strict),
+        let (program, runtime) = match Wire::deserialize(deserializer)? {
+            Wire::Runtime(envelope) => {
+                if envelope.ir_version != 4 {
+                    return Err(D::Error::custom("function metadata requires IR version 4"));
+                }
+                let fields = envelope.program;
+                (
+                    Self {
+                        name: fields.name,
+                        parameters: fields.parameters,
+                        result: fields.result,
+                        body: fields.body,
+                        environment: envelope.environment,
+                        functions: fields.functions,
+                    },
+                    true,
+                )
+            }
+            Wire::Strict(fields) => (
+                Self {
+                    name: fields.name,
+                    parameters: fields.parameters,
+                    result: fields.result,
+                    body: fields.body,
+                    environment: Environment::Strict,
+                    functions: vec![],
+                },
+                false,
+            ),
             Wire::Versioned(envelope) => {
                 if !matches!(
                     (envelope.ir_version, envelope.environment),
@@ -73,16 +145,28 @@ impl<'de> Deserialize<'de> for Program {
                         "unsupported IR version or environment policy",
                     ));
                 }
-                (envelope.program, envelope.environment)
+                let fields = envelope.program;
+                (
+                    Self {
+                        name: fields.name,
+                        parameters: fields.parameters,
+                        result: fields.result,
+                        body: fields.body,
+                        environment: envelope.environment,
+                        functions: vec![],
+                    },
+                    false,
+                )
             }
         };
-        let program = Self {
-            name: fields.name,
-            parameters: fields.parameters,
-            result: fields.result,
-            body: fields.body,
-            environment,
-        };
+        if !runtime && program.uses_runtime() {
+            return Err(D::Error::custom("runtime expressions require IR version 4"));
+        }
+        if runtime && !program.uses_runtime() {
+            return Err(D::Error::custom(
+                "IR version 4 requires runtime expressions or a nonempty function table",
+            ));
+        }
         program.validate_environment().map_err(D::Error::custom)?;
         Ok(program)
     }

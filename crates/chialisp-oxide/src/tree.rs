@@ -2,8 +2,9 @@
 //!
 //! A tree carries its original atom bytes. Numeric padding, improper pairs and
 //! arbitrary tails are data; this type does not interpret or normalize them.
-//! The compiler supports this restricted borrowed shape, not general enums,
-//! references, allocation, or recursive Rust calls.
+//! The compiler supports direct recursive traversal of this restricted shape.
+//! General enums, mutable references, allocating output trees, and general
+//! runtime program evaluation remain outside the supported subset.
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Tree<'a> {

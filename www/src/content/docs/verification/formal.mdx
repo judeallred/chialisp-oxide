@@ -84,8 +84,12 @@ python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
 The [structural report](/chialisp-oxide/reports/tree-proofs.json) includes its
 source-derived IR, independent specification, SMT queries, and replay evidence.
 This is an IR-model proof, not a theorem about all compiled Rust. Recursive
-data in the model does not establish support for recursive Rust functions,
-runtime allocation or general program evaluation. The scalar verifier rejects
+data in this model is separate from the frontend's
+[recursive Rust call support](/chialisp-oxide/tutorials/recursive-trees/).
+Both current models reject all version-4 runtime programs, including unused
+functions and runtime nodes in dead branches. Finite VM replay does not prove
+termination; resource failures abort replay rather than count as rejection.
+Runtime allocation and general program evaluation remain unsupported. The scalar verifier rejects
 tree expressions, including expressions in unchosen branches, instead of
 silently interpreting them under integer semantics.
 

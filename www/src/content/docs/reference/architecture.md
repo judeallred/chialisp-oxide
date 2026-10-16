@@ -11,7 +11,7 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → Cargo dependencies, features, build scripts, generated code
   → rustc nightly-2026-07-14 analysis + borrow checking
   → typed MIR, supported-feature validation
-  → chialisp-oxide-ir: pure expressions + explicit logical types
+  → chialisp-oxide-ir: typed expressions + optional closed function table
   → optional typed IR tree-guard pass
   → Rue LIR
   → optional Rue LIR optimizer
@@ -45,7 +45,8 @@ These crates remain unpublished; use checkout path dependencies or a reviewed
 pinned Git revision.
 
 The IR represents arguments, tuples, fixed bytes, fixed-width integers,
-branches, raw atom/pair operations, explicit rejection, and sequencing. Its validator infers
+branches, raw atom/pair operations, explicit rejection, sequencing, and typed
+function calls/lexical bindings. Its validator infers
 expression types and rejects mismatches or unsupported operations before code
 generation. Serialization is a boundary contract, not a reason to trust a
 handwritten IR document.
@@ -58,9 +59,11 @@ is not executed during solution decoding.
 
 Entry metadata can explicitly mark a parameterless export's environment as
 ignored. The IR/backend then omit argument decoding for that export, preserving
-the behavior of canonical closed Chialisp expressions. The separate version-3
-raw ABI passes the whole environment to one structurally checked borrowed-tree
-parameter. Default exports retain the exact typed argument-list ABI.
+the behavior of canonical closed Chialisp expressions. The raw ABI passes the whole
+environment to one structurally checked borrowed-tree parameter. Runtime-free
+ignored/raw entries use version-2/version-3 wire envelopes; runtime constructs
+use version 4 with the same input policy. Default exports retain the exact typed
+argument-list ABI.
 
 The corpus is the real `chialisp-oxide-puzzles` Cargo library, with annotated modules
 registered in `puzzles/lib.rs` and a dependency on `chialisp-oxide`. Validation
@@ -106,6 +109,34 @@ complete transitive dependency graph. CI also
 recompiles the corpus and compares the committed report before Pages deploys
 the successful commit.
 
+## Closed runtime functions
+
+The driver discovers supported calls by actual Rust function identities. Acyclic
+source graphs retain expression inlining. If a reachable graph contains a cycle,
+each function is emitted once into a dense table and the exported body calls
+entry zero. Version-4 IR adds `Function`, `Call`, typed `Let`, and `Local` while
+retaining strict, ignored-nullary, or raw-tree input validation. There is no new
+recursion annotation or public environment mode.
+
+A runtime frame contains a compiler-built table and value slots. Calls select
+quoted code only from that table and start fresh argument slots; arguments and
+locals cannot supply a callee. Quoted continuations implement strict once-only,
+left-to-right operand evaluation and rebase lexical paths when binding values.
+This avoids cyclic compiler-arena references, compile-time recursive unrolling,
+and repeated execution of substituted call results. Self, mutual, and non-tail
+calls are exercised by actual Rust extraction and direct IR regressions.
+
+All signatures, bodies, lexical scopes and global budgets are checked, including
+unused functions and dead branches. Runtime lowering bounds new frame bindings
+and copied types before scope growth; codegen additionally checks serialized
+expansion. These checks bound compilation, not input-dependent execution.
+Projected writes in runtime functions, CFG loops, allocation, closures, and
+solution-selected application remain unsupported. Constants/promoted MIR stays
+on its bounded acyclic route. Current scalar/tree SMT APIs reject runtime IR;
+finite VM replay does not prove termination or compiler preservation. See
+[the ABI version boundary](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers)
+and [runtime design and tests](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md).
+
 ## Conservative tree-guard optimization
 
 The owned typed IR pass can remove a pair-shape guard with a rejecting alternative
@@ -120,7 +151,10 @@ to Rue LIR and produces the exact published nine-byte module. Unoptimized Rust
 still has a different artifact. The [factory walkthrough](/chialisp-oxide/tutorials/p2-conditions/)
 separates this measured module identity from broader compiler preservation.
 
-Rust optimization on runs this pass and then Rue LIR optimization. Off skips
+The owned guard pass skips every runtime program: successful-output facts
+cannot establish that a checked projection happens before a preceding call
+diverges. Runtime compilation still runs Rue LIR optimization when enabled.
+For runtime-free Rust, optimization on runs both passes. Off skips
 both; `--no-optimize` selects that baseline. Rue source comparisons use only
 their frontend's LIR optimization switch. The report records both pipelines,
 including the legacy `optimize_lir` field name. Execution costs and rejection
