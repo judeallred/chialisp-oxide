@@ -65,11 +65,11 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "335c59a9ac3b6279752451a5c07923143555e8fc50ac6b5a014b40be30c79877"
+        "sha256": "5dcb1081cd6acd6e3dc8a5e0260411bab6178764ada63b65474bdd4c57df8094"
       },
       {
         "path": "Cargo.toml",
-        "sha256": "892ba719d2540966df47bee4c6224e41b48486843544010847f6ddd95f204ee4"
+        "sha256": "32382c764029bd32d1d7341c6c87b1c5fa5a840ad11f20fe73ad12299ac1d2d5"
       },
       {
         "path": "crates/chialisp-oxide-macros/Cargo.toml",
@@ -311,6 +311,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 41), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -322,6 +326,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -333,6 +341,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 23), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -344,6 +356,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -355,6 +371,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -375,6 +395,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -386,6 +410,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -397,6 +425,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -408,6 +440,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -419,6 +455,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -439,6 +479,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 40), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -450,6 +494,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -461,6 +509,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 22), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -472,6 +524,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -483,6 +539,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -515,16 +575,29 @@
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -536,16 +609,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -557,16 +643,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -854,6 +953,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -865,6 +968,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -876,6 +983,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -887,6 +998,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -898,6 +1013,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -918,6 +1037,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -929,6 +1052,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -940,6 +1067,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -951,6 +1082,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -962,6 +1097,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -982,6 +1121,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -993,6 +1136,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1004,6 +1151,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1015,6 +1166,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1026,6 +1181,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1046,6 +1205,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1057,6 +1220,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1068,6 +1235,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1079,6 +1250,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1090,6 +1265,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1110,6 +1289,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1121,6 +1304,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1132,6 +1319,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1143,6 +1334,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1154,6 +1349,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1174,6 +1373,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1185,6 +1388,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1196,6 +1403,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1207,6 +1418,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1218,6 +1433,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1238,6 +1457,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 658), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1249,6 +1472,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1260,6 +1487,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 216), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1271,6 +1502,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1282,6 +1517,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1302,6 +1541,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1313,6 +1556,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1324,6 +1571,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1335,6 +1586,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1346,6 +1601,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1366,6 +1625,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1377,6 +1640,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1388,6 +1655,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1399,6 +1670,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1410,6 +1685,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1442,16 +1721,29 @@
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -1463,16 +1755,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -1484,16 +1789,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -1781,6 +2099,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1792,6 +2114,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1803,6 +2129,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1814,6 +2144,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1825,6 +2159,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1845,6 +2183,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1856,6 +2198,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1867,6 +2213,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1878,6 +2228,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1889,6 +2243,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1909,6 +2267,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1920,6 +2282,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1931,6 +2297,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1942,6 +2312,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1953,6 +2327,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1973,6 +2351,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1984,6 +2366,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -1995,6 +2381,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2006,6 +2396,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2017,6 +2411,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2037,6 +2435,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2048,6 +2450,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2059,6 +2465,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2070,6 +2480,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2081,6 +2495,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2101,6 +2519,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2112,6 +2534,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2123,6 +2549,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2134,6 +2564,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2145,6 +2579,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2165,6 +2603,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 1253), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2176,6 +2618,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2187,6 +2633,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 234), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2198,6 +2648,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2209,6 +2663,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2229,6 +2687,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2240,6 +2702,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2251,6 +2717,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2262,6 +2732,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2273,6 +2747,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2293,6 +2771,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2304,6 +2786,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2315,6 +2801,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2326,6 +2816,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2337,6 +2831,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2369,16 +2867,29 @@
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -2390,16 +2901,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -2411,16 +2935,29 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -2568,6 +3105,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 52), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2579,6 +3120,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2590,6 +3135,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 26), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2601,6 +3150,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2612,6 +3165,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2632,6 +3189,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2643,6 +3204,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2654,6 +3219,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2665,6 +3234,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2676,6 +3249,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2696,6 +3273,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 51), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2707,6 +3288,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2718,6 +3303,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 25), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2729,6 +3318,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2740,6 +3333,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2772,21 +3369,40 @@
         {
           "name": "early spend rejected, time advanced",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertSecondsAbsoluteFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -2798,21 +3414,40 @@
             {
               "name": "early spend rejected, time advanced",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertSecondsAbsoluteFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -2824,21 +3459,40 @@
             {
               "name": "early spend rejected, time advanced",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertSecondsAbsoluteFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -2986,6 +3640,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -2997,6 +3655,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3008,6 +3670,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3019,6 +3685,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3030,6 +3700,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3120,6 +3794,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3131,6 +3809,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3142,6 +3824,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3153,6 +3839,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3164,6 +3854,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3184,6 +3878,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3195,6 +3893,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3206,6 +3908,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 114), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3217,6 +3923,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3228,6 +3938,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3248,6 +3962,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3259,6 +3977,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3270,6 +3992,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3281,6 +4007,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3292,6 +4022,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3312,6 +4046,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3323,6 +4061,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3334,6 +4076,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3345,6 +4091,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3356,6 +4106,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3388,21 +4142,40 @@
         {
           "name": "missing signature rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -3414,21 +4187,40 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -3440,21 +4232,40 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -3607,6 +4418,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3618,6 +4433,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3629,6 +4448,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3640,6 +4463,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3651,6 +4478,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3741,6 +4572,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3752,6 +4587,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3763,6 +4602,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3774,6 +4617,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3785,6 +4632,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3805,6 +4656,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3816,6 +4671,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3827,6 +4686,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 128), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3838,6 +4701,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3849,6 +4716,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3869,6 +4740,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3880,6 +4755,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3891,6 +4770,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3902,6 +4785,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3913,6 +4800,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3933,6 +4824,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3944,6 +4839,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3955,6 +4854,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3966,6 +4869,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -3977,6 +4884,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4009,26 +4920,51 @@
         {
           "name": "missing signature rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "single signer rejected",
           "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -4040,26 +4976,51 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "single signer rejected",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -4071,26 +5032,51 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "single signer rejected",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -4313,6 +5299,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4324,6 +5314,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4335,6 +5329,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4346,6 +5344,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4357,6 +5359,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4377,6 +5383,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4388,6 +5398,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4399,6 +5413,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4410,6 +5428,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4421,6 +5443,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4441,6 +5467,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4452,6 +5482,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4463,6 +5497,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4474,6 +5512,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4485,6 +5527,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4505,6 +5551,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4516,6 +5566,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4527,6 +5581,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 210), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4538,6 +5596,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4549,6 +5611,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4569,6 +5635,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4580,6 +5650,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4591,6 +5665,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4602,6 +5680,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4613,6 +5695,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4633,6 +5719,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4644,6 +5734,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4655,6 +5749,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4666,6 +5764,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4677,6 +5779,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -4709,26 +5815,55 @@
         {
           "name": "missing signature rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "wrong coin amount rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertMyAmountFailed",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
           "name": "recovery requires both delay and recovery key",
           "passed": true,
+          "rejections": [
+            {
+              "code": "AssertSecondsAbsoluteFailed",
+              "stage": "consensus"
+            },
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         }
       ],
@@ -4740,26 +5875,55 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "recovery requires both delay and recovery key",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertSecondsAbsoluteFailed",
+                  "stage": "consensus"
+                },
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -4771,26 +5935,55 @@
             {
               "name": "missing signature rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "wrong coin amount rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertMyAmountFailed",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
               "name": "recovery requires both delay and recovery key",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "AssertSecondsAbsoluteFailed",
+                  "stage": "consensus"
+                },
+                {
+                  "code": "BadAggregateSignature",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             }
           ]
@@ -5013,6 +6206,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5024,6 +6221,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5035,6 +6236,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5046,6 +6251,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5057,6 +6266,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5077,6 +6290,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5088,6 +6305,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5099,6 +6320,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5110,6 +6335,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5121,6 +6350,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5141,6 +6374,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5152,6 +6389,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5163,6 +6404,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5174,6 +6419,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5185,6 +6434,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5205,6 +6458,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5216,6 +6473,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5227,6 +6488,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5238,6 +6503,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5249,6 +6518,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5269,6 +6542,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5280,6 +6557,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5291,6 +6572,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5302,6 +6587,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5313,6 +6602,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5333,6 +6626,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5344,6 +6641,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5355,6 +6656,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5366,6 +6671,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5377,6 +6686,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5397,6 +6710,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5408,6 +6725,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5419,6 +6740,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5430,6 +6755,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5441,6 +6770,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5461,6 +6794,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 1038), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5472,6 +6809,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5483,6 +6824,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 200), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5494,6 +6839,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5505,6 +6854,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5525,6 +6878,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5536,6 +6893,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5547,6 +6908,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5558,6 +6923,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5569,6 +6938,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5589,6 +6962,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5600,6 +6977,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5611,6 +6992,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5622,6 +7007,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5633,6 +7022,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5794,6 +7187,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5805,6 +7202,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5816,6 +7217,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5827,6 +7232,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5838,6 +7247,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5858,6 +7271,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5869,6 +7286,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5880,6 +7301,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5891,6 +7316,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5902,6 +7331,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5922,6 +7355,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5933,6 +7370,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5944,6 +7385,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5955,6 +7400,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5966,6 +7415,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5986,6 +7439,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 147), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -5997,6 +7454,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6008,6 +7469,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Pair, 111), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6019,6 +7484,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6030,6 +7499,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6050,6 +7523,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6061,6 +7538,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6072,6 +7553,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6083,6 +7568,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6094,6 +7583,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6114,6 +7607,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6125,6 +7622,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6136,6 +7637,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6147,6 +7652,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6158,6 +7667,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -6185,21 +7698,40 @@
         "sha256": "f6ccc6fe37077d5fe313e17c91008780ac2401f65cd9f8eea6e83be85bdca046",
         "source": "// Authored Rue comparison of the paired policy, with explicit untrusted ABI checks.\nfn main(...solution: Any) -> List<Condition> {\n    assert solution is (Bool, nil);\n    assert solution.first;\n    [CreateCoin { puzzle_hash: RECIPIENT, amount: COIN_AMOUNT }]\n}\n\nconst COIN_AMOUNT: Int = 1000;\nconst RECIPIENT: Bytes32 = 0x4242424242424242424242424242424242424242424242424242424242424242;\n"
       },
-      "security_scope": "Caller-controlled boolean demonstrates rejection; it is not authentication.",
+      "security_scope": "Caller-controlled boolean demonstrates rejection; it is not authentication. The fixed 1,000-mojo payment has no input-amount assertion: underfunding fails conservation, while surplus input can become an implicit fee.",
       "simulator": [
         {
           "name": "valid spend produces exact recipients and total",
           "passed": true,
+          "rejections": [],
           "scope": "ledger"
         },
         {
           "name": "double spend rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "DoubleSpend",
+              "stage": "consensus"
+            }
+          ],
           "scope": "ledger"
         },
         {
-          "name": "wrong coin amount rejected with rollback",
+          "name": "underfunded coin rejected with rollback",
           "passed": true,
+          "rejections": [
+            {
+              "code": "MintingCoin",
+              "stage": "consensus"
+            }
+          ],
+          "scope": "ledger"
+        },
+        {
+          "name": "surplus input becomes an implicit fee",
+          "passed": true,
+          "rejections": [],
           "scope": "ledger"
         }
       ],
@@ -6211,16 +7743,35 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
-              "name": "wrong coin amount rejected with rollback",
+              "name": "underfunded coin rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "MintingCoin",
+                  "stage": "consensus"
+                }
+              ],
+              "scope": "ledger"
+            },
+            {
+              "name": "surplus input becomes an implicit fee",
+              "passed": true,
+              "rejections": [],
               "scope": "ledger"
             }
           ]
@@ -6232,16 +7783,35 @@
             {
               "name": "valid spend produces exact recipients and total",
               "passed": true,
+              "rejections": [],
               "scope": "ledger"
             },
             {
               "name": "double spend rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "DoubleSpend",
+                  "stage": "consensus"
+                }
+              ],
               "scope": "ledger"
             },
             {
-              "name": "wrong coin amount rejected with rollback",
+              "name": "underfunded coin rejected with rollback",
               "passed": true,
+              "rejections": [
+                {
+                  "code": "MintingCoin",
+                  "stage": "consensus"
+                }
+              ],
+              "scope": "ledger"
+            },
+            {
+              "name": "surplus input becomes an implicit fee",
+              "passed": true,
+              "rejections": [],
               "scope": "ledger"
             }
           ]
@@ -8272,6 +9842,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8283,6 +9857,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8294,6 +9872,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8305,6 +9887,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(SmallAtom, 0), \"first of non-cons\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8316,6 +9902,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8336,6 +9926,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8347,6 +9941,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8358,6 +9956,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8369,6 +9971,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(SmallAtom, 1), \"first of non-cons\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8380,6 +9986,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8400,6 +10010,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8411,6 +10025,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8422,6 +10040,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8433,6 +10055,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Bytes, 0), \"first of non-cons\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8444,6 +10070,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8464,6 +10094,10 @@
               "execution": {
                 "cost": null,
                 "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8475,6 +10109,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8486,6 +10124,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8497,6 +10139,10 @@
               "execution": {
                 "cost": null,
                 "error": "InvalidOpArg(NodePtr(Bytes, 0), \"first of non-cons\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -8508,6 +10154,10 @@
               "execution": {
                 "cost": null,
                 "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
                 "outcome": {
                   "status": "rejected"
                 }
@@ -11321,8 +12971,10 @@
   "simulator": {
     "consensus": "chia-consensus 0.36.1",
     "network": "TESTNET11",
+    "rejection_protocol": "chia-consensus-0.36.1/v1",
     "sdk": "chia-sdk-test 0.36.0",
     "vm": "clvmr 0.16.2"
   },
-  "toolchain": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)"
+  "toolchain": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)",
+  "vm_failure_protocol": "clvmr-0.21.0/v1"
 }

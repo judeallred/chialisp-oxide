@@ -1,8 +1,9 @@
 use chialisp_oxide_ir::{BinaryOp, Expr, Parameter, Program, Type};
 use chialisp_oxide_verifier::{
-    Comparison as C, Obligation, Predicate as P, ReplayOutcome, SolverConfig, Specification,
-    Term as T, Verification, Witness, WitnessValue as W, emit, replay, verify,
+    Comparison as C, Obligation, Predicate as P, ReplayFailure, ReplayOutcome, SolverConfig,
+    Specification, Term as T, Verification, Witness, WitnessValue as W, emit, replay, verify,
 };
+use chialisp_oxide_vm::{FailureCode, FailureKind, classify_failure};
 use clvmr::{
     Allocator, ChiaDialect,
     allocator::NodePtr,
@@ -114,15 +115,28 @@ fn execute(bytes: &[u8], witness: &Witness) -> Result<Vec<u8>, String> {
     let mut a = Allocator::new();
     let root = node_from_bytes(&mut a, bytes).unwrap();
     let solution = list(&mut a, &witness.arguments);
-    let result = run_program(
+    match run_program(
         &mut a,
         &ChiaDialect::new(MEMPOOL_MODE),
         root,
         solution,
         10_000_000,
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(node_to_bytes(&a, result.1).unwrap())
+    ) {
+        Ok(result) => Ok(node_to_bytes(&a, result.1).unwrap()),
+        Err(error) => {
+            let failure = classify_failure(&error);
+            assert!(
+                failure.is_program_rejection(),
+                "inconclusive VM failure: {failure:?}: {error:?}"
+            );
+            assert_eq!(
+                failure.code(),
+                FailureCode::Raise,
+                "unexpected scalar rejection: {error:?}"
+            );
+            Err(error.to_string())
+        }
+    }
 }
 fn scalar(value: i16) -> Witness {
     Witness {
@@ -441,10 +455,8 @@ fn public_replay_checks_witness_types_bounds_and_cost() {
             .to_string()
             .contains("cost limit")
     );
-    assert!(
-        replay(&p, &scalar(42), 1)
-            .unwrap_err()
-            .to_string()
-            .contains("exceeded cost limit")
-    );
+    let exhausted = replay(&p, &scalar(42), 1).unwrap_err();
+    let exhausted = exhausted.downcast_ref::<ReplayFailure>().unwrap();
+    assert_eq!(exhausted.failure.kind(), FailureKind::Resource);
+    assert_eq!(exhausted.failure.code(), FailureCode::CostExceeded);
 }

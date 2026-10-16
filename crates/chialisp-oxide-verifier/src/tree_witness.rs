@@ -1,17 +1,16 @@
 //! Concrete structural witnesses; these are not the symbolic semantics.
-use anyhow::{Context, Result, bail, ensure};
+use anyhow::{Context, Result, ensure};
 use chialisp_oxide_ir::{Environment, Program, Type};
 use clvmr::{
     Allocator, ChiaDialect,
     allocator::NodePtr,
     chia_dialect::MEMPOOL_MODE,
-    error::EvalErr,
     run_program,
     serde::{node_from_bytes, node_to_bytes},
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{Replay, ReplayOutcome};
+use crate::{Replay, ReplayOutcome, classify_replay_failure};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
@@ -166,12 +165,9 @@ pub fn replay_tree(program: &Program, witness: &TreeWitness, max_cost: u64) -> R
                     .collect(),
                 cost: reduction.0,
             },
-            Err(EvalErr::CostExceeded) => {
-                bail!("tree witness replay exceeded cost limit {max_cost}")
-            }
-            Err(error) => ReplayOutcome::Rejected {
-                error: format!("{error:?}"),
-            },
+            Err(error) => classify_replay_failure(error).with_context(|| {
+                format!("tree witness replay optimize={optimize} max_cost={max_cost}")
+            })?,
         };
         results.push(Replay { optimize, outcome });
     }

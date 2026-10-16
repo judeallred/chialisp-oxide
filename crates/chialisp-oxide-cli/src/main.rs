@@ -1,5 +1,7 @@
 use anyhow::{Context, Result, bail, ensure};
-use chialisp_oxide_backend_experiment::{Outcome, RUE_LOCAL_PATCHES, RUE_REV, artifact, execute};
+use chialisp_oxide_backend_experiment::{
+    Outcome, RUE_LOCAL_PATCHES, RUE_REV, VM_FAILURE_PROTOCOL, artifact, execute,
+};
 use chialisp_oxide_ir::Program;
 use serde_json::json;
 use std::{
@@ -133,7 +135,7 @@ fn main() -> Result<()> {
             let bytes = hex::decode(std::fs::read_to_string(path)?.trim())?;
             let execution = execute(&bytes, &solution, max_cost)?;
             println!("{}", serde_json::to_string_pretty(&execution)?);
-            if execution.outcome == Outcome::Rejected {
+            if !matches!(execution.outcome, Outcome::Accepted { .. }) {
                 std::process::exit(2);
             }
         }
@@ -175,7 +177,8 @@ fn main() -> Result<()> {
                     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]}
                 },
                 "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",
-                "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11"},
+                "vm_failure_protocol": VM_FAILURE_PROTOCOL,
+                "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11", "rejection_protocol": chialisp_oxide_corpus::SIMULATOR_REJECTION_PROTOCOL},
                 "puzzles": reports
             });
             if let Some(parent) = path.parent() {

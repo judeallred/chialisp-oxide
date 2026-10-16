@@ -1,5 +1,48 @@
 {
   "schema_version": 1,
+  "vm_failure_protocol": "clvmr-0.21.0/v1",
+  "execution_sources": [
+    {
+      "path": "crates/chialisp-oxide-simulator/Cargo.toml",
+      "sha256": "705fae227c37bdacf97fc08bec2ef7b80a3b045b4167be42d60e1174ea8cebf7"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
+      "sha256": "56ed57d8ddd83fe4664690e9627eac10fc18be7d56987baff93db868b0b2f2fa"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/src/lib.rs",
+      "sha256": "8fea8834c383889c6931a20ae38f0494cbd796bd0967046463a541b2976481b0"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/Cargo.toml",
+      "sha256": "1e2708aa947dbc033aba243f1e9a95c1c9528311d39e04f85ae24ac3c85d1935"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/failure-protocol.json",
+      "sha256": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/src/lib.rs",
+      "sha256": "18d9cc8d12299f42eed97075ce2ffe6f54247656d146f9bf33ccce36ac9312eb"
+    },
+    {
+      "path": "scripts/ledger_rejections.py",
+      "sha256": "34a131e5a07adfd900dc4917f2002fbfd637e805e6e20da4de93c7819dcd35a5"
+    },
+    {
+      "path": "scripts/vm_failures.py",
+      "sha256": "023596311a11578c4a8e4fbfdad04898bf52e0082ebd5d345c6c7adf35a093ff"
+    },
+    {
+      "path": "www/scripts/ledger-rejections.mjs",
+      "sha256": "50646386a8cfc4214cd4b861994b25e6640ee4cf261282017042c00d53fda1a6"
+    },
+    {
+      "path": "www/scripts/vm-failures.mjs",
+      "sha256": "51515997b8366c77c250be8532b0e27e716bd590353344c7ef850480e25dae0c"
+    }
+  ],
   "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
   "puzzle": "bounded-counter",
   "authoring": {
@@ -68,11 +111,11 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "335c59a9ac3b6279752451a5c07923143555e8fc50ac6b5a014b40be30c79877"
+        "sha256": "5dcb1081cd6acd6e3dc8a5e0260411bab6178764ada63b65474bdd4c57df8094"
       },
       {
         "path": "Cargo.toml",
-        "sha256": "892ba719d2540966df47bee4c6224e41b48486843544010847f6ddd95f204ee4"
+        "sha256": "32382c764029bd32d1d7341c6c87b1c5fa5a840ad11f20fe73ad12299ac1d2d5"
       },
       {
         "path": "crates/chialisp-oxide-macros/Cargo.toml",
@@ -294,14 +337,22 @@
         "optimize": false,
         "outcome": {
           "status": "rejected",
-          "error": "Raise(NodePtr(SmallAtom, 0))"
+          "error": "Raise(NodePtr(SmallAtom, 0))",
+          "failure": {
+            "kind": "program",
+            "code": "raise"
+          }
         }
       },
       {
         "optimize": true,
         "outcome": {
           "status": "rejected",
-          "error": "Raise(NodePtr(SmallAtom, 0))"
+          "error": "Raise(NodePtr(SmallAtom, 0))",
+          "failure": {
+            "kind": "program",
+            "code": "raise"
+          }
         }
       }
     ],

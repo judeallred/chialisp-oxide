@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "protocol": "chia-consensus-0.36.1/v1",
+  "stage": "consensus",
+  "codes": [
+    "BadAggregateSignature",
+    "AssertSecondsAbsoluteFailed",
+    "AssertMyAmountFailed",
+    "DoubleSpend",
+    "MintingCoin",
+    "AssertCoinAnnouncementFailed",
+    "MessageNotSentOrReceived"
+  ],
+  "scenarios": {
+    "missing signature rejected with rollback": [
+      "BadAggregateSignature"
+    ],
+    "single signer rejected": [
+      "BadAggregateSignature"
+    ],
+    "early spend rejected, time advanced": [
+      "AssertSecondsAbsoluteFailed"
+    ],
+    "valid spend produces exact recipients and total": [],
+    "double spend rejected with rollback": [
+      "DoubleSpend"
+    ],
+    "wrong coin amount rejected with rollback": [
+      "AssertMyAmountFailed"
+    ],
+    "recovery requires both delay and recovery key": [
+      "AssertSecondsAbsoluteFailed",
+      "BadAggregateSignature"
+    ],
+    "underfunded coin rejected with rollback": [
+      "MintingCoin"
+    ],
+    "surplus input becomes an implicit fee": []
+  },
+  "puzzles": {
+    "fixed-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "capped-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "split-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "timelocked-payment": [
+      {
+        "name": "early spend rejected, time advanced",
+        "codes": [
+          "AssertSecondsAbsoluteFailed"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "signature-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "two-signature-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "single signer rejected",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "recovery-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      },
+      {
+        "name": "recovery requires both delay and recovery key",
+        "codes": [
+          "AssertSecondsAbsoluteFailed",
+          "BadAggregateSignature"
+        ]
+      }
+    ],
+    "boolean-gate": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "underfunded coin rejected with rollback",
+        "codes": [
+          "MintingCoin"
+        ]
+      },
+      {
+        "name": "surplus input becomes an implicit fee",
+        "codes": []
+      }
+    ]
+  }
+}

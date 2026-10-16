@@ -1,5 +1,5 @@
 //! Exercise genuine Cargo resolution, host build scripts, rustc checking, and CLVM.
-use chialisp_oxide_backend_experiment::{Outcome, execute};
+use chialisp_oxide_backend_experiment::{FailureCode, Outcome, execute};
 use serde_json::Value;
 use std::{
     path::{Path, PathBuf},
@@ -185,13 +185,15 @@ fn execution(path: &Path, manifest: &Value, suffix: &str, solution: &str) -> Out
     let hex = std::fs::read_to_string(path.parent().unwrap().join(entry["clvm"].as_str().unwrap()))
         .unwrap();
     let execution = execute(&hex::decode(hex.trim()).unwrap(), solution, 10_000_000).unwrap();
+    assert_ne!(
+        execution.outcome,
+        Outcome::Inconclusive,
+        "Cargo artifact execution is inconclusive: {execution:?}"
+    );
     if matches!(execution.outcome, Outcome::Rejected) {
-        assert!(
-            execution
-                .error
-                .as_deref()
-                .unwrap_or_default()
-                .contains("Raise"),
+        assert_eq!(
+            execution.failure.unwrap().code(),
+            FailureCode::Raise,
             "{execution:?}"
         );
     }

@@ -6,17 +6,113 @@
 //! the tested behavior under these simulator rules, not mainnet admission at
 //! every historical or future fork height.
 
-use anyhow::{Context, Result, ensure};
+use anyhow::{Context, Result, bail, ensure};
+use chia_sdk_signer::{AggSigConstants, RequiredSignature};
+use chia_sdk_types::TESTNET11_CONSTANTS;
 use clvmr::serde::serialized_length_from_bytes;
 
 pub use chia_bls::{SecretKey, Signature};
+pub use chia_consensus::validation_error::ErrorCode;
 pub use chia_protocol::{Bytes32, Coin, CoinSpend, Program, SpendBundle};
-pub use chia_sdk_test::{Simulator, SimulatorConfig, SimulatorError};
+pub use chia_sdk_test::{Simulator, SimulatorConfig, SimulatorError, sign_transaction};
 
 pub const SIMULATOR_VERSION: &str = "chia-sdk-test 0.36.0";
 pub const CONSENSUS_VERSION: &str = "chia-consensus 0.36.1";
 pub const VM_VERSION: &str = "clvmr 0.16.2";
 pub const NETWORK: &str = "TESTNET11";
+pub const REJECTION_PROTOCOL: &str = "chia-consensus-0.36.1/v1";
+
+/// Exact semantic consensus failures used by the ledger evidence. This is a
+/// deliberately small expectation set, not a classifier for every consensus or
+/// clvmr 0.16.2 failure. In particular, GeneratorRuntimeError conflates semantic,
+/// resource, and codec failures upstream and must not confirm these claims.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ConsensusRejection {
+    BadAggregateSignature,
+    AssertSecondsAbsoluteFailed,
+    AssertMyAmountFailed,
+    DoubleSpend,
+    MintingCoin,
+    AssertCoinAnnouncementFailed,
+    MessageNotSentOrReceived,
+}
+
+impl ConsensusRejection {
+    pub const ALL: &'static [Self] = &[
+        Self::BadAggregateSignature,
+        Self::AssertSecondsAbsoluteFailed,
+        Self::AssertMyAmountFailed,
+        Self::DoubleSpend,
+        Self::MintingCoin,
+        Self::AssertCoinAnnouncementFailed,
+        Self::MessageNotSentOrReceived,
+    ];
+
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::BadAggregateSignature => "BadAggregateSignature",
+            Self::AssertSecondsAbsoluteFailed => "AssertSecondsAbsoluteFailed",
+            Self::AssertMyAmountFailed => "AssertMyAmountFailed",
+            Self::DoubleSpend => "DoubleSpend",
+            Self::MintingCoin => "MintingCoin",
+            Self::AssertCoinAnnouncementFailed => "AssertCoinAnnouncementFailed",
+            Self::MessageNotSentOrReceived => "MessageNotSentOrReceived",
+        }
+    }
+
+    pub const fn error_code(self) -> ErrorCode {
+        match self {
+            Self::BadAggregateSignature => ErrorCode::BadAggregateSignature,
+            Self::AssertSecondsAbsoluteFailed => ErrorCode::AssertSecondsAbsoluteFailed,
+            Self::AssertMyAmountFailed => ErrorCode::AssertMyAmountFailed,
+            Self::DoubleSpend => ErrorCode::DoubleSpend,
+            Self::MintingCoin => ErrorCode::MintingCoin,
+            Self::AssertCoinAnnouncementFailed => ErrorCode::AssertCoinAnnouncementFailed,
+            Self::MessageNotSentOrReceived => ErrorCode::MessageNotSentOrReceived,
+        }
+    }
+}
+
+/// Require the actual consensus code, not any signing, runtime, or host error.
+pub fn require_consensus_rejection<T>(
+    result: std::result::Result<T, SimulatorError>,
+    expected: ConsensusRejection,
+) -> Result<ConsensusRejection> {
+    match result {
+        Err(SimulatorError::Validation(code)) if code == expected.error_code() => Ok(expected),
+        Err(error) => bail!(
+            "expected consensus {} rejection, got {error:?}",
+            expected.as_str()
+        ),
+        Ok(_) => bail!(
+            "expected consensus {} rejection, transaction succeeded",
+            expected.as_str()
+        ),
+    }
+}
+
+/// Produce an intentionally incomplete BLS aggregate for negative TESTNET11
+/// ledger tests. Messages and public keys come from execution of these actual
+/// spends, including AGG_SIG_ME coin/domain binding. Only matching supplied
+/// keys contribute; missing keys remain absent. Secp conditions are unsupported.
+pub fn partial_aggregate_signature(spends: &[CoinSpend], keys: &[SecretKey]) -> Result<Signature> {
+    let mut allocator = clvmr::Allocator::new();
+    let constants = AggSigConstants::new(TESTNET11_CONSTANTS.agg_sig_me_additional_data);
+    let required = RequiredSignature::from_coin_spends(&mut allocator, spends, &constants)?;
+    let mut signature = Signature::default();
+    for required in required {
+        let RequiredSignature::Bls(required) = required else {
+            bail!("partial BLS signature fixture does not support secp conditions");
+        };
+        if let Some(key) = keys
+            .iter()
+            .find(|key| key.public_key() == required.public_key)
+        {
+            signature += &chia_bls::sign(key, required.message());
+        }
+    }
+    Ok(signature)
+}
 
 /// Decode exactly one serialized CLVM object, rejecting truncation and trailing
 /// bytes before passing it to upstream APIs that assume well-formed programs.
@@ -75,6 +171,103 @@ mod tests {
     }
 
     #[test]
+    fn ledger_protocol_matches_the_exact_typed_expectations() {
+        let protocol: serde_json::Value =
+            serde_json::from_str(include_str!("../rejection-protocol.json")).unwrap();
+        assert_eq!(protocol["schema_version"], 1);
+        assert_eq!(protocol["protocol"], REJECTION_PROTOCOL);
+        assert_eq!(protocol["stage"], "consensus");
+        let codes = ConsensusRejection::ALL
+            .iter()
+            .map(|code| code.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(protocol["codes"], serde_json::json!(codes));
+        for expected in ConsensusRejection::ALL {
+            assert_eq!(format!("{:?}", expected.error_code()), expected.as_str());
+            let actual = require_consensus_rejection::<()>(
+                Err(SimulatorError::Validation(expected.error_code())),
+                *expected,
+            )
+            .unwrap();
+            assert_eq!(actual, *expected);
+        }
+    }
+
+    #[test]
+    fn consensus_expectations_reject_resource_host_signer_and_unexpected_errors() {
+        // Explicit boundary controls; this does not claim to exhaust the old
+        // VM's memory/stack through consensus. Its generic runtime code has
+        // already discarded the underlying EvalErr and cannot prove rejection.
+        for error in [
+            SimulatorError::Validation(ErrorCode::CostExceeded),
+            SimulatorError::Validation(ErrorCode::GeneratorRuntimeError),
+            SimulatorError::Validation(ErrorCode::Unknown),
+            SimulatorError::Validation(ErrorCode::AssertMyAmountFailed),
+            SimulatorError::MissingKey,
+            SimulatorError::Io(std::io::Error::other("injected infrastructure failure")),
+        ] {
+            assert!(
+                require_consensus_rejection::<()>(
+                    Err(error),
+                    ConsensusRejection::BadAggregateSignature,
+                )
+                .is_err()
+            );
+        }
+        assert!(
+            require_consensus_rejection(Ok(()), ConsensusRejection::BadAggregateSignature).is_err()
+        );
+    }
+
+    #[test]
+    fn one_real_signature_cannot_satisfy_a_two_signature_ledger_spend() {
+        let keys = [
+            SecretKey::from_seed(&[0x17; 32]),
+            SecretKey::from_seed(&[0x18; 32]),
+        ];
+        let reveal = compile(&format!(
+            "(list (list 50 0x{} 0x010203) (list 50 0x{} 0x010203))",
+            hex::encode(keys[0].public_key().to_bytes()),
+            hex::encode(keys[1].public_key().to_bytes()),
+        ));
+        let mut simulator = Simulator::new();
+        let coin = create_coin(&mut simulator, &reveal, 1).unwrap();
+        let spend = coin_spend(coin, &reveal, &[0x80]).unwrap();
+        let partial =
+            partial_aggregate_signature(std::slice::from_ref(&spend), &keys[..1]).unwrap();
+        let second_partial =
+            partial_aggregate_signature(std::slice::from_ref(&spend), &keys[1..]).unwrap();
+        let complete = sign_transaction(std::slice::from_ref(&spend), &keys).unwrap();
+        assert_ne!(
+            partial,
+            Signature::default(),
+            "the partial aggregate must really contain a signature"
+        );
+        assert_ne!(partial, complete);
+        assert_ne!(second_partial, Signature::default());
+        assert_eq!(
+            &partial + &second_partial,
+            complete,
+            "independent real signatures combine to the SDK's full aggregate"
+        );
+        assert_eq!(
+            partial_aggregate_signature(std::slice::from_ref(&spend), &keys).unwrap(),
+            complete,
+            "actual condition messages agree with the SDK's full signer",
+        );
+        let before = simulator.clone();
+        require_consensus_rejection(
+            simulator.new_transaction(SpendBundle::new(vec![spend.clone()], partial)),
+            ConsensusRejection::BadAggregateSignature,
+        )
+        .unwrap();
+        assert_eq!(simulator, before);
+        simulator
+            .new_transaction(SpendBundle::new(vec![spend], complete))
+            .unwrap();
+    }
+
+    #[test]
     fn fixed_destination_and_amount_produce_the_expected_child() {
         let mut simulator = Simulator::new();
         let reveal = fixed_payment(42, 42);
@@ -101,13 +294,11 @@ mod tests {
         let coin = create_coin(&mut simulator, &reveal, 43).unwrap();
         let spend = coin_spend(coin, &reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        let error = simulator
-            .new_transaction(unsigned(vec![spend]))
-            .unwrap_err();
-        assert!(
-            error.to_string().contains("AssertMyAmountFailed"),
-            "{error}"
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![spend])),
+            ConsensusRejection::AssertMyAmountFailed,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
     }
 
@@ -118,13 +309,11 @@ mod tests {
         let coin = create_coin(&mut simulator, &reveal, 1).unwrap();
         let spend = coin_spend(coin, &reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        let error = simulator
-            .new_transaction(unsigned(vec![spend.clone()]))
-            .unwrap_err();
-        assert!(
-            error.to_string().contains("AssertSecondsAbsoluteFailed"),
-            "{error}"
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![spend.clone()])),
+            ConsensusRejection::AssertSecondsAbsoluteFailed,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
         simulator.pass_time(100);
         simulator.new_transaction(unsigned(vec![spend])).unwrap();
@@ -141,13 +330,11 @@ mod tests {
         let coin = create_coin(&mut simulator, &reveal, 1).unwrap();
         let spend = coin_spend(coin, &reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        let error = simulator
-            .new_transaction(unsigned(vec![spend.clone()]))
-            .unwrap_err();
-        assert!(
-            error.to_string().contains("BadAggregateSignature"),
-            "{error}"
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![spend.clone()])),
+            ConsensusRejection::BadAggregateSignature,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
 
         simulator.spend_coins(vec![spend.clone()], &[key]).unwrap();
@@ -160,11 +347,11 @@ mod tests {
         let other = create_coin(&mut simulator, &reveal, 1).unwrap();
         let other_spend = coin_spend(other, &reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        assert!(
-            simulator
-                .new_transaction(SpendBundle::new(vec![other_spend], signature))
-                .is_err()
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(SpendBundle::new(vec![other_spend], signature)),
+            ConsensusRejection::BadAggregateSignature,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
     }
 
@@ -175,10 +362,11 @@ mod tests {
         let coin = create_coin(&mut simulator, &reveal, 42).unwrap();
         let spend = coin_spend(coin, &reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        let error = simulator
-            .new_transaction(unsigned(vec![spend]))
-            .unwrap_err();
-        assert!(error.to_string().contains("MintingCoin"), "{error}");
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![spend])),
+            ConsensusRejection::MintingCoin,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
         assert!(simulator.children(coin.coin_id()).is_empty());
     }
@@ -194,11 +382,11 @@ mod tests {
         let asserter = create_coin(&mut simulator, &assertion_reveal, 1).unwrap();
         let assertion = coin_spend(asserter, &assertion_reveal, &[0x80]).unwrap();
         let before = simulator.clone();
-        assert!(
-            simulator
-                .new_transaction(unsigned(vec![assertion.clone()]))
-                .is_err()
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![assertion.clone()])),
+            ConsensusRejection::AssertCoinAnnouncementFailed,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
         let creation = coin_spend(creator, &creator_reveal, &[0x80]).unwrap();
         simulator
@@ -233,11 +421,11 @@ mod tests {
         )
         .unwrap();
         let before = simulator.clone();
-        assert!(
-            simulator
-                .new_transaction(unsigned(vec![send.clone(), wrong_receive]))
-                .is_err()
-        );
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![send.clone(), wrong_receive])),
+            ConsensusRejection::MessageNotSentOrReceived,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
         let receive =
             coin_spend(receiver, &receiver_reveal, &id_solution(sender.coin_id())).unwrap();
@@ -256,10 +444,11 @@ mod tests {
             .new_transaction(unsigned(vec![spend.clone()]))
             .unwrap();
         let before = simulator.clone();
-        let error = simulator
-            .new_transaction(unsigned(vec![spend]))
-            .unwrap_err();
-        assert!(error.to_string().contains("DoubleSpend"), "{error}");
+        require_consensus_rejection(
+            simulator.new_transaction(unsigned(vec![spend])),
+            ConsensusRejection::DoubleSpend,
+        )
+        .unwrap();
         assert_eq!(simulator, before);
     }
 

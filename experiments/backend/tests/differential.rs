@@ -1,4 +1,5 @@
 use chialisp_oxide_backend_experiment::*;
+use chialisp_oxide_vm::{FailureCode, FailureKind};
 use num_bigint::BigInt;
 use proptest::prelude::*;
 use std::sync::OnceLock;
@@ -28,16 +29,11 @@ fn check(solution: &str, expected: Outcome) {
             "{backend} optimize={optimize}, solution={solution}, error={:?}",
             execution.error
         );
-        assert!(
-            !execution
-                .error
-                .as_deref()
-                .unwrap_or("")
-                .contains("CostExceeded"),
-            "unexpected cost exhaustion: {backend} {solution}"
-        );
         if matches!(expected, Outcome::Accepted { .. }) {
             assert!(execution.cost.unwrap() < MAX_COST);
+            assert!(execution.failure.is_none());
+        } else {
+            assert!(execution.failure.unwrap().is_program_rejection());
         }
     }
 }
@@ -84,11 +80,21 @@ fn numeric_atoms_preserve_noncanonical_encoding() {
 }
 
 #[test]
-fn cost_exhaustion_is_observable() {
+fn cost_exhaustion_cannot_confirm_an_out_of_policy_rejection() {
+    assert!(!native(&BigInt::from(1001)));
     for (_, _, program) in programs() {
-        let result = execute(program, "(1)", 1).unwrap();
-        assert_eq!(result.outcome, Outcome::Rejected);
-        assert!(result.error.unwrap().contains("CostExceeded"));
+        let result = execute(program, "(1001)", 1).unwrap();
+        assert_eq!(result.outcome, Outcome::Inconclusive);
+        let failure = result.failure.unwrap();
+        assert_eq!(failure.kind(), FailureKind::Resource);
+        assert_eq!(failure.code(), FailureCode::CostExceeded);
+        let wire = serde_json::to_value(&result).unwrap();
+        assert_eq!(wire["outcome"]["status"], "inconclusive");
+        // Relabeling the same real resource failure must not publish a policy
+        // rejection, even if a caller manually modifies the public record.
+        let mut forged = result;
+        forged.outcome = Outcome::Rejected;
+        assert!(serde_json::to_value(forged).is_err());
     }
 }
 

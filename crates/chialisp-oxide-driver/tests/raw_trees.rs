@@ -1,7 +1,11 @@
 mod support;
-use chialisp_oxide_backend_experiment::{Outcome, execute};
+use chialisp_oxide_backend_experiment::Outcome;
 use chialisp_oxide_ir::{Environment, Program, Type};
 use support::Fixture;
+
+#[path = "support/vm.rs"]
+mod vm;
+use vm::execute;
 
 const EXPORTS: &str = r#"
 use clvm::{Tree,quote};

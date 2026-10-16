@@ -353,8 +353,8 @@ functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs the typed IR tree-guard pass followed by
 Rue LIR optimization; off runs neither. Rue source uses its LIR off/on switch.
 The validation report records these pipelines explicitly. Eight coin
-fixtures additionally have 30 ledger scenarios executed for each language
-(90 ledger executions). Nine original teaching examples
+fixtures additionally have 31 ledger scenarios executed for each language
+(93 ledger scenario runs). Nine original teaching examples
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.

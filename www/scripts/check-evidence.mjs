@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { failureProtocol, checkCorpusExecutions, checkScalarProofReplays, testFailureProtocol } from './vm-failures.mjs';
+import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));
@@ -23,6 +25,10 @@ async function checkRecordedHash(filename, expected) {
 const report = JSON.parse(await read('corpus/validation.json'));
 const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
 assert.equal(report.schema_version, 1);
+checkCorpusExecutions(report);
+checkLedgerReport(report);
+console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent corruption controls passed`);
+console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
 assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
 assert.deepEqual(report.optimization_pipeline, {
   rust_mir: { unoptimized: [], optimized: ['typed_ir_tree_guards', 'rue_lir'] },
@@ -108,6 +114,16 @@ for (const puzzle of report.puzzles) {
 }
 const proof = JSON.parse(await read('corpus/proofs.json'));
 assert.equal(proof.schema_version, 1);
+assert.equal(proof.vm_failure_protocol, failureProtocol);
+checkScalarProofReplays(proof);
+const executionPaths = [
+  'crates/chialisp-oxide-simulator/Cargo.toml', 'crates/chialisp-oxide-simulator/src/lib.rs',
+  'crates/chialisp-oxide-simulator/rejection-protocol.json', 'scripts/ledger_rejections.py', 'www/scripts/ledger-rejections.mjs',
+  'crates/chialisp-oxide-vm/Cargo.toml', 'crates/chialisp-oxide-vm/failure-protocol.json',
+  'crates/chialisp-oxide-vm/src/lib.rs', 'scripts/vm_failures.py', 'www/scripts/vm-failures.mjs',
+];
+assert.deepEqual(proof.execution_sources.map(source => source.path), executionPaths.sort(), 'Scalar proof VM classifier/gate bindings changed');
+for (const source of proof.execution_sources) await checkRecordedHash(source.path, source.sha256);
 await checkAuthoring(proof.authoring, 'proof');
 assert.equal(proof.authoring.entry, configuration.exports['bounded-counter'].entry, 'Proof selects another Cargo export');
 const { entry: proofEntry, ...proofInputs } = proof.authoring;

@@ -4,6 +4,22 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+#[path = "support/vm.rs"]
+mod vm;
+use vm::execute;
+
+#[test]
+fn inconclusive_execution_cannot_satisfy_a_negative_source_test() {
+    let program = chialisp_oxide_reference::compile("(mod () (q . 7))").unwrap();
+    // This deliberately insufficient budget must fail the conclusive-test
+    // boundary, rather than becoming a false boolean acceptance result.
+    assert!(execute(&program, "()", 1).is_err());
+    assert!(matches!(
+        execute(&program, "()", 1_000_000).unwrap().outcome,
+        chialisp_oxide_backend_experiment::Outcome::Accepted { .. }
+    ));
+}
+
 fn compile(fixture: &str) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_chialisp-oxide-driver"))
         .arg(
@@ -96,7 +112,7 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
 
 #[test]
 fn standalone_ignored_marker_uses_the_same_versioned_policy_as_cargo() {
-    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_backend_experiment::Outcome;
     let output = compile("ignored_environment.rs");
     assert!(
         output.status.success(),
@@ -119,7 +135,6 @@ fn standalone_ignored_marker_uses_the_same_versioned_policy_as_cargo() {
 
 #[test]
 fn standalone_raw_tree_marker_preserves_the_whole_environment() {
-    use chialisp_oxide_backend_experiment::execute;
     let output = compile("raw_environment.rs");
     assert!(
         output.status.success(),
@@ -160,7 +175,7 @@ fn unused_failing_helper_is_still_evaluated() {
 
 #[test]
 fn compiled_vm_preserves_overflow_strictness_and_branch_laziness() {
-    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_backend_experiment::Outcome;
 
     for (fixture, solution, accepted) in [
         ("helpers.rs", "(9)", false),
@@ -266,7 +281,7 @@ fn bounds_substitution_expansion_before_emitting_an_artifact() {
 
 #[test]
 fn unused_inputs_still_require_exact_canonical_typed_encodings() {
-    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_backend_experiment::Outcome;
 
     let output = compile("unused_arguments.rs");
     assert!(
@@ -305,7 +320,7 @@ fn unused_inputs_still_require_exact_canonical_typed_encodings() {
 
 #[test]
 fn signed_minimum_and_maximum_overflow_reject_in_the_vm() {
-    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_backend_experiment::Outcome;
 
     let output = compile("signed_overflow.rs");
     assert!(

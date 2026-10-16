@@ -4,7 +4,7 @@ import { Code } from '@astrojs/starlight/components';
 import SourceComparison from '../../components/SourceComparison.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, authoring, canonicalExample, canonicalPuzzle, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
+import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
@@ -65,8 +65,15 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   </section>}
   <h2 id="ledger">Ledger validation</h2>
   {puzzle.simulator.length ? <div>
-    <p>The same {puzzle.simulator.length} complete-spend scenarios execute separately against each language’s compiled program. Equal VM outputs alone do not establish valid coin spends.</p>
-    {[{backend: 'rust_mir', scenarios: puzzle.simulator}, ...puzzle.simulator_comparisons].map(run => <details class="artifact"><summary>{backendLabel(run.backend)} · {run.scenarios.length} optimized ledger scenarios</summary><ul class="scenarios">{run.scenarios.map(scenario => <li><span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}</li>)}</ul></details>)}
+    <p>The same {puzzle.simulator.length} complete-spend scenario groups run separately against each language’s compiled program. A scenario can submit several bundles; these are scenario runs, not transaction counts. Equal VM outputs alone do not establish valid coin spends.</p>
+    <p>Negative observations below come from actual consensus validation under <code>{report.simulator.rejection_protocol}</code>. SDK signing or preflight errors do not count as ledger rejection.</p>
+    {[{backend: 'rust_mir', scenarios: puzzle.simulator}, ...puzzle.simulator_comparisons].map(run => <details class="artifact" data-ledger-language={run.backend}>
+      <summary>{backendLabel(run.backend)} · {run.scenarios.length} optimized ledger scenario runs</summary>
+      <ul class="scenarios">{run.scenarios.map(scenario => <li data-ledger-scenario={scenario.name}>
+        <span class:list={['badge', { success: scenario.passed }]}>{scenario.passed ? 'pass' : 'fail'}</span> {scenario.name}
+        {scenario.rejections.length ? <ul class="rejections" aria-label="Actual consensus rejection observations">{scenario.rejections.map(rejection => <li><code data-ledger-rejection={rejection.code}>{rejection.stage}/{rejection.code}</code></li>)}</ul> : <small class="accepted-spend">Accepted spend; no rejection expected.</small>}
+      </li>)}</ul>
+    </details>)}
   </div> : <div class="callout-note">{puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
   <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
@@ -90,5 +97,6 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   td small { display: block; color: var(--sl-color-gray-3); font: .6rem var(--sl-font-mono); margin-top: .3rem; white-space: nowrap; }
   .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
   .dependency-hash { overflow-wrap: anywhere; }
+  .rejections { padding-inline-start: 1.5rem; margin-top: .4rem; } .rejections li { margin: .2rem 0; } .rejections code { overflow-wrap: anywhere; font-size: .72rem; } .accepted-spend { display: block; margin: .4rem 0 0 1.1rem; color: var(--sl-color-gray-3); }
   summary { cursor: pointer; } .artifact div { margin-top: 1rem; } .scenarios { list-style: none; padding: 0; } .scenarios li { margin: .75rem 0; }
 </style>

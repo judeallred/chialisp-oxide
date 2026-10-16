@@ -14,19 +14,29 @@
   wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
-- Nine original teaching examples plus three exact canonical Intro expressions,
+- Nine original teaching examples, three exact canonical Intro expressions, and
+  the canonical `p2_conditions` program factory, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 97 explicit and 3,831 generated integer/tree vectors. Canonical closed
+  oracles, 109 explicit and 5,890 generated integer/tree vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
-- Thirty complete-spend scenarios run separately for Rust, Chialisp, and Rue
-  (90 ledger executions) through chia-wallet-sdk's simulator, plus
+- Thirty-one complete-spend scenario groups run separately for Rust, Chialisp, and Rue
+  (93 ledger scenario runs) through chia-wallet-sdk's simulator, plus
   standalone regressions for signatures/replay/messages/conservation/rollback.
+- Borrowed raw atom/pair trees preserve byte contents and improper tails.
+  Optimized Rust reproduces the published factory module's bytes and hash;
+  its actual IR rewrite has a separate structural-model equivalence check.
+- Typed VM failures distinguish program rejection from resource/infrastructure
+  failures. Ledger negatives require exact consensus codes; genuine incomplete
+  and wrong signatures reach transaction validation instead of signer preflight.
 - Source-derived SMT queries with independent specifications, nonvacuity,
   counterexample replay, mutation control, and fail-closed solver handling.
 - Shared declared Cargo input/export provenance in validation and proof reports,
   checked against current local files before publishing documentation.
-- Rue identity-product optimizer panic regression/fix, source provenance, plus strict truthiness/failure preservation; upstream issues
-  https://github.com/xch-dev/rue/issues/108 and https://github.com/xch-dev/rue/issues/109.
+- Four Rue optimizer regressions/fixes with pinned source provenance and upstream
+  issues [108](https://github.com/xch-dev/rue/issues/108),
+  [109](https://github.com/xch-dev/rue/issues/109),
+  [110](https://github.com/xch-dev/rue/issues/110), and
+  [111](https://github.com/xch-dev/rue/issues/111).
 - Searchable Astro/Starlight documentation in www, generated from source/evidence.
 - Executable error studies: intentionally limited Chialisp tests miss concrete
   bugs rejected by native Rust type/name checking; a missing-cap negative
@@ -39,9 +49,11 @@
 
 ## Next compiler and puzzle work
 
-1. Improve expression sharing so checked arithmetic and helper inlining do not
-   repeatedly expand subexpressions; preserve strict failures through optimizer
-   rewrites. Measure against independent reference compilers as corpus grows.
+1. Add explicit call/binding IR and runtime function tables, preserving once-only
+   evaluation, argument order, strict failures and branch laziness. Extend the
+   backend call experiment into real Rust extraction before claiming recursion
+   support. Revisit finite-expression optimization facts before admitting
+   divergence; see [the runtime-call design](runtime-calls.md).
 2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
    hashing/currying intrinsics, and carefully scoped library support.

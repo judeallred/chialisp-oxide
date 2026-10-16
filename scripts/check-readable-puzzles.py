@@ -24,6 +24,8 @@ import tempfile
 import unittest
 
 from cargo_authoring import check_recorded, contained_file, snapshot
+from vm_failures import PROTOCOL, check_execution, check_native_outcome
+from ledger_rejections import PROTOCOL as LEDGER_PROTOCOL, PUZZLES as LEDGER_PUZZLES, check_ledger_report
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,9 +70,12 @@ def check_outcome(outcome, label):
                 and HEX.fullmatch(outcome["output_hex"]), f"{label}: malformed output bytes")
 
 
-def check_report(report):
+def check_report(report, *, require_typed_failures=True):
     require(type(report.get("schema_version")) is int and report["schema_version"] == 1,
             "Expected corpus schema_version 1")
+    if require_typed_failures:
+        require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
+    check_ledger_report(report, require_typed=require_typed_failures)
     puzzles = report["puzzles"]
     require(isinstance(puzzles, list) and puzzles, "Expected a nonempty puzzle corpus")
     slugs = set()
@@ -98,20 +103,17 @@ def check_report(report):
         require(puzzle["cases"], f"{slug}: no explicit execution vectors")
         for case in puzzle["cases"]:
             label = f"{slug}/{case['label']}"
-            check_outcome(case["native"], label)
+            check_native_outcome(case["native"], label)
             runs = modes(case["runs"], label)
             require(runs.keys() == artifacts.keys(), f"{label}: execution modes differ from artifacts")
             for mode, run in runs.items():
                 execution = run["execution"]
-                check_outcome(execution["outcome"], label)
+                check_execution(execution, f"{label} {mode}", require_typed=require_typed_failures)
                 require(execution["outcome"] == case["native"], f"{label} {mode}: native/VM mismatch")
-                require("CostExceeded" not in (execution["error"] or ""),
-                        f"{label} {mode}: cost exhaustion cannot stand in for policy rejection")
-                if execution["outcome"]["status"] == "accepted":
-                    require(type(execution["cost"]) is int and execution["cost"] > 0,
-                            f"{label} {mode}: missing successful execution cost")
-                    require(execution["error"] is None, f"{label} {mode}: successful execution has an error")
             cases += 1
+        for factory in puzzle.get("factory_checks", []):
+            for run in factory["application_runs"]:
+                check_execution(run["execution"], f"{slug} factory application", require_typed=require_typed_failures)
         for scenario in puzzle["simulator"]:
             require(scenario["passed"] is True, f"{slug}: ledger scenario failed: {scenario['name']}")
             ledger += 1
@@ -183,6 +185,7 @@ def semantic_behavior(report):
                 if run["backend"] == "rust_mir":
                     del run["execution"]["cost"]
                     del run["execution"]["error"]
+                    run["execution"].pop("failure", None)
     return result
 
 
@@ -215,6 +218,39 @@ def retained_puzzles(baseline, current):
     result = copy.deepcopy(current)
     result["puzzles"] = copy.deepcopy(retained)
     return result
+
+
+def comparison_projection(baseline, current, comparison, *, allow_added=False):
+    """Validate current failures before dropping any comparison-only metadata.
+
+    Historical reports predate typed failures. Omit only the newly introduced
+    failure field at matching old VM envelopes; retain it when the baseline has
+    typed metadata, and never use the baseline exemption to validate current data.
+    """
+    check_report(current)
+    check_report(baseline, require_typed_failures=False)
+    compared = retained_puzzles(baseline, current) if allow_added else copy.deepcopy(current)
+
+    def historical_shape(old, new):
+        if isinstance(old, dict) and isinstance(new, dict):
+            if {"outcome", "cost", "error"} <= old.keys() and "failure" not in old:
+                new.pop("failure", None)
+            if {"name", "passed", "scope"} <= old.keys() and old.get("scope") == "ledger" and "rejections" not in old:
+                new.pop("rejections", None)
+            if {"sdk", "consensus", "vm", "network"} <= old.keys() and "rejection_protocol" not in old:
+                new.pop("rejection_protocol", None)
+            for key in old.keys() & new.keys():
+                historical_shape(old[key], new[key])
+        elif isinstance(old, list) and isinstance(new, list):
+            for left, right in zip(old, new):
+                historical_shape(left, right)
+
+    historical_shape(baseline, compared)
+    if "vm_failure_protocol" not in baseline:
+        compared.pop("vm_failure_protocol", None)
+    projection = {"exact": behavior, "semantic": semantic_behavior,
+                  "cargo-migration": cargo_migration_behavior, "add-rue": before_rue_addition}[comparison]
+    return projection(baseline), projection(compared)
 
 
 def codegen_changes(before, after):
@@ -280,6 +316,70 @@ class ComparisonTests(unittest.TestCase):
                        "execution": {"cost": 20}}],
             "simulator": [{"passed": True}],
         }]}
+
+    def test_current_failures_are_checked_before_every_comparison_projection(self):
+        artifact = {"clvm_hex": "80", "bytes": 1, "tree_hash": "a" * 64, "disassembly": "()"}
+        builds = [("rust_mir", False), ("rust_mir", True), ("chialisp", True)]
+        current = {"schema_version": 1, "vm_failure_protocol": PROTOCOL,
+                   "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11", "rejection_protocol": LEDGER_PROTOCOL}, "puzzles": [{
+            "slug": "example", "kind": "pure_function", "validated": True, "source": "source", "source_dependencies": [],
+            "artifacts": [{**artifact, "backend": backend, "optimize_lir": optimize} for backend, optimize in builds],
+            "cases": [{"label": "reject", "native": {"status": "rejected"}, "runs": [
+                {"backend": backend, "optimize_lir": optimize, "execution": {
+                    "outcome": {"status": "rejected"}, "cost": None, "error": "Raise(spoofed)",
+                    "failure": {"kind": "program", "code": "raise"}}} for backend, optimize in builds]}],
+            "simulator": [],
+        }]}
+        baseline = copy.deepcopy(current)
+        del baseline["vm_failure_protocol"]
+        del baseline["simulator"]["rejection_protocol"]
+        for run in baseline["puzzles"][0]["cases"][0]["runs"]:
+            del run["execution"]["failure"]
+        for comparison in ("exact", "semantic", "cargo-migration", "add-rue"):
+            before, after = comparison_projection(baseline, current, comparison)
+            self.assertIsNone(first_difference(before, after))
+            for mutation in ("missing", "unknown", "resource", "infrastructure", "inconclusive"):
+                corrupted = copy.deepcopy(current)
+                execution = corrupted["puzzles"][0]["cases"][0]["runs"][0]["execution"]
+                if mutation == "missing": del execution["failure"]
+                elif mutation == "unknown": execution["failure"]["code"] = "future_code"
+                elif mutation == "infrastructure": execution["failure"] = {"kind": "infrastructure", "code": "internal_error"}
+                else:
+                    execution["failure"] = {"kind": "resource", "code": "cost_exceeded"}
+                    if mutation == "inconclusive": execution["outcome"]["status"] = "inconclusive"
+                with self.subTest(comparison=comparison, mutation=mutation), self.assertRaises(ValueError):
+                    comparison_projection(baseline, corrupted, comparison)
+        scenarios = [{"name": row["name"], "passed": True, "scope": "ledger",
+                      "rejections": [{"stage": "consensus", "code": code} for code in row["codes"]]}
+                     for row in LEDGER_PUZZLES["signature-payment"]]
+        for report in (current, baseline):
+            report["puzzles"][0].update(slug="signature-payment", kind="coin_puzzle", simulator=copy.deepcopy(scenarios),
+                simulator_comparisons=[{"backend": backend, "optimize_lir": True, "scenarios": copy.deepcopy(scenarios)}
+                                       for backend in ("chialisp", "rue_source")])
+        for collection in [baseline["puzzles"][0]["simulator"], *[row["scenarios"] for row in baseline["puzzles"][0]["simulator_comparisons"]]]:
+            for row in collection: del row["rejections"]
+        for comparison in ("exact", "semantic", "cargo-migration", "add-rue"):
+            self.assertIsNone(first_difference(*comparison_projection(baseline, current, comparison)))
+            for mutation in ("missing", "MissingKey", "GeneratorRuntimeError", "CostExceeded", "UnknownCode", "DoubleSpend", "omitted_group", "unknown_coin"):
+                corrupted = copy.deepcopy(current)
+                puzzle = corrupted["puzzles"][0]
+                record = puzzle["simulator"][0]
+                if mutation == "missing": del record["rejections"]
+                elif mutation == "omitted_group":
+                    puzzle["simulator"].pop(0)
+                    for row in puzzle["simulator_comparisons"]: row["scenarios"].pop(0)
+                elif mutation == "unknown_coin":
+                    puzzle["slug"] = "unreviewed-coin"
+                    puzzle["simulator"] = []
+                    for row in puzzle["simulator_comparisons"]: row["scenarios"] = []
+                else: record["rejections"][0]["code"] = mutation
+                with self.subTest(comparison=comparison, ledger_mutation=mutation), self.assertRaises(ValueError):
+                    comparison_projection(baseline, corrupted, comparison)
+        # Typed baselines retain their code distinction in exact comparisons.
+        changed = copy.deepcopy(current)
+        changed["puzzles"][0]["cases"][0]["runs"][0]["execution"]["failure"]["code"] = "path_into_atom"
+        self.assertIsNotNone(first_difference(*comparison_projection(current, changed, "exact")))
+
 
     def test_source_and_dependency_snapshot_changes_are_allowed(self):
         updated = copy.deepcopy(self.original)
@@ -523,15 +623,15 @@ def main():
         check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
         if args.baseline:
             baseline = load_report(args.baseline)
-            check_report(baseline)
+            check_report(baseline, require_typed_failures=False)
             if args.comparison == "add-rue":
                 require(all("rue" not in puzzle and all(item["backend"] != "rue_source" for item in puzzle["artifacts"])
                             for puzzle in baseline["puzzles"]),
                         "add-rue comparison requires a baseline without Rue source evidence")
-            projection = {"exact": behavior, "semantic": semantic_behavior,
-                          "cargo-migration": cargo_migration_behavior, "add-rue": before_rue_addition}[args.comparison]
             compared = retained_puzzles(baseline, current) if args.allow_added_puzzles else current
-            difference = first_difference(projection(baseline), projection(compared))
+            before, after = comparison_projection(baseline, current, args.comparison,
+                                                 allow_added=args.allow_added_puzzles)
+            difference = first_difference(before, after)
             require(difference is None, f"{args.comparison.capitalize()} baseline changed: {difference}")
             changes = codegen_changes(baseline, compared)
             if args.changes:

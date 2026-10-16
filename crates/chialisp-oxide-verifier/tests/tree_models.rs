@@ -1,9 +1,36 @@
 use chialisp_oxide_ir::{Environment, Expr, Parameter, Program, Type};
 use chialisp_oxide_verifier::{
-    Obligation, Predicate, ReplayOutcome, SolverConfig, Specification, TreeShape,
+    Obligation, Predicate, ReplayFailure, ReplayOutcome, SolverConfig, Specification, TreeShape,
     TreeSpecification, TreeTerm, TreeValue, TreeVerification, TreeWitness, emit, emit_tree,
-    replay_tree, verify_tree, verify_tree_equivalence,
+    replay_tree, verify_tree as verify_tree_with_solver,
+    verify_tree_equivalence as verify_tree_equivalence_with_solver,
 };
+use chialisp_oxide_vm::{FailureCode, FailureKind};
+use std::sync::Mutex;
+
+// These tests launch several Z3 processes per obligation. Serialize only those
+// calls so parallel test scheduling does not consume their wall-clock deadlines
+// through CPU contention. This is test scheduling, not a proof rule: solver
+// deadlines and fail-closed timeout behavior remain unchanged.
+static SOLVER: Mutex<()> = Mutex::new(());
+
+fn verify_tree(
+    program: &Program,
+    specification: &TreeSpecification,
+    config: &SolverConfig,
+) -> anyhow::Result<TreeVerification> {
+    let _guard = SOLVER.lock().expect("tree-model solver lock poisoned");
+    verify_tree_with_solver(program, specification, config)
+}
+
+fn verify_tree_equivalence(
+    before: &Program,
+    after: &Program,
+    config: &SolverConfig,
+) -> anyhow::Result<TreeVerification> {
+    let _guard = SOLVER.lock().expect("tree-model solver lock poisoned");
+    verify_tree_equivalence_with_solver(before, after, config)
+}
 
 fn atom(hex: &str) -> Expr {
     Expr::TreeAtom {
@@ -80,7 +107,9 @@ fn compare_vm(program: &Program, environment: TreeValue, expected: Option<TreeVa
     let witness = TreeWitness { environment };
     for replay in replay_tree(program, &witness, 1_000_000).unwrap() {
         match (&expected, replay.outcome) {
-            (None, ReplayOutcome::Rejected { .. }) => (),
+            (None, ReplayOutcome::Rejected { failure, .. }) => {
+                assert!(failure.is_program_rejection())
+            }
             (Some(expected), ReplayOutcome::Accepted { output_hex, cost }) => {
                 assert_eq!(output_hex, expected.serialized_hex().unwrap());
                 assert!(cost > 0);
@@ -460,18 +489,17 @@ fn structural_requests_fail_closed_on_unsupported_ir_specs_witnesses_and_solver_
         )
         .is_err()
     );
-    assert!(
-        replay_tree(
-            &original(),
-            &TreeWitness {
-                environment: pair(value(""), value(""))
-            },
-            1
-        )
-        .unwrap_err()
-        .to_string()
-        .contains("exceeded cost limit")
-    );
+    let exhausted = replay_tree(
+        &original(),
+        &TreeWitness {
+            environment: pair(value(""), value("")),
+        },
+        1,
+    )
+    .unwrap_err();
+    let exhausted = exhausted.downcast_ref::<ReplayFailure>().unwrap();
+    assert_eq!(exhausted.failure.kind(), FailureKind::Resource);
+    assert_eq!(exhausted.failure.code(), FailureCode::CostExceeded);
 }
 
 #[test]

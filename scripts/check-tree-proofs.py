@@ -20,6 +20,7 @@ import tomllib
 import unittest
 
 from cargo_authoring import contained_file, load_json, snapshot
+from vm_failures import PROTOCOL, check_native_outcome, check_replay, execution_sources
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -85,6 +86,7 @@ def implementation_sources():
              "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
              "puzzles/p2-conditions/puzzle.json", "puzzles/p2-conditions/reference.clsp", REFERENCE,
              PUBLISHED, f"{CANONICAL}/LICENSE"}
+    paths.update(row["path"] for row in execution_sources())
     for package in ["crates/chialisp-oxide-driver", "crates/chialisp-oxide-ir", "crates/chialisp-oxide-verifier",
                     "crates/chialisp-oxide-reference", "crates/chialisp-oxide-corpus", "crates/chialisp-oxide-cli",
                     "crates/cargo-chialisp-oxide", "experiments/backend", "vendor/rue-lir"]:
@@ -232,14 +234,7 @@ def expected(witness, prefix=b"\x01"):
 
 
 def outcome(value):
-    require(value["status"] in ("accepted", "rejected"), "Invalid replay status")
-    if value["status"] == "rejected":
-        require("CostExceeded" not in value.get("error", ""), "Cost exhaustion cannot stand for a policy rejection")
-        return {"status": "rejected"}
-    require(isinstance(value["output_hex"], str) and re.fullmatch(r"(?:[0-9a-f]{2})+", value["output_hex"]), "Invalid replay output bytes")
-    if "cost" in value:
-        require(type(value["cost"]) is int and value["cost"] > 0, "Missing successful replay cost")
-    return {"status": "accepted", "output_hex": value["output_hex"]}
+    return check_replay(value, "structural VM witness")
 
 
 def check_replays(rows, desired):
@@ -258,7 +253,7 @@ def replay(program_path, witness, temp, name):
             "Independent canonical compilation differs from published module; refusing to change its identity")
     require(len(reference["runs"]) == 1 and reference["runs"][0]["witness"] == witness, "Wrong canonical reference witness")
     desired = expected(witness)
-    require(outcome(native) == desired and outcome(reference["runs"][0]["outcome"]) == desired,
+    require(check_native_outcome(native) == desired and outcome(reference["runs"][0]["outcome"]) == desired,
             "Native/independently compiled original differs from the structural specification")
     check_replays(rust, desired)
     return {"native_original": native, "rust_original": rust, "canonical_reference": reference["runs"][0]["outcome"]}, reference
@@ -409,7 +404,7 @@ def generate(output):
         report = {"schema_version": 1, "authoring": current, "source": SOURCE, "source_sha256": sha(ROOT / SOURCE),
                   "specification": {"path": SPECIFICATION, "sha256": sha(ROOT / SPECIFICATION)},
                   "ir": {"path": f"{DIRECTORY}/program.ir.json", "sha256": sha(stage / "program.ir.json"), "diagnostic_normalization": NORMALIZATION},
-                  "implementation_sources": before, "scope": SCOPE,
+                  "implementation_sources": before, "vm_failure_protocol": PROTOCOL, "scope": SCOPE,
                   "reference": {"source": REFERENCE, "source_sha256": REFERENCE_SHA, "published_artifact": PUBLISHED, **reference},
                   "proof": {"status": "proven", "cases": cases}, "mutations": mutation_reports,
                   "optimization": optimization, "artifacts": artifact_records}
@@ -473,7 +468,7 @@ def validate_optimization(value, original):
                     "counterexample": f"{DIRECTORY}/{prefix}{shape}-case.smt2"}, "Wrong optimized/equivalence query binding")
             if key == "proof":
                 observed, desired = case["replay"], expected(witness)
-                require(outcome(observed["native_original"]) == desired
+                require(check_native_outcome(observed["native_original"]) == desired
                         and outcome(observed["canonical_reference"]) == desired, "Rewritten witness differs from native/canonical reference")
                 check_replays(observed["rust_original"], desired)
     artifacts = value["artifacts"]
@@ -512,6 +507,7 @@ def validate_optimization(value, original):
 
 
 def validate(report):
+    require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
     specification()
     canonical_source()
     require(type(report["schema_version"]) is int and report["schema_version"] == 1 and report["scope"] == SCOPE, "Unsupported structural proof schema/scope")
@@ -541,7 +537,7 @@ def validate(report):
         require(case["queries"] == {"domain": f"{DIRECTORY}/{shape}-domain.smt2", "counterexample": f"{DIRECTORY}/{shape}-case.smt2"}, "Wrong structural case/query binding")
         observed = case["replay"]
         desired = expected(witness)
-        require(outcome(observed["native_original"]) == desired and outcome(observed["canonical_reference"]) == desired, "Model domain witness disagrees with actual native/reference replay")
+        require(check_native_outcome(observed["native_original"]) == desired and outcome(observed["canonical_reference"]) == desired, "Model domain witness disagrees with actual native/reference replay")
         check_replays(observed["rust_original"], desired)
     require([row["id"] for row in report["mutations"]] == ["accept-atom", "wrong-quote"], "Both guard/construction mutation controls are required")
     for row in report["mutations"]:
@@ -555,7 +551,7 @@ def validate(report):
                 "Mutation replay is not the model's counterexample")
         require((isinstance(tree(witness["environment"]), bytes)) == (shape == "atom"), "Wrong mutation witness domain")
         observed = row["replay"]
-        require(outcome(observed["native_original"]) == expected(witness)
+        require(check_native_outcome(observed["native_original"]) == expected(witness)
                 and outcome(observed["canonical_reference"]) == expected(witness), "Mutation witness does not preserve original native/reference behavior")
         check_replays(observed["rust_original"], expected(witness))
         mutated = {"status": "accepted", "output_hex": "80"} if identity == "accept-atom" else expected(witness, b"\x02")
@@ -609,6 +605,33 @@ class ProofControls(unittest.TestCase):
             else: value["control"]["origin"] = "source-derived canonical puzzle"
             with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError, TypeError)):
                 validate(changed)
+
+    def test_nested_vm_failures_require_exact_typed_program_classification(self):
+        original = load_json(OUTPUT)
+        validate(original)
+        # Cover reference compilation, source IR, rewritten IR, mutation and
+        # synthetic unsafe-optimization controls, without altering their status.
+        def rejected_records(value):
+            if isinstance(value, dict):
+                if value.get("status") == "rejected" and "error" in value:
+                    yield value
+                for nested in value.values(): yield from rejected_records(nested)
+            elif isinstance(value, list):
+                for nested in value: yield from rejected_records(nested)
+        count = len(list(rejected_records(original)))
+        self.assertGreaterEqual(count, 5)
+        for index in range(count):
+            for mutation in ("missing", "unknown", "resource", "infrastructure", "forged"):
+                changed = copy.deepcopy(original)
+                record = list(rejected_records(changed))[index]
+                record["error"] = "Raise(spoofed diagnostic)"
+                if mutation == "missing": del record["failure"]
+                elif mutation == "unknown": record["failure"]["code"] = "future_code"
+                elif mutation == "resource": record["failure"] = {"kind": "resource", "code": "cost_exceeded"}
+                elif mutation == "infrastructure": record["failure"] = {"kind": "infrastructure", "code": "internal_error"}
+                else: record["failure"] = {"kind": "program", "code": "cost_exceeded"}
+                with self.subTest(index=index, mutation=mutation), self.assertRaises(ValueError):
+                    validate(changed)
 
     def test_guard_matcher_and_metadata_normalization_cannot_hide_policy_edits(self):
         original = load_json(ROOT / DIRECTORY / "program.ir.json")

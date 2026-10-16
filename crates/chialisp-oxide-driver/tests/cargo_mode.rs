@@ -2,6 +2,10 @@ mod support;
 use std::{collections::BTreeSet, process::Command};
 use support::Fixture;
 
+#[path = "support/vm.rs"]
+mod vm;
+use vm::execute;
+
 #[test]
 fn cargo_dependencies_annotations_and_colliding_path_spellings_work() {
     let fixture = Fixture::new();
@@ -73,12 +77,8 @@ fn cargo_dependencies_annotations_and_colliding_path_spellings_work() {
             let reference =
                 chialisp_oxide_reference::compile(&format!("(mod () (q . {expected}))")).unwrap();
             assert_eq!(
-                chialisp_oxide_backend_experiment::execute(&bytes, &solution, 1_000_000)
-                    .unwrap()
-                    .outcome,
-                chialisp_oxide_backend_experiment::execute(&reference, "()", 1_000_000)
-                    .unwrap()
-                    .outcome,
+                execute(&bytes, &solution, 1_000_000).unwrap().outcome,
+                execute(&reference, "()", 1_000_000).unwrap().outcome,
             );
         }
     }
@@ -113,22 +113,16 @@ fn renamed_dependency_keys_preserve_the_sdk_crate_identity_and_nominal_abi() {
     let expected =
         chialisp_oxide_reference::compile(&format!("(mod () (q . (51 0x{} 42)))", "42".repeat(32)))
             .unwrap();
-    let expected = chialisp_oxide_backend_experiment::execute(&expected, "()", 1_000_000)
-        .unwrap()
-        .outcome;
+    let expected = execute(&expected, "()", 1_000_000).unwrap().outcome;
     for optimize in [false, true] {
         let bytes = chialisp_oxide_ir::compile(&programs[0], optimize).unwrap();
         assert_eq!(
-            chialisp_oxide_backend_experiment::execute(&bytes, "(42)", 1_000_000)
-                .unwrap()
-                .outcome,
+            execute(&bytes, "(42)", 1_000_000).unwrap().outcome,
             expected
         );
         for solution in ["(43)", "(0x0001)", "((42))"] {
             assert_eq!(
-                chialisp_oxide_backend_experiment::execute(&bytes, solution, 1_000_000)
-                    .unwrap()
-                    .outcome,
+                execute(&bytes, solution, 1_000_000).unwrap().outcome,
                 chialisp_oxide_backend_experiment::Outcome::Rejected
             );
         }
@@ -183,7 +177,7 @@ fn exported_unsupported_calls_and_invalid_annotation_targets_fail_closed() {
 
 #[test]
 fn mixed_environment_policies_preserve_defaults_failures_and_lazy_branches() {
-    use chialisp_oxide_backend_experiment::{Outcome, execute};
+    use chialisp_oxide_backend_experiment::Outcome;
     use chialisp_oxide_ir::Environment;
 
     let fixture = Fixture::new();

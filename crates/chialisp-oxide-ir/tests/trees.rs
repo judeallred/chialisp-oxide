@@ -1,4 +1,5 @@
 use chialisp_oxide_ir::{Environment, Expr, Parameter, Program, Type, compile};
+use chialisp_oxide_vm::classify_failure;
 use clvmr::{
     Allocator, ChiaDialect, MEMPOOL_MODE, run_program,
     serde::{node_from_bytes, node_to_bytes},
@@ -37,15 +38,23 @@ fn run(p: &Program, input: &str, opt: bool) -> Option<String> {
     let mut a = Allocator::new();
     let code = node_from_bytes(&mut a, &compile(p, opt).unwrap()).unwrap();
     let env = rue_clvm::assemble(&mut a, input).unwrap();
-    run_program(
+    match run_program(
         &mut a,
         &ChiaDialect::new(MEMPOOL_MODE),
         code,
         env,
         100_000_000,
-    )
-    .ok()
-    .map(|v| hex::encode(node_to_bytes(&a, v.1).unwrap()))
+    ) {
+        Ok(value) => Some(hex::encode(node_to_bytes(&a, value.1).unwrap())),
+        Err(error) => {
+            let failure = classify_failure(&error);
+            assert!(
+                failure.is_program_rejection(),
+                "inconclusive VM failure: {failure:?}: {error:?}"
+            );
+            None
+        }
+    }
 }
 fn serialized(input: &str) -> String {
     let mut a = Allocator::new();

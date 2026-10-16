@@ -5,7 +5,11 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use chialisp_oxide_backend_experiment::{Outcome, execute};
+use chialisp_oxide_backend_experiment::Outcome;
+
+#[path = "support/vm.rs"]
+mod vm;
+use vm::execute;
 
 #[path = "fixtures/sdk_readable.rs"]
 mod native;

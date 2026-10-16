@@ -1,10 +1,9 @@
 //! Compile trusted canonical source independently, then replay bounded witnesses.
 use anyhow::{Context, Result, ensure};
-use chialisp_oxide_verifier::TreeWitness;
+use chialisp_oxide_verifier::{TreeWitness, classify_replay_failure};
 use clvmr::{
     Allocator, ChiaDialect,
     chia_dialect::MEMPOOL_MODE,
-    error::EvalErr,
     run_program,
     serde::{node_from_bytes, node_to_bytes, tree_hash_from_stream},
 };
@@ -58,10 +57,11 @@ fn main() -> Result<()> {
         ) {
             Ok(reduction) => json!({"status":"accepted", "cost":reduction.0,
                 "output_hex":node_to_bytes(&allocator, reduction.1)?.iter().map(|byte| format!("{byte:02x}")).collect::<String>()}),
-            Err(EvalErr::CostExceeded) => {
-                anyhow::bail!("reference witness replay exceeded cost limit {MAX_COST}")
+            Err(error) => {
+                serde_json::to_value(classify_replay_failure(error).with_context(|| {
+                    format!("canonical reference witness replay max_cost={MAX_COST}")
+                })?)?
             }
-            Err(error) => json!({"status":"rejected", "error":format!("{error:?}")}),
         };
         runs.push(json!({"witness":witness, "outcome":outcome}));
     }

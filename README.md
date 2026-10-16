@@ -93,8 +93,8 @@ exact canonical `p2_conditions` program factory. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
 109 explicit vectors and 5,890 generated integer/tree cases against five CLVM
-builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty
-complete-spend scenarios run separately in all three languages (90 ledger executions). Only the eight condition-producing
+builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty-one
+complete-spend scenarios run separately in all three languages (93 ledger scenario runs). Only the eight condition-producing
 teaching fixtures have ledger scenarios; pure language results and program
 factories are not direct spends. Factory validation separately executes the
 returned program on four environments for every successful named compiler run.
@@ -131,6 +131,13 @@ branches, overflow, malformed environments, and repeated optimization. This
 does not prove the optimizer for every program or preserve execution costs and
 diagnostic strings. See the [factory walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-conditions/)
 and [formal evidence](https://judeallred.github.io/chialisp-oxide/verification/formal/).
+
+The [host-side VM harness](crates/chialisp-oxide-vm) distinguishes program
+rejection from resource exhaustion and infrastructure errors using typed VM
+codes. An inconclusive execution cannot count as a policy-rejection witness.
+Ledger negatives require exact consensus error codes and unchanged state.
+Signature negatives submit actual unsigned, partial, or incorrectly signed
+bundles; a signer preflight error cannot count as ledger rejection.
 
 ## Functionality and source coverage
 

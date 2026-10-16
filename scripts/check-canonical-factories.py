@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 import re
 
+from vm_failures import PROTOCOL, check_execution, check_native_outcome
+
 ROOT = Path(__file__).resolve().parents[1]
 PIN = "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8"
 REPOSITORY = "https://github.com/Chia-Network/chia_puzzles"
@@ -146,6 +148,7 @@ def expected(environment):
 
 
 def validate(report, reader=read_source):
+    require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
     for path, (sha256, blob) in PINS.items():
         data = reader(path)
         require(hashlib.sha256(data).hexdigest() == sha256, f"Pinned SHA-256 changed: {path}")
@@ -204,9 +207,12 @@ def validate(report, reader=read_source):
     accepted = {}
     for case in puzzle["cases"]:
         outcome, payload = expected(case["solution"])
+        check_native_outcome(case["native"], case["label"])
         require(case["native"] == outcome, f"Native raw-tree result differs: {case['label']}")
         runs = {(run["backend"], run["optimize_lir"]): run for run in case["runs"]}
         require(len(case["runs"]) == len(runs) == 5 and set(runs) == BUILDS, "Incomplete factory executions")
+        for run in runs.values():
+            check_execution(run["execution"], f"factory/{case['label']}")
         require(all(run["execution"]["outcome"] == outcome for run in runs.values()), f"Recorded VM result differs: {case['label']}")
         if payload is not None:
             accepted[case["solution"]] = outcome["output_hex"], payload
@@ -221,6 +227,7 @@ def validate(report, reader=read_source):
         require(len(applications) == 4 and {serialize(parse(run["solution"])) for run in applications} == application_inputs, "Incomplete second-stage environment coverage")
         for run in applications:
             execution = run["execution"]
+            check_execution(execution, "factory second-stage application")
             require(execution["outcome"] == {"status": "accepted", "output_hex": payload}, "Second-stage program did not return the expected raw payload")
             require(type(execution["cost"]) is int and execution["cost"] > 0 and execution["error"] is None, "Missing actual successful application execution record")
     return len(puzzle["cases"]), len(checks), sum(len(row["application_runs"]) for row in checks)
@@ -252,6 +259,17 @@ def self_test(report):
         ("missing second-stage input", lambda p: p["factory_checks"][0]["application_runs"].pop(), {}),
         ("wrong second-stage output", lambda p: p["factory_checks"][0]["application_runs"][0]["execution"].update(outcome={"status":"rejected"}), {}),
         ("false direct ledger claim", lambda p: p["simulator"].append({"name":"invented", "passed":True,"scope":"ledger"}), {}),
+    ]
+    def rejected_execution(puzzle):
+        return next(run["execution"] for case in puzzle["cases"] for run in case["runs"]
+                    if run["execution"]["outcome"]["status"] == "rejected")
+
+    mutations += [
+        ("missing typed rejection", lambda p: rejected_execution(p).pop("failure"), {}),
+        ("unknown rejection code", lambda p: rejected_execution(p)["failure"].update(code="future_code"), {}),
+        ("cost limit disguised as rejection", lambda p: rejected_execution(p).update(error="Raise(spoofed)", failure={"kind":"resource","code":"cost_exceeded"}), {}),
+        ("infrastructure disguised as rejection", lambda p: rejected_execution(p).update(failure={"kind":"infrastructure","code":"internal_error"}), {}),
+        ("accepted application with hidden failure", lambda p: p["factory_checks"][0]["application_runs"][0]["execution"].update(failure={"kind":"resource","code":"cost_exceeded"}), {}),
     ]
     for label, mutate, files in mutations:
         changed = copy.deepcopy(report)

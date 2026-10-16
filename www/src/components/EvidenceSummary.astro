@@ -4,6 +4,6 @@ import { totals, format, href } from '../lib/data';
 <div class="metric-grid" aria-label="Generated validation report totals">
   <div class="metric"><strong>{format(totals.puzzles)}</strong><span>executable examples</span></div>
   <div class="metric"><strong>{format(totals.vectors + totals.generated)}</strong><span>named + generated inputs</span></div>
-  <div class="metric"><strong>{format(totals.ledgerExecutions)}</strong><span>ledger executions · {totals.ledger} scenarios × 3 languages</span></div>
+  <div class="metric"><strong>{format(totals.ledgerRuns)}</strong><span>ledger scenario runs · {totals.ledger} scenarios × 3 languages</span></div>
 </div>
-<p class="quiet" style="font-size:.78rem;margin-top:.75rem">Derived from the checked-in validation report. <a href={href('lab/')}>Inspect sources, cases, costs, and assumptions →</a></p>
+<p class="quiet" style="font-size:.78rem;margin-top:.75rem">Derived from the checked-in validation report, including {format(totals.consensusRejections)} exact consensus rejection checks. Scenario runs are grouped tests, not transaction counts. <a href={href('lab/')}>Inspect sources, cases, costs, and assumptions →</a></p>

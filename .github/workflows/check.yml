@@ -30,6 +30,10 @@ jobs:
       - name: Test patched upstream optimizer
         run: cargo test --locked -p rue-lir@0.11.0
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Check VM failure and consensus rejection protocols
+        run: |
+          python3 scripts/vm_failures.py
+          python3 scripts/ledger_rejections.py
       - run: python3 corpus/validate_inventory.py
       - name: Check published puzzle discovery and provenance controls
         run: python3 corpus/validate_published_puzzles.py --self-test
@@ -43,7 +47,9 @@ jobs:
           python3 corpus/validate_tutorial_examples.py --self-test
       - run: python3 scripts/check-proofs.py
       - name: Derive and check proofs from Rust source
-        run: python3 scripts/check-ir-proofs.py --output corpus/proofs.json
+        run: |
+          python3 scripts/check-ir-proofs.py --output corpus/proofs.json
+          python3 scripts/check-ir-proofs.py --self-test
       - name: Check structural raw-tree specification and replay mutants
         run: |
           python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json

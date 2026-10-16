@@ -81,7 +81,16 @@ SMT queries under `proofs/bounded-counter`, and writes generated website evidenc
 to `corpus/proofs.json`. Both optimization settings execute nonvacuity witnesses
 and the mutation attack. Native Rust separately accepts the nonvacuity witnesses
 and rejects the attack. Cost exhaustion fails replay instead of counting as a
-policy rejection. Native witness replay calls the same Cargo policy library
+program rejection. Every VM execution failure uses the shared
+`chialisp-oxide-vm` classifier. Rejection records include
+`failure: {"kind":"program","code":"raise"}` or another exact program-failure
+code, alongside the original diagnostic. Resource exhaustion, timeout, stack
+limits, and infrastructure failures abort replay with a typed `ReplayFailure`
+containing the classification and original VM error. Incoming rejection records
+must also carry consistent program-failure metadata; a diagnostic string alone
+cannot establish rejection. A program failure does not establish that the
+intended policy assertion ran: the counter-guard proof separately requires the
+exact `raise` code. Native witness replay calls the same Cargo policy library
 through `chialisp-oxide native`. Both reports fingerprint the declared local inputs in
 `puzzles/authoring.json`, including the module graph, SDK, macros, configuration,
 and lockfile; the proof run rechecks them before publishing. These fingerprints
@@ -141,7 +150,8 @@ Tree witnesses use `{"environment":{"kind":"atom","hex":"0001"}}` or recursive
 `{"kind":"pair","first":...,"rest":...}` values. Raw replay supplies the entire
 environment directly, without a typed one-argument-list wrapper. Atom hex is
 validated before generating SMT or CLVM. Witness replay has explicit resource
-limits and treats cost exhaustion as an error. Those practical replay limits
+limits and aborts on resource/infrastructure failures rather than counting them
+as program rejection. Those practical replay limits
 do not narrow the structural model's quantified tree domain.
 
 `chialisp-oxide-tree-reference` separately compiles trusted Chialisp source and

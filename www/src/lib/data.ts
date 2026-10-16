@@ -11,6 +11,12 @@ export interface Artifact {
   clvm_hex: string;
   disassembly: string;
 }
+export interface LedgerScenario {
+  name: string;
+  passed: boolean;
+  scope: 'ledger';
+  rejections: { stage: 'consensus'; code: string }[];
+}
 export interface PuzzleReport {
   slug: string;
   title: string;
@@ -26,8 +32,8 @@ export interface PuzzleReport {
   artifacts: Artifact[];
   cases: { label: string; solution: string; native: Outcome; runs: { backend: string; optimize_lir: boolean; execution: { outcome: Outcome; cost: number | null; error: string | null } }[] }[];
   generated_cases: number;
-  simulator: { name: string; passed: boolean; scope: string }[];
-  simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: { name: string; passed: boolean; scope: string }[] }[];
+  simulator: LedgerScenario[];
+  simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: LedgerScenario[] }[];
   factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   validated: boolean;
@@ -78,7 +84,11 @@ export const totals = {
   vectors: puzzles.reduce((sum, p) => sum + p.cases.length, 0),
   generated: puzzles.reduce((sum, p) => sum + p.generated_cases, 0),
   ledger: puzzles.reduce((sum, p) => sum + p.simulator.length, 0),
-  ledgerExecutions: puzzles.reduce((sum, p) => sum + p.simulator.length + p.simulator_comparisons.reduce((n, run) => n + run.scenarios.length, 0), 0),
+  ledgerRuns: puzzles.reduce((sum, p) => sum + p.simulator.length + p.simulator_comparisons.reduce((n, run) => n + run.scenarios.length, 0), 0),
+  consensusRejections: puzzles.reduce((sum, puzzle) => sum
+    + puzzle.simulator.reduce((count, scenario) => count + scenario.rejections.length, 0)
+    + puzzle.simulator_comparisons.reduce((count, run) => count
+      + run.scenarios.reduce((observations, scenario) => observations + scenario.rejections.length, 0), 0), 0),
   coinPuzzles: puzzles.filter(puzzle => puzzle.kind === 'coin_puzzle').length,
   pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
   programFactories: puzzles.filter(puzzle => puzzle.kind === 'program_factory').length,

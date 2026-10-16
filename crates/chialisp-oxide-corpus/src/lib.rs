@@ -10,6 +10,7 @@ use chialisp_oxide_backend_experiment::{
     Artifact, Execution, MAX_COST, Outcome, artifact, execute,
 };
 use chialisp_oxide_ir::{Environment, Program};
+pub use chialisp_oxide_simulator::REJECTION_PROTOCOL as SIMULATOR_REJECTION_PROTOCOL;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
@@ -149,12 +150,8 @@ fn compare(
     for (backend, optimize, bytes) in programs {
         let execution = execute(bytes, solution, MAX_COST)?;
         ensure!(
-            !execution
-                .error
-                .as_deref()
-                .unwrap_or("")
-                .contains("CostExceeded"),
-            "unexpected cost exhaustion {slug} {backend} {solution}"
+            execution.outcome != Outcome::Inconclusive,
+            "inconclusive VM execution {slug} {backend} {solution}: {execution:?}"
         );
         ensure!(
             execution.outcome == expected,

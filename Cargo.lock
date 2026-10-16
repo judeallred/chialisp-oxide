@@ -679,6 +679,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chialisp-oxide-rue",
+ "chialisp-oxide-vm",
  "clvmr 0.21.0",
  "hex",
  "id-arena",
@@ -745,6 +746,7 @@ name = "chialisp-oxide-ir"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chialisp-oxide-vm",
  "clvmr 0.21.0",
  "hex",
  "id-arena",
@@ -776,6 +778,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chialisp",
+ "chialisp-oxide-vm",
  "clvmr 0.16.2",
  "clvmr 0.21.0",
 ]
@@ -785,6 +788,7 @@ name = "chialisp-oxide-rue"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chialisp-oxide-vm",
  "clvmr 0.21.0",
  "hex",
  "rue-clvm",
@@ -800,12 +804,16 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chia-bls 0.36.1",
+ "chia-consensus",
  "chia-protocol",
+ "chia-sdk-signer",
  "chia-sdk-test",
+ "chia-sdk-types",
  "chialisp-oxide-reference",
  "clvm-utils",
  "clvmr 0.16.2",
  "hex",
+ "serde_json",
  "sha2 0.10.9",
 ]
 
@@ -816,8 +824,18 @@ dependencies = [
  "anyhow",
  "chialisp-oxide-ir",
  "chialisp-oxide-reference",
+ "chialisp-oxide-vm",
  "clvmr 0.21.0",
  "num-bigint",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "chialisp-oxide-vm"
+version = "0.1.0"
+dependencies = [
+ "clvmr 0.21.0",
  "serde",
  "serde_json",
 ]

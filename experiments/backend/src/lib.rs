@@ -1,5 +1,9 @@
 //! Backend feasibility harness. This does not compile Rust source yet.
 use anyhow::Result;
+use chialisp_oxide_vm::classify_failure;
+pub use chialisp_oxide_vm::{
+    FAILURE_PROTOCOL as VM_FAILURE_PROTOCOL, FailureCode, FailureKind, VmFailure,
+};
 use clvmr::serde::{node_from_bytes, node_to_bytes};
 use clvmr::{Allocator, ChiaDialect, MEMPOOL_MODE, NodePtr, run_program};
 use id_arena::Arena;
@@ -100,14 +104,69 @@ pub fn reference() -> Result<Vec<u8>> {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "status", rename_all = "snake_case")]
 pub enum Outcome {
-    Accepted { output_hex: String },
+    Accepted {
+        output_hex: String,
+    },
     Rejected,
+    /// A resource or infrastructure failure cannot confirm policy rejection.
+    Inconclusive,
 }
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Execution {
     pub outcome: Outcome,
     pub cost: Option<u64>,
     pub error: Option<String>,
+    pub failure: Option<VmFailure>,
+}
+
+impl Serialize for Execution {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::Error as _;
+        let valid = match &self.outcome {
+            Outcome::Accepted { output_hex } => {
+                !output_hex.is_empty()
+                    && output_hex.len().is_multiple_of(2)
+                    && output_hex
+                        .bytes()
+                        .all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'))
+                    && self.cost.is_some_and(|cost| cost > 0)
+                    && self.error.is_none()
+                    && self.failure.is_none()
+            }
+            Outcome::Rejected => {
+                self.cost.is_none()
+                    && self.error.as_ref().is_some_and(|error| !error.is_empty())
+                    && self.failure.is_some_and(VmFailure::is_program_rejection)
+            }
+            Outcome::Inconclusive => {
+                self.cost.is_none()
+                    && self.error.as_ref().is_some_and(|error| !error.is_empty())
+                    && self
+                        .failure
+                        .is_some_and(|failure| !failure.is_program_rejection())
+            }
+        };
+        if !valid {
+            return Err(S::Error::custom(
+                "inconsistent VM execution outcome and failure metadata",
+            ));
+        }
+        #[derive(Serialize)]
+        struct Wire<'a> {
+            outcome: &'a Outcome,
+            cost: Option<u64>,
+            error: &'a Option<String>,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            failure: Option<VmFailure>,
+        }
+        Wire {
+            outcome: &self.outcome,
+            cost: self.cost,
+            error: &self.error,
+            failure: self.failure,
+        }
+        .serialize(serializer)
+    }
 }
 pub fn execute(program: &[u8], solution: &str, max_cost: u64) -> Result<Execution> {
     anyhow::ensure!(
@@ -131,12 +190,21 @@ pub fn execute(program: &[u8], solution: &str, max_cost: u64) -> Result<Executio
                 },
                 cost: Some(reduction.0),
                 error: None,
+                failure: None,
             },
-            Err(error) => Execution {
-                outcome: Outcome::Rejected,
-                cost: None,
-                error: Some(format!("{error:?}")),
-            },
+            Err(error) => {
+                let failure = classify_failure(&error);
+                Execution {
+                    outcome: if failure.is_program_rejection() {
+                        Outcome::Rejected
+                    } else {
+                        Outcome::Inconclusive
+                    },
+                    cost: None,
+                    error: Some(format!("{error:?}")),
+                    failure: Some(failure),
+                }
+            }
         },
     )
 }

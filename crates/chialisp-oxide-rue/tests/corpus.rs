@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use chialisp_oxide_rue::compile_file;
+use chialisp_oxide_vm::classify_failure;
 use clvmr::{
     Allocator, ChiaDialect, MEMPOOL_MODE, run_program,
     serde::{node_from_bytes, node_to_bytes},
@@ -26,7 +27,14 @@ fn execute(program: &[u8], solution: &str) -> Value {
             "status": "accepted",
             "output_hex": hex::encode(node_to_bytes(&allocator, output.1).unwrap()),
         }),
-        Err(_) => json!({ "status": "rejected" }),
+        Err(error) => {
+            let failure = classify_failure(&error);
+            assert!(
+                failure.is_program_rejection(),
+                "inconclusive VM failure: {failure:?}: {error:?}"
+            );
+            json!({ "status": "rejected" })
+        }
     }
 }
 

@@ -59,6 +59,14 @@ entry-point fields while adding typed function definitions. Existing programs
 should retain their version-1/2/3 wire formats. Older readers must reject the new
 envelope rather than ignore its function table.
 
+Version selection must account for runtime constructs as well as the external
+environment policy: a strict entry with runtime calls still needs version 4.
+When the shared expression enum gains these variants, the version-1/2/3 readers
+must explicitly reject `Call`, `Let`, and `Local` anywhere in their bodies, plus
+function metadata. Adding enum variants alone must not make a legacy body accept
+new semantics. Programs that use only the existing IR should retain their
+current serialization and compiled artifacts.
+
 Proposed data shapes, not implemented APIs:
 
 ```text
@@ -82,12 +90,32 @@ and failure sequences could duplicate recursive work. Rust specifies
 [left-to-right operand evaluation](https://doc.rust-lang.org/reference/expressions.html#evaluation-order-of-operands),
 whereas clvmr schedules operand evaluations on a stack. A naive CLVM argument
 list alone does not enforce the desired order when arguments may diverge.
+The current `Sequence` lowering, `Rest(Cons(first, then))`, requires both values
+but does not establish Rust's evaluation order. Reusing it around a substituted
+call result would also evaluate that call again when the result is read.
+
+A narrow first implementation could require atomic call arguments (`Arg`,
+`Local`, or literals), binding their computations in preceding `Let` nodes.
+MIR definitions and call results would receive fresh bindings rather than
+repeated expression substitution; projections, checked operations, and nested
+calls would be evaluated before their values are forwarded. Continuation-based
+lowering must implement each binding's strict evaluation, even when its result
+is unused. If more general call operands are accepted, their lowering needs the
+same explicit left-to-right sequencing. These are proposed restrictions, not
+current IR behavior.
 
 A possible extended frame is `(function_table argument_list . lexical_values)`.
 Each call starts with fresh lexical values; a binding applies its continuation
 to an extended frame. The table remains compiler-generated and inaccessible to
 source arguments. This extended binding convention is a proposal; the durable
 probe tests only the simpler table/argument frame.
+Local IDs belong to one function's lexical scope. A reassignment receives a new
+binding; branch-local bindings cannot escape their branch, and a callee cannot
+resolve a caller's locals. Lowering a continuation must rebase paths for outer
+arguments and locals when it extends the frame. A binding initializer is checked
+before adding the new local to scope. If it has no returning type, as with
+`Reject`, the validator still needs an explicit type rule for checking references
+in its unexecuted body; it must not skip that body or infer an arbitrary type.
 
 Validate all IDs, arities, argument/result types, lexical scopes, and aggregate
 size budgets before lowering. Bound compilation by function count, body nodes,
@@ -112,6 +140,12 @@ would enter `spin()` before reaching the checked projection and could diverge
 until VM cost exhaustion. A future analysis must track evaluation before
 possible divergence or conservatively block such rewrites. This is a required
 obligation for adding calls, not a defect in the currently accepted finite IR.
+Giving a call zero pair-requirement facts is insufficient: the existing union
+rule for `Sequence` can still inherit a projection fact from the later operand.
+The simplest initial policy is to leave guard rewrites disabled throughout any
+expression that contains a potentially diverging call, including through a
+callee. Recursive components must remain conservative in the driver's totality
+cache as well.
 
 The default strict ABI still validates the complete external argument list,
 including unused parameters. Raw exports still require one logical tree;
@@ -158,12 +192,24 @@ or diverging calls; argument evaluation order; branch laziness; non-tail and
 mutual calls; malformed IR rejection; and unchanged existing ABI validation.
 Mutations should break callee selection, required evaluation, or the base case
 and be detected.
+In particular, compare `reject(), spin()` with `spin(), reject()` argument
+computations under a finite VM cost limit: the first must report `raise`, while
+the second must report a resource failure. Also exercise unused call results,
+discarded tuple siblings, a call in an unchosen branch, shadowed locals, and
+caller/callee scope isolation. No native test should intentionally enter
+`spin()`. Legacy-wire controls must attempt to place every new runtime node in
+each old envelope, not merely try an unknown version number.
 
 Execution depth is input dependent, but resources are finite. The pinned
 [VM implementation](https://github.com/Chia-Network/clvm_rs/blob/78feb9b2b0f9c2a4742af672d5fd43d55a559b23/src/run_program.rs#L538-L570)
 enforces cost limits and explicit VM stack limits. Native Rust additionally uses
 its native call stack; native and VM resource exhaustion differ. Keep native
 recursive comparisons within a safe tested depth and test deeper VM execution
-separately. The 24 finite executions and two cost controls are neither a
-termination proof for arbitrary Rust recursion nor a source-to-CLVM preservation
+separately. Under the shared typed VM failure protocol, cost, VM-stack and
+allocator limits are `resource` failures and therefore inconclusive, never
+program rejection. Infrastructure errors are also inconclusive. Evidence gates
+reject both categories; proof replay aborts rather than treating exhaustion as a
+caught policy violation. A `program` failure is a VM-semantic error and does not
+by itself identify an intended assertion. The 24 finite executions and two cost
+controls are neither a termination proof for arbitrary Rust recursion nor a source-to-CLVM preservation
 proof. See [verification scope](verification.md).

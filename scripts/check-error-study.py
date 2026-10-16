@@ -20,6 +20,7 @@ import tomllib
 import unittest
 
 from cargo_authoring import contained_file, load_json
+from vm_failures import PROTOCOL, check_execution, execution_sources
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,6 +54,7 @@ def sha256(path):
 
 def inputs():
     paths = set(DEPENDENCIES)
+    paths.update(row["path"] for row in execution_sources())
     paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "experiments/error-study").rglob("*") if path.is_file())
     paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "vendor/rue-lir/src").rglob("*.rs"))
     return [{"path": path, "sha256": sha256(contained_file(ROOT, path))} for path in sorted(paths)]
@@ -204,7 +206,7 @@ def executions(bridge, language, row, source_key=None):
         for case, run in zip(cases, runs):
             require(case["input"] == run["input"], "VM input ordering mismatch")
             execution = run["execution"]
-            require("CostExceeded" not in (execution["error"] or ""), "Cost exhaustion is not a policy counterexample")
+            check_execution(execution, f"{language}/{case['name']}")
             observations.append({"name": case["name"], "input": case["input"], "expected": expected(case),
                                  "execution": execution, "matches_expected": execution["outcome"] == expected(case)})
         mode["weak_suite"], mode["missed_witness"] = observations[:-1], observations[-1]
@@ -251,12 +253,13 @@ def reproduce():
                 studies[-1]["rue_nominal_control"] = executions(bridge, "rue", row, "rue_nominal_control")
     require(before == inputs(), "Declared study inputs changed during execution")
     report = {"schema_version": 1, "scope": manifest["scope"], "toolchain": {"rustc": version, **versions},
-              "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE", "sources": before, "studies": studies}
+              "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE", "vm_failure_protocol": PROTOCOL, "sources": before, "studies": studies}
     validate_report(report)
     return report
 
 
 def validate_report(report):
+    require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
     manifest = specification()
     require(type(report["schema_version"]) is int and report["schema_version"] == 1, "Unexpected study report schema")
     require(report["sources"] == inputs(), "Stale declared study source/dependency hashes")
@@ -299,11 +302,7 @@ def validate_report(report):
                     require(observation["name"] == case["name"] and observation["input"] == case["input"]
                             and observation["expected"] == expected(case), "Changed independent test expectation/input")
                     execution = observation["execution"]
-                    require(execution["outcome"]["status"] in ("accepted", "rejected"), "Invalid VM outcome")
-                    if execution["outcome"]["status"] == "accepted":
-                        require(type(execution["cost"]) is int and execution["cost"] > 0 and execution["error"] is None
-                                and re.fullmatch(r"(?:[0-9a-f]{2})+", execution["outcome"]["output_hex"]), "Malformed successful VM evidence")
-                    require("CostExceeded" not in (execution["error"] or ""), "Cost exhaustion cannot stand for a policy failure")
+                    check_execution(execution, f"{row['id']}/{language}/{case['name']}")
                     require(type(observation["matches_expected"]) is bool
                             and observation["matches_expected"] == (execution["outcome"] == expected(case)), "False test-result claim")
                 require(all(case["matches_expected"] for case in mode["weak_suite"]), "The deliberately limited compiled tests must pass")
@@ -360,6 +359,28 @@ class EvidenceControls(unittest.TestCase):
             else:
                 row["claim"] = "Rust proves every puzzle secure"
             with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):
+                validate_report(changed)
+
+    def test_typed_failure_corruptions_cannot_be_test_results(self):
+        original = load_json(OUTPUT)
+        validate_report(original)
+        # Preserve the recorded outcome and matches_expected flag while corrupting
+        # only metadata; these controls must fail at the VM wire boundary.
+        for mutation in ("missing", "unknown", "resource", "infrastructure", "inconclusive"):
+            changed = copy.deepcopy(original)
+            rejected = next(observation["execution"] for study in changed["studies"]
+                            for language in ("chialisp", "rue") for mode in study[language]
+                            if mode["status"] == "compiled"
+                            for observation in mode["weak_suite"] + [mode["missed_witness"]]
+                            if observation["execution"]["outcome"]["status"] == "rejected")
+            if mutation == "missing": del rejected["failure"]
+            elif mutation == "unknown": rejected["failure"]["code"] = "future_code"
+            elif mutation == "infrastructure": rejected["failure"] = {"kind": "infrastructure", "code": "internal_error"}
+            else:
+                rejected["failure"] = {"kind": "resource", "code": "cost_exceeded"}
+                if mutation == "inconclusive": rejected["outcome"]["status"] = "inconclusive"
+            rejected["error"] = "Raise(spoofed diagnostic)"
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 validate_report(changed)
 
     def test_independent_codec_boundary_vectors(self):

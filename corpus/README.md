@@ -79,7 +79,9 @@ partial Intro progress does not complete its parent page or the primer.
 
 Every current fixture records Chialisp, Rust, and independently compiled Rue
 source. Five CLVM builds cover Chialisp, Rust off/on, and Rue off/on. The same
-30 ledger scenarios run separately for each language. Rue source hashes and
+31 ledger scenario groups run separately for each language: 93 scenario runs,
+including 69 exact consensus rejection observations. Groups can submit several
+bundles, so scenario runs are not transaction counts. Rue source hashes and
 local dependencies are recorded separately from Rust's Cargo authoring inputs.
 The `add-rue` baseline comparison preserves every preexisting Rust/Chialisp
 artifact, cost, outcome and ledger result while admitting only the added Rue

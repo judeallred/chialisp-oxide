@@ -8,7 +8,7 @@
 mod replay;
 mod tree;
 mod tree_witness;
-pub use replay::{Replay, ReplayOutcome, replay};
+pub use replay::{Replay, ReplayFailure, ReplayOutcome, classify_replay_failure, replay};
 pub use tree::{
     TreeCase, TreeQueries, TreeShape, TreeSpecification, TreeTerm, TreeVerification, emit_tree,
     emit_tree_equivalence, verify_tree, verify_tree_equivalence,

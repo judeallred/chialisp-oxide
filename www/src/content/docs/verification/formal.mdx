@@ -37,6 +37,18 @@ result.
 This connects a model-level finding to executed artifacts. Witness replay is
 still test evidence, not a universal compiler-preservation theorem.
 
+Replay rejection has typed failure evidence. The scalar assertion witness must
+report `{kind: "program", code: "raise"}`; a matching diagnostic string does not
+count. Tree projections can reject with other program codes. A cost, allocator
+or VM stack limit is a resource failure, and serialization/internal errors are
+infrastructure failures. Both categories abort proof replay instead of becoming
+rejection witnesses. The current report gates reject missing, unknown or
+inconsistent metadata, including inside mutation and optimization controls.
+
+The shared classifier and wire protocol, plus the replay gate helpers, are
+hashed evidence inputs. These checks bind recorded executions to their failure
+interpretation; they do not prove VM semantics or resource equivalence.
+
 ## Reproduce the formal run
 
 With Z3 installed:
@@ -114,7 +126,8 @@ arithmetic, tuple fields, malformed typed environments, and repeated
 optimization. These executed tests complement the model proof for this factory.
 They do not establish a universal theorem for the optimization algorithm, Rue's
 passes, or source-to-CLVM compilation. Cost and diagnostic strings can change;
-the equivalence relation covers rejection and successful output only.
+the equivalence relation covers modeled rejection and successful output only.
+It does not turn a resource-limited inconclusive execution into model evidence.
 
 ## Remaining trust boundaries
 

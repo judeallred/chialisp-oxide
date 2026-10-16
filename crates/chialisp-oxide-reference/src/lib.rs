@@ -79,6 +79,7 @@ pub fn compile_expression(source: &str) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod tests {
+    use chialisp_oxide_vm::{FailureCode, classify_failure};
     use clvmr::{
         ChiaDialect,
         allocator::{Allocator, NodePtr},
@@ -91,18 +92,46 @@ mod tests {
 
     /// Run serialized output through the project's VM, not the compiler's VM.
     fn execute(program: &[u8], solution: &[u8]) -> Result<Vec<u8>, String> {
+        execute_expected(program, solution, None)
+    }
+
+    fn execute_expected(
+        program: &[u8],
+        solution: &[u8],
+        expected_failure: Option<FailureCode>,
+    ) -> Result<Vec<u8>, String> {
         let mut allocator = Allocator::new();
-        let program = node_from_bytes(&mut allocator, program).map_err(|e| e.to_string())?;
-        let solution = node_from_bytes(&mut allocator, solution).map_err(|e| e.to_string())?;
-        let result = run_program(
+        let program =
+            node_from_bytes(&mut allocator, program).expect("compiled VM fixture must decode");
+        let solution =
+            node_from_bytes(&mut allocator, solution).expect("solution fixture must decode");
+        match run_program(
             &mut allocator,
             &ChiaDialect::new(MEMPOOL_MODE),
             program,
             solution,
             1_000_000,
-        )
-        .map_err(|e| e.to_string())?;
-        node_to_bytes(&allocator, result.1).map_err(|e| e.to_string())
+        ) {
+            Ok(result) => {
+                assert!(expected_failure.is_none(), "expected a program rejection");
+                Ok(node_to_bytes(&allocator, result.1).expect("VM output must serialize"))
+            }
+            Err(error) => {
+                let failure = classify_failure(&error);
+                assert!(
+                    failure.is_program_rejection(),
+                    "inconclusive VM failure: {failure:?}: {error:?}"
+                );
+                if let Some(expected) = expected_failure {
+                    assert_eq!(
+                        failure.code(),
+                        expected,
+                        "wrong program rejection: {error:?}"
+                    );
+                }
+                Err(error.to_string())
+            }
+        }
     }
 
     #[test]
@@ -174,7 +203,9 @@ mod tests {
             vec![0xff, 0xff, 51, 0xff, 0x84, 1, 2, 3, 4, 0xff, 42, 0x80, 0x80]
         );
         for value in [0, 101, 127] {
-            assert!(execute(&program, &[0xff, value, 0x80]).is_err());
+            assert!(
+                execute_expected(&program, &[0xff, value, 0x80], Some(FailureCode::Raise)).is_err()
+            );
         }
         // Missing argument and pair supplied where arithmetic requires an atom.
         assert!(execute(&program, &[0x80]).is_err());
@@ -208,7 +239,7 @@ mod tests {
     fn unchosen_raise_branch_remains_lazy() {
         let program = compile("(mod (value) (if value 42 (x)))").unwrap();
         assert_eq!(execute(&program, &[0xff, 1, 0x80]).unwrap(), vec![42]);
-        assert!(execute(&program, &[0xff, 0x80, 0x80]).is_err());
+        assert!(execute_expected(&program, &[0xff, 0x80, 0x80], Some(FailureCode::Raise)).is_err());
         // Assert that nil itself serializes canonically in the VM bridge.
         let allocator = Allocator::new();
         assert_eq!(node_to_bytes(&allocator, NodePtr::NIL).unwrap(), vec![0x80]);

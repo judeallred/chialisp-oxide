@@ -13,8 +13,10 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+import unittest
 
 from cargo_authoring import contained_file, load_json, snapshot
+from vm_failures import PROTOCOL, check_replay, execution_sources
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,8 +51,7 @@ def check_replays(replays, expected):
     for row in replays:
         if row["outcome"]["status"] != expected:
             raise SystemExit(f"Unexpected CLVM replay: {row}, expected {expected}")
-        if expected == "rejected" and not row["outcome"].get("error", "").startswith("Raise("):
-            raise SystemExit(f"Typed original witness must hit its assertion, not another VM failure: {row}")
+        check_replay(row["outcome"], "scalar witness replay", expected_code="raise" if expected == "rejected" else None)
 
 
 def encoded_positive_integer(value):
@@ -118,10 +119,33 @@ def native_replay(value):
     return {"status": "accepted", "value": value + 1}
 
 
+class ReplayControls(unittest.TestCase):
+    def test_assertion_requires_exact_program_raise_code(self):
+        rows = [{"optimize": optimize, "outcome": {"status": "rejected", "error": "arbitrary diagnostic",
+                "failure": {"kind": "program", "code": "raise"}}} for optimize in (False, True)]
+        check_replays(rows, "rejected")
+        for mutation in ("missing", "unknown", "program_other", "resource", "infrastructure", "forged"):
+            corrupted = copy.deepcopy(rows)
+            outcome = corrupted[0]["outcome"]
+            outcome["error"] = "Raise(spoofed diagnostic)"
+            if mutation == "missing": del outcome["failure"]
+            elif mutation == "unknown": outcome["failure"]["code"] = "future_code"
+            elif mutation == "program_other": outcome["failure"]["code"] = "path_into_atom"
+            elif mutation == "forged": outcome["failure"]["code"] = "cost_exceeded"
+            elif mutation == "resource": outcome["failure"] = {"kind": "resource", "code": "cost_exceeded"}
+            else: outcome["failure"] = {"kind": "infrastructure", "code": "internal_error"}
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                check_replays(corrupted, "rejected")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--output", type=Path, default=ROOT / "corpus/proofs.json")
     args = parser.parse_args()
+    if args.self_test:
+        result = unittest.TextTestRunner().run(unittest.defaultTestLoader.loadTestsFromTestCase(ReplayControls))
+        return 0 if result.wasSuccessful() else 1
     for binary in [CARGO_OXIDE, DRIVER, VERIFIER, NATIVE]:
         if not binary.is_file():
             raise SystemExit(f"Missing {binary}; run cargo build --workspace --locked")
@@ -129,6 +153,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="chialisp-oxide-proofs-") as temporary:
         temp = Path(temporary)
         authoring = authoring_snapshot()
+        vm_sources = execution_sources()
         # Refresh the native CLI's Cargo-library dependency before witness replay.
         run(["cargo", "build", "--locked", "--target-dir", ROOT / "target", "-p", "chialisp-oxide-cli"], timeout=180)
         cargo_path, cargo_manifest = cargo_program(temp / "cargo-artifacts", authoring)
@@ -213,6 +238,8 @@ def main():
 
         mutation_query = temp / "mutation.smt2"
         mutation_query.write_text(run([VERIFIER, mutant_path, specifications["range"], "--emit"]).rstrip()+"\n")
+        if execution_sources() != vm_sources:
+            raise SystemExit("VM classifier/gate sources changed during proof replay")
         if authoring_snapshot() != authoring:
             raise SystemExit("Declared Cargo authoring inputs changed during proof extraction/replay")
         for name, snapshot in specifications.items():
@@ -222,6 +249,8 @@ def main():
             (PROOFS / filename).write_bytes((temp / filename).read_bytes())
         report = {
             "schema_version": 1,
+            "vm_failure_protocol": PROTOCOL,
+            "execution_sources": vm_sources,
             "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
             "puzzle": "bounded-counter",
             "authoring": authoring,
@@ -261,4 +290,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

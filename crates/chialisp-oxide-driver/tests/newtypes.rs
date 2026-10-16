@@ -1,6 +1,10 @@
 use std::{path::Path, process::Command};
 
-use chialisp_oxide_backend_experiment::{Outcome, execute};
+use chialisp_oxide_backend_experiment::Outcome;
+
+#[path = "support/vm.rs"]
+mod vm;
+use vm::execute;
 
 #[path = "fixtures/newtype_arithmetic.rs"]
 mod native_arithmetic;

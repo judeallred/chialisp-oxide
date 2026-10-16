@@ -1,5 +1,6 @@
 //! Independent bounded semantics checks, not an implementation of the optimizer.
 use chialisp_oxide_ir::{BinaryOp, Environment, Expr, Parameter, Program, Type, compile, optimize};
+use chialisp_oxide_vm::classify_failure;
 use clvmr::{
     Allocator, ChiaDialect, MEMPOOL_MODE,
     allocator::SExp,
@@ -235,15 +236,23 @@ fn execute(program: &[u8], environment: &Tree) -> Option<Vec<u8>> {
     let mut allocator = Allocator::new();
     let program = node_from_bytes(&mut allocator, program).unwrap();
     let environment = node_from_bytes(&mut allocator, &serialize(environment)).unwrap();
-    run_program(
+    match run_program(
         &mut allocator,
         &ChiaDialect::new(MEMPOOL_MODE),
         program,
         environment,
         10_000_000,
-    )
-    .ok()
-    .map(|result| node_to_bytes(&allocator, result.1).unwrap())
+    ) {
+        Ok(result) => Some(node_to_bytes(&allocator, result.1).unwrap()),
+        Err(error) => {
+            let failure = classify_failure(&error);
+            assert!(
+                failure.is_program_rejection(),
+                "inconclusive VM failure: {failure:?}: {error:?}"
+            );
+            None
+        }
+    }
 }
 fn program(body: Expr, arguments: usize, raw: bool) -> Program {
     Program {

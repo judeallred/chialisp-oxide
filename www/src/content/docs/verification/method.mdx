@@ -83,15 +83,63 @@ per-case execution cost. A rejected run may have no returned cost; it must not
 be displayed as a zero-cost execution. VM execution cost is separate from
 condition costs and total transaction admission cost.
 
+## A VM error is not automatically policy rejection
+
+The shared failure protocol is `clvmr-0.21.0/v1`. The Rust classifier matches the
+actual VM error variant; the site and Python checks use the same exhaustive
+`failure-protocol.json` table. Diagnostic strings are display text, not evidence
+for a failure category.
+
+A `program` failure produces `rejected`. Examples include `raise`,
+`path_into_atom` and `division_by_zero`; this means a VM-semantic failure, not
+necessarily an intended policy assertion. `resource` failures such as
+`cost_exceeded` or VM stack limits, and `infrastructure` failures such as
+serialization or internal errors, produce `inconclusive`.
+
+A failed execution must carry a valid `{kind, code}` pair. A successful one
+must omit failure metadata. Current validation requires conclusive runs:
+unknown codes, missing metadata, forged categories and inconclusive execution
+fail the gate. Checking only the returned status or matching a word in an error
+message is insufficient. Native policy outcomes remain separate from this VM
+protocol.
+
+The proof replay tools abort on resource or infrastructure errors. Their
+rejection evidence must identify a program failure; the counter's assertion
+witness specifically requires code `raise`. This prevents an exhausted cost
+budget from masquerading as a caught attack. It does not establish equal
+resource behavior between native Rust, the IR model and CLVM.
+
 ## Actual coin-set validation
 
 The report contains {format(totals.coinPuzzles)} condition-producing examples
 and {format(totals.pureFunctions)} pure-function examples, plus
 {format(totals.programFactories)} program factory. Only coin puzzles
 have ledger scenarios. The same scenarios run separately with Rust, Chialisp, and Rue reveals;
-{format(totals.ledger)} scenario definitions produce {format(totals.ledgerExecutions)} ledger executions. They verify
+{format(totals.ledger)} scenario definitions produce {format(totals.ledgerRuns)} ledger scenario runs. A group can submit several bundles, so this is not a transaction count. They verify
 coin-state transitions, exact recipients/totals, signatures, input amount
 assertions, locks, repeated spends, and rollback where relevant.
+
+The report records {format(totals.consensusRejections)} exact consensus rejection
+checks across the three languages. Each negative observation has stage
+`consensus` and the expected typed `chia-consensus` error code. Missing or partial
+signatures are submitted as actual spend bundles and must produce
+`BadAggregateSignature`; the recovery group separately checks
+`AssertSecondsAbsoluteFailed` and `BadAggregateSignature`. A wrong code, an
+unrelated consensus error, or an SDK `MissingKey` preflight failure cannot count
+as that expected rejection. Positive scenarios have an empty rejection list.
+
+These observations use the separate `chia-consensus-0.36.1/v1` protocol and the
+simulator's `clvmr 0.16.2` stack. They are not primary `clvmr 0.21.0` program
+failures. The closed scenario/code table, its hashes and the Python/Node gates
+keep these two evidence boundaries distinct. Each coin fixture must include
+its complete ordered scenario list; removing the same scenario from every
+language is also a failed gate. Codes are specific to the policy: the boolean
+gate has no `ASSERT_MY_AMOUNT`. An input of 999 mojos cannot fund its output
+of 1,000 mojos and fails conservation with `MintingCoin`. An input of 1,001
+mojos succeeds, creates the same child of 1,000 mojos and leaves 1 mojo as an
+implicit fee. These are separately named
+scenarios; the amount-asserting fixtures instead require
+`AssertMyAmountFailed` when their exact input amount differs.
 
 Separate simulator infrastructure regressions exercise overspending,
 announcements, and message binding. Do not infer that every puzzle report

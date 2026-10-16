@@ -3,6 +3,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { failureProtocol, checkCorpusExecutions, checkExecution, checkScalarProofReplays, checkTreeProofReplays, testFailureProtocol } from './vm-failures.mjs';
+import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
@@ -55,10 +57,17 @@ for (const file of pages) {
 for (const name of ['validation', 'proofs', 'tree-proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study']) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
+  assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../corpus/${name}.json`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
 }
 const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
 const proofs = JSON.parse(await readFile(path.join(root, 'reports/proofs.json'), 'utf8'));
 const treeProofs = JSON.parse(await readFile(path.join(root, 'reports/tree-proofs.json'), 'utf8'));
+checkCorpusExecutions(validation);
+checkLedgerReport(validation);
+console.log(`Consensus rejection controls: ${testLedgerProtocol()} passed`);
+checkScalarProofReplays(proofs);
+checkTreeProofReplays(treeProofs);
+console.log(`Typed failure controls: ${testFailureProtocol()} passed`);
 const formal = await html(path.join(root, 'verification/formal/index.html'));
 const structuralTutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
 const structuralDirectory = path.join(root, 'reports/structural');
@@ -114,6 +123,18 @@ for (const puzzle of validation.puzzles) {
       assert(detail.includes('Public fixture key bytes'), `${puzzle.slug}: fixture keys must be labeled separately`);
     }
   }
+  if (puzzle.simulator.length) {
+    assert(detail.includes(validation.simulator.rejection_protocol), `${puzzle.slug}: missing consensus protocol metadata`);
+    assert(detail.includes('scenario runs, not transaction counts'), `${puzzle.slug}: grouped ledger count must be labeled`);
+    for (const run of [{ backend: 'rust_mir', scenarios: puzzle.simulator }, ...puzzle.simulator_comparisons]) {
+      const section = detail.match(new RegExp(`<details[^>]*data-ledger-language="${run.backend}"[^>]*>([\\s\\S]*?)</details>`))?.[1];
+      assert(section, `${puzzle.slug}: missing ${run.backend} ledger observations`);
+      for (const scenario of run.scenarios) assert(section.includes(`data-ledger-scenario="${scenario.name}"`), `${puzzle.slug}: missing named consensus scenario`);
+      const expected = run.scenarios.flatMap(scenario => scenario.rejections.map(row => row.code)).sort();
+      const actual = [...section.matchAll(/data-ledger-rejection="([A-Za-z0-9]+)"/g)].map(match => match[1]).sort();
+      assert.deepEqual(actual, expected, `${puzzle.slug}/${run.backend}: displayed consensus codes differ from the report`);
+    }
+  }
   if (puzzle.kind === 'program_factory') {
     for (const label of ['Environment contract: raw tree.', 'returns a program', 'Published module identity', 'Apply the produced programs']) {
       assert(detail.includes(label), `${puzzle.slug}: missing factory contract/evidence label ${label}`);
@@ -161,8 +182,23 @@ for (const example of tutorialExamples.examples) {
 }
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 const homepage = await html(path.join(root, 'index.html'));
+const consensusChecks = validation.puzzles.reduce((sum, puzzle) => sum
+  + puzzle.simulator.reduce((n, scenario) => n + scenario.rejections.length, 0)
+  + puzzle.simulator_comparisons.reduce((n, run) => n + run.scenarios.reduce((m, scenario) => m + scenario.rejections.length, 0), 0), 0);
+assert(homepage.includes('ledger scenario runs') && !homepage.includes('ledger executions'), 'Homepage ledger count must describe grouped scenarios');
+assert(homepage.includes(`${consensusChecks} exact consensus rejection checks`), 'Homepage rejection-check count must come from the report');
 assert(homepage.includes('Errors that Rust makes impossible'), 'Missing dedicated static-error section');
 const study = JSON.parse(await readFile(path.join(root, 'reports/error-study.json'), 'utf8'));
+assert.equal(study.vm_failure_protocol, failureProtocol, 'Published error-study failure protocol');
+for (const example of study.studies) {
+  for (const language of ['chialisp', 'rue']) {
+    for (const mode of example[language]) {
+      if (mode.status === 'compiled') {
+        for (const observation of [...mode.weak_suite, mode.missed_witness]) checkExecution(observation.execution, `published error study/${example.id}/${language}`);
+      }
+    }
+  }
+}
 const studyPage = await html(path.join(root, 'verification/error-study/index.html'));
 for (const example of study.studies) {
   assert(studyPage.includes(example.title), `${example.id}: missing executable error study`);
