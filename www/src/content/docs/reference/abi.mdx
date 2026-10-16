@@ -3,6 +3,8 @@ title: Puzzle ABI
 description: Exact solution shape, canonical integers, booleans, bytes, tuples, and condition-list results.
 ---
 
+import SourcePair from '../../../components/SourcePair.astro';
+
 Every solution is an attacker-controlled CLVM tree. A Rust signature describes
 the accepted boundary values; it does not make raw CLVM input trusted. The
 backend validates the complete solution shape and parameter encodings before
@@ -10,11 +12,8 @@ evaluating the function body.
 
 ## Function arguments form a proper list
 
-```rust
-pub fn puzzle(amount: u64) -> u64 { amount }
-```
-
-The solution is `(42)`, not the bare atom `42`, the pair `(42 . 1)`, or a list
+For a single `Amount` or `u64` parameter, the solution is `(42)`,
+not the bare atom `42`, the pair `(42 . 1)`, or a list
 with extra arguments. A zero-argument function takes `()`. Missing arguments,
 improper tails, nested pairs in scalar positions, and additional arguments reject.
 
@@ -64,23 +63,23 @@ for supported declarations and observed compile-fail diagnostics.
 
 ## Returning conditions
 
-```rust
-pub fn puzzle() -> ((u64, u64), (u64, [u8; 32], u64)) {
-    ((73, 1000), (51, [0x42; 32], 1000))
-}
-```
+The actual fixed-payment source names its policy and constructs conditions
+through typed helpers:
 
-The result is a proper list containing `(73 1000)` and
+<SourcePair slug="fixed-payment" />
+
+At the wire level, the result is a proper list containing `(73 1000)` and
 `(51 0x4242…4242 1000)`. Those are `ASSERT_MY_AMOUNT` and `CREATE_COIN` conditions.
 The repeated destination bytes describe the recipient puzzle hash, not an
 address string.
 
 The real `oxide-sdk` crate provides nominal `Amount`, `PuzzleHash`, `CoinId`,
 `PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
-The Cargo consumer uses that crate. The existing capped-payment corpus fixture
-uses a separate source-only compatibility module with the same helper
-conventions; it has not migrated to Cargo. Other corpus fixtures illustrate
-the raw tuple interface, and both SDK versions' result aliases remain tuples.
+The Cargo consumer uses that crate. The standalone corpus imports the same
+`domain.rs` definitions through `sdk/oxide.rs`; those fixture packages have not
+migrated to Cargo. Result aliases remain tuples even though the examples use
+named constructors. `Amount::from_mojos` and `Timestamp::from_unix_seconds`
+make units explicit without changing these wire representations.
 There is no closed nominal `Condition` enum: an incorrect manually constructed
 opcode can still compile. The [condition reference](/chialisp-oxide/reference/conditions/)
 and simulator tests remain necessary policy checks.

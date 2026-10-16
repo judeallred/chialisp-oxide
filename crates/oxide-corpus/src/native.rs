@@ -1,5 +1,6 @@
 //! Reference execution calls the actual Rust sources also supplied to rustc-driver.
 #![allow(clippy::type_complexity)] // Heterogeneous condition tuples are the current teaching ABI.
+#![allow(clippy::duplicate_mod)] // Standalone fixtures deliberately keep distinct local SDK types.
 use anyhow::{Result, bail, ensure};
 use clvmr::{Allocator, NodePtr, allocator::SExp, serde::node_to_bytes};
 use num_bigint::{BigInt, Sign};
@@ -78,16 +79,40 @@ impl<A: Encode, B: Encode, C: Encode, D: Encode> Encode for (A, B, C, D) {
         list(a, &[w, x, y, z])
     }
 }
-impl Encode for capped::oxide::Amount {
-    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-        self.0.encode(a)
-    }
+// Each standalone puzzle includes its own nominal SDK module. Encode these
+// source types independently of the compiler's transparent-newtype erasure.
+macro_rules! encode_domains {
+    ($($puzzle:ident),+ $(,)?) => {$(
+        impl Encode for $puzzle::oxide::Amount {
+            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+                self.mojos().encode(a)
+            }
+        }
+        impl Encode for $puzzle::oxide::Timestamp {
+            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+                self.unix_seconds().encode(a)
+            }
+        }
+        impl Encode for $puzzle::oxide::PuzzleHash {
+            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+                self.0.encode(a)
+            }
+        }
+        impl Encode for $puzzle::oxide::PublicKey {
+            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+                self.0.encode(a)
+            }
+        }
+        impl Encode for $puzzle::oxide::Message32 {
+            fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+                self.0.encode(a)
+            }
+        }
+    )+};
 }
-impl Encode for capped::oxide::PuzzleHash {
-    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
-        self.0.encode(a)
-    }
-}
+encode_domains!(
+    capped, fixed, gate, multisig, recovery, signature, split, timelock
+);
 
 fn output(v: impl Encode) -> Result<Vec<u8>> {
     let mut a = Allocator::new();
@@ -176,11 +201,15 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             }
             "capped-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(capped::puzzle(capped::oxide::Amount(uint(&a, args[0])?)))
+                output(capped::puzzle(capped::oxide::Amount::from_mojos(uint(
+                    &a, args[0],
+                )?)))
             }
             "split-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(split::puzzle(uint(&a, args[0])?))
+                output(split::puzzle(split::oxide::Amount::from_mojos(uint(
+                    &a, args[0],
+                )?)))
             }
             "timelocked-payment" => {
                 ensure!(args.is_empty(), "arity");
@@ -196,17 +225,21 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             }
             "signature-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(signature::puzzle(bytes32(&a, args[0])?))
+                output(signature::puzzle(signature::oxide::Message32(bytes32(
+                    &a, args[0],
+                )?)))
             }
             "two-signature-payment" => {
                 ensure!(args.len() == 1, "arity");
-                output(multisig::puzzle(bytes32(&a, args[0])?))
+                output(multisig::puzzle(multisig::oxide::Message32(bytes32(
+                    &a, args[0],
+                )?)))
             }
             "recovery-payment" => {
                 ensure!(args.len() == 2, "arity");
                 output(recovery::puzzle(
                     boolean(&a, args[0])?,
-                    bytes32(&a, args[1])?,
+                    recovery::oxide::Message32(bytes32(&a, args[1])?),
                 ))
             }
             _ => bail!("unknown native fixture {slug}"),

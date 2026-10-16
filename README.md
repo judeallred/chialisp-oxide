@@ -57,7 +57,8 @@ initial external calls are restricted to vetted concrete SDK helpers.
 ## Reproduce the paired corpus harness
 
 The existing nine-puzzle corpus still uses the standalone-file research harness.
-Its capped-payment fixture uses the compatibility module in `sdk/oxide.rs`.
+Its coin fixtures use the compatibility path in `sdk/oxide.rs` to the same
+ordinary domain definitions as the real SDK crate.
 This evidence does not imply that the corpus has migrated to the Cargo flow.
 
 ```sh
@@ -101,6 +102,11 @@ verification results, supported Rust/ABI references, and a pinned coverage
 inventory. Run `pnpm --dir www install && pnpm --dir www dev` for a local preview.
 GitHub Pages deployment builds www with pnpm and deploys www/dist through GitHub
 Actions at https://judeallred.github.io/chialisp-oxide/.
+
+Puzzle bodies use named condition constructors, return aliases, policy
+constants, and explicit amount/time units. Public test-key bytes live in a
+separate fixture module; documentation keeps their complete recorded source in
+expandable drawers. See the [readability rationale](docs/readability.md).
 
 - [Project goals](goals.md) and [approach](docs/compiler-approach.md)
 - [Verification strategy](docs/verification.md)

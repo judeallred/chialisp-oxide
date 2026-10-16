@@ -87,10 +87,16 @@ impl Drop for Fixture {
 fn cargo_dependencies_annotations_and_colliding_path_spellings_work() {
     let fixture = Fixture::new();
     fixture.source(r#"
+        const PAYMENT_CAP: oxide_sdk::Amount = oxide_sdk::Amount::from_mojos(42);
+        const RECIPIENT: oxide_sdk::PuzzleHash = oxide_sdk::PuzzleHash([0x42;32]);
         #[oxide_sdk::puzzle]
         pub fn pay(destination: oxide_sdk::PuzzleHash, amount: oxide_sdk::Amount) -> oxide_sdk::CreateCoin {
-            assert!(amount.0 <= 42);
+            assert!(amount.is_at_most(PAYMENT_CAP));
             oxide_sdk::create_coin(destination, amount)
+        }
+        #[oxide_sdk::puzzle]
+        pub fn fixed_payment(amount: oxide_sdk::Amount) -> oxide_sdk::CreateCoin {
+            oxide_sdk::create_coin(RECIPIENT, oxide_sdk::Amount::from_mojos(amount.mojos()))
         }
         #[oxide_sdk::puzzle] pub fn a__b(value: u8) -> u8 { value + 1 }
         pub mod a { #[oxide_sdk::puzzle] pub fn b(value: u8) -> u8 { value } }
@@ -122,6 +128,7 @@ fn cargo_dependencies_annotations_and_colliding_path_spellings_work() {
             .collect::<BTreeSet<_>>(),
         BTreeSet::from([
             "wrapper_fixture::pay",
+            "wrapper_fixture::fixed_payment",
             "wrapper_fixture::a__b",
             "wrapper_fixture::a::b"
         ])
@@ -135,12 +142,24 @@ fn cargo_dependencies_annotations_and_colliding_path_spellings_work() {
             } else {
                 "(41)".into()
             };
-            assert!(matches!(
+            let expected = if program.name.ends_with("::pay") {
+                format!("(51 0x{} 42)", "42".repeat(32))
+            } else if program.name.ends_with("::fixed_payment") {
+                format!("(51 0x{} 41)", "42".repeat(32))
+            } else if program.name.ends_with("::a__b") {
+                "42".into()
+            } else {
+                "41".into()
+            };
+            let reference = oxide_chialisp::compile(&format!("(mod () (q . {expected}))")).unwrap();
+            assert_eq!(
                 oxide_backend_experiment::execute(&bytes, &solution, 1_000_000)
                     .unwrap()
                     .outcome,
-                oxide_backend_experiment::Outcome::Accepted { .. }
-            ));
+                oxide_backend_experiment::execute(&reference, "()", 1_000_000)
+                    .unwrap()
+                    .outcome,
+            );
         }
     }
 }

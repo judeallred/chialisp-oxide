@@ -21,11 +21,19 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
 - Local, non-generic helper functions, inlined into pure expressions.
+- Named scalar and fixed-byte constants, including supported transparent wrappers
+  of those values: typed policy amounts, recipient hashes, and public fixture keys.
+  General reference, pointer, and tuple constants remain unsupported.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
 - Nongeneric, single-field `#[repr(transparent)]` nominal wrappers declared
   locally or in the vetted SDK, over supported nonzero-size values.
   Rust checks their identity; lowering erases
   them to the inner ABI type. See [typed puzzle helpers](/chialisp-oxide/tutorials/typed-sdk/).
+- Vetted by-value SDK methods such as `Amount::from_mojos`, `.mojos()`,
+  `.is_at_most()`, `Timestamp::from_unix_seconds`, and `.unix_seconds()`.
+  The SDK's small transparent values support implicit `Copy` reuse. Explicit
+  `.clone()` calls remain unsupported because their borrowed receiver and trait
+  dispatch are outside the accepted subset.
 - Supported MIR constant array projections. Ordinary indexing that needs an
   index local or reference is rejected.
 
@@ -47,6 +55,9 @@ This support does not make ordinary structs, enums, or unrelated external wrappe
 types available on-chain. Concrete vetted SDK helper calls are supported;
 resolving an ordinary Rust dependency through Cargo does not establish that its
 function bodies can be lowered.
+
+Copying an amount value is allowed. Neither these traits nor the domain names
+enforce asset conservation, authorization, or double-spend prevention.
 
 These restrictions apply to exported reachable code. The Cargo consumer's
 unannotated native-only formatting/allocation function can compile and run

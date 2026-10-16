@@ -3,7 +3,15 @@ title: Conditions and authorization
 description: Read the condition tuples used in the teaching puzzles without confusing shape checks, ownership, and consensus validation.
 ---
 
-The current examples return integer-tagged tuples. These codes come from the
+Author puzzle bodies with `create_coin`, `assert_my_amount`, `agg_sig_me`, and
+`assert_seconds_absolute`. Give policy amounts, recipient hashes, signer keys,
+and timestamps names. Use `Amount::from_mojos` and
+`Timestamp::from_unix_seconds` to make units explicit.
+
+This page describes the serialized consensus conditions those helpers return,
+including their numeric discriminants. Return aliases such as `CreateCoin`
+still use tuples underneath; named constructors hide the opcode argument from
+the authoring call without authenticating its policy. These codes come from the
 [Chialisp conditions reference](https://chialisp.com/conditions/) and the pinned
 [consensus opcode definitions](https://github.com/Chia-Network/chia_rs/blob/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-consensus/src/opcodes.rs).
 

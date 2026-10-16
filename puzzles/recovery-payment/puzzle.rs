@@ -1,33 +1,35 @@
-// Owner can spend now; recovery key can spend after absolute time 100.
-pub fn puzzle(
-    recovery: bool,
-    message: [u8; 32],
-) -> (
-    (u64, [u8; 48], [u8; 32]),
-    (u64, u64),
-    (u64, u64),
-    (u64, [u8; 32], u64),
-) {
-    let key = if recovery {
-        [
-            0xb4, 0x7f, 0xa1, 0xe1, 0x51, 0x62, 0xa5, 0xb1, 0xf9, 0x44, 0x4d, 0x1a, 0xae, 0x57,
-            0xd1, 0x31, 0xa1, 0xd5, 0xc9, 0x8b, 0xad, 0xe8, 0xf8, 0xe9, 0x3b, 0x8e, 0xbf, 0xe1,
-            0x64, 0x9b, 0x95, 0xc5, 0x57, 0x87, 0xb8, 0x73, 0x1d, 0x2f, 0x1a, 0x06, 0x38, 0xb3,
-            0xe1, 0xd2, 0x3a, 0xda, 0x48, 0xe8,
-        ]
+// The owner can spend immediately; the recovery signer waits for absolute Unix time.
+#[path = "../../sdk/oxide.rs"]
+pub mod oxide;
+
+#[path = "../fixture_keys.rs"]
+mod fixture_keys;
+
+use oxide::{
+    AggSigMe, Amount, AssertMyAmount, AssertSecondsAbsolute, CreateCoin, Message32, PublicKey,
+    PuzzleHash, Timestamp, agg_sig_me, assert_my_amount, assert_seconds_absolute, create_coin,
+};
+
+const OWNER: PublicKey = PublicKey(fixture_keys::OWNER_PUBLIC_KEY);
+const RECOVERY_SIGNER: PublicKey = PublicKey(fixture_keys::RECOVERY_PUBLIC_KEY);
+const COIN_AMOUNT: Amount = Amount::from_mojos(1_000);
+const RECIPIENT: PuzzleHash = PuzzleHash([0x42; 32]);
+const OWNER_UNLOCK_AT: Timestamp = Timestamp::from_unix_seconds(0); // Unix epoch: no wait.
+const RECOVERY_UNLOCK_AT: Timestamp = Timestamp::from_unix_seconds(100); // Mock-chain time.
+
+pub type RecoveryConditions = (AggSigMe, AssertSecondsAbsolute, AssertMyAmount, CreateCoin);
+
+pub fn puzzle(recovery: bool, message: Message32) -> RecoveryConditions {
+    let signer = if recovery { RECOVERY_SIGNER } else { OWNER };
+    let unlock_at = if recovery {
+        RECOVERY_UNLOCK_AT
     } else {
-        [
-            0x8b, 0xc6, 0x1e, 0x93, 0x38, 0x0f, 0x34, 0x27, 0xed, 0x2a, 0xce, 0x81, 0x3f, 0xdf,
-            0xf6, 0x75, 0x04, 0xf5, 0x52, 0x68, 0xa9, 0x9a, 0x72, 0xce, 0xa5, 0x71, 0x33, 0xc2,
-            0xb3, 0x2a, 0x1d, 0x83, 0x6f, 0xd5, 0x23, 0x81, 0xae, 0x9c, 0xa1, 0x09, 0x57, 0x55,
-            0x7b, 0x80, 0x06, 0x40, 0x59, 0xe5,
-        ]
+        OWNER_UNLOCK_AT
     };
-    let unlock_at = if recovery { 100 } else { 0 };
     (
-        (50, key, message),
-        (81, unlock_at),
-        (73, 1000),
-        (51, [0x42; 32], 1000),
+        agg_sig_me(signer, message),
+        assert_seconds_absolute(unlock_at),
+        assert_my_amount(COIN_AMOUNT),
+        create_coin(RECIPIENT, COIN_AMOUNT),
     )
 }

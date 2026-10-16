@@ -42,8 +42,9 @@ carry `CoinId` or `PuzzleHash` runtime tags. Concrete vetted SDK calls can cross
 the crate boundary; arbitrary dependency bodies cannot. Constructor validation
 is not executed during solution decoding.
 
-The standalone comparison corpus still uses its compatibility SDK module in
-`sdk/oxide.rs`. Its capped-payment report records that source explicitly. The
+The standalone comparison corpus uses a compatibility path in `sdk/oxide.rs`
+to the same ordinary `crates/oxide-sdk/src/domain.rs` source as the real crate.
+Its reports record the dependency sources explicitly. The
 new Cargo consumer fixture separately exercises the real SDK crate, multiple
 annotations, features, generated source, and native-only allocation code.
 

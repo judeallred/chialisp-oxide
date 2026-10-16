@@ -57,6 +57,9 @@ The supported subset includes:
   inlined into expressions. Unused failing operations and helper calls remain
   observable through explicit sequence expressions.
 - Byte arrays passed as parameters and constant byte-array construction.
+  Named fixed-byte constants, including supported transparent wrappers, are
+  evaluated by rustc and read only after checking their exact bounded layout,
+  allocation bounds, initialized bytes, and absence of pointer provenance.
   Tuple fields and MIR constant array projections are supported; ordinary Rust
   indexing is rejected when it requires an index local or reference.
 
@@ -72,6 +75,14 @@ rustc's `-Funsafe-code` and `-Funstable-features`, including code that MIR would
 otherwise eliminate. Dependency MIR must be available; missing metadata gets a
 diagnostic rather than an unchecked assumption. Each unsupported MIR diagnostic
 includes its Rust source location.
+
+Strict failure effects are retained at their defining MIR operations. Copies,
+aggregates, and intrinsically total helpers pass previously computed values
+without introducing another failure sequence. A conservative analysis runs
+only after successful lowering; arithmetic, assertions, divergence, and unknown
+operations remain fallible. Its cache holds at most 256 functions, with at most
+1,024 blocks and 8,192 statements inspected per function. Missing or excessive
+cases keep their evaluation effects.
 
 Expansion is limited to 32 nested helpers, 64 active control-flow blocks,
 10,000 total visited blocks, 8,192 nodes per expression, expression depth 64,
@@ -96,5 +107,7 @@ Decoding does not invoke constructors or establish user-defined invariants;
 puzzle checks must enforce these at runtime. Zero-sized wrappers, multiple
 fields (including extra zero-sized fields), generic wrappers, other external
 wrappers such as `NonZeroU64`, destructors, and macro-generated wrapper
-declarations are rejected. Named aggregate constants and borrowed wrapper
-methods remain unsupported.
+declarations are rejected. Named tuple/other aggregate constants and borrowed
+wrapper methods remain unsupported. The SDK's `Copy` domain values provide
+by-value constructors, unit-explicit getters, and comparisons without adding
+reference or trait-operator semantics to the compiler.

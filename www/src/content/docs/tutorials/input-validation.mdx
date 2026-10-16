@@ -18,6 +18,10 @@ The `Amount` wrapper erases to a canonical unsigned 64-bit integer. The
 assertion requires that already decoded value to be within the payment cap.
 An attacker must pass both the ABI check and the application policy.
 
+`PAYMENT_CAP` states that policy in mojos, and
+`amount.is_at_most(PAYMENT_CAP)` states the comparison. The named constructor
+`create_coin(RECIPIENT, amount)` leaves condition numbers inside the SDK.
+
 `(500)` pays 500 and permits a 500-mojo fee. `(1000)` pays the entire input.
 `(1001)` violates the policy. `(-1)` violates the unsigned type. `(0x0001)`
 violates canonical integer encoding even though its numeric value is one.

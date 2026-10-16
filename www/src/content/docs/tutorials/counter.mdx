@@ -18,6 +18,10 @@ For canonical `u64` input below 1,000, the result is input plus one and lies in
 must obey the `u64` boundary and checked-addition semantics; CLVM's unbounded
 integers cannot replace those obligations.
 
+`COUNTER_LIMIT` names the policy boundary. The increment of one remains an
+explicit arithmetic operation; neither that name nor a domain wrapper changes
+the checked `u64` semantics.
+
 The generated corpus sweep exercises values on both sides of the policy
 boundary. This is finite test evidence. The formal companion instead asks a
 solver to find a violation of explicit predicates over the source-derived IR.

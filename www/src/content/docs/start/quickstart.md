@@ -74,7 +74,7 @@ generator or establish supported library semantics.
 ## Reproduce the existing paired corpus
 
 The nine-puzzle comparison corpus still uses the standalone-file harness. Its
-capped-payment fixture uses the source-only SDK compatibility module. The lab
+coin fixtures reach the shared SDK domain definitions through `sdk/oxide.rs`. The lab
 reports do not imply the corpus has migrated to Cargo dependencies.
 
 ```sh

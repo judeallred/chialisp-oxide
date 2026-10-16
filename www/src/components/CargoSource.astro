@@ -10,5 +10,12 @@ const sources = {
   build: { code: build, lang: 'rust', title: 'examples/cargo-puzzles/build.rs' },
 };
 const source = sources[Astro.props.file];
+const testStart = Astro.props.file === 'library' ? library.indexOf('#[cfg(test)]') : -1;
+const displayed = testStart < 0 ? source.code : library.slice(0, testStart);
 ---
-<Code code={source.code.trim()} lang={source.lang} title={source.title} />
+<Code code={displayed} lang={source.lang} title={source.title} />
+{testStart >= 0 && <details class="source-dependency">
+  <summary>Native tests and complete library source</summary>
+  <p class="source-note">The main view shows the actual library before its test module. This complete file also includes the native tests and their explicit wire-opcode assertions.</p>
+  <Code code={library} lang="rust" title={`${source.title} · complete file including native tests`} />
+</details>}

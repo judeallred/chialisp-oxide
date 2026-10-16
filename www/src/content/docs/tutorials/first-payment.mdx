@@ -17,8 +17,13 @@ It makes no ownership promise. Anyone may trigger this payment.
 
 <SourcePair slug="fixed-payment" />
 
-The outer tuple becomes a proper condition list. `(73, 1000)` asserts the input
-amount. `(51, destination, 1000)` creates the recipient coin. The Chialisp
+`COIN_AMOUNT` names the amount in mojos; `RECIPIENT` names the fixed puzzle hash.
+`assert_my_amount(COIN_AMOUNT)` binds the actual input amount, and
+`create_coin(RECIPIENT, COIN_AMOUNT)` requests the recipient coin. The
+`PaymentConditions` alias gives their combined result a readable name.
+
+At the wire boundary these helpers produce `(73 1000)` and
+`(51 destination 1000)`, in a proper condition list. The Chialisp
 reference additionally shows the explicit zero-argument solution check. Oxide
 derives that boundary check from the Rust function signature.
 

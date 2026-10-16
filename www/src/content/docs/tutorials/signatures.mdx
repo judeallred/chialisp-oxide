@@ -13,11 +13,12 @@ key, asserts the input amount, and creates the fixed recipient coin.
 
 ## The signed message is not the whole signature context
 
-Condition 50 includes a public key and a message. The consensus engine binds
+`agg_sig_me(OWNER, message)` names the signature requirement. Its serialized
+condition uses opcode 50 and includes a public key and a message. The consensus engine binds
 that message to the spent coin's ID and the network signature domain. A valid
 signature for one coin must not authorize a different otherwise identical coin.
 
-The message is a `[u8; 32]` argument and therefore one atom of exactly 32 bytes.
+The message is a `Message32` argument and therefore one atom of exactly 32 bytes.
 Its correct shape does not mean the application chose the right message
 commitment. This fixture fixes the payment policy, so selecting another message
 does not change the recipient or amount. More flexible delegated policies need
@@ -29,6 +30,11 @@ Plain CLVM execution only returns the signature condition. The ledger suite
 submits a missing aggregate signature and requires rejection with rollback,
 then signs with the expected key and checks the exact payment. The simulator
 infrastructure also tests reuse against a different coin.
+
+The puzzle bodies refer to named `OWNER`, `FIRST_SIGNER`, and `SECOND_SIGNER`
+values. Their actual public-key bytes live in `puzzles/fixture_keys.rs`,
+available in the supporting-source drawer beneath each comparison. Moving them
+out of the body changes presentation, not the need to review the correct key.
 
 The fixture keys come from public deterministic seeds `[0x17; 32]` and
 `[0x18; 32]`. Reproduce their public values with:

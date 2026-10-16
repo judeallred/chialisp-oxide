@@ -3,11 +3,11 @@
   "scope": "IR-model proof over typed scalar values; source-derived IR, no compiler-preservation or ABI-decoder proof",
   "puzzle": "bounded-counter",
   "source": "puzzles/bounded-counter/puzzle.rs",
-  "source_sha256": "09d70bf52e301252235c6e3f86a7cda3a69dc7809ad0257da77b49f6d6b4d912",
+  "source_sha256": "0892bec77bb178e0f099ddb801ac52e600ff6544dad9d812e7996175ed41a2bf",
   "ir": "proofs/bounded-counter/program.ir.json",
-  "ir_sha256": "e583407ac8763425a5a075d5159aa76f88017598472b35d0c5d1689dba9312ef",
+  "ir_sha256": "af629db2c1024b77410d8e2db606243ba8838ed90dd62eed80377824728cc177",
   "mutant_ir": "proofs/bounded-counter/mutant.ir.json",
-  "mutant_ir_sha256": "704439f647ef94f2df15cfb4844d4865391ea3cbc89a3f01685a220cbc6cae74",
+  "mutant_ir_sha256": "44e45ace5e392ae9f6b941914cad11a38499a82a7267bf8dc64e5e59bff0a01b",
   "solver": "Z3 version 4.15.4 - 64 bit",
   "checks": [
     {
@@ -15,7 +15,7 @@
       "specification": "proofs/bounded-counter/range.spec.json",
       "specification_sha256": "c2bd93f2907434b000e9767a8246ad029af7507e7f173665cdd67de47b83c9a5",
       "query": "proofs/bounded-counter/range.smt2",
-      "query_sha256": "7e8684237029da667b277d23ab6303c71ca28cbfdd43ea279fa37543818f2c91",
+      "query_sha256": "3d830829deb9e6e5e3abe92dfe0d7b674011745d637b93bf9e14365284d0d65d",
       "result": {
         "status": "proven",
         "nonvacuity": {
@@ -33,7 +33,7 @@
           "outcome": {
             "status": "accepted",
             "output_hex": "8201e9",
-            "cost": 15749
+            "cost": 12969
           }
         },
         {
@@ -41,7 +41,7 @@
           "outcome": {
             "status": "accepted",
             "output_hex": "8201e9",
-            "cost": 14456
+            "cost": 11703
           }
         }
       ],
@@ -55,7 +55,7 @@
       "specification": "proofs/bounded-counter/acceptance.spec.json",
       "specification_sha256": "387f52e650cfd038484da704ef93cd85838628994a1bc6a6d8e4aac20b4d80ce",
       "query": "proofs/bounded-counter/acceptance.smt2",
-      "query_sha256": "85bf37b5dd8ec78af90b0a34db8da8eb55298e8712406ddeedfb427f1d879bf7",
+      "query_sha256": "48bfd6fecde5a5db9f47a1201e886d661c51d44494e07d26952472a6f752966f",
       "result": {
         "status": "proven",
         "nonvacuity": {
@@ -73,7 +73,7 @@
           "outcome": {
             "status": "accepted",
             "output_hex": "8201e9",
-            "cost": 15749
+            "cost": 12969
           }
         },
         {
@@ -81,7 +81,7 @@
           "outcome": {
             "status": "accepted",
             "output_hex": "8201e9",
-            "cost": 14456
+            "cost": 11703
           }
         }
       ],
@@ -96,7 +96,7 @@
     "specification": "proofs/bounded-counter/range.spec.json",
     "specification_sha256": "c2bd93f2907434b000e9767a8246ad029af7507e7f173665cdd67de47b83c9a5",
     "query": "proofs/bounded-counter/mutation.smt2",
-    "query_sha256": "af298e2d3615244b8ca2810827fd91d6fb1be2a66c124a0087b4ccd6295a5512",
+    "query_sha256": "78cd182a699c3e860e82a573919cb63b97d5ebbcb5ffff48f8354ec47a83d65d",
     "result": {
       "status": "refuted",
       "counterexample": {
@@ -138,7 +138,7 @@
         "outcome": {
           "status": "accepted",
           "output_hex": "820400",
-          "cost": 14775
+          "cost": 11995
         }
       },
       {
@@ -146,7 +146,7 @@
         "outcome": {
           "status": "accepted",
           "output_hex": "820400",
-          "cost": 13672
+          "cost": 10919
         }
       }
     ],

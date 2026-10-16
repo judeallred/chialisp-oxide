@@ -41,7 +41,7 @@ The macro does not translate the function into another language. Rust checks
 the source normally; the driver then lowers each marked function's supported
 reachable code through the typed IR and Rue backend.
 
-`pay` requires an `Amount`, checks the generated cap, and emits
+`pay` requires an `Amount`, checks `PAYMENT_CAP` with `.is_at_most`, and emits
 `ASSERT_MY_AMOUNT 1000` and a fixed-destination `CREATE_COIN`. Its amount choice
 is permissionless and an unpaid remainder becomes a fee. `guarded_add` is a
 second export with primitive `u64` arguments; its numeric result is not a list
@@ -115,7 +115,31 @@ cargo test -p oxide-driver --test newtypes --locked
 These protections apply at typed helper call sites. Rue's nominal struct types
 can express analogous distinctions; this is not unique to Rust.
 
-## Inspect the actual SDK crate
+## Name units and policy before constructing conditions
+
+The actual consumer source above defines `COIN_AMOUNT` and `PAYMENT_CAP` with
+`Amount::from_mojos` and gives the fixed `PuzzleHash` a `RECIPIENT` name.
+`PaymentConditions` names the return layout. These names make the policy
+readable without requiring a reader to decode condition numbers or tuple fields.
+
+Use `.mojos()` when checked arithmetic needs the inner integer, then construct
+the result with `Amount::from_mojos`. For time, use
+`Timestamp::from_unix_seconds` and `.unix_seconds()`: those names mean an
+absolute Unix timestamp, not a delay since coin creation. The
+[split-payment](/chialisp-oxide/tutorials/split-payment/) and
+[recovery](/chialisp-oxide/tutorials/recovery/) examples exercise these methods.
+
+The helpers keep numeric condition discriminants in the SDK's `opcode` module.
+The [condition reference](/chialisp-oxide/reference/conditions/) explains the
+serialized form. These remain plain Rust functions and type aliases, not a
+builder backed by heap allocation or an alternative puzzle language.
+The repository's [readability design notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/readability.md)
+record the API rationale and the before/after validation method.
+
+## Inspect the shared SDK definitions
+
+`oxide-sdk` and the standalone compatibility path both use this ordinary source
+module. The crate additionally re-exports the puzzle marker macro.
 
 <SdkSource />
 
@@ -124,7 +148,11 @@ can express analogous distinctions; this is not unique to Rust.
 their result aliases remain tuples, so callers can still construct raw tuples
 or incorrect opcodes manually.
 
-The fields are public. `PuzzleHash(coin.0)` explicitly unwraps and rewraps bytes
+These small values implement `Copy` and `Clone` in Rust. Implicit `Copy` reuse
+of an amount, recipient, or key is supported on-chain; explicit `.clone()` calls
+are not, because their borrowed receiver and trait dispatch are unsupported.
+The fields are public:
+`PuzzleHash(coin.0)` explicitly unwraps and rewraps bytes
 and bypasses the direct source-level distinction. Amounts also remain ordinary
 duplicable numeric values: an inner `u64` can be copied and wrapped again.
 Move checking does not enforce money conservation or prevent double spends.
@@ -133,11 +161,12 @@ Move checking does not enforce money conservation or prevent double spends.
 
 <SourcePair slug="capped-payment" />
 
-This existing corpus fixture still includes the source-only compatibility
-module `sdk/oxide.rs` with `#[path]`; it has not migrated to the Cargo SDK crate.
-Its exact dependency source and hash are recorded in the corpus report. The
-Cargo example above and this fixture are separate programs with matching
-helper conventions, not one source file presented as two workflows.
+This corpus fixture still includes `sdk/oxide.rs` with `#[path]`; it has not
+migrated to a Cargo SDK dependency. That compatibility module imports the same
+`crates/oxide-sdk/src/domain.rs` used by the real crate. Their complete declared
+dependency sources and hashes are in the drawers and report. The Cargo example
+and corpus fixture remain separate programs, compiled through different
+authoring harnesses, despite sharing the domain API implementation.
 
 ```sh
 ./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/typed-cap

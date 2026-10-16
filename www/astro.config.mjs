@@ -12,6 +12,11 @@ export default defineConfig({
       logo: { src: './src/assets/oxide-mark.svg', replacesTitle: false },
       favicon: '/favicon.svg',
       customCss: ['./src/styles/custom.css'],
+      expressiveCode: {
+        defaultProps: {
+          overridesByLang: { rust: { wrap: true, preserveIndent: true } },
+        },
+      },
       components: { Banner: './src/components/PrototypeBanner.astro' },
       social: [{ icon: 'github', label: 'GitHub repository', href: 'https://github.com/judeallred/chialisp-oxide' }],
       sidebar: [

@@ -8,7 +8,10 @@ inventory.
 Authoring guides lead with the real unpublished Cargo SDK and annotated exports.
 Their consumer examples are imported directly from `../examples/cargo-puzzles`;
 the nine-puzzle laboratory still reports the separate standalone comparison
-harness and identifies its compatibility-module dependency explicitly.
+harness. Both paths use the same ordinary SDK domain source. Full recorded
+dependency sources, including public fixture-key bytes, remain available in
+expandable drawers. Comparisons stack at narrow content widths; wrapped code
+keeps its original copied line breaks.
 The laboratory also compares serialized bytes between optimization modes and
 against Chialisp, with exact replacement offsets and explicit hash-compatibility
 scope; byte similarity is not presented as a semantic proof.

@@ -56,16 +56,33 @@ for (const name of ['validation', 'proofs', 'inventory']) {
   assert.equal(report.schema_version, 1, `${name}: report schema`);
 }
 const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
+const decodeAttribute = value => value.replace(/&(?:#x([0-9a-f]+)|#([0-9]+)|(amp|lt|gt|quot|apos));/gi,
+  (_, hex, decimal, named) => hex || decimal
+    ? String.fromCodePoint(Number.parseInt(hex ?? decimal, hex ? 16 : 10))
+    : ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" })[named.toLowerCase()]);
+// Expressive Code normalizes surrounding/trailing whitespace, but wrapping
+// must not add newlines or otherwise rewrite the copied program text.
+const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
+let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
   assert(detail.includes('Serialized-byte diffs'), `${puzzle.slug}: missing compiled-output comparison`);
+  const copied = [...detail.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+  for (const [label, source] of [['Rust', puzzle.source], ['Chialisp', puzzle.reference], ...puzzle.source_dependencies.map(dependency => [dependency.path, dependency.source])]) {
+    assert(copied.includes(normalizedCode(source)), `${puzzle.slug}: copy payload changed ${label} source`);
+    checkedSourceCopies++;
+  }
   for (const dependency of puzzle.source_dependencies) {
     assert(detail.includes(dependency.sha256), `${puzzle.slug}: missing source dependency provenance`);
+    assert(detail.includes(`data-source-dependency="${dependency.path}"`), `${puzzle.slug}: missing expandable dependency source`);
+    if (dependency.path.endsWith('/fixture_keys.rs')) {
+      assert(detail.includes('Public fixture key bytes'), `${puzzle.slug}: fixture keys must be labeled separately`);
+    }
   }
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
-for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/oxide-sdk/src/lib.rs']) {
+for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/oxide-sdk/src/lib.rs', 'crates/oxide-sdk/src/domain.rs']) {
   assert(sdk.includes(source), `Missing actual Cargo tutorial source: ${source}`);
 }
 assert(sdk.includes('sdk/oxide.rs'), 'SDK tutorial must identify the standalone corpus compatibility module');
@@ -86,7 +103,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -98,4 +115,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, 3 JSON reports, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 3 JSON reports, and live Pagefind queries`);

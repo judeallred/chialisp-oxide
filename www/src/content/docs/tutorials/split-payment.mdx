@@ -5,15 +5,21 @@ description: Use checked subtraction, a bounded caller input, and exact recipien
 
 import SourcePair from '../../../components/SourcePair.astro';
 
-The first recipient receives `first_amount`; the second receives
-`1000 - first_amount`. Both destination hashes are fixed. The caller selects
+`FIRST_RECIPIENT` receives `first_amount`; `SECOND_RECIPIENT` receives
+the rest of `COIN_AMOUNT`. Both destination hashes are fixed. The caller selects
 the split, and the input amount is checked by a consensus condition.
 
 <SourcePair slug="split-payment" />
 
 ## Why the guard comes before subtraction
 
-Rust's checked subtraction must reject when `first_amount > 1000`. The explicit
+`Amount::from_mojos` makes the unit explicit, `.is_at_most(COIN_AMOUNT)` names
+the cap check, and `.mojos()` exposes the integers for checked subtraction.
+The result is wrapped as an `Amount` before `create_coin` receives it.
+`SplitConditions` names the result instead of repeating its tuple layout.
+
+Rust's checked subtraction must reject when `first_amount` exceeds the
+1,000-mojo `COIN_AMOUNT`. The explicit
 assertion makes the intended policy readable and gives formal specifications a
 clear predicate. Even if the assertion were accidentally removed, checked
 integer arithmetic must not silently wrap or become a negative CLVM amount.

@@ -1,4 +1,7 @@
-use std::cell::Cell;
+use std::{
+    cell::{Cell, RefCell},
+    collections::HashMap,
+};
 
 use oxide_ir::{BinaryOp, Expr, Type};
 use rustc_hir::def_id::DefId;
@@ -11,13 +14,16 @@ use rustc_middle::{
 };
 use rustc_span::Span;
 
+mod constants;
 mod newtypes;
+mod totality;
 
 pub struct Lowerer<'tcx> {
     tcx: TyCtxt<'tcx>,
     blocks: Cell<usize>,
     expression_work: Cell<usize>,
     active_blocks: Cell<usize>,
+    total_functions: RefCell<HashMap<DefId, bool>>,
 }
 
 const MAX_EXPRESSION_NODES: usize = 8_192;
@@ -42,6 +48,7 @@ impl<'tcx> Lowerer<'tcx> {
             blocks: Cell::new(0),
             expression_work: Cell::new(0),
             active_blocks: Cell::new(0),
+            total_functions: RefCell::new(HashMap::new()),
         }
     }
 
@@ -229,6 +236,9 @@ impl<'tcx> Lowerer<'tcx> {
         stack.push(id);
         let result = self.block(body, START_BLOCK, locals, &mut Vec::new(), stack);
         stack.pop();
+        if result.is_ok() {
+            self.remember_function_totality(id, body);
+        }
         result
     }
 
@@ -266,7 +276,7 @@ impl<'tcx> Lowerer<'tcx> {
                     let (place, rvalue) = &**assignment;
                     let value = self.rvalue(body, rvalue, &locals, statement_span)?;
                     self.check_expression(&value, statement_span)?;
-                    if may_reject(&value) {
+                    if !Self::rvalue_is_total(rvalue) {
                         effects.push(value.clone());
                     }
                     self.assign(body, *place, value, &mut locals, statement_span)?;
@@ -391,7 +401,11 @@ impl<'tcx> Lowerer<'tcx> {
                         values.push(value);
                     }
                     let value = self.function(*id, values, stack)?;
-                    effects.push(value.clone());
+                    // Totality concerns the validated function's own MIR,
+                    // rather than re-evaluating previously computed arguments.
+                    if !self.function_is_total(*id) {
+                        effects.push(value.clone());
+                    }
                     self.assign(body, *destination, value, &mut locals, span)?;
                     let target = target.ok_or_else(|| {
                         self.error(span, "diverging helper calls are unsupported")
@@ -427,9 +441,13 @@ impl<'tcx> Lowerer<'tcx> {
         match operand {
             Operand::Copy(place) | Operand::Move(place) => self.place(body, *place, locals, span),
             Operand::Constant(constant) => {
-                let ty = self.ty(constant.const_.ty(), span)?;
+                let rust_ty = constant.const_.ty();
+                let ty = self.ty(rust_ty, span)?;
                 if ty == Type::Unit {
                     return Ok(Expr::Unit);
+                }
+                if let Type::Bytes { len } = ty {
+                    return self.bytes_constant(constant.const_, rust_ty, len, span);
                 }
                 let bits = constant
                     .const_
@@ -737,20 +755,5 @@ fn empty_value(ty: &Type) -> Expr {
         _ => Expr::Reject {
             message: "uninitialized MIR field".into(),
         },
-    }
-}
-
-fn may_reject(expr: &Expr) -> bool {
-    match expr {
-        Expr::Binary {
-            kind: BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul,
-            ..
-        }
-        | Expr::Reject { .. } => true,
-        Expr::Tuple { items } => items.iter().any(may_reject),
-        Expr::Binary { left, right, .. } => may_reject(left) || may_reject(right),
-        Expr::Not { value } | Expr::Field { value, .. } => may_reject(value),
-        Expr::If { .. } | Expr::Sequence { .. } => true,
-        _ => false,
     }
 }

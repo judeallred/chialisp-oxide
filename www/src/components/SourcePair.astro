@@ -5,13 +5,25 @@ interface Props { slug: string; }
 const puzzle = puzzles.find(p => p.slug === Astro.props.slug);
 if (!puzzle) throw new Error(`Missing validated source pair: ${Astro.props.slug}`);
 ---
-<div class="split-source">
-  <section class="source-column" aria-label="Rust source">
-    <div class="source-label"><span class="badge success">Rust</span> puzzle.rs · compiled from MIR</div>
-    <Code code={puzzle.source.trim()} lang="rust" />
-  </section>
-  <section class="source-column" aria-label="Chialisp reference source">
-    <div class="source-label"><span class="badge">Chialisp</span> reference.clsp · independent compiler</div>
-    <Code code={puzzle.reference.trim()} lang="lisp" />
-  </section>
+<div class="source-comparison">
+  <div class="split-source">
+    <section class="source-column" aria-label="Rust source">
+      <div class="source-label"><span class="badge success">Rust policy</span> exact recorded source · compiled from MIR</div>
+      <Code code={puzzle.source} lang="rust" title={`puzzles/${puzzle.slug}/puzzle.rs`} wrap preserveIndent />
+    </section>
+    <section class="source-column" aria-label="Chialisp reference source">
+      <div class="source-label"><span class="badge">Chialisp reference</span> independent compiler · same tested ABI</div>
+      <Code code={puzzle.reference} lang="lisp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
+    </section>
+  </div>
+  <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
+  {puzzle.source_dependencies.length > 0 && <div class="source-dependencies">
+    <p class="source-note">Supporting files are recorded separately so fixture data and helper definitions do not obscure the puzzle policy.</p>
+    {puzzle.source_dependencies.map(dependency => <details class="source-dependency" data-source-dependency={dependency.path}>
+      <summary>{dependency.path.endsWith('/fixture_keys.rs') ? 'Public fixture key bytes' : 'Supporting source'}: <code>{dependency.path}</code></summary>
+      <p class="source-note">Complete source from this fixture’s declared dependencies. SHA-256: <code class="dependency-hash">{dependency.sha256}</code>.</p>
+      {dependency.path.endsWith('/fixture_keys.rs') && <p class="source-note">These deterministic public test keys have publicly known secret seeds. Never use them for real funds.</p>}
+      <Code code={dependency.source} lang="rust" title={dependency.path} wrap preserveIndent />
+    </details>)}
+  </div>}
 </div>

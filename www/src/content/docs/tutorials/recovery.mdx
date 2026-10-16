@@ -12,7 +12,9 @@ chain timestamp; it returns a requirement for the consensus engine to check.
 
 <SourcePair slug="timelocked-payment" />
 
-Condition 81 asserts an absolute timestamp. The small value 100 exists for a
+`assert_seconds_absolute(UNLOCK_AT)` names the time requirement, and
+`Timestamp::from_unix_seconds` states its unit and reference point. The
+serialized condition uses opcode 81. The small value 100 exists for a
 deterministic simulator scenario. It does not mean “wait 100 seconds after this
 coin is created.” Before that timestamp the ledger rejects the spend; after
 advancing simulator time, the same puzzle can produce its intended payment.
@@ -24,8 +26,9 @@ an owner key.
 
 <SourcePair slug="recovery-payment" />
 
-The owner branch selects the owner public key and a zero absolute lock. The
-recovery branch selects the recovery public key and absolute timestamp 100.
+The owner branch selects `OWNER` and `OWNER_UNLOCK_AT`, the Unix epoch, so it
+adds no wait. The recovery branch selects `RECOVERY_SIGNER` and
+`RECOVERY_UNLOCK_AT`, absolute Unix timestamp 100.
 Both paths require a signature, check the input coin amount, and pay the same
 fixed destination.
 

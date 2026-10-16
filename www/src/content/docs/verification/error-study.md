@@ -42,8 +42,8 @@ the additional CLVM subset check. The two boundaries are tested separately.
 The standalone compatibility regression `newtype_swap.rs` fails with `E0308`, expected `PuzzleHash`,
 found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
 `Amount`. The driver test requires both names in the Rust diagnostic and no
-emitted IR. The capped-payment corpus fixture still uses `sdk/oxide.rs`, a
-source-only compatibility module; it is not evidence of a complete Cargo
+emitted IR. The standalone corpus still uses `sdk/oxide.rs`, which imports the
+same ordinary `domain.rs` source as the SDK crate; it is not evidence of a complete Cargo
 migration. The Cargo integration separately compares actual generated outputs
 with and without optimization and under the changed feature cap.
 
@@ -91,8 +91,8 @@ puzzle exploit was assessed.
 The named SDK helpers prevent direct source-level domain swaps, but their
 condition aliases still expose tuple representations. A wrong manually written
 condition number, deliberate byte rewrap, wrong key, destination, fee,
-timelock, or signature commitment can compile. Most existing teaching fixtures
-also retain raw tuples to make their condition structure visible.
+timelock, or signature commitment can compile. The teaching fixtures now name
+their conditions and policy constants, but aliases still expose tuple layouts.
 
 Transparent wrappers add no runtime domain tags. ABI decoding checks the inner
 encoding and does not invoke constructors or validate their custom invariants.

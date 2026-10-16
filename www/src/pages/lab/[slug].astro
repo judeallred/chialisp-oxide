@@ -21,7 +21,6 @@ const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,
   <h2 id="sources">Compare the sources</h2>
   <p>These are the exact source strings recorded in the validation report. The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.</p>
   <SourcePair slug={puzzle.slug} />
-  {puzzle.source_dependencies.map(dependency => <details class="artifact"><summary>Source dependency: {dependency.path}</summary><p class="quiet">SHA-256: <code class="dependency-hash">{dependency.sha256}</code>. Recorded from this fixture’s explicitly enumerated dependency manifest.</p><Code code={dependency.source.trim()} lang="rust" title={dependency.path} /></details>)}
   <h2 id="artifacts">Compiled artifacts</h2>
   <p>All three programs are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
   <div class="table-scroll"><table><caption>Serialized program sizes and tree hashes</caption><thead><tr><th scope="col">Backend</th><th scope="col">Optimization</th><th scope="col">Bytes</th><th scope="col">CLVM tree hash</th></tr></thead><tbody>

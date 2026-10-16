@@ -5,13 +5,19 @@ use oxide_sdk::{Amount, AssertMyAmount, CreateCoin, PuzzleHash, assert_my_amount
 // Cargo executes the host build script before rustc expands this source.
 include!(concat!(env!("OUT_DIR"), "/limits.rs"));
 
+const COIN_AMOUNT: Amount = Amount::from_mojos(1_000);
+const PAYMENT_CAP: Amount = Amount::from_mojos(PAYMENT_LIMIT);
+const RECIPIENT: PuzzleHash = PuzzleHash([0x42; 32]); // Fixed teaching destination.
+
+pub type PaymentConditions = (AssertMyAmount, CreateCoin);
+
 /// Permissionless fixed-destination payment; any remainder becomes a fee.
 #[oxide_sdk::puzzle]
-pub fn pay(amount: Amount) -> (AssertMyAmount, CreateCoin) {
-    assert!(amount.0 <= PAYMENT_LIMIT);
+pub fn pay(amount: Amount) -> PaymentConditions {
+    assert!(amount.is_at_most(PAYMENT_CAP));
     (
-        assert_my_amount(Amount(1000)),
-        create_coin(PuzzleHash([0x42; 32]), amount),
+        assert_my_amount(COIN_AMOUNT),
+        create_coin(RECIPIENT, amount),
     )
 }
 
@@ -48,18 +54,18 @@ mod tests {
     #[test]
     fn payment_returns_the_exact_conditions_at_both_boundaries() {
         for amount in [0, PAYMENT_LIMIT] {
-            let (assertion, payment) = pay(Amount(amount));
+            let (assertion, payment) = pay(Amount::from_mojos(amount));
             assert_eq!(assertion.0, 73);
-            assert_eq!(assertion.1.0, 1000);
+            assert_eq!(assertion.1.mojos(), 1_000);
             assert_eq!(payment.0, 51);
             assert_eq!(payment.1.0, [0x42; 32]);
-            assert_eq!(payment.2.0, amount);
+            assert_eq!(payment.2.mojos(), amount);
         }
     }
 
     #[test]
     fn payment_rejects_an_amount_above_the_generated_limit() {
-        assert!(std::panic::catch_unwind(|| pay(Amount(PAYMENT_LIMIT + 1))).is_err());
+        assert!(std::panic::catch_unwind(|| pay(Amount::from_mojos(PAYMENT_LIMIT + 1))).is_err());
     }
 
     #[test]
