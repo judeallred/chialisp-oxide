@@ -9,15 +9,56 @@ Compile a supported subset of real Rust into CLVM using Rue's optimizer and
 backend. Test puzzles against native Rust, independently compiled Chialisp, and
 the chia-wallet-sdk transaction simulator.
 
-## Run the prototype experiments
+## Explore the Cargo prototype
 
-The standalone-file flow below is an experiment harness. A researched Cargo-native
-authoring workflow is under development; no crates are published yet.
+Use an ordinary Rust library with the real, unpublished `oxide-sdk` dependency.
+Mark exported functions with `#[oxide_sdk::puzzle]`. Ordinary `cargo check` and
+`cargo test` provide Rust checking and native tests; `cargo oxide check` and
+`cargo oxide build` additionally validate the reachable CLVM subset and compile
+the marked functions through Rue.
 
-Install Rust with rustup and Z3 (`brew install z3` on macOS, `apt install z3` on
-Ubuntu). The checked-in toolchain installs Rust 1.97.1 and rustc-dev. The pinned
-compiler-private driver uses package-scoped `RUSTC_BOOTSTRAP`; ordinary puzzle
-source is checked as stable Rust, including its type and borrow checks.
+From this checkout, with rustup installed:
+
+```sh
+rustup show
+cargo build --locked -p cargo-oxide -p oxide-driver
+export PATH="$PWD/target/debug:$PATH"
+cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+```
+
+The [consumer package](examples/cargo-puzzles) has two annotated entries, a real
+SDK path dependency, feature-controlled limits, a host build script generating
+code through `OUT_DIR`/`include!`, and unannotated native-only allocation code.
+Neither `oxide-sdk`, `oxide-macros`, nor `cargo-oxide` is published to crates.io.
+Use the checkout's path dependencies or a reviewed pinned Git revision. Local
+installation and output options are documented in [cargo-oxide](crates/cargo-oxide/README.md).
+
+The compiler is pinned to **nightly-2026-07-14**, reporting Rust 1.99.0-nightly,
+with `rustc-dev` and `llvm-tools-preview`. No `RUSTC_BOOTSTRAP` is required.
+Cargo supplies features, dependencies, generated code, and actual rustc
+arguments. Build scripts and procedural macros remain normal host programs.
+
+Each successful export build creates an immutable bundle under the consumer
+workspace's `target/oxide/artifacts/<bundle>/manifest.json`, with typed IR,
+serialized CLVM, disassembly, sizes, and tree hashes. `latest.json` points to the
+most recent successful bundle. Failed builds preserve the previous successful
+bundle instead of publishing partial artifacts.
+
+This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
+`--target clvm` implementation. A target configuration alone does not provide
+code generation, runtime layouts, linking, or a CLVM SDK. See the
+[authoring research and backend rationale](docs/rust-authoring-research.md).
+General cross-crate Rust libraries remain outside the supported subset; the
+initial external calls are restricted to vetted concrete SDK helpers.
+
+## Reproduce the paired corpus harness
+
+The existing nine-puzzle corpus still uses the standalone-file research harness.
+Its capped-payment fixture uses the compatibility module in `sdk/oxide.rs`.
+This evidence does not imply that the corpus has migrated to the Cargo flow.
 
 ```sh
 ./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/capped
@@ -25,8 +66,9 @@ source is checked as stable Rust, including its type and borrow checks.
 ./scripts/oxide validate --output corpus/validation.json
 ```
 
-Build emits typed IR, serialized CLVM hex, disassembly, size, and tree hash. The
-backend directly integrates Rue compiler source; generated Rue is optional.
+Z3 is required for the formal experiments (`brew install z3` on macOS,
+`apt install z3` on Ubuntu). The backend directly integrates Rue compiler
+source; generated Rue text is optional.
 
 ## What is validated
 
@@ -69,8 +111,9 @@ Actions at https://judeallred.github.io/chialisp-oxide/.
 - [Chialisp tutorials/reference](https://chialisp.com/)
 
 The compiler supports restricted single-field transparent newtypes, allowing
-nominal domain checks in the source-only [SDK](sdk/README.md). General structs
-and enums, loops, recursion, allocation, external calls, references, casts,
+nominal domain checks through the real [SDK crate](crates/oxide-sdk) and the
+corpus's [compatibility module](sdk/README.md). General structs
+and enums, loops, recursion, allocation, arbitrary external calls, references, casts,
 division/remainder, and other unsupported MIR remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. No production security audit has been

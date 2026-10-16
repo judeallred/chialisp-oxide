@@ -48,7 +48,7 @@ layout, alignment, or endianness.
 
 ## Nominal wrappers erase to the inner encoding
 
-A supported local, single-field `#[repr(transparent)]` wrapper preserves Rust's
+A supported local or vetted SDK single-field `#[repr(transparent)]` wrapper preserves Rust's
 source-level type identity but adds no CLVM wrapper node or domain tag.
 `PuzzleHash([u8; 32])` is the same 32-byte atom as its inner array; `Amount(u64)`
 is the same canonical numeric atom as its inner integer. A one-argument
@@ -75,10 +75,12 @@ The result is a proper list containing `(73 1000)` and
 The repeated destination bytes describe the recipient puzzle hash, not an
 address string.
 
-The source-only SDK now provides nominal `Amount`, `PuzzleHash`, `CoinId`,
+The real `oxide-sdk` crate provides nominal `Amount`, `PuzzleHash`, `CoinId`,
 `PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
-The capped-payment fixture uses these helpers. Other fixtures still illustrate
-the raw tuple interface, and SDK condition result aliases also remain tuples.
+The Cargo consumer uses that crate. The existing capped-payment corpus fixture
+uses a separate source-only compatibility module with the same helper
+conventions; it has not migrated to Cargo. Other corpus fixtures illustrate
+the raw tuple interface, and both SDK versions' result aliases remain tuples.
 There is no closed nominal `Condition` enum: an incorrect manually constructed
 opcode can still compile. The [condition reference](/chialisp-oxide/reference/conditions/)
 and simulator tests remain necessary policy checks.

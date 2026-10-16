@@ -1,5 +1,6 @@
 #![feature(rustc_private)]
 
+extern crate rustc_abi;
 extern crate rustc_driver;
 extern crate rustc_hir;
 extern crate rustc_index;
@@ -7,25 +8,34 @@ extern crate rustc_interface;
 extern crate rustc_middle;
 extern crate rustc_span;
 
+mod cargo;
 mod lower;
 
-use std::{path::PathBuf, process::Command};
+use std::{io::Write, path::PathBuf};
 
 use oxide_ir::{Expr, Parameter, Program};
 use rustc_driver::{Callbacks, Compilation};
+use rustc_hir::def_id::DefId;
 use rustc_middle::ty::TyCtxt;
+use sha2::{Digest, Sha256};
+
+const EXPORT_MARKER: &str = "__oxide_puzzle_v1";
 
 struct Driver {
     entry: String,
     output: Option<PathBuf>,
+    cargo_output: Option<PathBuf>,
     result: Result<(), String>,
+}
+
+fn configure(config: &mut rustc_interface::interface::Config, encode_dependencies: bool) {
+    config.opts.unstable_opts.mir_opt_level = Some(0);
+    config.opts.unstable_opts.always_encode_mir = encode_dependencies;
 }
 
 impl Callbacks for Driver {
     fn config(&mut self, config: &mut rustc_interface::interface::Config) {
-        // Configure this internal pass directly rather than accepting arbitrary
-        // -Z flags or enabling unstable language features in user puzzle crates.
-        config.opts.unstable_opts.mir_opt_level = Some(0);
+        configure(config, self.cargo_output.is_some());
     }
 
     fn after_analysis<'tcx>(
@@ -33,20 +43,79 @@ impl Callbacks for Driver {
         _compiler: &rustc_interface::interface::Compiler,
         tcx: TyCtxt<'tcx>,
     ) -> Compilation {
-        // The driver invokes analysis before this callback. Explicitly force every
-        // local body's borrow-check query too; MIR extraction must never become a
-        // shortcut around ordinary Rust checking after a rustc upgrade.
+        // Analysis runs before this callback. Explicitly force each typeck
+        // root's borrow check; that query also checks all of its nested bodies.
+        // Querying a closure directly violates rustc's mir_borrowck contract.
         for owner in tcx.hir_body_owners() {
-            tcx.ensure_ok().mir_borrowck(owner);
+            if !tcx.is_typeck_child(owner.to_def_id()) {
+                tcx.ensure_ok().mir_borrowck(owner);
+            }
         }
         tcx.dcx().abort_if_errors();
         self.result = self.extract(tcx);
-        Compilation::Stop
+        if self.cargo_output.is_some() && self.result.is_ok() {
+            // Cargo needs the normal metadata for downstream crates. Artifacts
+            // become publishable only after the whole Cargo command succeeds.
+            Compilation::Continue
+        } else {
+            Compilation::Stop
+        }
     }
 }
 
 impl Driver {
     fn extract<'tcx>(&self, tcx: TyCtxt<'tcx>) -> Result<(), String> {
+        if let Some(output) = &self.cargo_output {
+            let mut programs = Vec::new();
+            for owner in tcx.hir_body_owners() {
+                let id = owner.to_def_id();
+                let markers = tcx
+                    .hir_attrs(tcx.local_def_id_to_hir_id(owner))
+                    .iter()
+                    .filter(|attribute| {
+                        attribute
+                            .doc_str()
+                            .is_some_and(|text| text.as_str() == EXPORT_MARKER)
+                    })
+                    .count();
+                if markers == 0 {
+                    continue;
+                }
+                if markers != 1 || tcx.def_kind(id) != rustc_hir::def::DefKind::Fn {
+                    return Err(format!(
+                        "{}: #[puzzle] requires one annotation on a free function",
+                        tcx.sess
+                            .source_map()
+                            .span_to_diagnostic_string(tcx.def_span(id))
+                    ));
+                }
+                let name = format!(
+                    "{}::{}",
+                    tcx.crate_name(rustc_hir::def_id::LOCAL_CRATE),
+                    tcx.def_path_str(id)
+                );
+                programs.push(self.extract_program(tcx, id, name)?);
+            }
+            programs.sort_by(|a, b| a.name.cmp(&b.name));
+            std::fs::create_dir_all(output).map_err(|error| error.to_string())?;
+            for program in programs {
+                // Hash the complete path rather than replacing separators:
+                // `a__b` and `a::b` must never overwrite one another.
+                let path = output.join(format!(
+                    "{:x}.ir.json",
+                    Sha256::digest(program.name.as_bytes())
+                ));
+                let json =
+                    serde_json::to_vec_pretty(&program).map_err(|error| error.to_string())?;
+                let mut file = std::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&path)
+                    .map_err(|error| format!("create unique export {}: {error}", path.display()))?;
+                file.write_all(&json).map_err(|error| error.to_string())?;
+            }
+            return Ok(());
+        }
         let entries: Vec<_> = tcx
             .hir_body_owners()
             .filter(|id| {
@@ -61,7 +130,22 @@ impl Driver {
                 entries.len()
             ));
         }
-        let id = entries[0].to_def_id();
+        let program = self.extract_program(tcx, entries[0].to_def_id(), self.entry.clone())?;
+        let json = serde_json::to_string_pretty(&program).map_err(|error| error.to_string())?;
+        if let Some(path) = &self.output {
+            std::fs::write(path, format!("{json}\n")).map_err(|error| error.to_string())?;
+        } else {
+            println!("{json}");
+        }
+        Ok(())
+    }
+
+    fn extract_program<'tcx>(
+        &self,
+        tcx: TyCtxt<'tcx>,
+        id: DefId,
+        name: String,
+    ) -> Result<Program, String> {
         let body = tcx.optimized_mir(id);
         let lowerer = lower::Lowerer::new(tcx);
         let parameters = body
@@ -86,7 +170,7 @@ impl Driver {
             })
             .collect::<Result<Vec<_>, String>>()?;
         let program = Program {
-            name: self.entry.clone(),
+            name,
             result: lowerer.ty(body.return_ty(), body.span)?,
             body: lowerer.function(
                 id,
@@ -103,18 +187,38 @@ impl Driver {
                 tcx.sess.source_map().span_to_diagnostic_string(body.span)
             )
         })?;
-        let json = serde_json::to_string_pretty(&program).map_err(|error| error.to_string())?;
-        if let Some(path) = &self.output {
-            std::fs::write(path, format!("{json}\n")).map_err(|error| error.to_string())?;
-        } else {
-            println!("{json}");
-        }
-        Ok(())
+        Ok(program)
     }
 }
 
 fn main() -> std::process::ExitCode {
-    let mut arguments = std::env::args().skip(1);
+    let mut arguments: Vec<String> = std::env::args().skip(1).collect();
+    if arguments.len() == 1 && arguments[0] == "--compiler-version" {
+        println!("{}", env!("OXIDE_RUSTC_VERSION"));
+        return std::process::ExitCode::SUCCESS;
+    }
+    if arguments.len() == 1 && arguments[0] == "--version" {
+        println!(
+            "oxide-driver {} ({})",
+            env!("CARGO_PKG_VERSION"),
+            env!("OXIDE_RUSTC_VERSION")
+        );
+        return std::process::ExitCode::SUCCESS;
+    }
+    let explicit_wrapper = arguments
+        .first()
+        .is_some_and(|arg| arg == "--cargo-wrapper");
+    if explicit_wrapper {
+        arguments.remove(0);
+    }
+    if explicit_wrapper || std::env::var_os("OXIDE_CARGO_MODE").is_some() {
+        return cargo::run(arguments);
+    }
+    standalone(arguments)
+}
+
+fn standalone(arguments: Vec<String>) -> std::process::ExitCode {
+    let mut arguments = arguments.into_iter();
     let Some(source) = arguments.next() else {
         usage();
     };
@@ -124,27 +228,18 @@ fn main() -> std::process::ExitCode {
     let mut driver = Driver {
         entry: "puzzle".into(),
         output: None,
+        cargo_output: None,
         result: Err("Rust checking did not complete".into()),
     };
     while let Some(argument) = arguments.next() {
         match argument.as_str() {
             "--entry" => driver.entry = arguments.next().unwrap_or_else(|| usage()),
-            "--output" => {
-                driver.output = Some(arguments.next().unwrap_or_else(|| usage()).into());
-            }
+            "--output" => driver.output = Some(arguments.next().unwrap_or_else(|| usage()).into()),
             _ => {
                 eprintln!("unsupported driver argument: {argument}");
                 usage();
             }
         }
-    }
-    let sysroot = Command::new("rustc")
-        .args(["--print", "sysroot"])
-        .output()
-        .expect("the pinned rustc must be available");
-    if !sysroot.status.success() {
-        eprintln!("unable to locate pinned rustc sysroot");
-        std::process::exit(1);
     }
     let args = vec![
         "oxide-driver".into(),
@@ -153,19 +248,23 @@ fn main() -> std::process::ExitCode {
         "--crate-type=lib".into(),
         "--edition=2024".into(),
         "--sysroot".into(),
-        String::from_utf8(sysroot.stdout).unwrap().trim().into(),
+        env!("OXIDE_SYSROOT").into(),
         "-Cpanic=abort".into(),
         "-Coverflow-checks=yes".into(),
         "-Cdebug-assertions=yes".into(),
         "-Funsafe-code".into(),
+        "-Funstable-features".into(),
         "--emit=metadata".into(),
     ];
-    let status =
-        rustc_driver::catch_with_exit_code(|| rustc_driver::run_compiler(&args, &mut driver));
+    finish(args, &mut driver)
+}
+
+fn finish(args: Vec<String>, driver: &mut Driver) -> std::process::ExitCode {
+    let status = rustc_driver::catch_with_exit_code(|| rustc_driver::run_compiler(&args, driver));
     if status != std::process::ExitCode::SUCCESS {
         return status;
     }
-    if let Err(error) = driver.result {
+    if let Err(error) = &driver.result {
         eprintln!("error: chialisp-oxide: {error}");
         return std::process::ExitCode::FAILURE;
     }

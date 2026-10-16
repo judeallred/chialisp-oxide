@@ -13,14 +13,14 @@ impl<'tcx> Lowerer<'tcx> {
         let ty::Adt(definition, args) = rust_ty.kind() else {
             return Ok(None);
         };
-        if !definition.did().is_local()
+        if (!definition.did().is_local() && !self.allowed_external(definition.did()))
             || !definition.is_struct()
             || !definition.repr().transparent()
             || definition.non_enum_variant().fields.len() != 1
         {
             return Err(self.error(
                 span,
-                "only local #[repr(transparent)] structs with exactly one field are supported",
+                "only local or oxide_sdk #[repr(transparent)] structs with exactly one field are supported",
             ));
         }
         if self.tcx.def_span(definition.did()).from_expansion() {

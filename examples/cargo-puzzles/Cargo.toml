@@ -1,0 +1,17 @@
+[package]
+name = "oxide-cargo-puzzles"
+version = "0.1.0"
+edition = "2024"
+publish = false
+build = "build.rs"
+
+# An ordinary consumer package, independent of the compiler's workspace.
+[workspace]
+resolver = "3"
+
+[features]
+default = []
+strict-cap = []
+
+[dependencies]
+oxide-sdk = { path = "../../crates/oxide-sdk" }

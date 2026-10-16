@@ -5,6 +5,10 @@ description: Compile a small condition-producing Rust function and distinguish t
 
 import SourcePair from '../../../components/SourcePair.astro';
 
+This tutorial examines a paired fixture in the standalone comparison harness.
+For new Cargo-package experiments with the SDK and annotated exports, start
+with [typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/).
+
 Start with a puzzle that makes exactly two promises: the input coin has amount
 1,000, and the output sends 1,000 to the fixed 32-byte destination `0x42…42`.
 It makes no ownership promise. Anyone may trigger this payment.

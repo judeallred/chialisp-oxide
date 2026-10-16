@@ -1,9 +1,18 @@
-# Source-only puzzle SDK
+# Standalone-harness SDK compatibility module
 
-`oxide.rs` defines nominal types and named condition constructors for the compiler's
-supported subset. Include it with a relative module path in a standalone Rust
-puzzle. It is not yet a published Cargo crate or a promise of general dependency
-support.
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+New Cargo consumer experiments use the actual, unpublished
+[`oxide-sdk` crate](../crates/oxide-sdk) and `#[oxide_sdk::puzzle]`, as shown in
+[`examples/cargo-puzzles`](../examples/cargo-puzzles). See the
+[Cargo launcher](../crates/cargo-oxide/README.md) for the current prototype flow.
+
+`oxide.rs` remains a source-only compatibility module for the existing
+standalone-file corpus and its historical tests. It defines nominal types and
+named condition constructors with the same inner wire representations as the
+crate API. Its presence does not mean the paired corpus has migrated to Cargo
+dependencies. The two modules' wrappers are distinct Rust types; use the
+appropriate interface for the experiment rather than mixing them implicitly.
 
 The `#[repr(transparent)]` wrappers have exactly one field and no custom drop.
 The compiler erases validated wrappers to the inner wire type. Rust distinguishes

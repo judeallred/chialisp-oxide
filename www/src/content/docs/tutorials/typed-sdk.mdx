@@ -1,114 +1,170 @@
 ---
-title: Give puzzle values their own types
-description: Use the compiled source-only SDK to distinguish puzzle hashes, coin IDs, amounts, and timestamps while preserving the existing CLVM wire ABI.
+title: Author a Cargo puzzle with typed helpers
+description: Use a real unpublished SDK crate, annotated exports, native tests, and the additional CLVM subset check.
 ---
 
+import CargoSource from '../../../components/CargoSource.astro';
 import SourcePair from '../../../components/SourcePair.astro';
 import SdkSource from '../../../components/SdkSource.astro';
 import DomainErrorExamples from '../../../components/DomainErrorExamples.astro';
 
-Two 32-byte values can mean different things. A recipient puzzle hash and a
-spent coin ID have the same byte length, but passing one where the other is
-required can encode the wrong policy. Similarly, both an amount and an absolute
-timestamp fit in `u64` without being interchangeable concepts.
+:::danger[WIP prototype — not ready for use]
+Do not use for real funds or production puzzles. This tutorial exercises an
+experimental compiler and SDK, not a reviewed payment protocol.
+:::
 
-The source-only SDK uses Rust's nominal types to make these distinctions at
-helper call sites. The compiler supports a narrow transparent-wrapper form and
-erases each wrapper to its inner wire representation after Rust checking.
+A recipient puzzle hash and a spent coin ID are both 32-byte values, but
+passing one where the other is required can encode the wrong policy. Amounts
+and timestamps also share a numeric representation without being interchangeable.
+The SDK uses Rust's nominal types to reject these direct API mixups before
+CLVM generation.
 
-## Use the actual capped-payment fixture
+## Start with an ordinary Cargo library
+
+The working consumer is `examples/cargo-puzzles`. Its local `[workspace]`
+keeps it independent of the compiler workspace. `oxide-sdk` and its marker
+macro are actual crates; neither is published to crates.io.
+
+<CargoSource file="manifest" />
+
+A separate checkout can use a path dependency or a Git dependency pinned to a
+reviewed full commit of this repository. Do not substitute an invented registry
+version. The [quickstart](/chialisp-oxide/start/quickstart/) installs the pinned
+nightly components and makes the `cargo oxide` command available.
+
+## Mark the functions to compile
+
+<CargoSource file="library" />
+
+`#[oxide_sdk::puzzle]` marks an export and preserves its Rust function body.
+The macro does not translate the function into another language. Rust checks
+the source normally; the driver then lowers each marked function's supported
+reachable code through the typed IR and Rue backend.
+
+`pay` requires an `Amount`, checks the generated cap, and emits
+`ASSERT_MY_AMOUNT 1000` and a fixed-destination `CREATE_COIN`. Its amount choice
+is permissionless and an unpaid remainder becomes a fee. `guarded_add` is a
+second export with primitive `u64` arguments; its numeric result is not a list
+of spend conditions and it is not a coin puzzle.
+
+The unannotated `native_description` uses references, allocation, formatting,
+and iteration. It remains native-only because neither export calls it. If an
+export reaches unsupported code, extraction rejects it; the marker does not
+make arbitrary Rust compilable to CLVM.
+
+## Let Cargo supply features and generated code
+
+<CargoSource file="build" />
+
+This build script runs as an ordinary host program with `std`. It writes
+`PAYMENT_LIMIT` under Cargo's `OUT_DIR`, and `include!` brings that generated
+Rust into the library. The default limit is 1,000; `strict-cap` changes it to
+100. Input 101 therefore distinguishes the configurations. Compiling the
+library as an isolated source file would lose this Cargo-provided environment.
+
+Run the normal native checks from the repository root:
+
+```sh
+cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
+```
+
+Then check the supported CLVM subset and compile the exports:
+
+```sh
+cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --features strict-cap
+```
+
+`check` does not publish an artifact bundle. A successful `build` writes an
+immutable bundle under this consumer workspace's `target/oxide/artifacts/`;
+`latest.json` points to its manifest and each export's artifacts. Inspect the
+manifest rather than assuming a generated filename. Failed builds preserve
+the previous successful bundle.
+
+Native tests establish native behavior. The Cargo integration regressions also
+execute the generated payment conditions and arithmetic in both optimizer
+modes, including the changed feature cap. They are distinct from the paired
+nine-puzzle corpus and its ledger scenarios below.
+
+## Observe a typed API failure
+
+`examples/cargo-invalid` uses the same real SDK dependency. With its
+`type-error` feature, a marked function passes `CoinId` to `create_coin`, which
+requires `PuzzleHash`. This command intentionally fails with Rust `E0308`:
+
+```sh
+cargo check --manifest-path examples/cargo-invalid/Cargo.toml --locked --features type-error
+```
+
+Without that feature, its division example passes native tests but
+`cargo oxide check` rejects the unsupported operation. Valid Rust and accepted
+CLVM-source Rust are separate checks.
+
+The standalone driver regressions below also exercise both domain mistakes.
+Their observed diagnostics require the two type names and no emitted IR:
+
+<DomainErrorExamples />
+
+```sh
+cargo test -p oxide-driver --test newtypes --locked
+```
+
+These protections apply at typed helper call sites. Rue's nominal struct types
+can express analogous distinctions; this is not unique to Rust.
+
+## Inspect the actual SDK crate
+
+<SdkSource />
+
+`PuzzleHash`, `CoinId`, `PublicKey`, and `Message32` wrap fixed-size bytes.
+`Amount` and `Timestamp` wrap `u64`. Named helpers supply four condition codes;
+their result aliases remain tuples, so callers can still construct raw tuples
+or incorrect opcodes manually.
+
+The fields are public. `PuzzleHash(coin.0)` explicitly unwraps and rewraps bytes
+and bypasses the direct source-level distinction. Amounts also remain ordinary
+duplicable numeric values: an inner `u64` can be copied and wrapped again.
+Move checking does not enforce money conservation or prevent double spends.
+
+## Inspect the independently compared compatibility fixture
 
 <SourcePair slug="capped-payment" />
 
-The source file includes `sdk/oxide.rs` with a Rust `#[path]` module attribute.
-From `puzzles/capped-payment/puzzle.rs`, `../../sdk/oxide.rs` resolves to the
-repository's source-only module. This is local code compiled with the puzzle,
-not an external on-chain Rust library or an installed SDK package.
-
-The entrypoint accepts an `Amount`. Reading `amount.0` obtains the inner `u64`
-for the cap check. `assert_my_amount` returns the input-amount condition, and
-`create_coin` requires a `PuzzleHash` and an `Amount` for its arguments.
+This existing corpus fixture still includes the source-only compatibility
+module `sdk/oxide.rs` with `#[path]`; it has not migrated to the Cargo SDK crate.
+Its exact dependency source and hash are recorded in the corpus report. The
+Cargo example above and this fixture are separate programs with matching
+helper conventions, not one source file presented as two workflows.
 
 ```sh
 ./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/typed-cap
 ./scripts/oxide run target/typed-cap.clvm.hex --solution '(500)' --max-cost 1000000
 ```
 
-The accepted solution remains `(500)`. It does not become `((500))`, and it
-does not carry an `Amount` tag. The compiled fixture still has the same cap,
-fixed destination, permissionless amount choice, and remainder-as-fee policy.
+The solution remains `(500)`, not `((500))`. Transparent wrappers add neither
+an extra node nor a runtime domain tag. Read the fixture's actual
+[case and ledger evidence](/chialisp-oxide/lab/capped-payment/) for the scope
+of its independent native/Chialisp/CLVM comparison.
 
-## Make a domain swap fail before IR generation
+## Keep policy checks explicit
 
-These are the actual intentionally failing driver fixtures. Both calls fail
-with Rust error `E0308`; the driver emits no IR. The diagnostic extracts shown
-below were observed by running those fixtures.
+ABI decoding does not call a wrapper constructor or custom validator. A
+`PuzzleHash` argument receives an atom of exactly 32 bytes, not proof that the
+bytes identify the intended puzzle. An `Amount` receives a canonical in-range
+integer, not an application cap or conservation invariant. An attacker can
+supply any correctly sized bytes at the wire boundary.
 
-<DomainErrorExamples />
+The accepted wrapper form is deliberately narrow: local or vetted SDK,
+nongeneric, non-macro-generated `#[repr(transparent)]` structs with exactly one
+supported nonzero-size field and no custom `Drop`. Nested supported wrappers
+erase recursively. General structs, enums, additional zero-size fields, and
+arbitrary dependency types remain unsupported.
 
-Reproduce them after building the driver:
-
-```sh
-target/debug/oxide-driver crates/oxide-driver/tests/fixtures/newtype_swap.rs
-target/debug/oxide-driver crates/oxide-driver/tests/fixtures/newtype_time_swap.rs
-```
-
-The test `rustc_rejects_domain_swaps_before_ir_lowering` checks the error code,
-both domain names, and the absence of emitted IR. Run the complete feature
-regressions with:
-
-```sh
-cargo test -p oxide-driver --test newtypes --locked
-```
-
-This protection is meaningful at the typed Rust API boundary. Rue's nominal
-struct types can express analogous domain distinctions; the example does not
-claim this capability is unique to Rust.
-
-## Inspect the small SDK
-
-<SdkSource />
-
-`PuzzleHash`, `CoinId`, `PublicKey`, and `Message32` wrap fixed-size bytes.
-`Amount` and `Timestamp` wrap `u64`. Named helpers supply the four condition
-codes used here. Their result aliases remain tuples, not a closed nominal
-`Condition` enum: callers can still construct raw tuples manually.
-
-The wrappers deliberately expose their fields. An explicit unwrap and rewrap,
-such as `PuzzleHash(coin.0)`, can bypass the source-level domain distinction.
-The compiler prevents an accidental direct mismatch; it does not establish
-that any supplied bytes are the intended puzzle hash or key.
-
-Amounts remain ordinary duplicable numeric values: their inner `u64` can be
-copied and wrapped again. Rust's move checks do not enforce money conservation
-or prevent double spends. Those remain explicit consensus and ledger-test
-obligations.
-
-## What the feature does not validate
-
-ABI decoding does not call a wrapper constructor or a custom validation
-function. A `PuzzleHash` argument receives an atom of exactly 32 bytes;
-it does not prove that the bytes identify the intended puzzle. An `Amount`
-argument receives a canonical in-range `u64`; it does not acquire the
-application's cap or a conservation invariant just from its name. Keep those
-assertions in the puzzle body and check coin context with consensus conditions.
-
-No runtime domain tags are added. An attacker who supplies a coin ID's bytes
-in a `PuzzleHash` argument position can satisfy the length check. Source types
-and untrusted wire values have different trust boundaries.
-
-## Supported layouts and executed tests
-
-Only local, nongeneric, non-macro-generated `#[repr(transparent)]` structs with
-exactly one field, a supported nonzero-size inner type, and no custom `Drop`
-are accepted. Nested supported wrappers can erase recursively. General
-structs and enums remain unsupported. Even an additional zero-size field is
-outside this deliberately narrow form.
-
-The feature tests reject eight unsupported declaration/layout forms, preserve
-the bytes32 ABI through nominal round trips, compare SDK helper results with
-native execution and independently compiled Chialisp, check malformed inputs
-in both optimization modes, and exercise nested wrappers. The nine-puzzle
-corpus separately validates the SDK-backed capped payment. Read its actual
-[case and ledger evidence](/chialisp-oxide/lab/capped-payment/) rather than
-treating a nominal type as an authorization or security proof.
+The feature regressions reject unsupported layouts, preserve the byte ABI,
+exercise malformed solutions in both optimizer modes, and compare helper
+outputs with independent Chialisp. These checks do not establish authorization
+or eliminate policy mistakes. Keep destination, signatures, replay protection,
+fees, and coin-context requirements explicit in the puzzle and ledger tests.

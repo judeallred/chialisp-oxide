@@ -1,0 +1,15 @@
+[package]
+name = "oxide-cargo-invalid"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[features]
+default = []
+type-error = []
+
+[dependencies]
+oxide-sdk = { path = "../../crates/oxide-sdk" }

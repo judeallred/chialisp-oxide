@@ -1,0 +1,14 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import manifest from '../../../examples/cargo-puzzles/Cargo.toml?raw';
+import library from '../../../examples/cargo-puzzles/src/lib.rs?raw';
+import build from '../../../examples/cargo-puzzles/build.rs?raw';
+interface Props { file: 'manifest' | 'library' | 'build'; }
+const sources = {
+  manifest: { code: manifest, lang: 'toml', title: 'examples/cargo-puzzles/Cargo.toml' },
+  library: { code: library, lang: 'rust', title: 'examples/cargo-puzzles/src/lib.rs' },
+  build: { code: build, lang: 'rust', title: 'examples/cargo-puzzles/build.rs' },
+};
+const source = sources[Astro.props.file];
+---
+<Code code={source.code.trim()} lang={source.lang} title={source.title} />

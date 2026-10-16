@@ -6,10 +6,13 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-fn extract(source: &Path) -> Result<Program> {
-    let driver = std::env::var_os("OXIDE_DRIVER")
+fn driver_path() -> Result<PathBuf> {
+    Ok(std::env::var_os("OXIDE_DRIVER")
         .map(PathBuf::from)
-        .unwrap_or(std::env::current_exe()?.with_file_name("oxide-driver"));
+        .unwrap_or(std::env::current_exe()?.with_file_name("oxide-driver")))
+}
+fn extract(source: &Path) -> Result<Program> {
+    let driver = driver_path()?;
     let output = Command::new(&driver)
         .arg(source)
         .output()
@@ -105,7 +108,12 @@ fn main() -> Result<()> {
                 )?;
                 reports.push(oxide_corpus::validate(slug, &program)?);
             }
-            let report = json!({"schema_version":1,"toolchain":"rustc 1.97.1","rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
+            let compiler = Command::new(driver_path()?)
+                .arg("--compiler-version")
+                .output()?;
+            ensure!(compiler.status.success(), "query active rustc version");
+            let compiler = String::from_utf8(compiler.stdout)?;
+            let report = json!({"schema_version":1,"toolchain":compiler.trim(),"rue_revision":RUE_REV,"rue_local_patches":["https://github.com/xch-dev/rue/issues/108","https://github.com/xch-dev/rue/issues/109"],"execution_vm":"clvmr 0.21.0 MEMPOOL_MODE","simulator":{"sdk":"chia-sdk-test 0.36.0","consensus":"chia-consensus 0.36.1","vm":"clvmr 0.16.2","network":"TESTNET11"},"puzzles":reports});
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
             }

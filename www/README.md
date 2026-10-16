@@ -5,6 +5,10 @@ uses a custom green/oxide editorial theme, accessible framework navigation,
 code-copy controls, responsive Rust/Chialisp source comparisons, a filterable
 puzzle laboratory, formal evidence, and a separately filterable migration
 inventory.
+Authoring guides lead with the real unpublished Cargo SDK and annotated exports.
+Their consumer examples are imported directly from `../examples/cargo-puzzles`;
+the nine-puzzle laboratory still reports the separate standalone comparison
+harness and identifies its compatibility-module dependency explicitly.
 The laboratory also compares serialized bytes between optimization modes and
 against Chialisp, with exact replacement offsets and explicit hash-compatibility
 scope; byte similarity is not presented as a semantic proof.

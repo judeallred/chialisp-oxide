@@ -65,6 +65,10 @@ for (const puzzle of validation.puzzles) {
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
+for (const source of ['examples/cargo-puzzles/Cargo.toml', 'examples/cargo-puzzles/src/lib.rs', 'examples/cargo-puzzles/build.rs', 'crates/oxide-sdk/src/lib.rs']) {
+  assert(sdk.includes(source), `Missing actual Cargo tutorial source: ${source}`);
+}
+assert(sdk.includes('sdk/oxide.rs'), 'SDK tutorial must identify the standalone corpus compatibility module');
 const homepage = await html(path.join(root, 'index.html'));
 const heroTitle = homepage.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[1].replace(/<[^>]*>/g, '');
 assert.match(heroTitle ?? '', /WIP prototype.*not ready for use/i, 'Homepage must lead with the prototype status');

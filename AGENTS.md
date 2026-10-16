@@ -23,3 +23,6 @@ Use docs/compiler-approach.md for architectural context and docs/verification.md
 
 - Keep the landing page and README prominent about WIP prototype status and not ready for use. Do not market current tests or model checks as production readiness.
 - Prefer researched Rust/Cargo authoring conventions. Do not present the standalone-file harness as the final user workflow or invent a rustc CLVM target before a real backend supports it.
+- Lead new authoring examples with normal Cargo libraries, oxide-sdk, and annotated exports. Keep native `cargo check/test` and the additional CLVM subset check distinct. Preserve Cargo's features, build scripts, generated code, and compiler arguments.
+- Keep compiler-private integration on a tested dated nightly with matching components; do not restore RUSTC_BOOTSTRAP as a supported stable-toolchain workaround.
+- Cross-crate lowering currently admits only structurally validated oxide-sdk types/helpers. Do not broaden external calls until overflow flags, dependency MIR, generics, and trait resolution have explicit semantics and regression tests. Cargo integration tests must compare exact outputs, not acceptance alone.

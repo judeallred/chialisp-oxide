@@ -7,8 +7,9 @@ The working compiler integrates Rue at LIR. It does not need to emit Rue or
 Chialisp source as an intermediate representation.
 
 ```text
-puzzle.rs
-  → rustc 1.97.1 analysis + borrow checking
+Cargo library + oxide-sdk + #[oxide_sdk::puzzle]
+  → Cargo dependencies, features, build scripts, generated code
+  → rustc nightly-2026-07-14 analysis + borrow checking
   → typed MIR, supported-feature validation
   → oxide-ir: pure expressions + explicit logical types
   → Rue LIR
@@ -19,6 +20,10 @@ puzzle.rs
 
 ## Keep the boundaries narrow
 
+`cargo-oxide` selects one Cargo library package and orchestrates extraction.
+`oxide-sdk` supplies real dependency types/helpers and re-exports the
+metadata-only annotation from `oxide-macros`. The attribute preserves the
+original function tokens; rustc remains responsible for their semantics.
 `oxide-driver` owns compiler-private rustc APIs and source diagnostics.
 `oxide-ir` owns the serializable typed expression contract, whole-program
 validation, ABI checks, and Rue lowering. `oxide-chialisp` owns the independent
@@ -33,10 +38,41 @@ handwritten IR document.
 
 The driver checks nominal transparent wrappers as Rust types, then erases them
 to the supported inner type before emitting IR. The IR and CLVM wire ABI do not
-carry `CoinId` or `PuzzleHash` runtime tags. The local source-only SDK supplies
-named condition helpers; its capped-payment use is compiled through the same
-MIR path and compared against native execution and the Chialisp reference.
-Constructor validation is not executed during solution decoding.
+carry `CoinId` or `PuzzleHash` runtime tags. Concrete vetted SDK calls can cross
+the crate boundary; arbitrary dependency bodies cannot. Constructor validation
+is not executed during solution decoding.
+
+The standalone comparison corpus still uses its compatibility SDK module in
+`sdk/oxide.rs`. Its capped-payment report records that source explicitly. The
+new Cargo consumer fixture separately exercises the real SDK crate, multiple
+annotations, features, generated source, and native-only allocation code.
+
+## Cargo extraction is a compiler integration, not a target name
+
+The launcher drives Cargo through its normal CLI and metadata rather than
+reimplementing package resolution. A rustc wrapper forwards host build scripts,
+procedural macros, and compiler probes. The selected library's actual edition,
+features, `--extern` arguments, generated source, and build-script environment
+reach the pinned compiler. An explicit host analysis target separates those
+units; it is not a CLVM target specification.
+
+`cargo oxide build` publishes an immutable bundle only after the entire Cargo
+invocation and CLVM lowering succeed. `latest.json` advances to that successful
+manifest. Extraction uses a separate target directory, preserving ordinary
+native Cargo artifacts; selected-package extraction is repeated even when
+Cargo could otherwise call the package fresh.
+
+The pin is `nightly-2026-07-14` (`rustc 1.99.0-nightly`, commit `daf2e5e18`),
+with `rustc-dev` and LLVM compiler components. No bootstrap environment override
+is needed. The driver checks compiler identity before reading compiler-private
+metadata.
+
+Rust's [custom target specification](https://doc.rust-lang.org/rustc/targets/custom.html)
+configures a target; a real CLVM backend would additionally need code generation,
+runtime layouts, linking, and an appropriate core/SDK strategy. The current
+implementation is a Cargo-driven MIR adapter into Rue, with no `--target clvm`
+workflow. The repository's authoring research documents the wider backend and
+proof-tool comparisons.
 
 Corpus manifests explicitly enumerate local source dependencies. The report
 records each dependency's path, source, and SHA-256; the site verifies those

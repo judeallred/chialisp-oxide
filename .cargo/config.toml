@@ -1,3 +1,2 @@
-[env]
-# Only the pinned driver uses compiler-private APIs. Ordinary crates stay stable.
-RUSTC_BOOTSTRAP = "oxide_driver"
+# Compiler-private APIs use the explicitly pinned nightly in rust-toolchain.toml.
+# The SDK/proc-macro source itself uses stable Rust.

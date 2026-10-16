@@ -1,14 +1,14 @@
 ---
-title: Reproduce the experimental harness
-description: Research-only commands for the current standalone compiler harness, not a supported production authoring workflow.
+title: Try the Cargo authoring prototype
+description: Use an ordinary Cargo package, the unpublished SDK, native tests, and annotated CLVM exports in the WIP prototype.
 ---
 
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
-The commands below reproduce the current standalone-source research harness.
-They are not the intended final package or authoring interface. A Cargo/crate
-workflow with function annotations is being researched; it is not implemented
-or promised by these instructions.
+The prototype uses an ordinary Cargo library with an `oxide-sdk` dependency and
+`#[oxide_sdk::puzzle]` annotations. Cargo handles packages, features, build scripts,
+generated code, and compiler arguments. Oxide additionally checks the reachable
+CLVM subset and exports each marked function. This interface remains experimental.
 
 Clone [the repository](https://github.com/judeallred/chialisp-oxide), then run
 these commands from its root.
@@ -16,51 +16,73 @@ these commands from its root.
 ## Install the pinned toolchain
 
 Install [rustup](https://rustup.rs/) if it is not available, then let the checked-in
-toolchain file select Rust 1.97.1 and its components:
+toolchain file select `nightly-2026-07-14` and its compiler components:
 
 ```sh
 rustup show
 rustup component add rustc-dev llvm-tools-preview rustfmt clippy
-cargo build --workspace --locked
+cargo build --locked -p cargo-oxide -p oxide-driver
+export PATH="$PWD/target/debug:$PATH"
 ```
 
-The driver uses compiler-private rustc interfaces. `.cargo/config.toml` scopes
-`RUSTC_BOOTSTRAP=oxide_driver` to that crate. Other Rust crates use stable APIs.
-This pinned integration is not a stable rustc plugin interface; changing the
-toolchain requires compiler and semantic regression tests.
+This pin reports Rust 1.99.0-nightly. The driver uses compiler-private rustc
+interfaces; no `RUSTC_BOOTSTRAP` is needed. The SDK and user library do not need
+compiler-private features. Keep the driver, compiler components, and pin aligned.
 
-## Build the capped payment
+## Check and test an ordinary Cargo package
 
 ```sh
-./scripts/oxide build puzzles/capped-payment/puzzle.rs --output target/capped
+cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
 ```
 
-The source accepts a canonical `u64` amount no greater than 1,000 and returns a
-condition that checks the input coin's amount plus a payment to a fixed puzzle
-hash. Any remainder becomes a fee. This policy is permissionless; it has no
-owner key.
+The consumer package has two marked functions: `pay` returns a fixed-destination
+payment, and `guarded_add` returns a pure arithmetic result. `build.rs` runs as a
+normal host program and generates their limit under `OUT_DIR`; `include!` reads
+that generated Rust. The default cap is 1,000; `strict-cap` changes it to 100.
+Unannotated native-only code in the same library uses `Vec`, iteration, and
+formatting. Those operations remain outside the exported call graph.
 
-This writes `target/capped.ir.json`, `target/capped.clvm.hex`,
-`target/capped.clvm.txt`, and `target/capped.artifact.json`. Run a valid input:
+## Export the annotated functions to CLVM
 
 ```sh
-./scripts/oxide run target/capped.clvm.hex --solution '(500)' --max-cost 1000000
+cargo oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+cargo oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
 ```
 
-Inspect the emitted IR and compiled artifacts. Keep
-compiler versions, optimization settings, serialized bytes, and puzzle hashes
-with a reproducible build; a source-text hash is not a CLVM tree hash.
-See [compiler commands](/chialisp-oxide/reference/cli/) for the unoptimized
-build mode, output formats, and rejection exit status.
+`cargo check` proves ordinary Rust compilation, not CLVM compatibility.
+`cargo oxide check` also validates and lowers the marked reachable bodies.
+`cargo oxide build` publishes an immutable artifact bundle only after success.
 
-## Reproduce the evidence
+For this example, output defaults to
+`examples/cargo-puzzles/target/oxide/artifacts/`. Its `latest.json` points to
+`<bundle>/manifest.json`, which records the package, compiler, options, and
+per-entry IR/CLVM artifacts. A failed build leaves the prior successful bundle
+intact. `--output-dir PATH` selects another artifact destination.
+
+No crates are published to crates.io. The example uses a real path dependency
+on `crates/oxide-sdk`, which re-exports the annotation from `oxide-macros`.
+A separate package can use a reviewed pinned Git dependency. See
+[typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/) and
+[compiler commands](/chialisp-oxide/reference/cli/).
+
+This is a Cargo-driven extractor and CLVM backend adapter. It does not implement
+`cargo build --target clvm`; target configuration alone does not add a code
+generator or establish supported library semantics.
+
+## Reproduce the existing paired corpus
+
+The nine-puzzle comparison corpus still uses the standalone-file harness. Its
+capped-payment fixture uses the source-only SDK compatibility module. The lab
+reports do not imply the corpus has migrated to Cargo dependencies.
 
 ```sh
 ./scripts/oxide validate --output corpus/validation.json
 python3 corpus/validate_inventory.py
 ```
 
-Validation compiles each paired source, checks named adversarial vectors and
+This harness compiles each paired source, checks named adversarial vectors and
 generated inputs, and exercises the optimized Rust output in a coin simulator.
 The command fails if the compared outcomes diverge. The documentation imports
 the generated report; it does not maintain independent hand-entered benchmarks.

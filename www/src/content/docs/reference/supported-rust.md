@@ -3,10 +3,14 @@ title: Supported Rust
 description: The implemented subset, rejected features, arithmetic behavior, and host-configuration limits.
 ---
 
-The source language is edition-2024 Rust, checked by rustc 1.97.1. The frontend
-selects a unique free function named `puzzle`; `--entry NAME` selects another
-name. It performs complete analysis, explicitly forces local borrow checks,
-checks diagnostics, and then lowers typed MIR. Printed MIR is not parsed.
+Cargo supplies the selected library's actual edition, features, dependencies,
+and generated source. Mark each exported free function with
+`#[oxide_sdk::puzzle]`; several marked functions can coexist without a special
+function name. The annotation preserves the function body.
+
+Extraction uses `nightly-2026-07-14`, reporting Rust 1.99.0-nightly. Ordinary Rust
+analysis, including type and borrow checking, must succeed before typed MIR
+lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 
 ## Implemented values and control flow
 
@@ -18,8 +22,9 @@ checks diagnostics, and then lowers typed MIR. Printed MIR is not parsed.
   are rejected because their formatting calls are outside the current subset.
 - Local, non-generic helper functions, inlined into pure expressions.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
-- Local, nongeneric, single-field `#[repr(transparent)]` nominal wrappers over
-  supported nonzero-size values. Rust checks their identity; lowering erases
+- Nongeneric, single-field `#[repr(transparent)]` nominal wrappers declared
+  locally or in the vetted SDK, over supported nonzero-size values.
+  Rust checks their identity; lowering erases
   them to the inner ABI type. See [typed puzzle helpers](/chialisp-oxide/tutorials/typed-sdk/).
 - Supported MIR constant array projections. Ordinary indexing that needs an
   index local or reference is rejected.
@@ -29,17 +34,24 @@ not use Rust's native in-memory layout as an on-chain ABI.
 
 ## Rejected features
 
-References, generic functions, external function calls, recursion, loops,
+References, generic functions, arbitrary external function calls, recursion, loops,
 allocation, general structs/enums, casts, floating point, shifts, bitwise arithmetic,
 division, and remainder are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
 `-Funsafe-code`, including unsafe code that MIR might otherwise eliminate.
 
-The transparent-wrapper exception requires a local, nongeneric declaration
-with exactly one supported nonzero-size field, no custom `Drop`, and no
+The transparent-wrapper exception requires a nongeneric declaration, local or
+from the vetted SDK, with one supported nonzero-size field, no custom `Drop`, and no
 macro-generated declaration. Extra fields, even zero-size ones, are rejected.
-This support does not make ordinary structs, enums, or external wrapper types
-available on-chain.
+This support does not make ordinary structs, enums, or unrelated external wrapper
+types available on-chain. Concrete vetted SDK helper calls are supported;
+resolving an ordinary Rust dependency through Cargo does not establish that its
+function bodies can be lowered.
+
+These restrictions apply to exported reachable code. The Cargo consumer's
+unannotated native-only formatting/allocation function can compile and run
+normally because it is not reachable from a marked entry. The selected library
+and SDK still forbid unsafe code and unstable source features.
 
 The internal IR enumerates some future operations. An enum variant is not a
 supported language feature: validation rejects operations without implemented,

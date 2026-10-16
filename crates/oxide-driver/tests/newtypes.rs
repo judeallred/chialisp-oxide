@@ -66,11 +66,11 @@ fn rejects_layouts_and_semantics_that_cannot_be_erased() {
     for (fixture, diagnostic) in [
         (
             "newtype_plain.rs",
-            "local #[repr(transparent)] structs with exactly one field",
+            "local or oxide_sdk #[repr(transparent)] structs with exactly one field",
         ),
         (
             "newtype_multifield.rs",
-            "local #[repr(transparent)] structs with exactly one field",
+            "local or oxide_sdk #[repr(transparent)] structs with exactly one field",
         ),
         ("newtype_drop.rs", "custom Drop"),
         ("newtype_unsupported.rs", "unsupported Rust type"),
@@ -79,7 +79,7 @@ fn rejects_layouts_and_semantics_that_cannot_be_erased() {
         ("newtype_zero_sized.rs", "zero-sized transparent newtypes"),
         (
             "newtype_external_inner.rs",
-            "local #[repr(transparent)] structs with exactly one field",
+            "local or oxide_sdk #[repr(transparent)] structs with exactly one field",
         ),
     ] {
         let output = compile(fixture);

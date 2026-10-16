@@ -17,11 +17,16 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-rust-1.97.1-${{ hashFiles('Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-rust-1.97.1-
+          key: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}-
       - run: cargo fmt --all --check
       - run: cargo build --workspace --locked
       - run: cargo test --workspace --locked
+      - name: Check ordinary Cargo consumer crates
+        run: |
+          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+          cargo test --manifest-path examples/cargo-invalid/Cargo.toml --locked
       - name: Test patched upstream optimizer
         run: cargo test --locked -p rue-lir@0.11.0
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings

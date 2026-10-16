@@ -17,7 +17,7 @@ export default defineConfig({
       sidebar: [
         { label: 'Start here', items: [
           { label: 'Introduction', slug: 'start/introduction' },
-          { label: 'Reproduce the prototype', slug: 'start/quickstart' },
+          { label: 'Try the Cargo prototype', slug: 'start/quickstart' },
           { label: 'What works today', slug: 'reference/supported-rust' },
         ] },
         { label: 'Learn by building', items: [

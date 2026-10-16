@@ -32,6 +32,10 @@ impl Drop for BlockDepth<'_> {
 }
 
 impl<'tcx> Lowerer<'tcx> {
+    fn allowed_external(&self, id: DefId) -> bool {
+        !id.is_local() && self.tcx.crate_name(id.krate).as_str() == "oxide_sdk"
+    }
+
     pub fn new(tcx: TyCtxt<'tcx>) -> Self {
         Self {
             tcx,
@@ -183,10 +187,16 @@ impl<'tcx> Lowerer<'tcx> {
         stack: &mut Vec<DefId>,
     ) -> Result<Expr, String> {
         let span = self.tcx.def_span(id);
-        if !id.is_local() {
+        if !id.is_local() && !self.allowed_external(id) {
             return Err(self.error(
                 span,
-                "only local, non-generic helper functions are supported",
+                "only local or oxide_sdk non-generic helper functions are supported",
+            ));
+        }
+        if !self.tcx.is_mir_available(id) {
+            return Err(self.error(
+                span,
+                "MIR is unavailable; rebuild target dependencies through cargo oxide",
             ));
         }
         if stack.contains(&id) || stack.len() >= 32 {
@@ -196,6 +206,9 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "generic puzzle functions are unsupported"));
         }
         let signature = self.tcx.fn_sig(id).instantiate_identity().skip_binder();
+        if signature.abi() != rustc_abi::ExternAbi::Rust {
+            return Err(self.error(span, "only ordinary Rust function ABI is supported; FFI exports and calls are unsupported"));
+        }
         if signature.safety().is_unsafe() {
             return Err(self.error(span, "unsafe functions are unsupported"));
         }
@@ -349,12 +362,12 @@ impl<'tcx> Lowerer<'tcx> {
                         message: self.error(span, "Rust panic/assertion rejects the puzzle"),
                     }
                 } else {
-                    if !generic_args.is_empty() {
+                    if !generic_args.skip_binder().is_empty() {
                         return Err(
                             self.error(span, format!("generic call `{name}` is unsupported"))
                         );
                     }
-                    if !id.is_local() {
+                    if !id.is_local() && !self.allowed_external(*id) {
                         return Err(self.error(
                             span,
                             format!(

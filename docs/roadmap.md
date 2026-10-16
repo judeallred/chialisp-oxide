@@ -5,8 +5,12 @@
 - Pinned rustc driver: complete analysis/borrow checking, typed MIR, strict
   checked arithmetic/branch semantics, explicit unsupported diagnostics, and
   compiler resource limits. The driver is compiler-private and host checked.
-- Nominal one-field transparent wrappers and source-only typed condition helpers;
-  domain swaps fail Rust checking while wire representations stay explicit.
+- An unpublished Cargo SDK and marker macro, multiple annotated exports, normal
+  native checks/tests, and Cargo-driven CLVM extraction with real features and
+  generated source. Existing paired corpus fixtures retain their standalone harness.
+- Nominal one-field transparent wrappers and typed condition helpers in the SDK
+  crate and corpus compatibility module; domain swaps fail Rust checking while
+  wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - Nine teaching examples, independently compiled Chialisp references, the actual
@@ -24,7 +28,7 @@
 1. Improve expression sharing so checked arithmetic and helper inlining do not
    repeatedly expand subexpressions; preserve strict failures through optimizer
    rewrites. Measure against independent reference compilers as corpus grows.
-2. Expand the source-only SDK beyond transparent domain wrappers to typed
+2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
    hashing/currying intrinsics, and carefully scoped library support.
 3. Migrate actual canonical tutorials and CHIP puzzle implementations, recording

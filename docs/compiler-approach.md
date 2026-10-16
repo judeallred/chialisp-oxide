@@ -1,7 +1,9 @@
 # Rust → CLVM: research and proposed approach
 
-Research date: 2026-10-16. Status: pinned rustc-driver frontend, typed IR, direct Rue backend,
-paired puzzle corpus, simulator checks, and source-derived SMT experiments implemented. See [measured results](../experiments/backend/README.md) and
+Research date: 2026-10-16. Status: Cargo-native authoring with SDK entry annotations,
+pinned nightly rustc-driver frontend, typed IR, direct Rue backend, paired puzzle
+corpus, simulator checks, and source-derived SMT experiments implemented. This is
+an unpublished WIP prototype. See [measured results](../experiments/backend/README.md) and
 [verification strategy](verification.md).
 
 ## Recommendation
@@ -14,14 +16,14 @@ required intermediate. Integrating or adapting Rue compiler source directly into
 this repository is explicitly acceptable, including for the first working slice.
 Choose the integration boundary through a small comparative experiment.
 
-Proposed pipeline:
+Implemented pipeline for the supported non-generic subset:
 
 ```text
-Rust puzzle crate + oxide SDK
+Rust Cargo library + oxide SDK + #[oxide_sdk::puzzle]
     → pinned rustc, with all required Rust checks completed
-    → reachable, monomorphized MIR + supported-feature validation
+    → reachable non-generic MIR + supported-feature validation
     → oxide typed, pure IR + explicit puzzle ABI
-    → Rue backend integration (source emission or adapted compiler IR/lowering)
+    → direct Rue LIR backend
     → Rue LIR optimizer → CLVM serialization
     → clvmr execution + native Rust / Chialisp comparison
 ```
@@ -61,19 +63,66 @@ change the proposal's evidence.
   royalty-split examples. Some explicitly say they are unaudited and untested;
   they are learning material, not correctness or security oracles.
 - The inspected workspace declares Rue 0.11.0, clvmr 0.21.0, Apache-2.0 licensing,
-  and Rust toolchain 1.97.0. The local compiler reports 1.93.0. Building this
-  upstream revision requires provisioning a compatible toolchain first; no
-  upstream build or execution was performed during this research.
+  and Rust toolchain 1.97.0. The initial source audit did not execute the upstream
+  workspace. Subsequent implementation imported the focused LIR crates and runs
+  their upstream/regression tests; that evidence is separate from the source
+  observations above.
 
 ## Frontend decision
 
-Use a pinned nightly rustc driver with rustc-dev components. Rust's documented
+Keep the focused direct MIR adapter. The implemented authoring workflow is a
+normal Cargo library with the `oxide-sdk` dependency and `#[oxide_sdk::puzzle]`
+entry annotations. The `cargo oxide build` and `cargo oxide check` commands
+delegate dependency resolution, feature selection, macro expansion, generated
+sources, and rustc invocation construction to Cargo. The standalone-file driver
+remains useful for the experiment corpus. The first Cargo integration milestone
+has passed its executable tests; its scope and remaining criteria are recorded in
+[Rust authoring research](rust-authoring-research.md).
+
+The compiler now uses `nightly-2026-07-14` (`1.99.0-nightly`) with rustc-dev
+components. Driver and Cargo integration tests have passed on this actual
+nightly. The previous package-scoped `RUSTC_BOOTSTRAP` workaround is removed;
+compiler-private APIs still have no stability guarantee. Rust's documented
 [MIR](https://rustc-dev-guide.rust-lang.org/mir/index.html) has explicit types,
 locals, and control-flow blocks. The
 [driver interface](https://rustc-dev-guide.rust-lang.org/rustc-driver/intro.html)
-provides integration with the compiler. The exact callback/query sequence and
-cross-crate monomorphization need a feasibility spike; do not assume merely
-accessing a MIR body proves borrow checking has run.
+provides integration with the compiler. The current adapter completes analysis
+and explicitly forces local borrow checks. Cargo-mode callbacks continue
+metadata emission, while target dependencies encode MIR. Concrete SDK dependency
+calls and structurally validated SDK newtypes are supported. Ordinary external
+calls and generic instances remain restricted; merely accessing a MIR body does
+not prove checking has run. Follow Rust's
+[bootstrap policy](https://doc.rust-lang.org/unstable-book/compiler-environment-variables/RUSTC_BOOTSTRAP.html)
+and preserve all source checks as support expands.
+
+The launcher selects one ordinary library package and uses an explicit host
+triple to distinguish extraction units from native host build scripts and proc
+macros. It uses an isolated build directory, fresh entry IR on every invocation,
+a driver-hash dependency cache, and a file lock around extraction. Successful
+builds publish an immutable artifact bundle through an atomic pointer update.
+Existing wrappers, custom targets, and workspace-wide extraction are rejected.
+The current artifact manifest records compiler/options/artifacts, but not full
+source/dependency hashes or resolved feature/cfg provenance.
+
+A Cargo-native interface does not require a new rustc target first. A
+[custom target JSON](https://doc.rust-lang.org/rustc/targets/custom.html) describes
+target properties; a
+[custom codegen backend](https://doc.rust-lang.org/unstable-book/compiler-flags/codegen-backend.html)
+implements code generation. The existing functional IR → Rue → CLVM compiler is
+the code-generation path used by this project. Target configuration, Cargo
+integration, and a rustc backend are separate implementation boundaries;
+describe each according to its actual support in commands and reports.
+
+The bounded read-only Charon comparison favors retaining direct MIR for the
+current acyclic, first-order subset: replacing it adds a new AST adapter and
+transformation contract before removing much implemented work. Charon becomes
+more compelling for cross-crate traits, generics, and reference functionalization.
+Its full-MIR sysroot and toolchain costs, presets, and open compatibility work
+must be evaluated on our corpus before adoption. The research memo pins the
+inspected sources and describes that future comparison; no Charon extraction was
+executed here. The `rustc_public` project, formerly StableMIR, is another candidate
+for reducing the driver's private API surface, but currently still requires
+nightly and unstable initialization.
 
 Do not parse rustc's human-readable MIR output as an interchange format. Do not
 reimplement Rust type or borrow checking in a syn-based source translator.
@@ -99,6 +148,10 @@ Alternatives considered:
   runtime obligations that do not naturally match immutable CLVM trees. Defer.
 - A full rustc codegen backend: potentially useful later, but more integration
   work than a focused driver and lowering pass for a deliberately small subset.
+- Charon ULLBC/LLBC → oxide IR: retain as a measured alternative when dependency,
+  trait, or ownership needs justify another frontend. Aeneas/hax can supply a
+  separate Rust-to-Lean proof experiment; that proof does not establish our
+  MIR-to-CLVM preservation link automatically.
 
 ## Define semantics before accepting language features
 
@@ -243,20 +296,23 @@ limited to reachable code supported by the compiler and SDK. First demonstrate
 a small pure dependency, then publish a tested compatibility list; no blanket
 promise about std or no_std libraries.
 
-## Proposed repository structure
+## Current repository structure
 
-Create these as the first implementation lands, rather than adding empty crates:
+The implemented boundaries are:
 
 ```text
-crates/clispox-driver/      rustc integration and diagnostics
-crates/clispox-ir/          typed pure IR and validation
-crates/clispox-rue/         Rue backend adapter or integrated compiler passes
-crates/clispox-sdk/         puzzle ABI, domain types, intrinsics
-crates/clispox-cli/         reproducible build / compare commands
-tests/                     compile-fail and semantic regression cases
-examples/                  paired Rust / Chialisp / vectors
+crates/cargo-oxide/         Cargo authoring command and artifact bundles
+crates/oxide-driver/        rustc integration, diagnostics, frontend tests
+crates/oxide-ir/            typed pure IR, validation, direct Rue adapter
+crates/oxide-sdk/           puzzle ABI types and supported helpers
+crates/oxide-macros/        entry annotation re-exported by the SDK
+crates/oxide-verifier/      IR-derived SMT and witness replay
+crates/oxide-cli/           corpus build, run, compare, and validation commands
+examples/cargo-puzzles/     native/Cargo consumer with real SDK dependency
+puzzles/                   paired Rust / Chialisp / vectors
 corpus/                    versioned tutorial and CHIP inventories
-docs/                      generated comparisons and error study
+docs/                      architecture, verification, and error study
+www/                       Astro documentation and generated evidence pages
 ```
 
 Keep rustc internals confined to the driver and Rue internals confined to the
@@ -265,8 +321,9 @@ backend. Each dependency upgrade must pass the semantic corpus before adoption.
 ## Outstanding decisions and honest limits
 
 - The Trello-linked prototype is a reference to obtain, not inspected evidence.
-- Exact rustc hooks, monomorphization access, and toolchain compatibility require
-  the first feasibility spike.
+- The current nightly hooks and concrete SDK dependency path are tested.
+  Monomorphization, ordinary dependency support, and future toolchain upgrades
+  require additional compiler and runtime evidence.
 - Full Rust support is not proposed. Supported semantics must grow with tests.
 - The first backend experiment measures byte size, VM cost, output equivalence,
   and hash differences for one small policy. These findings do not establish
@@ -278,7 +335,7 @@ backend. Each dependency upgrade must pass the semantic corpus before adoption.
 ## Implementation update
 
 The first comparative experiment favored direct LIR for a tiny policy. We now
-use a pinned rustc 1.97.1 driver with package-scoped compiler-private access,
+use the pinned `nightly-2026-07-14` rustc driver without `RUSTC_BOOTSTRAP`,
 complete Rust analysis, and explicit borrow-check forcing. It emits validated
 oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed-width
 checked arithmetic, strict unused failures, lazy branches, and compile-time
@@ -293,10 +350,26 @@ upstream/regression tests. The upstream report is xch-dev/rue#108.
 
 Restricted one-field transparent wrappers now preserve Rust nominal type checks
 while erasing to the documented inner ABI. The capped-payment source uses named
-SDK condition helpers, with explicit negative domain-mixup tests. Constructors
+SDK condition helpers, with explicit negative domain-mixup tests. The Cargo
+consumer calls helpers through the actual `oxide-sdk` dependency. Constructors
 are not invoked on raw solutions and impose no hidden runtime invariants.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving
 lowering, broader byte/crypto proof semantics, and verified compiler-preservation
 links. The initial teaching corpus does not complete the tutorial/CHIP inventory.
+
+The first Cargo-native milestone validates two annotated exports, real SDK types
+and helpers, build-script-generated `OUT_DIR` code, and a feature-controlled
+policy limit. Exact serialized payment/arithmetic outputs are checked with
+optimization on and off. Repeated builds, changed driver hashes, configured
+wrappers, an unrelated `RUSTC` override, and failed Rust/CLVM checks exercise
+artifact freshness and publication boundaries. Native-only closure/allocation
+code can coexist with the restricted exported entries.
+
+Further authoring work includes broader workspace/dependency matrices, generic
+instances, complete build-input provenance, and a separately justified custom
+rustc backend. Charon and Lean remain research experiments. Keep source-level
+proofs separate from the implemented IR-model results and claims about emitted
+bytecode. See [Rust authoring research](rust-authoring-research.md) for the
+executed evidence, limits, and remaining acceptance criteria.

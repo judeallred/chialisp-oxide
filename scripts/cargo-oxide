@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+oxide_root="$(cd "$(dirname "$0")/.." && pwd)"
+(cd "$oxide_root" && cargo build --target-dir "$oxide_root/target" --locked -p cargo-oxide -p oxide-driver) >&2
+exec "$oxide_root/target/debug/cargo-oxide" "$@"

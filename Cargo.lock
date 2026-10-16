@@ -207,6 +207,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
+name = "cargo-oxide"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hex",
+ "oxide-backend-experiment",
+ "oxide-ir",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+]
+
+[[package]]
 name = "cc"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2032,6 +2045,7 @@ dependencies = [
  "oxide-corpus",
  "oxide-ir",
  "serde_json",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -2047,6 +2061,20 @@ dependencies = [
  "rue-clvm",
  "rue-lir 0.11.0",
  "serde",
+]
+
+[[package]]
+name = "oxide-macros"
+version = "0.1.0"
+dependencies = [
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "oxide-sdk"
+version = "0.1.0"
+dependencies = [
+ "oxide-macros",
 ]
 
 [[package]]

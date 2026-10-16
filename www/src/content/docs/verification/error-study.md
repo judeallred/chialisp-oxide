@@ -32,12 +32,20 @@ equivalent ABI, rather than presenting a shorter unsafe reference as equivalent.
 
 ## Domain swaps rejected by the typed SDK
 
-The supported source-only SDK distinguishes `CoinId` from `PuzzleHash` and
+The actual `oxide-sdk` crate distinguishes `CoinId` from `PuzzleHash` and
 `Amount` from `Timestamp` with single-field transparent nominal wrappers.
-The actual `newtype_swap.rs` fixture fails with `E0308`, expected `PuzzleHash`,
+The Cargo consumer `examples/cargo-invalid`, enabled with `type-error`, fails
+normal `cargo check` because `create_coin` receives a `CoinId` where it requires
+`PuzzleHash`. Its unconfigured division example is valid native Rust but fails
+the additional CLVM subset check. The two boundaries are tested separately.
+
+The standalone compatibility regression `newtype_swap.rs` fails with `E0308`, expected `PuzzleHash`,
 found `CoinId`; `newtype_time_swap.rs` fails with expected `Timestamp`, found
 `Amount`. The driver test requires both names in the Rust diagnostic and no
-emitted IR. The capped-payment corpus fixture now uses the same SDK helpers.
+emitted IR. The capped-payment corpus fixture still uses `sdk/oxide.rs`, a
+source-only compatibility module; it is not evidence of a complete Cargo
+migration. The Cargo integration separately compares actual generated outputs
+with and without optimization and under the changed feature cap.
 
 These direct API mixups are compile-time errors when those typed helpers are
 used. Public fields still allow deliberate unwrap/rewrap, and raw tuple
