@@ -31,7 +31,7 @@ console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent c
 console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
 assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
 assert.deepEqual(report.optimization_pipeline, {
-  rust_mir: { unoptimized: [], optimized: ['typed_ir_tree_guards', 'runtime_frame_elision', 'rue_lir'] },
+  rust_mir: { unoptimized: [], optimized: ['typed_ir_constants', 'typed_ir_success_facts', 'typed_ir_constants', 'typed_ir_tree_guards', 'runtime_frame_elision', 'rue_lir', 'static_pair_codegen'] },
   rue_source: { unoptimized: [], optimized: ['rue_lir'] },
 }, 'The recorded optimization pipeline is missing or unsupported');
 assert(report.puzzles.length > 0, 'A successful validation report is required');
@@ -242,6 +242,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['scripts/check-password-coin.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-cost-optimization.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['scripts/check-password-coin.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

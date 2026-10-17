@@ -406,9 +406,13 @@ expansion limits before Rue code generation. Unsupported MIR fails closed.
 
 Twenty-one Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
-compilation. Rust optimization on runs the typed IR tree-guard pass, runtime
-frame elision, then Rue LIR optimization; off skips all three stages. Frame
-elision applies only to runtime lowering. Rue source uses its LIR off/on switch.
+compilation. Rust optimization on runs checked constants, forward success
+facts, constants again, legacy tree guards, runtime frame elision, Rue LIR and
+static pair codegen. Off skips these optional stages. Frame elision applies
+only to runtime lowering; the legacy backward guard pass stays disabled there.
+Forward facts use only continuations reached after successful evaluation, so
+they do not move earlier failures past divergence. Rue source uses its LIR
+off/on switch. See [runtime optimization boundaries](runtime-calls.md).
 The validation report records these pipelines explicitly: 389 named and 20,796
 generated cases, plus 40 separate low-budget hash/password observations. The eight teaching
 coin fixtures and singleton launcher have 40 ledger scenario groups executed for
@@ -429,7 +433,7 @@ no semantic rejection credit. Its accepted unsigned retargeting illustrates a
 policy error that remains valid Rust.
 The launcher retains its pinned whole source/include/license and published
 175-byte artifact. Independent Chialisp reproduces that identity; optimized Rust
-emits 1,116 bytes with a different hash. Its finite output/ledger comparisons do
+emits 755 bytes with a different hash. Its finite output/ledger comparisons do
 not complete the singleton lifecycle or establish curried-instance compatibility.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived scalar IR-model proofs and attack replay. A separate

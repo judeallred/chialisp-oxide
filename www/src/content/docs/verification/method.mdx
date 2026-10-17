@@ -66,8 +66,9 @@ Rust CLVM, independently compiled Chialisp CLVM, and Rue source compiled with
 optimization off/on. The scalar examples also
 have generated sweeps around their bounds.
 
-Rust's enabled pipeline runs the typed IR tree-guard pass, runtime frame elision,
-then Rue LIR optimization; its disabled pipeline runs none of these stages.
+Rust's enabled pipeline runs checked constants, forward success facts, constants
+again, legacy tree guards, runtime frame elision, Rue LIR and static pair codegen;
+its disabled pipeline skips these optional stages.
 Frame elision applies only to runtime lowering. Rue source off/on controls
 only its LIR optimizer. The report records this distinction in
 `optimization_pipeline`, alongside the historical `optimize_lir` build flag.
@@ -77,8 +78,10 @@ and error strings may differ.
 Runtime frame elision forwards already-bound values and literals without new
 slots, lowers operations that consume an operand once directly, and returns a
 tail binding's initializer directly. Fallible multi-operand computations still
-execute once in source order. The pair-guard pass continues to leave runtime IR
-unchanged: moving a rejection past a diverging call would change behavior.
+execute once in source order. Forward facts describe a continuation only after
+the relevant operation returns. The older backward pair-guard pass continues to
+leave runtime IR unchanged: moving an earlier rejection past a diverging call
+would change behavior. See [optimization](/chialisp-oxide/reference/optimization/).
 Executed regressions cover these boundaries; current model proofs reject runtime
 IR and do not prove this lowering correct for arbitrary programs.
 

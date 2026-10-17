@@ -38,7 +38,7 @@
   ports' artifacts and observations and passes 149 migration controls.
 - The singleton launcher retains exact source/include/license/commit/tree
   provenance and its published 175-byte artifact. Independent Chialisp reproduces
-  that identity; optimized Rust is 1,116 bytes with a different hash. Executed
+  that identity; optimized Rust is 755 bytes with a different hash. Executed
   output and spend agreement is separate from module identity and the unported
   remainder of the singleton lifecycle.
 - The exact password tutorial module preserves its raw environment and returns
@@ -118,10 +118,12 @@ implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and return
 32 bytes through strict version-4 runtime bindings. Installed rustc/std and
 native-object consistency remain trusted; all proof models reject hash nodes.
 The fresh twenty-one-port report records native, five-build differential and ledger
-agreement. Local macOS verification passes 422 workspace tests and all-target
-Clippy with warnings denied. The hash gate passes 158 corruption controls and
-22,285 retained-artifact VM replays; all preceding eighteen ports' recorded
-artifacts and observations remain exact. Source-derived proof, error-study,
+agreement. Local macOS verification passes 459 workspace tests and all-target
+Clippy with warnings denied. The hash gate passes 168 corruption controls and
+22,285 retained-artifact VM replays. Historical migration gates retain the
+earlier reports; a separate closed transition reviews the optimized Rust
+changes without changing raw IR, unoptimized artifacts or other languages.
+Source-derived proof, error-study,
 Lean and site gates also pass. These finite checks do not establish full
 Chialisp parity, compiler preservation or production readiness.
 
@@ -132,11 +134,18 @@ The independent password checker checks exact source extraction, the complete
 raw-tree relation, quoted curry trees, instance hashes, typed outcomes, state
 rollback and finite evidence corruption controls. Retained-byte replay does not
 resubmit consensus transactions or prove preservation. Fresh extraction retains
-all twenty earlier ports' IR and artifacts in both optimization modes.
+all twenty-one ports' raw IR and compares both modes with the reviewed report.
 
-The password experiment exposes remaining runtime overhead: optimized Rust is
-855 bytes versus Chialisp's 31 and optimized Rue's 213. Its named valid curried
-spend costs 12,915 VM units versus 1,321 and 3,937 respectively. Those finite
+The cost iteration adds checked constant folding, forward execution-success
+facts, total alias frame elision and exact constructor checks. All three closed
+Intro expressions now match the original Chialisp bytes and 20-unit VM cost.
+The signed 21-puzzle baseline and reviewed optimized outputs remain available
+in `corpus/cost-optimization-baseline.json`; source IR and unoptimized artifacts
+stay exact. This is finite regression evidence, not compiler preservation.
+
+The password experiment still exposes runtime overhead: optimized Rust is
+459 bytes versus Chialisp's 31 and optimized Rue's 213. Its named valid curried
+spend costs 8,132 VM units versus 1,321 and 3,937 respectively. Those finite
 measurements include the instance wrapper but exclude bundle/condition costs.
 Any optimization must retain exact raw input domains and strict failure behavior;
 narrowing the original ABI or discarding required work would change the program.

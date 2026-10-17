@@ -75,12 +75,14 @@ unoptimized Rue is 13 bytes, and their module hashes differ. The
 [lab report](/chialisp-oxide/lab/p2-conditions/) records every build's actual
 identity comparison separately from its executed input/output checks.
 
-Rust's enabled pipeline first removes redundant pair guards in typed IR, then
-runs Rue LIR optimization. The remaining first projection still rejects atom
+Rust's enabled pipeline folds checked constants and forward success facts,
+then applies the legacy pair-guard pass before lowering and Rue optimization.
+The remaining first projection still rejects atom
 environments. This is a general conservative IR rule checked against the actual
 expression structure; it grants no special meaning to the puzzle or SDK helper's
 name. The intervening runtime-frame stage has no effect on this runtime-free
-factory. Rust's disabled pipeline skips all three stages. The
+factory. Static pair code generation can quote total data. Rust's disabled
+pipeline skips these optional stages. The
 [architecture guide](/chialisp-oxide/reference/architecture/#conservative-tree-guard-optimization)
 explains the analysis and its limits.
 

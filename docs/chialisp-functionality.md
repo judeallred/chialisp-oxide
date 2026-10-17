@@ -273,7 +273,7 @@ launcher and original password tutorial module through the [reviewed SHA bridge]
 Native Rust and five separately compiled CLVM builds agree on 389 named and 20,796 generated cases.
 Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
 language-specific scenario runs. Local macOS verification additionally passes
-422 workspace tests, all-target Clippy with warnings denied, 158 hash-evidence
+459 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
 corruption controls and 22,285 retained hash-artifact VM replays. The
 source-derived proof, error-study, Lean and documentation gates also pass.
 These are finite observations, not a parity or compiler-preservation theorem.
@@ -300,7 +300,7 @@ the launcher also binds its exact include. The `sha256tree` source span is a
 helper with a visible raw module adapter, without an upstream module-identity
 claim. The launcher retains its
 whole original module and published 175-byte artifact. Independent Chialisp
-reproduces that artifact and tree hash; optimized Rust emits 1,116 bytes with a
+reproduces that artifact and tree hash; optimized Rust emits 755 bytes with a
 different hash. The successful output and consensus scenarios do not establish
 canonical Rust module identity, curried-instance compatibility or a complete
 singleton lifecycle.
@@ -330,8 +330,9 @@ the returned program, and separately compares published module identity.
 Optimized Rust now reproduces the published nine-byte module exactly, as do
 the independent Chialisp compiler and optimized Rue source. Unoptimized Rust
 and Rue have different artifacts. Rust's enabled pipeline runs the conservative
-typed IR tree-guard pass, runtime frame elision, then Rue LIR. Frame elision has
-no effect on this runtime-free factory; the first projection still rejects
+checked constants, forward facts, constants again, legacy tree guards, runtime
+frame elision, Rue LIR and static pair codegen. Frame elision has no effect on
+this runtime-free factory; the first projection still rejects
 atom environments after a redundant guard is removed. The report records both
 pipelines and actual byte/hash comparisons. This one measured factory identity
 does not establish general module or curried-instance compatibility.

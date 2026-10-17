@@ -15,6 +15,7 @@ const metricLabel = ({ artifact, cost }: { artifact: Artifact; cost: number | nu
   `${format(artifact.bytes)} bytes / ${cost === null ? 'cost unavailable' : `${format(cost)} cost`}`;
 const larger = rows.filter(row => row.on.artifact.bytes > row.original.artifact.bytes).length;
 const costlier = rows.filter(row => row.on.cost !== null && row.original.cost !== null && row.on.cost > row.original.cost).length;
+const exact = rows.filter(row => row.on.artifact.clvm_hex === row.original.artifact.clvm_hex && row.on.cost === row.original.cost).length;
 ---
 <div class="measurements-scroll">
   <table>
@@ -27,7 +28,7 @@ const costlier = rows.filter(row => row.on.cost !== null && row.original.cost !=
     </tr>)}</tbody>
   </table>
 </div>
-<p class="quiet">These are measured compiler outputs: optimized Rust is larger in {larger} of {rows.length} examples and uses more VM cost in {costlier} of {rows.length}. The lab retains every full tree hash and serialized program; matching tested values does not make different hashes interchangeable.</p>
+<p class="quiet">These are measured compiler outputs: {exact} of {rows.length} optimized Rust programs match the original Chialisp’s exact bytes and measured cost. Optimized Rust is larger in {larger} examples and uses more VM cost in {costlier}. The lab retains every full tree hash and serialized program; other examples can still have substantial size and cost gaps.</p>
 <style>
   .measurements-scroll { overflow-x: auto; margin-block: 1.4rem; }
   table { width: 100%; border-collapse: collapse; font-size: .76rem; }

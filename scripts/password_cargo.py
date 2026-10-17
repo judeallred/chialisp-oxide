@@ -14,7 +14,7 @@ from cargo_authoring import snapshot
 from cargo_bundle import load_declared_export
 from password_provenance import ROOT
 from password_vectors import require
-from runtime_password_migration import verify_ir_bundle
+from runtime_cost_migration import verify_ir_bundle
 
 
 def file_hash(path):

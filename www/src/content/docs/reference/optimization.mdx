@@ -1,0 +1,114 @@
+---
+title: Lower costs without weaker checks
+description: Measured Rust CLVM improvements, forward execution facts, strict evaluation and the limits of the evidence.
+---
+import OptimizationMeasurements from '../../../components/OptimizationMeasurements.astro';
+import CanonicalMeasurements from '../../../components/CanonicalMeasurements.astro';
+
+**WIP prototype. These finite optimizations and tests do not establish compiler
+correctness or readiness for real funds.**
+
+The first Rust artifacts carried avoidable arithmetic checks, repeated match
+tests and continuation frames. The owned typed-IR optimizer now removes some of
+that overhead before Rue LIR optimization. The source puzzles and default input
+ABI keep their existing contracts. Unoptimized artifacts remain a separate
+regression control.
+
+## Measure real outputs
+
+The three closed Intro expressions now reproduce the original Chialisp bytes
+and execution cost. This is artifact identity checked after compilation; equal
+answers on examples alone would not establish it.
+
+<CanonicalMeasurements />
+
+Recursive and input-dependent puzzles still carry substantial overhead. The
+following table compares the previous optimized compiler with the current one
+on the same named inputs. It includes unchanged rows so the scope stays visible.
+
+<OptimizationMeasurements />
+
+## Successful execution gives useful facts
+
+Consider this sequence over an immutable raw tree:
+
+```text
+first(value)
+if is_pair(value) { use_pair(value) } else { reject }
+```
+
+If `first(value)` returned, `value` must be a pair. The later shape test adds
+no information. Our forward analysis records that fact at the continuation
+after the projection. It tracks argument and lexical-binding identities, and
+keeps only facts valid on every successful incoming branch. A rejecting branch
+has no successful continuation. A callee starts a fresh scope.
+
+The direction matters:
+
+```text
+if is_pair(value) { spin_forever(); first(value) } else { reject }
+```
+
+Here an atom must reject before the call. A later projection cannot justify
+removing the earlier guard. The older backward guard pass remains disabled for
+runtime programs; the new analysis never uses a future operation to establish
+a fact in the past. No termination summaries are assumed for calls.
+
+These are optimizer facts over already validated typed IR. They do not invent
+new Rust source types or bypass rustc. Checked Tree-to-Atom casts retain their
+IR types; exact construction can make a backend guard redundant while the
+constructed payload still executes once.
+
+## Fold constants and avoid unnecessary frames
+
+Checked constant folding can turn `2 + 3` into `5` before generic integer checks
+are emitted. Overflow remains a failure. An unused total match discriminant can
+disappear; an unused call, SHA computation or checked projection still runs.
+Only a selected branch of an `if` executes.
+
+Runtime lowering forwards total argument, local and literal aliases without
+building another continuation frame. It resolves lexical identities when the
+final consumer's scope is known, accounting for intervening physical frames.
+Other operands keep ordered, once-only bindings. Static pair code generation
+can quote constructed data; it cannot quote away executable children.
+
+The enabled pipeline is:
+
+```text
+validated typed IR
+  → checked constants
+  → forward execution-success facts
+  → checked constants again
+  → legacy tree guards (runtime programs unchanged)
+  → runtime frame elision
+  → Rue LIR optimization
+  → static pair code generation
+```
+
+`--no-optimize` skips these optional stages. ABI decoding and fixed-width checked
+semantics remain active. Every rewritten IR program is validated. An iterative
+preflight scans all bodies before the new recursive analyses; deeper programs
+follow the previous compiler route. Work, literal-copy and lowering budgets
+remain explicit compiler resource limits.
+
+## Check what the savings preserve
+
+The retained transition binds the old signed report, all raw source IR and
+unoptimized artifacts. Fresh compilation and VM replay check the new optimized
+artifacts. The report also compares actual native Rust, independent Chialisp and
+Rue source, generated adversarial trees, and separate ledger scenarios.
+
+Regressions exercise malformed ABI values, padded atoms, lexical alias rebasing,
+arithmetic overflow, lazy branches, strict SHA and projection-before-divergence.
+Password instances independently reconstruct currying and changed coin IDs;
+an optimization cannot pass by rewriting the recorded expected outputs.
+
+Cost limits can change an observation from inconclusive to completed as work
+decreases. Those observations stay in the resource-control section and add no
+ordinary test or policy-rejection credit. Model proofs for particular IR rules
+remain distinct from finite tests of these passes. There is no general
+compiler-preservation proof here.
+
+See the [validation method](/chialisp-oxide/verification/method/) and
+[runtime design](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md)
+for the implementation and trust boundaries.

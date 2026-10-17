@@ -1,5 +1,8 @@
 //! Typed runtime structure checks; these establish no termination property.
 use chialisp_oxide_ir::{Environment, Expr, Function, Parameter, Program, Type, compile};
+#[path = "runtime_evaluation/support.rs"]
+#[allow(dead_code)] // This file uses only the shared byte-level VM assertions.
+mod execution;
 
 fn parameter(ty: Type) -> Parameter {
     Parameter {
@@ -251,13 +254,13 @@ fn runtime_compile_budget(p: &Program, kind: &str) {
 
 #[test]
 fn runtime_operand_frames_are_bounded_before_nested_wide_tuples_are_lowered() {
-    // 50 * (255 Unit siblings + one Tuple) + the leaf + Sequence/Unit +
+    // 50 * (255 Call siblings + one Tuple) + the leaf + Sequence/Unit +
     // unused helper = 12,804 expression nodes, below the shared 20,000 cap.
     // Without an early frame bound, recursive operand lowering retains about
     // 12,750 temporary slots and repeatedly clones their growing vectors.
     let mut body = Expr::Unit;
     for _ in 0..50 {
-        let mut items = vec![Expr::Unit; 255];
+        let mut items = vec![call(0, vec![]); 255];
         items.push(body);
         body = Expr::Tuple { items };
     }
@@ -268,11 +271,9 @@ fn runtime_operand_frames_are_bounded_before_nested_wide_tuples_are_lowered() {
 
 #[test]
 fn effectful_operands_retain_the_early_frame_bound_when_leaf_forwarding_is_enabled() {
-    let value = Expr::If {
-        condition: Box::new(Expr::Bool { value: true }),
-        then_value: Box::new(Expr::Unit),
-        else_value: Box::new(Expr::Unit),
-    };
+    // Calls remain strict even when this particular helper returns Unit. A
+    // literal If(true, Unit, Unit) is total and may now disappear before CPS.
+    let value = call(0, vec![]);
     let mut p = program(sequence(
         Expr::Tuple {
             items: vec![value; 129],
@@ -299,23 +300,59 @@ fn optimized_direct_unary_lowering_has_an_independent_native_depth_bound() {
 #[test]
 fn runtime_lexical_frames_are_bounded_before_cloning_deeper_scopes() {
     let body = (0..129).rev().fold(Expr::Unit, |body, id| {
-        bind(id, Type::Unit, Expr::Unit, body)
+        bind(id, Type::Unit, call(0, vec![]), body)
     });
-    runtime_compile_budget(&program(body), "frame");
+    let mut p = program(body);
+    p.functions = vec![function(0, Expr::Unit)];
+    runtime_compile_budget(&p, "frame");
 }
 
 #[test]
 fn runtime_work_budget_counts_aggregate_types_copied_with_lexical_scopes() {
-    // Only 71 live slots and 18,249 declared type nodes are needed. Copying
+    // Only 71 live slots and 18,762 declared type nodes are needed. Copying
     // every earlier aggregate local at each extension nevertheless exceeds
     // 500,000 type-node copies; a slot-count bound alone misses this workload.
     let ty = Type::Tuple {
         items: vec![Type::Unit; 256],
     };
     let mut p = program((0..70).rev().fold(Expr::Unit, |body, id| {
-        bind(id, ty.clone(), Expr::Arg { index: 0 }, body)
+        bind(id, ty.clone(), call(0, vec![Expr::Arg { index: 0 }]), body)
     }));
-    p.parameters = vec![parameter(ty)];
-    p.functions = vec![function(0, Expr::Unit)];
+    p.parameters = vec![parameter(ty.clone())];
+    p.functions = vec![Function {
+        id: 0,
+        name: "strict-aggregate-identity".into(),
+        parameters: vec![parameter(ty.clone())],
+        result: ty,
+        body: Expr::Arg { index: 0 },
+    }];
     runtime_compile_budget(&p, "work");
+}
+
+#[test]
+fn unused_total_operands_fold_before_physical_frame_limits_apply() {
+    let value = Expr::If {
+        condition: Box::new(Expr::Bool { value: true }),
+        then_value: Box::new(Expr::Unit),
+        else_value: Box::new(Expr::Unit),
+    };
+    let mut p = program(sequence(
+        Expr::Tuple {
+            items: vec![value; 129],
+        },
+        Expr::Unit,
+    ));
+    p.functions = vec![function(0, Expr::Unit)];
+    p.validate().unwrap();
+    assert!(
+        compile(&p, false)
+            .unwrap_err()
+            .to_string()
+            .contains("runtime frame")
+    );
+    let code = compile(&p, true).unwrap();
+    execution::accepted(
+        execution::run(&code, &execution::atom(&[]), execution::LIMIT),
+        &execution::atom(&[]),
+    );
 }

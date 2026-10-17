@@ -33,8 +33,11 @@ executing either while constructing the tree.
 the original fields and checks unchanged condition-tree output. It reconstructs
 the curry trees, serialization and hashes without calling the Rust builder.
 Source, native closure and complete current Cargo provenance are checked before
-the exact twenty-port historical projection. Optional fresh Cargo bundles also
-check that those earlier IR/artifact bytes remain unchanged in both modes.
+historical projection. The cost transition first binds all 21 puzzles to the
+signed before report and reviewed new optimized artifacts. Only reviewed Rust
+optimized slots and independently derived instance/coin identities may change;
+all other recorded fields remain exact. Optional fresh Cargo bundles check all
+21 raw IR byte strings and both modes against the current reviewed artifacts.
 This is freshness and finite agreement, not compiler authentication or a
 translation theorem. Existing formal models reject SHA operations.
 
@@ -49,6 +52,7 @@ are inconclusive and separate from ordinary passing cases.
 
 ```sh
 python3 scripts/check-password-coin.py --self-test --replay --extract-ir
+python3 scripts/check-cost-optimization.py --self-test --replay
 ```
 
 Run this after Rust builds and tests finish. It replays retained primary-VM

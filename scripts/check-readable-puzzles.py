@@ -38,6 +38,14 @@ PIPELINE = {
     "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "runtime_frame_elision", "rue_lir"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
 }
+# Keep PIPELINE byte-for-byte as the historical normalization target. The new
+# pipeline is a separate closed identity, never a rewrite of that old baseline.
+COST_PIPELINE = {
+    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_constants", "typed_ir_success_facts", "typed_ir_constants",
+        "typed_ir_tree_guards", "runtime_frame_elision", "rue_lir", "static_pair_codegen"]},
+    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+}
+KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE)
 PREVIOUS_PIPELINE = {
     "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
@@ -86,9 +94,9 @@ def check_report(report, *, require_typed_failures=True):
             "Expected corpus schema_version 1")
     if require_typed_failures:
         require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
-        require(report.get("optimization_pipeline") == PIPELINE, "Missing or unsupported recorded optimization pipeline")
+        require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
     elif "optimization_pipeline" in report:
-        require(report["optimization_pipeline"] in (PIPELINE, PREVIOUS_PIPELINE), "Unsupported historical optimization pipeline")
+        require(report["optimization_pipeline"] in (*KNOWN_PIPELINES, PREVIOUS_PIPELINE), "Unsupported historical optimization pipeline")
     check_ledger_report(report, require_typed=require_typed_failures)
     puzzles = report["puzzles"]
     require(isinstance(puzzles, list) and puzzles, "Expected a nonempty puzzle corpus")
@@ -152,7 +160,7 @@ def check_report(report, *, require_typed_failures=True):
 def check_sources(report, root, require_rue=False):
     root = root.resolve()
     if require_rue:
-        require(report.get("optimization_pipeline") == PIPELINE, "Missing or unsupported recorded optimization pipeline")
+        require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
         require(report.get("rue_local_patches") == [
             f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)
         ], "Incomplete Rue local patch provenance")

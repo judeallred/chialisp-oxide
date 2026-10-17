@@ -18,7 +18,8 @@ from password_evidence import (artifact_bytes, execution, instances, resource_ca
 from password_provenance import ROOT, source_contract
 from password_vectors import (MAX_COST, PUBLIC_HASH, expected, generated_for,
                               native_environment, parse, relation, require)
-from runtime_password_migration import current_native_sources, preserve, verify_ir_bundle
+from runtime_password_migration import current_native_sources, preserve
+from runtime_cost_migration import preserve as cost_preservation, verify_ir_bundle
 
 READABLE = runpy.run_path(str(ROOT / "scripts/check-readable-puzzles.py"))
 
@@ -29,7 +30,7 @@ def check(report):
     check_recorded(report.get("authoring"), ROOT, [p["slug"] for p in report["puzzles"]])
     current_native_sources(report)
     summary = validate(report)
-    preserve(report)
+    preserve(cost_preservation(report))
     return summary
 
 
@@ -123,7 +124,8 @@ def main():
             print("PASS: exact committed20 rawIR/artifact comparisons", verify_ir_bundle(bundle, report))
     if args.self_test:
         from password_controls import self_test
-        print("PASS:", self_test(report), "password oracle/provenance/evidence corruption controls")
+        previous = cost_preservation(report) if report is not None else None
+        print("PASS:", self_test(previous), "password oracle/provenance/evidence corruption controls")
     if args.replay:
         print("PASS:", replay(report, args.cli.resolve()), "actual retained primary-VM executions; no consensus resubmission")
     if args.extract_ir:

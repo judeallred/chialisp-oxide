@@ -69,12 +69,14 @@ or select the compiler's callee table. This calling convention grants no
 source-level dynamic `apply` capability.
 
 The [architecture guide](/chialisp-oxide/reference/architecture/) explains the
-frames and optimization boundary. The typed-IR pair-guard optimization leaves
-runtime programs unchanged: a projection after a diverging call cannot justify
-removing an earlier rejection guard. In the enabled mode, runtime frame elision
+frames and optimization boundary. The older backward pair-guard optimization
+leaves runtime programs unchanged: a projection after a diverging call cannot
+justify removing an earlier rejection guard. New forward facts can remove a
+later shape test after that projection has already succeeded. Checked constant
+folding also removes unused total match discriminants. Runtime frame elision
 forwards total leaves and removes redundant continuations before Rue LIR
 optimization. Fallible arguments and unused initializers still execute once in
-source order.
+source order. See [the optimization guide](/chialisp-oxide/reference/optimization/).
 
 <RuntimeFrameComparison slug="rightmost-tree" />
 

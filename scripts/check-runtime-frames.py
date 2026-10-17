@@ -33,6 +33,8 @@ from runtime_hash_migration import controls as hashing_controls, preserve as has
 from runtime_password_migration import (controls as password_controls, current_native_sources,
                                         preserve as password_preservation)
 from password_evidence import validate as password_evidence
+from runtime_cost_migration import preserve as cost_preservation
+from cost_controls import self_test as cost_controls
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = "6f1e197ef6647683f4c3d7dd171c5e7e4317b01c"
@@ -297,7 +299,7 @@ def check(report, baseline, migration=None):
             "report": {"path": REPORT_PATH, "sha256": REPORT_SHA256, "git_blob_sha1": REPORT_BLOB}}, "Changed historical provenance")
     require(baseline["schema_version"] == 1 and baseline["max_cost"] == MAX_COST
             and baseline["optimization_pipeline"] == readable["PREVIOUS_PIPELINE"], "Changed baseline contract")
-    compatible = bitwise_patch_preservation(hashing_preservation(password_preservation(report)))
+    compatible = bitwise_patch_preservation(hashing_preservation(password_preservation(cost_preservation(report))))
     previous = byte_ordering_preservation(compatible, baseline["corpus"]["slugs"])
     retained = owned_preservation(previous, baseline, migration)
     require(corpus_counts(retained) == baseline["corpus"], "Original corpus order, coverage or ledger counts changed")
@@ -608,7 +610,8 @@ def self_test(report, baseline):
     migration = load_migration(MIGRATION_PATH.read_bytes())
     # Validate this projection once, then exercise the older boundaries using
     # their actual accepted17-fixture input, not an invalid18-fixture report.
-    password_previous = password_preservation(report)
+    cost_previous = cost_preservation(report)
+    password_previous = password_preservation(cost_previous)
     hashing_previous = hashing_preservation(password_previous)
     previous = byte_ordering_preservation(bitwise_patch_preservation(hashing_previous), migration["preserved_slugs"])
     owned_preservation(previous, baseline, migration)
@@ -685,7 +688,7 @@ def self_test(report, baseline):
         raise ValueError(f"Altered byte-equality migration passed: {mutation}")
     return (controls + ordering_controls(hashing_previous, baseline)
             + bitwise_patch_controls(hashing_previous) + hashing_controls(password_previous)
-            + password_controls(report))
+            + password_controls(cost_previous) + cost_controls(report))
 
 
 def main():

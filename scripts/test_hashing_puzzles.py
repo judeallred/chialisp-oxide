@@ -119,6 +119,48 @@ class HashingGateTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], [str(cli), "run-batch", str(artifact), "--solutions", str(solutions), "--max-cost", "1000000"])
         self.assertNotIn("build", run.call_args.args[0])
 
+    def test_replay_routes_the_validated_old_and_refined_resource_profiles(self):
+        import copy
+        from hashing_vectors import RESOURCE_BUDGET, validation_budget
+        from runtime_cost_migration import preserve
+
+        current = json.loads((ROOT / "corpus/validation.json").read_text())
+        historical = preserve(current)
+        for name, report, refined in (("old", historical, False), ("refined", current, True)):
+            by_slug = {puzzle["slug"]: puzzle for puzzle in report["puzzles"] if puzzle["slug"] in SLUGS}
+            diagnostic_modes = []
+
+            def recorded_batch(cli, path, solutions, count, *, max_cost, require_conclusive=True):
+                # Exercise replay's real routing and input files without invoking
+                # a VM. Named costs/outcomes and low-budget diagnostics stay exact.
+                slug, mode = Path(path).stem.rsplit("-", 1)
+                mode = int(mode)
+                puzzle = by_slug[slug]
+                if require_conclusive:
+                    cases = puzzle["cases"] + generated_for(slug)
+                    self.assertEqual(max_cost, validation_budget(slug))
+                else:
+                    self.assertEqual(slug, "sha256tree")
+                    self.assertEqual(max_cost, RESOURCE_BUDGET)
+                    cases = puzzle["resource_controls"]["cases"]
+                    diagnostic_modes.append(mode)
+                self.assertEqual(count, len(cases))
+                self.assertEqual(json.loads(Path(solutions).read_text()), [case["solution"] for case in cases])
+                return [copy.deepcopy(case["runs"][mode]["execution"]) if "runs" in case
+                        else {"outcome": expected(slug, case["solution"])} for case in cases]
+
+            with self.subTest(profile=name), patch.dict(GATE["replay"].__globals__, {
+                "run_batch": recorded_batch, "print": lambda *args, **kwargs: None,
+            }):
+                total = GATE["replay"](report, Path("/unused-no-vm"))
+                self.assertEqual(total, sum((len(puzzle["cases"]) + len(generated_for(slug))) * 5
+                                            for slug, puzzle in by_slug.items()) + 25)
+                self.assertEqual(diagnostic_modes, list(range(5)))
+                controls = by_slug["sha256tree"]["resource_controls"]["cases"]
+                for index in (2, 3, 4):
+                    self.assertEqual(controls[index]["runs"][1]["execution"]["outcome"]["status"],
+                                     "accepted" if refined else "inconclusive")
+
     def test_replay_rejects_missing_extra_and_duplicate_json_records(self):
         execution = {"outcome": {"status": "accepted", "output_hex": "80"}, "cost": 1, "error": None}
         for payload in ["[]", json.dumps([execution, execution]), json.dumps(execution),

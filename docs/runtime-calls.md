@@ -97,11 +97,25 @@ silently downgraded to the legacy evaluator or admitted to a model as legacy IR.
 
 ## Optimization and resource boundaries
 
-The optimized pipeline is `typed_ir_tree_guards` →
-`runtime_frame_elision` → Rue LIR optimization. Runtime frame reductions run
-only with optimization on; off follows the existing continuation-based lowering
-and skips both owned optimizations and Rue LIR optimization. The source-derived
-IR and its version do not change when the backend removes a frame.
+The optimized pipeline is checked constant folding → forward success facts →
+constant folding again → legacy tree guards → runtime frame elision → Rue LIR
+optimization → static pair code generation. Off retains the original lowering
+and skips these optional stages. The extracted source IR and its wire version
+stay unchanged; every owned IR rewrite is validated before lowering.
+
+Constant folding respects Rust's integer width and checked overflow. An unused
+total constant or match discriminant can disappear, but a call, SHA computation,
+checked projection or potentially overflowing arithmetic still executes. Known
+aggregate values share analysis metadata instead of expanding copied trees.
+
+Forward facts identify immutable arguments, lexical bindings and projections.
+After `First(value)` returns, `value` is known to be a pair on that continuation.
+A subsequent `IsPair(value)` can become true. Conditional branches carry their
+own facts; a merge keeps facts shared by every branch that can return. A branch
+that explicitly rejects contributes no successful continuation. Calls have no
+inferred termination or return summaries, and each function starts a fresh
+analysis scope. Rustc still checks ordinary source types; these refinements
+belong to the owned optimizer over validated typed IR.
 
 In runtime operand lists, `Arg`, `Local`, and literals can pass directly to the
 consumer without a temporary frame. Argument/local descriptors retain their
@@ -114,18 +128,23 @@ tuple projection later ignores.
 Single-consumer operations also avoid a redundant frame: `Not`, `TreeIsPair`,
 `TreeFirst`, `TreeRest`, `AtomIsEmpty`, and tuple/byte `Field` lower their operand
 once directly. A checked `TreeAtomValue` uses its operand in both the atom guard
-and returned value, so a non-leaf operand still gets a once-only binding. This
-prevents a call from running twice during checked atom extraction.
+and returned value, so a non-leaf operand still gets a once-only binding. The
+exact `TreeAtomValue(TreeAtom(payload))` shape needs no shape guard: validated
+construction already establishes atom shape. Its payload still evaluates once,
+including calls and SHA. The typed cast remains in IR. Other non-leaf casts keep
+their bindings to prevent an operand from running twice.
 
 One exact `Let` shape also needs no continuation: when its body is precisely
 `Local` of that binding, lowering returns the initializer directly. The
 initializer still evaluates once in the outer lexical scope, preserving its
-rejection, divergence, or checked overflow. Other `Let` bindings retain their
-strict initializers even when unused, and `Sequence` retains its ordered
-evaluation. These reductions do not infer general purity or termination.
+rejection, divergence, or checked overflow. Total leaf aliases also need no
+physical frame: their resolved identities are rebased in the final consumer
+scope. Other `Let` bindings keep strict initializers even when unused; a
+`Sequence` may drop only an established total first expression. These reductions
+do not infer general purity or termination.
 
-The owned pair-guard optimizer leaves every runtime program unchanged. Its
-successful-evaluation facts alone cannot justify removing this guard:
+The older backward pair-guard pass leaves every runtime program unchanged. Its
+successful-evaluation facts alone cannot justify removing this earlier guard:
 
 ```text
 If(IsPair(arg), Sequence(spin(), First(arg)), Reject)
@@ -150,6 +169,12 @@ operation directly therefore cannot evade compilation bounds by avoiding a
 physical slot. The limits are checked before growing the corresponding vectors
 or descending further; they are compiler resource bounds, not execution-depth
 or termination guarantees.
+The new recursive analyses first scan every body iteratively. An expression
+deeper than 64 skips the new analyses and follows the existing compiler route;
+this does not reject otherwise valid IR. Analysis work and literal copies also
+have explicit budgets. Validation still checks dead branches and unused
+functions before optional optimization.
+
 The later code-generation expansion check remains four million estimated units
 and depth 96. A valid 64-function table is not guaranteed to fit those budgets.
 

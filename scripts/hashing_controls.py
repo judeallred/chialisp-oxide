@@ -237,4 +237,39 @@ def self_test(report=None):
     count = source_controls() + relation_controls()
     if report is not None:
         count += report_controls(report)
+        count += refined_resource_controls(report)
+    return count
+
+
+def refined_resource_controls(report):
+    """Only the three reviewed optimized Rust diagnostics may improve."""
+    from runtime_cost_migration import is_new, rust_on
+    if not is_new(report):
+        return 0
+    gate = runpy.run_path(str(provenance.ROOT / "scripts/check-hashing-puzzles.py"))
+    gate["validate"](report)
+    count = 0
+    for mutation in ("old_pipeline", "unknown_pipeline", "on_old_resource_2", "on_old_resource_3", "on_old_resource_4",
+                     "on_wrong_digest", "on_program_rejection", "off_unreviewed_success", "on_wrong_case_resource", "numeric_on_mode"):
+        bad = copy.deepcopy(report)
+        puzzle = next(p for p in bad["puzzles"] if p["slug"] == "sha256tree")
+        cases = puzzle["resource_controls"]["cases"]
+        if mutation == "old_pipeline":
+            from runtime_cost_migration import OLD_PIPELINE
+            bad["optimization_pipeline"] = copy.deepcopy(OLD_PIPELINE)
+        elif mutation == "unknown_pipeline": bad["optimization_pipeline"]["rust_mir"]["optimized"].append("unknown")
+        elif mutation.startswith("on_old_resource_") or mutation == "on_wrong_case_resource":
+            index = int(mutation[-1]) if mutation.startswith("on_old_resource_") else 0
+            rust_on(cases[index]["runs"])["execution"] = {"outcome": {"status": "inconclusive"}, "cost": None,
+                "error": "CostExceeded", "failure": {"kind": "resource", "code": "cost_exceeded"}}
+        elif mutation == "on_wrong_digest": rust_on(cases[2]["runs"])["execution"]["outcome"]["output_hex"] = "80"
+        elif mutation == "on_program_rejection":
+            rust_on(cases[2]["runs"])["execution"] = {"outcome": {"status": "rejected"}, "cost": None,
+                "error": "Raise(spoofed)", "failure": {"kind": "program", "code": "raise"}}
+        elif mutation == "off_unreviewed_success":
+            cases[2]["runs"][0]["execution"] = {"outcome": copy.deepcopy(cases[2]["native"]), "cost": 1, "error": None}
+        else: rust_on(cases[2]["runs"])["optimize_lir"] = 1
+        require(json_wire(bad) != json_wire(report), "No-op refined resource control: " + mutation)
+        expect_rejection(lambda: gate["validate"](bad), mutation)
+        count += 1
     return count

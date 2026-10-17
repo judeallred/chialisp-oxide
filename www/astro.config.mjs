@@ -58,6 +58,7 @@ export default defineConfig({
         ] },
         { label: 'Understand the compiler', items: [
           { label: 'Architecture & Rue', slug: 'reference/architecture' },
+          { label: 'Optimization & measured costs', slug: 'reference/optimization' },
           { label: 'Compiler trust & standard libraries', slug: 'reference/compiler-trust' },
           { label: 'Hashing and the compiler bridge', slug: 'reference/hashing' },
           { label: 'Puzzle ABI', slug: 'reference/abi' },

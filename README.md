@@ -129,18 +129,27 @@ controls also produce 25 separate observations at one million, including typed
 cost exhaustion. The password module adds three inputs across five builds at
 a lower budget, giving 40 separate diagnostic observations in total. These
 controls do not add passing cases or policy rejections to the totals above.
-The preservation gates retain the preceding twenty ports' exact artifacts and
-observations, as well as the earlier eighteen-port migration boundary.
+The preservation gates retain the historical reports and their migration
+boundaries. The cost iteration separately permits reviewed optimized Rust
+changes while keeping source IR, unoptimized artifacts, other languages and
+semantic observations fixed. Resource controls remain separate from coverage.
 
-Local macOS verification passes 422 workspace tests and all-target Clippy with
-warnings denied. The hash evidence gate passes 158 corruption controls and
+The optimizer now folds checked constants, propagates facts after successful
+execution, and removes redundant runtime frames and constructor checks. All
+three closed Intro expressions reproduce the original Chialisp bytes and
+20-unit VM cost. The [optimization guide](https://judeallred.github.io/chialisp-oxide/reference/optimization/)
+shows retained before/after measurements for all 21 puzzles and explains the
+strict-evaluation boundary. Runtime puzzles still have substantial cost gaps.
+
+Local macOS verification passes 459 workspace tests and all-target Clippy with
+warnings denied. The hash evidence gate passes 168 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,
 error-study, Lean and documentation gates are checked separately; these finite
 checks do not establish compiler preservation or production readiness.
 
 The launcher's pinned source, include, license, commit/tree membership and
 published artifact are recorded separately. Independent Chialisp reproduces
-the canonical 175-byte module and its tree hash; optimized Rust emits 1,116 bytes
+the canonical 175-byte module and its tree hash; optimized Rust emits 755 bytes
 with a different hash. Matching outputs and ledger results do not establish
 module identity or a completed singleton lifecycle.
 
@@ -161,6 +170,7 @@ python3 scripts/check-canonical-helpers.py --self-test
 python3 scripts/check-runtime-frames.py --replay --self-test
 python3 scripts/check-hashing-puzzles.py --self-test --replay
 python3 scripts/check-password-coin.py --self-test --replay --extract-ir
+python3 scripts/check-cost-optimization.py --self-test --replay
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently

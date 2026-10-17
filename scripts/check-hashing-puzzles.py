@@ -86,7 +86,8 @@ def check_cost(execution, budget):
         require(execution["cost"] <= budget, "Recorded successful execution exceeds its declared cost budget")
 
 
-def resource_evidence(puzzle):
+def resource_evidence(puzzle, *, refined_cost_profile=False):
+    require(type(refined_cost_profile) is bool, "Resource profile must be an explicit Boolean")
     if puzzle["slug"] != "sha256tree":
         require("resource_controls" not in puzzle, "Launcher must not gain unexplained resource controls")
         return []
@@ -105,7 +106,8 @@ def resource_evidence(puzzle):
             execution = run["execution"]
             outcome = check_execution(execution, case["label"], require_conclusive=False)
             check_cost(execution, RESOURCE_BUDGET)
-            if should_exhaust(run["backend"], run["optimize_lir"], index):
+            improved = refined_cost_profile and run["backend"] == "rust_mir" and run["optimize_lir"] is True and index in (2, 3, 4)
+            if should_exhaust(run["backend"], run["optimize_lir"], index) and not improved:
                 require(outcome == {"status": "inconclusive"}
                         and execution.get("failure") == {"kind": "resource", "code": "cost_exceeded"},
                         "Expected measured low-budget cost exhaustion, never policy rejection")
@@ -115,6 +117,8 @@ def resource_evidence(puzzle):
 
 
 def validate(report, reader=read_source):
+    from runtime_cost_migration import hash_diagnostic_profile
+    refined_cost_profile = hash_diagnostic_profile(report)
     manifests = sources(reader)
     require(report.get("schema_version") == 1 and type(report.get("schema_version")) is int
             and report.get("vm_failure_protocol") == PROTOCOL, "Missing current typed VM-failure protocol/schema")
@@ -143,7 +147,7 @@ def validate(report, reader=read_source):
                     and puzzle["validation_max_cost"] == validation_budget(slug), "Missing/changed recorded hash comparison budget")
         else:
             require("validation_max_cost" not in puzzle, "Launcher report must retain its omitted default comparison budget")
-        resource_evidence(puzzle)
+        resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)
         dependencies(puzzle, slug, report["authoring"], reader)
         require("factory_checks" not in puzzle, "Hash helper/launcher is not a program factory")
         if slug == "sha256tree":
@@ -177,7 +181,7 @@ def validate(report, reader=read_source):
                 "Changed generated execution coverage count")
         summaries.append({"slug": slug, "named": len(puzzle["cases"]), "accepted": accepted,
                           "rejected": rejected, "generated": generated_count, "builds": len(MODES), "validation_max_cost": validation_budget(slug),
-                          "resource_observations": len(resource_evidence(puzzle)) * len(MODES)})
+                          "resource_observations": len(resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)) * len(MODES)})
     return summaries
 
 
@@ -197,7 +201,9 @@ def run_batch(cli, path, solutions, count, *, max_cost=MAX_COST, require_conclus
 
 def replay(report, cli):
     """Ten ordinary plus five diagnostic batches; no source compilation."""
+    from runtime_cost_migration import hash_diagnostic_profile
     validate(report)
+    refined_cost_profile = hash_diagnostic_profile(report)
     total = 0
     with tempfile.TemporaryDirectory(prefix="chialisp-oxide-hash-replay-") as temporary:
         for puzzle in report["puzzles"]:
@@ -222,7 +228,7 @@ def replay(report, cli):
                                 "Named retained artifact cost/failure/output differs: " + slug + "/" + case["label"])
                     total += 1
                 if slug == "sha256tree":
-                    controls = resource_evidence(puzzle)
+                    controls = resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)
                     control_path = Path(temporary) / "sha256tree-resource-solutions.json"
                     control_path.write_text(json.dumps([case["solution"] for case in controls]))
                     observed = run_batch(cli, path, control_path, len(controls), max_cost=RESOURCE_BUDGET, require_conclusive=False)

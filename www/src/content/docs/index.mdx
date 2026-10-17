@@ -58,6 +58,12 @@ walkthrough](/chialisp-oxide/tutorials/canonical-intro/) to compare sources,
 outputs, costs, and recorded tree hashes. These examples do not complete the
 primer or a CHIP migration.
 
+All three closed Intro expressions now reproduce the original Chialisp bytes
+and 20-unit VM cost. [Inspect the optimizer and retained before/after
+measurements](/chialisp-oxide/reference/optimization/) for all 21 puzzles.
+Input-dependent programs still carry overhead; these finite measurements do
+not establish general performance or compiler correctness.
+
 The [password-coin lesson](/chialisp-oxide/tutorials/password-coin/) preserves
 another original module and distinguishes its reusable code from a committed
 coin instance. It also demonstrates a policy weakness that Rust still permits:

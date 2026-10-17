@@ -25,8 +25,8 @@ The paired corpus executes a published `sha256tree` helper adapter and the
 canonical singleton launcher and original password tutorial module through actual
 Cargo exports, native Rust, Chialisp and both Rust/Rue optimization modes.
 The complete twenty-one-port report records 389 named and 20,796 generated comparisons plus 40 ledger scenario
-groups in three languages. Local macOS verification passes 422 workspace tests,
-all-target Clippy with warnings denied, 158 hash-evidence corruption controls and
+groups in three languages. Local macOS verification passes 459 workspace tests,
+all-target Clippy with warnings denied, 168 hash-evidence corruption controls and
 22,285 retained hash-artifact VM replays. The source-derived proof, error-study,
 Lean and site gates also pass. These checks do not establish general external
 library support, cryptographic security or compiler preservation.
@@ -112,17 +112,21 @@ limits used by a native test oracle are inconclusive host limits; they must not
 be inserted as new puzzle rejection rules.
 
 The paired helper's finite comparison uses an explicit ten-million cost ceiling
-per input in all five builds. This retains the deep generated inputs: the
-largest observed Rust cost is about 2.15 million without optimization and 1.15
-million with it. Ordinary comparisons must finish conclusively. Other puzzles
-retain their existing one-million comparison budget.
+per input in all five builds, retaining the deep generated inputs. Among named
+inputs, the largest recorded Rust costs are 190,843 without optimization and
+69,974 with it. These are finite measurements, not general bounds. Ordinary
+comparisons must finish conclusively. Other puzzles retain their existing
+one-million comparison budget.
 
 Five deep inputs also run at one million as separate resource controls.
-Unoptimized Rust exhausts that budget on all five, optimized Rust on three;
-Chialisp and Rue complete. The 25 typed observations remain separate from
-passing coverage totals. A `cost_exceeded` result is inconclusive, not policy
-rejection. Comparison budgets are report metadata, not compiled guards,
-consensus limits, or changes to ledger scenario budgets.
+Unoptimized Rust exhausts that budget on all five; optimized Rust, Chialisp and
+Rue complete. The largest optimized Rust cost in those five controls is 787,188.
+Three optimized controls were previously inconclusive. Their improvement adds
+no coverage or policy-rejection credit: all 25 typed observations remain
+separate from ordinary totals. A `cost_exceeded` result is inconclusive.
+Comparison budgets are report metadata, not compiled guards, consensus limits,
+or changes to ledger scenario budgets. The signed before report and reviewed
+transition are retained in `corpus/cost-optimization-baseline.json`.
 
 ## What the checks establish
 

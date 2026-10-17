@@ -29,6 +29,10 @@ struct Scope<'a> {
     parameters: &'a [Parameter],
     slots: Vec<Binding>,
     locals: Vec<(usize, Type)>,
+    // Total aliases retain a resolved value identity, never a local name that
+    // could be rebound in another lexical scope. Slot paths resolve only when
+    // consumed, after any intervening physical frames have been added.
+    aliases: Vec<(usize, Value)>,
 }
 impl<'a> Scope<'a> {
     fn new(parameters: &'a [Parameter]) -> Self {
@@ -36,6 +40,7 @@ impl<'a> Scope<'a> {
             parameters,
             slots: (0..parameters.len()).map(Binding::Argument).collect(),
             locals: vec![],
+            aliases: vec![],
         }
     }
     fn extended(&self, binding: Binding) -> Self {
@@ -67,23 +72,60 @@ impl<'a, 'p> Runtime<'a, 'p> {
         Ok(())
     }
 
-    fn extend_scope<'s>(&mut self, scope: &Scope<'s>, binding: Binding) -> Result<Scope<'s>> {
+    fn charge_type_clone(&mut self, ty: &Type) -> Result<()> {
+        let mut pending = vec![ty];
+        while let Some(ty) = pending.pop() {
+            self.charge(1)?;
+            if let Type::Tuple { items } = ty {
+                self.charge(items.len())?;
+                pending.extend(items);
+            }
+        }
+        Ok(())
+    }
+
+    fn check_extension(&mut self, scope: &Scope<'_>) -> Result<()> {
         // Check before recursive operand lowering or cloning the frame. A
         // shallow AST can otherwise accumulate thousands of live temporaries
         // through nested, wide tuples before the serialized-size check runs.
         ensure!(
-            scope.slots.len().saturating_sub(scope.parameters.len()) < 128,
+            scope.slots.len().saturating_sub(scope.parameters.len()) + scope.aliases.len() < 128,
             "runtime frame binding budget exceeded"
         );
-        self.charge(1 + scope.slots.len())?;
-        let mut types = scope.locals.iter().map(|(_, ty)| ty).collect::<Vec<_>>();
-        while let Some(ty) = types.pop() {
-            self.charge(1)?;
-            if let Type::Tuple { items } = ty {
-                types.extend(items);
-            }
+        self.charge(1 + scope.slots.len() + scope.aliases.len())?;
+        for (_, ty) in &scope.locals {
+            self.charge_type_clone(ty)?;
         }
+        Ok(())
+    }
+
+    fn extend_scope<'s>(&mut self, scope: &Scope<'s>, binding: Binding) -> Result<Scope<'s>> {
+        self.check_extension(scope)?;
         Ok(scope.extended(binding))
+    }
+
+    fn alias_scope<'s>(
+        &mut self,
+        scope: &Scope<'s>,
+        local_id: usize,
+        ty: &Type,
+        value: Value,
+    ) -> Result<Scope<'s>> {
+        self.check_extension(scope)?;
+        self.charge_type_clone(ty)?;
+        let mut next = scope.clone();
+        next.locals.push((local_id, ty.clone()));
+        next.aliases.push((local_id, value));
+        Ok(next)
+    }
+
+    fn local(scope: &Scope<'_>, local_id: usize) -> Value {
+        scope
+            .aliases
+            .iter()
+            .rev()
+            .find_map(|(id, value)| (*id == local_id).then_some(*value))
+            .unwrap_or(Value::Slot(Binding::Local(local_id)))
     }
     fn table(&mut self) -> LirId {
         self.lower.alloc(Lir::Path(2u8.into()))
@@ -121,7 +163,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
     fn leaf(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<Value> {
         Ok(match expression {
             Expr::Arg { index } => Value::Slot(Binding::Argument(*index)),
-            Expr::Local { local_id } => Value::Slot(Binding::Local(*local_id)),
+            Expr::Local { local_id } => Self::local(scope, *local_id),
             _ => Value::Literal(self.expression(expression, scope)?),
         })
     }
@@ -229,7 +271,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
             Expr::Bool { value } => self.lower.int(i64::from(*value)),
             Expr::Int { value, .. } => self.lower.number(value.parse()?),
             Expr::Arg { index } => self.slot(scope, Binding::Argument(*index))?,
-            Expr::Local { local_id } => self.slot(scope, Binding::Local(*local_id))?,
+            Expr::Local { local_id } => self.value(scope, Self::local(scope, *local_id))?,
             Expr::Reject { .. } => self.lower.reject(),
             Expr::TreeAtom { value } => self.expression(value, scope)?,
             Expr::Let {
@@ -246,7 +288,17 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     // including when it rejects or diverges.
                     return self.expression(value, scope);
                 }
+                if self.optimize && Self::is_leaf(value) {
+                    // A decoded argument, already-bound local or literal has
+                    // no initializer effect to sequence in a new VM frame.
+                    // Capture aliases now, while their original binding is in
+                    // scope, and rebase that identity at the final consumer.
+                    let value = self.leaf(value, scope)?;
+                    let next = self.alias_scope(scope, *local_id, ty, value)?;
+                    return self.expression(body, &next);
+                }
                 let value = self.expression(value, scope)?;
+                self.charge_type_clone(ty)?;
                 let mut next = self.extend_scope(scope, Binding::Local(*local_id))?;
                 next.locals.push((*local_id, ty.clone()));
                 let body = self.expression(body, &next)?;
@@ -263,6 +315,9 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 self.lower.branch(condition, yes, no)
             }
             Expr::Sequence { first, then_value } => {
+                if self.optimize && Self::is_leaf(first) {
+                    return self.expression(then_value, scope);
+                }
                 let value = self.expression(first, scope)?;
                 let binding = Binding::Temporary(self.next_temporary);
                 self.next_temporary += 1;
@@ -369,6 +424,16 @@ impl<'a, 'p> Runtime<'a, 'p> {
             | Expr::TreeFirst { value }
             | Expr::TreeRest { value }
             | Expr::TreeAtomValue { value } => {
+                if self.optimize
+                    && matches!(expression, Expr::TreeAtomValue { .. })
+                    && let Expr::TreeAtom { value } = value.as_ref()
+                {
+                    // A validated atom constructor cannot produce a pair.
+                    // Its payload still evaluates once, including calls
+                    // and unused SHA computations; only the redundant
+                    // shape guard and its temporary frame disappear.
+                    return self.expression(value, scope);
+                }
                 // These unary operations consume the operand once. AtomValue
                 // uses it in both a guard and result, so only total leaves may
                 // bypass the once-only binding for that operation.

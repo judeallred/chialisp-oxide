@@ -349,7 +349,7 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
         &mut allocator,
         root,
         CodegenOptions {
-            optimize_static_pairs: false,
+            optimize_static_pairs: optimize,
         },
     )?;
     Ok(node_to_bytes(&allocator, ptr)?)

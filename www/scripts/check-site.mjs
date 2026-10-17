@@ -64,13 +64,18 @@ for (const file of pages) {
   }
 }
 
-for (const [name, source] of [
+const publishedReports = [
   ...['validation', 'proofs', 'tree-proofs', 'byte-proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study'].map(name => [name, `corpus/${name}.json`]),
   ['tree-theorems', 'experiments/tree-theorems/results.json'],
-]) {
+  ['cost-optimization-baseline', 'corpus/cost-optimization-baseline.json'],
+];
+for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
+  if (name === 'validation' || name === 'cost-optimization-baseline') {
+    assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
+  }
 }
 const validation = JSON.parse(await readFile(path.join(root, 'reports/validation.json'), 'utf8'));
 const proofs = JSON.parse(await readFile(path.join(root, 'reports/proofs.json'), 'utf8'));
@@ -180,6 +185,114 @@ for (const [name, bad] of [
 // Expressive Code normalizes surrounding/trailing whitespace, but wrapping
 // must not add newlines or otherwise rewrite the copied program text.
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
+const costBaseline = JSON.parse(await readFile(path.join(root, 'reports/cost-optimization-baseline.json'), 'utf8'));
+const costReview = costBaseline.reviewed_after;
+assert.equal(costBaseline.protocol, 'chialisp-oxide-cost-migration/v1');
+assert.equal(costBaseline.baseline.repository, 'https://github.com/judeallred/chialisp-oxide');
+assert.match(costBaseline.baseline.commit, /^[0-9a-f]{40}$/);
+assert.match(costBaseline.baseline.report_sha256, /^[0-9a-f]{64}$/);
+assert.match(costBaseline.baseline.report_git_blob_sha1, /^[0-9a-f]{40}$/);
+// This intentionally fails while the reviewed transition still names a scratch
+// benchmark. Only the final freshly generated report can supply release pins.
+assert.equal(costReview.status, 'reviewed_final', 'Optimization measurements must be final reviewed evidence');
+assert.equal(costReview.report_path, 'corpus/validation.json');
+assert.equal(costReview.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Reviewed optimization report is stale');
+assert.deepEqual(costReview.optimization_pipeline, validation.optimization_pipeline);
+assert.equal(costBaseline.puzzles.length, 21, 'The cost baseline must retain its entire reviewed corpus');
+assert.deepEqual(costBaseline.authoring, validation.authoring, 'Optimization comparisons changed their Cargo source inputs');
+assert.deepEqual(costBaseline.puzzles.map(row => row.slug), validation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
+assert.deepEqual(costReview.puzzles.map(row => row.slug), costBaseline.puzzles.map(row => row.slug), 'Missing/extra/reordered reviewed optimization row');
+const safeMetric = (value, minimum, label) => assert(Number.isSafeInteger(value) && value >= minimum, `${label}: expected a safe integer >= ${minimum}`);
+const costArtifact = (record, label) => {
+  assert.equal(record.backend, 'rust_mir', `${label}: expected actual Rust artifact`);
+  assert.equal(record.optimize_lir, true, `${label}: expected exact optimized mode`);
+  safeMetric(record.bytes, 1, `${label} bytes`);
+  assert.match(record.clvm_hex, /^(?:[0-9a-f]{2})+$/, `${label}: malformed artifact bytes`);
+  assert.equal(record.bytes, record.clvm_hex.length / 2, `${label}: artifact size differs from serialized program`);
+  assert.match(record.tree_hash, /^[0-9a-f]{64}$/, `${label}: malformed tree hash`);
+  return { backend: record.backend, optimize_lir: record.optimize_lir, bytes: record.bytes, clvm_hex: record.clvm_hex, tree_hash: record.tree_hash };
+};
+const costRows = [];
+for (const [index, before] of costBaseline.puzzles.entries()) {
+  const puzzle = validation.puzzles[index];
+  const reviewed = costReview.puzzles[index];
+  const source = costBaseline.authoring.exports[before.slug]?.source;
+  assert.equal(source, `puzzles/${before.slug}/puzzle.rs`, `${before.slug}: unreviewed cost source path`);
+  const sourceBytes = await readFile(new URL(`../../${source}`, import.meta.url));
+  const sourceHash = createHash('sha256').update(sourceBytes).digest('hex');
+  assert.equal(puzzle.source, sourceBytes.toString('utf8'), `${before.slug}: cost row uses stale or different source`);
+  assert.equal(costBaseline.authoring.sources.find(row => row.path === source)?.sha256, sourceHash, `${before.slug}: cost input hash changed`);
+  const afterArtifacts = puzzle.artifacts.filter(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir === true);
+  assert.equal(afterArtifacts.length, 1, `${before.slug}: missing/duplicate optimized Rust artifact`);
+  const after = afterArtifacts[0];
+  costArtifact(before.artifact, `${before.slug} before`);
+  assert.deepEqual(costArtifact(reviewed.artifact, `${before.slug} reviewed`), costArtifact(after, `${before.slug} current`), `${before.slug}: current artifact differs from final review`);
+  for (const records of [before.cases, reviewed.cases]) {
+    assert.deepEqual(records.map(row => row.label), puzzle.cases.map(row => row.label), `${before.slug}: missing/extra/reordered measured input`);
+    for (const [caseIndex, record] of records.entries()) {
+      assert.equal(record.solution_sha256, createHash('sha256').update(puzzle.cases[caseIndex].solution).digest('hex'), `${before.slug}/${record.label}: comparison input changed`);
+      checkExecution(record.execution);
+    }
+  }
+  for (const [caseIndex, record] of reviewed.cases.entries()) {
+    const runs = puzzle.cases[caseIndex].runs.filter(run => run.backend === 'rust_mir' && run.optimize_lir === true);
+    assert.equal(runs.length, 1, `${before.slug}/${record.label}: missing/duplicate actual measurement`);
+    assert.deepEqual(record.execution, runs[0].execution, `${before.slug}/${record.label}: execution differs from final review`);
+  }
+  const sampleIndex = before.cases.findIndex(row => row.execution.outcome.status === 'accepted');
+  assert(sampleIndex >= 0, `${before.slug}: missing accepted before input`);
+  const sample = before.cases[sampleIndex];
+  const current = reviewed.cases[sampleIndex].execution;
+  assert.equal(current.outcome.status, 'accepted', `${before.slug}: displayed input changed acceptance`);
+  assert.equal(current.outcome.output_hex, sample.execution.outcome.output_hex, `${before.slug}: displayed output bytes changed`);
+  assert.deepEqual(puzzle.cases[sampleIndex].native, current.outcome, `${before.slug}: displayed VM/native outcome differs`);
+  for (const [label, value] of [['before', sample.execution.cost], ['now', current.cost]]) safeMetric(value, 0, `${before.slug}/${label} cost`);
+  costRows.push({ slug: puzzle.slug, title: puzzle.title, label: sample.label, values: [before.artifact.bytes, after.bytes, sample.execution.cost, current.cost] });
+}
+const optimizationFilename = path.join(root, 'reference/optimization/index.html');
+const optimizationGuide = await html(optimizationFilename);
+assert((await readFile(optimizationFilename)).length <= 512 * 1024, 'Optimization guide exceeds its 512KiB HTML budget');
+const optimizationText = plainText(optimizationGuide);
+for (const label of ['Successful execution gives useful facts', 'only facts valid on every successful incoming branch', 'A rejecting branch has no successful continuation', 'A callee starts a fresh scope', 'removing the earlier guard', 'an unused call, SHA computation or checked projection still runs', 'not averages or a universal performance bound', 'no general compiler-preservation proof']) assert(optimizationText.includes(label), `Optimization guide loses its claim boundary: ${label}`);
+for (const route of ['reports/cost-optimization-baseline.json', 'reports/validation.json']) assert(optimizationGuide.includes(`href="${base}${route}"`), `Optimization guide misses evidence download: ${route}`);
+assert(optimizationGuide.includes(`href="${costBaseline.baseline.repository}/commit/${costBaseline.baseline.commit}"`), 'Optimization guide lost its exact signed baseline source link');
+function checkCostRows(markup, rows) {
+  const table = [...markup.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)]
+    .filter(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Optimized Rust before and after this iteration: first accepted named input per puzzle');
+  assert.equal(table.length, 1, 'Missing/duplicate optimization measurement table');
+  const headers = [...table[0][1].matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map(match => plainText(match[1]));
+  assert.deepEqual(headers, ['Puzzle / input', 'Before bytes', 'Now bytes', 'Before VM cost', 'Now VM cost'], 'Optimization table columns changed');
+  const records = [...table[0][1].matchAll(/<tr\b[^>]*data-cost-puzzle="([^"]+)"[^>]*>([\s\S]*?)<\/tr>/g)];
+  assert.deepEqual(records.map(row => row[1]), rows.map(row => row.slug), 'Missing/extra/reordered displayed cost row');
+  for (const [index, row] of rows.entries()) {
+    const markup = records[index][2];
+    const headers = [...markup.matchAll(/<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g)];
+    assert.equal(headers.length, 1, `${row.slug}: missing cost row header`);
+    assert.equal(plainText(headers[0][1]), `${row.title} ${row.label}`, `${row.slug}: displayed puzzle/input changed`);
+    assert(headers[0][1].includes(`href="${base}lab/${row.slug}/"`), `${row.slug}: missing complete source/measurement link`);
+    const values = [...markup.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)].map(match => plainText(match[1]));
+    assert.deepEqual(values, row.values.map(value => new Intl.NumberFormat('en-US').format(value)), `${row.slug}: displayed byte sizes or costs differ from actual observations`);
+  }
+  return records;
+}
+const costMarkupRows = checkCostRows(optimizationGuide, costRows);
+// Check the rendered-row assertion against actual non-noop corruptions; these
+// do not substitute a mock renderer or execute a second set of VM programs.
+let costDisplayControls = 0;
+const firstCostRow = costMarkupRows[0][0];
+const changedCostCells = [...firstCostRow.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)];
+for (const [label, bad] of [
+  ['missing row', optimizationGuide.replace(firstCostRow, '')],
+  ['duplicate row', optimizationGuide.replace(firstCostRow, firstCostRow + firstCostRow)],
+  ['row order', optimizationGuide.replace(firstCostRow, '__COST_ROW__').replace(costMarkupRows[1][0], firstCostRow).replace('__COST_ROW__', costMarkupRows[1][0])],
+  ['input label', optimizationGuide.replace(firstCostRow, firstCostRow.replace(/<small\b[^>]*>[\s\S]*?<\/small>/, '<small>changed input</small>'))],
+  ['source link', optimizationGuide.replace(firstCostRow, firstCostRow.replace(`href="${base}lab/${costRows[0].slug}/"`, `href="${base}lab/password-coin/"`))],
+  ...changedCostCells.map((cell, index) => [`metric ${index}`, optimizationGuide.replace(firstCostRow, firstCostRow.replace(cell[0], `<td>${new Intl.NumberFormat('en-US').format(costRows[0].values[index] + 1)}</td>`))]),
+]) {
+  assert.notEqual(bad, optimizationGuide, `No-op cost display control: ${label}`);
+  assert.throws(() => checkCostRows(bad, costRows), undefined, `Accepted corrupt optimization display: ${label}`);
+  costDisplayControls++;
+}
 const compilerTrust = await html(path.join(root, 'reference/compiler-trust/index.html'));
 const compilerTrustText = decodeAttribute(compilerTrust.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
 for (const claim of ['built-in host target', 'byte-identical copies', 'binary dependency information', 'positive control', 'not an atomic filesystem snapshot', 'not authenticated binary attestations', 'not a general plugin sandbox']) {
@@ -479,7 +592,29 @@ for (const page of [passwordDetail, passwordTutorial]) {
 for (const scope of ['trusted expected hash', 'Its measured compiled size is 31 bytes', 'WrongPuzzleHash', 'Both spends succeed', 'Resource exhaustion is inconclusive', 'current formal models reject SHA', 'do not prove cryptographic security', 'compiler preservation', 'general typed instance-authoring workflow']) assert(passwordLessonText.toLowerCase().includes(scope.toLowerCase()), `Password lesson misses its commitment/evidence boundary: ${scope}`);
 const passwordSample = instance.cases.find(test => test.label === 'derived tail: valid_spend');
 assert(passwordSample, 'Missing actual fixed-instance cost example');
-const measured = [['rust_mir', 855, 12915], ['chialisp', 31, 1321], ['rue_source', 213, 3937]].map(([backend, bytes, cost]) => {
+const reviewedPassword = costReview.puzzles.find(row => row.slug === 'password-coin');
+const reviewedFixed = reviewedPassword?.curried_instances;
+assert(reviewedFixed, 'Final cost transition misses fixed-password measurements');
+const reviewedFixedArtifact = instance.artifacts.find(row => row.artifact.backend === 'rust_mir' && row.artifact.optimize_lir === true);
+assert.equal(reviewedFixed.artifact.module_tree_hash, reviewedPassword.artifact.tree_hash, 'Reviewed instance uses another module');
+assert.deepEqual(costArtifact(reviewedFixed.artifact.artifact, 'reviewed password instance'), costArtifact(reviewedFixedArtifact.artifact, 'current password instance'), 'Reviewed fixed instance differs from its actual artifact');
+assert.deepEqual(reviewedFixed.cases.map(row => row.label), instance.cases.map(row => row.label), 'Missing/extra/reordered final fixed-instance measurement');
+for (const [index, sample] of reviewedFixed.cases.entries()) {
+  const actual = instance.cases[index];
+  assert.equal(sample.solution_sha256, createHash('sha256').update(actual.solution).digest('hex'), 'Reviewed fixed-instance input changed');
+  const executions = actual.runs.filter(row => row.backend === 'rust_mir' && row.optimize_lir === true);
+  assert.equal(executions.length, 1, 'Missing/duplicate fixed-instance measurement');
+  checkExecution(sample.execution);
+  assert.deepEqual(sample.execution, executions[0].execution, 'Fixed-instance observation differs from final cost review');
+}
+const reviewedPasswordSample = reviewedFixed.cases.filter(test => test.label === 'derived tail: valid_spend');
+assert.equal(reviewedPasswordSample.length, 1, 'Missing/duplicate final fixed-instance sample pin');
+safeMetric(reviewedPasswordSample[0].execution.cost, 1, 'Final password fixed-instance cost');
+const measured = [
+  ['rust_mir', reviewedPassword.artifact.bytes, reviewedPasswordSample[0].execution.cost],
+  ['chialisp', 31, 1321],
+  ['rue_source', 213, 3937],
+].map(([backend, bytes, cost]) => {
   const artifact = passwordPuzzle.artifacts.find(row => row.backend === backend && row.optimize_lir === true);
   const run = passwordSample.runs.find(row => row.backend === backend && row.optimize_lir === true);
   assert.equal(artifact?.bytes, bytes, `${backend}: reviewed module-size measurement changed`);
@@ -788,7 +923,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -850,6 +985,10 @@ try {
       const matches = await Promise.all(search.results.map(row => row.data()));
       for (const route of ['tutorials/password-coin/', 'lab/password-coin/']) assert(matches.some(row => row.url === `${base}${route}`), `Password module/instance documentation is not discoverable for ${term}: ${route}`);
     }
+    if (term === 'cost' || term === 'facts') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}reference/optimization/`), `Measured optimization and execution-success facts are not discoverable for ${term}`);
+    }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }
   await pagefind.destroy();
@@ -857,4 +996,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 9 JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceDataDownloads.length * 2} 512KiB page budgets, ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceDataDownloads.length * 2 + 1} 512KiB page budgets, ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);

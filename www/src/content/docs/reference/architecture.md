@@ -12,10 +12,11 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → rustc nightly-2026-07-14 analysis + borrow checking
   → typed MIR, supported-feature validation
   → chialisp-oxide-ir: typed expressions + optional closed function table
-  → optional typed IR tree-guard pass
+  → optional checked constants, forward success facts, constants again
+  → optional legacy tree-guard pass (runtime programs unchanged)
   → Rue LIR lowering, with optional runtime frame elision
   → optional Rue LIR optimizer
-  → Rue CLVM code generation
+  → Rue CLVM code generation, with optional static pair quoting
   → serialized CLVM
 ```
 
@@ -139,7 +140,15 @@ and [runtime design and tests](https://github.com/judeallred/chialisp-oxide/blob
 
 ## Conservative tree-guard optimization
 
-The owned typed IR pass can remove a pair-shape guard with a rejecting alternative
+The enabled path now first folds checked constants, propagates forward success
+facts, then folds constants again. A successful projection establishes pair
+shape for a later test of that immutable value. This happens in the owned typed
+IR optimizer after rustc analysis. Calls do not gain termination summaries, and
+facts never flow backward past an earlier failure. The
+[optimization guide](/chialisp-oxide/reference/optimization/) explains the
+measured costs and regression boundaries.
+
+The legacy backward pass can remove a pair-shape guard with a rejecting alternative
 when every successful evaluation of the retained branch requires a checked
 first/rest projection of that same tree argument. The projection remains in
 the program, so atom inputs still reject. The analysis respects strict tuple
@@ -151,15 +160,17 @@ to Rue LIR and produces the exact published nine-byte module. Unoptimized Rust
 still has a different artifact. The [factory walkthrough](/chialisp-oxide/tutorials/p2-conditions/)
 separates this measured module identity from broader compiler preservation.
 
-The owned guard pass skips every runtime program: successful-output facts
+The legacy backward guard pass skips every runtime program: successful-output facts
 cannot establish that a checked projection happens before a preceding call
 diverges. Runtime lowering can still forward total leaves, lower single-use
 operands directly, and remove a binding that only returns its initializer.
-Non-leaf operands retain strict, once-only evaluation, and non-leaf atom
-extraction keeps a binding because its shape guard also uses the operand.
+Non-leaf operands retain strict, once-only evaluation. A checked atom extraction
+keeps a binding when its guard also uses the operand, except for the exact
+`TreeAtomValue(TreeAtom(payload))` shape whose validated construction already
+establishes atom shape. The payload still evaluates once.
 These changes do not infer that calls terminate or remove unused failures.
 Rue LIR optimization follows. For runtime-free Rust the frame stage has no
-effect. Off skips all three stages; `--no-optimize` selects that baseline.
+effect. Off skips these optional stages; `--no-optimize` selects that baseline.
 Rue source comparisons use only
 their frontend's LIR optimization switch. The report records both pipelines,
 including the legacy `optimize_lir` field name. Execution costs and rejection

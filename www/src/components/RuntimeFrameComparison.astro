@@ -21,7 +21,7 @@ const rows = baseline.puzzles.filter(puzzle => !slug || puzzle.slug === slug).ma
 <div class="runtime-measurements">
   {rows.map(row => <section>
     <h3><a href={href(`lab/${row.current.slug}/`)}>{row.current.title}</a></h3>
-    <p>Same Rust source and input, with redundant runtime frames removed.</p>
+    <p>Same Rust source and input, compiled with the current optimized pipeline.</p>
     <dl>
       <div><dt>Optimized Rust size</dt><dd>{format(row.before.bytes)} → <strong>{format(row.artifact('rust_mir').bytes)} bytes</strong></dd></div>
       <div><dt>Chialisp / optimized Rue size</dt><dd>{format(row.artifact('chialisp').bytes)} / {format(row.artifact('rue_source').bytes)} bytes</dd></div>
@@ -32,6 +32,7 @@ const rows = baseline.puzzles.filter(puzzle => !slug || puzzle.slug === slug).ma
   </section>)}
   <p class="scope">The previous measurements come from <a href={`https://github.com/judeallred/chialisp-oxide/blob/${baseline.baseline.commit}/corpus/validation.json`}>the pinned release report</a>.
     The compiler CI gate replays its 58 retained Rust executions, checks all 29 named outcomes, and preserves every unoptimized artifact and the other recorded corpus evidence.
+    The current column includes later constant folding and forward success facts as well as frame elision; this comparison does not isolate any one stage.
     These are measured examples, not a general speedup or optimizer proof. VM cost excludes condition and transaction-admission costs.</p>
 </div>
 <style>

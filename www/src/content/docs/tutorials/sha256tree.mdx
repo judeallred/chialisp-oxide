@@ -7,6 +7,10 @@ import SourceComparison from '../../../components/SourceComparison.astro';
 import { puzzles, backendLabel, format } from '../../../lib/data';
 
 export const hashPuzzle = puzzles.find(puzzle => puzzle.slug === 'sha256tree');
+export const hashMeasurements = [false, true].map(optimize => ({
+  exhausted: hashPuzzle?.resource_controls?.cases.filter(test => test.runs.some(run => run.backend === 'rust_mir' && run.optimize_lir === optimize && run.execution.failure?.code === 'cost_exceeded')).length ?? 0,
+  maxNamedCost: Math.max(0, ...(hashPuzzle?.cases.flatMap(test => test.runs.filter(run => run.backend === 'rust_mir' && run.optimize_lir === optimize && run.execution.outcome.status === 'accepted').map(run => run.execution.cost ?? 0)) ?? [])),
+}));
 
 **WIP prototype. Not ready for use with funds or production puzzles.**
 
@@ -105,12 +109,15 @@ no depth guard or policy restriction to the compiled helper.
 The [lower-budget controls](/chialisp-oxide/lab/sha256tree/#resource-controls)
 also run five deep inputs with a one-million cost ceiling, using the same
 retained artifacts. Chialisp and Rue complete within that budget. Unoptimized
-Rust exhausts it on all five; optimized Rust exhausts it on three. These typed
+Rust exhausts it on {hashMeasurements[0].exhausted} inputs; optimized Rust
+exhausts it on {hashMeasurements[1].exhausted}. These typed
 `inconclusive / cost_exceeded` results stay separate from ordinary coverage.
 All five return the independently expected digest with enough budget. The
-largest observed Rust costs are about 2.15 million without optimization and
-1.15 million with optimization. This exposes a current compilation cost gap;
-equivalent outputs do not imply equal cost or efficiency.
+largest recorded cost among the named inputs is {format(hashMeasurements[0].maxNamedCost)}
+without optimization and {format(hashMeasurements[1].maxNamedCost)} with it.
+The [optimization guide](/chialisp-oxide/reference/optimization/) retains
+before/after comparisons. Equivalent outputs do not imply equal cost or
+efficiency; resource-control improvements add no ordinary coverage credit.
 
 Native input depth, allocation and work bounds are host testing limits.
 Exceeding them is inconclusive; they are not extra rejection rules in the

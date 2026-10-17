@@ -1,0 +1,42 @@
+---
+import baseline from '../../../corpus/cost-optimization-baseline.json';
+import { puzzles, format } from '../lib/data';
+
+const rows = baseline.puzzles.map(before => {
+  const puzzle = puzzles.find(puzzle => puzzle.slug === before.slug);
+  if (!puzzle) throw new Error(`Missing optimization comparison: ${before.slug}`);
+  const after = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir === true);
+  const sample = before.cases.find(sample => sample.execution.outcome.status === 'accepted');
+  const current = puzzle.cases.find(row => row.label === sample?.label)?.runs.find(run => run.backend === 'rust_mir' && run.optimize_lir === true)?.execution;
+  if (!after || !sample || !current || current.outcome.status !== 'accepted'
+      || sample.execution.cost === null || current.cost === null
+      || !Number.isSafeInteger(sample.execution.cost) || sample.execution.cost < 0
+      || !Number.isSafeInteger(current.cost) || current.cost < 0
+      || !Number.isSafeInteger(before.artifact.bytes) || before.artifact.bytes <= 0
+      || !Number.isSafeInteger(after.bytes) || after.bytes <= 0
+      || sample.execution.outcome.output_hex !== current.outcome.output_hex) {
+    throw new Error(`Incomplete optimization measurement: ${before.slug}`);
+  }
+  return { puzzle, before: before.artifact, after, label: sample.label, oldCost: sample.execution.cost, newCost: current.cost };
+});
+---
+<div class="table-wrap">
+  <table>
+    <caption>Optimized Rust before and after this iteration: first accepted named input per puzzle</caption>
+    <thead><tr><th scope="col">Puzzle / input</th><th scope="col">Before bytes</th><th scope="col">Now bytes</th><th scope="col">Before VM cost</th><th scope="col">Now VM cost</th></tr></thead>
+    <tbody>{rows.map(row => <tr data-cost-puzzle={row.puzzle.slug}>
+      <th scope="row"><a href={`/chialisp-oxide/lab/${row.puzzle.slug}/`}>{row.puzzle.title}</a><small>{row.label}</small></th>
+      <td>{format(row.before.bytes)}</td><td>{format(row.after.bytes)}</td>
+      <td>{format(row.oldCost)}</td><td>{format(row.newCost)}</td>
+    </tr>)}</tbody>
+  </table>
+</div>
+<p class="quiet">The before measurements come from signed commit <a href={`${baseline.baseline.repository}/commit/${baseline.baseline.commit}`}><code>{baseline.baseline.commit.slice(0, 8)}</code></a>. Both columns enable optimization. Inputs and accepted output bytes agree; each row links to the complete Chialisp, Rust and Rue comparison. These are individual executed inputs, not averages or a universal performance bound. The <a href="/chialisp-oxide/reports/cost-optimization-baseline.json">retained baseline and reviewed transition</a> and <a href="/chialisp-oxide/reports/validation.json">current validation report</a> contain the full finite observations.</p>
+<style>
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; font-size: .8rem; }
+  caption { text-align: left; padding-bottom: .75rem; color: var(--sl-color-gray-2); }
+  td { white-space: nowrap; }
+  th { text-align: left; }
+  small { display: block; font-weight: normal; color: var(--sl-color-gray-2); }
+</style>

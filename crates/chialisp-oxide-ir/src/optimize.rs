@@ -1,9 +1,32 @@
 //! Conservative optimizations over the validated, pure IR.
 use crate::{Expr, Program, Type};
 use anyhow::Result;
+mod budget;
+mod constants;
+mod facts;
 
-/// Remove redundant tree-pair guards while preserving successful outputs and
-/// rejection. This does not preserve VM costs or diagnostic error strings.
+fn refine(program: &Program) -> Result<Option<Program>> {
+    // These optional visitors have larger native frames than the original
+    // lowering. Scan iteratively first; deep valid IR follows the prior route
+    // and its existing resource diagnostics instead of exhausting our stack.
+    if !budget::allows_recursive_refinement(program) {
+        return Ok(None);
+    }
+    let reduced = constants::optimize(program)?;
+    if !budget::allows_recursive_refinement(&reduced) {
+        return Ok(None);
+    }
+    let refined = facts::optimize(&reduced)?;
+    if !budget::allows_recursive_refinement(&refined) {
+        return Ok(None);
+    }
+    let result = constants::optimize(&refined)?;
+    Ok(budget::allows_recursive_refinement(&result).then_some(result))
+}
+
+/// Simplify checked constants and forward execution-success facts, then remove
+/// eligible legacy pair guards. Preserve values, rejection and strict effects;
+/// VM costs, resource thresholds and diagnostic strings are not preserved.
 ///
 /// A guard is redundant only when its successful branch must perform a checked
 /// first/rest projection of the same tree argument. The projection retains the
@@ -11,6 +34,10 @@ use anyhow::Result;
 /// The source program is unchanged; the returned program is validated again.
 pub fn optimize(program: &Program) -> Result<Program> {
     program.validate()?;
+    // Refinement can make match-discriminant bindings unused. Recheck their
+    // totality before deleting them; an unused call/hash/projection still runs.
+    let refined = refine(program)?;
+    let program = refined.as_ref().unwrap_or(program);
     // Successful-evaluation pair facts do not establish that a projection is
     // reached before a call diverges. Preserve all guards in runtime programs.
     if program.uses_runtime() {
