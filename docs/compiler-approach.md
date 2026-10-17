@@ -348,7 +348,7 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Fourteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Fifteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs the typed IR tree-guard pass followed by
 Rue LIR optimization; off runs neither. Rue source uses its LIR off/on switch.
@@ -359,6 +359,9 @@ raw-tree traversal,
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.
+One published `last_inner` helper is tracked separately through an explicit
+module adapter with exact source-span/license provenance. It does not claim a
+whole-library port or standalone canonical module identity.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived scalar IR-model proofs and attack replay. A separate
 `corpus/tree-proofs.json` checks the canonical `p2_conditions` factory over
@@ -401,6 +404,12 @@ The pair-guard pass preserves runtime programs unchanged, and the current proof
 models explicitly reject runtime IR. Execution is not a termination or
 compiler-preservation proof. Projected field assignments in runtime functions,
 CFG loops, allocating output trees and dynamic application remain unsupported.
+Empty-slice patterns on accepted borrowed atoms now recognize nil without
+equating it with nonempty zero-byte atoms. The frontend checks the entire
+pinned typed-MIR metadata-test chain; its compiler-generated pointer and `usize`
+intermediates do not become source pointer capabilities or ABI types. The
+`last-list-element` port exercises this distinction across native Rust and
+independently compiled Chialisp/Rue. Its recursive execution is not a model proof.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving

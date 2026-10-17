@@ -6,7 +6,7 @@ import { puzzles, totals, kindLabel, optimized, acceptedCosts, format, href } fr
 <StarlightPage frontmatter={{ title: 'Puzzle laboratory', description: 'Inspect Chialisp, Rust, and Rue sources, generated CLVM artifacts, adversarial inputs, and ledger validation.' }}>
   <p class="eyebrow">Executable examples / generated evidence</p>
   <p>{format(totals.coinPuzzles)} condition-producing coin puzzles, {format(totals.pureFunctions)} pure-function examples, and {format(totals.programFactories)} program factories, compiled from the <code>chialisp-oxide-puzzles</code> Cargo library. Open a fixture to compare its actual sources, optimized and unoptimized CLVM, independent Chialisp and Rue source builds, input vectors, and applicable ledger or produced-program checks.</p>
-  <p>{format(totals.canonicalPorts)} canonical tutorial expressions, {format(totals.canonicalPuzzlePorts)} canonical puzzle/module ports, and {format(totals.originalExamples)} original teaching fixtures are tracked separately. A program factory emits code; its result is not a direct condition-list spend.</p>
+  <p>{format(totals.canonicalPorts)} canonical tutorial expressions, {format(totals.canonicalPuzzlePorts)} canonical puzzle/module ports, {format(totals.canonicalHelperPorts)} published helper adapters, and {format(totals.originalExamples)} original teaching fixtures are tracked separately. A program factory emits code; its result is not a direct condition-list spend.</p>
   <EvidenceSummary />
   <form class="filters" role="search" aria-label="Filter puzzle examples">
     <label>Find a puzzle<input id="puzzle-query" type="search" placeholder="Try signature, recovery, or amount" autocomplete="off" /></label>

@@ -111,13 +111,13 @@ impl Encode for &Tree<'_> {
 }
 
 // A host testing bound, never an added policy assertion or rejection outcome.
-fn rightmost_native_depth(mut tree: &Tree<'_>) -> Result<()> {
+fn raw_native_depth(mut tree: &Tree<'_>, label: &str) -> Result<()> {
     let mut depth = 0;
     while let Tree::Pair(_, rest) = tree {
         depth += 1;
         ensure!(
             depth <= 128,
-            "rightmost native oracle right-tail depth exceeds 128"
+            "{label} native oracle right-tail depth exceeds 128"
         );
         tree = rest;
     }
@@ -202,10 +202,23 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
         let tree = super::native_tree::decode(&arena, &a, env)?;
         // Keep resource-bound errors outside the policy panic/Result adapter.
         // They must propagate to the caller, not become Outcome::Rejected.
-        rightmost_native_depth(tree)?;
+        raw_native_depth(tree, "rightmost")?;
         return Ok(Some(output(
             chialisp_oxide_puzzles::rightmost_tree::puzzle(tree),
         )?));
+    }
+    if slug == "last-list-element" {
+        let arena = bumpalo::Bump::new();
+        let tree = super::native_tree::decode(&arena, &a, env)?;
+        // Bounds/codec failures are host errors, never policy rejections.
+        raw_native_depth(tree, "last-list-element")?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::last_list_element::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
     }
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> Result<Vec<u8>> {
         // These annotated nullary exports explicitly ignore every assembled tree.
@@ -304,6 +317,59 @@ mod tests {
         let error = execute("rightmost-tree", &tree).unwrap_err();
         assert!(
             error
+                .to_string()
+                .contains("native oracle right-tail depth exceeds 128")
+        );
+    }
+
+    #[test]
+    fn actual_last_helper_preserves_final_trees_and_rejects_nonempty_zero_tails() {
+        for (input, expected) in [
+            ("(())", "80"),
+            ("(0x00)", "00"),
+            ("(0x0001)", "820001"),
+            ("(1 2 3)", "03"),
+            ("(1 (2 . 3))", "ff0203"),
+            ("((8))", "ff0880"),
+            ("((1 . 2) (0x0001 . 0x0000))", "ff820001820000"),
+        ] {
+            assert_eq!(
+                hex::encode(execute("last-list-element", input).unwrap().unwrap()),
+                expected,
+                "{input}"
+            );
+        }
+        for input in [
+            "()",
+            "0x00",
+            "0x0000",
+            "(1 . 2)",
+            "(1 . 0x00)",
+            "(1 . 0x0000)",
+            "(1 . 0x0001)",
+        ] {
+            assert_eq!(
+                execute("last-list-element", input).unwrap(),
+                None,
+                "{input}"
+            );
+        }
+    }
+
+    #[test]
+    fn last_helper_native_limit_propagates_as_host_error() {
+        let mut tree = "()".to_string();
+        for _ in 0..128 {
+            tree = format!("(0x0001 . {tree})");
+        }
+        assert_eq!(
+            hex::encode(execute("last-list-element", &tree).unwrap().unwrap()),
+            "820001"
+        );
+        tree = format!("(0x0001 . {tree})");
+        assert!(
+            execute("last-list-element", &tree)
+                .unwrap_err()
                 .to_string()
                 .contains("native oracle right-tail depth exceeds 128")
         );

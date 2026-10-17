@@ -308,6 +308,7 @@ impl Translation {
             Expr::Int { value, .. } => ("true".into(), Some(Value::Int(numeral(value)?))),
             Expr::Bytes { .. } => bail!("SMT byte semantics are not implemented"),
             Expr::Atom { .. }
+            | Expr::AtomIsEmpty { .. }
             | Expr::TreeAtom { .. }
             | Expr::TreeAtomValue { .. }
             | Expr::TreePair { .. }

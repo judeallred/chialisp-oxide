@@ -7,14 +7,15 @@ use chialisp_oxide_ir::{BinaryOp, Expr, Type};
 use rustc_hir::def_id::DefId;
 use rustc_middle::{
     mir::{
-        AggregateKind, BasicBlock, BinOp, Body, Local, Operand, Place, ProjectionElem, Promoted,
-        Rvalue, START_BLOCK, StatementKind, TerminatorKind, UnOp,
+        AggregateKind, BasicBlock, BinOp, Body, Local, Location, Operand, Place, ProjectionElem,
+        Promoted, Rvalue, START_BLOCK, StatementKind, TerminatorKind, UnOp,
     },
     ty::{self, Ty, TyCtxt},
 };
 use rustc_span::Span;
 
 mod constants;
+mod empty_atoms;
 mod newtypes;
 mod runtime;
 mod totality;
@@ -99,7 +100,8 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::TreeFirst { value }
                 | Expr::TreeRest { value }
                 | Expr::TreeAtom { value }
-                | Expr::TreeAtomValue { value } => push(value),
+                | Expr::TreeAtomValue { value }
+                | Expr::AtomIsEmpty { value } => push(value),
                 Expr::TreePair { first, rest } => {
                     push(first);
                     push(rest);
@@ -305,7 +307,15 @@ impl<'tcx> Lowerer<'tcx> {
             self.ty(body.local_decls[local].ty, span)?;
             locals[local.index()] = Some(value);
         }
-        self.block(body, START_BLOCK, locals, &mut Vec::new(), stack)
+        let patterns = self.empty_atom_patterns(body)?;
+        self.block(
+            body,
+            START_BLOCK,
+            locals,
+            &mut Vec::new(),
+            stack,
+            empty_atoms::State::new(&patterns),
+        )
     }
 
     fn block(
@@ -315,6 +325,7 @@ impl<'tcx> Lowerer<'tcx> {
         mut locals: Vec<Option<Expr>>,
         path: &mut Vec<BasicBlock>,
         stack: &mut Vec<DefId>,
+        mut patterns: empty_atoms::State<'_, 'tcx>,
     ) -> Result<Expr, String> {
         let data = &body.basic_blocks[block];
         let span = data.terminator().source_info.span;
@@ -335,11 +346,27 @@ impl<'tcx> Lowerer<'tcx> {
         }
         path.push(block);
         let mut effects = Vec::new();
-        for statement in &data.statements {
+        for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
             match &statement.kind {
                 StatementKind::Assign(assignment) => {
                     let (place, rvalue) = &**assignment;
+                    if let Some(action) = patterns.patterns.action(Location {
+                        block,
+                        statement_index,
+                    }) {
+                        if let Some(value) = self.empty_atom_action(
+                            body,
+                            action,
+                            &locals,
+                            &mut patterns.values,
+                            statement_span,
+                        )? {
+                            self.check_expression(&value, statement_span)?;
+                            self.assign(body, *place, value, &mut locals, statement_span)?;
+                        }
+                        continue;
+                    }
                     let value = self.rvalue(body, rvalue, &locals, statement_span)?;
                     self.check_expression(&value, statement_span)?;
                     if !Self::rvalue_is_total(rvalue) {
@@ -365,7 +392,9 @@ impl<'tcx> Lowerer<'tcx> {
             TerminatorKind::Return => {
                 self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
             }
-            TerminatorKind::Goto { target } => self.block(body, *target, locals, path, stack)?,
+            TerminatorKind::Goto { target } => {
+                self.block(body, *target, locals, path, stack, patterns)?
+            }
             TerminatorKind::SwitchInt { discr, targets } => {
                 let value = self.operand(body, discr, &locals, span)?;
                 let tree = self.tree_discriminant(body, discr, &locals, span)?;
@@ -383,6 +412,7 @@ impl<'tcx> Lowerer<'tcx> {
                     self.clone_locals(&locals, span)?,
                     &mut path.clone(),
                     stack,
+                    patterns.clone(),
                 )?;
                 for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
                     let condition = if let Some((is_pair, shape)) = &tree {
@@ -411,6 +441,7 @@ impl<'tcx> Lowerer<'tcx> {
                             self.clone_locals(&locals, span)?,
                             &mut path.clone(),
                             stack,
+                            patterns.clone(),
                         )?),
                         else_value: Box::new(result),
                     };
@@ -432,7 +463,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 Expr::If {
                     condition: Box::new(condition),
-                    then_value: Box::new(self.block(body, *target, locals, path, stack)?),
+                    then_value: Box::new(self.block(body, *target, locals, path, stack, patterns)?),
                     else_value: Box::new(Expr::Reject {
                         message: self.error(span, "Rust assertion failed"),
                     }),
@@ -497,7 +528,7 @@ impl<'tcx> Lowerer<'tcx> {
                     let target = target.ok_or_else(|| {
                         self.error(span, "diverging helper calls are unsupported")
                     })?;
-                    self.block(body, target, locals, path, stack)?
+                    self.block(body, target, locals, path, stack, patterns)?
                 }
             }
             TerminatorKind::Unreachable => Expr::Reject {

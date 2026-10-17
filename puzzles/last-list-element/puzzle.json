@@ -1,0 +1,137 @@
+{
+  "slug": "last-list-element",
+  "title": "Published last_inner helper: final list element",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Adapted port of the exact pinned last_inner helper only, not its surrounding last macro, a whole canonical puzzle, CHIP migration or authorization policy. Accepts nonempty proper lists and returns their final element as an arbitrary unchanged tree. Nil inputs and improper nonempty atom tails reject, including 0x00 and padded zero. A raw module wrapper passes the entire environment as the helper argument. Native comparisons are bounded to right-tail depth 128; exceeding that host limit is an error, not policy rejection. Finite execution evidence proves neither general termination nor compiler preservation.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_helper_port",
+    "references": [
+      "https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L8-L13",
+      "https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/LICENSE.MD",
+      "https://github.com/Chia-Network/chia-gaming/commit/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chia-gaming",
+      "revision": "11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4",
+      "source_path": "clsp/std/last.clinc",
+      "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc",
+      "source_sha256": "aeb7cd23e4b062fa35e8d47f332f6c6c25cfed883734043967b6ba59caca7f19",
+      "git_blob_sha1": "8e65cf562b481b2a0a8eca8fc9575c74649d28aa",
+      "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8"
+    },
+    "source_span": {
+      "helper": "last_inner",
+      "start_line": 8,
+      "end_line": 13,
+      "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/last_inner.clinc",
+      "sha256": "67984c12a663e4522c28d8343eefe6aee7e79100c326282822ddb823cabaa6dc",
+      "extraction": "Exact inclusive source lines with original LF endings; this extracted file is not an upstream tracked file."
+    },
+    "license": {
+      "spdx": "Apache-2.0",
+      "source_path": "LICENSE.MD",
+      "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/LICENSE.MD",
+      "sha256": "d2e8598a416f31a166c5ec34aef7568111a4eb903d7958551290f8fcd3e9c22c",
+      "git_blob_sha1": "75f455f1363bf4e1ededc01bf932051d18a4c61f",
+      "scope": "Repository license retained with exact source; not an independent per-file legal review."
+    },
+    "commit": {
+      "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/commit.git",
+      "sha256": "eeacf0acd9363c67103dc110f270f4c0f868a65a5a644de164935cdbd288dab5",
+      "git_commit_sha1": "11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4",
+      "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8",
+      "verification": "Raw signed commit content reconstructed from public GitHub commit metadata and checked against its Git object ID; no local PGP trust claim."
+    },
+    "tree": {
+      "manifest": "corpus/upstream/published-puzzles/Chia-Network--chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/tree.json",
+      "sha256": "7c545d9100d060ec52722e2047ee2cc6cef33b4aa82feb2a04a55caec46a9b67",
+      "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8",
+      "scope": "Complete pinned Git tree; helper and license blob membership is checked."
+    },
+    "source_adaptation": {
+      "kind": "raw_environment_module_wrapper",
+      "reference": "puzzles/last-list-element/reference.clsp",
+      "reference_sha256": "988f8502c47c994f2b1b95806ac3bb6ddeb9cb120c55a15b6c151effd5330a81",
+      "helper_span_sha256": "67984c12a663e4522c28d8343eefe6aee7e79100c326282822ddb823cabaa6dc",
+      "description": "Embed exactly last_inner source lines 8\u201313 in a new (mod ENV ...) and invoke (last_inner ENV). ENV receives the entire raw tree; no helper source rewrite, new guard, macro port or module-hash compatibility claim."
+    },
+    "limitations": [
+      "Only last_inner is ported. prefix, snoc, echo and the last macro in the same file remain outside this claim.",
+      "No upstream compiled module identity is claimed: the original is a helper inside an include file, and this port adds a visible module wrapper.",
+      "CLVM truthiness distinguishes only the empty atom from all nonempty atoms; numeric zero encodings must not replace the empty-list test.",
+      "The returned final element can itself be nil, a padded atom, a proper list or an improper pair; it is not constrained to a scalar.",
+      "Current scalar/tree proof models reject this runtime IR; reports contain finite executed comparisons only."
+    ]
+  },
+  "cases": [
+    {
+      "label": "empty list rejects",
+      "solution": "()"
+    },
+    {
+      "label": "bare zero byte rejects",
+      "solution": "0x00"
+    },
+    {
+      "label": "bare padded zero rejects",
+      "solution": "0x0000"
+    },
+    {
+      "label": "singleton nil returns nil",
+      "solution": "(())"
+    },
+    {
+      "label": "singleton zero byte preserves bytes",
+      "solution": "(0x00)"
+    },
+    {
+      "label": "singleton padded one preserves bytes",
+      "solution": "(0x0001)"
+    },
+    {
+      "label": "proper list returns last element, not nil",
+      "solution": "(1 2 3)"
+    },
+    {
+      "label": "final element may be an improper pair",
+      "solution": "(1 (2 . 3))"
+    },
+    {
+      "label": "program-shaped final element is data",
+      "solution": "((8))"
+    },
+    {
+      "label": "improper numeric tail rejects",
+      "solution": "(1 . 2)"
+    },
+    {
+      "label": "nonempty zero tail is not nil",
+      "solution": "(1 . 0x00)"
+    },
+    {
+      "label": "padded zero tail is not nil",
+      "solution": "(1 . 0x0000)"
+    },
+    {
+      "label": "padded one tail rejects",
+      "solution": "(1 . 0x0001)"
+    },
+    {
+      "label": "negative improper tail rejects",
+      "solution": "(1 . -1)"
+    },
+    {
+      "label": "arbitrary padded final pair preserves bytes",
+      "solution": "((1 . 2) (0x0001 . 0x0000))"
+    },
+    {
+      "label": "nested ignored elements do not change final element",
+      "solution": "(0x00 ((8) . 0x0000) (4 . 5))"
+    }
+  ]
+}

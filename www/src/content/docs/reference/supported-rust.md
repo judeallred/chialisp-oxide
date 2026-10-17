@@ -43,6 +43,11 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
   dispatch are outside the accepted subset.
 - Supported MIR constant array projections. Ordinary indexing that needs an
   index local or reference is rejected.
+- Empty-slice patterns on supported borrowed atoms, such as `Tree::Atom([])`.
+  Nil matches; nonempty zero bytes do not. The frontend validates the complete
+  pinned MIR metadata-test chain and erases its compiler-generated pointer and
+  `usize` intermediates. General length methods, indexing and raw pointers
+  remain rejected. See the [published list helper](/chialisp-oxide/tutorials/last-list-element/).
 
 Byte arrays and tuple-like products use different encodings. The compiler does
 not use Rust's native in-memory layout as an on-chain ABI.

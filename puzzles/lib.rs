@@ -33,3 +33,6 @@ pub mod p2_conditions;
 
 #[path = "rightmost-tree/puzzle.rs"]
 pub mod rightmost_tree;
+
+#[path = "last-list-element/puzzle.rs"]
+pub mod last_list_element;

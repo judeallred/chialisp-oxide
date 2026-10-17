@@ -169,6 +169,17 @@ impl Translation {
                 ("true".into(), Some(Value::Atom(sequence(hex)?)))
             }
             Expr::Bool { value } => ("true".into(), Some(Value::Bool(value.to_string()))),
+            Expr::AtomIsEmpty { value } => {
+                let value = self.expression(value)?;
+                let atom = value.value.context("diverging atom emptiness test")?;
+                (
+                    value.success,
+                    Some(Value::Bool(self.define(
+                        "Bool",
+                        &format!("(= (seq.len {}) 0)", atom.atom()?),
+                    ))),
+                )
+            }
             Expr::Reject { .. } => ("false".into(), None),
             Expr::TreeAtom { value } => {
                 let value = self.expression(value)?;

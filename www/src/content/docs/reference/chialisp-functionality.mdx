@@ -52,7 +52,7 @@ capabilities of every native Rust crate.
 | Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Canonical fixed-width integers only | Explicit unbounded numeric semantics and resource policy |
 | Addition, subtraction, multiplication | Checked primitives or big integers | Checked fixed-width operations | Preserve overflow distinctions; never silently widen Rust arithmetic |
 | Division, remainder, modular exponentiation | Specified integer algorithms | Rejected | Floor versus truncating division, signs, zero and boundary cases |
-| Raw equality, ordering and truthiness | Separate byte/number/tree operations | Typed scalar comparison and canonical `bool` | Padding, nil/nonempty truth, eager versus short-circuit effects |
+| Raw equality, ordering and truthiness | Separate byte/number/tree operations | Typed scalar comparison, canonical `bool`, exact empty-atom patterns | General atom comparison/truth, padding and eager versus short-circuit effects |
 | Lazy/strict conditionals and failure | Branches and explicit evaluation | Rust lazy branches and plain assertions | General strict-conditional and raw failure-value contracts |
 | Variable bytes and bit operations | Byte collections and integer operations | Fixed bytes/static projections; bit operations rejected | Dynamic lengths, slices, sign extension, shifts and costs |
 | SHA-256, tree hashes, Keccak, coin IDs | Reviewed algorithms and exact encodings | Carrying constants is supported; computing these is not | Native/VM vectors, domain separation, activation and cost |
@@ -60,7 +60,7 @@ capabilities of every native Rust crate.
 | Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
 | Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
-| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; loops/allocation/closures rejected | Exact published list helpers, output ownership and termination/resource/preservation proofs |
+| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` adapter; loops/allocation/closures rejected | Further helpers, output ownership and termination/resource/preservation proofs |
 | Currying and nested/standard puzzles | Explicit program trees | No general curry/delegated-program API | Canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
 | Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
@@ -77,7 +77,7 @@ evidence from that simulator does not activate new operations in another pin.
 | Opcode(s) | Runtime names, in order | Current authoring coverage |
 | --- | --- | --- |
 | 1, 2, 36 | `q`, `a`, `softfork` | Literals/raw quote; no general apply or softfork API |
-| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Products, raw tree constructors/projections/pair tests, branches/assertions/scalar comparisons |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Products, raw tree constructors/projections/pair tests, branches/assertions/scalar comparisons and exact empty-atom tests |
 | 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering |
 | 16–18 | `+`, `-`, `*` | Checked fixed widths |
 | 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons; remaining operations rejected |
@@ -180,6 +180,11 @@ Chialisp and Rue. Runtime function tables are finite and compiler-owned;
 strict bindings preserve argument order and unused computations. This is finite
 execution evidence. The current scalar/structural models reject runtime IR,
 and no general termination or compiler-preservation proof is claimed.
+The [published list-helper lesson](/chialisp-oxide/tutorials/last-list-element/)
+adds a pinned `last_inner` source span through an explicit module adapter.
+Its Rust empty-slice pattern preserves the difference between nil and nonempty
+zero-byte tails. This is one helper port, with source/license checks and finite
+comparisons, rather than completion of the surrounding library or a CHIP.
 
 The longer repository document
 [chialisp-functionality.md](https://github.com/judeallred/chialisp-oxide/blob/main/docs/chialisp-functionality.md)

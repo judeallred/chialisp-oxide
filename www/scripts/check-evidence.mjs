@@ -203,6 +203,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-canonical-factories.py']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

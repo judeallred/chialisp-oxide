@@ -15,9 +15,10 @@
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - Ten original teaching examples, three exact canonical Intro expressions, and
-  the canonical `p2_conditions` program factory, with
+  the canonical `p2_conditions` program factory and one pinned published helper
+  through an explicit module adapter, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 122 explicit and 7,960 generated integer/tree vectors. Canonical closed
+  oracles, 138 explicit and 10,063 generated integer/tree vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
 - Thirty-one complete-spend scenario groups run separately for Rust, Chialisp, and Rue
   (93 ledger scenario runs) through chia-wallet-sdk's simulator, plus
@@ -29,6 +30,9 @@
   into version-4 typed tables and strict lexical bindings. Ordered failure and
   divergence controls, fresh callee scopes and pre-lowering resource bounds are
   tested; existing proof models explicitly reject runtime IR.
+- Ordinary Rust empty-slice patterns distinguish nil from nonempty zero-byte
+  atoms. The published `last_inner` helper has pinned source/license/span and
+  wrapper checks, proper/improper-list vectors and arbitrary returned trees.
 - Typed VM failures distinguish program rejection from resource/infrastructure
   failures. Ledger negatives require exact consensus codes; genuine incomplete
   and wrong signatures reach transaction validation instead of signer preflight.
@@ -53,15 +57,23 @@
 
 ## Next compiler and puzzle work
 
-1. Extend the implemented runtime-call IR and checked Rust recursion to exact
-   published list helpers. The `last_inner` follow-up needs narrow empty-atom
-   matching and an explicit empty/improper-list contract. Accumulating reverse
-   or append needs a genuine ownership design. Preserve strict binding/order,
+1. Extend the implemented runtime-call IR and checked Rust recursion to further
+   published list helpers. `last_inner` now has empty-atom matching and an
+   explicit empty/improper-list contract through a visible module adapter.
+   Accumulating reverse or append needs a genuine ownership design. Preserve strict binding/order,
    pre-lowering resource bounds and current model/optimizer exclusions; see
    [runtime calls](runtime-calls.md).
+   Reduce measured runtime frame/binding overhead without moving failures past
+   divergence or duplicating evaluation. The current optimized `last_inner`
+   adaptation is 743 bytes from Rust versus 71 from the Chialisp helper adapter
+   and 125 from Rue; keep the actual lab artifacts/costs visible as this improves.
 2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
    hashing/currying intrinsics, and carefully scoped library support.
+   The legacy totality cache still treats slice-pattern metadata conservatively,
+   so an inlined atom helper can retain a redundant evaluation sequence. Any
+   refinement must consult the validated pattern plan rather than declaring
+   arbitrary pointer/length metadata total.
 3. Migrate actual canonical tutorials and CHIP puzzle implementations, recording
    exact source/license/revision, module identity constraints, behavior, and
    integration compatibility. The current original teaching examples do not

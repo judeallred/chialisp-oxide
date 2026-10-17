@@ -146,12 +146,19 @@ runs only inside the cost-bound VM.
 These are executed regressions over their specified inputs, not universal
 termination or source-to-CLVM preservation proofs. A separate acyclic call model,
 then explicit recursive termination/induction obligations, remain future work.
-The closest published follow-up is Chia gaming's
+The first published helper adaptation is Chia gaming's
 [`last_inner` helper](https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L8-L13).
-An exact port also needs narrow empty-atom matching. Nonempty `0x00` is not nil;
-improper nonempty atom tails must reject. That helper is not an entire puzzle,
-and its complete argument/environment contract must be preserved before an
-equivalence claim. See [verification scope](verification.md).
+The `last-list-element` fixture embeds that exact helper span in a visible
+Chialisp module adapter and independently compiles it, checked Rust, and Rue.
+Rust `Tree::Atom([])` uses a narrow typed-MIR recognizer; pointer and `usize`
+metadata cannot escape the validated pattern chain. Nonempty `0x00` is not nil;
+improper nonempty atom tails reject. The returned final element is an arbitrary
+unchanged tree. The source/license/commit/tree/span/wrapper gate has mutation
+controls in `scripts/check-canonical-helpers.py`. This is one helper, not an
+entire source library or canonical module-identity claim. Its finite comparisons
+remain separate from recursive equivalence or preservation proofs. See
+[verification scope](verification.md) and the
+[walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/last-list-element/).
 
 ## Historical backend experiment
 

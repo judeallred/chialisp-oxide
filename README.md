@@ -86,14 +86,15 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Fourteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
+Fifteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
 plus three canonical closed expressions from the pinned Chialisp Intro and the
-exact canonical `p2_conditions` program factory. The
+exact canonical `p2_conditions` program factory, plus the pinned `last_inner`
+helper through a visible module adapter. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-122 explicit vectors and 7,960 generated integer/tree cases against five CLVM
+138 explicit vectors and 10,063 generated integer/tree cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty-one
 complete-spend scenarios run separately in all three languages (93 ledger scenario runs). Only the eight condition-producing
 teaching fixtures have ledger scenarios; pure language results and program
@@ -156,6 +157,12 @@ divergence and check argument order, unused calls, scopes and resource limits.
 The paired [rightmost-tree lesson](https://judeallred.github.io/chialisp-oxide/tutorials/recursive-trees/)
 compares native Rust with independent Chialisp and Rue. These are finite execution
 checks; the model checkers deliberately reject runtime IR.
+The [published list-helper port](https://judeallred.github.io/chialisp-oxide/tutorials/last-list-element/)
+adds ordinary Rust `Tree::Atom([])` matching and ports Chia gaming's pinned
+`last_inner` through an explicit Chialisp module adapter. Nil and nonempty
+zero-byte tails have different behavior; exact atom bytes and returned subtrees
+are preserved. The helper has source/license provenance and finite comparisons,
+without claiming a complete library port or published module identity.
 
 [The published-source catalog](corpus/published-puzzles.json) enumerates pinned
 repository trees and records its exact discovery scope. It includes Chialisp,

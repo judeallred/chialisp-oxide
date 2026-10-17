@@ -249,7 +249,8 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     },
                 )?
             }
-            Expr::Not { value }
+            Expr::AtomIsEmpty { value }
+            | Expr::Not { value }
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
             | Expr::TreeRest { value }
@@ -260,6 +261,10 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 &mut |this, scope, bindings| {
                     let value = this.slot(scope, bindings[0])?;
                     Ok(match expression {
+                        Expr::AtomIsEmpty { .. } => {
+                            let nil = this.lower.nil();
+                            this.lower.alloc(Lir::Eq(value, nil))
+                        }
                         Expr::Not { .. } => this.lower.alloc(Lir::Not(value)),
                         Expr::TreeIsPair { .. } => this.lower.alloc(Lir::Listp(value, true)),
                         Expr::TreeFirst { .. } => this.lower.alloc(Lir::First(value)),

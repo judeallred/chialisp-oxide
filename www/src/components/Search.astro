@@ -1,0 +1,6 @@
+---
+import DefaultSearch from '@astrojs/starlight/components/Search.astro';
+---
+
+<!-- Keep Starlight's accessible search UI while our integration writes the index. -->
+<DefaultSearch {...Astro.props}><slot /></DefaultSearch>

@@ -1,0 +1,10 @@
+; Raw-environment module adapter; the six-line upstream helper below is verbatim.
+(mod ENV
+(defun last_inner ((next . remainder))
+    (if remainder
+        (last_inner remainder)
+        next
+    )
+)
+  (last_inner ENV)
+)

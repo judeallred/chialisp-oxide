@@ -107,6 +107,10 @@ pub enum Expr {
     Atom {
         hex: String,
     },
+    /// Test atom byte length, without integer coercion or truthiness folding.
+    AtomIsEmpty {
+        value: Box<Expr>,
+    },
     TreeAtom {
         value: Box<Expr>,
     },

@@ -29,6 +29,10 @@
         "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
         "source": "puzzles/intro-list/puzzle.rs"
       },
+      "last-list-element": {
+        "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
+        "source": "puzzles/last-list-element/puzzle.rs"
+      },
       "p2-conditions": {
         "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
         "source": "puzzles/p2-conditions/puzzle.rs"
@@ -105,7 +109,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "1d78deb7fb12a686e40bb9005f3ec198da7e53b34fba2c4cc0b6d3c392d1a7fa"
+        "sha256": "59f015dbded1291db6d831762edd10fc71c5811836c84fc801ff41c91f38309c"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -140,8 +144,12 @@
         "sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3"
       },
       {
+        "path": "puzzles/last-list-element/puzzle.rs",
+        "sha256": "8e194cc507486c3735f54d43628dcbc3ad1ad559c38a2abf558bcab06f55b036"
+      },
+      {
         "path": "puzzles/lib.rs",
-        "sha256": "234bf91b388c583b871f36e6d291758142b8485fd7132f3def9f0b733c50dc02"
+        "sha256": "bf3721ac3242e575db87b0bbe84d1635f13b67f7659a6b44f5e81af9cfc629a8"
       },
       {
         "path": "puzzles/p2-conditions/puzzle.rs",
@@ -13965,6 +13973,1373 @@
         }
       ],
       "title": "Rightmost atom of a raw tree",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 751,
+          "clvm_hex": "ff02ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff05ff03808080ffff04ffff04ffff01ff02ffff01ff02ffff03ffff02ffff01ff20ff0580ffff04ff02ffff04ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff0880ffff01ff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff03ffff02ffff01ff20ff0580ffff04ff02ffff04ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff02ffff01ff02ffff01ff02ffff03ffff02ffff01ff02ffff01ff09ff0bff0580ffff04ff02ffff04ff80ff03808080ffff04ff02ffff04ff05ff03808080ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff2fff03808080ff03808080ffff015f80ff0180ffff04ff02ffff04ffff02ffff01ff09ff05ff8080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff0bff03808080ff0380808080ff0180ffff04ff02ffff04ffff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff05ff03808080ffff01ff0101ffff018080ff0180ff03808080ffff04ff02ffff04ffff02ffff01ff06ff0580ffff04ff02ffff04ff17ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff05ff0580ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff088080ff018080ff0180ffff04ff02ffff04ffff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff05ff03808080ffff01ff0101ffff018080ff0180ff03808080ff8080ffff04ff01ff80808080",
+          "disassembly": "(a (q 2 (q 2 4 (c 2 (c 5 ()))) (c 2 (c 5 3))) (c (c (q 2 (q 2 (i (a (q 32 5) (c 2 (c (a (q 7 5) (c 2 (c 11 3))) 3))) (q 8) (q 2 (i (a (q 7 5) (c 2 (c 11 3))) (q 2 (q 2 (q 2 (q 2 (i (a (q 32 5) (c 2 (c (a (q 7 5) (c 2 (c 11 3))) 3))) (q 2 (q 2 (q 2 (i (a (q 2 (q 9 11 5) (c 2 (c () 3))) (c 2 (c 5 3))) (q 2 (q . 5) (c 2 (c (a (q 2 4 (c 2 (c 5 ()))) (c 2 (c 47 3))) 3))) (q . 95)) 1) (c 2 (c (a (q 9 5 ()) (c 2 (c 5 3))) 3))) (c 2 (c (a (q 2 (i (l 5) (q 8) (q . 5)) 1) (c 2 (c 11 3))) 3))) (q 2 (q . 5) (c 2 (c (a (q 2 4 (c 2 (c 5 ()))) (c 2 (c 11 3))) 3)))) 1) (c 2 (c (a (i (a (q 7 5) (c 2 (c 5 3))) (q 1 . 1) (q)) 1) 3))) (c 2 (c (a (q 6 5) (c 2 (c 23 3))) 3))) (c 2 (c (a (q 5 5) (c 2 (c 11 3))) 3))) (q 8)) 1)) 1) (c 2 (c (a (i (a (q 7 5) (c 2 (c 5 3))) (q 1 . 1) (q)) 1) 3))) ()) (c 1 ())))",
+          "optimize_lir": false,
+          "tree_hash": "02124b86f59ef0d92c1aea4b04afb2dceca609c4aecf0a6fafd45bdf5056bcfe"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 743,
+          "clvm_hex": "ff02ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff05ff03808080ffff04ffff04ffff01ff02ffff01ff02ffff03ffff02ffff01ff20ff0580ffff04ff02ffff04ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff0880ffff01ff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff03ffff02ffff01ff20ff0580ffff04ff02ffff04ffff02ffff01ff07ff0580ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff02ffff01ff02ffff01ff02ffff03ffff02ffff01ff02ffff01ff09ff0bff0580ffff04ff02ffff04ff80ff03808080ffff04ff02ffff04ff05ff03808080ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff2fff03808080ff03808080ffff015f80ff0180ffff04ff02ffff04ffff02ffff01ff09ff05ff8080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff0bff03808080ff0380808080ff0180ffff04ff02ffff04ffff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff05ff03808080ffff01ff0101ffff018080ff0180ff03808080ffff04ff02ffff04ffff02ffff010dffff04ff02ffff04ff17ff03808080ff03808080ffff04ff02ffff04ffff02ffff0109ffff04ff02ffff04ff0bff03808080ff03808080ffff01ff088080ff018080ff0180ffff04ff02ffff04ffff02ffff03ffff02ffff01ff07ff0580ffff04ff02ffff04ff05ff03808080ffff01ff0101ffff018080ff0180ff03808080ff8080ffff04ff01ff80808080",
+          "disassembly": "(a (q 2 (q 2 4 (c 2 (c 5 ()))) (c 2 (c 5 3))) (c (c (q 2 (q 2 (i (a (q 32 5) (c 2 (c (a (q 7 5) (c 2 (c 11 3))) 3))) (q 8) (q 2 (i (a (q 7 5) (c 2 (c 11 3))) (q 2 (q 2 (q 2 (q 2 (i (a (q 32 5) (c 2 (c (a (q 7 5) (c 2 (c 11 3))) 3))) (q 2 (q 2 (q 2 (i (a (q 2 (q 9 11 5) (c 2 (c () 3))) (c 2 (c 5 3))) (q 2 (q . 5) (c 2 (c (a (q 2 4 (c 2 (c 5 ()))) (c 2 (c 47 3))) 3))) (q . 95)) 1) (c 2 (c (a (q 9 5 ()) (c 2 (c 5 3))) 3))) (c 2 (c (a (q 2 (i (l 5) (q 8) (q . 5)) 1) (c 2 (c 11 3))) 3))) (q 2 (q . 5) (c 2 (c (a (q 2 4 (c 2 (c 5 ()))) (c 2 (c 11 3))) 3)))) 1) (c 2 (c (a (i (a (q 7 5) (c 2 (c 5 3))) (q 1 . 1) (q)) 1) 3))) (c 2 (c (a (q . 13) (c 2 (c 23 3))) 3))) (c 2 (c (a (q . 9) (c 2 (c 11 3))) 3))) (q 8)) 1)) 1) (c 2 (c (a (i (a (q 7 5) (c 2 (c 5 3))) (q 1 . 1) (q)) 1) 3))) ()) (c 1 ())))",
+          "optimize_lir": true,
+          "tree_hash": "8e90ac11eba6f3495b796c480a16873b75229fc0bbd6014a6a561f153f1c0481"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 71,
+          "clvm_hex": "ff02ffff01ff02ff02ffff04ff02ffff04ff03ff80808080ffff04ffff01ff02ffff03ff0dffff01ff02ff02ffff04ff02ffff04ff0dff80808080ffff010980ff0180ff018080",
+          "disassembly": "(a (q 2 2 (c 2 (c 3 ()))) (c (q 2 (i 13 (q 2 2 (c 2 (c 13 ()))) (q . 9)) 1) 1))",
+          "optimize_lir": true,
+          "tree_hash": "57e4b8a91ba163232d4c13d26b5e8d80bb7bc2ac38ccf1e6072898541f8308f1"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 151,
+          "clvm_hex": "ff02ffff01ff02ff02ffff04ff02ff038080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ff03808080ffff01ff02ffff03ffff09ffff06ff0380ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff05ff0380ffff01ff02ff02ffff04ff02ffff06ff0380808080ff0180ffff01ff088080ff0180ff018080",
+          "disassembly": "(a (q 2 2 (c 2 3)) (c (q 2 (i (l 3) (q 2 (i (a (i (not (l (r 3))) (q 2 (i (= (r 3) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 5 3) (q 2 2 (c 2 (r 3)))) 1) (q 8)) 1) 1))",
+          "optimize_lir": false,
+          "tree_hash": "ba0f8096681c75fa84e8bf9586161525a465fc246f2d6d2821115497ba5f4ffe"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 125,
+          "clvm_hex": "ff02ffff01ff02ff02ffff04ff02ff038080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff0180ffff01ff02ffff03ff07ffff0180ffff01ff010180ff018080ff0180ffff0105ffff01ff02ff02ffff04ff02ff07808080ff0180ffff01ff088080ff0180ff018080",
+          "disassembly": "(a (q 2 2 (c 2 3)) (c (q 2 (i (l 3) (q 2 (i (a (i (l 7) (q) (q 2 (i 7 (q) (q 1 . 1)) 1)) 1) (q . 5) (q 2 2 (c 2 7))) 1) (q 8)) 1) 1))",
+          "optimize_lir": true,
+          "tree_hash": "f8247e8f0b5b004c3096c881ba7bfcbdf4ae8e97281bf69620e392884d3d2955"
+        }
+      ],
+      "cases": [
+        {
+          "label": "empty list rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        },
+        {
+          "label": "bare zero byte rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x00"
+        },
+        {
+          "label": "bare padded zero rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x0000"
+        },
+        {
+          "label": "singleton nil returns nil",
+          "native": {
+            "output_hex": "80",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10821,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10767,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 928,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2056,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1612,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(())"
+        },
+        {
+          "label": "singleton zero byte preserves bytes",
+          "native": {
+            "output_hex": "00",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10821,
+                "error": null,
+                "outcome": {
+                  "output_hex": "00",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10767,
+                "error": null,
+                "outcome": {
+                  "output_hex": "00",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 928,
+                "error": null,
+                "outcome": {
+                  "output_hex": "00",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2056,
+                "error": null,
+                "outcome": {
+                  "output_hex": "00",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1612,
+                "error": null,
+                "outcome": {
+                  "output_hex": "00",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x00)"
+        },
+        {
+          "label": "singleton padded one preserves bytes",
+          "native": {
+            "output_hex": "820001",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10821,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10767,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 928,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2056,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1612,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x0001)"
+        },
+        {
+          "label": "proper list returns last element, not nil",
+          "native": {
+            "output_hex": "03",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 26095,
+                "error": null,
+                "outcome": {
+                  "output_hex": "03",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 25933,
+                "error": null,
+                "outcome": {
+                  "output_hex": "03",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 2236,
+                "error": null,
+                "outcome": {
+                  "output_hex": "03",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 4768,
+                "error": null,
+                "outcome": {
+                  "output_hex": "03",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 3814,
+                "error": null,
+                "outcome": {
+                  "output_hex": "03",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 2 3)"
+        },
+        {
+          "label": "final element may be an improper pair",
+          "native": {
+            "output_hex": "ff0203",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 18458,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0203",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 18350,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0203",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1582,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0203",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 3412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0203",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2713,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0203",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 (2 . 3))"
+        },
+        {
+          "label": "program-shaped final element is data",
+          "native": {
+            "output_hex": "ff0880",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10821,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0880",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 10767,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0880",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 928,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0880",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2056,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0880",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1612,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0880",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((8))"
+        },
+        {
+          "label": "improper numeric tail rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 2)"
+        },
+        {
+          "label": "nonempty zero tail is not nil",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 0x00)"
+        },
+        {
+          "label": "padded zero tail is not nil",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 0x0000)"
+        },
+        {
+          "label": "padded one tail rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . 0x0001)"
+        },
+        {
+          "label": "negative improper tail rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 . -1)"
+        },
+        {
+          "label": "arbitrary padded final pair preserves bytes",
+          "native": {
+            "output_hex": "ff820001820000",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 18458,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff820001820000",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 18350,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff820001820000",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1582,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff820001820000",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 3412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff820001820000",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2713,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff820001820000",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 2) (0x0001 . 0x0000))"
+        },
+        {
+          "label": "nested ignored elements do not change final element",
+          "native": {
+            "output_hex": "ff0405",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 26095,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0405",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 25933,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0405",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 2236,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0405",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 4768,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0405",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 3814,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0405",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x00 ((8) . 0x0000) (4 . 5))"
+        }
+      ],
+      "environment": "raw",
+      "generated_cases": 2103,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "canonical_helper_port",
+        "commit": {
+          "git_commit_sha1": "11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4",
+          "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8",
+          "sha256": "eeacf0acd9363c67103dc110f270f4c0f868a65a5a644de164935cdbd288dab5",
+          "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/commit.git",
+          "verification": "Raw signed commit content reconstructed from public GitHub commit metadata and checked against its Git object ID; no local PGP trust claim."
+        },
+        "license": {
+          "git_blob_sha1": "75f455f1363bf4e1ededc01bf932051d18a4c61f",
+          "scope": "Repository license retained with exact source; not an independent per-file legal review.",
+          "sha256": "d2e8598a416f31a166c5ec34aef7568111a4eb903d7958551290f8fcd3e9c22c",
+          "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/LICENSE.MD",
+          "source_path": "LICENSE.MD",
+          "spdx": "Apache-2.0"
+        },
+        "limitations": [
+          "Only last_inner is ported. prefix, snoc, echo and the last macro in the same file remain outside this claim.",
+          "No upstream compiled module identity is claimed: the original is a helper inside an include file, and this port adds a visible module wrapper.",
+          "CLVM truthiness distinguishes only the empty atom from all nonempty atoms; numeric zero encodings must not replace the empty-list test.",
+          "The returned final element can itself be nil, a padded atom, a proper list or an improper pair; it is not constrained to a scalar.",
+          "Current scalar/tree proof models reject this runtime IR; reports contain finite executed comparisons only."
+        ],
+        "references": [
+          "https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L8-L13",
+          "https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/LICENSE.MD",
+          "https://github.com/Chia-Network/chia-gaming/commit/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4"
+        ],
+        "source_adaptation": {
+          "description": "Embed exactly last_inner source lines 8–13 in a new (mod ENV ...) and invoke (last_inner ENV). ENV receives the entire raw tree; no helper source rewrite, new guard, macro port or module-hash compatibility claim.",
+          "helper_span_sha256": "67984c12a663e4522c28d8343eefe6aee7e79100c326282822ddb823cabaa6dc",
+          "kind": "raw_environment_module_wrapper",
+          "reference": "puzzles/last-list-element/reference.clsp",
+          "reference_sha256": "988f8502c47c994f2b1b95806ac3bb6ddeb9cb120c55a15b6c151effd5330a81"
+        },
+        "source_span": {
+          "end_line": 13,
+          "extraction": "Exact inclusive source lines with original LF endings; this extracted file is not an upstream tracked file.",
+          "helper": "last_inner",
+          "sha256": "67984c12a663e4522c28d8343eefe6aee7e79100c326282822ddb823cabaa6dc",
+          "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/last_inner.clinc",
+          "start_line": 8
+        },
+        "tree": {
+          "manifest": "corpus/upstream/published-puzzles/Chia-Network--chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/tree.json",
+          "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8",
+          "scope": "Complete pinned Git tree; helper and license blob membership is checked.",
+          "sha256": "7c545d9100d060ec52722e2047ee2cc6cef33b4aa82feb2a04a55caec46a9b67"
+        },
+        "upstream": {
+          "git_blob_sha1": "8e65cf562b481b2a0a8eca8fc9575c74649d28aa",
+          "repository": "https://github.com/Chia-Network/chia-gaming",
+          "revision": "11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4",
+          "root_tree_sha1": "5be895a68c298617e3e376c7c060009b3e1144d8",
+          "snapshot": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc",
+          "source_path": "clsp/std/last.clinc",
+          "source_sha256": "aeb7cd23e4b062fa35e8d47f332f6c6c25cfed883734043967b6ba59caca7f19"
+        }
+      },
+      "reference": "; Raw-environment module adapter; the six-line upstream helper below is verbatim.\n(mod ENV\n(defun last_inner ((next . remainder))\n    (if remainder\n        (last_inner remainder)\n        next\n    )\n)\n  (last_inner ENV)\n)\n",
+      "rue": {
+        "dependencies": [],
+        "path": "puzzles/last-list-element/puzzle.rue",
+        "sha256": "d24189842326239f3bb14ac2695d080b6fc69debcb0e80fcd4b8ad918f2ec41e",
+        "source": "// Authored translation of the pinned last_inner helper, not its surrounding macro.\n// nil is the empty atom; nonempty zero bytes are not list terminators.\nfn main(...environment: Any) -> Any {\n    last_inner(environment)\n}\n\nfn last_inner(value: Any) -> Any {\n    assert value is (Any, Any);\n    if value.rest is nil {\n        value.first\n    } else {\n        last_inner(value.rest)\n    }\n}\n"
+      },
+      "security_scope": "Adapted port of the exact pinned last_inner helper only, not its surrounding last macro, a whole canonical puzzle, CHIP migration or authorization policy. Accepts nonempty proper lists and returns their final element as an arbitrary unchanged tree. Nil inputs and improper nonempty atom tails reject, including 0x00 and padded zero. A raw module wrapper passes the entire environment as the helper argument. Native comparisons are bounded to right-tail depth 128; exceeding that host limit is an error, not policy rejection. Finite execution evidence proves neither general termination nor compiler preservation.",
+      "simulator": [],
+      "simulator_comparisons": [],
+      "slug": "last-list-element",
+      "source": "//! Port of the pinned last_inner helper, not the surrounding last macro/puzzle.\nuse chialisp_oxide::Tree;\n\n/// Return the final element of a nonempty proper list, preserving its full tree.\n/// Empty lists and nonempty atom tails reject, including 0x00 and padded zero.\n#[chialisp_oxide::puzzle(environment = \"raw\")]\npub fn puzzle<'a>(environment: &'a Tree<'a>) -> &'a Tree<'a> {\n    match environment {\n        Tree::Pair(next, remainder) => match remainder {\n            Tree::Atom([]) => next,\n            _ => puzzle(remainder),\n        },\n        Tree::Atom(_) => panic!(),\n    }\n}\n",
+      "source_dependencies": [
+        {
+          "path": "crates/chialisp-oxide/src/lib.rs",
+          "sha256": "338637a61130db7ae1c1a139d1561fdb7410b6a1eea527081fae1c6d7323f3fc",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/tree.rs",
+          "sha256": "8613c2c40584ba7aa1760f7150d802cf0ffa2f85bd4754dc4a840eceb7ddd494",
+          "source": "//! Immutable CLVM data, with ordinary Rust lifetimes and pattern matching.\n//!\n//! A tree carries its original atom bytes. Numeric padding, improper pairs and\n//! arbitrary tails are data; this type does not interpret or normalize them.\n//! The compiler supports direct recursive traversal of this restricted shape.\n//! General enums, mutable references, allocating output trees, and general\n//! runtime program evaluation remain outside the supported subset.\n\n#[derive(Clone, Copy, Debug, PartialEq, Eq)]\npub enum Tree<'a> {\n    Atom(&'a [u8]),\n    Pair(&'a Tree<'a>, &'a Tree<'a>),\n}\n\n/// CLVM's quote operator as data, for constructing a quoted program.\npub const QUOTE: Tree<'static> = Tree::Atom(&[1]);\n\n/// Construct a program returning `value` when applied to any environment.\n///\n/// This is an ordinary Rust function. The compiler checks and lowers its MIR;\n/// its name does not grant it intrinsic semantics.\npub fn quote<'a>(value: &'a Tree<'a>) -> Tree<'a> {\n    Tree::Pair(&QUOTE, value)\n}\n"
+        }
+      ],
+      "title": "Published last_inner helper: final list element",
       "validated": true
     }
   ],

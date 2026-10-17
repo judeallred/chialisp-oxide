@@ -72,6 +72,7 @@ export const canonicalExample = (puzzle: PuzzleReport) => tutorialExamples.find(
   example.implementation_status === 'implemented' && example.validation_status === 'differential_only'
   && example.source_adaptation?.slug === puzzle.slug);
 export const canonicalPuzzle = (puzzle: PuzzleReport) => puzzle.provenance.classification === 'canonical_puzzle_port';
+export const canonicalHelper = (puzzle: PuzzleReport) => puzzle.provenance.classification === 'canonical_helper_port';
 export const kindLabel = (kind: string) => kind === 'program_factory' ? 'program factory' : kind === 'pure_function' ? 'pure function' : kind === 'coin_puzzle' ? 'coin puzzle' : kind.replaceAll('_', ' ');
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const href = (path: string) => `${base}/${path.replace(/^\//, '')}`;
@@ -94,7 +95,8 @@ export const totals = {
   programFactories: puzzles.filter(puzzle => puzzle.kind === 'program_factory').length,
   canonicalPorts: puzzles.filter(puzzle => canonicalExample(puzzle)).length,
   canonicalPuzzlePorts: puzzles.filter(puzzle => canonicalPuzzle(puzzle)).length,
-  originalExamples: puzzles.filter(puzzle => !canonicalExample(puzzle) && !canonicalPuzzle(puzzle)).length,
+  canonicalHelperPorts: puzzles.filter(puzzle => canonicalHelper(puzzle)).length,
+  originalExamples: puzzles.filter(puzzle => !canonicalExample(puzzle) && !canonicalPuzzle(puzzle) && !canonicalHelper(puzzle)).length,
 };
 
 if (validation.schema_version !== 1 || puzzles.length === 0 || puzzles.some(p => !p.validated)) {

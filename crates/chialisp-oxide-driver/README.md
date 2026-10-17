@@ -89,6 +89,13 @@ The supported subset includes:
   `&[u8]` represents an arbitrary atom, distinct from a fixed byte array. Static
   atom/tree constants lower their inspectable, bounded promoted/CTFE MIR rather
   than assuming a Rust pointer layout. Dynamic byte-array unsizing is rejected.
+- Empty-slice patterns on the accepted immutable atom slice, including
+  `Tree::Atom([])`. The frontend validates the complete compiler-generated
+  metadata/zero-comparison use chain, including an optional fake pointer,
+  and lowers only an atom capture
+  and boolean empty check. Internal pointer/`usize` temporaries cannot escape
+  that chain. Nonempty zero bytes are not nil; general slice lengths, indexing,
+  raw pointers and positive-length patterns remain outside this support.
 - Checked `+`, `-`, `*`, with overflow becoming puzzle rejection. Overflow
   checking and debug assertions are always enabled, independently of Cargo's
   profile. Explicit wrapping/overflowing methods are rejected.
@@ -133,6 +140,9 @@ cloning and aggregate construction have separate size checks. Type expansion
 is limited to 4,096 nodes and depth 32 before replicating nested arrays.
 Functions have at most 64 parameters and 2,048 MIR locals. Accepting a function
 does not establish an affordable CLVM execution cost.
+The initial MIR scan rejects bodies above 8,192 statements or 10,000 blocks.
+Empty-slice metadata analysis also bounds collected uses, alias propagation,
+and zero-definition scans to 500,000 work units, with at most 64 nested zero aliases.
 
 ## Runtime function extraction
 
@@ -169,6 +179,10 @@ allocator failures are resource/inconclusive outcomes, not policy rejection.
 Current SMT models reject all runtime IR, including unused tables and dead
 calls; finite replay does not prove termination or compiler preservation. See
 [`docs/runtime-calls.md`](../../docs/runtime-calls.md).
+Empty-atom source patterns and rejected metadata escapes have their own Cargo
+regressions in `tests/empty_atoms.rs`. The paired `last-list-element` corpus
+entry ports a pinned published helper through an explicit Chialisp module
+adapter; it does not assert whole-library or canonical module-hash compatibility.
 
 This is host-checked Rust, not a rustc CLVM target. Source expansion uses the
 pinned compiler's host configuration, including `cfg(target_*)`,

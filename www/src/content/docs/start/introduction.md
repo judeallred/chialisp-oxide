@@ -51,6 +51,9 @@ The laboratory separates original teaching implementations with authored
 Chialisp references from [canonical Intro expression ports](/chialisp-oxide/tutorials/canonical-intro/)
 that preserve the pinned originals. Neither group is an audited production
 module or a completed replacement for a canonical Chia protocol. The
+[published list helper](/chialisp-oxide/tutorials/last-list-element/) separately
+retains an exact helper span through an explicit module adapter; that adapter
+does not complete its source library or claim a published module hash. The
 [source inventory](/chialisp-oxide/coverage/) tracks example-level evidence and
 the much larger tutorial and CHIP migration goal separately.
 

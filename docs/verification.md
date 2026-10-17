@@ -4,6 +4,9 @@ Current evidence compares Chialisp, Rust and Rue sources through five compiled
 modes, native policy execution, generated inputs and complete-spend scenarios.
 The corpus distinguishes original teaching fixtures, exact canonical Intro
 expression ports, and the canonical raw-tree `p2_conditions` program factory.
+The published `last_inner` list helper is a separate explicit module adapter,
+with exact pinned source-span/license provenance and no whole-module identity
+claim. Empty-slice matching tests distinguish nil from nonempty zero-byte atoms.
 The factory has module-identity and second-stage application checks, rather than
 direct ledger admission claims. See `corpus/validation.json`, `corpus/proofs.json`
 and `corpus/tree-proofs.json` for the actual counts, inputs and scope. The early
@@ -18,6 +21,9 @@ MIR rejection. The `rightmost-tree` corpus example compares the actual Rust
 function with independent Chialisp and Rue on bounded native inputs. Its
 right-tail depth cap is a host-oracle error beyond 128, not policy rejection;
 the compiled function adds no depth guard. Separate VM tests reach depth 2,048.
+The `last-list-element` helper adds proper-list, improper-tail, empty/padded
+atom and returned-subtree cases across all three languages. Its native traversal
+bound is likewise an oracle error, never a policy-rejection observation.
 
 Ordering controls require `raise` when rejection precedes a nonterminating
 call, and `cost_exceeded` when nontermination comes first. Nontermination runs

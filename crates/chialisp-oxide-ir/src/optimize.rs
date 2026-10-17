@@ -168,6 +168,10 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
             let (value, facts) = boxed(*value, tree_arguments);
             (Expr::Not { value }, facts)
         }
+        Expr::AtomIsEmpty { value } => {
+            let (value, facts) = boxed(*value, tree_arguments);
+            (Expr::AtomIsEmpty { value }, facts)
+        }
         expr @ (Expr::Atom { .. }
         | Expr::Bytes { .. }
         | Expr::Int { .. }

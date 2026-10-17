@@ -1,0 +1,108 @@
+---
+title: Port a published list helper
+description: Preserve a Chia gaming helper's proper-list contract in checked Rust, with independent Chialisp and Rue comparisons and pinned source provenance.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+The [recursive-tree lesson](/chialisp-oxide/tutorials/recursive-trees/) follows
+right children until it reaches an atom. That returns nil for a proper list.
+Returning the final list element requires inspecting the tail of each pair.
+
+This lesson ports `last_inner` from
+[`Chia-Network/chia-gaming`, `clsp/std/last.clinc`, lines 8–13](https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L8-L13).
+The complete source and Apache-2.0 license are pinned. The Chialisp comparison
+embeds those six lines verbatim in a module adapter that invokes the helper on
+the complete environment. This ports one helper, not the surrounding `last`
+macro, its library, or a coin protocol. There is no published module-hash claim.
+
+## Compare the three sources
+
+<SourceComparison slug="last-list-element" />
+
+The Rust export receives one borrowed `Tree` representing the entire environment.
+It first requires a pair. When that pair's tail is `Tree::Atom([])`, it returns
+the head unchanged. Otherwise it recurses on the tail. If a nonempty atom is
+eventually reached, the pair requirement rejects it.
+
+Rustc checks the enum and slice patterns, references and returned lifetime.
+The CLVM subset checker then recognizes the pinned compiler's empty-slice test
+and lowers it to a typed empty-atom predicate. This support grants no general
+pointer manipulation, atom indexing, `usize` ABI, or variable-length byte API.
+The function uses ordinary Rust patterns rather than numerical condition codes
+or a compiler-specific spelling for nil.
+
+## Nil is an empty byte string
+
+```text
+whole environment                 result
+()                                reject: no pair
+10                                reject: no pair
+(10)                              10
+(10 20 30)                        30
+(10 ())                           ()
+(10 (20 . 30))                    (20 . 30)
+(10 0x0001)                       0x0001
+(10 . 0x00)                       reject: improper tail
+(10 . 0x0000)                     reject: improper tail
+```
+
+An empty final element is valid; an empty input list has no final element.
+A pair in the final element is returned as data, without requiring that element
+itself to be a proper list. The same holds for program-shaped data: returning
+a tree never executes it.
+
+CLVM treats only the empty atom as false. Nonempty zero bytes are true, even
+when a numeric interpretation would yield zero. The original helper therefore
+tries to destructure an improper `0x00` tail and fails. Treating such a tail as
+nil would change its accepted inputs. Native Rust, both Rust CLVM builds, the
+original Chialisp helper adapter, and both Rue builds must agree on these cases.
+
+## Inspect and reproduce the evidence
+
+The [laboratory page](/chialisp-oxide/lab/last-list-element/) records the actual
+sources, five compiled builds, named outcomes, generated cases, costs and tree
+hashes. The source adapter is visible in the comparison, so its accepted input
+contract can be reviewed directly. This pure function returns a CLVM value;
+it has no ledger scenarios or authorization claim.
+The current Rust calling convention produces a substantially larger program
+than this small Chialisp helper. The lab exposes that size difference and the
+execution costs; reducing frame and binding overhead remains compiler work.
+
+```sh
+cargo build --workspace --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-driver --test empty_atoms --locked
+cargo test -p chialisp-oxide-ir --test atom_is_empty --locked
+python3 scripts/check-canonical-helpers.py
+python3 scripts/check-canonical-helpers.py --self-test
+```
+
+The offline helper gate reconstructs the pinned Git commit and repository tree,
+checks source and license blob membership, extracts the exact six-line span,
+requires the displayed adapter, and binds it to the executed corpus report.
+Its mutation controls remove or alter that evidence to ensure the gate rejects
+stale source, changed wrappers and missing observations. Git object identity
+does not imply trust in the commit's signer or an audit of the helper.
+
+The native oracle limits traversed tails before calling the Rust helper.
+Exceeding that host bound aborts comparison as an error; it cannot count as a
+puzzle rejection. The compiled function has no added depth guard. VM resource
+exhaustion is likewise inconclusive.
+
+## What remains unproved
+
+The new atom predicate has structural-model tests that preserve exact bytes and
+strict evaluation. That does not give this recursive helper a formal proof.
+Current model checkers reject all runtime function tables, and finite native/VM
+agreement establishes neither termination nor compiler preservation for arbitrary
+inputs. The [verification guide](/chialisp-oxide/verification/method/) keeps those
+claims separate.
+
+Returning an existing borrowed subtree needs no allocation. Helpers that build
+an unbounded reversed list or concatenate lists still need an explicit output
+ownership design. General atom equality, lengths, slicing, hashes and dynamic
+program evaluation remain separate compiler work.

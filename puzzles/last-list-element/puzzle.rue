@@ -1,0 +1,14 @@
+// Authored translation of the pinned last_inner helper, not its surrounding macro.
+// nil is the empty atom; nonempty zero bytes are not list terminators.
+fn main(...environment: Any) -> Any {
+    last_inner(environment)
+}
+
+fn last_inner(value: Any) -> Any {
+    assert value is (Any, Any);
+    if value.rest is nil {
+        value.first
+    } else {
+        last_inner(value.rest)
+    }
+}

@@ -46,6 +46,8 @@ The final example is deliberate. A proper list ends in nil, so following only
 right children reaches nil. This helper does not return the final list element.
 An implementation of `last` needs a different base case and a precise contract
 for empty lists and improper tails.
+[The published list-helper lesson](/chialisp-oxide/tutorials/last-list-element/)
+implements that distinction using an ordinary Rust empty-slice pattern.
 
 Padded atoms stay padded. A nonempty zero byte is not nil. The function also
 ignores complete left subtrees; their shape does not affect the result. These

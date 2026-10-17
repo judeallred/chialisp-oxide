@@ -96,7 +96,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(left);
             pending.push(right);
         }
-        Expr::Not { value }
+        Expr::AtomIsEmpty { value }
+        | Expr::Not { value }
         | Expr::Field { value, .. }
         | Expr::TreeAtom { value }
         | Expr::TreeAtomValue { value }
@@ -317,6 +318,14 @@ impl Validator<'_> {
                 ensure!(hex.len() <= 8192, "byte literal too large");
                 ensure!(hex::decode(hex)?.len() <= 4096, "atom literal too large");
                 Type::Atom
+            }
+            Expr::AtomIsEmpty { value } => {
+                let ty = self.infer(value, parameters, locals, depth + 1)?;
+                ensure!(
+                    ty.is_none() || ty == Some(Type::Atom),
+                    "atom emptiness test requires an atom"
+                );
+                Type::Bool
             }
             Expr::TreeAtom { value } => {
                 let ty = self.infer(value, parameters, locals, depth + 1)?;

@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import searchIndex from './search-index.mjs';
 
 export default defineConfig({
   site: 'https://judeallred.github.io',
@@ -7,6 +8,7 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [
     starlight({
+      pagefind: false,
       title: 'chialisp / oxide',
       description: 'Real Rust to CLVM. Learn from executable puzzles, independent references, and reproducible validation.',
       logo: { src: './src/assets/oxide-mark.svg', replacesTitle: false },
@@ -17,7 +19,7 @@ export default defineConfig({
           overridesByLang: { rust: { wrap: true, preserveIndent: true } },
         },
       },
-      components: { Banner: './src/components/PrototypeBanner.astro' },
+      components: { Banner: './src/components/PrototypeBanner.astro', Search: './src/components/Search.astro' },
       social: [{ icon: 'github', label: 'GitHub repository', href: 'https://github.com/judeallred/chialisp-oxide' }],
       sidebar: [
         { label: 'Start here', items: [
@@ -30,6 +32,7 @@ export default defineConfig({
           { label: 'Port the canonical Intro', slug: 'tutorials/canonical-intro' },
           { label: 'Build a quoted program', slug: 'tutorials/p2-conditions' },
           { label: 'Follow recursive trees', slug: 'tutorials/recursive-trees' },
+          { label: 'Port a published list helper', slug: 'tutorials/last-list-element' },
           { label: 'Your first payment', slug: 'tutorials/first-payment' },
           { label: 'Validate untrusted inputs', slug: 'tutorials/input-validation' },
           { label: 'Use typed puzzle helpers', slug: 'tutorials/typed-sdk' },
@@ -55,5 +58,6 @@ export default defineConfig({
         ] },
       ],
     }),
+    searchIndex(),
   ],
 });

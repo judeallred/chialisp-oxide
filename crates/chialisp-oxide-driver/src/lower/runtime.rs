@@ -10,12 +10,15 @@ use std::{
 use chialisp_oxide_ir::{BinaryOp, Expr, Function, Parameter, Type};
 use rustc_hir::def_id::DefId;
 use rustc_middle::{
-    mir::{BasicBlock, Body, Local, Place, Rvalue, START_BLOCK, StatementKind, TerminatorKind},
+    mir::{
+        BasicBlock, Body, Local, Location, Place, Rvalue, START_BLOCK, StatementKind,
+        TerminatorKind,
+    },
     ty,
 };
 use rustc_span::Span;
 
-use super::{BlockDepth, Lowerer, MAX_EXPRESSION_DEPTH};
+use super::{BlockDepth, Lowerer, MAX_EXPRESSION_DEPTH, empty_atoms};
 
 const MAX_DISCOVERED_FUNCTIONS: usize = 256;
 const MAX_RUNTIME_FUNCTIONS: usize = 64;
@@ -171,8 +174,15 @@ impl<'tcx> Lowerer<'tcx> {
                 ids: &ids,
                 next_local: Cell::new(0),
             };
-            let expression =
-                self.runtime_block(body, START_BLOCK, locals, &mut vec![], &runtime)?;
+            let patterns = self.empty_atom_patterns(body)?;
+            let expression = self.runtime_block(
+                body,
+                START_BLOCK,
+                locals,
+                &mut vec![],
+                &runtime,
+                empty_atoms::State::new(&patterns),
+            )?;
             let name = self.tcx.def_path_str(definition);
             lowered.push(Function {
                 id,
@@ -221,6 +231,19 @@ impl<'tcx> Lowerer<'tcx> {
         if !place.projection.is_empty() {
             return Err(self.error(span, "projected assignment is unsupported in runtime functions; construct and assign a complete tuple/newtype"));
         }
+        let value = self.runtime_value(value, ty, bindings, runtime, span)?;
+        locals[place.local.index()] = Some(value);
+        Ok(())
+    }
+
+    fn runtime_value(
+        &self,
+        value: Expr,
+        ty: Type,
+        bindings: &mut Vec<Binding>,
+        runtime: &Runtime<'_>,
+        span: Span,
+    ) -> Result<Expr, String> {
         self.check_expression(&value, span)?;
         // These are already evaluated values or total literals. Their defining
         // call/arithmetic Let remains in scope, including when the alias is
@@ -235,8 +258,7 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::Bytes { .. }
                 | Expr::Atom { .. }
         ) {
-            locals[place.local.index()] = Some(value);
-            return Ok(());
+            return Ok(value);
         }
         let id = runtime.next_local.get();
         if id >= MAX_RUNTIME_BINDINGS {
@@ -248,8 +270,7 @@ impl<'tcx> Lowerer<'tcx> {
             ty,
             value,
         });
-        locals[place.local.index()] = Some(Expr::Local { local_id: id });
-        Ok(())
+        Ok(Expr::Local { local_id: id })
     }
 
     fn runtime_block(
@@ -259,6 +280,7 @@ impl<'tcx> Lowerer<'tcx> {
         mut locals: Vec<Option<Expr>>,
         path: &mut Vec<BasicBlock>,
         runtime: &Runtime<'_>,
+        mut patterns: empty_atoms::State<'_, 'tcx>,
     ) -> Result<Expr, String> {
         let data = &body.basic_blocks[block];
         let span = data.terminator().source_info.span;
@@ -279,11 +301,46 @@ impl<'tcx> Lowerer<'tcx> {
         }
         path.push(block);
         let mut bindings = vec![];
-        for statement in &data.statements {
+        for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
             match &statement.kind {
                 StatementKind::Assign(assignment) => {
                     let (place, rvalue) = &**assignment;
+                    if let Some(action) = patterns.patterns.action(Location {
+                        block,
+                        statement_index,
+                    }) {
+                        if let empty_atoms::Action::Capture {
+                            destination,
+                            source,
+                        } = action
+                        {
+                            let value = self.place(body, source, &locals, statement_span)?;
+                            let value = self.runtime_value(
+                                value,
+                                Type::Atom,
+                                &mut bindings,
+                                runtime,
+                                statement_span,
+                            )?;
+                            patterns.values.insert(destination, std::rc::Rc::new(value));
+                        } else if let Some(value) = self.empty_atom_action(
+                            body,
+                            action,
+                            &locals,
+                            &mut patterns.values,
+                            statement_span,
+                        )? {
+                            self.runtime_bind(
+                                (*place, Type::Bool, value),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                statement_span,
+                            )?;
+                        }
+                        continue;
+                    }
                     if !place.projection.is_empty() {
                         return Err(self.error(statement_span, "projected assignment is unsupported in runtime functions; construct and assign a complete tuple/newtype"));
                     }
@@ -322,7 +379,7 @@ impl<'tcx> Lowerer<'tcx> {
                 self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
             }
             TerminatorKind::Goto { target } => {
-                self.runtime_block(body, *target, locals, path, runtime)?
+                self.runtime_block(body, *target, locals, path, runtime, patterns)?
             }
             TerminatorKind::SwitchInt { discr, targets } => {
                 let value = self.operand(body, discr, &locals, span)?;
@@ -341,6 +398,7 @@ impl<'tcx> Lowerer<'tcx> {
                     self.clone_locals(&locals, span)?,
                     &mut path.clone(),
                     runtime,
+                    patterns.clone(),
                 )?;
                 for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
                     let condition = if let Some((is_pair, shape)) = &tree {
@@ -369,6 +427,7 @@ impl<'tcx> Lowerer<'tcx> {
                             self.clone_locals(&locals, span)?,
                             &mut path.clone(),
                             runtime,
+                            patterns.clone(),
                         )?),
                         else_value: Box::new(result),
                     };
@@ -390,7 +449,9 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 Expr::If {
                     condition: Box::new(condition),
-                    then_value: Box::new(self.runtime_block(body, *target, locals, path, runtime)?),
+                    then_value: Box::new(
+                        self.runtime_block(body, *target, locals, path, runtime, patterns)?,
+                    ),
                     else_value: Box::new(Expr::Reject {
                         message: self.error(span, "Rust assertion failed"),
                     }),
@@ -436,7 +497,7 @@ impl<'tcx> Lowerer<'tcx> {
                     let target = target.ok_or_else(|| {
                         self.error(span, "diverging helper calls are unsupported")
                     })?;
-                    self.runtime_block(body, target, locals, path, runtime)?
+                    self.runtime_block(body, target, locals, path, runtime, patterns)?
                 }
             }
             TerminatorKind::Unreachable => Expr::Reject {

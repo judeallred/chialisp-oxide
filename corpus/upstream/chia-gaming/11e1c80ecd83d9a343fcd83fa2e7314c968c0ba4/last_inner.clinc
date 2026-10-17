@@ -1,0 +1,6 @@
+(defun last_inner ((next . remainder))
+    (if remainder
+        (last_inner remainder)
+        next
+    )
+)

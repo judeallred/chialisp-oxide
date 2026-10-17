@@ -4,11 +4,12 @@ import { Code } from '@astrojs/starlight/components';
 import SourceComparison from '../../components/SourceComparison.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
+import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
 const canonicalModule = canonicalPuzzle(puzzle);
+const helperAdapter = canonicalHelper(puzzle);
 const factoryGroups = new Map<string, NonNullable<PuzzleReport['factory_checks']>>();
 for (const check of puzzle.factory_checks ?? []) {
   factoryGroups.set(check.environment, [...(factoryGroups.get(check.environment) ?? []), check]);
@@ -23,6 +24,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   <p><span class="badge success">validated report</span> <span class="badge">{kindLabel(puzzle.kind)}{puzzle.kind === 'program_factory' ? ' · returns a program' : puzzle.kind === 'pure_function' ? ' · not a coin puzzle' : ' · returns conditions'}</span></p>
   {canonical && <p><span class="badge">canonical tutorial expression</span> <a href={canonical.source.url}>{canonical.title}</a> · differential evidence; parent tutorial remains partial</p>}
   {canonicalModule && <p><span class="badge">canonical puzzle/module port</span> One exact pinned upstream module; source, published artifact identity, and recorded behavior are checked separately.</p>}
+  {helperAdapter && <p><span class="badge">published helper adapter</span> An exact pinned helper is invoked by an explicit module wrapper. This is separate from porting the complete upstream source file or preserving a published module hash.</p>}
   <p class="scope">{puzzle.security_scope}</p>
   <div class="metric-grid">
     <div class="metric"><strong>{puzzle.cases.length}</strong><span>named vectors</span></div>
@@ -30,7 +32,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
     <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
   </div>
   <h2 id="sources">Compare the sources</h2>
-  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical || canonicalModule ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
+  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical || canonicalModule ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.' : helperAdapter ? 'The Chialisp comparison embeds the original helper verbatim inside the displayed module adapter, which calls it on the complete environment.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
   <p class="callout-note">{puzzle.environment === 'ignored'
     ? <>Environment contract: explicitly ignored. This parameterless export accepts any CLVM tree that the VM can parse and process within its resource limits. It adds no proper-list, arity, or scalar encoding check. <a href={href('reference/abi/#explicitly-ignored-environments')}>Read the opt-in ABI contract.</a></>
     : puzzle.environment === 'raw'
@@ -76,7 +78,8 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
     </details>)}
   </div> : <div class="callout-note">{puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
-  <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
+  <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : helperAdapter ? 'This ports one published helper through an explicit module adapter. It does not complete the source library, its macros, a protocol, or a CHIP. It makes no published module-hash compatibility claim.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
+  {helperAdapter && <p><a href={href('tutorials/last-list-element/')}>Read the helper’s source span, license, input contract and reproduction steps.</a></p>}
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <p>Rue source SHA-256: <code class="dependency-hash" data-pagefind-ignore>{puzzle.rue.sha256}</code>. It is compiled independently; Rust’s use of Rue LIR does not substitute for this source comparison.</p>
   <RuntimeVersions />

@@ -29,6 +29,7 @@ pub const PUZZLES: &[&str] = &[
     "intro-conditional",
     "p2-conditions",
     "rightmost-tree",
+    "last-list-element",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -321,6 +322,46 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         }
         compare(slug, &tree, &programs)?;
         generated_cases += 1;
+    }
+    if slug == "last-list-element" {
+        // Returned elements may be arbitrary atoms/trees. Exercise the actual
+        // final element rather than only ignored left branches or list tails.
+        for width in [0, 1, 31, 32, 63, 64, 255, 256, 4096, 8192] {
+            let value = if width == 0 {
+                "()".into()
+            } else {
+                format!("0x{}", "00".repeat(width))
+            };
+            compare(slug, &format!("({value})"), &programs)?;
+            generated_cases += 1;
+        }
+        for depth in [1, 2, 8, 32, 128] {
+            for tail in ["()", "0x00", "0x0000", "0x0001"] {
+                let mut tree = tail.to_string();
+                for _ in 0..depth {
+                    tree = format!("(0x0001 . {tree})");
+                }
+                compare(slug, &tree, &programs)?;
+                generated_cases += 1;
+            }
+        }
+        for value in [
+            "()",
+            "0x00",
+            "0x0000",
+            "0x0001",
+            "(0x0001 . 0x0000)",
+            "(8)",
+            "((1 . 2) . (3 . 4))",
+        ] {
+            for environment in [
+                format!("({value})"),
+                format!("(0x00 ((8) . 0x0000) {value})"),
+            ] {
+                compare(slug, &environment, &programs)?;
+                generated_cases += 1;
+            }
+        }
     }
     let artifacts: Vec<Artifact> = programs
         .iter()

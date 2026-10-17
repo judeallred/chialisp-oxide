@@ -200,6 +200,11 @@ impl Lower<'_> {
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
             Expr::Atom { hex } => self.bytes(hex::decode(hex)?),
+            Expr::AtomIsEmpty { value } => {
+                let value = self.expression(value)?;
+                let nil = self.nil();
+                self.alloc(Lir::Eq(value, nil))
+            }
             Expr::TreeAtom { value } => self.expression(value)?,
             Expr::TreePair { first, rest } => {
                 let first = self.expression(first)?;

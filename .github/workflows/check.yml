@@ -62,6 +62,8 @@ jobs:
           python3 scripts/check-readable-puzzles.py
           python3 scripts/check-canonical-factories.py
           python3 scripts/check-canonical-factories.py --self-test
+          python3 scripts/check-canonical-helpers.py
+          python3 scripts/check-canonical-helpers.py --self-test
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions
       - uses: actions/upload-artifact@v4

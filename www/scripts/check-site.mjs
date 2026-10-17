@@ -18,6 +18,14 @@ async function files(directory) {
 const built = await files(root);
 const pages = built.filter(file => file.endsWith('.html'));
 assert(pages.length >= 31, 'Expected the full documentation and puzzle corpus');
+// A successful index command can still leave empty generated runtime assets.
+// Check the actual browser files as well as executing search in Node below.
+const searchAssets = built.filter(file => file.startsWith(path.join(root, 'pagefind') + path.sep)
+  && /\.(?:js|css|pagefind)$/.test(file));
+assert(searchAssets.length > 0, 'Missing built search runtime');
+for (const file of searchAssets) {
+  assert((await stat(file)).size > 0, `Empty generated search asset: ${path.relative(root, file)}`);
+}
 const cache = new Map();
 const html = async file => {
   if (!cache.has(file)) cache.set(file, await readFile(file, 'utf8'));
@@ -28,6 +36,8 @@ let checkedLinks = 0;
 for (const file of pages) {
   const text = await html(file);
   assert.match(text, /<html[^>]*lang="en"/, `${file}: missing document language`);
+  assert.match(text, /<site-search(?:\s|>)/, `${file}: missing the rendered search control`);
+  assert(text.includes('data-open-modal'), `${file}: missing the stock search modal trigger`);
   assert(text.includes('aria-label="Prototype status"'), `${file}: missing prominent prototype status banner`);
   assert(text.includes('WIP prototype. Not ready for use. Do not use for real funds or production puzzles.'), `${file}: missing explicit prototype warning`);
   const url = new URL(base + path.relative(root, file).replace(/index\.html$/, ''), origin);
@@ -151,6 +161,16 @@ for (const puzzle of validation.puzzles) {
     const tutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
     assert(tutorial.includes(puzzle.module_identity.upstream_tree_hash), 'Tutorial must bind the published module identity');
   }
+  if (puzzle.provenance.classification === 'canonical_helper_port') {
+    assert.equal(puzzle.kind, 'pure_function', `${puzzle.slug}: helper classification must preserve its evidence scope`);
+    assert.equal(puzzle.environment, 'raw');
+    assert.deepEqual(puzzle.simulator, []);
+    assert.equal(puzzle.module_identity, undefined, 'Helper adapters must not acquire a published standalone-module identity');
+    for (const label of ['published helper adapter', 'Original helper + module adapter', 'explicit source wrapper', 'no published module-hash compatibility claim']) {
+      assert(detail.includes(label), `${puzzle.slug}: missing adapter provenance label ${label}`);
+    }
+    assert(!detail.includes('This original teaching fixture'), `${puzzle.slug}: published helper misclassified as original teaching`);
+  }
 }
 const recursiveTutorial = await html(path.join(root, 'tutorials/recursive-trees/index.html'));
 const recursivePuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'rightmost-tree');
@@ -169,6 +189,21 @@ for (const source of [recursivePuzzle.source, recursivePuzzle.reference, recursi
 }
 for (const scope of ['version-4 typed IR', 'finite VM budget', 'proper list ends in nil', 'not a port of a published protocol module']) {
   assert(recursiveTutorial.includes(scope), `Recursive tutorial misses scope: ${scope}`);
+}
+const listTutorial = await html(path.join(root, 'tutorials/last-list-element/index.html'));
+const listPuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'last-list-element');
+assert.equal(listPuzzle?.provenance.classification, 'canonical_helper_port', 'Missing executed published list-helper adapter');
+const listCopies = [...listTutorial.matchAll(/\bdata-code="([^"]*)"/g)]
+  .map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+for (const language of ['chialisp', 'rust', 'rue']) {
+  assert(listTutorial.includes(`data-language="${language}"`), `List tutorial misses ${language} comparison`);
+}
+for (const source of [listPuzzle.source, listPuzzle.reference, listPuzzle.rue.source]) {
+  assert(listCopies.includes(normalizedCode(source)), 'List tutorial copy differs from executed source');
+  checkedSourceCopies++;
+}
+for (const scope of ['lines 8–13', 'Apache-2.0', 'module adapter', 'no published module-hash claim', '0x0000', 'host bound', 'reject all runtime function tables']) {
+  assert(listTutorial.includes(scope), `List tutorial misses scope: ${scope}`);
 }
 const sdk = await html(path.join(root, 'tutorials/typed-sdk/index.html'));
 assert(sdk.includes('newtype_swap.rs') && sdk.includes('newtype_time_swap.rs'), 'Missing executable SDK diagnostic examples');
@@ -245,7 +280,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion']) {
+for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -253,6 +288,10 @@ for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos
     if (term === 'rightmost') {
       const matches = await Promise.all(search.results.slice(0, 10).map(row => row.data()));
       assert(matches.some(row => row.url === `${base}tutorials/recursive-trees/`), 'Recursive tutorial is not discoverable in search');
+    }
+    if (term === 'last_inner') {
+      const matches = await Promise.all(search.results.slice(0, 10).map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/last-list-element/`), 'Published helper tutorial is not discoverable in search');
     }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }
