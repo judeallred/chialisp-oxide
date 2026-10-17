@@ -20,6 +20,32 @@ direct ledger admission claims. The validation, scalar, structural-tree and
 byte-policy reports in `corpus/` record their actual inputs and scope. The early
 backend-only experiment below remains a separate baseline.
 
+## Solver environment
+
+CI uses the official [Z3 4.15.4 release](https://github.com/Z3Prover/z3/releases/tag/z3-4.15.4).
+The compiler job runs on Ubuntu 24.04 and verifies the SHA-256 of the selected
+`x64-glibc-2.39` archive before installing its CLI. The exact URL, digest and
+installation commands are in [the verification workflow](../.github/workflows/check.yml).
+For local use, install that release for your platform and put `z3` on `PATH`;
+`z3 --version` should report 4.15.4. macOS package-manager versions can change,
+so check the actual version when reproducing a result.
+
+Ubuntu 24.04's distribution package supplies Z3 4.8.12. On the checked-addition
+and bitvector-mask regression it returned `unknown` within the unchanged
+five-second solver budget; the selected 4.15.4 Linux release solves the same
+query. The original nonvacuity obligations and two refuted arithmetic/mask
+mutants were also replayed without changing their formulas or deadlines.
+
+Other solver versions can still be selected through `SolverConfig`, but
+completeness and performance are not promised across versions or machines.
+An absent solver, `unknown`, a timeout or malformed output produces no proof.
+The release pin does not turn these outcomes into success or increase the
+solver budget. To reproduce the regression:
+
+```sh
+cargo test -p chialisp-oxide-verifier --test bitwise_inputs --locked
+```
+
 ## Source-derived whole-environment byte proof
 
 [`scripts/check-byte-proofs.py`](../scripts/check-byte-proofs.py) extracts

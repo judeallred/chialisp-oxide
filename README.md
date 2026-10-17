@@ -84,8 +84,9 @@ not a complete transitive dependency fingerprint.
 Standalone file extraction remains a compiler-regression and research tool;
 it is no longer the corpus's authoring or native-oracle route.
 
-Z3 is required for the formal experiments (`brew install z3` on macOS,
-`apt install z3` on Ubuntu). The backend directly integrates Rue compiler
+Z3 is required for the formal experiments. CI uses checksum-pinned Z3 4.15.4;
+see the [solver setup and limitations](docs/verification.md#solver-environment).
+The backend directly integrates Rue compiler
 source; generated Rue text is optional.
 
 ## What is validated
