@@ -284,8 +284,8 @@ fn raw_policy_and_borrowed_tree_subset_fail_closed_before_any_export() {
             "cannot return reference to local variable",
         ),
         (
-            "#[chialisp_oxide::puzzle] pub fn invalid(v:&[u8;2])->chialisp_oxide::Tree<'_>{chialisp_oxide::Tree::Atom(v)}",
-            "dynamic byte-array unsizing is unsupported",
+            "#[chialisp_oxide::puzzle] pub fn invalid(v:&[u8;257])->chialisp_oxide::Tree<'_>{chialisp_oxide::Tree::Atom(v)}",
+            "arrays are limited to 256 elements",
         ),
     ] {
         fixture.source(&format!(

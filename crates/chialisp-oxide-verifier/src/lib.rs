@@ -313,6 +313,7 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::Sha256 { .. } => bail!("scalar SMT does not model SHA256 semantics"),
             Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
                 bail!("scalar SMT does not model runtime functions or local bindings")
             }
@@ -558,6 +559,10 @@ fn default_value(ty: &Type) -> Result<Value> {
 /// Expression-model preflight must examine the whole Program, not just the
 /// reachable entry expression: an unused table or dead branch is still v4 IR.
 fn require_expression_model(program: &Program, model: &str) -> Result<()> {
+    ensure!(
+        !program.uses_sha256(),
+        "{model} does not model SHA256 semantics"
+    );
     ensure!(
         !program.uses_runtime(),
         "{model} does not model runtime functions or local bindings"

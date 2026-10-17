@@ -124,7 +124,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
 | Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree` and opt-in `OwnedTree` pair construction/matching; checked projections and direct recursion; bounded native codecs | Dynamic atom storage, broader byte/number operations and per-operator preservation proofs |
-| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit v3 raw whole-tree export | More argument patterns and deliberate typed adapters without weakening defaults |
+| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit raw whole-tree export in v3 or runtime v4 | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | No user-facing dynamic apply; internal backend applications are not a source API | A reviewed program/environment SDK and IR, dialect rules, failures, and cost bounds |
 | Signed arbitrary-precision numeric atoms | A big-integer implementation with explicit atom codec | Fixed widths 8–128 only; canonical encodings required | Unbounded numeric SDK/IR semantics, padded/negative atoms, result encoding, and resource bounds |
@@ -134,9 +134,9 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | Atom `=`; numeric `>`; byte `>s` | Separate byte and numeric comparisons | Typed scalar equality/order; primitive byte-slice/fixed-array equality and unsigned lexicographic ordering, nil patterns, published `!=` and insertion-sort adapters | General tree/trait equality, ordered-byte models and per-operation preservation/resource proofs |
 | Truthiness; `not`, `all`, `any` | Explicit CLVM truth conversion and evaluation order | Canonical Rust `bool`; boolean negation/control flow | Nil versus nonempty atoms/pairs; eager operand effects versus Rust short-circuit operators |
 | Lazy `if`; strict `i`; `x` | Branches, evaluated operands, and explicit failure | Rust lazy branches and plain assertions supported | General strict-conditional and raw failure-value semantics; discarded failures must remain observable |
-| Byte `concat`, `strlen`, `substr` | Byte vectors/slices with specified bounds | Fixed bytes and static projections; no general byte operations | Dynamic lengths, invalid slices, allocation bounds, and byte-exact results |
+| Byte `concat`, `strlen`, `substr` | Byte vectors/slices with specified bounds | Fixed bytes and static projections; immutable `&[u8; N]` to `&[u8]` coercion for `N <= 256`; no general byte operations | Dynamic lengths, invalid slices, allocation bounds, and byte-exact results |
 | `logand`, `logior`, `logxor`, `lognot`, `ash`, `lsh` | Primitive integer masks with explicit widths | Fixed-width integer `&`, `|`, `^`, `!` and strict Boolean `&`, `|`, `^`; unsigned complement uses a width mask | Unbounded sign extension, shifts/rotations, shift limits, and preservation/resource proofs |
-| `sha256`, tree hashing | A reviewed hash library and tree encoding | Hash constants can be carried; computing hashes on-chain is unsupported | Exact concatenation/domain separation, variable inputs, vectors, and hash assumptions |
+| `sha256`, tree hashing | A reviewed safe scalar kernel and exact tree encoding | Actual Cargo calls to one signature/typed-MIR/profile-pinned kernel lower to opcode11; exact raw bytes, multipart concatenation and recursive tree hashing, with paired `sha256tree` and launcher evidence | General hash-library admission, broader profiles, cryptographic assumptions and compiler-preservation proofs; current models reject SHA |
 | `keccak256`, `coinid` | Reviewed algorithms with exact wire formats | Unsupported | Activation context, amount/identifier validation, padding, exception behavior, and cost vectors |
 | BLS exponent/public-key and G1/G2 operations | Curve libraries with specified encodings | No on-chain crypto arithmetic/verification lowering | Point validation, infinity, subgroup rules, scalars, mapping DSTs, exceptional inputs, and costs |
 | BLS pairing/signature verification | Reviewed native verification | Signature conditions exist in the small SDK; this is not a lowered BLS opcode | Separate opcode implementation/proof obligations from consensus verification of emitted conditions |
@@ -146,7 +146,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
-| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | No general curry or nested-puzzle API | Exact canonical module and instance identity plus adversarial composition tests |
+| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing and one launcher port; no general curry or nested-puzzle API | Canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust launcher module identity still differs |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Runtime costs and selected ledger scenarios measured | Whole-spend costs, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
@@ -172,7 +172,7 @@ every compiler version.
 | --- | --- | --- |
 | 1, 2, 36 | `q`, `a`, `softfork` | Literals and raw-tree `quote`; no user-facing dynamic apply or softfork API |
 | 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw tree construction/projections/pair tests, lazy branches, assertions, scalar comparisons, exact primitive byte equality/unsigned lexicographic ordering, and empty-atom tests |
-| 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering; decoder-generated byte checks do not count as an authoring API |
+| 11–14 | `sha256`, `substr`, `strlen`, `concat` | Reviewed SHA-256 source calls lower to11 with strict operand bindings; general substring/length/concatenation APIs remain unsupported. Decoder-generated byte checks are separate |
 | 16–18 | `+`, `-`, `*` | Checked fixed-width arithmetic only |
 | 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons and fixed-width `&`, `|`, `^`, `!`; unsigned `!` uses masked XOR, not opcode27 directly. Division and shifts remain rejected |
 | 29, 30 | `point_add` (documentation: `g1_add`), `pubkey_for_exp` | Missing crypto-op lowering |
@@ -181,7 +181,7 @@ every compiler version.
 | 52–55 | `g2_add`, `g2_subtract`, `g2_multiply`, `g2_negate` | Missing |
 | 56–59 | `g1_map`, `g2_map`, `bls_pairing_identity`, `bls_verify` | Missing |
 | 60, 61 | `modpow`, `%` (`op_mod` implementation) | Missing; opcode 60 additionally has a disable/cost-model gate |
-| 62, 63 | `keccak256`, `sha256tree` | Missing and flag/extension dependent |
+| 62, 63 | `keccak256`, `sha256tree` | Direct opcode lowering missing and flag/extension dependent; the Rust tree-hash helper instead recursively uses opcode11 |
 | 64, 65 | `secp256k1_verify`, `secp256r1_verify` | Missing and gated by `ENABLE_SECP_OPS` |
 | `0x13d61f00`, `0x1c3a8f00` | Four-byte `secp256k1_verify`, `secp256r1_verify` encodings | VM dispatch accepts these separately; no source lowering |
 | Other/reserved operator bytes | Unknown-operator dispatch, defined costs or reserved failures | No source API; rejected by the execution backend's `NO_UNKNOWN_OPS` policy |
@@ -266,6 +266,45 @@ also be reviewed. A condition named
 establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
+
+The [fresh corpus report](../corpus/validation.json) records twenty actual Cargo
+exports, including the full raw-domain `sha256tree` helper adapter and singleton
+launcher through the [reviewed SHA bridge](hashing.md). Native Rust and five
+separately compiled CLVM builds agree on 341 named and 18,481 generated cases.
+Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
+language-specific scenario runs. Local macOS verification additionally passes
+418 workspace tests, all-target Clippy with warnings denied, 158 hash-evidence
+corruption controls and 22,285 retained hash-artifact VM replays. The
+source-derived proof, error-study, Lean and documentation gates also pass.
+These are finite observations, not a parity or compiler-preservation theorem.
+
+The hash helper uses a fixed ten-million cost budget for ordinary comparisons;
+the other nineteen examples retain one million. Its five deep-input controls
+also run at one million in all five builds, adding 25 separate typed resource
+observations. Cost exhaustion stays inconclusive and does not count as policy
+rejection or additional passing coverage. The preservation gate passes 149
+migration controls and retains all prior eighteen ports' exact artifacts and
+observations.
+
+Both new ports record pinned source, license and Git commit/tree provenance;
+the launcher also binds its exact include. The `sha256tree` source span is a
+helper with a visible raw module adapter, without an upstream module-identity
+claim. The launcher retains its
+whole original module and published 175-byte artifact. Independent Chialisp
+reproduces that artifact and tree hash; optimized Rust emits 1,116 bytes with a
+different hash. The successful output and consensus scenarios do not establish
+canonical Rust module identity, curried-instance compatibility or a complete
+singleton lifecycle.
+
+The admitted native kernel's primitive arrays and loops remain inside its
+reviewed fingerprint boundary. General user loops, mutable buffers, arbitrary
+RustCrypto dependencies and architecture dispatch have not become supported
+source constructs. The admitted immutable array-to-slice coercion is limited to
+`&[u8; N]` with `N <= 256`; it preserves digest bytes without granting general
+pointer, length or mutable-slice operations. Current scalar, tree and byte proof
+APIs reject SHA anywhere in a program, including dead branches and unused
+definitions. Known-answer, native and VM executions test finite cases without
+proving SHA or the compiler.
 
 The smallest input-dependent tutorial step is the exact
 [module-add reference](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L21-L23)

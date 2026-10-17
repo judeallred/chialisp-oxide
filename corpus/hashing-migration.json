@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "scope": "Append only the full raw-domain sha256tree helper and singleton launcher. Preserve all18 prior source, contract, artifact, cost, typed failure, order, coverage, provenance and ledger records exactly. Normalize only the exact reviewed facade root source transition recorded here, plus separately freshness-checked Cargo authoring metadata. This snapshot is finite retained evidence, not compiler preservation or cryptographic security.",
+  "reviewed_before": {
+    "status": "reviewed_uncommitted_snapshot",
+    "report_sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377",
+    "normalized_report_sha256": "fb93d0b76e492281b14d2bbe07fc0dfc5bb361d45c36abe76e861b9f193f75c4"
+  },
+  "preserved_slugs": [
+    "fixed-payment",
+    "capped-payment",
+    "split-payment",
+    "timelocked-payment",
+    "signature-payment",
+    "two-signature-payment",
+    "recovery-payment",
+    "bounded-counter",
+    "boolean-gate",
+    "intro-list",
+    "intro-add",
+    "intro-conditional",
+    "p2-conditions",
+    "rightmost-tree",
+    "last-list-element",
+    "prefix-list",
+    "atom-not-equal",
+    "insertion-sort-by-keys"
+  ],
+  "added_slugs": [
+    "sha256tree",
+    "singleton-launcher"
+  ],
+  "sdk_transition": {
+    "path": "crates/chialisp-oxide/src/lib.rs",
+    "affected_slugs": [
+      "fixed-payment",
+      "capped-payment",
+      "split-payment",
+      "timelocked-payment",
+      "signature-payment",
+      "two-signature-payment",
+      "recovery-payment",
+      "boolean-gate",
+      "p2-conditions",
+      "rightmost-tree",
+      "last-list-element",
+      "prefix-list",
+      "insertion-sort-by-keys"
+    ],
+    "before": {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b",
+      "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n"
+    },
+    "after": {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "sha256": "91ef20602b10762149ed4af95b516a77aaf99bf13f959d27830ecfbac769f314",
+      "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+    }
+  }
+}

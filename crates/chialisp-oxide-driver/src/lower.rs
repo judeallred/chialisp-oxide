@@ -17,6 +17,7 @@ use rustc_span::Span;
 mod byte_comparison;
 mod constants;
 mod empty_atoms;
+mod hashing;
 mod newtypes;
 mod owned;
 mod runtime;
@@ -32,6 +33,8 @@ pub struct Lowerer<'tcx> {
     constants: RefCell<Vec<(DefId, Option<Promoted>)>>,
     owned_plans: RefCell<HashMap<usize, std::rc::Rc<owned::Plan<'tcx>>>>,
     explicit_allocator: Cell<Option<bool>>,
+    hash_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
+    hash_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
 }
 
 #[derive(Clone)]
@@ -105,6 +108,8 @@ impl<'tcx> Lowerer<'tcx> {
             constants: RefCell::new(Vec::new()),
             owned_plans: RefCell::new(HashMap::new()),
             explicit_allocator: Cell::new(None),
+            hash_candidates: RefCell::new(None),
+            hash_primitives: RefCell::new(HashMap::new()),
         }
     }
 
@@ -121,7 +126,9 @@ impl<'tcx> Lowerer<'tcx> {
             }
             let mut push = |expr| pending.push((expr, depth + 1));
             match expression {
-                Expr::Tuple { items } => items.iter().for_each(push),
+                Expr::Tuple { items } | Expr::Sha256 { parts: items } => {
+                    items.iter().for_each(push)
+                }
                 Expr::Binary { left, right, .. } => {
                     push(left);
                     push(right);
@@ -535,6 +542,10 @@ impl<'tcx> Lowerer<'tcx> {
                         Expr::Reject {
                             message: self.error(span, "Rust panic/assertion rejects the puzzle"),
                         }
+                    } else if self.hash_primitive(body, func, args, *destination, span)? {
+                        // Runtime graph selection handles every source hash. The
+                        // acyclic constant path must never duplicate or drop it.
+                        return Err(self.error(span, "native SHA256 calls require strict runtime bindings; compile-time constant hashing is unsupported"));
                     } else if self.box_constructor(body, func, args, *destination, span)? {
                         let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
                         self.assign(body, *destination, value, &mut locals, span)?;
@@ -899,14 +910,36 @@ impl<'tcx> Lowerer<'tcx> {
                 target,
             ) if matches!(target.kind(), ty::Ref(_, inner, ty::Mutability::Not) if matches!(inner.kind(),ty::Slice(element) if *element==self.tcx.types.u8)) =>
             {
-                let value = self.operand(body, operand, locals, span)?;
-                let Expr::Bytes { hex } = value else {
+                let source = operand.ty(&body.local_decls, self.tcx);
+                let ty::Ref(_, array, ty::Mutability::Not) = source.kind() else {
                     return Err(self.error(
                         span,
-                        "dynamic byte-array unsizing is unsupported; use an atom slice",
+                        "byte-array unsizing requires an immutable fixed-array reference",
                     ));
                 };
-                Ok(Expr::Atom { hex })
+                let ty::Array(element, count) = array.kind() else {
+                    return Err(self.error(span, "byte-array unsizing requires &[u8; N]"));
+                };
+                if *element != self.tcx.types.u8
+                    || count.try_to_target_usize(self.tcx).is_none_or(|n| n > 256)
+                {
+                    return Err(self.error(
+                        span,
+                        "byte-array unsizing requires u8 elements and at most 256 bytes",
+                    ));
+                }
+                let value = self.operand(body, operand, locals, span)?;
+                Ok(match value {
+                    // Preserve the existing literal artifacts exactly.
+                    Expr::Bytes { hex } => Expr::Atom { hex },
+                    // Both tree operations evaluate their single input once;
+                    // this is an exact atom conversion, never numeric encoding.
+                    other => Expr::TreeAtomValue {
+                        value: Box::new(Expr::TreeAtom {
+                            value: Box::new(other),
+                        }),
+                    },
+                })
             }
             Rvalue::BinaryOp(op, operands) => {
                 let (left, right) = &**operands;

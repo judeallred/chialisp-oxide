@@ -6,6 +6,18 @@ subprocess compiler, or handwritten lowering that could share bugs with our
 Rust backend. Fixture source must be trusted: upstream file includes are not an
 isolation boundary.
 
+`compile_with_includes(source, &[("name.clib", exact_source)])` binds a classic
+module's includes to explicitly supplied UTF-8 bytes. Names are flat ASCII
+basenames; duplicates, ambiguous paths, oversized maps and undeclared includes
+fail. Unknown includes fail even if matching files exist on disk. Only the
+pinned compiler's embedded classic macro/bit-constant facilities are implicit.
+Modern dialects need a separate reviewed resolver. This controls include
+resolution, not arbitrary compile-time CLVM execution, file reads/writes or
+compiler resources. For example, upstream `embed-file` can still read disk
+directly. Fixture source remains trusted. A regression reproduces the pinned
+singleton launcher's exact 175-byte published module and tree hash rather than
+changing its canonical identity to match another compiler.
+
 The compiler is pinned to `chialisp 0.4.6`
 ([upstream revision](https://github.com/Chia-Network/chialisp/tree/32254c8402a3b277b43b1bdad743781f15433b80)),
 the successor to `clvm_tools_rs`. Its internal `clvmr 0.16.2` allocator never

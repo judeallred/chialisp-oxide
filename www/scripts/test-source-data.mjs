@@ -9,8 +9,8 @@ import { MAX_SOURCE_DATA_BYTES, sourceDataArtifact, sourceDataArtifacts, readSou
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const report = JSON.parse(await readFile(path.join(root, 'corpus/validation.json'), 'utf8'));
 const artifacts = sourceDataArtifacts(report);
-assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json']);
-assert.equal(artifacts.length, 3);
+assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json']);
+assert.equal(artifacts.length, 4);
 const actualBytes = new Map();
 for (const entry of artifacts) {
   const bytes = await readSourceDataArtifact(entry);
@@ -51,6 +51,7 @@ const mutations = [
   ['non-UTF8 string in valid JSON', value => { setSource(value, '["\ud800"]'); owner(value).generated_cases = 1; }],
   ['changed generated count', value => { owner(value).generated_cases += 1; }],
   ['Boolean generated count', value => { owner(value).generated_cases = true; }],
+  ['omitted shared raw suite', value => { value.puzzles.find(puzzle => puzzle.slug === 'sha256tree').generated_cases -= 2059; }],
 ];
 for (const [label, mutate] of mutations) {
   const bad = structuredClone(report);

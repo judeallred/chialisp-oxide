@@ -89,6 +89,7 @@ impl Budget {
 fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
     match expr {
         Expr::Tuple { items }
+        | Expr::Sha256 { parts: items }
         | Expr::Call {
             arguments: items, ..
         } => pending.extend(items),
@@ -137,8 +138,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
 }
 
 impl Program {
-    /// Runtime constructs require the version-4 wire format, regardless of the
-    /// entry point's environment policy. This traversal never follows calls.
+    /// Runtime constructs and strict multipart hashes require version 4,
+    /// regardless of entry policy. This traversal never follows calls.
     pub fn uses_runtime(&self) -> bool {
         if !self.functions.is_empty() {
             return true;
@@ -147,11 +148,24 @@ impl Program {
         while let Some(expr) = pending.pop() {
             if matches!(
                 expr,
-                Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. }
+                Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } | Expr::Sha256 { .. }
             ) {
                 return true;
             }
             children(expr, &mut pending);
+        }
+        false
+    }
+    /// Hash semantics require a separate model; inspect dead arms and every
+    /// function table entry as well as the entry expression.
+    pub fn uses_sha256(&self) -> bool {
+        let mut pending = vec![&self.body];
+        pending.extend(self.functions.iter().map(|function| &function.body));
+        while let Some(expression) = pending.pop() {
+            if matches!(expression, Expr::Sha256 { .. }) {
+                return true;
+            }
+            children(expression, &mut pending);
         }
         false
     }
@@ -257,6 +271,17 @@ impl Validator<'_> {
         );
         self.budget.work(1 + locals.len())?;
         let ty = match expr {
+            Expr::Sha256 { parts } => {
+                ensure!(parts.len() <= 64, "too many SHA256 parts");
+                for part in parts {
+                    let ty = self.infer(part, parameters, locals, depth + 1)?;
+                    ensure!(
+                        ty.is_none() || matches!(ty, Some(Type::Atom | Type::Bytes { .. })),
+                        "SHA256 parts must be atom bytes"
+                    );
+                }
+                Type::Bytes { len: 32 }
+            }
             Expr::Call {
                 function_id,
                 arguments,

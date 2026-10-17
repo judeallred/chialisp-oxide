@@ -44,6 +44,7 @@ impl<'tcx> Lowerer<'tcx> {
         let mut edges: Vec<Vec<usize>> = vec![vec![]];
         let mut graph_blocks = 0usize;
         let mut current = 0;
+        let mut has_native_hash = false;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
             self.runtime_signature(body)?;
@@ -88,6 +89,14 @@ impl<'tcx> Lowerer<'tcx> {
                         };
                         let name = self.tcx.def_path_str(*id);
                         if self.panic_function(*id) {
+                            continue;
+                        }
+                        if self.hash_primitive(body, func, args, *destination, span)? {
+                            has_native_hash = true;
+                            pending
+                                .push(target.ok_or_else(|| {
+                                    self.error(span, "native SHA256 must return")
+                                })?);
                             continue;
                         }
                         if self.box_constructor(body, func, args, *destination, span)? {
@@ -182,7 +191,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
         }
-        if removed == functions.len() {
+        if removed == functions.len() && !has_native_hash {
             return Ok(vec![]);
         }
         if functions.len() > MAX_RUNTIME_FUNCTIONS {
@@ -521,6 +530,30 @@ impl<'tcx> Lowerer<'tcx> {
                         Expr::Reject {
                             message: self.error(span, "Rust panic/assertion rejects the puzzle"),
                         }
+                    } else if self.hash_primitive(body, func, args, *destination, span)? {
+                        let parts = args
+                            .iter()
+                            .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
+                            .collect::<Result<Vec<_>, _>>()?;
+                        self.runtime_bind(
+                            (
+                                *destination,
+                                Type::Bytes { len: 32 },
+                                Expr::Sha256 { parts },
+                            ),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        self.runtime_block(
+                            body,
+                            target.ok_or_else(|| self.error(span, "native SHA256 must return"))?,
+                            locals,
+                            path,
+                            runtime,
+                            patterns,
+                        )?
                     } else if self.box_constructor(body, func, args, *destination, span)? {
                         let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
                         self.runtime_bind(

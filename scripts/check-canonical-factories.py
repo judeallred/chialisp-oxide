@@ -35,6 +35,13 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def boolean_modes(rows, label):
+    # Python considers False == 0 == 0.0 and True == 1 == 1.0, including
+    # dictionary/set keys. Validate the wire type before indexing build modes.
+    require(all(type(row["optimize_lir"]) is bool for row in rows),
+            f"{label}: optimize_lir must be a boolean")
+
+
 def read_source(relative):
     path = (ROOT / relative).resolve(strict=True)
     require(not Path(relative).is_absolute() and path.is_relative_to(ROOT), "Source escapes repository")
@@ -160,7 +167,7 @@ def validate(report, reader=read_source):
     factories = [puzzle for puzzle in report["puzzles"] if puzzle["kind"] == "program_factory"]
     require([factory["slug"] for factory in factories] == ["p2-conditions"], "Unknown or missing canonical factory")
     puzzle = factories[0]
-    require(puzzle["validated"] and puzzle["environment"] == "raw", "Factory lacks validated raw-environment contract")
+    require(puzzle["validated"] is True and puzzle["environment"] == "raw", "Factory lacks validated raw-environment contract")
     require(puzzle["provenance"] == manifest["provenance"], "Factory provenance changed")
     provenance = puzzle["provenance"]
     require(provenance["classification"] == "canonical_puzzle_port", "Canonical classification changed")
@@ -187,6 +194,7 @@ def validate(report, reader=read_source):
     require(not puzzle["simulator"] and not puzzle["simulator_comparisons"], "Factory must not claim direct condition-spend ledger admission")
     rue = puzzle["rue"]
     require(reader(rue["path"]).decode() == rue["source"] and hashlib.sha256(reader(rue["path"])).hexdigest() == rue["sha256"], "Rue comparison source changed")
+    boolean_modes(puzzle["artifacts"], "Factory artifacts")
     artifacts = {(item["backend"], item["optimize_lir"]): item for item in puzzle["artifacts"]}
     require(len(puzzle["artifacts"]) == len(artifacts) == 5 and set(artifacts) == BUILDS, "Five compiler artifacts are required")
     for item in artifacts.values():
@@ -194,6 +202,7 @@ def validate(report, reader=read_source):
         require(len(program) == item["bytes"] and tree_hash(deserialize(program)).hex() == item["tree_hash"], "Artifact size or tree hash disagrees with its program")
     identity = puzzle["module_identity"]
     require(identity["upstream_hex"] == CANONICAL_HEX and identity["upstream_tree_hash"] == CANONICAL_HASH, "Module identity target changed")
+    boolean_modes(identity["comparisons"], "Factory identity comparisons")
     comparisons = {(row["backend"], row["optimize_lir"]): row for row in identity["comparisons"]}
     require(len(identity["comparisons"]) == len(comparisons) == 5 and set(comparisons) == BUILDS, "Incomplete identity comparisons")
     for key, comparison in comparisons.items():
@@ -209,6 +218,7 @@ def validate(report, reader=read_source):
         outcome, payload = expected(case["solution"])
         check_native_outcome(case["native"], case["label"])
         require(case["native"] == outcome, f"Native raw-tree result differs: {case['label']}")
+        boolean_modes(case["runs"], "Factory executions")
         runs = {(run["backend"], run["optimize_lir"]): run for run in case["runs"]}
         require(len(case["runs"]) == len(runs) == 5 and set(runs) == BUILDS, "Incomplete factory executions")
         for run in runs.values():
@@ -217,6 +227,7 @@ def validate(report, reader=read_source):
         if payload is not None:
             accepted[case["solution"]] = outcome["output_hex"], payload
     checks = puzzle["factory_checks"]
+    boolean_modes(checks, "Produced-program checks")
     keys = {(row["environment"], row["backend"], row["optimize_lir"]) for row in checks}
     require(len(checks) == len(keys) and keys == {(environment, *build) for environment in accepted for build in BUILDS}, "Missing or duplicate produced-program checks")
     application_inputs = {serialize(parse(solution)) for solution in ["()", "1", "0x0001", "(1 . 2)"]}
@@ -234,6 +245,19 @@ def validate(report, reader=read_source):
 
 
 def self_test(report):
+    def mode_rows(puzzle, collection):
+        return {
+            "artifacts": puzzle["artifacts"],
+            "identity comparisons": puzzle["module_identity"]["comparisons"],
+            "factory executions": puzzle["cases"][0]["runs"],
+            "produced-program checks": puzzle["factory_checks"],
+        }[collection]
+
+    def numeric_mode(puzzle, collection, value):
+        rows = mode_rows(puzzle, collection)
+        row = next(row for row in rows if row["optimize_lir"] is bool(value))
+        row["optimize_lir"] = value
+
     def lose_optimized_identity(puzzle):
         original = next(item for item in puzzle["artifacts"] if item["backend"] == "rust_mir" and not item["optimize_lir"])
         replacement = copy.deepcopy(original)
@@ -271,10 +295,24 @@ def self_test(report):
         ("infrastructure disguised as rejection", lambda p: rejected_execution(p).update(failure={"kind":"infrastructure","code":"internal_error"}), {}),
         ("accepted application with hidden failure", lambda p: p["factory_checks"][0]["application_runs"][0]["execution"].update(failure={"kind":"resource","code":"cost_exceeded"}), {}),
     ]
+    for value in (0, 1, 0.0, 1.0):
+        mutations.append((f"numeric validated flag {value!r}", lambda p, value=value: p.update(validated=value), {}))
+    for collection in ("artifacts", "identity comparisons", "factory executions", "produced-program checks"):
+        for value in (0, 1, 0.0, 1.0):
+            mutations.append((f"{collection}: numeric {type(value).__name__} mode {value!r}",
+                              lambda p, collection=collection, value=value: numeric_mode(p, collection, value), {}))
+    original = next(puzzle for puzzle in report["puzzles"] if puzzle["slug"] == "p2-conditions")
+    # Compare serialized JSON, not Python container equality: replacing a
+    # Boolean with its numerically equal int/float changes the report's wire.
+    original_wire = json.dumps(original, sort_keys=True, separators=(",", ":"))
     for label, mutate, files in mutations:
         changed = copy.deepcopy(report)
+        puzzle = next(puzzle for puzzle in changed["puzzles"] if puzzle["slug"] == "p2-conditions")
         if mutate:
-            mutate(next(puzzle for puzzle in changed["puzzles"] if puzzle["slug"] == "p2-conditions"))
+            mutate(puzzle)
+        require(json.dumps(puzzle, sort_keys=True, separators=(",", ":")) != original_wire
+                or any(read_source(path) != contents for path, contents in files.items()),
+                f"No-op mutation: {label}")
         try:
             validate(changed, lambda path: files[path] if path in files else read_source(path))
         except (ValueError, KeyError):

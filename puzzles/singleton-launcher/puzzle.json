@@ -1,0 +1,177 @@
+{
+  "slug": "singleton-launcher",
+  "title": "Canonical singleton launcher: committed launch fields",
+  "kind": "coin_puzzle",
+  "environment": "raw",
+  "security_scope": "Port of the exact launcher module preserving its first three raw projections and ignored tail. It returns CREATE_COIN with arbitrary first/second trees and an announcement committing to all three fields. Successful VM output is distinct from valid ledger conditions. No input amount/hash narrowing or completion of singleton lifecycle is claimed.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"
+  ],
+  "provenance": {
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "source_path": "puzzles/singleton_launcher.clsp",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
+      "source_sha256": "028b1dd7a1fe4bfad7165236b3a4076c6a1bb022aa6db0f9b5dac386299efbbb",
+      "git_blob_sha1": "80d66651ec5723a03e065c22b173d71c29cd2e8e",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d"
+    },
+    "license": {
+      "spdx": "Apache-2.0",
+      "source_path": "LICENSE",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "scope": "Exact repository license retained; no independent per-file legal review."
+    },
+    "commit": {
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/commit.git",
+      "sha256": "68502b042abaad03f35dd59c0fce3d7d1ce000c1302ccf50c762a955b2ec4215",
+      "git_commit_sha1": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d",
+      "verification": "Retained raw commit content checked against its Git object ID; no local PGP trust claim."
+    },
+    "tree": {
+      "manifest": "corpus/upstream/published-puzzles/Chia-Network--chia_puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/tree.json",
+      "sha256": "9900f500c6397560e20046c5bf4d4016a651f9000d6893512317ce6067c7842d",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d",
+      "scope": "Complete pinned Git tree; source/include/license/artifact blob membership checked."
+    },
+    "classification": "canonical_puzzle_port",
+    "references": [
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp.hex",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE"
+    ],
+    "source_adaptation": {
+      "kind": "none",
+      "reference_sha256": "028b1dd7a1fe4bfad7165236b3a4076c6a1bb022aa6db0f9b5dac386299efbbb",
+      "description": "The exact pinned whole module is retained unchanged; no typed-argument wrapper is added."
+    },
+    "upstream_artifact": {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp.hex",
+      "source_url": "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp.hex",
+      "source_sha256": "f516e4f9b16eccb84042462735b5e49a7fff85d7975f74f43c7808d360131540",
+      "git_blob_sha1": "2495bb3d0faa2ccadf07f0b0cd110cf7b5eba4da",
+      "clvm_hex": "ff02ffff01ff04ffff04ff04ffff04ff05ffff04ff0bff80808080ffff04ffff04ff0affff04ffff02ff0effff04ff02ffff04ffff04ff05ffff04ff0bffff04ff17ff80808080ff80808080ff808080ff808080ffff04ffff01ff33ff3cff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff0effff04ff02ffff04ff09ff80808080ffff02ff0effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080",
+      "bytes": 175,
+      "tree_hash": "eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9"
+    },
+    "include_dependencies": [
+      {
+        "source_path": "puzzles/condition_codes.clib",
+        "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+        "source_sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f",
+        "git_blob_sha1": "a6a5d22b5883487b87b51f5cf3f66d63440d68cf"
+      }
+    ],
+    "module_identity_obligation": "Independently reproduce the exact published artifact, then record actual emitted bytes/hashes without changing the canonical identity. Behavioral agreement does not imply module identity.",
+    "limitations": [
+      "Finite execution and ledger evidence are scoped to this launcher. Behavioral agreement does not imply serialized module identity or a complete singleton implementation.",
+      "Preserve arbitrary first/second/third field trees and ignore the remaining environment tail. Native wrapper types must not narrow them to Amount, u64 or Bytes32.",
+      "This is the launcher module only, not completion of the singleton protocol, wallet or security analysis."
+    ]
+  },
+  "cases": [
+    {
+      "label": "nil environment rejects",
+      "solution": "()"
+    },
+    {
+      "label": "bare zero atom rejects",
+      "solution": "0x00"
+    },
+    {
+      "label": "one field cannot supply amount",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242)"
+    },
+    {
+      "label": "two fields cannot supply key values",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8)"
+    },
+    {
+      "label": "improper second tail lacks third pair",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 . 0x00)"
+    },
+    {
+      "label": "ordinary launcher fields",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "extra proper fields are ignored",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 ((0x6b6579 0x76616c7565)) 0x69676e6f726564)"
+    },
+    {
+      "label": "improper zero tail after third field is ignored",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 ((0x6b6579 0x76616c7565)) . 0x00)"
+    },
+    {
+      "label": "improper pair tail after third field is ignored",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 ((0x6b6579 0x76616c7565)) 0x6578747261 . 0x7461696c)"
+    },
+    {
+      "label": "nil puzzle hash is copied without type check",
+      "solution": "(() 0x03e8 ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "pair puzzle hash is copied without type check",
+      "solution": "((0x61 . 0x62) 0x03e8 ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "nil amount is copied unchanged",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 () ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "noncanonical zero amount preserves payload",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x00 ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "negative-looking amount is not normalized",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0xff ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "pair amount is copied without type check",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 (0x61 . 0x62) ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "nil key values hash as a nil field",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 ())"
+    },
+    {
+      "label": "improper key-value tree is hashed structurally",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 (0x6b . 0x76))"
+    },
+    {
+      "label": "program-looking key values remain data",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x03e8 (0x08))"
+    },
+    {
+      "label": "padded amount changes announcement hash",
+      "solution": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x0003e8 ((0x6b6579 0x76616c7565)))"
+    },
+    {
+      "label": "all three fields may be arbitrary pairs",
+      "solution": "((() . 0x00) (0xff) (0x0001 . 0x0000))"
+    }
+  ],
+  "reference_includes": {
+    "condition_codes.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"
+  },
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/spends.rs",
+    "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json"
+  ]
+}

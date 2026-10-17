@@ -20,6 +20,9 @@ use clvmr_reference::{
     serde::node_to_bytes,
 };
 
+mod includes;
+pub use includes::compile_with_includes;
+
 /// Exact independently maintained reference compiler used for evidence reports.
 pub const COMPILER_VERSION: &str = "chialisp 0.4.6";
 
@@ -34,8 +37,13 @@ pub const COMPILER_VERSION: &str = "chialisp 0.4.6";
 /// this function is an in-process compiler, not an isolation boundary.
 pub fn compile(source: &str) -> Result<Vec<u8>> {
     const NAME: &str = "reference.clsp";
-    let mut allocator = Allocator::new();
     let options: Rc<dyn CompilerOpts> = Rc::new(DefaultCompilerOpts::new(NAME));
+    compile_with_options(source, options)
+}
+
+fn compile_with_options(source: &str, options: Rc<dyn CompilerOpts>) -> Result<Vec<u8>> {
+    const NAME: &str = "reference.clsp";
+    let mut allocator = Allocator::new();
     let mut symbols = HashMap::new();
     let root = compile_clvm_text(
         &mut allocator,
@@ -88,7 +96,7 @@ mod tests {
         serde::{node_from_bytes, node_to_bytes},
     };
 
-    use super::{compile, compile_expression};
+    use super::{compile, compile_expression, compile_with_includes};
 
     /// Run serialized output through the project's VM, not the compiler's VM.
     fn execute(program: &[u8], solution: &[u8]) -> Result<Vec<u8>, String> {
@@ -139,6 +147,91 @@ mod tests {
         let program = compile("(mod (value) (* value 2))").unwrap();
         // Proper list (21), with result 42.
         assert_eq!(execute(&program, &[0xff, 21, 0x80]).unwrap(), vec![42]);
+    }
+
+    #[test]
+    fn exact_include_bytes_and_nested_names_determine_the_program() {
+        let source = "(mod () (include outer.clib) (+ VALUE 1))";
+        let nested = "((include inner.clib))";
+        let first = compile_with_includes(
+            source,
+            &[
+                ("outer.clib", nested),
+                ("inner.clib", "((defconstant VALUE 41))"),
+            ],
+        )
+        .unwrap();
+        let second = compile_with_includes(
+            source,
+            &[
+                ("outer.clib", nested),
+                ("inner.clib", "((defconstant VALUE 42))"),
+            ],
+        )
+        .unwrap();
+        assert_eq!(execute(&first, &[0x80]).unwrap(), vec![42]);
+        assert_eq!(execute(&second, &[0x80]).unwrap(), vec![43]);
+        assert_eq!(
+            first,
+            compile("(mod () (defconstant VALUE 41) (+ VALUE 1))").unwrap()
+        );
+        let error = compile_with_includes(source, &[("outer.clib", nested)]).unwrap_err();
+        assert!(error.to_string().contains("inner.clib"));
+        assert!(error.to_string().contains("was not supplied"));
+    }
+
+    #[test]
+    fn supplied_includes_do_not_resolve_an_undeclared_file_from_disk() {
+        let path = std::env::temp_dir().join(format!(
+            "chialisp-oxide-reference-{}-closed-include.clib",
+            std::process::id()
+        ));
+        std::fs::write(&path, "((defconstant VALUE 41))").unwrap();
+        let source = format!("(mod () (include {}) (+ VALUE 1))", path.display());
+        // The ordinary trusted-source API really can read this fixture, making
+        // this a live regression control for upstream's filesystem fallback.
+        let ordinary = compile(&source);
+        let closed = compile_with_includes(&source, &[]);
+        std::fs::remove_file(&path).unwrap();
+        assert_eq!(execute(&ordinary.unwrap(), &[0x80]).unwrap(), vec![42]);
+        assert!(closed.unwrap_err().to_string().contains("was not supplied"));
+    }
+
+    #[test]
+    fn reproduces_the_exact_published_singleton_launcher() {
+        // Exact files at chia_puzzles cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8.
+        // Semantic agreement does not authorize changing this module identity.
+        let program = compile_with_includes(
+            include_str!("../../../puzzles/singleton-launcher/reference.clsp"),
+            &[(
+                "condition_codes.clib",
+                include_str!("../../../corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"),
+            )],
+        )
+        .unwrap();
+        let published_hex =
+            include_str!("../../../puzzles/singleton-launcher/reference.clsp.hex").trim();
+        let published: Vec<_> = (0..published_hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&published_hex[i..i + 2], 16).unwrap())
+            .collect();
+        assert_eq!(program.len(), 175);
+        assert_eq!(program, published);
+        let mut allocator = Allocator::new();
+        let root = node_from_bytes(&mut allocator, &program).unwrap();
+        let hash = clvmr::treehash::tree_hash_costed(&mut allocator, root, 1_000_000, MEMPOOL_MODE)
+            .unwrap()
+            .1;
+        let hash: String = allocator
+            .atom(hash)
+            .as_ref()
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        assert_eq!(
+            hash,
+            "eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9"
+        );
     }
 
     #[test]

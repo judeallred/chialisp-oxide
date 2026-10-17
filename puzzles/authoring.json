@@ -61,9 +61,17 @@
       "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
       "source": "puzzles/rightmost-tree/puzzle.rs"
     },
+    "sha256tree": {
+      "entry": "chialisp_oxide_puzzles::sha256tree::puzzle",
+      "source": "puzzles/sha256tree/puzzle.rs"
+    },
     "signature-payment": {
       "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
       "source": "puzzles/signature-payment/puzzle.rs"
+    },
+    "singleton-launcher": {
+      "entry": "chialisp_oxide_puzzles::singleton_launcher::puzzle",
+      "source": "puzzles/singleton-launcher/puzzle.rs"
     },
     "split-payment": {
       "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
@@ -82,11 +90,24 @@
     ".cargo/config.toml",
     "Cargo.lock",
     "Cargo.toml",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/spends.rs",
+    "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
     "crates/chialisp-oxide-macros/Cargo.toml",
     "crates/chialisp-oxide-macros/src/lib.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
     "crates/chialisp-oxide/Cargo.toml",
     "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
     "crates/chialisp-oxide/src/lib.rs",
     "crates/chialisp-oxide/src/owned_tree.rs",
     "crates/chialisp-oxide/src/tree.rs",
@@ -111,7 +132,10 @@
     "puzzles/prefix-list/puzzle.rs",
     "puzzles/recovery-payment/puzzle.rs",
     "puzzles/rightmost-tree/puzzle.rs",
+    "puzzles/sha256tree/generated-cases.json",
+    "puzzles/sha256tree/puzzle.rs",
     "puzzles/signature-payment/puzzle.rs",
+    "puzzles/singleton-launcher/puzzle.rs",
     "puzzles/split-payment/puzzle.rs",
     "puzzles/timelocked-payment/puzzle.rs",
     "puzzles/two-signature-payment/puzzle.rs",

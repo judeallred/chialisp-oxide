@@ -45,3 +45,9 @@ pub mod atom_not_equal;
 
 #[path = "insertion-sort-by-keys/puzzle.rs"]
 pub mod insertion_sort_by_keys;
+
+#[path = "sha256tree/puzzle.rs"]
+pub mod sha256tree;
+
+#[path = "singleton-launcher/puzzle.rs"]
+pub mod singleton_launcher;

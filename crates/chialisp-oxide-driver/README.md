@@ -112,7 +112,24 @@ The supported subset includes:
   lifetime-only helper functions erase to explicit typed tree operations.
   `&[u8]` represents an arbitrary atom, distinct from a fixed byte array. Static
   atom/tree constants lower their inspectable, bounded promoted/CTFE MIR rather
-  than assuming a Rust pointer layout. Dynamic byte-array unsizing is rejected.
+  than assuming a Rust pointer layout. Immutable `&[u8; N]` to `&[u8]`
+  coercions are supported for N <= 256, preserving exact bytes and the source
+  value captured before later reassignment. Mutable/general pointer coercions
+  remain unsupported.
+- SDK `sha256(&[u8])` and `sha256_parts(&[u8], &[u8], &[u8])` return
+  the exact 32-byte SHA-256 of the input bytes/concatenation. The wrapper follows
+  ordinary MIR. The reserved public multipart entry is authorized only by its
+  exact safe signature and a SHA-256 fingerprint of its complete, exhaustively
+  encoded typed-MIR closure, constants, concrete layouts, codegen attributes and
+  target/profile. Names, package versions, source paths and caller markers never
+  authorize the operation. Modified reserved entries fail closed. The reviewed
+  profiles are the pinned compiler's checked/debug-asserting, panic-unwind Cargo
+  builds on aarch64 macOS and x86_64 Linux. Every source hash forces strict runtime
+  bindings, including unused results; resource failures stay inconclusive. This
+  bridge trusts the reviewed native kernel, installed compiler/standard library
+  and metadata/native-object consistency. It is not a cryptographic correctness
+  or compiler-preservation proof, and does not add general hashing libraries,
+  slice indexing, lengths, dynamic allocation or arbitrary external calls.
 - Empty-slice patterns on the accepted immutable atom slice, including
   `Tree::Atom([])`. The frontend validates the complete compiler-generated
   metadata/zero-comparison use chain, including an optional fake pointer,

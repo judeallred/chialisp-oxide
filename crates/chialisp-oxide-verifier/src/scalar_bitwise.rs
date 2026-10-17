@@ -43,6 +43,7 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
                 pending.push(body);
             }
             Expr::Tuple { items }
+            | Expr::Sha256 { parts: items }
             | Expr::Call {
                 arguments: items, ..
             } => pending.extend(items),

@@ -671,6 +671,7 @@ name = "chialisp-oxide"
 version = "0.1.0"
 dependencies = [
  "chialisp-oxide-macros",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -709,6 +710,7 @@ dependencies = [
  "chialisp-oxide-corpus",
  "chialisp-oxide-ir",
  "hex",
+ "serde",
  "serde_json",
  "tempfile",
 ]
@@ -753,6 +755,7 @@ name = "chialisp-oxide-ir"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chialisp-oxide-reference",
  "chialisp-oxide-vm",
  "clvmr 0.21.0",
  "hex",

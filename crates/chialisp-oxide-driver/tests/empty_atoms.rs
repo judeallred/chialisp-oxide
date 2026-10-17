@@ -6,7 +6,7 @@ mod vm;
 
 use std::{path::Path, process::Command};
 
-use chialisp_oxide_backend_experiment::{FailureCode, Outcome};
+use chialisp_oxide_backend_experiment::{FailureCode, FailureKind, Outcome};
 use chialisp_oxide_ir::Program;
 use support::Fixture;
 
@@ -251,6 +251,91 @@ fn cargo_native_and_vm_agree_for_empty_atoms_and_recursive_borrowed_last() {
 }
 
 #[test]
+fn immutable_fixed_array_coercions_keep_empty_patterns_and_the_exact_byte_abi() {
+    let fixture = Fixture::new();
+    fixture.source(
+        r#"
+#[chialisp_oxide::puzzle]
+pub fn fixed(bytes:[u8;2])->bool {
+    let slice:&[u8]=&bytes;
+    matches!(slice,[])
+}
+#[chialisp_oxide::puzzle]
+pub fn zero(bytes:[u8;0])->bool {
+    let slice:&[u8]=&bytes;
+    matches!(slice,[])
+}
+#[cfg(test)] mod native {
+    use super::*;
+    #[test] fn immutable_array_coercion_preserves_its_length() {
+        for bytes in [[0,0],[0,1],[0x7f,0x80],[0xff,0xff]] {
+            assert!(!fixed(bytes));
+        }
+        assert!(zero([]));
+    }
+}
+"#,
+    );
+    native(&fixture);
+    success(fixture.cargo(true));
+    let programs = fixture.exports();
+    assert_eq!(programs.len(), 2);
+    for optimize in [false, true] {
+        for (name, accepted, malformed, wanted) in [
+            (
+                "fixed",
+                vec!["(0x0000)", "(0x0001)", "(0x7f80)", "(0xffff)"],
+                vec![
+                    "()",
+                    "0x0000",
+                    "(())",
+                    "(0x00)",
+                    "(0x000001)",
+                    "((1 . 2))",
+                    "(0x0000 ())",
+                    "(0x0000 . 0x00)",
+                ],
+                expected("()"),
+            ),
+            (
+                "zero",
+                vec!["(())"],
+                vec![
+                    "()",
+                    "0x00",
+                    "(0x00)",
+                    "(0x0000)",
+                    "((1 . 2))",
+                    "(() ())",
+                    "(() . 0x00)",
+                ],
+                expected("1"),
+            ),
+        ] {
+            let code = chialisp_oxide_ir::compile(find(&programs, name), optimize).unwrap();
+            for input in accepted {
+                assert_eq!(
+                    vm::execute(&code, input, 10_000_000).unwrap().outcome,
+                    wanted,
+                    "{name}, optimize={optimize}, input={input}"
+                );
+            }
+            // Even a compile-time-known false/true body must not bypass any
+            // declared fixed-byte input or exact argument-list validation.
+            for input in malformed {
+                let result = vm::execute(&code, input, 10_000_000).unwrap();
+                assert_eq!(
+                    result.outcome,
+                    Outcome::Rejected,
+                    "fixed-byte ABI {name}, optimize={optimize}, input={input}"
+                );
+                assert_eq!(result.failure.unwrap().kind(), FailureKind::Program);
+            }
+        }
+    }
+}
+
+#[test]
 fn lengths_positive_patterns_pointers_and_metadata_escapes_fail_before_any_export() {
     let cases = [
         ("positive_exact", "match bytes {[_]=>true,_=>false}"),
@@ -279,7 +364,9 @@ fn lengths_positive_patterns_pointers_and_metadata_escapes_fail_before_any_expor
     }
     for source in [
         "#[chialisp_oxide::puzzle]pub fn bad(bytes:&[u8])->usize{bytes.len()}",
-        "#[chialisp_oxide::puzzle]pub fn bad(bytes:[u8;2])->bool{let slice:&[u8]=&bytes;matches!(slice,[])}",
+        "#[chialisp_oxide::puzzle]pub fn bad(mut bytes:[u8;2])->bool{let slice:&mut[u8]=&mut bytes;matches!(slice,[])}",
+        "#[chialisp_oxide::puzzle]pub fn bad(bytes:[u16;2])->bool{let slice:&[u16]=&bytes;matches!(slice,[])}",
+        "#[chialisp_oxide::puzzle]pub fn bad(bytes:[u8;257])->bool{let slice:&[u8]=&bytes;matches!(slice,[])}",
         "#[chialisp_oxide::puzzle]pub fn bad(bytes:&[u8])->bool{let _=bytes.len();matches!(bytes,[])}",
     ] {
         let fixture = Fixture::new();

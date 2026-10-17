@@ -47,7 +47,7 @@ async function checkAuthoring(snapshot, label) {
     assert.deepEqual(snapshot[field], configuration[field], `${label}: Cargo ${field} changed`);
   }
   assert.deepEqual(snapshot.sources.map(source => source.path), [...configuration.inputs].sort(), `${label}: declared Cargo inputs changed`);
-  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide/src/owned_tree.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
+  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide/src/owned_tree.rs', 'crates/chialisp-oxide/src/hashing.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
     assert(configuration.inputs.includes(required), `${label}: missing required Cargo input ${required}`);
   }
   for (const source of snapshot.sources) await checkRecordedHash(source.path, source.sha256);
@@ -68,6 +68,22 @@ for (const puzzle of report.puzzles) {
   assert.equal(await read(`puzzles/${puzzle.slug}/reference.clsp`), puzzle.reference, `${puzzle.slug}: reference changed; regenerate evidence`);
   const manifest = JSON.parse(await read(`puzzles/${puzzle.slug}/puzzle.json`));
   const dependencies = manifest.source_dependencies ?? [];
+  const nativeSources = manifest.native_sources ?? [];
+  assert(Array.isArray(nativeSources) && new Set(nativeSources).size === nativeSources.length, `${puzzle.slug}: invalid native source closure`);
+  assert.deepEqual((puzzle.native_sources ?? []).map(source => source.path).sort(), [...nativeSources].sort(), `${puzzle.slug}: native source closure changed`);
+  for (const source of puzzle.native_sources ?? []) {
+    assert(configuration.inputs.includes(source.path), `${puzzle.slug}: native source missing from compiled authoring closure`);
+    assert(report.authoring.sources.some(row => row.path === source.path && row.sha256 === source.sha256), `${puzzle.slug}: native source differs from compiled authoring record`);
+    await checkRecordedHash(source.path, source.sha256);
+  }
+  const referenceIncludes = manifest.reference_includes ?? {};
+  assert(referenceIncludes && !Array.isArray(referenceIncludes) && typeof referenceIncludes === 'object', `${puzzle.slug}: invalid reference include map`);
+  assert.deepEqual(puzzle.reference_includes ?? {}, referenceIncludes, `${puzzle.slug}: reference include bindings changed`);
+  for (const [name, filename] of Object.entries(referenceIncludes)) {
+    assert(/^[A-Za-z0-9_.-]{1,128}$/.test(name) && name !== '.' && !name.includes('..'), `${puzzle.slug}: invalid reference include name`);
+    assert.equal(manifest.reference_mode ?? 'module', 'module', `${puzzle.slug}: expression includes are unsupported`);
+    assert(dependencies.includes(filename), `${puzzle.slug}: reference include must have an exact source snapshot`);
+  }
   assert(Array.isArray(puzzle.source_dependencies), `${puzzle.slug}: missing source dependency records`);
   assert.deepEqual(puzzle.source_dependencies.map(dependency => dependency.path).sort(), [...dependencies].sort(), `${puzzle.slug}: dependency manifest changed`);
   assert.equal(new Set(dependencies).size, dependencies.length, `${puzzle.slug}: duplicate source dependency`);
@@ -89,6 +105,9 @@ for (const puzzle of report.puzzles) {
   assert.equal(puzzle.title, manifest.title, `${puzzle.slug}: title changed`);
   assert.equal(puzzle.kind, manifest.kind, `${puzzle.slug}: result kind changed`);
   assert.deepEqual(puzzle.provenance, manifest.provenance, `${puzzle.slug}: provenance changed`);
+  assert.equal(puzzle.validation_max_cost, manifest.validation_max_cost, `${puzzle.slug}: validation budget changed`);
+  const validationMaxCost = puzzle.validation_max_cost ?? 1_000_000;
+  assert(Number.isSafeInteger(validationMaxCost) && validationMaxCost > 0 && validationMaxCost <= 10_000_000, `${puzzle.slug}: invalid validation budget`);
   for (const [field, defaultValue] of [['environment', 'strict'], ['reference_mode', 'module']]) {
     assert.equal(puzzle[field] ?? defaultValue, manifest[field] ?? defaultValue, `${puzzle.slug}: ${field} contract changed`);
   }
@@ -203,6 +222,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

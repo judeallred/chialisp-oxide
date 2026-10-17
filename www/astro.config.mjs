@@ -43,6 +43,8 @@ export default defineConfig({
           { label: 'Construct an owned prefix list', slug: 'tutorials/prefix-list' },
           { label: 'Compare exact atom bytes', slug: 'tutorials/atom-not-equal' },
           { label: 'Order entries by byte keys', slug: 'tutorials/insertion-sort-by-keys' },
+          { label: 'Hash exact bytes and trees', slug: 'tutorials/sha256tree' },
+          { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
         ] },
         { label: 'Inspect the evidence', items: [
           { label: 'Puzzle laboratory', link: '/lab/' },
@@ -56,6 +58,7 @@ export default defineConfig({
         { label: 'Understand the compiler', items: [
           { label: 'Architecture & Rue', slug: 'reference/architecture' },
           { label: 'Compiler trust & standard libraries', slug: 'reference/compiler-trust' },
+          { label: 'Hashing and the compiler bridge', slug: 'reference/hashing' },
           { label: 'Puzzle ABI', slug: 'reference/abi' },
           { label: 'Compiler commands', slug: 'reference/cli' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },

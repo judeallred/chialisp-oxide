@@ -146,6 +146,7 @@ const sourceDataDownloads = [
   { slug: 'prefix-list', path: 'puzzles/prefix-list/generated-cases.json', basename: 'prefix-list-generated-cases.json', rows: 1183 },
   { slug: 'atom-not-equal', path: 'puzzles/atom-not-equal/generated-cases.json', basename: 'atom-not-equal-generated-cases.json', rows: 2557 },
   { slug: 'insertion-sort-by-keys', path: 'puzzles/insertion-sort-by-keys/generated-cases.json', basename: 'insertion-sort-by-keys-generated-cases.json', rows: 285 },
+  { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', rows: 275 },
 ];
 const sourceDataDirectory = path.join(root, 'reports/source-data');
 for (const download of sourceDataDownloads) {
@@ -174,6 +175,24 @@ assert.deepEqual((await readdir(sourceDataDirectory)).sort(), sourceDataDownload
 let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
+  const detailText = decodeAttribute(detail.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+  const comparisonBudget = new Intl.NumberFormat('en-US').format(puzzle.validation_max_cost ?? 1_000_000);
+  assert(detailText.includes(`Every build uses a ceiling of ${comparisonBudget} cost units per input`), `${puzzle.slug}: missing actual comparison budget`);
+  const resourceSection = detail.match(/<section[^>]*aria-label="Lower-budget resource controls"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  if (puzzle.resource_controls) {
+    assert(resourceSection, `${puzzle.slug}: missing separate resource controls`);
+    const controls = puzzle.resource_controls;
+    const observations = controls.cases.reduce((count, test) => count + test.runs.length, 0);
+    const resourceText = decodeAttribute(resourceSection.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+    assert(resourceText.includes(`${observations} observations below are separate controls, excluded from the named and generated coverage totals`), `${puzzle.slug}: resource controls inflate passing coverage`);
+    assert(resourceText.includes(`${new Intl.NumberFormat('en-US').format(controls.max_cost)} cost ceiling`), `${puzzle.slug}: wrong resource-control budget`);
+    const displayedStatuses = [...resourceSection.matchAll(/<span\b[^>]*class="outcome[^\"]*"[^>]*>([a-z_]+)<\/span>/g)].map(match => match[1]);
+    assert.deepEqual(displayedStatuses, controls.cases.flatMap(test => [test.native.status, ...test.runs.map(run => run.execution.outcome.status)]), `${puzzle.slug}: displayed resource outcomes differ from actual typed observations`);
+    for (const test of controls.cases) assert(resourceText.includes(test.label), `${puzzle.slug}: missing resource-control case ${test.label}`);
+    assert(resourceText.includes('inconclusive / cost_exceeded'), `${puzzle.slug}: resource failure must not become policy rejection`);
+  } else {
+    assert.equal(resourceSection, undefined, `${puzzle.slug}: invented resource evidence`);
+  }
   for (const language of ['chialisp', 'rust', 'rue']) assert(detail.includes(`data-language="${language}"`), `${puzzle.slug}: missing ${language} side-by-side source column`);
   assert(detail.includes('Serialized-byte diffs'), `${puzzle.slug}: missing compiled-output comparison`);
   assert(detail.includes(validation.authoring.exports[puzzle.slug].entry), `${puzzle.slug}: missing actual Cargo export identity`);
@@ -228,6 +247,7 @@ for (const puzzle of validation.puzzles) {
       'prefix-list': { environment: 'strict', source: 'The strict wrapper passes exactly two input trees to prefix: the list and an arbitrary tail.', adapter: 'a strict two-argument module adapter: it passes the list and arbitrary tail as separate arguments.' },
       'atom-not-equal': { environment: 'strict', source: 'The strict wrapper passes exactly two atom arguments to the published != helper.', adapter: 'a strict two-atom-argument module adapter: pair operands and malformed argument lists reject.' },
       'insertion-sort-by-keys': { environment: 'strict', source: 'The strict wrapper passes exactly two input trees to insertion_sort_by_keys: the existing sequence and insertions.', adapter: 'a strict two-argument module adapter: it preserves key comparisons and permissive base cases.' },
+      'sha256tree': { environment: 'raw', source: 'The raw wrapper passes the entire environment as the single sha256tree argument.', adapter: 'a raw module adapter: it hashes the complete environment as one tree without numeric or list decoding.' },
     };
     const helperProfile = helperProfiles[puzzle.slug];
     assert(helperProfile, `${puzzle.slug}: helper adapter requires an explicit rendering contract`);
@@ -519,7 +539,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -569,6 +589,13 @@ try {
       for (const route of ['tutorials/insertion-sort-by-keys/', 'lab/insertion-sort-by-keys/']) {
         assert(matches.some(row => row.url === `${base}${route}`), `Published byte-order helper is not discoverable in search: ${route}`);
       }
+    }
+    if (term === 'sha256tree' || term === 'launcher' || term === 'sha256_parts') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      const routes = term === 'sha256_parts' ? ['reference/hashing/']
+        : term === 'sha256tree' ? ['tutorials/sha256tree/', 'lab/sha256tree/']
+        : ['tutorials/singleton-launcher/', 'lab/singleton-launcher/'];
+      for (const route of routes) assert(matches.some(row => row.url === `${base}${route}`), `Hash documentation is not discoverable in production search: ${route}`);
     }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }

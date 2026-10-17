@@ -1,0 +1,120 @@
+---
+title: Read the singleton launcher
+description: Compare the canonical launcher with Rust and Rue while preserving raw fields, ignored tails, announcements and module identity.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles, backendLabel, format } from '../../../lib/data';
+
+export const launcherPuzzle = puzzles.find(puzzle => puzzle.slug === 'singleton-launcher');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+The [canonical singleton launcher](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp)
+is a small, concrete example of a puzzle that commits to data through an
+announcement. It selects the first three fields of its environment:
+
+```text
+(singleton_full_puzzle_hash amount key_value_list . ignored_tail)
+```
+
+It returns two conditions: create a coin using the first two fields, and create
+a coin announcement whose message is the tree hash of the proper three-field
+list. The third field participates in the commitment even though it is not a
+field of `CREATE_COIN`.
+
+## Read the original and both ports
+
+<SourceComparison slug="singleton-launcher" />
+
+The original Chialisp module is retained unchanged. Its `condition_codes.clib`
+include resolves to the exact pinned supporting source shown below it. The
+independent compiler rejects undeclared includes instead of looking for another
+version on the local filesystem.
+
+The Rust source names condition codes and domain tags. Small raw condition
+constructors make the wire layout readable. Its borrowed tree values refer to
+input fields, while the announcement owns its 32-byte digest. Local tree pairs
+construct the three-field list only for hashing.
+
+## Preserve the raw input contract
+
+The launcher does not itself validate the first field as a 32-byte puzzle hash,
+the second as a positive bounded amount, or the third as a particular key-value
+schema. Its three projections require three pairs along the environment's
+right spine. The values inside those pairs remain arbitrary trees, and the
+tail after the third field is ignored.
+
+Replacing these fields with `PuzzleHash`, `Amount` or a strict three-argument
+decoder would narrow the original program. Those types are useful for a
+separately specified application policy; they would change this port's contract.
+
+```text
+environment shape                    VM behavior
+()                                   reject: first field unavailable
+(destination amount)                 reject: third field unavailable
+(destination amount keys)            return two conditions
+(destination amount keys extra)      same two conditions
+(destination amount keys . 0x00)      same two conditions
+```
+
+Changing a selected field changes the corresponding data or commitment.
+Changing only the ignored tail does not. A pair in the amount position can
+still produce successful VM output; the consensus validator can then reject
+that malformed condition. Successful evaluation and a valid coin spend are
+different results, recorded by different harnesses.
+
+## Keep the published module identity
+
+The pinned published launcher is exactly **175 bytes**, with CLVM tree hash:
+
+```text
+eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9
+```
+
+The independent Chialisp compilation must reproduce those bytes exactly.
+Rust and Rue artifacts have their own measured bytes and hashes; inspect the
+[laboratory comparisons](/chialisp-oxide/lab/singleton-launcher/) rather than
+assuming that equal outputs imply identity. Substituting a differently hashed
+launcher into an existing protocol can change committed coin identities and
+announcement names.
+
+<table>
+  <caption>Actual compiled sizes; semantic comparisons do not imply module identity</caption>
+  <thead><tr><th scope="col">Build</th><th scope="col">Program bytes</th></tr></thead>
+  <tbody>{launcherPuzzle?.artifacts.map(artifact => <tr><th scope="row">{backendLabel(artifact.backend)} / {artifact.backend === 'chialisp' ? 'reference' : artifact.optimize_lir ? 'on' : 'off'}</th><td>{format(artifact.bytes)}</td></tr>)}</tbody>
+</table>
+
+An announcement message alone is not an authorization policy. Announcement
+names bind a coin identity to the message, and another coin must assert the
+intended announcement when a protocol relies on that dependency. The launcher
+does not establish every lineage rule, owner authorization, wallet workflow or
+later singleton state transition.
+
+## Inspect the checks
+
+The laboratory retains {launcherPuzzle?.cases.length} named VM cases, raw-byte
+outputs, typed failures, artifact identities and separately recorded ledger
+scenarios. Native execution uses the actual Cargo source. An independent
+Python relation reconstructs the selected fields and announcement message;
+retained-program replays challenge output edits rather than trusting a
+coherently changed report. Ledger negatives must record consensus rejection
+codes and preserve the simulator's state.
+
+This one module does not complete the singleton protocol or constitute its
+security audit. SHA and recursive-runtime policies remain outside the current
+SMT model; no collision-resistance or compiler-preservation theorem is claimed.
+See [hash commitments](/chialisp-oxide/tutorials/sha256tree/) and the
+[verification method](/chialisp-oxide/verification/method/) for the boundaries.
+
+```sh
+cargo build --workspace --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-reference --locked
+python3 scripts/check-hashing-puzzles.py --self-test --replay
+```
+
+Try an extra tail, an improper tail, a padded amount and an arbitrary tree in
+each selected field. Compare VM observations with the complete-spend scenarios.
+Then change one selected field and check the announcement commitment. Keep
+the published launcher hash fixed throughout the experiment.

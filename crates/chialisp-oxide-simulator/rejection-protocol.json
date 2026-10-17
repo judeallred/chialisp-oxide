@@ -9,7 +9,9 @@
     "DoubleSpend",
     "MintingCoin",
     "AssertCoinAnnouncementFailed",
-    "MessageNotSentOrReceived"
+    "MessageNotSentOrReceived",
+    "InvalidPuzzleHash",
+    "InvalidCoinAmount"
   ],
   "scenarios": {
     "missing signature rejected with rollback": [
@@ -35,7 +37,32 @@
     "underfunded coin rejected with rollback": [
       "MintingCoin"
     ],
-    "surplus input becomes an implicit fee": []
+    "surplus input becomes an implicit fee": [],
+    "launcher creates exact child and bound announcement": [],
+    "missing launcher announcement rejected with rollback": [
+      "AssertCoinAnnouncementFailed"
+    ],
+    "launcher announcement binds all three selected fields": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "ignored launcher tail preserves spend and commitment": [],
+    "launcher overmint rejected with rollback": [
+      "MintingCoin"
+    ],
+    "launcher pair destination rejected by consensus": [
+      "InvalidPuzzleHash"
+    ],
+    "launcher pair amount rejected by consensus": [
+      "InvalidCoinAmount"
+    ],
+    "launcher replay rejected with rollback": [
+      "DoubleSpend"
+    ],
+    "different launcher coin cannot satisfy announcement": [
+      "AssertCoinAnnouncementFailed"
+    ]
   },
   "puzzles": {
     "fixed-payment": [
@@ -221,6 +248,60 @@
       {
         "name": "surplus input becomes an implicit fee",
         "codes": []
+      }
+    ],
+    "singleton-launcher": [
+      {
+        "name": "launcher creates exact child and bound announcement",
+        "codes": []
+      },
+      {
+        "name": "missing launcher announcement rejected with rollback",
+        "codes": [
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "launcher announcement binds all three selected fields",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "different launcher coin cannot satisfy announcement",
+        "codes": [
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "ignored launcher tail preserves spend and commitment",
+        "codes": []
+      },
+      {
+        "name": "launcher overmint rejected with rollback",
+        "codes": [
+          "MintingCoin"
+        ]
+      },
+      {
+        "name": "launcher pair destination rejected by consensus",
+        "codes": [
+          "InvalidPuzzleHash"
+        ]
+      },
+      {
+        "name": "launcher pair amount rejected by consensus",
+        "codes": [
+          "InvalidCoinAmount"
+        ]
+      },
+      {
+        "name": "launcher replay rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
       }
     ]
   }

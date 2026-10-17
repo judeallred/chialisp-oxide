@@ -206,6 +206,28 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if slug == "sha256tree" {
+        let arena = bumpalo::Bump::new();
+        // Hash both branches. Bound all decoded occurrences and payloads before
+        // allocation; host exhaustion must propagate as Err, never rejection.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        return Ok(Some(output(chialisp_oxide_puzzles::sha256tree::puzzle(
+            tree,
+        ))?));
+    }
+    if slug == "singleton-launcher" {
+        let arena = bumpalo::Bump::new();
+        // Include the ignored tail in the host budget, while preserving the
+        // policy's raw first-three-projection and arbitrary-field contract.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::singleton_launcher::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "atom-not-equal" {
         let arguments = match args(&a, env) {
             Ok(arguments) if arguments.len() == 2 => arguments,
@@ -363,6 +385,62 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
 #[cfg(test)]
 mod tests {
     use super::execute;
+
+    #[test]
+    fn actual_hash_ports_preserve_digest_width_raw_fields_and_ignored_tail() {
+        // Independent Python hashlib known answers, not this SDK's SHA kernel.
+        for (input, digest) in [
+            (
+                "()",
+                "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+            ),
+            (
+                "0x00d9",
+                "00e146297686edb230b0e85eb3bbbef74d745dcd89d98469db35aaad8d2e08db",
+            ),
+        ] {
+            assert_eq!(
+                hex::encode(execute("sha256tree", input).unwrap().unwrap()),
+                format!("a0{digest}")
+            );
+        }
+        let ordinary = "ffff33ff01ff0280ffff3cffa0bcd55bcd0daebba8cb158547e8480dc968570faf958f1e31a9887d6ae3dba5918080";
+        for input in ["(1 2 3)", "(1 2 3 4)", "(1 2 3 . 0x00)"] {
+            assert_eq!(
+                hex::encode(execute("singleton-launcher", input).unwrap().unwrap()),
+                ordinary
+            );
+        }
+        assert_eq!(
+            hex::encode(
+                execute("singleton-launcher", "((1 . 2) (3 . 4) (5 . 6))")
+                    .unwrap()
+                    .unwrap()
+            ),
+            "ffff33ffff0102ffff030480ffff3cffa00fb2608fa2ee7246193af0180083fbfd95e1186dd341c64986c7f44b90e507148080"
+        );
+        for input in ["()", "0x00", "(1)", "(1 2)", "(1 2 . 0x00)"] {
+            assert_eq!(execute("singleton-launcher", input).unwrap(), None);
+        }
+    }
+
+    #[test]
+    fn recursive_hash_host_limit_is_error_even_in_launcher_ignored_tail() {
+        let mut tree = "0x0001".to_string();
+        for _ in 0..257 {
+            tree = format!("({tree} . 0x00)");
+        }
+        for (slug, input) in [
+            ("sha256tree", tree.clone()),
+            ("singleton-launcher", format!("(1 2 3 . {tree})")),
+        ] {
+            let error = execute(slug, &input).unwrap_err().to_string();
+            assert!(
+                error.contains("native hash input depth exceeds"),
+                "{slug}: {error}"
+            );
+        }
+    }
 
     #[test]
     fn actual_rightmost_rust_preserves_atom_bytes_and_returns_proper_list_nil() {

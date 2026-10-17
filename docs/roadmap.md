@@ -14,15 +14,31 @@
   wire representations stay explicit.
 - Pure typed IR and direct Rue LIR generation, canonical untrusted ABI decoding,
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
+- An explicit SHA-256 bridge admits one reviewed safe native implementation by
+  actual signature and complete typed-MIR closure/profile fingerprint. Cargo
+  extraction and the fresh corpus report cover all twenty annotated exports,
+  including the raw-domain `sha256tree` helper adapter and singleton launcher.
+  Immutable fixed-byte-array references coerce to slices for lengths up to 256;
+  this does not admit general casts, mutable slices or arbitrary hash libraries.
 - Ten original teaching examples, three exact canonical Intro expressions, and
-  the canonical `p2_conditions` program factory and four pinned published helpers
-  through explicit module adapters, with
+  the canonical `p2_conditions` program factory, five pinned published helpers
+  through explicit module adapters, and the singleton launcher, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 282 explicit and 14,088 generated integer/tree/byte vectors. Canonical closed
+  oracles, 341 explicit and 18,481 generated integer/tree/byte vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
-- Thirty-one complete-spend scenario groups run separately for Rust, Chialisp, and Rue
-  (93 ledger scenario runs) through chia-wallet-sdk's simulator, plus
+- Forty complete-spend scenario groups run separately for Rust, Chialisp, and Rue
+  (120 ledger scenario runs) through chia-wallet-sdk's simulator, plus
   standalone regressions for signatures/replay/messages/conservation/rollback.
+- Hash-helper comparisons use a recorded ten-million cost ceiling; all other
+  examples retain one million. Five deep inputs additionally run in all five
+  builds at one million as 25 separate typed resource observations, outside
+  passing coverage totals. The compatibility gate preserves all eighteen prior
+  ports' artifacts and observations and passes 149 migration controls.
+- The singleton launcher retains exact source/include/license/commit/tree
+  provenance and its published 175-byte artifact. Independent Chialisp reproduces
+  that identity; optimized Rust is 1,116 bytes with a different hash. Executed
+  output and spend agreement is separate from module identity and the unported
+  remainder of the singleton lifecycle.
 - Borrowed raw atom/pair trees preserve byte contents and improper tails.
   Optimized Rust reproduces the published factory module's bytes and hash;
   its actual IR rewrite has a separate structural-model equivalence check.
@@ -88,9 +104,17 @@
 
 Built-in fixed-width integer masks (`&`, `|`, `^`, `!`) and strict Boolean
 `&`/`|`/`^` now lower actual MIR and have separate scalar SMT checks. They are
-a prerequisite for broader algorithms, not support for RustCrypto or SHA256.
-Hashing needs the explicit reviewed primitive boundary described in
-[the compiler approach](compiler-approach.md#cryptographic-primitives-and-native-identity).
+a prerequisite for broader algorithms, not general RustCrypto support. The
+implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and returns
+32 bytes through strict version-4 runtime bindings. Installed rustc/std and
+native-object consistency remain trusted; all proof models reject hash nodes.
+The fresh twenty-port report records native, five-build differential and ledger
+agreement. Local macOS verification passes 418 workspace tests and all-target
+Clippy with warnings denied. The hash gate passes 158 corruption controls and
+22,285 retained-artifact VM replays; all preceding eighteen ports' recorded
+artifacts and observations remain exact. Source-derived proof, error-study,
+Lean and site gates also pass. These finite checks do not establish full
+Chialisp parity, compiler preservation or production readiness.
 
 1. Extend the implemented runtime-call IR and checked Rust recursion to further
    published list helpers. `last_inner` now has empty-atom matching and an
@@ -109,7 +133,7 @@ Hashing needs the explicit reviewed primitive boundary described in
    sharing remain opportunities; first establish totality with bounded analysis.
 2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
-   hashing/currying intrinsics, and carefully scoped library support.
+   further reviewed primitives, currying, and carefully scoped library support.
    The legacy totality cache still treats slice-pattern metadata conservatively,
    so an inlined atom helper can retain a redundant evaluation sequence. Any
    refinement must consult the validated pattern plan rather than declaring
@@ -123,10 +147,15 @@ Hashing needs the explicit reviewed primitive boundary described in
    validation with their original environment behavior preserved. Their parent
    page remains partial; the other nine programs, variant, and supporting
    workflows remain unrun. Next ports need explicit semantic contracts before
-   expanding parameter, list, recursion, hashing, or evaluation support.
+   expanding parameter, list, recursion, cryptographic, or evaluation support.
+   The singleton launcher source port does not complete the singleton protocol;
+   continuation/lineage, curried-instance compatibility and wallet integration
+   require their own witnesses and adversarial complete-spend tests.
 4. Extend the implemented source-derived strict byte-argument/Boolean model
    beyond the current exact-inequality contract to broader byte operations,
    cryptographic assumptions, state transitions and compiler preservation.
+   SHA remains explicitly outside current models: do not substitute an
+   uninterpreted or collision-free function and call that a cryptographic proof.
    Preserve independent whole-environment specifications, nonvacuity and actual
    source-control/native/retained-artifact replays. Preserve the enforced
    [pinned-toolchain boundary](toolchain-trust.md) for custom sysroots and

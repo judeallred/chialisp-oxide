@@ -221,8 +221,9 @@ Five backends are compared: handwritten reference CLVM, Rue source with LIR
 optimization off/on, and direct construction of Rue LIR with optimization off/on.
 The native Rust numeric policy independently supplies expected acceptance, and
 expected serialized conditions check the complete output. The other optimization
-switches are held constant across the Rue pair. The reference is assembled CLVM,
-not a Chialisp compilation; integrating the Chialisp compiler remains work to do.
+switches are held constant across the Rue pair. This early experiment retains an
+assembled CLVM reference. The paired puzzle corpus separately compiles actual
+Chialisp source; its evidence should be used for Chialisp-to-Rust comparisons.
 
 Tests include exhaustive small integer coverage, random signed 64-bit inputs,
 random valid amounts, bounded-depth arbitrary solution trees, malformed list shapes, huge signed integers, noncanonical

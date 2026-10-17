@@ -91,6 +91,10 @@ pub enum BinaryOp {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    /// SHA256 of ordered atom payloads. Strict operand binding requires v4.
+    Sha256 {
+        parts: Vec<Expr>,
+    },
     Call {
         function_id: usize,
         arguments: Vec<Expr>,

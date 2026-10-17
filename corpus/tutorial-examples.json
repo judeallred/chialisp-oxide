@@ -15,7 +15,7 @@
     "spdx": "Apache-2.0"
   },
   "scope": {
-    "description": "Source-level program inventory of eight pinned Chialisp primer/concept tutorials. Three closed Intro expressions have executed Cargo/native/original-reference/CLVM evidence; the other nine programs, one naming variant and supporting host workflows remain unimplemented or unrun. The nine original teaching fixtures are a separate corpus.",
+    "description": "Source-level program inventory of eight pinned Chialisp primer/concept tutorials. Three closed Intro expressions have executed Cargo/native/original-reference/CLVM evidence; the other nine programs, one naming variant and supporting host workflows remain unimplemented or unrun. The ten original teaching fixtures are a separate corpus.",
     "program_count": 12,
     "variant_count": 1,
     "coverage": "Eight tutorial pages only; reference pages, primitives, CHIP implementations, linked include libraries and host workflows are not claimed complete.",
@@ -195,7 +195,7 @@
         "manifest": "puzzles/intro-list/puzzle.json",
         "manifest_sha256": "c59e21c8eeff1b08ee017b2b39fcb246eece44529305e3c3a8e3c934e16a9a32",
         "report": "corpus/validation.json",
-        "report_sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377",
+        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
         "slug": "intro-list"
       },
       "validation_contract": {
@@ -264,7 +264,7 @@
         "manifest": "puzzles/intro-add/puzzle.json",
         "manifest_sha256": "4251fbf582ab86e70887ca872fee9a006958431beb58fa8981d1988666662164",
         "report": "corpus/validation.json",
-        "report_sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377",
+        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
         "slug": "intro-add"
       },
       "validation_contract": {
@@ -333,7 +333,7 @@
         "manifest": "puzzles/intro-conditional/puzzle.json",
         "manifest_sha256": "4eda90304bceb9ede7ee525cc37ba9fbbff04fb6ebdcdcf7d435ef74a9aa8741",
         "report": "corpus/validation.json",
-        "report_sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377",
+        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
         "slug": "intro-conditional"
       },
       "validation_contract": {
@@ -553,7 +553,7 @@
       },
       "feasibility": "Requires runtime apply, dynamic trees, tree hashing, currying and separately pinned include libraries.",
       "semantic_gaps": [
-        "Runtime CLVM apply and a dotted inner-solution tail are outside the current fixed tuple ABI.",
+        "Runtime CLVM apply remains unsupported. The explicit raw-tree ABI can represent a dotted inner-solution tail, but this wrapper and its exact environment contract remain unported.",
         "sha256tree must hash arbitrary CLVM trees with pinned semantics; a fixed Message32 wrapper is insufficient.",
         "BLS signature and ledger checks require the coin/network-bound message context, not just successful puzzle execution."
       ],
@@ -624,7 +624,7 @@
       "feasibility": "Requires runtime inner-puzzle apply, recursive condition traversal and dynamic list/tree semantics.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
-        "Dynamic condition parsing, accumulating output ownership and runtime apply remain unsupported. Direct recursive calls alone do not implement this published example.",
+        "Restricted owned-tree construction and recursive traversal are implemented, but this published condition parser and runtime inner-puzzle apply remain unported. Direct recursive calls alone do not validate this example.",
         "The source rewrites CREATE_COIN as exactly three fields, discarding optional fields such as memos; atom/improper-list tails need observations.",
         "Doubling output requests does not itself establish aggregate funding, conservation or ledger validity."
       ],
@@ -660,7 +660,7 @@
       "semantic_gaps": [
         "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately.",
         "The signature message is sha256tree of arbitrary conditions rather than an externally supplied fixed byte message.",
-        "The original returns a variable condition list; runtime list composition and arbitrary tree types are not implemented."
+        "Raw trees and restricted owned-list construction are implemented, but this variable-condition wrapper and its signed-before-morphing composition have not been ported or validated."
       ],
       "notes": [
         "This signs conditions before the outer coin-doubler transforms them; preserve that composition when studying authorization and output semantics."

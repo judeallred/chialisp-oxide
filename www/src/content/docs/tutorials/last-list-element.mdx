@@ -113,5 +113,7 @@ Returning an existing borrowed subtree needs no allocation. The
 [owned prefix lesson](/chialisp-oxide/tutorials/prefix-list/) now constructs a new
 list spine with opt-in `OwnedTree`, ordinary moves and restricted `Box::new`
 lowering. [Primitive byte equality](/chialisp-oxide/tutorials/atom-not-equal/)
-now uses ordinary Rust slice comparisons. General collections, byte lengths,
-slicing, hashes and dynamic program evaluation remain separate compiler work.
+now uses ordinary Rust slice comparisons, and the
+[tree-hash lesson](/chialisp-oxide/tutorials/sha256tree/) uses a separately reviewed
+SHA-256 bridge. General collections, byte lengths, slicing, other cryptographic
+operations and dynamic program evaluation remain compiler work.

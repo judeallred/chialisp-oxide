@@ -229,15 +229,19 @@ The test corpus provides evidence, not a general proof of compiler correctness.
 
 ## Cryptographic primitives and native identity
 
-Hashing remains a significant compiler gap. A sensible initial Rust interface is
-`sha256(data: &[u8]) -> [u8; 32]` with genuine native hashing for ordinary tests.
-[RustCrypto SHA2](https://docs.rs/sha2/0.10.9/sha2/) is already in our dependency
-graph and supports `no_std`, but its algorithm uses mutable buffers, loops,
-wrapping arithmetic, rotations, generic dependencies and architecture
-dispatch that the frontend does not currently lower. Supporting a dependency's
-native build does not establish support for its on-chain calls.
+The SDK now provides `sha256(data: &[u8]) -> [u8; 32]` and three-part
+`sha256_parts` with a genuine safe native implementation. A closed bridge lowers
+the reviewed implementation to CLVM SHA256 after checking its complete reachable
+typed-MIR implementation against independently fixed fingerprints. This is an
+explicit trusted compiler component; see [hashing](hashing.md) for the admitted
+compiler, target, profile, standard-library leaves, and mutation controls.
 
-The next bridge must have an explicit trust contract. Function spelling,
+[RustCrypto SHA2](https://docs.rs/sha2/0.10.9/sha2/) remains an independent test
+oracle, not an admitted on-chain dependency. General loops, mutable indexed
+storage, wrapping arithmetic, rotations and broader generic calls still need
+their own frontend semantics.
+
+The bridge has an explicit trust contract. Function spelling,
 package name/version, a user-provided marker, or a native source path cannot
 attest that a Rust function implements SHA256. A replacement SDK or patched
 transitive dependency must not be given hashing behavior merely because its
@@ -245,25 +249,17 @@ function has the expected signature. Existing SDK helpers continue to lower
 their actual supported MIR bodies; primitive bitwise operators also lower from
 actual built-in MIR operations.
 
-Two routes remain open:
+Admission binds the resolved SDK export and exact signature to a canonical
+typed-MIR encoding of its complete reachable implementation closure: resolved
+calls, constants, types, compiler/target/profile and trusted standard-library
+leaves. The encoder fails closed on unsupported constructs, with bounded type,
+constant and body traversal. A digest computed from the caller's current code
+cannot authorize itself. Installed compiler/library identity, dependency
+metadata/native consistency and stable build inputs remain assumptions;
+fingerprints do not authenticate native machine code or prove SHA256 correct.
 
-- Expand general Rust semantics until the reviewed algorithm itself lowers.
-  Integer masks are implemented; loops, mutable indexed storage, wrapping
-  arithmetic, rotations, endian conversion and broader generic calls remain.
-- Introduce a closed registry for a reviewed native primitive implementation.
-  Admission must bind the resolved function and exact signature to an
-  independently recorded canonical typed-MIR fingerprint of its complete
-  reachable implementation closure: resolved calls, constants/statics, types,
-  target/cfg/features, compiler version and trusted standard-library leaves.
-  Fingerprints cannot be regenerated from the caller's current code and then
-  treated as authorization. An alternative is a compiler-owned installed
-  native artifact with a verified digest and actual loaded-artifact identity;
-  Cargo package names and source paths alone are insufficient. Either choice
-  adds an explicit trusted compiler component and needs packaging and
-  adversarial replacement tests before source admission.
-
-A first implementation must hash exact atom payloads, return exactly 32 bytes,
-evaluate its operand once, and keep failures, lazy branches and resource limits
+The implementation hashes exact atom payloads, returns exactly 32 bytes,
+evaluates each operand once in source order, and keeps failures, lazy branches and resource limits
 observable. Test published vectors, SHA padding boundaries, nil versus padded
 zeros, non-UTF8, large atoms, and mutations in native kernels, dependencies and
 cfg selection. Do not assume collision resistance, injectivity or cryptographic
@@ -272,15 +268,17 @@ or dummy native function would not satisfy this boundary.
 
 The pinned published
 [`sha256tree` helper](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib)
-is a useful next witness after primitive hashing and byte-part composition:
+now has an explicit whole-tree Rust adapter and an independent Rue port:
 atom hashes use `SHA256(01 || atom_bytes)`, and pair hashes use
 `SHA256(02 || hash(first) || hash(rest))`. It accepts improper trees and preserves
-padding. Porting it requires exact source/license provenance, an explicit
-whole-tree adapter and domain-separation mutations. The official
+padding. The paired source includes exact source/license provenance and
+domain-separation controls. The canonical singleton launcher is also admitted
+through the Cargo frontend; its original Chialisp byte identity is recorded
+separately from the Rust/Rue behavior comparisons. Fresh full-corpus and ledger
+validation is required before promoting their recorded evidence. The official
 [password-coin tutorial](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/first-smart-coin.md)
 is a later witness, preserving its insecurity warning; its complete workflow
-also requires currying and spend validation. Neither is implemented by this
-research decision.
+also requires currying and spend validation and remains a coverage gap.
 
 ## Deliver the goals in stages
 
@@ -403,21 +401,27 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Eighteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Twenty Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs the typed IR tree-guard pass, runtime
 frame elision, then Rue LIR optimization; off skips all three stages. Frame
 elision applies only to runtime lowering. Rue source uses its LIR off/on switch.
-The validation report records these pipelines explicitly. Eight coin
-fixtures additionally have 31 ledger scenarios executed for each language
-(93 ledger scenario runs). Ten original teaching examples, including recursive
+The validation report records these pipelines explicitly: 341 named and 18,481
+generated cases, plus 25 separate low-budget hash observations. The eight teaching
+coin fixtures and singleton launcher have 40 ledger scenario groups executed for
+each language (120 ledger scenario runs). Ten original teaching examples, including recursive
 raw-tree traversal,
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.
-The published `last_inner`, owned `prefix`, byte `!=`, and insertion-sort-by-key helpers are tracked separately
+The published `last_inner`, owned `prefix`, byte `!=`, insertion-sort-by-key and
+`sha256tree` helpers are tracked separately
 through explicit module adapters with exact source-span/license provenance. These do not claim a
 whole-library port or standalone canonical module identity.
+The launcher retains its pinned whole source/include/license and published
+175-byte artifact. Independent Chialisp reproduces that identity; optimized Rust
+emits 1,116 bytes with a different hash. Its finite output/ledger comparisons do
+not complete the singleton lifecycle or establish curried-instance compatibility.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived scalar IR-model proofs and attack replay. A separate
 `corpus/tree-proofs.json` checks the canonical `p2_conditions` factory over
@@ -496,7 +500,8 @@ Primitive byte `<`, `<=`, `>` and `>=` separately resolve actual core
 `PartialOrd` members and their concrete slice/array/reference implementations.
 They lower to unsigned lexicographic `GtBytes`, with reversal/complement as
 appropriate, rather than numeric `Gt`. Strict operand bindings remain in source
-order. This does not enable general trait dispatch or hashing. The published
+order. This ordering bridge does not enable general trait dispatch. SHA256 uses
+the separate reviewed implementation boundary described above. The published
 insertion-sort helper exercises byte ordering with owned recursive tree outputs;
 the current SMT models still reject these ordered byte nodes and all runtime IR.
 The structural Boolean proof uses the actual Cargo-exported IR, independent

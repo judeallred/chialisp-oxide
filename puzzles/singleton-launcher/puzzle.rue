@@ -1,0 +1,31 @@
+// Independent raw-field translation of the unchanged canonical launcher.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+const CREATE_COIN: Int = 51;
+const CREATE_COIN_ANNOUNCEMENT: Int = 60;
+
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let puzzle_hash = environment.first;
+    let after_hash = environment.rest;
+    assert after_hash is (Any, Any);
+    let amount = after_hash.first;
+    let after_amount = after_hash.rest;
+    assert after_amount is (Any, Any);
+    let key_values = after_amount.first;
+    let values = (puzzle_hash, (amount, (key_values, nil)));
+    let create_coin = (CREATE_COIN, (puzzle_hash, (amount, nil)));
+    let announcement = (CREATE_COIN_ANNOUNCEMENT, (hash_tree(values), nil));
+    (create_coin, (announcement, nil))
+}
+
+fn hash_tree(value: Any) -> Bytes32 {
+    if value is (Any, Any) {
+        let first_hash = hash_tree(value.first);
+        let rest_hash = hash_tree(value.rest);
+        sha256(...[PAIR_DOMAIN, first_hash, rest_hash])
+    } else {
+        assert value is Bytes;
+        sha256(...[ATOM_DOMAIN, value])
+    }
+}

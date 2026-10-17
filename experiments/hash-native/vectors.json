@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "source": "https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA256.pdf",
+  "scope": "Fixed SHA-256 known answers and finite generated tests; not CAVP validation.",
+  "known_answers": [
+    {"id": "empty", "message_ascii": "", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"id": "abc", "message_ascii": "abc", "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"},
+    {"id": "nist-two-block", "message_ascii": "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", "sha256": "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"}
+  ],
+  "seed": 91569796560182,
+  "lengths": [0, 1, 2, 3, 31, 32, 54, 55, 56, 57, 63, 64, 65, 111, 119, 120, 127, 128, 129, 255, 256, 257, 4096, 8192, 65536, 1000000],
+  "random_cases": 512,
+  "random_max_bytes": 8192
+}

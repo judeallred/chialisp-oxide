@@ -4,6 +4,7 @@ use chialisp_oxide_simulator::{
     create_coin, partial_aggregate_signature, require_consensus_rejection, sign_transaction,
 };
 use serde::Serialize;
+mod singleton;
 #[derive(Serialize)]
 pub struct Scenario {
     pub name: String,
@@ -32,6 +33,9 @@ fn solution(text: &str) -> Result<Vec<u8>> {
     Ok(clvmr::serde::node_to_bytes(&a, node)?)
 }
 pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
+    if slug == "singleton-launcher" {
+        return singleton::validate(code);
+    }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {
         "capped-payment" | "split-payment" => "(500)".into(),

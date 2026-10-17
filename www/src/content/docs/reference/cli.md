@@ -120,6 +120,32 @@ A CLVM result is not a ledger transaction. `run` cannot establish that
 signatures, amount assertions, or time conditions hold in a spend bundle.
 Use the ledger simulator for those obligations.
 
+### Replay a retained program against many inputs
+
+`run-batch` takes a JSON array of CLVM assembly strings in a file:
+
+```json
+["(500)", "(1001)", "()"]
+```
+
+```sh
+target/debug/chialisp-oxide run-batch retained.clvm.hex \
+  --solutions inputs.json --max-cost 1000000
+```
+
+The output is an array of the same typed execution records as `run`, in input
+order. Each input gets a fresh allocator and its own cost budget. Exit status 0
+means the batch completed; inspect **every** outcome, since policy rejections
+and inconclusive resource failures remain separate records. Malformed input or
+an invocation error exits nonzero and publishes no partial JSON.
+
+Transport limits are 4,096 solutions, 8 MiB of input JSON, 4 MiB of program hex
+and 16 MiB of output JSON. Count bounds apply during parsing. The per-input
+cost budget defaults to 1,000,000 and may not exceed 100,000,000 in this bounded
+batch interface. These are host transport limits, not guards in a puzzle.
+The hashing evidence gate uses batches to replay the exact retained program
+bytes without recompiling any source.
+
 ## Replay a linked native function
 
 ```sh

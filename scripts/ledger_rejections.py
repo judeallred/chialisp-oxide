@@ -70,6 +70,10 @@ def check_ledger_report(report, *, require_typed=True):
     if require_typed or "rejection_protocol" in header:
         require(header.get("rejection_protocol") == PROTOCOL, "Missing/unsupported ledger rejection protocol")
     for puzzle in report["puzzles"]:
+        comparisons = puzzle.get("simulator_comparisons", [])
+        require(isinstance(comparisons, list) and all(isinstance(row, dict)
+                and isinstance(row.get("backend"), str) and type(row.get("optimize_lir")) is bool
+                for row in comparisons), f"{puzzle['slug']}: malformed ledger comparison modes")
         scenarios = puzzle["simulator"]
         require(isinstance(scenarios, list), "Malformed ledger scenario list")
         names = [row.get("name") for row in scenarios]
@@ -99,6 +103,30 @@ def check_ledger_report(report, *, require_typed=True):
 
 
 class LedgerProtocolTests(unittest.TestCase):
+    def test_mode_and_passed_flags_reject_numeric_boolean_substitutes(self):
+        scenarios = [{"name": row["name"], "passed": True, "scope": "ledger",
+                      "rejections": [{"stage": "consensus", "code": code} for code in row["codes"]]}
+                     for row in PUZZLES["fixed-payment"]]
+        original = {"simulator": {"rejection_protocol": PROTOCOL}, "puzzles": [{
+            "slug": "fixed-payment", "kind": "coin_puzzle", "simulator": scenarios,
+            "simulator_comparisons": [{"backend": backend, "optimize_lir": True, "scenarios": copy.deepcopy(scenarios)}
+                                      for backend in ("chialisp", "rue_source")]}]}
+        check_ledger_report(original)
+        for value in (0, 1, 0.0, 1.0):
+            for index in range(2):
+                changed = copy.deepcopy(original)
+                changed["puzzles"][0]["simulator_comparisons"][index]["optimize_lir"] = value
+                for typed in (False, True):
+                    with self.subTest(value=value, mode=index, typed=typed), self.assertRaises(ValueError):
+                        check_ledger_report(changed, require_typed=typed)
+            changed = copy.deepcopy(original)
+            puzzle = changed["puzzles"][0]
+            rows = [puzzle["simulator"], *[row["scenarios"] for row in puzzle["simulator_comparisons"]]]
+            for row in rows:
+                row[0]["passed"] = value
+            with self.subTest(value=value, field="passed"), self.assertRaises(ValueError):
+                check_ledger_report(changed)
+
     def test_every_named_scenario_and_historical_exemption(self):
         for name, codes in SCENARIOS.items():
             row = {"name": name, "passed": True, "scope": "ledger",

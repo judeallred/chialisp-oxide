@@ -307,6 +307,18 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     Ok(this.lower.alloc(Lir::Cons(first, rest)))
                 },
             )?,
+            Expr::Sha256 { parts } => self.values(
+                &parts.iter().collect::<Vec<_>>(),
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let parts = bindings
+                        .iter()
+                        .map(|binding| this.value(scope, *binding))
+                        .collect::<Result<Vec<_>>>()?;
+                    Ok(this.lower.alloc(Lir::Sha256(parts)))
+                },
+            )?,
             Expr::Binary {
                 kind,
                 left,

@@ -1,0 +1,18 @@
+// Independently authored recursive translation with an explicit raw environment.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+
+fn main(...environment: Any) -> Bytes32 {
+    hash_tree(environment)
+}
+
+fn hash_tree(value: Any) -> Bytes32 {
+    if value is (Any, Any) {
+        let first_hash = hash_tree(value.first);
+        let rest_hash = hash_tree(value.rest);
+        sha256(...[PAIR_DOMAIN, first_hash, rest_hash])
+    } else {
+        assert value is Bytes;
+        sha256(...[ATOM_DOMAIN, value])
+    }
+}

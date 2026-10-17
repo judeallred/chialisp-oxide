@@ -2,6 +2,7 @@
 mod authoring;
 mod factories;
 mod native;
+mod native_hash;
 #[cfg(test)]
 mod native_owned_tests;
 mod native_owned_tree;
@@ -10,13 +11,14 @@ mod spends;
 use anyhow::{Context, Result, ensure};
 pub use authoring::{Authoring, Export, authoring};
 use chialisp_oxide_backend_experiment::{
-    Artifact, Execution, MAX_COST, Outcome, artifact, execute,
+    Artifact, Execution, FailureCode, MAX_COST, Outcome, artifact, execute,
 };
 use chialisp_oxide_ir::{Environment, Program};
 pub use chialisp_oxide_simulator::REJECTION_PROTOCOL as SIMULATOR_REJECTION_PROTOCOL;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
+const MAX_VALIDATION_COST: u64 = 10_000_000;
 pub const PUZZLES: &[&str] = &[
     "fixed-payment",
     "capped-payment",
@@ -36,6 +38,8 @@ pub const PUZZLES: &[&str] = &[
     "prefix-list",
     "atom-not-equal",
     "insertion-sort-by-keys",
+    "sha256tree",
+    "singleton-launcher",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -76,6 +80,12 @@ pub struct Manifest {
     pub reference_mode: ReferenceMode,
     #[serde(default)]
     pub rue_dependencies: Vec<String>,
+    #[serde(default)]
+    pub reference_includes: BTreeMap<String, String>,
+    #[serde(default)]
+    pub native_sources: Vec<String>,
+    #[serde(default)]
+    pub validation_max_cost: Option<u64>,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -96,6 +106,41 @@ pub struct SourceDependency {
     pub sha256: String,
     pub source: String,
 }
+
+/// Resolve only explicitly declared source snapshots, never a compiler search
+/// path. The reference adapter separately validates the flat include names.
+fn include_sources<'a>(
+    mode: ReferenceMode,
+    includes: &'a BTreeMap<String, String>,
+    dependencies: &'a [SourceDependency],
+) -> Result<Vec<(&'a str, &'a str)>> {
+    ensure!(
+        includes.is_empty() || matches!(mode, ReferenceMode::Module),
+        "reference includes are supported only for module references"
+    );
+    includes
+        .iter()
+        .map(|(name, path)| {
+            ensure!(
+                !std::path::Path::new(path).is_absolute()
+                    && !path.contains('\\')
+                    && path
+                        .split('/')
+                        .all(|part| !part.is_empty() && part != "." && part != ".."),
+                "reference include must use a normalized confined source path"
+            );
+            let mut matching = dependencies.iter().filter(|source| source.path == *path);
+            let source = matching.next().with_context(|| {
+                format!("reference include {name:?} is not declared in source_dependencies")
+            })?;
+            ensure!(
+                matching.next().is_none(),
+                "ambiguous reference include source snapshot"
+            );
+            Ok((name.as_str(), source.source.as_str()))
+        })
+        .collect()
+}
 #[derive(Serialize)]
 pub struct RueSource {
     pub path: String,
@@ -108,6 +153,12 @@ pub struct SimulatorComparison {
     pub backend: String,
     pub optimize_lir: bool,
     pub scenarios: Vec<spends::Scenario>,
+}
+/// Deliberate low-budget observations, never ordinary validation rejection.
+#[derive(Serialize)]
+pub struct ResourceControls {
+    pub max_cost: u64,
+    pub cases: Vec<CaseReport>,
 }
 #[derive(Serialize)]
 pub struct PuzzleReport {
@@ -122,11 +173,19 @@ pub struct PuzzleReport {
     pub reference_mode: ReferenceMode,
     pub source: String,
     pub reference: String,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub reference_includes: BTreeMap<String, String>,
     pub rue: RueSource,
     pub source_dependencies: Vec<SourceDependency>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub native_sources: Vec<authoring::Fingerprint>,
     pub artifacts: Vec<Artifact>,
     pub cases: Vec<CaseReport>,
     pub generated_cases: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub validation_max_cost: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_controls: Option<ResourceControls>,
     pub simulator: Vec<spends::Scenario>,
     pub simulator_comparisons: Vec<SimulatorComparison>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -152,11 +211,12 @@ fn compare(
     slug: &str,
     solution: &str,
     programs: &[(&str, bool, Vec<u8>)],
+    max_cost: u64,
 ) -> Result<(Outcome, Vec<Run>)> {
     let expected = expectation(slug, solution)?;
     let mut runs = vec![];
     for (backend, optimize, bytes) in programs {
-        let execution = execute(bytes, solution, MAX_COST)?;
+        let execution = execute(bytes, solution, max_cost)?;
         ensure!(
             execution.outcome != Outcome::Inconclusive,
             "inconclusive VM execution {slug} {backend} {solution}: {execution:?}"
@@ -173,12 +233,100 @@ fn compare(
     }
     Ok((expected, runs))
 }
+fn comparison_budget(requested: Option<u64>) -> Result<u64> {
+    let max_cost = requested.unwrap_or(MAX_COST);
+    ensure!(
+        (1..=MAX_VALIDATION_COST).contains(&max_cost),
+        "validation_max_cost must be between 1 and {MAX_VALIDATION_COST}"
+    );
+    Ok(max_cost)
+}
+
+fn hash_resource_controls(
+    slug: &str,
+    programs: &[(&str, bool, Vec<u8>)],
+) -> Result<Option<ResourceControls>> {
+    if slug != "sha256tree" {
+        return Ok(None);
+    }
+    let generated: Vec<Case> = serde_json::from_slice(&std::fs::read(
+        root().join("puzzles/sha256tree/generated-cases.json"),
+    )?)?;
+    let mut inputs = Vec::new();
+    for label in [
+        "right spine depth 64 with padded terminal atom",
+        "left spine depth 64 with nonempty zero leaf",
+        "right spine depth 128 with padded terminal atom",
+        "left spine depth 128 with nonempty zero leaf",
+    ] {
+        let mut matching = generated.iter().filter(|case| case.label == label);
+        let case = matching
+            .next()
+            .context("missing hash resource-control input")?;
+        ensure!(
+            matching.next().is_none(),
+            "duplicate hash resource-control input"
+        );
+        inputs.push(Case {
+            label: case.label.clone(),
+            solution: case.solution.clone(),
+        });
+    }
+    // This is the existing shared raw-environment depth input, not a new
+    // policy guard or a replacement for any ordinary generated case.
+    let mut tree = "0x0001".to_string();
+    for _ in 0..128 {
+        tree = format!("({tree} . 0x00)");
+    }
+    inputs.push(Case {
+        label: "corpus raw left spine depth 129".into(),
+        solution: format!("({tree} . 0x0000)"),
+    });
+    let mut cases = Vec::new();
+    for input in inputs {
+        let native = expectation(slug, &input.solution)?;
+        ensure!(
+            matches!(&native, Outcome::Accepted { .. }),
+            "native hash control must succeed"
+        );
+        let mut runs = Vec::new();
+        for (backend, optimize, bytes) in programs {
+            let execution = execute(bytes, &input.solution, MAX_COST)?;
+            let accepted = execution.outcome == native;
+            let exhausted = execution.outcome == Outcome::Inconclusive
+                && execution
+                    .failure
+                    .is_some_and(|failure| failure.code() == FailureCode::CostExceeded);
+            ensure!(
+                accepted || exhausted,
+                "hash resource control changed output or produced an unexpected failure: {execution:?}"
+            );
+            runs.push(Run {
+                backend: (*backend).into(),
+                optimize_lir: *optimize,
+                execution,
+            });
+        }
+        cases.push(CaseReport {
+            label: input.label,
+            solution: input.solution,
+            native,
+            runs,
+        });
+    }
+    Ok(Some(ResourceControls {
+        max_cost: MAX_COST,
+        cases,
+    }))
+}
+
 pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     ensure!(PUZZLES.contains(&slug), "unregistered corpus puzzle");
     let dir = root().join("puzzles").join(slug);
     let manifest: Manifest =
         serde_json::from_str(&std::fs::read_to_string(dir.join("puzzle.json"))?)?;
     ensure!(manifest.slug == slug, "corpus manifest slug mismatch");
+    let max_cost = comparison_budget(manifest.validation_max_cost)?;
     ensure!(
         program.name == format!("chialisp_oxide_puzzles::{}::puzzle", slug.replace('-', "_")),
         "corpus export identity mismatch"
@@ -187,6 +335,28 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         program.environment == manifest.environment,
         "corpus environment policy mismatch"
     );
+    // authoring() checks these live inputs against the build-time native oracle
+    // snapshot. This is declared-input freshness, not executable authentication.
+    let mut native_sources = Vec::new();
+    if !manifest.native_sources.is_empty() {
+        let compiled = authoring()?;
+        for path in &manifest.native_sources {
+            ensure!(
+                !native_sources
+                    .iter()
+                    .any(|source: &authoring::Fingerprint| source.path == *path),
+                "duplicate declared native source"
+            );
+            native_sources.push(
+                compiled
+                    .sources
+                    .iter()
+                    .find(|source| source.path == *path)
+                    .with_context(|| format!("native source {path} is not a declared Cargo input"))?
+                    .clone(),
+            );
+        }
+    }
     let reference = std::fs::read_to_string(dir.join("reference.clsp"))?;
     let source_dependencies = manifest
         .source_dependencies
@@ -230,7 +400,15 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             })
             .collect::<Result<_>>()?,
     };
+    let includes = include_sources(
+        manifest.reference_mode,
+        &manifest.reference_includes,
+        &source_dependencies,
+    )?;
     let original = match manifest.reference_mode {
+        ReferenceMode::Module if !includes.is_empty() => {
+            chialisp_oxide_reference::compile_with_includes(&reference, &includes)
+        }
         ReferenceMode::Module => chialisp_oxide_reference::compile(&reference),
         ReferenceMode::Expression => chialisp_oxide_reference::compile_expression(&reference),
     }
@@ -266,7 +444,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     }
     let mut cases = vec![];
     for case in manifest.cases {
-        let (native, runs) = compare(slug, &case.solution, &programs)?;
+        let (native, runs) = compare(slug, &case.solution, &programs, max_cost)?;
         cases.push(CaseReport {
             label: case.label,
             solution: case.solution,
@@ -275,31 +453,38 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         });
     }
     let mut generated_cases = 0;
-    if ["prefix-list", "atom-not-equal", "insertion-sort-by-keys"].contains(&slug) {
+    if [
+        "prefix-list",
+        "atom-not-equal",
+        "insertion-sort-by-keys",
+        "sha256tree",
+    ]
+    .contains(&slug)
+    {
         // The helper evidence gate independently recomputes this fixed suite
         // and its expected data relation. Execute every row in all five builds.
         let generated: Vec<Case> =
             serde_json::from_slice(&std::fs::read(dir.join("generated-cases.json"))?)?;
         for case in generated {
-            compare(slug, &case.solution, &programs)?;
+            compare(slug, &case.solution, &programs, max_cost)?;
             generated_cases += 1;
         }
     }
     if ["capped-payment", "split-payment", "bounded-counter"].contains(&slug) {
         for value in 0..=1020 {
-            compare(slug, &format!("({value})"), &programs)?;
+            compare(slug, &format!("({value})"), &programs, max_cost)?;
             generated_cases += 1;
         }
     }
     if manifest.environment == Environment::Ignored {
         for index in 0..256 {
-            compare(slug, &tree_environment(index, 0), &programs)?;
+            compare(slug, &tree_environment(index, 0), &programs, max_cost)?;
             generated_cases += 1;
         }
     }
     if manifest.environment == Environment::Raw {
         for index in 0..2048 {
-            compare(slug, &tree_environment(index, 0), &programs)?;
+            compare(slug, &tree_environment(index, 0), &programs, max_cost)?;
             generated_cases += 1;
         }
         // Atom widths and a deeper improper spine exercise data independently
@@ -310,14 +495,14 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             } else {
                 format!("0x{}", "00".repeat(width))
             };
-            compare(slug, &format!("({atom} . 0x0001)"), &programs)?;
+            compare(slug, &format!("({atom} . 0x0001)"), &programs, max_cost)?;
             generated_cases += 1;
         }
         let mut tree = "0x0001".to_string();
         for _ in 0..128 {
             tree = format!("({tree} . 0x00)");
         }
-        compare(slug, &format!("({tree} . 0x0000)"), &programs)?;
+        compare(slug, &format!("({tree} . 0x0000)"), &programs, max_cost)?;
         generated_cases += 1;
     }
     if slug == "rightmost-tree" {
@@ -329,14 +514,14 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             } else {
                 format!("0x{}", "00".repeat(width))
             };
-            compare(slug, &format!("(1 . {atom})"), &programs)?;
+            compare(slug, &format!("(1 . {atom})"), &programs, max_cost)?;
             generated_cases += 1;
         }
         let mut tree = "0x0001".to_string();
         for _ in 0..128 {
             tree = format!("(0x00 . {tree})");
         }
-        compare(slug, &tree, &programs)?;
+        compare(slug, &tree, &programs, max_cost)?;
         generated_cases += 1;
     }
     if slug == "last-list-element" {
@@ -348,7 +533,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             } else {
                 format!("0x{}", "00".repeat(width))
             };
-            compare(slug, &format!("({value})"), &programs)?;
+            compare(slug, &format!("({value})"), &programs, max_cost)?;
             generated_cases += 1;
         }
         for depth in [1, 2, 8, 32, 128] {
@@ -357,7 +542,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
                 for _ in 0..depth {
                     tree = format!("(0x0001 . {tree})");
                 }
-                compare(slug, &tree, &programs)?;
+                compare(slug, &tree, &programs, max_cost)?;
                 generated_cases += 1;
             }
         }
@@ -374,11 +559,12 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
                 format!("({value})"),
                 format!("(0x00 ((8) . 0x0000) {value})"),
             ] {
-                compare(slug, &environment, &programs)?;
+                compare(slug, &environment, &programs, max_cost)?;
                 generated_cases += 1;
             }
         }
     }
+    let resource_controls = hash_resource_controls(slug, &programs)?;
     let artifacts: Vec<Artifact> = programs
         .iter()
         .map(|(backend, opt, code)| artifact(backend, *opt, code))
@@ -401,18 +587,30 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             });
         }
     }
-    let (factory_checks, module_identity) = if manifest.kind == "program_factory" {
+    let factory_checks = if manifest.kind == "program_factory" {
         ensure!(
             slug == "p2-conditions",
             "factory requires an independent specification"
         );
-        (
-            factories::validate(&cases)?,
-            Some(factories::identity(&manifest.provenance, &artifacts)?),
-        )
+        factories::validate(&cases)?
     } else {
-        (vec![], None)
+        vec![]
     };
+    // A published module identity is independent of its output role. The
+    // singleton launcher returns conditions; p2_conditions returns a program.
+    // Extracted helpers have no whole-module identity obligation.
+    let module_identity = if manifest.provenance["classification"] == "canonical_puzzle_port"
+        && manifest.provenance.get("upstream_artifact").is_some()
+    {
+        Some(factories::identity(&manifest.provenance, &artifacts)?)
+    } else {
+        None
+    };
+    if !native_sources.is_empty() {
+        // A changed declared input must not publish observations from an older
+        // native binary, even when the change happened during compilation.
+        authoring()?;
+    }
     Ok(PuzzleReport {
         slug: manifest.slug,
         title: manifest.title,
@@ -423,11 +621,15 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         reference_mode: manifest.reference_mode,
         source,
         reference,
+        reference_includes: manifest.reference_includes,
         rue,
         source_dependencies,
+        native_sources,
         artifacts,
         cases,
         generated_cases,
+        validation_max_cost: manifest.validation_max_cost,
+        resource_controls,
         simulator,
         simulator_comparisons,
         factory_checks,
@@ -456,4 +658,80 @@ fn tree_environment(index: usize, depth: usize) -> String {
         tree_environment(index / ATOMS.len(), depth + 1),
         tree_environment(index % ATOMS.len(), depth + 1)
     )
+}
+
+#[cfg(test)]
+mod include_tests {
+    use super::*;
+
+    fn dependency(path: &str, source: &str) -> SourceDependency {
+        SourceDependency {
+            path: path.into(),
+            source: source.into(),
+            sha256: "snapshot hash tested by source reader".into(),
+        }
+    }
+
+    #[test]
+    fn reference_includes_use_declared_snapshots_and_preserve_their_exact_source() {
+        let sources = vec![dependency(
+            "fixtures/codes.clib",
+            "(\n(defconstant VALUE 51)\n)\n",
+        )];
+        let includes = BTreeMap::from([("codes.clib".into(), "fixtures/codes.clib".into())]);
+        assert_eq!(
+            include_sources(ReferenceMode::Module, &includes, &sources).unwrap(),
+            vec![("codes.clib", "(\n(defconstant VALUE 51)\n)\n")]
+        );
+        assert!(include_sources(ReferenceMode::Expression, &includes, &sources).is_err());
+        assert!(include_sources(ReferenceMode::Module, &includes, &[]).is_err());
+        let duplicate = vec![
+            dependency("fixtures/codes.clib", "first"),
+            dependency("fixtures/codes.clib", "second"),
+        ];
+        assert!(include_sources(ReferenceMode::Module, &includes, &duplicate).is_err());
+        assert!(
+            include_sources(ReferenceMode::Expression, &BTreeMap::new(), &[])
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn reference_include_paths_cannot_alias_or_escape_declared_snapshots() {
+        for path in [
+            "",
+            "/outside",
+            "../outside",
+            "fixtures/../codes.clib",
+            "./codes.clib",
+            "fixtures//codes.clib",
+            "fixtures\\codes.clib",
+        ] {
+            let sources = vec![dependency(path, "()")];
+            let includes = BTreeMap::from([("codes.clib".into(), path.into())]);
+            assert!(
+                include_sources(ReferenceMode::Module, &includes, &sources).is_err(),
+                "{path:?}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod budget_tests {
+    use super::{MAX_COST, MAX_VALIDATION_COST, comparison_budget};
+
+    #[test]
+    fn comparison_budget_preserves_default_and_rejects_zero_or_excess() {
+        assert_eq!(comparison_budget(None).unwrap(), MAX_COST);
+        assert_eq!(comparison_budget(Some(1)).unwrap(), 1);
+        assert_eq!(
+            comparison_budget(Some(MAX_VALIDATION_COST)).unwrap(),
+            MAX_VALIDATION_COST
+        );
+        for invalid in [0, MAX_VALIDATION_COST + 1, u64::MAX] {
+            assert!(comparison_budget(Some(invalid)).is_err());
+        }
+    }
 }

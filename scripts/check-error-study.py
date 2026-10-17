@@ -258,6 +258,15 @@ def reproduce():
     return report
 
 
+def boolean_modes(rows, label):
+    require(isinstance(rows, list) and all(isinstance(row, dict) and type(row.get("optimize_lir")) is bool
+                                         for row in rows), f"{label}: compiler modes must be actual booleans")
+    for row in rows:
+        if row.get("status") == "compiled":
+            require(isinstance(row.get("artifact"), dict) and type(row["artifact"].get("optimize_lir")) is bool,
+                    f"{label}: artifact mode must be an actual boolean")
+
+
 def validate_report(report):
     require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
     manifest = specification()
@@ -271,6 +280,9 @@ def validate_report(report):
     for row, evidence in zip(manifest["studies"], report["studies"]):
         for key in ("id", "title", "category", "claim", "limitations", "sources"):
             require(evidence[key] == row[key], f"{row['id']}: changed study identity/scope")
+        for language in ("chialisp", "rue", "rue_nominal_control"):
+            if language in evidence:
+                boolean_modes(evidence[language], f"{row['id']}/{language}")
         require(len(evidence["chialisp"]) == 1 and evidence["chialisp"][0]["status"] == "compiled",
                 f"{row['id']}: faulty Chialisp must actually compile")
         require({mode["optimize_lir"] for mode in evidence["rue"]} == {False, True}
@@ -324,6 +336,20 @@ def validate_report(report):
 
 
 class EvidenceControls(unittest.TestCase):
+    def test_compiler_modes_require_actual_boolean_wire_types(self):
+        # Include rejected source attempts: they also record a compiler mode.
+        original = [{"optimize_lir": flag, "status": status, **({"artifact": {"optimize_lir": flag}} if status == "compiled" else {})}
+                    for flag, status in [(False, "compiled"), (True, "compiled"), (False, "compile_rejected"), (True, "compile_rejected")]]
+        boolean_modes(original, "synthetic valid mode envelopes")
+        for index, row in enumerate(original):
+            for numeric in (int, float):
+                for target in (["mode", "artifact"] if row["status"] == "compiled" else ["mode"]):
+                    changed = copy.deepcopy(original)
+                    field = changed[index] if target == "mode" else changed[index]["artifact"]
+                    field["optimize_lir"] = numeric(row["optimize_lir"])
+                    with self.subTest(index=index, numeric=numeric.__name__, target=target), self.assertRaises(ValueError):
+                        boolean_modes(changed, "numeric mode corruption")
+
     def test_false_claims_and_stale_evidence_are_rejected(self):
         original = load_json(OUTPUT)
         validate_report(original)

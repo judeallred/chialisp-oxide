@@ -214,6 +214,9 @@ impl Lower<'_> {
     }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
+            Expr::Sha256 { .. } => {
+                anyhow::bail!("SHA256 requires strict version-4 lowering")
+            }
             Expr::Atom { hex } => self.bytes(hex::decode(hex)?),
             Expr::AtomIsEmpty { value } => {
                 let value = self.expression(value)?;
@@ -387,6 +390,7 @@ fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
             | Lir::Logand(args)
             | Lir::Logior(args)
             | Lir::Logxor(args)
+            | Lir::Sha256(args)
             | Lir::All(args)
             | Lir::Any(args)
             | Lir::Concat(args)

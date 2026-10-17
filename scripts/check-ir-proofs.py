@@ -46,7 +46,8 @@ def write_json(path, value):
 
 
 def check_replays(replays, expected):
-    if len(replays) != 2 or {row["optimize"] for row in replays} != {False, True}:
+    if (len(replays) != 2 or any(type(row["optimize"]) is not bool for row in replays)
+            or {row["optimize"] for row in replays} != {False, True}):
         raise SystemExit(f"Expected both optimization settings: {replays}")
     for row in replays:
         if row["outcome"]["status"] != expected:
@@ -120,6 +121,16 @@ def native_replay(value):
 
 
 class ReplayControls(unittest.TestCase):
+    def test_optimization_modes_require_actual_booleans(self):
+        original = [{"optimize": optimize, "outcome": {"status": "accepted", "output_hex": "01", "cost": 1}}
+                    for optimize in (False, True)]
+        check_replays(original, "accepted")
+        for value in (0, 1, 0.0, 1.0):
+            rows = copy.deepcopy(original)
+            next(row for row in rows if row["optimize"] is bool(value))["optimize"] = value
+            with self.subTest(numeric=value), self.assertRaises(SystemExit):
+                check_replays(rows, "accepted")
+
     def test_assertion_requires_exact_program_raise_code(self):
         rows = [{"optimize": optimize, "outcome": {"status": "rejected", "error": "arbitrary diagnostic",
                 "failure": {"kind": "program", "code": "raise"}}} for optimize in (False, True)]

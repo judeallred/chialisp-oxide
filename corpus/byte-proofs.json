@@ -87,9 +87,17 @@
         "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
         "source": "puzzles/rightmost-tree/puzzle.rs"
       },
+      "sha256tree": {
+        "entry": "chialisp_oxide_puzzles::sha256tree::puzzle",
+        "source": "puzzles/sha256tree/puzzle.rs"
+      },
       "signature-payment": {
         "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
         "source": "puzzles/signature-payment/puzzle.rs"
+      },
+      "singleton-launcher": {
+        "entry": "chialisp_oxide_puzzles::singleton_launcher::puzzle",
+        "source": "puzzles/singleton-launcher/puzzle.rs"
       },
       "split-payment": {
         "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
@@ -111,15 +119,51 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+        "sha256": "28ea981c1150a39202389c66c826c81158417cab8a18a8d40598ef8d3edd55c0"
       },
       {
         "path": "Cargo.toml",
         "sha256": "8cbba7086756b85a61ac49df6cb0852dd233c88675d8d495c3aba31c8c772aca"
       },
       {
+        "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+        "sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f"
+      },
+      {
         "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
         "sha256": "f58331cdceeb52133d780bc3adc9b4d1154277510f39be9d4fa78a4d9acd2d4a"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/Cargo.toml",
+        "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/build.rs",
+        "sha256": "961deb8ee664e2cb6001681308799b71963edef13dad35d09c1d3e5abb25fbd5"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/lib.rs",
+        "sha256": "2d0406eb2d2c5af5d85665868dbdca659808feaa66bcc6d7b4500996b787a745"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/native.rs",
+        "sha256": "7194dc0809eaab680aea7fceb50aba92ff2ccb387ae48e041d7d4794d5793718"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
+        "sha256": "149ddf15c2cb6b75ad30534fd239cbf0ed2f082a0cf02cf5d87f6de4426100b6"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
+        "sha256": "25276798b987eac4786c8c935644f825c72f221394d1dc6f9eb64f9c01eceba1"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/spends.rs",
+        "sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
+        "sha256": "e745d63ce22bdccb9ffad2515e307b70e7ff4f0f0bb5a9b181e86106422aa88b"
       },
       {
         "path": "crates/chialisp-oxide-macros/Cargo.toml",
@@ -130,16 +174,32 @@
         "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
       },
       {
+        "path": "crates/chialisp-oxide-simulator/Cargo.toml",
+        "sha256": "705fae227c37bdacf97fc08bec2ef7b80a3b045b4167be42d60e1174ea8cebf7"
+      },
+      {
+        "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
+        "sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5"
+      },
+      {
+        "path": "crates/chialisp-oxide-simulator/src/lib.rs",
+        "sha256": "97e2642ec136b778bf7be7ba84bfbf4b70217fd6cc47e41ff15f19883076827b"
+      },
+      {
         "path": "crates/chialisp-oxide/Cargo.toml",
-        "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+        "sha256": "8c227089a36e093006e0330d391e93faecd8d033102f91cb049c86dee5bfe928"
       },
       {
         "path": "crates/chialisp-oxide/src/domain.rs",
         "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
       },
       {
+        "path": "crates/chialisp-oxide/src/hashing.rs",
+        "sha256": "e05f5eaf962b30910ade0a6d2eae8387b74f35ca92aa68e0625794af89b14115"
+      },
+      {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+        "sha256": "91ef20602b10762149ed4af95b516a77aaf99bf13f959d27830ecfbac769f314"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -163,7 +223,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "bf2db83e609c9530227ae8faaf403c5fd8956fce005fa185bc5c0082bc9cacef"
+        "sha256": "fbeae000a1fb9151b2384ada6cf2e846ad653f7e132bd262410ec1d591e8df4c"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -211,7 +271,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "7c639ec35326e083c7eada08f8287032e724d91c620c1282af69ca20d7952dfe"
+        "sha256": "991aa5bfb0531ea6b2250dab26e0b4796bc552008efbb0e03f35a57c5f7a968a"
       },
       {
         "path": "puzzles/p2-conditions/puzzle.rs",
@@ -234,8 +294,20 @@
         "sha256": "2d523221c500cb4b8d5748369b949e22c7dee68dbc20c8b3e73bb7d8c14009d2"
       },
       {
+        "path": "puzzles/sha256tree/generated-cases.json",
+        "sha256": "dd2246fee1017cc089e804c7a055f75106c10929a652d7d915b49ca1277f2fb8"
+      },
+      {
+        "path": "puzzles/sha256tree/puzzle.rs",
+        "sha256": "17455db66dd541edf8f1d26742f4494d85e49a4d4e64cb702cf6bfbd657f958f"
+      },
+      {
         "path": "puzzles/signature-payment/puzzle.rs",
         "sha256": "6480ebbb3ed43921781b066906596389830fd8659951faaf8d922dcc0038a2d1"
+      },
+      {
+        "path": "puzzles/singleton-launcher/puzzle.rs",
+        "sha256": "9f90bbbcdcc0d5095136b59e69b92764859ba042dd1e6ecdded0e87b250516a5"
       },
       {
         "path": "puzzles/split-payment/puzzle.rs",
@@ -290,7 +362,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+        "sha256": "28ea981c1150a39202389c66c826c81158417cab8a18a8d40598ef8d3edd55c0"
       },
       {
         "path": "Cargo.toml",
@@ -306,15 +378,19 @@
       },
       {
         "path": "crates/chialisp-oxide/Cargo.toml",
-        "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+        "sha256": "8c227089a36e093006e0330d391e93faecd8d033102f91cb049c86dee5bfe928"
       },
       {
         "path": "crates/chialisp-oxide/src/domain.rs",
         "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
       },
       {
+        "path": "crates/chialisp-oxide/src/hashing.rs",
+        "sha256": "e05f5eaf962b30910ade0a6d2eae8387b74f35ca92aa68e0625794af89b14115"
+      },
+      {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+        "sha256": "91ef20602b10762149ed4af95b516a77aaf99bf13f959d27830ecfbac769f314"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -476,7 +552,7 @@
     },
     {
       "path": "Cargo.lock",
-      "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+      "sha256": "28ea981c1150a39202389c66c826c81158417cab8a18a8d40598ef8d3edd55c0"
     },
     {
       "path": "Cargo.toml",
@@ -496,7 +572,7 @@
     },
     {
       "path": "corpus/validation.json",
-      "sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377"
+      "sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791"
     },
     {
       "path": "crates/cargo-chialisp-oxide/Cargo.toml",
@@ -516,11 +592,15 @@
     },
     {
       "path": "crates/chialisp-oxide-cli/Cargo.toml",
-      "sha256": "f2a125e172606717a14642561ac89cf3a3959024e79864506d8124155ccdf22f"
+      "sha256": "7648dff000c6a77578275443a71f5e6ee78f0ebc6a59d3d85d0925c6037eef6c"
+    },
+    {
+      "path": "crates/chialisp-oxide-cli/src/batch.rs",
+      "sha256": "f36caf9d4cf22b9494e817610ab9735b3a294bf5e189aa282ea586cdd1d560e4"
     },
     {
       "path": "crates/chialisp-oxide-cli/src/main.rs",
-      "sha256": "1275abd52c8f390ac5964d36a60f54eecb0e7e2bc7d016e45807688089ee1ef1"
+      "sha256": "c04b60b51770d8b405535899c448b52370da99b49f86dbc2f8ced5a41eb89d9e"
     },
     {
       "path": "crates/chialisp-oxide-corpus/Cargo.toml",
@@ -532,7 +612,7 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-      "sha256": "800b8564f0519c3607862439fae67aa12d798b0aa8289da4d06f2a81393f625c"
+      "sha256": "ef0f8bc9dd3d92d813f7f85a84331fd21bb1cdef664947d83d14298aa84189b4"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/factories.rs",
@@ -540,11 +620,15 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-      "sha256": "e770011bfd0d301e8019e9410d40c79d301631ea31296e4c7ad210d7805440af"
+      "sha256": "2d0406eb2d2c5af5d85665868dbdca659808feaa66bcc6d7b4500996b787a745"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native.rs",
-      "sha256": "c7ccfc221984f4709f71d140571676b7ad5791df6c75405e6bcf70d42ce0b8b5"
+      "sha256": "7194dc0809eaab680aea7fceb50aba92ff2ccb387ae48e041d7d4794d5793718"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
+      "sha256": "149ddf15c2cb6b75ad30534fd239cbf0ed2f082a0cf02cf5d87f6de4426100b6"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native_owned_tests.rs",
@@ -560,7 +644,11 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-      "sha256": "10dcc1016a350eab8282c92f78d6e419e70ceeed3439146e483431eb85db6097"
+      "sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
+      "sha256": "e745d63ce22bdccb9ffad2515e307b70e7ff4f0f0bb5a9b181e86106422aa88b"
     },
     {
       "path": "crates/chialisp-oxide-driver/Cargo.toml",
@@ -580,7 +668,7 @@
     },
     {
       "path": "crates/chialisp-oxide-driver/src/lower.rs",
-      "sha256": "e5fb6cb38b5fb4371871e2b6b543950ea8ea7b6f0f1d16f17eb4eaf9f393f7db"
+      "sha256": "1c2ab6e9c60c3a3253ea789e51335801eeb04391ea6f12c327744b07726b8834"
     },
     {
       "path": "crates/chialisp-oxide-driver/src/lower/byte_comparison.rs",
@@ -595,6 +683,30 @@
       "sha256": "98960b579554be3cc7720f0a8b88fb32fa5802b7888c75e053643c546cbfae82"
     },
     {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/canonical/body.rs",
+      "sha256": "72f282b1a6a15f18f62830bb4126d5f128dd34c2942b6f6c3f617bb05c228b10"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/canonical/bounds.rs",
+      "sha256": "cd3cd849d8dafd3ae83d8e1127d79f5cc0d68b4689a67170bdef14623caaad73"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/canonical/mod.rs",
+      "sha256": "00ae63b7ac11d97e00474225caf238b425cabb14cfcbeb9c12249adc2a89851b"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/canonical/types.rs",
+      "sha256": "ff1f56817b7b7af79e91f8fb0865cf84d730d249e016b2729dcf6cbf5f3dd8a0"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/canonical/values.rs",
+      "sha256": "ce1c6aaf36b791fc39374bf512ddd1e5476ea3e830eb0469f2540e1e8243db90"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/hashing/mod.rs",
+      "sha256": "5a9dce5f5337af310e562341425cb777dc96ed15a1d83098c1e2ba9ebbc870db"
+    },
+    {
       "path": "crates/chialisp-oxide-driver/src/lower/newtypes.rs",
       "sha256": "34fc0e368ddd80f22c0b3b473f538cb7e7f56f6d5769cdab7f8f30544b63760d"
     },
@@ -604,11 +716,11 @@
     },
     {
       "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-      "sha256": "d5000d2c98d31c7032faf7989639bb7b9a50bbc142de991d9fbae30d5e66b845"
+      "sha256": "1ca89d7968201dd190a8d9094be1a98c7ff34a6396cebf7b2dd289609294da58"
     },
     {
       "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
-      "sha256": "7e3d1ab4be8e6e99b3dae11cdc39561e39b7340a78e3b5287411df43a323dc66"
+      "sha256": "734a1377ea2449de79d4230a89e8556ab1c2e4e493451d6713483673a7c20227"
     },
     {
       "path": "crates/chialisp-oxide-driver/src/lower/trees.rs",
@@ -624,27 +736,27 @@
     },
     {
       "path": "crates/chialisp-oxide-ir/Cargo.toml",
-      "sha256": "dcb112db214edf73ccf40d2511627bddffa6ea5e0b103c2a39e93ebc809c6a70"
+      "sha256": "dcb1c36d93459e3d81b6f2ca678887bff51fc97349df25deb460de6caf865348"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/lib.rs",
-      "sha256": "64bc1709707166c252119e2940fc72f7708b247303eaf9f157d2d5bcc58455f1"
+      "sha256": "6cc0556966b26beb8962b9cceb6d51f57d527d5155cab9860048128948c3bbe2"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/lower.rs",
-      "sha256": "58e778cc9c869c44bd03be7889d0777af160ed66176857803a78dd258009fd95"
+      "sha256": "6e5eab0ef2cf07d64b548d6df1da18adeb505d8c6cdb93c69a64748702aab8dc"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
-      "sha256": "819aa26f4ca20b89b95ad5ed4a46eff45e9fedabd2276308c4a6c2d5d6fa8d1f"
+      "sha256": "8dd6d12b4146be535ee420a83d7fde7738502a2be1aaa8650bd4358a111ebe4c"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/optimize.rs",
-      "sha256": "a1a9307126c2bfecaa9f7daca04ea92a8daf7ff64d18d91e06923e3cc2e7bab7"
+      "sha256": "9ebb86873558e09eef62d681061bf1b61381ad2ee57153a3202904382a90f672"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/validate.rs",
-      "sha256": "defa83bb35d72f5dba05eaba2696ab540bcc91b3fa208302c85785bc2b5aa4ac"
+      "sha256": "e246383ccb2d190ee514125f52d1e4c0e14dd2fb5d57bfb76285b541fb4f0fea"
     },
     {
       "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -663,8 +775,12 @@
       "sha256": "ebfc835814299a2e19c7804793b9a6dfb2127727c6299cc5251f9ed61bd7630d"
     },
     {
+      "path": "crates/chialisp-oxide-reference/src/includes.rs",
+      "sha256": "a88f496ebfb5d1aa1313f1f45b042bb5e76b38c9d51a55a7106c89f450053ed8"
+    },
+    {
       "path": "crates/chialisp-oxide-reference/src/lib.rs",
-      "sha256": "3664452f79f72ab3d6e78460cbc8ccdc2a49d12228e65158705c386215cccfa4"
+      "sha256": "c5f8676b2945d5a2162772ffbfd8be63a35aef57ea1f85f236dcd3ad48adc706"
     },
     {
       "path": "crates/chialisp-oxide-simulator/Cargo.toml",
@@ -672,11 +788,11 @@
     },
     {
       "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-      "sha256": "56ed57d8ddd83fe4664690e9627eac10fc18be7d56987baff93db868b0b2f2fa"
+      "sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5"
     },
     {
       "path": "crates/chialisp-oxide-simulator/src/lib.rs",
-      "sha256": "8fea8834c383889c6931a20ae38f0494cbd796bd0967046463a541b2976481b0"
+      "sha256": "97e2642ec136b778bf7be7ba84bfbf4b70217fd6cc47e41ff15f19883076827b"
     },
     {
       "path": "crates/chialisp-oxide-verifier/Cargo.toml",
@@ -688,7 +804,7 @@
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/lib.rs",
-      "sha256": "e66c0c9d3451f6842731f827f389192e35bff68bac893a5d7a0a6152ac1864bd"
+      "sha256": "b96ac1b73e4e698c2171c8604faef04b78d8db3fbdc9fdc6af19c432f2e24c56"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/main.rs",
@@ -704,7 +820,7 @@
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/scalar_bitwise.rs",
-      "sha256": "7e36eb161bb66b09aedfc9f850af4a99eaef32ec3ad307cd69512154f81e02f8"
+      "sha256": "24bb8ffcbd02f364939f2f2235a8e17802e5af2126456b3fd1ad786550c94da7"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/structural_boolean.rs",
@@ -712,7 +828,7 @@
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/tree.rs",
-      "sha256": "6089ea4e16ac5d40098f1541009fe024a66b94ff280b6b3d2a91df206c57eb0f"
+      "sha256": "4cea0a243ad11a5aab89d8c2595d5d6c8cdc7a5a08b2cb28681c4379c1b7728d"
     },
     {
       "path": "crates/chialisp-oxide-verifier/src/tree_witness.rs",
@@ -732,15 +848,19 @@
     },
     {
       "path": "crates/chialisp-oxide/Cargo.toml",
-      "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+      "sha256": "8c227089a36e093006e0330d391e93faecd8d033102f91cb049c86dee5bfe928"
     },
     {
       "path": "crates/chialisp-oxide/src/domain.rs",
       "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
     },
     {
+      "path": "crates/chialisp-oxide/src/hashing.rs",
+      "sha256": "e05f5eaf962b30910ade0a6d2eae8387b74f35ca92aa68e0625794af89b14115"
+    },
+    {
       "path": "crates/chialisp-oxide/src/lib.rs",
-      "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+      "sha256": "91ef20602b10762149ed4af95b516a77aaf99bf13f959d27830ecfbac769f314"
     },
     {
       "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -836,7 +956,7 @@
     },
     {
       "path": "scripts/cargo_authoring.py",
-      "sha256": "7bd29b007f9dde934633e25ebdd38bc251bce9559ab1ef9b7577551a34a96b78"
+      "sha256": "6072ed04e9347dece4b20d13babcf6ba23cb6ce23441cada4046768a9f9be84a"
     },
     {
       "path": "scripts/cargo_bundle.py",
@@ -844,23 +964,23 @@
     },
     {
       "path": "scripts/check-byte-proofs.py",
-      "sha256": "960f419515b3c7abfdf598b9b7b83a0cb648d4d0c48cb816a45b228edf0b2f57"
+      "sha256": "2f9732a707b36975775bf2309daa410e578d62769406735b3254bdf43c9e0fe0"
     },
     {
       "path": "scripts/check-canonical-factories.py",
-      "sha256": "e1c2ab549fcb02dd3c9a5151d49cbbe4e3ed1b80a9e6b152ebc575a54ff45ead"
+      "sha256": "4f20a8339376de585558d2b2c8d3f69c7056d37cb68e898b423b7ccb2f32a6d9"
     },
     {
       "path": "scripts/check-canonical-helpers.py",
-      "sha256": "1e8ab0dfb17d925e2c2ae47370cb50e66ec269f5633dd8f08f77485eae60d3f5"
+      "sha256": "7d678a3e6b36ec20fb69f83f0d8433e2226a44a8f2423d430f3795761aeb1e2e"
     },
     {
       "path": "scripts/check-tree-proofs.py",
-      "sha256": "b008b801068f8c34dfeb18874bae9c888e36b63943c4bc4bdf2fd56dd7350f16"
+      "sha256": "0bcd3ac9a8b1a0128c52e1084f556a5d585a6e2718f97fcdef0a6c4c6eb3ec89"
     },
     {
       "path": "scripts/ledger_rejections.py",
-      "sha256": "34a131e5a07adfd900dc4917f2002fbfd637e805e6e20da4de93c7819dcd35a5"
+      "sha256": "4e87d79b01db2251f5480ed629efa988a281c1954b802e568e761b86c0aaa79d"
     },
     {
       "path": "scripts/vm_failures.py",

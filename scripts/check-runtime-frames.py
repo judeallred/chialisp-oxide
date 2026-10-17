@@ -13,6 +13,8 @@ The byte-ordering extension first pins the full reviewed17-fixture report,
 excluding only independently freshness-checked Cargo authoring metadata.
 Rue issues112 and113 first pin the complete reviewed18-fixture report while
 allowing only their two exact patch-provenance URLs and checked authoring data.
+The hashing extension preserves those18 observations while appending only the
+two reviewed fixtures and normalizing one exact facade source transition.
 """
 import argparse
 import copy
@@ -24,6 +26,7 @@ import subprocess
 import tempfile
 
 from vm_failures import check_execution
+from runtime_hash_migration import controls as hashing_controls, preserve as hashing_preservation
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = "6f1e197ef6647683f4c3d7dd171c5e7e4317b01c"
@@ -284,7 +287,7 @@ def check(report, baseline, migration=None):
             "report": {"path": REPORT_PATH, "sha256": REPORT_SHA256, "git_blob_sha1": REPORT_BLOB}}, "Changed historical provenance")
     require(baseline["schema_version"] == 1 and baseline["max_cost"] == MAX_COST
             and baseline["optimization_pipeline"] == readable["PREVIOUS_PIPELINE"], "Changed baseline contract")
-    compatible = bitwise_patch_preservation(report)
+    compatible = bitwise_patch_preservation(hashing_preservation(report))
     previous = byte_ordering_preservation(compatible, baseline["corpus"]["slugs"])
     retained = owned_preservation(previous, baseline, migration)
     require(corpus_counts(retained) == baseline["corpus"], "Original corpus order, coverage or ledger counts changed")
@@ -595,7 +598,8 @@ def self_test(report, baseline):
     migration = load_migration(MIGRATION_PATH.read_bytes())
     # Validate this projection once, then exercise the older boundaries using
     # their actual accepted17-fixture input, not an invalid18-fixture report.
-    previous = byte_ordering_preservation(bitwise_patch_preservation(report), migration["preserved_slugs"])
+    hashing_previous = hashing_preservation(report)
+    previous = byte_ordering_preservation(bitwise_patch_preservation(hashing_previous), migration["preserved_slugs"])
     owned_preservation(previous, baseline, migration)
     # Exercise the preservation boundary directly as well as the full source
     # freshness gate. Coherently edited source+hash pairs must still be rejected
@@ -668,7 +672,8 @@ def self_test(report, baseline):
         try: load_equality_migration(json.dumps(bad, indent=2).encode() + b"\n")
         except ValueError: controls += 1; continue
         raise ValueError(f"Altered byte-equality migration passed: {mutation}")
-    return controls + ordering_controls(report, baseline) + bitwise_patch_controls(report)
+    return (controls + ordering_controls(hashing_previous, baseline)
+            + bitwise_patch_controls(hashing_previous) + hashing_controls(report))
 
 
 def main():

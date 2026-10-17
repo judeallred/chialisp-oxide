@@ -240,7 +240,8 @@ def outcome(value):
 
 
 def check_replays(rows, desired):
-    require(len(rows) == 2 and {row["optimize"] for row in rows} == {False, True}, "Missing tree replay optimization mode")
+    require(len(rows) == 2 and all(type(row["optimize"]) is bool for row in rows)
+            and {row["optimize"] for row in rows} == {False, True}, "Missing/invalid tree replay optimization mode")
     require(all(outcome(row["outcome"]) == desired for row in rows), "Tree VM witness outcome differs from independently specified result")
 
 
@@ -563,6 +564,17 @@ def validate(report):
 
 
 class ProofControls(unittest.TestCase):
+    def test_replay_modes_require_actual_booleans(self):
+        original = [{"optimize": optimize, "outcome": {"status": "accepted", "output_hex": "01", "cost": 1}}
+                    for optimize in (False, True)]
+        desired = {"status": "accepted", "output_hex": "01"}
+        check_replays(original, desired)
+        for value in (0, 1, 0.0, 1.0):
+            rows = copy.deepcopy(original)
+            next(row for row in rows if row["optimize"] is bool(value))["optimize"] = value
+            with self.subTest(numeric=value), self.assertRaises(ValueError):
+                check_replays(rows, desired)
+
     def test_stale_false_proof_and_missing_mutation_claims_fail_closed(self):
         original = load_json(OUTPUT)
         validate(original)

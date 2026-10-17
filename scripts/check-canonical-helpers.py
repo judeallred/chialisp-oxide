@@ -342,12 +342,16 @@ def validate(report, reader=read_source):
     manifests = sources(reader)
     require(report.get("vm_failure_protocol") == PROTOCOL, "Missing typed VM failure protocol")
     helpers = [p["slug"] for p in report["puzzles"] if p["provenance"]["classification"] == "canonical_helper_port"]
-    expected_helpers = set(PROFILES) | {"insertion-sort-by-keys"}
+    expected_helpers = set(PROFILES) | {"insertion-sort-by-keys", "sha256tree"}
     require(set(helpers) == expected_helpers and len(helpers) == len(expected_helpers), "Unknown/missing/duplicate published helper evidence")
     # This helper comes from a different repository and has its own macro and
     # relation contract. Run its independent profile rather than quietly skipping
     # a newly classified canonical adapter in this aggregate gate.
     runpy.run_path(str(ROOT / "scripts/check-insertion-sort.py"))["validate"](report, reader=reader)
+    # The SHA helper and launcher have a separate exact-byte relation and source
+    # closure. Register the helper here and enforce that independent contract,
+    # including the launcher evidence, rather than merely allowing its slug.
+    runpy.run_path(str(ROOT / "scripts/check-hashing-puzzles.py"))["validate"](report, reader=reader)
     results = []
     for slug, profile in PROFILES.items():
         manifest = manifests[slug]
@@ -463,6 +467,19 @@ def self_test(report=None):
         require(generated_tree_fits_host_budget(codec["parse"](row["solution"])), "Generated atom input exceeds host comparison budget")
     if report is not None:
         validate(report)
+        for mutation in ("missing_sha_helper", "false_sha_output"):
+            bad = copy.deepcopy(report)
+            if mutation == "missing_sha_helper":
+                bad["puzzles"] = [p for p in bad["puzzles"] if p["slug"] != "sha256tree"]
+            else:
+                puzzle = next(p for p in bad["puzzles"] if p["slug"] == "sha256tree")
+                puzzle["cases"][0]["native"] = {"status": "accepted", "output_hex": "00" * 32}
+            try:
+                validate(bad)
+            except (ValueError, KeyError):
+                controls += 1
+                continue
+            raise ValueError(f"Hash-helper aggregate contract was skipped: {mutation}")
         for slug in PROFILES:
             for mutation in ("missing_case", "native", "vm", "missing_failure", "resource", "unknown", "ledger", "identity", "scope", "coverage", "reference_mode", "abi", "mode_order"):
                 bad = copy.deepcopy(report)

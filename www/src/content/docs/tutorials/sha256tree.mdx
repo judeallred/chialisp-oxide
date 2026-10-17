@@ -1,0 +1,145 @@
+---
+title: Hash exact bytes and trees
+description: Understand Chia tree-hash commitments, implement the published helper in ordinary Rust, and compare independent Chialisp and Rue.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles, backendLabel, format } from '../../../lib/data';
+
+export const hashPuzzle = puzzles.find(puzzle => puzzle.slug === 'sha256tree');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+A coin commits to its puzzle through a tree hash. The commitment must preserve
+the difference between an atom and a pair, the order of pair children, and
+every byte inside each atom. Padding and non-UTF8 bytes are data.
+
+The [published `sha256tree` helper](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib#L4-L10)
+implements two rules:
+
+```text
+atom: SHA256(0x01 || atom payload)
+pair: SHA256(0x02 || first child's 32-byte hash || rest child's 32-byte hash)
+```
+
+The one-byte tags give atoms and pairs different domains. A pair's two child
+hashes each have exactly 32 bytes, so their boundary is fixed. These rules hash
+the decoded tree; hashing its serialized CLVM bytes with ordinary SHA-256 would
+compute a different commitment.
+
+## Follow the same algorithm in three languages
+
+<SourceComparison slug="sha256tree" />
+
+The Rust source names the wire tags `ATOM_DOMAIN` and `PAIR_DOMAIN`. Pattern
+matching distinguishes atoms from pairs, ordinary recursion computes child
+digests, and local arrays own those digest bytes. Borrowing the arrays for the
+last hash call does not require allocation or an integer conversion.
+
+The original seven-line helper is embedded verbatim in the visible Chialisp
+module adapter. Its input is the complete environment, not a one-element
+argument list. Rue is independently authored and compiled from its own source.
+This ports one published helper, without claiming completion of its enclosing
+library or a published standalone module hash.
+
+## Hash payloads without inventing an encoding
+
+The facade also offers ordinary Rust byte hashing:
+
+```rust
+use chialisp_oxide::{sha256, sha256_parts};
+
+let digest = sha256(b"abc");
+let same_digest = sha256_parts(b"a", b"b", b"c");
+assert_eq!(digest, same_digest);
+```
+
+The multipart function hashes exact concatenation. It adds no length prefixes
+or separators: `("a", "bc", "")` and `("ab", "", "c")` produce the same
+digest. Use a specified encoding or fixed-width fields when part boundaries
+matter. A function call's argument boundaries are not a cryptographic encoding.
+
+Keep these distinctions visible:
+
+- `()` is an empty atom; `0x00` has one byte; `0x0000` has two. Their tree hashes
+  differ. None is decoded as an integer first.
+- `(1 . 2)` and `(2 . 1)` have different ordered child commitments.
+- A tree containing `(8)` is data. Hashing it does not execute a raise program.
+- A digest is always a 32-byte array. A leading zero must survive; it cannot be
+  dropped as numeric padding.
+
+This is the ordinary recursive helper built from SHA opcode 11. It does not
+require activation of the separate flag-gated `sha256tree` opcode 63.
+
+## Inspect what was measured
+
+The [laboratory page](/chialisp-oxide/lab/sha256tree/) records
+{hashPuzzle?.cases.length} named and {format(hashPuzzle?.generated_cases ?? 0)}
+generated inputs. These include improper trees, byte padding, program-shaped
+data, SHA block boundaries, left and right spines, and a leading-zero digest.
+The supporting JSON download retains 275 additional inputs. The remaining
+2,059 come from the shared raw-tree generator; the replay checker independently
+reconstructs and executes that complete suite too.
+
+<table>
+  <caption>Recorded serialized program sizes</caption>
+  <thead><tr><th scope="col">Build</th><th scope="col">Program bytes</th></tr></thead>
+  <tbody>{hashPuzzle?.artifacts.map(artifact => <tr><th scope="row">{backendLabel(artifact.backend)} / {artifact.backend === 'chialisp' ? 'reference' : artifact.optimize_lir ? 'on' : 'off'}</th><td>{format(artifact.bytes)}</td></tr>)}</tbody>
+</table>
+
+Native Rust, both compiled Rust modes, independent Chialisp and both Rue modes
+are checked separately. An additional checker derives expected bytes with
+Python's hash implementation and replays retained artifacts. Native known
+answers and OpenSSL checks challenge the SDK's hash kernel independently.
+RustCrypto is also used inside the pinned VM, so RustCrypto/VM agreement alone
+would not provide two independent crypto implementations.
+
+## Validation and cost
+
+The ordinary comparison uses the same
+{format(hashPuzzle?.validation_max_cost ?? 1_000_000)} cost ceiling per input
+for all five builds. Every named and generated input must finish conclusively
+and match the independent digest. This budget is comparison metadata; it adds
+no depth guard or policy restriction to the compiled helper.
+
+The [lower-budget controls](/chialisp-oxide/lab/sha256tree/#resource-controls)
+also run five deep inputs with a one-million cost ceiling, using the same
+retained artifacts. Chialisp and Rue complete within that budget. Unoptimized
+Rust exhausts it on all five; optimized Rust exhausts it on three. These typed
+`inconclusive / cost_exceeded` results stay separate from ordinary coverage.
+All five return the independently expected digest with enough budget. The
+largest observed Rust costs are about 2.15 million without optimization and
+1.15 million with optimization. This exposes a current compilation cost gap;
+equivalent outputs do not imply equal cost or efficiency.
+
+Native input depth, allocation and work bounds are host testing limits.
+Exceeding them is inconclusive; they are not extra rejection rules in the
+compiled helper. VM resource failures are also inconclusive.
+
+The current [formal models](/chialisp-oxide/verification/formal/) reject SHA,
+including dead or unused hash expressions. They assume neither collision
+resistance nor injectivity. Finite test vectors do not prove SHA-256, compiler
+preservation, constant-time execution or a coin policy's security. The
+[compiler trust guide](/chialisp-oxide/reference/hashing/) explains how a real
+Rust implementation is matched to the VM primitive.
+
+## Reproduce and challenge it
+
+Follow the [Cargo setup](/chialisp-oxide/start/quickstart/) first; the crates are
+unpublished. Then run:
+
+```sh
+cargo build --workspace --locked
+./scripts/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide --test hashing --locked
+cargo test -p chialisp-oxide-ir --test sha256 --locked
+cargo test -p chialisp-oxide-verifier --test sha256_models --locked
+python3 scripts/check-hashing-puzzles.py --self-test --replay
+```
+
+Change a domain tag, reverse the pair children, insert a zero byte, or remove a
+leading digest byte. Each alters a different part of the wire contract. The
+[singleton launcher lesson](/chialisp-oxide/tutorials/singleton-launcher/)
+uses tree hashing to commit to a set of launch fields and distinguishes VM
+output from consensus-valid spending.

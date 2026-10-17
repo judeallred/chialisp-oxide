@@ -20,3 +20,6 @@ pub use tree::*;
 mod owned_tree;
 #[cfg(feature = "alloc")]
 pub use owned_tree::*;
+
+mod hashing;
+pub use hashing::{sha256, sha256_parts};

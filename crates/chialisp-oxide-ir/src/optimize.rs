@@ -180,6 +180,7 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
         | Expr::Call { .. }
         | Expr::Let { .. }
         | Expr::Local { .. }
+        | Expr::Sha256 { .. }
         | Expr::Unit
         | Expr::Reject { .. }) => (expr, 0),
     }

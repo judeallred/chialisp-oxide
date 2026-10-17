@@ -8,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
+mod batch;
 fn driver_path() -> Result<PathBuf> {
     Ok(std::env::var_os("CHIALISP_OXIDE_DRIVER")
         .map(PathBuf::from)
@@ -139,6 +140,21 @@ fn main() -> Result<()> {
                 std::process::exit(2);
             }
         }
+        "run-batch" => {
+            let program = args.get(1).context(
+                "usage: chialisp-oxide run-batch PROGRAM.clvm.hex --solutions INPUTS.json",
+            )?;
+            let solutions = option(&args, "--solutions")?.context("--solutions required")?;
+            let max_cost = option(&args, "--max-cost")?
+                .map(|value| value.parse())
+                .transpose()?
+                .unwrap_or(chialisp_oxide_backend_experiment::MAX_COST);
+            let output = batch::run(Path::new(program), Path::new(&solutions), max_cost)?;
+            use std::io::Write;
+            let mut stdout = std::io::stdout().lock();
+            stdout.write_all(&output)?;
+            stdout.write_all(b"\n")?;
+        }
         "validate" => {
             let path = PathBuf::from(
                 option(&args, "--output")?.unwrap_or_else(|| "corpus/validation.json".into()),
@@ -207,6 +223,6 @@ fn main() -> Result<()> {
 }
 fn usage() {
     println!(
-        "chialisp-oxide build SOURCE.rs --output PREFIX [--no-optimize]\noxide run PROGRAM.clvm.hex --solution '(...)' [--max-cost N]\noxide validate --output corpus/validation.json\noxide native SLUG --solution '(...)'"
+        "chialisp-oxide build SOURCE.rs --output PREFIX [--no-optimize]\nchialisp-oxide run PROGRAM.clvm.hex --solution '(...)' [--max-cost N]\nchialisp-oxide run-batch PROGRAM.clvm.hex --solutions INPUTS.json [--max-cost N]\nchialisp-oxide validate --output corpus/validation.json\nchialisp-oxide native SLUG --solution '(...)'"
     );
 }

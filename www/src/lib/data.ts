@@ -17,6 +17,21 @@ export interface LedgerScenario {
   scope: 'ledger';
   rejections: { stage: 'consensus'; code: string }[];
 }
+export interface CaseReport {
+  label: string;
+  solution: string;
+  native: Outcome;
+  runs: {
+    backend: string;
+    optimize_lir: boolean;
+    execution: {
+      outcome: Outcome;
+      cost: number | null;
+      error: string | null;
+      failure?: { kind: string; code: string };
+    };
+  }[];
+}
 export interface PuzzleReport {
   slug: string;
   title: string;
@@ -25,12 +40,16 @@ export interface PuzzleReport {
   provenance: { classification: string; references: string[]; example_id?: string };
   environment?: 'ignored' | 'raw';
   reference_mode?: 'expression';
+  reference_includes?: Record<string, string>;
+  native_sources?: { path: string; sha256: string }[];
+  validation_max_cost?: number;
+  resource_controls?: { max_cost: number; cases: CaseReport[] };
   source: string;
   source_dependencies: { path: string; sha256: string; source: string }[];
   reference: string;
   rue: { path: string; sha256: string; source: string; dependencies: { path: string; sha256: string; source: string }[] };
   artifacts: Artifact[];
-  cases: { label: string; solution: string; native: Outcome; runs: { backend: string; optimize_lir: boolean; execution: { outcome: Outcome; cost: number | null; error: string | null } }[] }[];
+  cases: CaseReport[];
   generated_cases: number;
   simulator: LedgerScenario[];
   simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: LedgerScenario[] }[];
@@ -93,6 +112,11 @@ const helperContracts: Record<string, { source: string; adapter: string; generat
     source: 'The strict wrapper passes exactly two input trees to insertion_sort_by_keys: the existing sequence and insertions.',
     adapter: 'a strict two-argument module adapter: it preserves key comparisons and permissive base cases.',
     generated: 'over byte keys, duplicate keys, untouched payload trees and malformed sequences',
+  },
+  'sha256tree': {
+    source: 'The raw wrapper passes the entire environment as the single sha256tree argument.',
+    adapter: 'a raw module adapter: it hashes the complete environment as one tree without numeric or list decoding.',
+    generated: 'over exact atom payloads, arbitrary proper and improper trees, padding and hash-block boundaries',
   },
 };
 export function helperContract(puzzle: PuzzleReport) {

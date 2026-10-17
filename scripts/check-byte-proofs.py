@@ -15,6 +15,7 @@ import subprocess
 import tempfile
 import tomllib
 import unittest
+from unittest.mock import patch
 
 from byte_proof_evidence import (
     ROOT, DIRECTORY, SPECIFICATION, SOURCE, ENTRY, CONTROL_IDS, POSITIVE, SCOPE,
@@ -58,7 +59,8 @@ def write_json(path, value):
 
 def builds(program):
     rows = json.loads(run([VERIFIER, program, "--artifacts"]))
-    require(len(rows) == 2 and [row["optimize"] for row in rows] == [False, True], "Missing actual IR build mode")
+    require(len(rows) == 2 and all(type(row["optimize"]) is bool for row in rows)
+            and [row["optimize"] for row in rows] == [False, True], "Missing/invalid actual IR build mode")
     return rows
 
 
@@ -288,7 +290,8 @@ def validate_model(row, original, corpus):
         desired = expected(witness)
         require(replay["expected_original"] == desired and check_native_outcome(replay["original"]["native"]) == desired, "Wrong native/original witness outcome")
         runs = replay["original"]["runs"]
-        require([(r["backend"], r["optimize_lir"]) for r in runs] == [(a["backend"], a["optimize_lir"]) for a in corpus["artifacts"]]
+        require(all(type(r["optimize_lir"]) is bool for r in runs)
+                and [(r["backend"], r["optimize_lir"]) for r in runs] == [(a["backend"], a["optimize_lir"]) for a in corpus["artifacts"]]
                 and all(check_execution(r["execution"]) == desired for r in runs), "Incomplete or false five-mode witness replay")
         wanted = replay["expected_modeled"]
         if name in CONTROL_IDS:
@@ -322,6 +325,33 @@ def portable(report):
 
 class ByteProofControls(unittest.TestCase):
     report_path = OUTPUT
+
+    def test_ir_build_modes_reject_numeric_boolean_substitutes(self):
+        original = load_json(self.report_path)["models"][0]["artifacts"]
+        for artifact in original:
+            check_artifact(artifact)
+        with patch.dict(builds.__globals__, {"run": lambda _: json.dumps(original)}):
+            self.assertEqual(builds(Path("unused.ir.json")), original)
+        for value in (0, 1, 0.0, 1.0):
+            rows = copy.deepcopy(original)
+            next(row for row in rows if row["optimize"] is bool(value))["optimize"] = value
+            with self.subTest(numeric=value), patch.dict(builds.__globals__, {"run": lambda _: json.dumps(rows)}), self.assertRaises(ValueError):
+                builds(Path("unused.ir.json"))
+
+    def test_original_witness_modes_require_actual_boolean_wire_types(self):
+        # Isolate the model validator from top-level input freshness; that is
+        # checked separately. These real retained models run no compiler or VM.
+        model = load_json(self.report_path)["models"][1]
+        original = load_json(ROOT / DIRECTORY / "original.ir.json")
+        corpus = next(row for row in load_json(ROOT / "corpus/validation.json")["puzzles"] if row["slug"] == "atom-not-equal")
+        validate_model(model, original, corpus)
+        for index, row in enumerate(model["replays"][0]["original"]["runs"]):
+            for numeric in (int, float):
+                changed = copy.deepcopy(model)
+                changed["replays"][0]["original"]["runs"][index]["optimize_lir"] = numeric(row["optimize_lir"])
+                self.assertEqual(changed, model)  # Numeric equality must not authorize a JSON mode.
+                with self.subTest(mode=index, numeric=numeric.__name__), self.assertRaisesRegex(ValueError, "five-mode witness replay"):
+                    validate_model(changed, original, corpus)
 
     def test_current_record_and_report_corruptions(self):
         original = load_json(self.report_path)
@@ -422,7 +452,7 @@ def main():
             result = unittest.TextTestRunner().run(unittest.defaultTestLoader.loadTestsFromTestCase(ByteProofControls))
             if not result.wasSuccessful():
                 raise ValueError("Byte proof corruption controls failed")
-            print("PASS:37 evidence/source/mode corruption controls; solver-version-only comparison control")
+            print("PASS:51 evidence/source/mode corruption controls; solver-version-only comparison control")
         elif args.compare:
             left, right = load_json(args.output), load_json(args.compare)
             validate(left)

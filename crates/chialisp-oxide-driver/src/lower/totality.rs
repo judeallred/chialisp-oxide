@@ -26,7 +26,7 @@ impl<'tcx> Lowerer<'tcx> {
             // Accepted borrows only copy immutable tree/byte values. Their
             // source place has already been evaluated and type checked.
             Rvalue::Ref(_, rustc_middle::mir::BorrowKind::Shared, _) => true,
-            // Lowering permits this coercion only for a literal byte array.
+            // Lowering validates immutable &[u8; N] -> &[u8], N <= 256.
             Rvalue::Cast(
                 rustc_middle::mir::CastKind::PointerCoercion(
                     ty::adjustment::PointerCoercion::Unsize,
@@ -106,6 +106,20 @@ impl<'tcx> Lowerer<'tcx> {
                     destination,
                     ..
                 } => {
+                    // A recognized hash is deliberately NON-total: its runtime
+                    // operation/arguments must survive unused-result lowering.
+                    if self
+                        .hash_primitive(
+                            body,
+                            func,
+                            args,
+                            *destination,
+                            block.terminator().source_info.span,
+                        )
+                        .is_ok_and(|hash| hash)
+                    {
+                        return false;
+                    }
                     self.byte_comparison(
                         body,
                         func,

@@ -59,7 +59,10 @@ This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 code generation, runtime layouts, linking, or a CLVM SDK. See the
 [authoring research and backend rationale](docs/rust-authoring-research.md).
 General cross-crate Rust libraries remain outside the supported subset; the
-initial external calls are restricted to vetted concrete SDK helpers.
+external calls are restricted to vetted concrete SDK helpers and one reviewed
+native SHA-256 implementation. The hash bridge checks the actual signature,
+complete typed-MIR closure and pinned target/profile fingerprint; names alone
+do not authorize it. See [hashing and its trust boundary](docs/hashing.md).
 
 ## Build and validate the Cargo corpus
 
@@ -91,22 +94,44 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Eighteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
+The current [corpus report](corpus/validation.json) records twenty
+Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
 plus three canonical closed expressions from the pinned Chialisp Intro and the
-exact canonical `p2_conditions` program factory, plus pinned `last_inner`,
-`prefix`, byte `!=`, and insertion-sort-by-key helpers through visible module adapters. The
+exact canonical `p2_conditions` program factory, pinned `last_inner`,
+`prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
+module adapters, and the singleton launcher module. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-282 explicit vectors and 14,088 generated integer/tree/byte cases against five CLVM
-builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty-one
-complete-spend scenarios run separately in all three languages (93 ledger scenario runs). Only the eight condition-producing
-teaching fixtures have ledger scenarios; pure language results and program
+341 explicit vectors and 18,481 generated integer/tree/byte cases against five CLVM
+builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
+complete-spend scenario groups run separately in all three languages (120 ledger
+scenario runs). The eight condition-producing teaching fixtures and the singleton
+launcher have ledger scenarios; pure language results and program
 factories are not direct spends. Factory validation separately executes the
 returned program on four environments for every successful named compiler run.
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
+
+The `sha256tree` helper uses an explicit ten-million VM-cost comparison budget
+in all five builds; other examples retain one million. Its five deep-input
+controls also produce 25 separate observations at one million, including typed
+cost exhaustion. These controls do not add passing cases or policy rejections
+to the totals above. The preservation gate retains the preceding eighteen
+ports' exact artifacts and observations and passes 149 migration controls.
+
+Local macOS verification passes 418 workspace tests and all-target Clippy with
+warnings denied. The hash evidence gate passes 158 corruption controls and
+22,285 executions of the retained hash-port artifacts. The source-derived proof,
+error-study, Lean and documentation gates are checked separately; these finite
+checks do not establish compiler preservation or production readiness.
+
+The launcher's pinned source, include, license, commit/tree membership and
+published artifact are recorded separately. Independent Chialisp reproduces
+the canonical 175-byte module and its tree hash; optimized Rust emits 1,116 bytes
+with a different hash. Matching outputs and ledger results do not establish
+module identity or a completed singleton lifecycle.
 
 ```sh
 cargo build --workspace --locked
@@ -123,6 +148,7 @@ python3 scripts/check-byte-proofs.py --output corpus/byte-proofs.json
 python3 scripts/check-canonical-factories.py --self-test
 python3 scripts/check-canonical-helpers.py --self-test
 python3 scripts/check-runtime-frames.py --replay --self-test
+python3 scripts/check-hashing-puzzles.py --self-test --replay
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently
@@ -167,9 +193,18 @@ bundles; a signer preflight error cannot count as ledger rejection.
 ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
 Borrowed raw-tree construction/matching, opt-in owned pair construction, recursive
-direct calls, and explicit whole-environment exports are implemented; arbitrary-precision integers, hashing and crypto,
-currying, and runtime program evaluation remain compiler work; primitive Rust
+direct calls, explicit whole-environment exports, and reviewed SHA-256
+calls are implemented. Arbitrary-precision integers, other cryptographic
+operators, currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
+The [hashing guide](docs/hashing.md) explains exact byte concatenation, tree-hash
+domain tags, strict once-only operands, profile restrictions and native identity
+checks. Immutable `&[u8; N]` to `&[u8]` coercions are supported for `N <= 256`,
+including local digest arrays; that fixed-array limit does not narrow atom input
+payloads. Mutable references and general pointer casts remain unsupported.
+This does not admit arbitrary RustCrypto libraries or ordinary source loops.
+All current proof models reject SHA, including unused or dead occurrences;
+native vectors and finite VM tests are not cryptographic or preservation proofs.
 The [runtime-call implementation](docs/runtime-calls.md) lowers checked Rust
 self/mutual and non-tail recursion through finite compiler-owned function tables
 and strict lexical bindings in version-4 IR. Tests distinguish rejection from
@@ -241,9 +276,10 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 The compiler supports restricted single-field transparent newtypes, allowing
 nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
-and enums outside the restricted borrowed `Tree` shape, loops,
-allocation, arbitrary external calls, general references, casts,
-division/remainder, and other unsupported MIR remain rejected.
+and enums outside the restricted `Tree`/`OwnedTree` shapes, general loops,
+allocation beyond restricted owned-tree construction, arbitrary external calls,
+general references and casts, division/remainder, and other unsupported MIR
+remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. A separate
 [example inventory](corpus/tutorial-examples.json) snapshots 12 concrete tutorial

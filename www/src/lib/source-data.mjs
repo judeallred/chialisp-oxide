@@ -9,6 +9,9 @@ const definitions = [
   { slug: 'prefix-list', path: 'puzzles/prefix-list/generated-cases.json', basename: 'prefix-list-generated-cases.json' },
   { slug: 'atom-not-equal', path: 'puzzles/atom-not-equal/generated-cases.json', basename: 'atom-not-equal-generated-cases.json' },
   { slug: 'insertion-sort-by-keys', path: 'puzzles/insertion-sort-by-keys/generated-cases.json', basename: 'insertion-sort-by-keys-generated-cases.json' },
+  // The raw ABI also executes 2,048 shared trees, ten widths and one spine.
+  // This download is the additional 275-row file, not that algorithmic suite.
+  { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', inheritedRows: 2059 },
 ];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -51,7 +54,7 @@ export function sourceDataArtifacts(report) {
     if (Buffer.from(dependency.source, 'utf8').toString('utf8') !== dependency.source) throw new Error('Source-data must round-trip exact UTF-8.');
     if (digest(dependency.source) !== dependency.sha256) throw new Error('Recorded source-data SHA-256 mismatch.');
     const rows = JSON.parse(dependency.source);
-    if (!Array.isArray(rows) || rows.length === 0 || owners[0].generated_cases !== rows.length) {
+    if (!Array.isArray(rows) || rows.length === 0 || owners[0].generated_cases !== rows.length + (definition.inheritedRows ?? 0)) {
       throw new Error('Source-data row count must match the generated-input record.');
     }
     return checked({ ...definition, sha256: dependency.sha256, bytes, rows: rows.length });

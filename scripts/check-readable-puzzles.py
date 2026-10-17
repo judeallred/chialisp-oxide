@@ -125,7 +125,12 @@ def check_report(report, *, require_typed_failures=True):
                 check_execution(execution, f"{label} {mode}", require_typed=require_typed_failures)
                 require(execution["outcome"] == case["native"], f"{label} {mode}: native/VM mismatch")
             cases += 1
+        for control in puzzle.get("resource_controls", {}).get("cases", []):
+            modes(control["runs"], f"{slug} resource control")
+        if "module_identity" in puzzle:
+            modes(puzzle["module_identity"]["comparisons"], f"{slug} module identity")
         for factory in puzzle.get("factory_checks", []):
+            modes([factory], f"{slug} produced-program check")
             for run in factory["application_runs"]:
                 check_execution(run["execution"], f"{slug} factory application", require_typed=require_typed_failures)
         for scenario in puzzle["simulator"]:
@@ -136,8 +141,8 @@ def check_report(report, *, require_typed_failures=True):
             if puzzle["kind"] in ("pure_function", "program_factory"):
                 require(not comparisons and not puzzle["simulator"], f"{slug}: non-spend function claims ledger evidence")
             else:
-                require({(item["backend"], item["optimize_lir"]) for item in comparisons}
-                        == {("chialisp", True), ("rue_source", True)} and len(comparisons) == 2,
+                require(modes(comparisons, f"{slug} ledger comparisons").keys()
+                        == {("chialisp", True), ("rue_source", True)},
                         f"{slug}: missing Chialisp/Rue ledger comparisons")
                 require(all(item["scenarios"] == puzzle["simulator"] for item in comparisons),
                         f"{slug}: ledger scenario results differ across languages")
@@ -438,6 +443,29 @@ class ComparisonTests(unittest.TestCase):
                     "failure": {"kind": "program", "code": "raise"}}} for backend, optimize in builds]}],
             "simulator": [],
         }]}
+        check_report(current)
+        for value in (0, 1, 0.0, 1.0):
+            for field in ("artifacts", "runs", "factory", "identity", "resource", "validated"):
+                corrupted = copy.deepcopy(current)
+                puzzle = corrupted["puzzles"][0]
+                if field == "validated":
+                    puzzle["validated"] = value
+                else:
+                    modes_to_change = {"artifacts": puzzle["artifacts"], "runs": puzzle["cases"][0]["runs"]}
+                    if field in ("artifacts", "runs"):
+                        rows = modes_to_change[field]
+                    elif field == "factory":
+                        rows = puzzle["factory_checks"] = [{"backend": "rust_mir", "optimize_lir": bool(value), "application_runs": []}]
+                    elif field == "identity":
+                        rows = [{"backend": "rust_mir", "optimize_lir": bool(value)}]
+                        puzzle["module_identity"] = {"comparisons": rows}
+                    else:
+                        rows = [{"backend": "rust_mir", "optimize_lir": bool(value)}]
+                        puzzle["resource_controls"] = {"cases": [{"runs": rows}]}
+                    row = next(row for row in rows if row["optimize_lir"] is bool(value))
+                    row["optimize_lir"] = value
+                with self.subTest(field=field, numeric=value), self.assertRaises(ValueError):
+                    check_report(corrupted)
         baseline = copy.deepcopy(current)
         del baseline["vm_failure_protocol"]
         del baseline["simulator"]["rejection_protocol"]
@@ -483,6 +511,12 @@ class ComparisonTests(unittest.TestCase):
                 else: record["rejections"][0]["code"] = mutation
                 with self.subTest(comparison=comparison, ledger_mutation=mutation), self.assertRaises(ValueError):
                     comparison_projection(baseline, corrupted, comparison)
+        for index in range(2):
+            for value in (0, 1, 0.0, 1.0):
+                corrupted = copy.deepcopy(current)
+                corrupted["puzzles"][0]["simulator_comparisons"][index]["optimize_lir"] = value
+                with self.subTest(ledger_mode=index, numeric=value), self.assertRaises(ValueError):
+                    check_report(corrupted)
         # Typed baselines retain their code distinction in exact comparisons.
         changed = copy.deepcopy(current)
         changed["puzzles"][0]["cases"][0]["runs"][0]["execution"]["failure"]["code"] = "path_into_atom"
@@ -599,7 +633,7 @@ class ComparisonTests(unittest.TestCase):
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
                      "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
                      "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
-                     "crates/chialisp-oxide/src/owned_tree.rs",
+                     "crates/chialisp-oxide/src/owned_tree.rs", "crates/chialisp-oxide/src/hashing.rs",
                      "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:
                 target = root / path
