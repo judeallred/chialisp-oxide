@@ -1,4 +1,4 @@
-use chialisp_oxide_ir::{Environment, Expr, Parameter, Program, Type};
+use chialisp_oxide_ir::{BinaryOp, Environment, Expr, Parameter, Program, Type};
 use chialisp_oxide_verifier::{
     Obligation, Predicate, ReplayFailure, ReplayOutcome, SolverConfig, Specification, TreeShape,
     TreeSpecification, TreeTerm, TreeValue, TreeVerification, TreeWitness, emit, emit_tree,
@@ -530,4 +530,142 @@ fn witness_limits_count_total_atom_bytes_before_rendering_or_allocation() {
             .to_string()
             .contains("total byte limit")
     );
+}
+
+fn atom_bytes(tree: Expr) -> Expr {
+    Expr::TreeAtomValue {
+        value: Box::new(tree),
+    }
+}
+fn byte_comparison(kind: BinaryOp, left: Expr, right: Expr) -> Expr {
+    Expr::Binary {
+        kind,
+        ty: Type::Atom,
+        left: Box::new(left),
+        right: Box::new(right),
+    }
+}
+
+#[test]
+fn symbolic_byte_equality_preserves_identity_and_refutes_numeric_normalization() {
+    let specification = TreeSpecification {
+        acceptance: TreeShape::Atom,
+        output: TreeTerm::Input,
+    };
+    let byte_literal = |hex: &str| Expr::Atom { hex: hex.into() };
+    for kind in [BinaryOp::Eq, BinaryOp::Ne] {
+        // Replacing the input with a literal only when its complete bytes are
+        // equal must preserve identity for every atom, not just numeric values.
+        let (yes, no) = if kind == BinaryOp::Eq {
+            (atom("00"), arg())
+        } else {
+            (arg(), atom("00"))
+        };
+        let p = program(Expr::If {
+            condition: Box::new(byte_comparison(kind, atom_bytes(arg()), byte_literal("00"))),
+            then_value: Box::new(yes),
+            else_value: Box::new(no),
+        });
+        let queries = emit_tree(&p, &specification).unwrap();
+        assert!(queries.atom_counterexample.contains("(Seq (_ BitVec 8))"));
+        assert!(matches!(
+            verify_tree(&p, &specification, &SolverConfig::default()).unwrap(),
+            TreeVerification::Proven { .. }
+        ));
+        for payload in ["", "00", "0000", "01", "0001", "ff", "0080"] {
+            compare_vm(&p, value(payload), Some(value(payload)));
+        }
+        compare_vm(&p, pair(value("00"), value("")), None);
+
+        let mut wrong_comparison = p.clone();
+        let Expr::If { condition, .. } = &mut wrong_comparison.body else {
+            unreachable!()
+        };
+        let Expr::Binary { right, .. } = condition.as_mut() else {
+            unreachable!()
+        };
+        **right = byte_literal("0000");
+        let TreeVerification::Refuted { cases } =
+            verify_tree(&wrong_comparison, &specification, &SolverConfig::default()).unwrap()
+        else {
+            panic!("00 and 0000 cannot be interchangeable atom values")
+        };
+        let witness = cases[0].counterexample.clone().unwrap();
+        assert_eq!(witness.environment.serialized_hex().unwrap(), "820000");
+        compare_vm(&p, witness.environment.clone(), Some(value("0000")));
+        compare_vm(&wrong_comparison, witness.environment, Some(value("00")));
+    }
+    let scalar = program(Expr::If {
+        condition: Box::new(byte_comparison(
+            BinaryOp::Eq,
+            byte_literal(""),
+            byte_literal("00"),
+        )),
+        then_value: Box::new(atom("01")),
+        else_value: Box::new(atom("02")),
+    });
+    let scalar_spec = Specification {
+        assumptions: Predicate::default(),
+        obligation: Obligation::OnSuccess {
+            property: Predicate::default(),
+        },
+    };
+    assert!(emit(&scalar, &scalar_spec).is_err());
+}
+
+#[test]
+fn actual_guard_rewrite_and_eq_ne_complement_use_byte_sequence_semantics() {
+    let first = || Expr::TreeFirst {
+        value: Box::new(arg()),
+    };
+    let rest = || Expr::TreeRest {
+        value: Box::new(arg()),
+    };
+    let choose = |kind| Expr::If {
+        condition: Box::new(byte_comparison(
+            kind,
+            atom_bytes(first()),
+            atom_bytes(rest()),
+        )),
+        then_value: Box::new(quote(arg(), if kind == BinaryOp::Eq { "aa" } else { "bb" })),
+        else_value: Box::new(quote(arg(), if kind == BinaryOp::Eq { "bb" } else { "aa" })),
+    };
+    let before = program(Expr::If {
+        condition: Box::new(Expr::TreeIsPair {
+            value: Box::new(arg()),
+        }),
+        then_value: Box::new(choose(BinaryOp::Eq)),
+        else_value: Box::new(reject()),
+    });
+    let after = chialisp_oxide_ir::optimize(&before).unwrap();
+    assert_ne!(
+        serde_json::to_value(&before.body).unwrap(),
+        serde_json::to_value(&after.body).unwrap()
+    );
+    assert!(matches!(
+        verify_tree_equivalence(&before, &after, &SolverConfig::default()).unwrap(),
+        TreeVerification::Proven { .. }
+    ));
+    let complement = program(choose(BinaryOp::Ne));
+    assert!(matches!(
+        verify_tree_equivalence(&after, &complement, &SolverConfig::default()).unwrap(),
+        TreeVerification::Proven { .. }
+    ));
+    for left in ["", "00", "0000", "01", "0001", "ff"] {
+        for right in ["", "00", "0000", "01", "0001", "ff"] {
+            let environment = pair(value(left), value(right));
+            let wanted = pair(
+                value(if left == right { "aa" } else { "bb" }),
+                environment.clone(),
+            );
+            for p in [&before, &after, &complement] {
+                compare_vm(p, environment.clone(), Some(wanted.clone()));
+            }
+        }
+    }
+    for environment in [value(""), pair(pair(value(""), value("")), value("00"))] {
+        for p in [&before, &after, &complement] {
+            compare_vm(p, environment.clone(), None);
+        }
+    }
 }

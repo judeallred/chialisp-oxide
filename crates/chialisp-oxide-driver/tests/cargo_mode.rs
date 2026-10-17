@@ -479,7 +479,7 @@ fn wrapper_rejects_a_different_compiler_before_loading_its_crates() {
     let output = Command::new(env!("CARGO_BIN_EXE_chialisp-oxide-driver"))
         .arg("--cargo-wrapper")
         .arg(compiler)
-        .args(["--target", "fake-target", "--crate-name", "fixture"])
+        .args(["--target", &fixture.host(), "--crate-name", "fixture"])
         .output()
         .unwrap();
     assert!(!output.status.success());

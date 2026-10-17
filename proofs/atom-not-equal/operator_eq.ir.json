@@ -1,0 +1,35 @@
+{
+  "name": "chialisp_oxide_byte_proofs::operator_eq::puzzle",
+  "parameters": [
+    {
+      "name": "left",
+      "ty": {
+        "kind": "atom"
+      }
+    },
+    {
+      "name": "right",
+      "ty": {
+        "kind": "atom"
+      }
+    }
+  ],
+  "result": {
+    "kind": "bool"
+  },
+  "body": {
+    "op": "binary",
+    "kind": "eq",
+    "left": {
+      "op": "arg",
+      "index": 0
+    },
+    "right": {
+      "op": "arg",
+      "index": 1
+    },
+    "ty": {
+      "kind": "atom"
+    }
+  }
+}

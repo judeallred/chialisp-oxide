@@ -19,6 +19,8 @@ pub const RUE_LOCAL_PATCHES: &[&str] = &[
     "https://github.com/xch-dev/rue/issues/109",
     "https://github.com/xch-dev/rue/issues/110",
     "https://github.com/xch-dev/rue/issues/111",
+    "https://github.com/xch-dev/rue/issues/112",
+    "https://github.com/xch-dev/rue/issues/113",
 ];
 
 pub fn fixture(name: &str) -> PathBuf {

@@ -1,0 +1,147 @@
+---
+title: Prefix a list onto an arbitrary tail
+description: Build owned Rust tree outputs with ordinary moves and Box, preserve a published helper's tree semantics, and separate Lean algorithm proofs from compiler evidence.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import RuntimeVersions from '../../../components/RuntimeVersions.astro';
+import { puzzles, backendLabel, format } from '../../../lib/data';
+
+export const prefixMeasurements = puzzles.filter(puzzle => puzzle.slug === 'prefix-list').flatMap(puzzle => puzzle.artifacts.map(artifact => ({ artifact, cost: puzzle.cases.find(example => example.solution === '((1 2 3) ())')?.runs.find(run => run.backend === artifact.backend && run.optimize_lir === artifact.optimize_lir)?.execution.cost ?? null })));
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+The [last-element lesson](/chialisp-oxide/tutorials/last-list-element/) returns
+an existing borrowed subtree. Prefixing a list needs newly constructed pair
+nodes. Here ordinary Rust ownership lets the function build that output and
+move its final tail into place.
+
+The source helper is `prefix` from
+[`Chia-Network/chia-gaming`, `clsp/std/last.clinc`, lines 1–6](https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L1-L6).
+The six original lines and Apache-2.0 license are pinned. The displayed Chialisp
+module adds an explicit strict two-argument adapter around that helper. This
+ports one helper under a visible ABI contract; it makes no claim about a
+published standalone module hash or completion of the surrounding library.
+
+## Read the actual three sources
+
+<SourceComparison slug="prefix-list" />
+
+`OwnedTree<'a>` has an atom containing borrowed immutable bytes, or a pair of
+two standard `Box<OwnedTree<'a>>` children. The facade exposes it through the
+opt-in Cargo feature `alloc`. The corpus library already enables that feature.
+For another Cargo consumer, add `features = ["alloc"]` to the reviewed path or
+pinned Git SDK dependency from the [Cargo quickstart](/chialisp-oxide/start/quickstart/).
+The default facade remains usable without enabling heap support.
+
+The annotation uses the default strict ABI: the environment must be exactly
+`(L P)`. Each argument is an unrestricted tree. This is not the one-parameter
+whole-environment raw ABI used by the borrowed tree lessons.
+
+## Follow the ownership
+
+The nil arm returns `tail` by value. It does not require that tail to be a list.
+The pair arm moves the first child box unchanged, moves the rest out of its box,
+recursively prefixes that rest, then boxes the returned tree to form the next
+pair. The first child can itself be any tree. The improper-atom arm rejects.
+
+Rustc checks these moves and borrows before CLVM extraction. Using a moved value
+again or returning a reference into a local box is a Rust error. There is no
+compiler-specific allocation syntax, leaked reference, or extra borrowed-node
+variant whose tag disappears during compilation.
+
+Rust errors such as `E0382` and `E0505` prevent source-level move and borrow
+misuse. They do not make owned nodes linear coins: CLVM trees are immutable,
+duplicating tree data is legal, and Rust can explicitly construct duplicated
+logical data too. These ownership checks do not establish coin conservation,
+spend authorization, or the absence of security bugs.
+
+```text
+strict environment                 returned tree
+(() ())                            ()
+(() 0x0001)                        0x0001
+((10 20) ())                       (10 20)
+((10 20) 30)                       (10 20 . 30)
+((0x00) 0x0000)                    (0x00 . 0x0000)
+(((2 1)) (0xff . 0x0001))          ((2 1) 0xff . 0x0001)
+((10 . 0x00) ())                   reject: improper L
+(() () . 0x00)                     reject: improper outer ABI
+(() () 99)                         reject: extra argument
+```
+
+Only the empty atom is nil. `0x00` and padded `0x0000` are nonempty atoms, so
+they cannot terminate `L` or the outer argument list. Those same atoms are valid
+elements and final tails. Their complete bytes remain unchanged. Program-shaped
+elements such as `(2 1)` remain data; prefixing does not apply them as code.
+
+## Inspect the measured output
+
+The following values come directly from the validation report for
+`((1 2 3) ())`, whose expected result is `(1 2 3)`.
+
+<table>
+  <caption>Serialized program size and finite VM execution cost</caption>
+  <thead><tr><th scope="col">Build</th><th scope="col">Program bytes</th><th scope="col">VM cost</th></tr></thead>
+  <tbody>{prefixMeasurements.map(({ artifact, cost }) => <tr><th scope="row">{backendLabel(artifact.backend)} / {artifact.backend === 'chialisp' ? 'reference' : artifact.optimize_lir ? 'on' : 'off'}</th><td>{format(artifact.bytes)}</td><td>{cost === null ? 'not recorded' : format(cost)}</td></tr>)}</tbody>
+</table>
+
+These costs apply to this input, not to every possible list or to transaction
+admission. The [laboratory page](/chialisp-oxide/lab/prefix-list/) retains the
+full sources, serialized artifacts, tree hashes, named failures, generated
+inputs, and byte comparisons. Different program hashes remain different
+commitments even when tested values agree.
+
+<RuntimeVersions />
+
+The compiler interprets only the validated standard-Box tree operations.
+Constructor arguments and unused initializers still execute in source order.
+Custom destructors, allocator parameters or visible global allocator overrides,
+pointer identity, leaks, raw-pointer conversion, and `mem::forget` are outside
+the accepted subset. This does not enable general allocating collections or
+arbitrary standard-library calls.
+
+This example returns a tree value. It has no condition-list, authorization,
+conservation, or ledger-spend claim.
+
+## Reproduce and challenge it
+
+```sh
+cargo build --workspace --locked
+./scripts/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-driver --test owned_trees --locked
+cargo test -p chialisp-oxide-corpus --lib native_owned --locked
+python3 scripts/check-canonical-helpers.py
+python3 scripts/check-canonical-helpers.py --self-test
+```
+
+Select `chialisp_oxide_puzzles::prefix_list::puzzle` from the generated bundle
+using the [execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
+Try both proper and improper `L` values, padded atoms, nested first children,
+arbitrary tails, malformed environments, and extra arguments. Compare optimized
+and unoptimized outputs as well as the independent Chialisp and Rue builds.
+
+The native oracle checks the complete environment before allocating owned pair
+nodes, including deep first children and the combined argument budgets. It
+also checks that prefixing will not produce an output beyond its host depth
+bound. These errors abort the comparison as inconclusive; they do not count
+as puzzle rejection or add a depth assertion to the compiled policy. Output
+encoding consumes nodes iteratively even when an allocation or output-bound
+error occurs. Native Rust and CLVM retain different resource limits.
+
+## Read the Lean theorem's boundary
+
+The [finite-tree model](https://github.com/judeallred/chialisp-oxide/blob/main/experiments/tree-theorems/TreeTheorems.lean)
+defines the direct recursive prefix algorithm separately from a specification
+that decodes `L` as a proper list and folds those elements onto `P`. Kernel
+induction proves agreement for all finite model trees, failure exactly when
+`L` is improper, and preservation of the complete arbitrary `P` at the prefix
+boundary. Separate theorems cover `last_inner` against `List.getLast?` and an
+explicit strict two-argument decoder.
+
+These are manually authored algorithm models. They are not extracted from Rust
+or CLVM and do not prove Box cleanup erasure, rustc/MIR translation, backend
+preservation, affordable execution, or a coin protocol's security. The existing
+SMT models still reject every runtime IR program. Finite model/execution
+comparisons are an additional check, not the missing preservation proof. See
+[verification scope](/chialisp-oxide/verification/method/).

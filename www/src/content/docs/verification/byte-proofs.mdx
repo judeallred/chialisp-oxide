@@ -1,0 +1,218 @@
+---
+title: Prove a byte policy in its IR model
+description: Trace an actual Cargo export into a whole-environment byte specification, inspect source and ABI counterexamples, and replay the retained compiled programs.
+---
+
+import ByteProofEvidence from '../../../components/ByteProofEvidence.astro';
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+The [byte-inequality lesson](/chialisp-oxide/tutorials/atom-not-equal/) compares
+complete atom contents using ordinary Rust `left != right`. This guide adds an
+independently written specification for both the accepted environment and the
+Boolean result. The checked program is the actual annotated Cargo export,
+rather than a separately authored ideal IR expression.
+
+The result is an **IR-model proof with finite compiled-program replays**. It is
+not an end-to-end theorem about checked Rust, the compiler, CLVM or a coin
+protocol. That boundary matters even when the solver finds no counterexample.
+
+## Inspect the recorded evidence
+
+<ByteProofEvidence />
+
+## Specify the entire input contract
+
+The accepted environment is exactly a proper two-element list `(A B)`, where
+both elements are atoms. Nil is the empty atom. A nonempty zero byte is valid
+operand data, but it cannot terminate the outer argument list.
+
+```text
+environment              specified result
+(() ())                  false: serialized output 80
+(() 0x00)                true:  serialized output 01
+(0x00 0x0000)            true:  serialized output 01
+(0x01 0x0001)            true:  serialized output 01
+((1 . 2) (1 . 2))        program rejection
+(1 1 . 0x00)            program rejection
+(1 1 99)                program rejection
+```
+
+`80` in this table is the serialization of the empty false atom. It is not an
+atom containing byte `0x80`. Equal byte values produce a successful false result;
+they do not reject the environment.
+
+The specification names raw environment paths: first argument, second argument
+and final tail. It checks their shapes and compares the complete byte sequences.
+It does not infer acceptance from `Program.parameters`. That separation lets the
+same fixed specification expose a mutated program whose decoder admits too much
+or too little.
+
+The source translator separately models the strict ABI. For this export, it
+requires both pair links, both atom operands and the exact empty final tail.
+The general structural Boolean API also models fixed byte lengths and canonical
+Boolean arguments. It rejects unsupported integer/tuple signatures, ignored
+environments, unsupported expressions even in dead branches, and every runtime
+function table or binding.
+
+## Interpret the solver obligations
+
+The symbolic environment ranges over arbitrary finite atom/pair trees. Atoms are
+sequences of 8-bit values, so empty bytes, `00`, `0000`, invalid UTF-8 and other
+padding remain distinct. No integer or text normalization is introduced.
+
+The mismatch query asks whether either acceptance differs, or both sides accept
+and their encoded Boolean outputs differ. An unsatisfiable mismatch query gives
+the reported model proof. A satisfying query supplies a concrete environment.
+Unknown, timeout, malformed solver output and unsupported model operations fail
+closed.
+
+Nonvacuity has separate checks. The modeled ABI must have an input, the
+independent specification must accept an input, and this helper must have both
+a specified true and a specified false result. These witness queries do not
+require the program body to succeed. An implementation returning a constant or
+rejecting accepted inputs therefore cannot manufacture a proof by making its
+own success domain empty.
+
+Datatype selectors on a wrong constructor are
+[underspecified in Z3](https://microsoft.github.io/z3guide/docs/theories/Datatypes/).
+The translator carries explicit path and atom-operation definedness. Negating an
+undefined predicate cannot turn it into acceptance. An undefined expected output
+on a specified accepted input is a counterexample. Specification `All` and `Any`
+require every child to be defined; they are not source-language short-circuit
+operators. See Z3's [sequence theory](https://microsoft.github.io/z3guide/docs/theories/Sequences/)
+for the underlying byte-sequence operations.
+
+Stable candidate environments make witness records reproducible where a seed
+satisfies the query. The checker first solves the original unbounded obligation,
+then asks the solver to confirm a candidate. A seed neither bounds that original
+query nor replaces its SAT/UNSAT result.
+
+## Let the checker disagree with valid Rust
+
+Replacing `!=` with `==`, comparing `left` with itself, or returning a constant
+are ordinary Rust programs. They retain the correct argument types and can pass
+Rust's compiler. The extra specification check refutes these policy changes and
+replays the distinguishing input through their actual native and compiled Cargo
+exports.
+
+The self-comparison fixture explicitly carries
+`#[allow(unused_variables, clippy::eq_op)]`. Default Clippy may catch that obvious
+mistake. The fixture allows the expected lint so the SMT counterexample can be
+exercised too; this checker is not the only tool capable of finding it. The
+recorded patch and linked full source retain these attributes. Operator inversion
+and constant policies likewise remain valid Rust, while violating the stated
+contract.
+
+Swapping the operands of `!=` is deliberately a positive control: the result
+should remain equivalent. Its source and native replays are retained alongside
+the negative controls. This helps distinguish finding a changed source file
+from detecting a changed policy.
+
+The two ABI experiments are **synthetic IR controls**. One reads two atom heads
+from the raw environment without requiring the final tail to be nil. The other
+coherently changes both parameter types and the comparison type to fixed
+two-byte values. Neither is presented as extracted Rust source. Removing only
+redundant atom guards would not establish a useful negative control here:
+CLVM's equality operation also rejects pair operands.
+
+These cases belong beside the
+[executable error study](/chialisp-oxide/verification/error-study/), but they are
+not new examples of errors Rust makes impossible. Rust checks the program you
+wrote; it does not infer the intended byte policy.
+
+## Reproduce in stages
+
+Start with normal Rust checking and the additional Cargo extraction:
+
+```sh
+cargo test --locked -p chialisp-oxide-puzzles
+./scripts/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+Build the local tools and run the generic model/replay regressions:
+
+```sh
+cargo build --workspace --locked
+cargo test --locked -p chialisp-oxide-verifier --test structural_boolean
+```
+
+After an intentional policy or declared-input change, refresh the paired corpus
+before recording its proof evidence:
+
+```sh
+./scripts/chialisp-oxide validate --output corpus/validation.json
+```
+
+Run the complete source-derived proof gate with Z3 installed:
+
+```sh
+python3 scripts/check-byte-proofs.py --output corpus/byte-proofs.json
+```
+
+It builds the workspace before executing tools, extracts the original and
+source-control libraries into fresh Cargo bundles, checks bundle identities,
+emits the model queries, solves them, and executes the retained witness replays.
+Keep builds and extraction sequential, as the script does.
+
+After that run, inspect or replay the retained original IR directly:
+
+```sh
+./target/debug/chialisp-oxide-verifier \
+  proofs/atom-not-equal/original.ir.json --structural-boolean \
+  proofs/atom-not-equal/specification.json --emit-json
+```
+
+To replay a witness, copy its complete `witness` object from the JSON report into
+a local file, then use the generic execution command:
+
+```sh
+./target/debug/chialisp-oxide-verifier \
+  proofs/atom-not-equal/original.ir.json --structural-boolean-replay witness.json
+```
+
+The site uses the read-only evidence check:
+
+```sh
+python3 scripts/check-byte-proofs.py --check
+```
+
+The evidence checker also provides corruption controls:
+
+```sh
+python3 scripts/check-byte-proofs.py --self-test
+```
+
+Freshness validates recorded sources, source-control patches, specification,
+IR/query/artifact hashes and replay consistency. It does not rerun Rust, Z3 or
+the VM, prove that an arbitrary fabricated record came from a real run, or
+independently validate the installed tool binaries. Compiler CI performs the
+executed checks; publication must be gated on that exact commit.
+
+## Keep the trust boundary visible
+
+The theorem covers the extracted expression under the mathematical model,
+including its modeled decoder. It does not verify the rustc-to-IR bridge,
+the special handling of standard byte-slice equality, the actual ABI decoder,
+the SMT translator, Rue's optimizer or the final CLVM code for all inputs.
+The installed pinned rustc and standard library remain trusted. The
+[toolchain trust notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/toolchain-trust.md)
+explain why checked local compiler identities and source hashes are not a
+reproducible compiler-binary attestation. The [compiler trust guide](/chialisp-oxide/reference/compiler-trust/)
+describes the enforced configuration and actual loaded-library checks.
+
+The finite replay layer checks the selected model witnesses against actual
+native Rust and serialized VM programs. It runs both internal compilation/replay
+and separate CLI execution of each retained modeled program file. The two paths
+must agree on the successful output and cost, or on the typed rejection code;
+the linked files are therefore executed evidence rather than labels attached
+to a separate compilation. Resource and infrastructure failures
+are inconclusive. Successful Boolean replays must return exactly serialized
+`80` or `01`, not an arbitrary truthy atom.
+
+This pure helper emits no spend conditions and establishes no authorization,
+conservation, constant-time behavior, ledger admission or absence of security
+breaches. Earlier hand-authored byte-equality IR tests remain separate from this
+actual Cargo extraction and its recorded source controls. Continue with the
+[other formal checks](/chialisp-oxide/verification/formal/) and the
+[supported Rust boundary](/chialisp-oxide/reference/supported-rust/).

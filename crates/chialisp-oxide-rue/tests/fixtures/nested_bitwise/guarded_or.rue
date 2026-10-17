@@ -1,0 +1,8 @@
+fn main(...value: Any) -> Int {
+    assert value is Int;
+    spin() | (value | 1)
+}
+
+fn spin() -> Int {
+    spin()
+}

@@ -5,6 +5,7 @@ description: Inspect source-derived IR obligations, solver witnesses, and replay
 
 import FormalEvidence from '../../../components/FormalEvidence.astro';
 import StructuralEvidence from '../../../components/StructuralEvidence.astro';
+import AlgorithmEvidence from '../../../components/AlgorithmEvidence.astro';
 
 The formal companion works on typed scalar expressions in the actual
 source-derived IR. Independently written specifications describe the intended
@@ -86,10 +87,11 @@ source-derived IR, independent specification, SMT queries, and replay evidence.
 This is an IR-model proof, not a theorem about all compiled Rust. Recursive
 data in this model is separate from the frontend's
 [recursive Rust call support](/chialisp-oxide/tutorials/recursive-trees/).
-Both current models reject all version-4 runtime programs, including unused
+All current SMT model APIs reject all version-4 runtime programs, including unused
 functions and runtime nodes in dead branches. Finite VM replay does not prove
 termination; resource failures abort replay rather than count as rejection.
-Runtime allocation and general program evaluation remain unsupported. The scalar verifier rejects
+Restricted owned pair construction is available in the frontend, while general
+allocation and program evaluation remain unsupported. The scalar verifier rejects
 tree expressions, including expressions in unchosen branches, instead of
 silently interpreting them under integer semantics.
 
@@ -115,7 +117,8 @@ produces 13 bytes without Rue optimization and 9 with it. Optimized Rust,
 independently compiled Chialisp, and optimized Rue therefore reproduce the
 published bytes and tree hash. This identity is measured from compiled artifacts;
 it is not inferred from the SMT result. Rust optimization enables the typed-IR
-pass followed by Rue LIR optimization; Rust's unoptimized mode enables neither.
+guard pass, runtime frame elision, then Rue LIR optimization. The frame stage
+has no effect on this runtime-free factory; unoptimized mode skips all three.
 
 The negative control is deliberately unsafe: a pair-only guard around a
 constant result has no required projection. Removing it would accept atoms.
@@ -133,15 +136,100 @@ passes, or source-to-CLVM compilation. Cost and diagnostic strings can change;
 the equivalence relation covers modeled rejection and successful output only.
 It does not turn a resource-limited inconclusive execution into model evidence.
 
+## Integer masks and strict Boolean operations
+
+The scalar IR model also handles fixed-width `&`, `|` and `^`. Such programs
+use bitvector input symbols with exact signed/unsigned integer interpretations.
+Every value in each declared integer type has one input word; this adds no
+axiom or sampling restriction. Operations preserve typed word representations,
+while checked arithmetic remains mathematical and converts exactly at a later
+bitwise use. Frontend
+integer `!` uses XOR with the width maximum for unsigned values or -1 for signed
+values. Boolean `&`/`|`/`^` keep both operand success conditions; their strict
+execution differs from `&&` and `||`.
+
+Independent identity specifications and deliberately wrong masks exercise the
+model across supported widths. Mixed arithmetic and domain-extrema controls
+check the representation boundary; unknown or timed-out queries still produce
+no proof. Counterexamples are replayed in the VM with
+optimization off and on. Separate actual Cargo frontend and IR execution tests
+check native results, input encoding and failure order. These test suites are
+not additions to the published inequality policy's eight retained models.
+
+```sh
+cargo test --locked -p chialisp-oxide-verifier --test bitwise
+```
+
+No claim here establishes Rust/MIR/IR/CLVM preservation, hashing support or a
+cryptographic theorem. Read [bit masks and evaluation order](/chialisp-oxide/reference/supported-rust/#bit-masks-and-evaluation-order)
+for the source behavior and remaining policy obligations.
+
+## A whole-environment byte policy
+
+The [byte-policy proof guide](/chialisp-oxide/verification/byte-proofs/) starts
+from the actual annotated Cargo `atom-not-equal` export. Its independent
+specification accepts exactly a proper two-atom argument list and returns
+canonical Boolean inequality. Atoms are sequences of 8-bit values: nil,
+nonempty zero bytes, padding and invalid UTF-8 are distinct. Acceptance is
+specified over the entire environment, including its exact empty final tail.
+
+Eight models cover the original, five actual Cargo source controls and two
+explicitly synthetic ABI edits. Operator inversion, self-comparison and two
+constant policies are refuted; operand reversal is a positive equivalence
+control. The synthetic controls widen the environment or narrow operand
+lengths. Separate ABI/acceptance/true/false nonvacuity obligations prevent
+vacuous conclusions. Stable witnesses are checked by the solver after solving
+the unbounded queries, rather than replacing those queries with a finite set.
+
+Both optimization modes of each model are retained and selected witnesses
+execute their exact serialized programs. Original-policy witnesses also run
+through all five original Chialisp/Rust/Rue builds; native replays invoke the
+actual Cargo exports. The [report](/chialisp-oxide/reports/byte-proofs.json),
+IR, specification and SMT obligations are linked from the guide. This is an
+IR-model result plus finite execution evidence, distinct from the earlier
+hand-authored byte-IR regressions. It establishes neither compiler preservation
+nor complete Chialisp/library parity.
+
 ## Remaining trust boundaries
 
 The scalar checks assume successfully decoded canonical typed values. The
-structural checks instead model whole raw trees. Neither establishes the ABI
-decoder, rustc MIR extraction, SMT translation, Rue optimizer, or CLVM lowering.
-Byte semantics are outside the scalar model.
+structural checks model whole trees, and the byte-policy model explicitly
+models its strict decoder. Modeling a decoder does not prove its emitted
+implementation. None establishes rustc MIR extraction, SMT translation,
+primitive bridging, Rue optimization or CLVM lowering. Byte semantics remain
+outside the scalar model. The installed pinned compiler and matching
+unmodified standard library are trusted. Target configuration and actual loaded
+primitive-owner locations must use that installation, without authenticating
+its bytes. See [compiler trust](/chialisp-oxide/reference/compiler-trust/) and the
+[toolchain trust notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/toolchain-trust.md).
 The counter is not a condition-producing puzzle, and its proof does not
 establish spend-bundle validity or economic security.
 
-Lean remains an option for future semantics and compiler-preservation work.
-The implemented formal mechanism here is SMT/model checking with Z3; the
-repository does not claim a completed Lean proof of the compiler.
+## Separate Lean algorithm theorems
+
+The recursive [prefix adapter](/chialisp-oxide/tutorials/prefix-list/) and
+[last-element adapter](/chialisp-oxide/tutorials/last-list-element/) have a
+separate manually authored Lean model. Its theorems concern all finite trees
+under that model, while the bridge to actual compiled programs covers only the
+recorded inputs. Neither layer proves Rust/MIR/IR/CLVM preservation.
+
+<AlgorithmEvidence />
+
+With the pinned Lean 4.35.0 toolchain on `PATH`, reproduce the full check:
+
+```sh
+python3 experiments/tree-theorems/check-model.py --self-test --replay-vm \
+  --output experiments/tree-theorems/results.json
+```
+
+The site uses a separate command that requires no Lean installation:
+
+```sh
+python3 experiments/tree-theorems/check-model.py --check-recorded --self-test
+```
+
+This second command checks freshness, recorded theorem names/axioms, source and
+artifact hashes, bridge coverage and the scope of the record. It does not rerun
+the kernel or the VM. Compiler CI performs the real kernel checks and replays.
+The IR-derived SMT obligations and manual Lean algorithm theorems remain
+distinct; the repository does not claim a completed Lean proof of the compiler.

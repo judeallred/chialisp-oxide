@@ -431,8 +431,9 @@ impl Validator<'_> {
                 return self.infer(then_value, parameters, locals, depth + 1);
             }
             Expr::Not { value } => {
+                let operand = self.infer(value, parameters, locals, depth + 1)?;
                 ensure!(
-                    self.infer(value, parameters, locals, depth + 1)? == Some(Type::Bool),
+                    operand.is_none() || operand == Some(Type::Bool),
                     "not requires bool"
                 );
                 Type::Bool
@@ -464,23 +465,38 @@ impl Validator<'_> {
                 let l = self.infer(left, parameters, locals, depth + 1)?;
                 let r = self.infer(right, parameters, locals, depth + 1)?;
                 ensure!(
-                    l.as_ref() == Some(ty) && l == r,
+                    l.as_ref().is_none_or(|left| left == ty)
+                        && r.as_ref().is_none_or(|right| right == ty),
                     "binary operand type mismatch"
                 );
+                // The explicit operand type also ascribes a rejecting child,
+                // which has no returned value. Still inspect both children and
+                // validate the operation/type below, even when both reject.
                 match kind {
                     BinaryOp::Eq | BinaryOp::Ne => {
                         ensure!(
-                            matches!(ty, Type::Int { .. } | Type::Bool | Type::Bytes { .. }),
+                            matches!(
+                                ty,
+                                Type::Int { .. } | Type::Bool | Type::Bytes { .. } | Type::Atom
+                            ),
                             "equality requires scalar"
                         );
                         Type::Bool
                     }
                     BinaryOp::Lt | BinaryOp::Le | BinaryOp::Gt | BinaryOp::Ge => {
-                        bounds(ty)?;
+                        if !matches!(ty, Type::Atom | Type::Bytes { .. }) {
+                            bounds(ty)?;
+                        }
                         Type::Bool
                     }
                     BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul => {
                         bounds(ty)?;
+                        self.budget.clone_type(ty)?
+                    }
+                    BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor => {
+                        if *ty != Type::Bool {
+                            bounds(ty)?;
+                        }
                         self.budget.clone_type(ty)?
                     }
                     _ => bail!("operation {kind:?} has no validated lowering yet"),

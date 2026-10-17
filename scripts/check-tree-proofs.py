@@ -91,6 +91,8 @@ def implementation_sources():
                     "crates/chialisp-oxide-reference", "crates/chialisp-oxide-corpus", "crates/chialisp-oxide-cli",
                     "crates/cargo-chialisp-oxide", "experiments/backend", "vendor/rue-lir"]:
         paths.add(f"{package}/Cargo.toml")
+        if (ROOT / package / "build.rs").is_file():
+            paths.add(f"{package}/build.rs")
         paths.update(str(path.relative_to(ROOT)) for path in (ROOT / package / "src").rglob("*.rs"))
     return [{"path": path, "sha256": sha(contained_file(ROOT, path))} for path in sorted(paths)]
 

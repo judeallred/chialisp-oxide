@@ -1,0 +1,12 @@
+[package]
+name = "chialisp-oxide-byte-proofs"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide" }
+
+[[bin]]
+name = "chialisp-oxide-byte-proof-native"
+path = "src/bin/native.rs"

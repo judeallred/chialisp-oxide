@@ -169,7 +169,7 @@ control flow; loops, recursion, closures, generics, and references each need
 separate lowering and cost tests before being advertised as supported.
 
 Reject unsupported constructs with source locations. Initial exclusions include
-unsafe code, raw pointers, mutable aliasing, allocation, trait objects, custom
+unsafe code, user raw pointers, mutable aliasing, general allocation, trait objects, custom
 destructors, async, threads, I/O, floating point, FFI, and unwinding. Inspect the
 reachable dependency graph too; checking only the entrypoint is insufficient.
 Ordinary Rust syntax does not imply that every Rust crate can execute on CLVM.
@@ -226,6 +226,61 @@ protocol that commits to its module hash. Do not rewrite canonical constants to
 make tests pass. Record identity requirements and integration failures openly.
 
 The test corpus provides evidence, not a general proof of compiler correctness.
+
+## Cryptographic primitives and native identity
+
+Hashing remains a significant compiler gap. A sensible initial Rust interface is
+`sha256(data: &[u8]) -> [u8; 32]` with genuine native hashing for ordinary tests.
+[RustCrypto SHA2](https://docs.rs/sha2/0.10.9/sha2/) is already in our dependency
+graph and supports `no_std`, but its algorithm uses mutable buffers, loops,
+wrapping arithmetic, rotations, generic dependencies and architecture
+dispatch that the frontend does not currently lower. Supporting a dependency's
+native build does not establish support for its on-chain calls.
+
+The next bridge must have an explicit trust contract. Function spelling,
+package name/version, a user-provided marker, or a native source path cannot
+attest that a Rust function implements SHA256. A replacement SDK or patched
+transitive dependency must not be given hashing behavior merely because its
+function has the expected signature. Existing SDK helpers continue to lower
+their actual supported MIR bodies; primitive bitwise operators also lower from
+actual built-in MIR operations.
+
+Two routes remain open:
+
+- Expand general Rust semantics until the reviewed algorithm itself lowers.
+  Integer masks are implemented; loops, mutable indexed storage, wrapping
+  arithmetic, rotations, endian conversion and broader generic calls remain.
+- Introduce a closed registry for a reviewed native primitive implementation.
+  Admission must bind the resolved function and exact signature to an
+  independently recorded canonical typed-MIR fingerprint of its complete
+  reachable implementation closure: resolved calls, constants/statics, types,
+  target/cfg/features, compiler version and trusted standard-library leaves.
+  Fingerprints cannot be regenerated from the caller's current code and then
+  treated as authorization. An alternative is a compiler-owned installed
+  native artifact with a verified digest and actual loaded-artifact identity;
+  Cargo package names and source paths alone are insufficient. Either choice
+  adds an explicit trusted compiler component and needs packaging and
+  adversarial replacement tests before source admission.
+
+A first implementation must hash exact atom payloads, return exactly 32 bytes,
+evaluate its operand once, and keep failures, lazy branches and resource limits
+observable. Test published vectors, SHA padding boundaries, nil versus padded
+zeros, non-UTF8, large atoms, and mutations in native kernels, dependencies and
+cfg selection. Do not assume collision resistance, injectivity or cryptographic
+security in the current SMT models. A wrapper around a precompiled CLVM blob
+or dummy native function would not satisfy this boundary.
+
+The pinned published
+[`sha256tree` helper](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib)
+is a useful next witness after primitive hashing and byte-part composition:
+atom hashes use `SHA256(01 || atom_bytes)`, and pair hashes use
+`SHA256(02 || hash(first) || hash(rest))`. It accepts improper trees and preserves
+padding. Porting it requires exact source/license provenance, an explicit
+whole-tree adapter and domain-separation mutations. The official
+[password-coin tutorial](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/first-smart-coin.md)
+is a later witness, preserving its insecurity warning; its complete workflow
+also requires currying and spend validation. Neither is implemented by this
+research decision.
 
 ## Deliver the goals in stages
 
@@ -348,10 +403,11 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Fifteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Eighteen Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
-compilation. Rust optimization on runs the typed IR tree-guard pass followed by
-Rue LIR optimization; off runs neither. Rue source uses its LIR off/on switch.
+compilation. Rust optimization on runs the typed IR tree-guard pass, runtime
+frame elision, then Rue LIR optimization; off skips all three stages. Frame
+elision applies only to runtime lowering. Rue source uses its LIR off/on switch.
 The validation report records these pipelines explicitly. Eight coin
 fixtures additionally have 31 ledger scenarios executed for each language
 (93 ledger scenario runs). Ten original teaching examples, including recursive
@@ -359,16 +415,30 @@ raw-tree traversal,
 are separate from three exact canonical Intro expressions; the latter use an
 explicit ignored-environment annotation on parameterless exports and the
 independent compiler's raw-expression stage, without a module wrapper.
-One published `last_inner` helper is tracked separately through an explicit
-module adapter with exact source-span/license provenance. It does not claim a
+The published `last_inner`, owned `prefix`, byte `!=`, and insertion-sort-by-key helpers are tracked separately
+through explicit module adapters with exact source-span/license provenance. These do not claim a
 whole-library port or standalone canonical module identity.
 `corpus/validation.json` contains the evidence; `corpus/proofs.json` records
 source-derived scalar IR-model proofs and attack replay. A separate
 `corpus/tree-proofs.json` checks the canonical `p2_conditions` factory over
-arbitrary finite trees and byte atoms. `www` renders both reports with explicit
-claim boundaries. The imported Rue LIR carries four reproduced fixes, with
-50 upstream/regression tests and reports xch-dev/rue#108–#111; each new report
-includes an independent regression/fix patch.
+arbitrary finite trees and byte atoms. The separate `corpus/byte-proofs.json`
+checks actual Cargo IR for a strict two-atom/Boolean policy against an
+independent whole-environment Seq8 specification. It records eight models:
+the original, five actual source controls and two explicitly synthetic ABI
+controls. Each retains both optimization modes and selected witness replays;
+original-policy witnesses also run through all five language builds. `www`
+renders these reports with explicit claim boundaries. The
+[byte-proof guide](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/)
+keeps the source extraction, modeled decoder, exact retained-byte executions
+and unproved preservation steps distinct. The imported Rue LIR carries six
+reproduced fixes with execution-based regressions and reports xch-dev/rue#108–#113;
+each report includes an independent regression/fix patch. Issue #112 retains
+nested bitwise integer validation before a diverging sibling on malformed
+external inputs; explicitly guarded inputs and the Rust strict ABI are separate
+contracts. Issue #113 preserves canonical Boolean values after double negation:
+for valid integer input `2`, `value != 0` previously returned atom `2` after
+optimization, and `(value != 0) == true` changed from true to false. The fix
+distinguishes returned Boolean bytes from condition-only truthiness.
 
 Restricted one-field transparent wrappers now preserve Rust nominal type checks
 while erasing to the documented inner ABI. The puzzle sources use named
@@ -400,16 +470,44 @@ lexical bindings. Each function is lowered once; arguments evaluate once in
 source order, and callees have isolated scopes. Source-derived tests cover self,
 mutual and non-tail recursion, unused calls, lazy branches and cost-limited
 divergence. Existing acyclic source exports retain their legacy IR path.
-The pair-guard pass preserves runtime programs unchanged, and the current proof
-models explicitly reject runtime IR. Execution is not a termination or
-compiler-preservation proof. Projected field assignments in runtime functions,
-CFG loops, allocating output trees and dynamic application remain unsupported.
+The pair-guard pass preserves runtime programs unchanged. Optimized runtime
+lowering removes redundant operand frames and tail identity bindings while
+preserving strict, once-only evaluation; it does not infer call termination or
+drop unused failures. The current proof models explicitly reject runtime IR.
+Execution is not a termination or
+compiler-preservation proof. Projected field assignments in runtime functions
+remain unsupported. The opt-in [owned-tree subset](owned-trees.md) now supports pair construction
+and by-value recursive list results through actual standard Box identities and
+validated compiler metadata. General allocation, CFG loops and dynamic
+application remain unsupported.
 Empty-slice patterns on accepted borrowed atoms now recognize nil without
 equating it with nonempty zero-byte atoms. The frontend checks the entire
 pinned typed-MIR metadata-test chain; its compiler-generated pointer and `usize`
 intermediates do not become source pointer capabilities or ABI types. The
 `last-list-element` port exercises this distinction across native Rust and
 independently compiled Chialisp/Rue. Its recursive execution is not a model proof.
+
+Primitive byte `==` and `!=` now recognize the actual standard `PartialEq`
+trait members and resolved concrete `u8` slice/array implementations. Signature
+checks happen before logical type erasure; custom impls and mixed slice/array
+calls remain rejected. The published inequality helper has an independent
+strict two-atom adapter, exact-byte generated cases and structural Seq8 tests.
+Primitive byte `<`, `<=`, `>` and `>=` separately resolve actual core
+`PartialOrd` members and their concrete slice/array/reference implementations.
+They lower to unsigned lexicographic `GtBytes`, with reversal/complement as
+appropriate, rather than numeric `Gt`. Strict operand bindings remain in source
+order. This does not enable general trait dispatch or hashing. The published
+insertion-sort helper exercises byte ordering with owned recursive tree outputs;
+the current SMT models still reject these ordered byte nodes and all runtime IR.
+The structural Boolean proof uses the actual Cargo-exported IR, independent
+acceptance/output predicates, ABI/acceptance/true/false nonvacuity and actual
+source-control counterexamples. Earlier hand-authored Seq8 IR regressions
+remain separate. The compiler and matching installed standard library are
+trusted parts of this bridge: language-item identity does not authenticate
+replacement library bytes. Target configuration and actual loaded primitive-owner
+locations now require the pinned installation; see [toolchain trust](toolchain-trust.md).
+Those checks do not authenticate installed bytes. Neither the model result nor finite
+artifact replay establishes compiler preservation.
 
 Remaining work includes richer Rust/SDK types and libraries, canonical tutorial
 and CHIP implementations, hash/curry/list intrinsics, cheaper sharing-preserving
@@ -426,7 +524,8 @@ code can coexist with the restricted exported entries.
 
 Further authoring work includes broader workspace/dependency matrices, generic
 instances, complete build-input provenance, and a separately justified custom
-rustc backend. Charon and Lean remain research experiments. Keep source-level
+rustc backend. Charon remains research; the Lean algorithm models have kernel
+checks and a finite execution bridge, without compiler preservation. Keep source-level
 proofs separate from the implemented IR-model results and claims about emitted
 bytecode. See [Rust authoring research](rust-authoring-research.md) for the
 executed evidence, limits, and remaining acceptance criteria.

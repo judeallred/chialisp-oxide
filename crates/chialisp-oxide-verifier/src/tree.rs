@@ -9,7 +9,7 @@ use crate::{
     status,
 };
 
-const SEQUENCE: &str = "(Seq (_ BitVec 8))";
+pub(crate) const SEQUENCE: &str = "(Seq (_ BitVec 8))";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -69,12 +69,20 @@ pub enum TreeVerification {
     Refuted { cases: Vec<TreeCase> },
 }
 
-enum Value {
+#[derive(Clone)]
+pub(crate) enum Value {
     Tree(String),
     Atom(String),
     Bool(String),
 }
 impl Value {
+    fn unobservable(ty: &Type) -> Result<Self> {
+        Ok(match ty {
+            Type::Bool => Self::Bool("false".into()),
+            Type::Atom | Type::Bytes { .. } => Self::Atom(sequence("")?),
+            _ => bail!("unsupported bottom type in structural model: {ty:?}"),
+        })
+    }
     fn tree(&self) -> Result<&str> {
         if let Self::Tree(value) = self {
             Ok(value)
@@ -89,7 +97,7 @@ impl Value {
             bail!("expected structural byte atom")
         }
     }
-    fn boolean(&self) -> Result<&str> {
+    pub(crate) fn boolean(&self) -> Result<&str> {
         if let Self::Bool(value) = self {
             Ok(value)
         } else {
@@ -109,17 +117,18 @@ impl Value {
         }
     }
 }
-struct Evaluated {
-    success: String,
-    value: Option<Value>,
+pub(crate) struct Evaluated {
+    pub(crate) success: String,
+    pub(crate) value: Option<Value>,
 }
 #[derive(Default)]
-struct Translation {
-    text: String,
+pub(crate) struct Translation {
+    pub(crate) text: String,
+    pub(crate) arguments: Vec<Value>,
     serial: usize,
 }
 
-fn sequence(hex: &str) -> Result<String> {
+pub(crate) fn sequence(hex: &str) -> Result<String> {
     let bytes = decode_hex(hex)?;
     ensure!(
         bytes.len() <= 4096,
@@ -140,7 +149,7 @@ fn sequence(hex: &str) -> Result<String> {
 }
 
 impl Translation {
-    fn define(&mut self, sort: &str, term: &str) -> String {
+    pub(crate) fn define(&mut self, sort: &str, term: &str) -> String {
         let name = format!("tree_v_{}", self.serial);
         self.serial += 1;
         self.text
@@ -159,12 +168,20 @@ impl Translation {
             Value::Bool(_) => Value::Bool(symbol),
         })
     }
-    fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
+    pub(crate) fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
             Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
                 bail!("structural SMT does not model runtime functions or local bindings")
             }
-            Expr::Arg { index: 0 } => ("true".into(), Some(Value::Tree("env".into()))),
+            Expr::Arg { index } => (
+                "true".into(),
+                Some(
+                    self.arguments
+                        .get(*index)
+                        .context("structural argument is not bound")?
+                        .clone(),
+                ),
+            ),
             Expr::Atom { hex } | Expr::Bytes { hex } => {
                 ("true".into(), Some(Value::Atom(sequence(hex)?)))
             }
@@ -239,7 +256,7 @@ impl Translation {
             }
             Expr::Not { value } => {
                 let value = self.expression(value)?;
-                let boolean = value.value.context("diverging structural not")?;
+                let boolean = value.value.unwrap_or(Value::Bool("false".into()));
                 (
                     value.success,
                     Some(Value::Bool(
@@ -276,15 +293,43 @@ impl Translation {
                 )
             }
             Expr::Binary {
-                kind: BinaryOp::Eq | BinaryOp::Ne,
+                kind: kind @ (BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor),
                 left,
                 right,
-                ..
+                ty: Type::Bool,
             } => {
                 let a = self.expression(left)?;
                 let b = self.expression(right)?;
-                let av = a.value.context("diverging structural equality")?;
-                let bv = b.value.context("diverging structural equality")?;
+                let av = a.value.unwrap_or(Value::Bool("false".into()));
+                let bv = b.value.unwrap_or(Value::Bool("false".into()));
+                let op = match kind {
+                    BinaryOp::Bitand => "and",
+                    BinaryOp::Bitor => "or",
+                    BinaryOp::Bitxor => "xor",
+                    _ => unreachable!("matched Boolean bitwise operation"),
+                };
+                let term = format!("({op} {} {})", av.boolean()?, bv.boolean()?);
+                (
+                    format!("(and {} {})", a.success, b.success),
+                    Some(Value::Bool(self.define("Bool", &term))),
+                )
+            }
+            Expr::Binary {
+                kind: BinaryOp::Eq | BinaryOp::Ne,
+                left,
+                right,
+                ty,
+            } => {
+                let a = self.expression(left)?;
+                let b = self.expression(right)?;
+                let av = match a.value {
+                    Some(value) => value,
+                    None => Value::unobservable(ty)?,
+                };
+                let bv = match b.value {
+                    Some(value) => value,
+                    None => Value::unobservable(ty)?,
+                };
                 ensure!(
                     av.sort() == bv.sort() && av.sort() != "Tree",
                     "structural equality only models atom bytes and booleans"
@@ -352,6 +397,7 @@ pub fn emit_tree(program: &Program, specification: &TreeSpecification) -> Result
         "structural checker requires one raw tree parameter and a tree result"
     );
     let mut tr = Translation::default();
+    tr.arguments.push(Value::Tree("env".into()));
     let execution = tr.expression(&program.body)?;
     let value = execution
         .value
@@ -407,6 +453,7 @@ pub fn emit_tree_equivalence(before: &Program, after: &Program) -> Result<TreeQu
         );
     }
     let mut tr = Translation::default();
+    tr.arguments.push(Value::Tree("env".into()));
     let before = tr.expression(&before.body)?;
     let after = tr.expression(&after.body)?;
     let empty = format!("(atom {})", sequence("")?);
@@ -522,7 +569,7 @@ fn witness_term(value: &TreeValue) -> Result<String> {
         }
     })
 }
-fn solve_tree(config: &SolverConfig, query: &str) -> Result<Option<TreeWitness>> {
+pub(crate) fn solve_tree(config: &SolverConfig, query: &str) -> Result<Option<TreeWitness>> {
     let result = run(config, query, &[])?;
     ensure!(
         result.lines().count() == 1,
@@ -535,6 +582,11 @@ fn solve_tree(config: &SolverConfig, query: &str) -> Result<Option<TreeWitness>>
     // arbitrary choice of unconstrained bytes. The general query above remains
     // unbounded; a candidate never replaces its SAT/UNSAT obligation.
     let atom = |hex: &str| TreeValue::Atom { hex: hex.into() };
+    let pair = |first, rest| TreeValue::Pair {
+        first: Box::new(first),
+        rest: Box::new(rest),
+    };
+    let list = |first, second| pair(first, pair(second, atom("")));
     let candidates = [
         atom(""),
         atom("01"),
@@ -546,6 +598,13 @@ fn solve_tree(config: &SolverConfig, query: &str) -> Result<Option<TreeWitness>>
             first: Box::new(atom("00")),
             rest: Box::new(atom("01")),
         },
+        list(atom(""), atom("")),
+        list(atom(""), atom("00")),
+        list(atom("00"), atom("0000")),
+        list(atom("01"), atom("0001")),
+        list(atom("0000"), atom("0000")),
+        pair(atom(""), list(atom(""), atom(""))),
+        pair(atom(""), pair(atom(""), atom("00"))),
     ];
     let mut selected = query.to_owned();
     let prefix = query
@@ -578,14 +637,13 @@ fn solve_tree(config: &SolverConfig, query: &str) -> Result<Option<TreeWitness>>
             .1,
     )?;
     ensure!(values.len() == 1, "unexpected structural model symbols");
+    let value = crate::model_bindings::expand(
+        values
+            .get("env")
+            .context("missing structural environment")?,
+    )?;
     Ok(Some(TreeWitness {
-        environment: model_tree(
-            values
-                .get("env")
-                .context("missing structural environment")?,
-            0,
-            &mut 20_000,
-        )?,
+        environment: model_tree(&value, 0, &mut 20_000)?,
     }))
 }
 

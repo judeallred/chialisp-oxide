@@ -145,6 +145,17 @@ pub fn replay_tree(program: &Program, witness: &TreeWitness, max_cost: u64) -> R
             && program.result == Type::Tree,
         "tree replay requires one raw tree input and a tree result"
     );
+    replay_environment(program, witness, max_cost)
+}
+
+pub(crate) fn replay_environment(
+    program: &Program,
+    witness: &TreeWitness,
+    max_cost: u64,
+) -> Result<Vec<Replay>> {
+    ensure!(max_cost > 0, "tree replay cost limit must be positive");
+    program.validate()?;
+    witness.environment.validate()?;
     let mut results = Vec::new();
     for optimize in [false, true] {
         let bytes = chialisp_oxide_ir::compile(program, optimize)?;

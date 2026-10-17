@@ -201,9 +201,17 @@ checks. [Rust Reference: overflow](https://doc.rust-lang.org/reference/expressio
 
 A wrong well-typed recipient, missing signature, incorrect commitment, missing
 conservation condition or unsafe economic policy can still compile. Transparent
-SDK wrappers add no runtime domain tag or authentication proof. References and
-borrows are not currently part of accepted puzzle code, so native ownership
-checks are not presented as an on-chain ownership API.
+SDK wrappers add no runtime domain tag or authentication proof. The frontend
+now accepts restricted borrowed trees, immutable byte references and owned-tree
+moves. Rust checks that source, but these tests do not prove preservation of
+its ownership guarantees through the complete compiler pipeline.
+
+The [published byte-key insertion helper](/chialisp-oxide/tutorials/insertion-sort-by-keys/)
+provides another concrete policy boundary: Rust compiles it, but the type checker
+does not prove that its existing sequence is sorted. An executed unsorted-input
+counterexample places a new entry before an existing equal-key entry in native
+Rust and all five language builds. Stronger collection invariants need an
+explicitly validated interface and appropriate proofs.
 
 ## Reproduce and inspect
 

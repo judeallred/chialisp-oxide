@@ -1,0 +1,38 @@
+{
+  "name": "synthetic::fixed_length_narrowing",
+  "parameters": [
+    {
+      "name": "left",
+      "ty": {
+        "kind": "bytes",
+        "len": 2
+      }
+    },
+    {
+      "name": "right",
+      "ty": {
+        "kind": "bytes",
+        "len": 2
+      }
+    }
+  ],
+  "result": {
+    "kind": "bool"
+  },
+  "body": {
+    "op": "binary",
+    "kind": "ne",
+    "left": {
+      "op": "arg",
+      "index": 0
+    },
+    "right": {
+      "op": "arg",
+      "index": 1
+    },
+    "ty": {
+      "kind": "bytes",
+      "len": 2
+    }
+  }
+}

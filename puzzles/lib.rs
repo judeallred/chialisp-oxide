@@ -36,3 +36,12 @@ pub mod rightmost_tree;
 
 #[path = "last-list-element/puzzle.rs"]
 pub mod last_list_element;
+
+#[path = "prefix-list/puzzle.rs"]
+pub mod prefix_list;
+
+#[path = "atom-not-equal/puzzle.rs"]
+pub mod atom_not_equal;
+
+#[path = "insertion-sort-by-keys/puzzle.rs"]
+pub mod insertion_sort_by_keys;

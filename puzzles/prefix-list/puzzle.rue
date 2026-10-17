@@ -1,0 +1,16 @@
+// Independent translation of the pinned prefix helper and explicit strict ABI.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    assert environment.rest is (Any, Any);
+    assert environment.rest.rest is nil;
+    prefix(environment.first, environment.rest.first)
+}
+
+fn prefix(list: Any, tail: Any) -> Any {
+    if list is nil {
+        tail
+    } else {
+        assert list is (Any, Any);
+        (list.first, prefix(list.rest, tail))
+    }
+}

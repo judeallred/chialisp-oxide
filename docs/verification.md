@@ -4,13 +4,93 @@ Current evidence compares Chialisp, Rust and Rue sources through five compiled
 modes, native policy execution, generated inputs and complete-spend scenarios.
 The corpus distinguishes original teaching fixtures, exact canonical Intro
 expression ports, and the canonical raw-tree `p2_conditions` program factory.
-The published `last_inner` list helper is a separate explicit module adapter,
+The published `last_inner`, `prefix`, and byte `!=` helpers use separate explicit module adapters,
 with exact pinned source-span/license provenance and no whole-module identity
 claim. Empty-slice matching tests distinguish nil from nonempty zero-byte atoms.
+Byte-equality tests additionally preserve padding, invalid UTF-8 and lengths
+through 8,192 bytes. Concrete standard trait resolution precedes logical type
+erasure; custom equality implementations do not gain primitive semantics.
+Hand-authored structural Seq8 regressions distinguish padded comparison literals
+with a refuted mutation and VM witness replay. A separate source-derived
+Boolean proof now checks the actual Cargo export; see the byte-policy section
+below. The independent helper gate additionally refutes numeric-normalization
+mutants. None proves rustc/MIR/IR/CLVM preservation or constant-time behavior.
 The factory has module-identity and second-stage application checks, rather than
-direct ledger admission claims. See `corpus/validation.json`, `corpus/proofs.json`
-and `corpus/tree-proofs.json` for the actual counts, inputs and scope. The early
+direct ledger admission claims. The validation, scalar, structural-tree and
+byte-policy reports in `corpus/` record their actual inputs and scope. The early
 backend-only experiment below remains a separate baseline.
+
+## Source-derived whole-environment byte proof
+
+[`scripts/check-byte-proofs.py`](../scripts/check-byte-proofs.py) extracts
+`atom-not-equal` from the actual Cargo library into fresh, identity-checked
+bundles. An independent specification accepts exactly `(A B)` with two atom
+operands and an empty final tail, and returns canonical Boolean inequality.
+Atoms are symbolic sequences of 8-bit values: nil, padded zeros, invalid UTF-8
+and arbitrary other bytes stay distinct. Both acceptance and output are
+specified over the entire environment, rather than inferred from the source
+parameter declaration. This is an IR-model proof of that modeled contract,
+including its modeled strict decoder, not a proof of the emitted ABI decoder.
+
+The eight models comprise the original Cargo export, five actual source
+controls, and two explicitly synthetic ABI edits. Four source changes
+(operator inversion, self-comparison and the two constants) are refuted;
+operand reversal is a positive equivalence control. The synthetic controls
+permit extra/improper outer tails or narrow both operands to two bytes. They
+are not represented as source-derived Rust policies. The exact source patches,
+IR, independent specification and SMT queries are retained. Earlier manually
+authored byte-IR regressions remain separate.
+
+ABI and independent-acceptance nonvacuity, plus specified true/false witnesses,
+prevent empty-domain proofs. Reproducible candidate witnesses are solver-checked
+after the unbounded obligation is solved; they do not bound the proof domain.
+Each model has optimization-off/on artifacts and selected witness replays,
+including execution of the exact retained serialized programs. The original
+policy additionally replays witnesses in all five Chialisp/Rust/Rue builds.
+Actual exported native functions supply source-control results, without copied
+policy implementations. Resource/infrastructure failures abort the evidence.
+
+```sh
+python3 scripts/check-byte-proofs.py --output corpus/byte-proofs.json
+python3 scripts/check-byte-proofs.py --check
+python3 scripts/check-byte-proofs.py --self-test
+```
+
+The first command builds, extracts, solves and replays. `--check` validates
+recorded source/artifact freshness and consistency without rerunning those
+tools. See the [step-by-step guide](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/).
+The installed pinned compiler, standard library and primitive bridge remain
+trusted; [target configuration and loaded-library checks](toolchain-trust.md)
+enforce the supported installation without authenticating its bytes. This
+layer establishes no compiler preservation, constant-time behavior, ledger
+property, whole-library verification or full Chialisp parity.
+
+## Fixed-width integer masks
+
+Actual built-in Rust `&`, `|` and `^` preserve the supported signed/unsigned
+integer width; `!` becomes XOR with the unsigned maximum or signed -1. Boolean
+`&`/`|`/`^` are strict, with both operands evaluated. These use existing typed
+binary IR, not an SDK symbol convention. Driver and IR regression tests cover
+native results, width/sign boundaries, malformed ABI values, optimization modes,
+strict failure/divergence, recursive calls and source snapshots.
+
+For programs containing integer bitwise operations, the scalar verifier declares
+finite-width bitvector inputs and derives their exact signed/unsigned integer
+interpretations. Every integer in the declared type has one such input word.
+Bitwise results retain their typed word representation; checked arithmetic stays
+mathematical and converts exactly at subsequent bitwise uses.
+Boolean operations retain the success conditions of both operands. Independent
+identity specifications, deliberately incorrect masks and replayed
+counterexamples check the model. Current byte/tree models still reject integer
+operations, and runtime IR stays outside all SMT proof domains. These checks
+are not a proof that Rust extraction or CLVM code generation preserves the
+model, and they establish no cryptographic property.
+
+```sh
+cargo test --locked -p chialisp-oxide-driver --test bitwise
+cargo test --locked -p chialisp-oxide-ir --test bitwise
+cargo test --locked -p chialisp-oxide-verifier --test bitwise
+```
 
 ## Runtime calls and divergence
 
@@ -32,14 +112,18 @@ result read twice from two deliberate recursive evaluations. These are finite
 execution witnesses, not universal termination, resource-equivalence or
 compiler-preservation proofs.
 
-Both current model translators reject every runtime program, including unused
+All current SMT model APIs reject every runtime program, including unused
 function tables and runtime nodes in dead branches. They cannot map divergence
 into their value/rejection domain. Execution-only replay is still possible but
 aborts on resource or infrastructure errors. The typed-IR pair-guard pass also
 preserves runtime programs unchanged: a later projection cannot justify moving
-an earlier rejection past a potentially diverging call. Before recursive
-operand lowering, active-binding and work budgets prevent shallow wide IR from
-causing unbounded continuation stacks or cloned type storage. See
+an earlier rejection past a potentially diverging call. Optimized runtime
+lowering separately forwards total leaves, lowers single-consumer operations
+directly, and removes tail identity bindings without dropping their initializer.
+Non-leaf multi-operand expressions retain ordered, once-only continuations.
+Before recursive operand lowering, frame, pending-operand, direct-depth and work
+budgets prevent shallow wide IR from causing unbounded continuation stacks or
+cloned type storage. See
 [runtime calls](runtime-calls.md) for implementation and durable test paths.
 
 ## VM failures are typed evidence
@@ -163,11 +247,19 @@ and call the compiled puzzle verified. Required links are:
    failure behavior, integer encoding, and branch evaluation.
 5. Explicit assumptions about hashing, signatures, consensus rules, and the VM.
 
-No Lean toolchain or Lean proof is included yet. The chialisp-oxide-verifier crate now
-generates obligations from actual typed IR and independently supplied specs,
-checks nonvacuity, and replays attack witnesses through source/native and CLVM. Start with narrow SMT obligations
-and tested counterexamples while designing this connection; evaluate Lean when
-we have stable IR rules worth proving.
+The pinned Lean 4.35.0 [finite-tree experiment](../experiments/tree-theorems) now
+proves 21 named statements for manually authored prefix/last-element algorithms
+over all finite trees. Independent expected types prevent weakening those
+claims, and exact axiom audits reject unreviewed assumptions. A finite bridge
+connects named model equalities to all five recorded compiler builds; optional
+VM replay checks the actual retained bytes, costs and failure codes. CI uses a
+checksum-pinned official Lean distribution and runs the kernel, corruption
+controls and VM replay.
+
+This is an algorithm-model proof plus finite execution evidence. It does not
+extract Rust or prove MIR/IR/CLVM preservation, native allocation behavior or
+resource equivalence. The existing source-derived SMT verifier remains a
+separate layer and deliberately rejects recursive runtime IR.
 
 ## Layers still to build
 
@@ -179,12 +271,14 @@ we have stable IR rules worth proving.
   tutorial and CHIP puzzle vectors.
 - Expand the implemented chia-wallet-sdk simulator tests to more stateful and
   adversarial cross-puzzle compositions.
-- Mutation testing of compiler-generated programs and IR passes. The current
-  executable mutation control weakens the handwritten CLVM reference.
+- Broader mutation testing of compiler-generated programs and IR passes. Current
+  controls include actual Cargo byte-policy source changes, explicit synthetic
+  ABI edits, factory IR rewrites and the earlier handwritten CLVM baseline.
 - Per-puzzle properties: allowed recipients, conservation, authorized transitions,
   lineage, replay resistance, and escape/recovery behavior as applicable.
-- Extend the implemented IR-derived SMT checks beyond scalar/tuple values to
-  bytes, cryptographic assumptions, and compiler-preservation proofs.
+- Extend the implemented scalar, structural-tree and strict-byte/Boolean SMT
+  checks to broader byte operations, cryptographic assumptions, state
+  transitions and compiler-preservation proofs.
 
 Each report must distinguish executed cases, bounded exploration, model proofs,
 and end-to-end proofs. None supports an unqualified “no security breaches” claim.

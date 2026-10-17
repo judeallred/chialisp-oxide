@@ -4,6 +4,7 @@ description: Compare checked Rust, Chialisp and Rue recursion, preserve raw atom
 ---
 
 import SourceComparison from '../../../components/SourceComparison.astro';
+import RuntimeFrameComparison from '../../../components/RuntimeFrameComparison.astro';
 
 **WIP prototype. Not ready for use with funds or production puzzles.**
 
@@ -70,8 +71,12 @@ source-level dynamic `apply` capability.
 The [architecture guide](/chialisp-oxide/reference/architecture/) explains the
 frames and optimization boundary. The typed-IR pair-guard optimization leaves
 runtime programs unchanged: a projection after a diverging call cannot justify
-removing an earlier rejection guard. Rue LIR optimization still runs in the
-enabled mode.
+removing an earlier rejection guard. In the enabled mode, runtime frame elision
+forwards total leaves and removes redundant continuations before Rue LIR
+optimization. Fallible arguments and unused initializers still execute once in
+source order.
+
+<RuntimeFrameComparison slug="rightmost-tree" />
 
 ## Reproduce the comparisons
 
@@ -83,6 +88,7 @@ cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
 ./scripts/chialisp-oxide validate --output corpus/validation.json
 cargo test -p chialisp-oxide-driver --test runtime_calls --locked
 cargo test -p chialisp-oxide-ir --test runtime_evaluation --locked
+cargo test -p chialisp-oxide-ir --test runtime_optimization --locked
 cargo test -p chialisp-oxide-ir --test runtime_validation --locked
 ```
 
@@ -116,4 +122,6 @@ Loops, closures, general dynamic application and allocating collections remain
 unsupported. Runtime functions currently reject assignments into projected
 fields; construct and assign a complete supported value instead. The borrowed
 tree representation also cannot return references to stack-local output nodes.
-An accumulating reverse or append needs an explicit Rust ownership design.
+The [owned prefix lesson](/chialisp-oxide/tutorials/prefix-list/) now shows a
+restricted owned result with `OwnedTree` and standard Box construction. General
+collections and dynamic atom storage remain separate work.

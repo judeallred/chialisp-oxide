@@ -13,7 +13,7 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → typed MIR, supported-feature validation
   → chialisp-oxide-ir: typed expressions + optional closed function table
   → optional typed IR tree-guard pass
-  → Rue LIR
+  → Rue LIR lowering, with optional runtime frame elision
   → optional Rue LIR optimizer
   → Rue CLVM code generation
   → serialized CLVM
@@ -130,7 +130,7 @@ All signatures, bodies, lexical scopes and global budgets are checked, including
 unused functions and dead branches. Runtime lowering bounds new frame bindings
 and copied types before scope growth; codegen additionally checks serialized
 expansion. These checks bound compilation, not input-dependent execution.
-Projected writes in runtime functions, CFG loops, allocation, closures, and
+Projected writes in runtime functions, CFG loops, general allocation, closures, and
 solution-selected application remain unsupported. Constants/promoted MIR stays
 on its bounded acyclic route. Current scalar/tree SMT APIs reject runtime IR;
 finite VM replay does not prove termination or compiler preservation. See
@@ -153,9 +153,14 @@ separates this measured module identity from broader compiler preservation.
 
 The owned guard pass skips every runtime program: successful-output facts
 cannot establish that a checked projection happens before a preceding call
-diverges. Runtime compilation still runs Rue LIR optimization when enabled.
-For runtime-free Rust, optimization on runs both passes. Off skips
-both; `--no-optimize` selects that baseline. Rue source comparisons use only
+diverges. Runtime lowering can still forward total leaves, lower single-use
+operands directly, and remove a binding that only returns its initializer.
+Non-leaf operands retain strict, once-only evaluation, and non-leaf atom
+extraction keeps a binding because its shape guard also uses the operand.
+These changes do not infer that calls terminate or remove unused failures.
+Rue LIR optimization follows. For runtime-free Rust the frame stage has no
+effect. Off skips all three stages; `--no-optimize` selects that baseline.
+Rue source comparisons use only
 their frontend's LIR optimization switch. The report records both pipelines,
 including the legacy `optimize_lir` field name. Execution costs and rejection
 diagnostics need not be identical across modes.
@@ -184,7 +189,17 @@ recorded local changes to the pinned revision. Further checked-in fixes retain
 required pair-projection failures during reconstruction
 ([issue 110](https://github.com/xch-dev/rue/issues/110)) and the explicit nil
 environment of quoted execution ([issue 111](https://github.com/xch-dev/rue/issues/111)).
-Each has an execution-based regression and a standalone upstream patch.
+A fifth fix preserves a nested bitwise operation's integer validation before a
+potentially diverging sibling ([issue 112](https://github.com/xch-dev/rue/issues/112)).
+That reproduction supplies a malformed pair to a Rue `Int` entrypoint; an
+explicit source type guard rejects in both modes. It is not a demonstrated
+mismatch on well-typed operands or a bypass of Rust's strict typed ABI.
+A sixth fix preserves canonical Boolean values after double negation
+([issue 113](https://github.com/xch-dev/rue/issues/113)). With valid integer input
+`2`, optimized `value != 0` previously returned atom `2` instead of canonical true;
+comparing that result with `true` changed the Boolean answer. The fix keeps
+value normalization while retaining safe truthiness-only simplification.
+Each fix has an execution-based regression and a standalone upstream patch.
 
 Entering at LIR also bypasses Rue frontend and earlier lowering work. chialisp-oxide is
 responsible for correct environments, paths, representations, evaluation

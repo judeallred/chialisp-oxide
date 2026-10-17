@@ -12,6 +12,13 @@ use rustc_span::Span;
 pub(super) struct TreeShape {
     pub atom: rustc_abi::VariantIdx,
     pub pair: rustc_abi::VariantIdx,
+    pub ownership: Ownership,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum Ownership {
+    BorrowedRefs,
+    OwnedBoxes,
 }
 
 impl<'tcx> Lowerer<'tcx> {
@@ -44,7 +51,7 @@ impl<'tcx> Lowerer<'tcx> {
             return Ok(None);
         }
         let invalid = || {
-            self.error(span, "borrowed trees require exactly Atom(&[u8]) and Pair(&Self, &Self), one lifetime, ordinary enum representation, and no Drop")
+            self.error(span, "borrowed trees require exactly Atom(&[u8]) and Pair(&Self, &Self); owned trees instead require Pair(Box<Self>, Box<Self>); both require one lifetime, ordinary enum representation, and no Drop")
         };
         if (!definition.did().is_local() && !self.allowed_external(definition.did()))
             || definition.has_dtor(self.tcx)
@@ -60,7 +67,11 @@ impl<'tcx> Lowerer<'tcx> {
         }
         let mut atom = None;
         let mut pair = None;
+        let mut ownership = Ownership::BorrowedRefs;
         for (index, variant) in definition.variants().iter_enumerated() {
+            if !matches!(variant.fields.len(), 1 | 2) {
+                return Err(invalid());
+            }
             let fields = variant
                 .fields
                 .iter()
@@ -78,12 +89,19 @@ impl<'tcx> Lowerer<'tcx> {
                 [first, rest] if [first, rest].into_iter().all(|field| {
                     matches!(field.kind(), ty::Ref(_, inner, ty::Mutability::Not) if self.tcx.erase_and_anonymize_regions(*inner) == self.tcx.erase_and_anonymize_regions(rust_ty))
                 }) => pair = Some(index),
+                [first, rest] if [first, rest].into_iter().all(|field| {
+                    self.owned_box_inner(*field).is_some_and(|inner| self.tcx.erase_and_anonymize_regions(inner) == self.tcx.erase_and_anonymize_regions(rust_ty))
+                }) => { pair = Some(index); ownership = Ownership::OwnedBoxes; },
                 _ => return Err(invalid()),
             }
+        }
+        if ownership == Ownership::OwnedBoxes {
+            self.check_owned_allocator(span)?;
         }
         Ok(Some(TreeShape {
             atom: atom.ok_or_else(invalid)?,
             pair: pair.ok_or_else(invalid)?,
+            ownership,
         }))
     }
 
@@ -100,6 +118,9 @@ impl<'tcx> Lowerer<'tcx> {
                 ty::Slice(element) | ty::Array(element, _) if *element == self.tcx.types.u8 => {
                     return Ok(true);
                 }
+                _ if self.owned_tree_box(current, span)?.is_some() => {
+                    current = self.owned_tree_box(current, span)?.unwrap();
+                }
                 _ => return Ok(self.tree_shape(current, span)?.is_some()),
             }
         }
@@ -110,7 +131,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         operand: &Operand<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &super::Environment,
         span: Span,
     ) -> Result<Option<(Expr, TreeShape)>, String> {
         let (Operand::Copy(place) | Operand::Move(place)) = operand else {
@@ -230,7 +251,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         place: Place<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &super::Environment,
         span: Span,
     ) -> Result<Expr, String> {
         let shape = self

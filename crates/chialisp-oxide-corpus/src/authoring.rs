@@ -104,6 +104,7 @@ pub fn authoring() -> Result<Authoring> {
         "crates/chialisp-oxide/src/lib.rs",
         "crates/chialisp-oxide/src/domain.rs",
         "crates/chialisp-oxide/src/tree.rs",
+        "crates/chialisp-oxide/src/owned_tree.rs",
         "crates/chialisp-oxide-macros/Cargo.toml",
         "crates/chialisp-oxide-macros/src/lib.rs",
     ] {

@@ -320,14 +320,32 @@ pub fn opt_gtbytes(arena: &mut Arena<Lir>, left: LirId, right: LirId) -> LirId {
     arena.alloc(Lir::GtBytes(left, right))
 }
 
-// If the value is another not, we can unwrap both
-// If it resolves to true or false, we know the result
+// These operations return nil or atom 1 whenever they return successfully.
+// Returning the producer itself still preserves its operand evaluation/errors.
+fn returns_canonical_boolean(arena: &Arena<Lir>, value: LirId) -> bool {
+    match &arena[value] {
+        Lir::Atom(atom) => atom.is_empty() || atom == &[1],
+        Lir::Not(..)
+        | Lir::Eq(..)
+        | Lir::Gt(..)
+        | Lir::GtBytes(..)
+        | Lir::Listp(..)
+        | Lir::All(..)
+        | Lir::Any(..) => true,
+        _ => false,
+    }
+}
+
+// Double negation normalizes arbitrary truthy values to canonical Bool bytes.
+// Only remove it when the original value already has that representation.
 pub fn opt_not(arena: &mut Arena<Lir>, value: LirId) -> LirId {
     match opt_truthy(arena, value) {
         Ok(true) => arena.alloc(Lir::Atom(vec![])),
         Ok(false) => arena.alloc(Lir::Atom(vec![1])),
         Err(value) => {
-            if let Lir::Not(value) = arena[value].clone() {
+            if let Lir::Not(value) = arena[value].clone()
+                && returns_canonical_boolean(arena, value)
+            {
                 return value;
             }
 
@@ -483,10 +501,12 @@ pub fn opt_logand(arena: &mut Arena<Lir>, args: Vec<LirId>) -> LirId {
     let mut result = Vec::new();
     let mut value = BigInt::from(-1);
 
+    // A nested reduction can reject before another outer operand runs.
+    // Flattening would defer its integer checks until all outer operands have
+    // evaluated, potentially replacing that rejection with divergence.
     while let Some(arg) = args.next() {
         match arena[arg].clone() {
             Lir::Atom(atom) => value &= atom_bigint(atom),
-            Lir::Logand(items) => args.prepend(items),
             _ => result.push(arg),
         }
     }
@@ -511,10 +531,12 @@ pub fn opt_logior(arena: &mut Arena<Lir>, args: Vec<LirId>) -> LirId {
     let mut result = Vec::new();
     let mut value = BigInt::from(0);
 
+    // A nested reduction can reject before another outer operand runs.
+    // Flattening would defer its integer checks until all outer operands have
+    // evaluated, potentially replacing that rejection with divergence.
     while let Some(arg) = args.next() {
         match arena[arg].clone() {
             Lir::Atom(atom) => value |= atom_bigint(atom),
-            Lir::Logior(items) => args.prepend(items),
             _ => result.push(arg),
         }
     }

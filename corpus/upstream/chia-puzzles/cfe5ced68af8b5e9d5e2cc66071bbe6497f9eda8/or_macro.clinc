@@ -1,0 +1,8 @@
+  (defmacro or ARGS
+    (if ARGS
+        (qq (if (unquote (f ARGS))
+                1
+                (unquote (c or (r ARGS)))
+        ))
+    0)
+  )

@@ -5,6 +5,9 @@
 //! inner representation, not a runtime nominal tag or constructor predicate.
 #![no_std]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 pub use chialisp_oxide_macros::puzzle;
 
 mod domain;
@@ -12,3 +15,8 @@ pub use domain::*;
 
 mod tree;
 pub use tree::*;
+
+#[cfg(feature = "alloc")]
+mod owned_tree;
+#[cfg(feature = "alloc")]
+pub use owned_tree::*;

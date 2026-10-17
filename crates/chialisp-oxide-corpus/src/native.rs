@@ -14,6 +14,15 @@ use num_bigint::{BigInt, Sign};
 trait Encode {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr>;
 }
+impl Encode for bool {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        if *self {
+            Ok(a.new_atom(&[1])?)
+        } else {
+            Ok(NodePtr::NIL)
+        }
+    }
+}
 impl Encode for u64 {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
         let n = BigInt::from(*self);
@@ -197,6 +206,76 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if slug == "atom-not-equal" {
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 2 => arguments,
+            _ => return Ok(None),
+        };
+        if arguments
+            .iter()
+            .any(|argument| !matches!(a.sexp(*argument), SExp::Atom))
+        {
+            return Ok(None);
+        }
+        let left = a.atom(arguments[0]);
+        let right = a.atom(arguments[1]);
+        let result = std::panic::catch_unwind(|| {
+            chialisp_oxide_puzzles::atom_not_equal::puzzle(left.as_ref(), right.as_ref())
+        });
+        // Keep output allocation/codec failures outside policy rejection.
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
+    if slug == "prefix-list" {
+        // Cover both argument trees and all branches before creating Boxes.
+        // These resource failures are inconclusive host errors, never policy.
+        super::native_owned_tree::preflight(&a, env)?;
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 2 => arguments,
+            _ => return Ok(None),
+        };
+        super::native_owned_tree::preflight_prefix(&a, arguments[0], arguments[1])?;
+        let arena = bumpalo::Bump::new();
+        let list = super::native_owned_tree::decode(&arena, &a, arguments[0])?;
+        let tail = super::native_owned_tree::decode(&arena, &a, arguments[1])?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::prefix_list::puzzle(list, tail)
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(_) => Ok(None),
+        };
+    }
+    if slug == "insertion-sort-by-keys" {
+        // Bound the whole environment before allocating Boxes, including data
+        // ignored by a base case. Host limits are inconclusive oracle errors.
+        super::native_owned_tree::preflight(&a, env)?;
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 2 => arguments,
+            _ => return Ok(None),
+        };
+        super::native_owned_tree::preflight_sort(&a, arguments[0], arguments[1])?;
+        let arena = bumpalo::Bump::new();
+        let sorted = super::native_owned_tree::decode(&arena, &a, arguments[0])?;
+        let insertions = super::native_owned_tree::decode(&arena, &a, arguments[1])?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle(sorted, insertions)
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "rightmost-tree" {
         let arena = bumpalo::Bump::new();
         let tree = super::native_tree::decode(&arena, &a, env)?;

@@ -1,0 +1,9 @@
+  (defun insertion_sort_by_keys (sorted insertions)
+    (if insertions
+        (if (or (not sorted) (>s (f (f insertions)) (f (f sorted))))
+            (insertion_sort_by_keys (c (f insertions) sorted) (r insertions))
+            (insertion_sort_by_keys (c (f sorted) (insertion_sort_by_keys (r sorted) (list (f insertions)))) (r insertions))
+        )
+        sorted
+    )
+  )

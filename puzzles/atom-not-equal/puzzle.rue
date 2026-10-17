@@ -1,0 +1,10 @@
+fn main(...environment: Any) -> Bool {
+    assert environment is (Any, Any);
+    assert environment.rest is (Any, Any);
+    assert environment.rest.rest is nil;
+    let left = environment.first;
+    let right = environment.rest.first;
+    assert left is Bytes;
+    assert right is Bytes;
+    left != right
+}

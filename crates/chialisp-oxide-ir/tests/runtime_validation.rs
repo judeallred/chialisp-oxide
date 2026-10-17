@@ -267,6 +267,36 @@ fn runtime_operand_frames_are_bounded_before_nested_wide_tuples_are_lowered() {
 }
 
 #[test]
+fn effectful_operands_retain_the_early_frame_bound_when_leaf_forwarding_is_enabled() {
+    let value = Expr::If {
+        condition: Box::new(Expr::Bool { value: true }),
+        then_value: Box::new(Expr::Unit),
+        else_value: Box::new(Expr::Unit),
+    };
+    let mut p = program(sequence(
+        Expr::Tuple {
+            items: vec![value; 129],
+        },
+        Expr::Unit,
+    ));
+    p.functions = vec![function(0, Expr::Unit)];
+    runtime_compile_budget(&p, "frame");
+}
+
+#[test]
+fn optimized_direct_unary_lowering_has_an_independent_native_depth_bound() {
+    let mut p = program(Expr::Unit);
+    p.result = Type::Bool;
+    p.body = (0..193).fold(Expr::Bool { value: true }, |value, _| Expr::Not {
+        value: Box::new(value),
+    });
+    p.functions = vec![function(0, Expr::Unit)];
+    p.validate().unwrap();
+    let error = compile(&p, true).unwrap_err().to_string();
+    assert!(error.contains("runtime expression depth budget"), "{error}");
+}
+
+#[test]
 fn runtime_lexical_frames_are_bounded_before_cloning_deeper_scopes() {
     let body = (0..129).rev().fold(Expr::Unit, |body, id| {
         bind(id, Type::Unit, Expr::Unit, body)

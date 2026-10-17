@@ -61,6 +61,10 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 let terminator = body.basic_blocks[block].terminator();
                 let span = terminator.source_info.span;
+                if let Some(target) = self.owned_plan(body)?.targets.get(&block) {
+                    pending.push(*target);
+                    continue;
+                }
                 match &terminator.kind {
                     TerminatorKind::Return | TerminatorKind::Unreachable => {}
                     TerminatorKind::Goto { target } | TerminatorKind::Assert { target, .. } => {
@@ -71,7 +75,11 @@ impl<'tcx> Lowerer<'tcx> {
                         pending.extend(targets.iter().map(|(_, block)| block));
                     }
                     TerminatorKind::Call {
-                        func, args, target, ..
+                        func,
+                        args,
+                        destination,
+                        target,
+                        ..
                     } => {
                         let ty::FnDef(id, generic_args) =
                             func.ty(&body.local_decls, self.tcx).kind()
@@ -80,6 +88,23 @@ impl<'tcx> Lowerer<'tcx> {
                         };
                         let name = self.tcx.def_path_str(*id);
                         if self.panic_function(*id) {
+                            continue;
+                        }
+                        if self.box_constructor(body, func, args, *destination, span)? {
+                            pending.push(
+                                target.ok_or_else(|| self.error(span, "Box::new must return"))?,
+                            );
+                            continue;
+                        }
+                        if self
+                            .byte_comparison(body, func, args, *destination, span)?
+                            .is_some()
+                        {
+                            pending.push(
+                                target.ok_or_else(|| {
+                                    self.error(span, "byte comparison must return")
+                                })?,
+                            );
                             continue;
                         }
                         if generic_args
@@ -122,6 +147,10 @@ impl<'tcx> Lowerer<'tcx> {
                         })?);
                     }
                     other => {
+                        if let Some(target) = self.owned_plan(body)?.targets.get(&block) {
+                            pending.push(*target);
+                            continue;
+                        }
                         return Err(
                             self.error(span, format!("unsupported MIR terminator: {other:?}"))
                         );
@@ -166,7 +195,7 @@ impl<'tcx> Lowerer<'tcx> {
         for (id, definition) in functions.into_iter().enumerate() {
             let body = self.function_body(definition)?;
             let (parameters, result) = self.runtime_signature(body)?;
-            let mut locals = vec![None; body.local_decls.len()];
+            let mut locals = super::Environment::new(body.local_decls.len());
             for (index, local) in body.args_iter().enumerate() {
                 locals[local.index()] = Some(Expr::Arg { index });
             }
@@ -222,7 +251,7 @@ impl<'tcx> Lowerer<'tcx> {
     fn runtime_bind(
         &self,
         assignment: (Place<'tcx>, Type, Expr),
-        locals: &mut [Option<Expr>],
+        locals: &mut super::Environment,
         bindings: &mut Vec<Binding>,
         runtime: &Runtime<'_>,
         span: Span,
@@ -277,7 +306,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         block: BasicBlock,
-        mut locals: Vec<Option<Expr>>,
+        mut locals: super::Environment,
         path: &mut Vec<BasicBlock>,
         runtime: &Runtime<'_>,
         mut patterns: empty_atoms::State<'_, 'tcx>,
@@ -301,11 +330,29 @@ impl<'tcx> Lowerer<'tcx> {
         }
         path.push(block);
         let mut bindings = vec![];
+        let owned = self.owned_plan(body)?;
         for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
             match &statement.kind {
                 StatementKind::Assign(assignment) => {
                     let (place, rvalue) = &**assignment;
+                    if let Some(action) = owned.actions.get(&Location {
+                        block,
+                        statement_index,
+                    }) {
+                        if let super::owned::Action::Capture { pointer, source } = action {
+                            let value = self.place(body, *source, &locals, statement_span)?;
+                            let value = self.runtime_value(
+                                value,
+                                Type::Tree,
+                                &mut bindings,
+                                runtime,
+                                statement_span,
+                            )?;
+                            locals.boxes.insert(*pointer, std::rc::Rc::new(value));
+                        }
+                        continue;
+                    }
                     if let Some(action) = patterns.patterns.action(Location {
                         block,
                         statement_index,
@@ -374,136 +421,181 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
         }
-        let result = match &data.terminator().kind {
-            TerminatorKind::Return => {
-                self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
-            }
-            TerminatorKind::Goto { target } => {
-                self.runtime_block(body, *target, locals, path, runtime, patterns)?
-            }
-            TerminatorKind::SwitchInt { discr, targets } => {
-                let value = self.operand(body, discr, &locals, span)?;
-                let tree = self.tree_discriminant(body, discr, &locals, span)?;
-                let ty = if tree.is_some() {
-                    Type::Int {
-                        bits: 8,
-                        signed: false,
-                    }
-                } else {
-                    self.ty(discr.ty(&body.local_decls, self.tcx), span)?
-                };
-                let mut result = self.runtime_block(
-                    body,
-                    targets.otherwise(),
-                    self.clone_locals(&locals, span)?,
-                    &mut path.clone(),
-                    runtime,
-                    patterns.clone(),
-                )?;
-                for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
-                    let condition = if let Some((is_pair, shape)) = &tree {
-                        if bits == shape.pair.index() as u128 {
-                            is_pair.clone()
-                        } else if bits == shape.atom.index() as u128 {
-                            Expr::Not {
-                                value: Box::new(is_pair.clone()),
-                            }
-                        } else {
-                            Expr::Bool { value: false }
+        let result = if let Some(target) = owned.targets.get(&block) {
+            self.runtime_block(body, *target, locals, path, runtime, patterns)?
+        } else {
+            match &data.terminator().kind {
+                TerminatorKind::Return => {
+                    self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
+                }
+                TerminatorKind::Goto { target } => {
+                    self.runtime_block(body, *target, locals, path, runtime, patterns)?
+                }
+                TerminatorKind::SwitchInt { discr, targets } => {
+                    let value = self.operand(body, discr, &locals, span)?;
+                    let tree = self.tree_discriminant(body, discr, &locals, span)?;
+                    let ty = if tree.is_some() {
+                        Type::Int {
+                            bits: 8,
+                            signed: false,
                         }
                     } else {
-                        Expr::Binary {
-                            kind: BinaryOp::Eq,
-                            left: Box::new(value.clone()),
-                            right: Box::new(self.scalar(bits, &ty, span)?),
-                            ty: ty.clone(),
-                        }
+                        self.ty(discr.ty(&body.local_decls, self.tcx), span)?
                     };
-                    result = Expr::If {
-                        condition: Box::new(condition),
-                        then_value: Box::new(self.runtime_block(
-                            body,
-                            target,
-                            self.clone_locals(&locals, span)?,
-                            &mut path.clone(),
-                            runtime,
-                            patterns.clone(),
-                        )?),
-                        else_value: Box::new(result),
-                    };
-                    self.check_expression(&result, span)?;
-                }
-                result
-            }
-            TerminatorKind::Assert {
-                cond,
-                expected,
-                target,
-                ..
-            } => {
-                let mut condition = self.operand(body, cond, &locals, span)?;
-                if !expected {
-                    condition = Expr::Not {
-                        value: Box::new(condition),
-                    };
-                }
-                Expr::If {
-                    condition: Box::new(condition),
-                    then_value: Box::new(
-                        self.runtime_block(body, *target, locals, path, runtime, patterns)?,
-                    ),
-                    else_value: Box::new(Expr::Reject {
-                        message: self.error(span, "Rust assertion failed"),
-                    }),
-                }
-            }
-            TerminatorKind::Call {
-                func,
-                args,
-                destination,
-                target,
-                ..
-            } => {
-                let ty::FnDef(id, _) = func.ty(&body.local_decls, self.tcx).kind() else {
-                    return Err(self.error(span, "indirect function calls are unsupported"));
-                };
-                if self.panic_function(*id) {
-                    Expr::Reject {
-                        message: self.error(span, "Rust panic/assertion rejects the puzzle"),
-                    }
-                } else {
-                    let function_id = runtime.ids.get(id).copied().ok_or_else(|| {
-                        self.error(
-                            span,
-                            "runtime call is absent from the validated function table",
-                        )
-                    })?;
-                    let arguments = args
-                        .iter()
-                        .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    let value = Expr::Call {
-                        function_id,
-                        arguments,
-                    };
-                    let ty = self.ty(body.local_decls[destination.local].ty, span)?;
-                    self.runtime_bind(
-                        (*destination, ty, value),
-                        &mut locals,
-                        &mut bindings,
+                    let mut result = self.runtime_block(
+                        body,
+                        targets.otherwise(),
+                        self.clone_locals(&locals, span)?,
+                        &mut path.clone(),
                         runtime,
-                        span,
+                        patterns.clone(),
                     )?;
-                    let target = target.ok_or_else(|| {
-                        self.error(span, "diverging helper calls are unsupported")
-                    })?;
-                    self.runtime_block(body, target, locals, path, runtime, patterns)?
+                    for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
+                        let condition = if let Some((is_pair, shape)) = &tree {
+                            if bits == shape.pair.index() as u128 {
+                                is_pair.clone()
+                            } else if bits == shape.atom.index() as u128 {
+                                Expr::Not {
+                                    value: Box::new(is_pair.clone()),
+                                }
+                            } else {
+                                Expr::Bool { value: false }
+                            }
+                        } else {
+                            Expr::Binary {
+                                kind: BinaryOp::Eq,
+                                left: Box::new(value.clone()),
+                                right: Box::new(self.scalar(bits, &ty, span)?),
+                                ty: ty.clone(),
+                            }
+                        };
+                        result = Expr::If {
+                            condition: Box::new(condition),
+                            then_value: Box::new(self.runtime_block(
+                                body,
+                                target,
+                                self.clone_locals(&locals, span)?,
+                                &mut path.clone(),
+                                runtime,
+                                patterns.clone(),
+                            )?),
+                            else_value: Box::new(result),
+                        };
+                        self.check_expression(&result, span)?;
+                    }
+                    result
+                }
+                TerminatorKind::Assert {
+                    cond,
+                    expected,
+                    target,
+                    ..
+                } => {
+                    let mut condition = self.operand(body, cond, &locals, span)?;
+                    if !expected {
+                        condition = Expr::Not {
+                            value: Box::new(condition),
+                        };
+                    }
+                    Expr::If {
+                        condition: Box::new(condition),
+                        then_value: Box::new(
+                            self.runtime_block(body, *target, locals, path, runtime, patterns)?,
+                        ),
+                        else_value: Box::new(Expr::Reject {
+                            message: self.error(span, "Rust assertion failed"),
+                        }),
+                    }
+                }
+                TerminatorKind::Call {
+                    func,
+                    args,
+                    destination,
+                    target,
+                    ..
+                } => {
+                    let ty::FnDef(id, _) = func.ty(&body.local_decls, self.tcx).kind() else {
+                        return Err(self.error(span, "indirect function calls are unsupported"));
+                    };
+                    if self.panic_function(*id) {
+                        Expr::Reject {
+                            message: self.error(span, "Rust panic/assertion rejects the puzzle"),
+                        }
+                    } else if self.box_constructor(body, func, args, *destination, span)? {
+                        let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                        self.runtime_bind(
+                            (*destination, Type::Tree, value),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        self.runtime_block(
+                            body,
+                            target.ok_or_else(|| self.error(span, "Box::new must return"))?,
+                            locals,
+                            path,
+                            runtime,
+                            patterns,
+                        )?
+                    } else if let Some(comparison) =
+                        self.byte_comparison(body, func, args, *destination, span)?
+                    {
+                        let left = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                        let right = self.operand(body, &args[1].node, &locals, args[1].span)?;
+                        let value = comparison.expression(left, right);
+                        self.runtime_bind(
+                            (*destination, Type::Bool, value),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        self.runtime_block(
+                            body,
+                            target
+                                .ok_or_else(|| self.error(span, "byte comparison must return"))?,
+                            locals,
+                            path,
+                            runtime,
+                            patterns,
+                        )?
+                    } else {
+                        let function_id = runtime.ids.get(id).copied().ok_or_else(|| {
+                            self.error(
+                                span,
+                                "runtime call is absent from the validated function table",
+                            )
+                        })?;
+                        let arguments = args
+                            .iter()
+                            .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
+                            .collect::<Result<Vec<_>, _>>()?;
+                        let value = Expr::Call {
+                            function_id,
+                            arguments,
+                        };
+                        let ty = self.ty(body.local_decls[destination.local].ty, span)?;
+                        self.runtime_bind(
+                            (*destination, ty, value),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        let target = target.ok_or_else(|| {
+                            self.error(span, "diverging helper calls are unsupported")
+                        })?;
+                        self.runtime_block(body, target, locals, path, runtime, patterns)?
+                    }
+                }
+                TerminatorKind::Unreachable => Expr::Reject {
+                    message: self.error(span, "unreachable Rust path"),
+                },
+                other => {
+                    return Err(self.error(span, format!("unsupported MIR terminator: {other:?}")));
                 }
             }
-            TerminatorKind::Unreachable => Expr::Reject {
-                message: self.error(span, "unreachable Rust path"),
-            },
-            other => return Err(self.error(span, format!("unsupported MIR terminator: {other:?}"))),
         };
         path.pop();
         let mut result = result;

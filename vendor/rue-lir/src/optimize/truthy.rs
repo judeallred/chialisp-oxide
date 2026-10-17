@@ -16,6 +16,12 @@ pub fn opt_truthy(arena: &mut Arena<Lir>, value: LirId) -> Result<bool, LirId> {
             }
         }
         Lir::Not(inner) => {
+            // A truthiness-only consumer does not observe Bool's exact bytes.
+            // Removing both nots still evaluates the original value once.
+            if let Lir::Not(value) = arena[inner].clone() {
+                return opt_truthy(arena, value);
+            }
+
             if let Lir::Eq(left, right) = arena[inner].clone() {
                 if let Lir::Atom(left) = arena[left].clone()
                     && left.is_empty()

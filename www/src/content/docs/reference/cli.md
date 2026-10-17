@@ -47,8 +47,9 @@ cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --l
 cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked --no-optimize
 ```
 
-`--no-optimize` skips both the typed IR tree-guard pass and Rue LIR optimization
-for Rust exports. The default runs those passes in that order. Rust checks,
+`--no-optimize` skips the typed IR tree-guard pass, runtime frame elision, and Rue
+LIR optimization for Rust exports. The default runs those stages in that order;
+frame elision applies only to runtime lowering. Rust checks,
 ABI validation, and bounded arithmetic remain active in both modes. Existing compiler wrappers are rejected
 rather than silently composed with the extraction wrapper.
 
@@ -157,8 +158,8 @@ library. Named and generated inputs compare native output/rejection with all
 five CLVM builds (Chialisp, Rust off/on, and Rue source off/on); optimized coin puzzles from each language also run separately in the ledger simulator.
 A divergence fails the run.
 
-The report's `optimization_pipeline` distinguishes Rust's two optimization
-passes from the Rue source compiler's LIR pass. The existing `optimize_lir`
+The report's `optimization_pipeline` distinguishes Rust's three optimization
+stages from the Rue source compiler's LIR pass. The existing `optimize_lir`
 boolean names each off/on build for compatibility; read it together with that
 metadata. Rejection and exact returned bytes are compared; optimization may
 change execution costs and rejection diagnostics.
@@ -169,6 +170,40 @@ same input hashes. The documentation gate checks those fingerprints, exact
 fixture/dependency sources, manifest cases, backend agreement, ledger checks,
 and formal inputs. These explicit local records are not a complete fingerprint
 of all transitive Cargo dependencies.
+
+## Source-derived byte-policy proofs
+
+After building the tools and refreshing the corpus, run the complete
+Cargo-extraction, solver and native/VM evidence gate:
+
+```sh
+python3 scripts/check-byte-proofs.py
+python3 scripts/check-byte-proofs.py --check
+python3 scripts/check-byte-proofs.py --self-test
+```
+
+The first command executes the checks. `--check` validates recorded freshness
+without running Rust, Z3 or the VM. `--self-test` exercises corruption controls.
+The [byte-proof guide](/chialisp-oxide/verification/byte-proofs/) explains the
+independent whole-environment specification, actual source controls, synthetic
+ABI controls and narrower IR-model claim.
+
+The generic verifier accepts an extracted program and independent specification:
+
+```sh
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean proofs/atom-not-equal/specification.json
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean proofs/atom-not-equal/specification.json --emit-json
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean-replay witness.json
+```
+
+`--emit-json` emits the five SMT queries without invoking the solver. Replay
+requires a complete witness object from the report, runs both compilation
+modes, and aborts on resource/infrastructure failures. A refuted model exits
+with status 1; a solver or unsupported-model error also exits nonzero, so inspect
+the structured result rather than treating any nonzero exit as a counterexample.
 
 ## Standalone compiler regressions
 

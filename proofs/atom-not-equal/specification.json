@@ -1,0 +1,80 @@
+{
+  "acceptance": {
+    "predicate": "all",
+    "items": [
+      {
+        "predicate": "is_pair",
+        "value": {
+          "term": "input"
+        }
+      },
+      {
+        "predicate": "is_pair",
+        "value": {
+          "term": "rest",
+          "value": {
+            "term": "input"
+          }
+        }
+      },
+      {
+        "predicate": "is_atom",
+        "value": {
+          "term": "first",
+          "value": {
+            "term": "input"
+          }
+        }
+      },
+      {
+        "predicate": "is_atom",
+        "value": {
+          "term": "first",
+          "value": {
+            "term": "rest",
+            "value": {
+              "term": "input"
+            }
+          }
+        }
+      },
+      {
+        "predicate": "byte_equal",
+        "left": {
+          "term": "rest",
+          "value": {
+            "term": "rest",
+            "value": {
+              "term": "input"
+            }
+          }
+        },
+        "right": {
+          "term": "atom",
+          "hex": ""
+        }
+      }
+    ]
+  },
+  "output": {
+    "predicate": "not",
+    "value": {
+      "predicate": "byte_equal",
+      "left": {
+        "term": "first",
+        "value": {
+          "term": "input"
+        }
+      },
+      "right": {
+        "term": "first",
+        "value": {
+          "term": "rest",
+          "value": {
+            "term": "input"
+          }
+        }
+      }
+    }
+  }
+}

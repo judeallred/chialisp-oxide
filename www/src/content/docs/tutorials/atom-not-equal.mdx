@@ -1,0 +1,167 @@
+---
+title: Compare exact atom bytes
+description: Use ordinary Rust slice equality, preserve nil and padding, and compare a published Chialisp helper with independent Rust and Rue builds.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles, backendLabel, format } from '../../../lib/data';
+
+export const bytePuzzle = puzzles.find(puzzle => puzzle.slug === 'atom-not-equal');
+export const byteMeasurements = bytePuzzle?.artifacts.map(artifact => ({ artifact, cost: bytePuzzle.cases.find(example => example.solution === '(0x00 0x0000)')?.runs.find(run => run.backend === artifact.backend && run.optimize_lir === artifact.optimize_lir)?.execution.cost ?? null })) ?? [];
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Hashes, public keys and messages are byte sequences. Comparing their numeric
+values can accidentally discard information. An empty atom, one zero byte,
+and two zero bytes are three different byte sequences, even though an integer
+decoder can interpret all three as zero.
+
+The ordinary Rust expression `left != right` already expresses byte inequality
+for `&[u8]`: compare the lengths and every byte. It needs no numeric
+decoding, string conversion, special compiler macro, or SDK opcode constant.
+The reviewed implementation is the
+[pinned Rust standard library's slice comparison](https://github.com/rust-lang/rust/blob/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/slice/cmp.rs),
+with [reference forwarding and the default `ne` method](https://github.com/rust-lang/rust/blob/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/cmp.rs)
+checked separately.
+
+## Read the actual three sources
+
+<SourceComparison slug="atom-not-equal" />
+
+The original inline helper comes from
+[`Chia-Network/chia-gaming`, `clsp/std/relops.clinc`, line 4](https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/relops.clinc#L4):
+`(defun-inline != (A B) (not (= A B)))`. Its exact source span, enclosing file,
+commit, complete Git tree and Apache-2.0 license are pinned. The final upstream
+line has no trailing newline; the displayed adapter supplies its own separator
+after the unchanged helper bytes.
+
+The Chialisp module adds a visible strict two-argument wrapper. Its environment
+must be exactly `(A B)`, both arguments must be atoms, and the final argument-list
+tail must be the empty atom. The Rust typed ABI and Rue decoder enforce that
+same contract. This is a port of one include helper under an explicit adapter,
+without a published standalone-module hash or whole-library completion claim.
+
+## Keep bytes separate from numbers and text
+
+```text
+solution                 result of !=        reason
+(() ())                  ()                  identical empty sequences
+(() 0x00)                1                   different lengths
+(0x00 0x0000)            1                   zero padding is data
+(0x01 0x0001)            1                   leading zero is data
+(0xff 0xffff)            1                   sign padding is data
+(0xfffe 0xfffe)          ()                  identical invalid UTF-8 bytes
+(0xc3a9 0x65cc81)        1                   different Unicode encodings
+((1 . 2) (1 . 2))        reject              pairs are not atom bytes
+(1 1 . 0x00)            reject              nonempty outer tail
+(1 1 99)                reject              extra argument
+```
+
+The successful result is a canonical Boolean atom: nil for false, `1` for true.
+A false result is successful evaluation, not puzzle rejection. Pair operands
+reject even when their structures match. The operand types are `&[u8]`, not
+trees with a general structural equality operation.
+
+This also differs from serialized-program identity. A CLVM serialization can
+have alternative length headers for the same atom; the decoded atom's contents
+remain the same. This comparison observes the decoded bytes, including bytes
+inside the atom, rather than the serialization's length-header spelling.
+Program commitments use the appropriate tree-hash construction; byte equality
+does not compute a tree hash.
+
+## Use ordinary Rust equality within its supported boundary
+
+Both `==` and `!=` are supported for immutable byte slices and identical fixed
+`[u8; N]` arrays within the existing 256-element array limit. Their logical CLVM
+operation compares atom bytes. Typed array decoding additionally requires the
+declared exact byte length.
+
+Rust's `PartialEq` is customizable: a user-defined type can override both `eq`
+and `ne`. The frontend recognizes the actual standard trait members and resolves
+their concrete primitive implementations before mapping this operation. A local
+function named `eq`, a transparent wrapper, or a custom trait implementation
+does not gain primitive byte semantics because it has a familiar name or ABI.
+General trait calls, mixed slice/array comparisons and arbitrary tree equality
+remain outside this exception.
+
+Arguments retain Rust's strict evaluation order. A rejected left operand
+prevents evaluating the right operand; a diverging left operand does not become
+an immediate rejection because the right operand would reject. An unchosen
+branch remains lazy. An already bound equality result is evaluated once when
+reused. These properties are tested with typed VM failures and bounded
+nontermination controls in both optimization modes.
+
+## Inspect the measurements
+
+These recorded values use `(0x00 0x0000)`, whose result is true:
+
+<table>
+  <caption>Serialized program size and finite VM execution cost</caption>
+  <thead><tr><th scope="col">Build</th><th scope="col">Program bytes</th><th scope="col">VM cost</th></tr></thead>
+  <tbody>{byteMeasurements.map(({ artifact, cost }) => <tr><th scope="row">{backendLabel(artifact.backend)} / {artifact.backend === 'chialisp' ? 'reference' : artifact.optimize_lir ? 'on' : 'off'}</th><td>{format(artifact.bytes)}</td><td>{cost === null ? 'not recorded' : format(cost)}</td></tr>)}</tbody>
+</table>
+
+The [laboratory page](/chialisp-oxide/lab/atom-not-equal/) includes all five
+artifacts, named outputs, typed rejections and exact supporting vectors. There
+are {bytePuzzle?.cases.length} named and {format(bytePuzzle?.generated_cases ?? 0)}
+generated inputs, including widths through 8,192 bytes and changes at the first,
+middle and last positions. An independent helper gate recomputes the expected
+byte relation. Resource failures remain inconclusive.
+
+The [source-derived byte proof](/chialisp-oxide/verification/byte-proofs/) now
+extracts this actual Cargo export and checks an independent specification of
+the entire strict two-atom environment and canonical Boolean output. Atoms are
+sequences of 8-bit values, without numeric or text normalization. Eight models
+include the original, five actual source controls and two explicitly synthetic
+ABI edits. Operator inversion, self-comparison and constant policies are
+refuted; reversing the operands is a positive equivalence control. ABI and
+independent-policy nonvacuity, including specified true/false witnesses, keep
+the result from relying on an empty domain.
+
+Each model retains optimization-off/on programs and selected witness replays
+of the exact bytes. Original-policy witnesses additionally use all five
+language builds, and native replays invoke the actual Cargo functions. These
+finite executions do not prove the compiler bridge. The earlier hand-authored
+Seq8 IR regressions remain separate: they refute treating padded comparison
+literals as interchangeable and replay that witness. The independent helper
+gate also recomputes the byte relation and refutes numeric normalization. The scalar model still rejects
+atom programs, and all current SMT APIs reject runtime IR. No layer establishes
+compiler preservation, constant-time behavior or universal resource equivalence.
+The [toolchain trust notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/toolchain-trust.md)
+explain the trusted installed compiler/standard-library assumption and enforced
+configuration/location boundary. The [compiler trust guide](/chialisp-oxide/reference/compiler-trust/)
+shows the native-valid controls and remaining limits.
+
+## Equality is one part of a spending policy
+
+Comparing two solution-supplied hashes says nothing about who supplied them.
+Even comparison against a committed hash must be connected to the intended
+conditions and authorization rule. This example returns a Boolean value; it
+does not emit spend conditions, verify a signature, or validate a complete spend.
+
+Rust prevents certain type and ownership mistakes, but it cannot infer a missing
+authorization check. The [error study](/chialisp-oxide/verification/error-study/)
+keeps these boundaries explicit and includes a policy bug that Rust still
+compiles. The [signature lesson](/chialisp-oxide/tutorials/signatures/) connects
+condition generation to genuine simulator validation.
+
+## Reproduce and challenge it
+
+```sh
+cargo build --workspace --locked
+./scripts/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-driver --test byte_equality --locked
+cargo test -p chialisp-oxide-ir --test atom_equality --locked
+cargo test -p chialisp-oxide-verifier --test tree_models --locked
+python3 scripts/check-canonical-helpers.py --self-test
+cargo test -p chialisp-oxide-verifier --test structural_boolean --locked
+python3 scripts/check-byte-proofs.py --output corpus/byte-proofs.json
+```
+
+Select `chialisp_oxide_puzzles::atom_not_equal::puzzle` using the
+[execution guide](/chialisp-oxide/reference/cli/#execute-a-selected-export).
+Change a byte, append a zero, substitute a pair, or alter the outer argument
+tail. Compare all three sources and both Rust/Rue optimization modes. For
+operations that still need implementation, consult the
+[functionality map](/chialisp-oxide/reference/chialisp-functionality/).

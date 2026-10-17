@@ -445,7 +445,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         action: Action<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &super::Environment,
         metadata: &mut HashMap<Local, Rc<Expr>>,
         span: Span,
     ) -> Result<Option<Expr>, String> {

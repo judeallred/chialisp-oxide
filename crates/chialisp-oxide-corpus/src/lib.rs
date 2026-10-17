@@ -2,6 +2,9 @@
 mod authoring;
 mod factories;
 mod native;
+#[cfg(test)]
+mod native_owned_tests;
+mod native_owned_tree;
 mod native_tree;
 mod spends;
 use anyhow::{Context, Result, ensure};
@@ -30,6 +33,9 @@ pub const PUZZLES: &[&str] = &[
     "p2-conditions",
     "rightmost-tree",
     "last-list-element",
+    "prefix-list",
+    "atom-not-equal",
+    "insertion-sort-by-keys",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -269,6 +275,16 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         });
     }
     let mut generated_cases = 0;
+    if ["prefix-list", "atom-not-equal", "insertion-sort-by-keys"].contains(&slug) {
+        // The helper evidence gate independently recomputes this fixed suite
+        // and its expected data relation. Execute every row in all five builds.
+        let generated: Vec<Case> =
+            serde_json::from_slice(&std::fs::read(dir.join("generated-cases.json"))?)?;
+        for case in generated {
+            compare(slug, &case.solution, &programs)?;
+            generated_cases += 1;
+        }
+    }
     if ["capped-payment", "split-payment", "bounded-counter"].contains(&slug) {
         for value in 0..=1020 {
             compare(slug, &format!("({value})"), &programs)?;

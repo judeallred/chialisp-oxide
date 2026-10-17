@@ -1,0 +1,19 @@
+; Strict two-argument adapter; the original six-line helper is verbatim.
+(mod ENV
+(defun prefix (L P)
+    (if L
+        (c (f L) (prefix (r L) P))
+        P
+    )
+)
+  (if (l ENV)
+      (if (l (r ENV))
+          (if (r (r ENV))
+              (x)
+              (prefix (f ENV) (f (r ENV)))
+          )
+          (x)
+      )
+      (x)
+  )
+)

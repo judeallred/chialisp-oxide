@@ -1,0 +1,3624 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "kind": "source_derived_structural_boolean_ir_model",
+    "domain": "All finite environment trees with arbitrary finite byte atoms, including malformed strict argument lists.",
+    "claim": "The extracted strict two-atom Boolean IR accepts exactly the independent ABI and returns byte inequality in the structural model.",
+    "excludes": [
+      "rustc/MIR extraction preservation",
+      "SMT translator correctness proof",
+      "ABI/compiler/CLVM preservation",
+      "Rue optimizer correctness",
+      "termination or resource equivalence",
+      "constant-time behavior",
+      "cryptographic authorization",
+      "consensus admission",
+      "absence of security breaches"
+    ]
+  },
+  "vm_failure_protocol": "clvmr-0.21.0/v1",
+  "toolchain": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)",
+  "solver": "Z3 version 4.15.4 - 64 bit",
+  "extraction": {
+    "protocol": "cargo-chialisp-oxide-artifact/v1",
+    "compiler_driver_identity_checked": true,
+    "standard_library": "Trusts the installed pinned compiler/standard library and primitive bridge; no preservation theorem.",
+    "portable_record": "Machine-specific driver digest/full compiler identity were checked against fresh local Cargo manifests; recorded inputs below identify source, not a binary attestation."
+  },
+  "authoring": {
+    "mode": "cargo_library",
+    "package": "chialisp-oxide-puzzles",
+    "manifest": "puzzles/Cargo.toml",
+    "library": "puzzles/lib.rs",
+    "exports": {
+      "atom-not-equal": {
+        "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
+        "source": "puzzles/atom-not-equal/puzzle.rs"
+      },
+      "boolean-gate": {
+        "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
+        "source": "puzzles/boolean-gate/puzzle.rs"
+      },
+      "bounded-counter": {
+        "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
+        "source": "puzzles/bounded-counter/puzzle.rs"
+      },
+      "capped-payment": {
+        "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
+        "source": "puzzles/capped-payment/puzzle.rs"
+      },
+      "fixed-payment": {
+        "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
+        "source": "puzzles/fixed-payment/puzzle.rs"
+      },
+      "insertion-sort-by-keys": {
+        "entry": "chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle",
+        "source": "puzzles/insertion-sort-by-keys/puzzle.rs"
+      },
+      "intro-add": {
+        "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
+        "source": "puzzles/intro-add/puzzle.rs"
+      },
+      "intro-conditional": {
+        "entry": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+        "source": "puzzles/intro-conditional/puzzle.rs"
+      },
+      "intro-list": {
+        "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
+        "source": "puzzles/intro-list/puzzle.rs"
+      },
+      "last-list-element": {
+        "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
+        "source": "puzzles/last-list-element/puzzle.rs"
+      },
+      "p2-conditions": {
+        "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+        "source": "puzzles/p2-conditions/puzzle.rs"
+      },
+      "prefix-list": {
+        "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
+        "source": "puzzles/prefix-list/puzzle.rs"
+      },
+      "recovery-payment": {
+        "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
+        "source": "puzzles/recovery-payment/puzzle.rs"
+      },
+      "rightmost-tree": {
+        "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
+        "source": "puzzles/rightmost-tree/puzzle.rs"
+      },
+      "signature-payment": {
+        "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
+        "source": "puzzles/signature-payment/puzzle.rs"
+      },
+      "split-payment": {
+        "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
+        "source": "puzzles/split-payment/puzzle.rs"
+      },
+      "timelocked-payment": {
+        "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
+        "source": "puzzles/timelocked-payment/puzzle.rs"
+      },
+      "two-signature-payment": {
+        "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
+        "source": "puzzles/two-signature-payment/puzzle.rs"
+      }
+    },
+    "sources": [
+      {
+        "path": ".cargo/config.toml",
+        "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "8cbba7086756b85a61ac49df6cb0852dd233c88675d8d495c3aba31c8c772aca"
+      },
+      {
+        "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+        "sha256": "f58331cdceeb52133d780bc3adc9b4d1154277510f39be9d4fa78a4d9acd2d4a"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/Cargo.toml",
+        "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/src/lib.rs",
+        "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+      },
+      {
+        "path": "crates/chialisp-oxide/Cargo.toml",
+        "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/domain.rs",
+        "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/lib.rs",
+        "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/owned_tree.rs",
+        "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/tree.rs",
+        "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4"
+      },
+      {
+        "path": "puzzles/Cargo.toml",
+        "sha256": "7dcaca9bab2b59336bf1bb70f2815308b847ddfe08988009ef69fec9ad2794dc"
+      },
+      {
+        "path": "puzzles/atom-not-equal/generated-cases.json",
+        "sha256": "2180534cb9327c4f598d0451027bb1efdc5b36f1979abdb516d5d6f29eff686d"
+      },
+      {
+        "path": "puzzles/atom-not-equal/puzzle.rs",
+        "sha256": "6d611d79de75c7f657ec489d67af5df17b38b2194257ea10e7e9d6ecf0e76b77"
+      },
+      {
+        "path": "puzzles/authoring.json",
+        "sha256": "bf2db83e609c9530227ae8faaf403c5fd8956fce005fa185bc5c0082bc9cacef"
+      },
+      {
+        "path": "puzzles/boolean-gate/puzzle.rs",
+        "sha256": "bcf282130a8a5529687cdcb53f45931c6c8de8c0cc67b27c1ac026d04c13656c"
+      },
+      {
+        "path": "puzzles/bounded-counter/puzzle.rs",
+        "sha256": "cc0194ce1a82341e9be0756a91b41872f655fab04ffc653049888bc3e8a88b65"
+      },
+      {
+        "path": "puzzles/capped-payment/puzzle.rs",
+        "sha256": "6c7660ce193f7f941acdd2ffa7e3fbc2c89b0e264f6b9b79e038f9ead9bdbbe9"
+      },
+      {
+        "path": "puzzles/fixed-payment/puzzle.rs",
+        "sha256": "e3d32e261b8403c9bf971f7d6c621552ff9ddf0964413c0e01f838f28540a84f"
+      },
+      {
+        "path": "puzzles/fixture_keys.rs",
+        "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
+      },
+      {
+        "path": "puzzles/insertion-sort-by-keys/generated-cases.json",
+        "sha256": "d44ec2da7663214c056c8cb835bcbee4412c45c55bd48e3699bc981abb01e511"
+      },
+      {
+        "path": "puzzles/insertion-sort-by-keys/puzzle.rs",
+        "sha256": "e11de1268e27f2a984a294eaa172585b54b07be4ffa0ec94ee87f150320a6adb"
+      },
+      {
+        "path": "puzzles/intro-add/puzzle.rs",
+        "sha256": "1ec4572c9d4eb3e1c667d6d6b991b6fb159cf9751f08485bf489b6b4be3256e9"
+      },
+      {
+        "path": "puzzles/intro-conditional/puzzle.rs",
+        "sha256": "896429d8aba49868510ff97b890a8d3ef6e1c23bf7a1862b7e523e3a7b9f0694"
+      },
+      {
+        "path": "puzzles/intro-list/puzzle.rs",
+        "sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3"
+      },
+      {
+        "path": "puzzles/last-list-element/puzzle.rs",
+        "sha256": "8e194cc507486c3735f54d43628dcbc3ad1ad559c38a2abf558bcab06f55b036"
+      },
+      {
+        "path": "puzzles/lib.rs",
+        "sha256": "7c639ec35326e083c7eada08f8287032e724d91c620c1282af69ca20d7952dfe"
+      },
+      {
+        "path": "puzzles/p2-conditions/puzzle.rs",
+        "sha256": "dece69447759f76a8c5617bcc42efe5607901cd571891e27800cf6b77a385753"
+      },
+      {
+        "path": "puzzles/prefix-list/generated-cases.json",
+        "sha256": "77586fa20be55bdae4dfad53b44786911c5da2835ca64221972da8d899779ba4"
+      },
+      {
+        "path": "puzzles/prefix-list/puzzle.rs",
+        "sha256": "b220765797e793f85c526adaaff0ce9d22bf57dc5f27709ac9b5cec0979ae4dd"
+      },
+      {
+        "path": "puzzles/recovery-payment/puzzle.rs",
+        "sha256": "edbf48beb1d6817e70f6ff1c2f0c9f2ee50f608f1238ce8747b25099d5c5d5e6"
+      },
+      {
+        "path": "puzzles/rightmost-tree/puzzle.rs",
+        "sha256": "2d523221c500cb4b8d5748369b949e22c7dee68dbc20c8b3e73bb7d8c14009d2"
+      },
+      {
+        "path": "puzzles/signature-payment/puzzle.rs",
+        "sha256": "6480ebbb3ed43921781b066906596389830fd8659951faaf8d922dcc0038a2d1"
+      },
+      {
+        "path": "puzzles/split-payment/puzzle.rs",
+        "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
+      },
+      {
+        "path": "puzzles/timelocked-payment/puzzle.rs",
+        "sha256": "dcaf5ffa041c01ac1c627a04b593ea4ed8486207ccfc2ed528f9011aca6a7682"
+      },
+      {
+        "path": "puzzles/two-signature-payment/puzzle.rs",
+        "sha256": "e6da886e56727a918fa8a571b5933d77be550a9ca71f6a788646fc162a3895bf"
+      },
+      {
+        "path": "rust-toolchain.toml",
+        "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+      }
+    ],
+    "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle"
+  },
+  "control_authoring": {
+    "mode": "cargo_library",
+    "package": "chialisp-oxide-byte-proofs",
+    "manifest": "experiments/byte-proofs/Cargo.toml",
+    "library": "experiments/byte-proofs/src/lib.rs",
+    "exports": {
+      "operator_eq": {
+        "entry": "chialisp_oxide_byte_proofs::operator_eq::puzzle",
+        "source": "experiments/byte-proofs/src/operator_eq.rs"
+      },
+      "self_inequality": {
+        "entry": "chialisp_oxide_byte_proofs::self_inequality::puzzle",
+        "source": "experiments/byte-proofs/src/self_inequality.rs"
+      },
+      "constant_true": {
+        "entry": "chialisp_oxide_byte_proofs::constant_true::puzzle",
+        "source": "experiments/byte-proofs/src/constant_true.rs"
+      },
+      "constant_false": {
+        "entry": "chialisp_oxide_byte_proofs::constant_false::puzzle",
+        "source": "experiments/byte-proofs/src/constant_false.rs"
+      },
+      "swap_operands": {
+        "entry": "chialisp_oxide_byte_proofs::swap_operands::puzzle",
+        "source": "experiments/byte-proofs/src/swap_operands.rs"
+      }
+    },
+    "sources": [
+      {
+        "path": ".cargo/config.toml",
+        "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "8cbba7086756b85a61ac49df6cb0852dd233c88675d8d495c3aba31c8c772aca"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/Cargo.toml",
+        "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+      },
+      {
+        "path": "crates/chialisp-oxide-macros/src/lib.rs",
+        "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+      },
+      {
+        "path": "crates/chialisp-oxide/Cargo.toml",
+        "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/domain.rs",
+        "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/lib.rs",
+        "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/owned_tree.rs",
+        "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/tree.rs",
+        "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4"
+      },
+      {
+        "path": "experiments/byte-proofs/Cargo.toml",
+        "sha256": "c3cb8174609c1aa914d098c9c1574f8eae749ff1862ae8a474b50360d821e541"
+      },
+      {
+        "path": "experiments/byte-proofs/src/bin/native.rs",
+        "sha256": "d3e9df611486c4ecef51b9affe5e3df3e3abd248b28923ac4975552e725a2ffc"
+      },
+      {
+        "path": "experiments/byte-proofs/src/constant_false.rs",
+        "sha256": "b08d7c31dd596e7357fdfd909f26c17ee30e90d8ed34b879f055b91756db5f79"
+      },
+      {
+        "path": "experiments/byte-proofs/src/constant_true.rs",
+        "sha256": "d7a321f4b532e7848b606084fa5d1a5156314b5727b2ab000e7cdd1b707fd18e"
+      },
+      {
+        "path": "experiments/byte-proofs/src/lib.rs",
+        "sha256": "6ae5e4f17b8c6fc1dabe3c8fc9b32971b082973f0c39521c9402f2229d69b17b"
+      },
+      {
+        "path": "experiments/byte-proofs/src/lineage.json",
+        "sha256": "01383301784c2dc54ec5c11c7a3d68af4471a13b8f156f737d4ae3fde7a22842"
+      },
+      {
+        "path": "experiments/byte-proofs/src/operator_eq.rs",
+        "sha256": "77e20ca2bced0c2480d579075fae1a614bcc74f51cc04502d053a5c855196bff"
+      },
+      {
+        "path": "experiments/byte-proofs/src/self_inequality.rs",
+        "sha256": "d34ba8e4dcf569ba68cd2bc5842645d63285ea684c6fe5e5b14a89a4e1033f3a"
+      },
+      {
+        "path": "experiments/byte-proofs/src/swap_operands.rs",
+        "sha256": "6a8694c04b73338282f579bce0c81da8b7526fef80a2c2e0b386dee3a171070a"
+      },
+      {
+        "path": "rust-toolchain.toml",
+        "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+      }
+    ]
+  },
+  "source_lineage": {
+    "schema_version": 1,
+    "scope": "Exact Cargo source lineage for four deliberate negative controls and one positive equivalence control. No compilation, solver execution or compiler-preservation result is asserted by this manifest.",
+    "base": {
+      "source": "puzzles/atom-not-equal/puzzle.rs",
+      "sha256": "6d611d79de75c7f657ec489d67af5df17b38b2194257ea10e7e9d6ecf0e76b77"
+    },
+    "abi": {
+      "environment": "strict",
+      "parameters": [
+        "&[u8]",
+        "&[u8]"
+      ],
+      "result": "bool"
+    },
+    "native_cli": {
+      "binary": "chialisp-oxide-byte-proof-native",
+      "arguments": [
+        "VARIANT",
+        "LEFT_HEX",
+        "RIGHT_HEX"
+      ],
+      "stdout": "JSON Boolean literal plus LF on successful invocation; no stdout on argument/variant/hex errors.",
+      "scope": "Actual exported function call over validated atom payloads; this host CLI does not parse or validate an outer CLVM environment.",
+      "source": "experiments/byte-proofs/src/bin/native.rs",
+      "source_sha256": "d3e9df611486c4ecef51b9affe5e3df3e3abd248b28923ac4975552e725a2ffc"
+    },
+    "controls": [
+      {
+        "id": "operator_eq",
+        "role": "negative_mutant",
+        "entry": "chialisp_oxide_byte_proofs::operator_eq::puzzle",
+        "source": "experiments/byte-proofs/src/operator_eq.rs",
+        "source_sha256": "77e20ca2bced0c2480d579075fae1a614bcc74f51cc04502d053a5c855196bff",
+        "operation": "Replace only the != expression with ==; preserve the strict two-slice signature.",
+        "patch": {
+          "format": "unified_diff",
+          "sha256": "810755299b90b3d8bff689317d546ca08318bd4e7428061fa6411dcb45e3e9ed",
+          "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/operator_eq.rs\n@@ -1,4 +1,4 @@\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    left == right\n }\n"
+        }
+      },
+      {
+        "id": "self_inequality",
+        "role": "negative_mutant",
+        "entry": "chialisp_oxide_byte_proofs::self_inequality::puzzle",
+        "source": "experiments/byte-proofs/src/self_inequality.rs",
+        "source_sha256": "d34ba8e4dcf569ba68cd2bc5842645d63285ea684c6fe5e5b14a89a4e1033f3a",
+        "operation": "Replace the right operand with left. The local unused-variable and eq_op allows are intentional non-policy annotations.",
+        "patch": {
+          "format": "unified_diff",
+          "sha256": "0a997044d61dea69e82622879b9ebe40cfca19e0b9ea80ca7223071ec57a8a7b",
+          "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/self_inequality.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables, clippy::eq_op)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    left != left\n }\n"
+        }
+      },
+      {
+        "id": "constant_true",
+        "role": "negative_mutant",
+        "entry": "chialisp_oxide_byte_proofs::constant_true::puzzle",
+        "source": "experiments/byte-proofs/src/constant_true.rs",
+        "source_sha256": "d7a321f4b532e7848b606084fa5d1a5156314b5727b2ab000e7cdd1b707fd18e",
+        "operation": "Replace the expression with true. The local unused-variable allow is intentional.",
+        "patch": {
+          "format": "unified_diff",
+          "sha256": "dd91e0661ae05f6e0804dd5ef5c687d0d11a84d6493e4fea63532c1b1f4ebf6e",
+          "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/constant_true.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    true\n }\n"
+        }
+      },
+      {
+        "id": "constant_false",
+        "role": "negative_mutant",
+        "entry": "chialisp_oxide_byte_proofs::constant_false::puzzle",
+        "source": "experiments/byte-proofs/src/constant_false.rs",
+        "source_sha256": "b08d7c31dd596e7357fdfd909f26c17ee30e90d8ed34b879f055b91756db5f79",
+        "operation": "Replace the expression with false. The local unused-variable allow is intentional.",
+        "patch": {
+          "format": "unified_diff",
+          "sha256": "54018b23ad80b4171f15669ab9ae6d4fd9dbac9bb25d0d04da0bf9ebecd23b35",
+          "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/constant_false.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    false\n }\n"
+        }
+      },
+      {
+        "id": "swap_operands",
+        "role": "positive_equivalence_control",
+        "entry": "chialisp_oxide_byte_proofs::swap_operands::puzzle",
+        "source": "experiments/byte-proofs/src/swap_operands.rs",
+        "source_sha256": "6a8694c04b73338282f579bce0c81da8b7526fef80a2c2e0b386dee3a171070a",
+        "operation": "Swap left and right operands while retaining != and the strict two-slice signature.",
+        "patch": {
+          "format": "unified_diff",
+          "sha256": "01a390f54e0d711563e88ae8d62f64d63f368f31aecd4663c091ca86637590c0",
+          "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/swap_operands.rs\n@@ -1,4 +1,4 @@\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    right != left\n }\n"
+        }
+      }
+    ],
+    "manifest": {
+      "path": "experiments/byte-proofs/Cargo.toml",
+      "sha256": "c3cb8174609c1aa914d098c9c1574f8eae749ff1862ae8a474b50360d821e541"
+    },
+    "library": {
+      "path": "experiments/byte-proofs/src/lib.rs",
+      "sha256": "6ae5e4f17b8c6fc1dabe3c8fc9b32971b082973f0c39521c9402f2229d69b17b"
+    }
+  },
+  "implementation_sources": [
+    {
+      "path": ".cargo/config.toml",
+      "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "8cbba7086756b85a61ac49df6cb0852dd233c88675d8d495c3aba31c8c772aca"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp",
+      "sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_conditions.clsp.hex",
+      "sha256": "9abaa38029f9c9562e320ccecba0910194869ff96fab14cd0ce0e29a5b1e4761"
+    },
+    {
+      "path": "corpus/validation.json",
+      "sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/Cargo.toml",
+      "sha256": "ca9839909764255cd7c535043c853cbb4eb219b2fc4a6cab3ba20e5fbbb5fbc5"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/lib.rs",
+      "sha256": "a379994f7e4df47f305f681fa866cad8c5588cdf8e0d186b7377cac337d960b1"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/main.rs",
+      "sha256": "e4b6f14d5407ce12089737374c77e3a335781b7bc07219d5e8545b16babeaaac"
+    },
+    {
+      "path": "crates/cargo-chialisp-oxide/src/options.rs",
+      "sha256": "5081de9ac5cb01a8b6646cd71d46cc55670c5870efb69b60c830bdd1b8b4cafd"
+    },
+    {
+      "path": "crates/chialisp-oxide-cli/Cargo.toml",
+      "sha256": "f2a125e172606717a14642561ac89cf3a3959024e79864506d8124155ccdf22f"
+    },
+    {
+      "path": "crates/chialisp-oxide-cli/src/main.rs",
+      "sha256": "1275abd52c8f390ac5964d36a60f54eecb0e7e2bc7d016e45807688089ee1ef1"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/Cargo.toml",
+      "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/build.rs",
+      "sha256": "961deb8ee664e2cb6001681308799b71963edef13dad35d09c1d3e5abb25fbd5"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
+      "sha256": "800b8564f0519c3607862439fae67aa12d798b0aa8289da4d06f2a81393f625c"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/factories.rs",
+      "sha256": "982357b174890b9e99eaf80bf96565e6d38aeca93770baaf16413641778ea35d"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/lib.rs",
+      "sha256": "e770011bfd0d301e8019e9410d40c79d301631ea31296e4c7ad210d7805440af"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native.rs",
+      "sha256": "c7ccfc221984f4709f71d140571676b7ad5791df6c75405e6bcf70d42ce0b8b5"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native_owned_tests.rs",
+      "sha256": "0e73f08d1c78261b6396464689a94c73f4894bb56375ec27df7f78feb3aad36c"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
+      "sha256": "e632a03146ad35462d66f1c178b0600bb458bc7026eedf8d80fe983f695645f3"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
+      "sha256": "25276798b987eac4786c8c935644f825c72f221394d1dc6f9eb64f9c01eceba1"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/spends.rs",
+      "sha256": "10dcc1016a350eab8282c92f78d6e419e70ceeed3439146e483431eb85db6097"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/Cargo.toml",
+      "sha256": "50f85bb2d89a6a135a42980a012460924543ff29824e190c9a09de39bb289e44"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/build.rs",
+      "sha256": "38955e9fc009bb4f6f1aacd8bf25a172d2f0d319c09d853180e428ba476b4be6"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/cargo.rs",
+      "sha256": "a3962e259e77c10dd78fc56a75fb5cfcfcc622e8293aff72af4dab4416b22079"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/exports.rs",
+      "sha256": "be58bf1a6daf2d42da0657f16d4e945175d500345c2def0a7cf0a52cde6ec3bf"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower.rs",
+      "sha256": "e5fb6cb38b5fb4371871e2b6b543950ea8ea7b6f0f1d16f17eb4eaf9f393f7db"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/byte_comparison.rs",
+      "sha256": "f5b31da343d7742b2def8705d9be62fb61d00337861248d7d4ed4a55b4fd621d"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/constants.rs",
+      "sha256": "223ff35ec9c7704a485489a305d14e33f0b8d3efd33569be654fc785fa7d7252"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/empty_atoms.rs",
+      "sha256": "98960b579554be3cc7720f0a8b88fb32fa5802b7888c75e053643c546cbfae82"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/newtypes.rs",
+      "sha256": "34fc0e368ddd80f22c0b3b473f538cb7e7f56f6d5769cdab7f8f30544b63760d"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/owned.rs",
+      "sha256": "12140fd8658b8730192df11a40328d4e7dcbeec55f2b15546cfc53569a285508"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
+      "sha256": "d5000d2c98d31c7032faf7989639bb7b9a50bbc142de991d9fbae30d5e66b845"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
+      "sha256": "7e3d1ab4be8e6e99b3dae11cdc39561e39b7340a78e3b5287411df43a323dc66"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/lower/trees.rs",
+      "sha256": "57fd889fd7a6c72cbc37c72153d8204799d45bed26dbfaebe62a263fe786e74f"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/main.rs",
+      "sha256": "c732f9b8d743b61fab618db9e6c7f465fed9277f9010adb5bfe188e34f3d53bf"
+    },
+    {
+      "path": "crates/chialisp-oxide-driver/src/toolchain.rs",
+      "sha256": "53f34a7e82b8d9050c12f893e76a1fe6628e171748c43901068cd08a3781d430"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/Cargo.toml",
+      "sha256": "dcb112db214edf73ccf40d2511627bddffa6ea5e0b103c2a39e93ebc809c6a70"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/lib.rs",
+      "sha256": "64bc1709707166c252119e2940fc72f7708b247303eaf9f157d2d5bcc58455f1"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/lower.rs",
+      "sha256": "58e778cc9c869c44bd03be7889d0777af160ed66176857803a78dd258009fd95"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
+      "sha256": "819aa26f4ca20b89b95ad5ed4a46eff45e9fedabd2276308c4a6c2d5d6fa8d1f"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/optimize.rs",
+      "sha256": "a1a9307126c2bfecaa9f7daca04ea92a8daf7ff64d18d91e06923e3cc2e7bab7"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/validate.rs",
+      "sha256": "defa83bb35d72f5dba05eaba2696ab540bcc91b3fa208302c85785bc2b5aa4ac"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/src/wire.rs",
+      "sha256": "14c1f521f995d2fc2d508be36178b5f88c055ee02fd1bc984c84e8cf0e31a579"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/Cargo.toml",
+      "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/src/lib.rs",
+      "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/Cargo.toml",
+      "sha256": "ebfc835814299a2e19c7804793b9a6dfb2127727c6299cc5251f9ed61bd7630d"
+    },
+    {
+      "path": "crates/chialisp-oxide-reference/src/lib.rs",
+      "sha256": "3664452f79f72ab3d6e78460cbc8ccdc2a49d12228e65158705c386215cccfa4"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/Cargo.toml",
+      "sha256": "705fae227c37bdacf97fc08bec2ef7b80a3b045b4167be42d60e1174ea8cebf7"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
+      "sha256": "56ed57d8ddd83fe4664690e9627eac10fc18be7d56987baff93db868b0b2f2fa"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/src/lib.rs",
+      "sha256": "8fea8834c383889c6931a20ae38f0494cbd796bd0967046463a541b2976481b0"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/Cargo.toml",
+      "sha256": "2b557806bafcfe60d6838aa7d08c942703e85da48bf481be7d261bfd3cace0f6"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/bin/chialisp-oxide-tree-reference.rs",
+      "sha256": "31df02bdd4ddd1b3e90aa2850a6c3f37fbe23c84f62cfdd434bf72be958e581c"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/lib.rs",
+      "sha256": "e66c0c9d3451f6842731f827f389192e35bff68bac893a5d7a0a6152ac1864bd"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/main.rs",
+      "sha256": "39b4e0e99a3255ce3ce4a78568ec33420db1d3c3f50223bcdac80004301b5b69"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/model_bindings.rs",
+      "sha256": "d919c401a448977c9ba7aed0885e120e92f8d7089d84a3fb775f544c1ab3e84d"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/replay.rs",
+      "sha256": "5eaa4f3b704bba4cb35f8f718a064d58c397def7e690645479380cd6e405f059"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/scalar_bitwise.rs",
+      "sha256": "7e36eb161bb66b09aedfc9f850af4a99eaef32ec3ad307cd69512154f81e02f8"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/structural_boolean.rs",
+      "sha256": "a953b4acd7957476cd5c39d11cc09350988f14fea8af42d7f7ba0bf36e9a854f"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/tree.rs",
+      "sha256": "6089ea4e16ac5d40098f1541009fe024a66b94ff280b6b3d2a91df206c57eb0f"
+    },
+    {
+      "path": "crates/chialisp-oxide-verifier/src/tree_witness.rs",
+      "sha256": "0a4e3afb3946cbcc3892c0f0b6b0ec5d0980045187c37b042fbdf61a1e7a3491"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/Cargo.toml",
+      "sha256": "1e2708aa947dbc033aba243f1e9a95c1c9528311d39e04f85ae24ac3c85d1935"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/failure-protocol.json",
+      "sha256": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/src/lib.rs",
+      "sha256": "18d9cc8d12299f42eed97075ce2ffe6f54247656d146f9bf33ccce36ac9312eb"
+    },
+    {
+      "path": "crates/chialisp-oxide/Cargo.toml",
+      "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/domain.rs",
+      "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/owned_tree.rs",
+      "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/tree.rs",
+      "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4"
+    },
+    {
+      "path": "experiments/backend/Cargo.toml",
+      "sha256": "e4c34626890bc2c9aba529fa1481e25fa726d285fa4e3eef644575f0a4cf1bff"
+    },
+    {
+      "path": "experiments/backend/src/lib.rs",
+      "sha256": "af9d9a30dc53e5cbd66ac9b71878165c9ee13b3f294478dd628e04145b7d32e0"
+    },
+    {
+      "path": "experiments/backend/src/main.rs",
+      "sha256": "cfc52705f19aaa2b8ac51a280ece403ce2de8d7215650300de44f36f374128ad"
+    },
+    {
+      "path": "experiments/byte-proofs/Cargo.toml",
+      "sha256": "c3cb8174609c1aa914d098c9c1574f8eae749ff1862ae8a474b50360d821e541"
+    },
+    {
+      "path": "experiments/byte-proofs/src/bin/native.rs",
+      "sha256": "d3e9df611486c4ecef51b9affe5e3df3e3abd248b28923ac4975552e725a2ffc"
+    },
+    {
+      "path": "experiments/byte-proofs/src/constant_false.rs",
+      "sha256": "b08d7c31dd596e7357fdfd909f26c17ee30e90d8ed34b879f055b91756db5f79"
+    },
+    {
+      "path": "experiments/byte-proofs/src/constant_true.rs",
+      "sha256": "d7a321f4b532e7848b606084fa5d1a5156314b5727b2ab000e7cdd1b707fd18e"
+    },
+    {
+      "path": "experiments/byte-proofs/src/lib.rs",
+      "sha256": "6ae5e4f17b8c6fc1dabe3c8fc9b32971b082973f0c39521c9402f2229d69b17b"
+    },
+    {
+      "path": "experiments/byte-proofs/src/lineage.json",
+      "sha256": "01383301784c2dc54ec5c11c7a3d68af4471a13b8f156f737d4ae3fde7a22842"
+    },
+    {
+      "path": "experiments/byte-proofs/src/operator_eq.rs",
+      "sha256": "77e20ca2bced0c2480d579075fae1a614bcc74f51cc04502d053a5c855196bff"
+    },
+    {
+      "path": "experiments/byte-proofs/src/self_inequality.rs",
+      "sha256": "d34ba8e4dcf569ba68cd2bc5842645d63285ea684c6fe5e5b14a89a4e1033f3a"
+    },
+    {
+      "path": "experiments/byte-proofs/src/swap_operands.rs",
+      "sha256": "6a8694c04b73338282f579bce0c81da8b7526fef80a2c2e0b386dee3a171070a"
+    },
+    {
+      "path": "proofs/atom-not-equal/specification.json",
+      "sha256": "7c004d131a254f0209fe42f9e1dae0f84f89a493550f257388a946c1ea105116"
+    },
+    {
+      "path": "proofs/p2-conditions/specification.json",
+      "sha256": "fc037d61678174e7fa4b62e8bd146150069ddf4cdaa55da0d3ae3c3842debb8a"
+    },
+    {
+      "path": "puzzles/atom-not-equal/puzzle.json",
+      "sha256": "4c1f1c24f2e80126dc75d882ae7e40d74f1bae2d0ab6dfe9cee6c7b3be60bfa0"
+    },
+    {
+      "path": "puzzles/atom-not-equal/puzzle.rue",
+      "sha256": "09b9471d891cc275365899c4e8e68687e584277b432befaa055a33b9feac3109"
+    },
+    {
+      "path": "puzzles/atom-not-equal/reference.clsp",
+      "sha256": "4de68afca7601c9fec7f86b17b6b165b903f666671df6d2ffa20c3c279c79ebe"
+    },
+    {
+      "path": "puzzles/p2-conditions/puzzle.json",
+      "sha256": "ea8df2029c0c4d4896feb9d18672f37540316b2280fe6354eddbe656bd344828"
+    },
+    {
+      "path": "puzzles/p2-conditions/reference.clsp",
+      "sha256": "ef451b050debe66fb0be3d79afdcf7c7a15bea45db8ffd04c0d4e7f2b62f396f"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+    },
+    {
+      "path": "scripts/byte_proof_evidence.py",
+      "sha256": "81a6850d0413e40e5615b16aa9e6adfe07f302331918a348e23851e244eff1a0"
+    },
+    {
+      "path": "scripts/cargo_authoring.py",
+      "sha256": "7bd29b007f9dde934633e25ebdd38bc251bce9559ab1ef9b7577551a34a96b78"
+    },
+    {
+      "path": "scripts/cargo_bundle.py",
+      "sha256": "c13dfea86ef922b863753842af9d5bb160eebb46db625f6d3b06c0852cbe1968"
+    },
+    {
+      "path": "scripts/check-byte-proofs.py",
+      "sha256": "960f419515b3c7abfdf598b9b7b83a0cb648d4d0c48cb816a45b228edf0b2f57"
+    },
+    {
+      "path": "scripts/check-canonical-factories.py",
+      "sha256": "e1c2ab549fcb02dd3c9a5151d49cbbe4e3ed1b80a9e6b152ebc575a54ff45ead"
+    },
+    {
+      "path": "scripts/check-canonical-helpers.py",
+      "sha256": "1e8ab0dfb17d925e2c2ae47370cb50e66ec269f5633dd8f08f77485eae60d3f5"
+    },
+    {
+      "path": "scripts/check-tree-proofs.py",
+      "sha256": "b008b801068f8c34dfeb18874bae9c888e36b63943c4bc4bdf2fd56dd7350f16"
+    },
+    {
+      "path": "scripts/ledger_rejections.py",
+      "sha256": "34a131e5a07adfd900dc4917f2002fbfd637e805e6e20da4de93c7819dcd35a5"
+    },
+    {
+      "path": "scripts/vm_failures.py",
+      "sha256": "023596311a11578c4a8e4fbfdad04898bf52e0082ebd5d345c6c7adf35a093ff"
+    },
+    {
+      "path": "vendor/rue-lir/Cargo.toml",
+      "sha256": "d44a24e3c49e4bdb704514c56fab5af6e7cef89c334932c29ecfdc840480c06e"
+    },
+    {
+      "path": "vendor/rue-lir/src/atom.rs",
+      "sha256": "e8784600d223ef461726b2bc1c34066665c4a1db81caa50709e1c91cb9aa29ca"
+    },
+    {
+      "path": "vendor/rue-lir/src/codegen.rs",
+      "sha256": "00801d11a02ae27fea5e4aeb50dc63f6826c90168c74cdc2961b5081435c53d0"
+    },
+    {
+      "path": "vendor/rue-lir/src/debug_dialect.rs",
+      "sha256": "a760055ef20732c1b385d0f6e3beaf8f57942a5701072e3f1728d43df7f2fb9a"
+    },
+    {
+      "path": "vendor/rue-lir/src/error.rs",
+      "sha256": "62124f7555aa117ca0b6c6a746a8d3d575f8178817351417c6fa286c7d36a5d0"
+    },
+    {
+      "path": "vendor/rue-lir/src/lib.rs",
+      "sha256": "50614e827d657118cbe326bab343ed140725cf7122669597c7fd3ee4383692e5"
+    },
+    {
+      "path": "vendor/rue-lir/src/lir.rs",
+      "sha256": "72374c9316852444345b3c76cb8c0ac7a7a746616da7a9c60127718628bcb372"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize.rs",
+      "sha256": "6740310b3768dae34aa416d5e88e5297793c4e0397cb225d799b50ebbba2dab5"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/arg_list.rs",
+      "sha256": "9be085603f01650f9fd61a9d95fe546eb990cf453263a2e8622c43744c5ef7de"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/ops.rs",
+      "sha256": "dc5721bea8cf680806f01742198c44897e4cfaf16d4af66a743edbda16fec823"
+    },
+    {
+      "path": "vendor/rue-lir/src/optimize/truthy.rs",
+      "sha256": "f04f550e76dedf45b8ac1ee7b15348e19b7a7e5fa1466489168a4c89696ec615"
+    },
+    {
+      "path": "vendor/rue-lir/src/path.rs",
+      "sha256": "b78f6d92f6a5342e425c00d0d3eb4023f0eb443e0f1a8d99505230dd93134f72"
+    },
+    {
+      "path": "www/scripts/ledger-rejections.mjs",
+      "sha256": "50646386a8cfc4214cd4b861994b25e6640ee4cf261282017042c00d53fda1a6"
+    },
+    {
+      "path": "www/scripts/vm-failures.mjs",
+      "sha256": "51515997b8366c77c250be8532b0e27e716bd590353344c7ef850480e25dae0c"
+    }
+  ],
+  "specification": {
+    "path": "proofs/atom-not-equal/specification.json",
+    "sha256": "7c004d131a254f0209fe42f9e1dae0f84f89a493550f257388a946c1ea105116"
+  },
+  "artifacts": [
+    {
+      "path": "proofs/atom-not-equal/constant_false-abi_nonvacuity.smt2",
+      "sha256": "abddb6853321266b4c1cf967f18272306b16ce25d600d570af635f08b77502ca"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-acceptance_nonvacuity.smt2",
+      "sha256": "30f9b0404bc6914aab0694f6d4381514192f5c55db6f7ec5b4aa58dda256ddb9"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-counterexample.smt2",
+      "sha256": "5f6edd17c361f8c587dcfbe4ad2ae184b39dcad9e57543549edd885d70228aab"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-false_nonvacuity.smt2",
+      "sha256": "f78bf3674af4762b74cb58bde38c3b9740561c2c22f69a203a7ad327e008ecc4"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-off.clvm.hex",
+      "sha256": "4a964440c93446ef4abf96c9cb6089655ed370386aa0d5f305329d4f0b34ea32"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-on.clvm.hex",
+      "sha256": "a0c7d87c921d16cacea6c8798b753d8dcd433a84a6c39f6f50ac5bbb05f3a254"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false-true_nonvacuity.smt2",
+      "sha256": "75855d860d8c275d10cd198bd74b4fd2d5c2c858e4a6f35aea11258c9e0ac2ae"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_false.ir.json",
+      "sha256": "e4d434065822fa9d20a365a18465f21c3d381b9835bd4753edce7ca54d38d5e1"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-abi_nonvacuity.smt2",
+      "sha256": "abddb6853321266b4c1cf967f18272306b16ce25d600d570af635f08b77502ca"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-acceptance_nonvacuity.smt2",
+      "sha256": "30f9b0404bc6914aab0694f6d4381514192f5c55db6f7ec5b4aa58dda256ddb9"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-counterexample.smt2",
+      "sha256": "a90b530a4b623cc2a52912806e5cecb6cb825a5be4fbe4bee52ffb5a5dbc51e6"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-false_nonvacuity.smt2",
+      "sha256": "f78bf3674af4762b74cb58bde38c3b9740561c2c22f69a203a7ad327e008ecc4"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-off.clvm.hex",
+      "sha256": "99c6da2ab8f1b1a660b36083de1c559f7334c2d7e5cdd4fb760633736c083684"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-on.clvm.hex",
+      "sha256": "e42b81b85ec1d1c95d9c8d0566b10034bc7a80a16904cd29aa9a3388c4014289"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true-true_nonvacuity.smt2",
+      "sha256": "75855d860d8c275d10cd198bd74b4fd2d5c2c858e4a6f35aea11258c9e0ac2ae"
+    },
+    {
+      "path": "proofs/atom-not-equal/constant_true.ir.json",
+      "sha256": "bb015a39e7f9b2640fa9c242ae85f3d3bf7f1db76e32e4bd867af70b536082cc"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-abi_nonvacuity.smt2",
+      "sha256": "7924445186fb237fe468d1a2e41fe2411cb7006ecfd5e35a142cb57d9d45f068"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-acceptance_nonvacuity.smt2",
+      "sha256": "7e7e46d4d8396e387ff6a9dd0544d150e5897c07ca7cd4157959b3a20c8f227d"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-counterexample.smt2",
+      "sha256": "128730cc02f47807aa59621b79f66604cc5f1e6e5c0fa82bc7a7b0a08b417e2c"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-false_nonvacuity.smt2",
+      "sha256": "a2719c8b0a79b15642f73f1b9f036adf5a6cd5f5cd87e996f2658ba3d4e2cd67"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-off.clvm.hex",
+      "sha256": "f11cccf7f1ce19b2c3e1ff14d6859449e1f45877fb4a90d0a8fde97ec1bc3478"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-on.clvm.hex",
+      "sha256": "4948a6a2b4950ff14ede387d74a79b10782b5114e71de1f2a1e95a4eb0dde154"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing-true_nonvacuity.smt2",
+      "sha256": "85b2ee51743de21053c1408e5ede4581624f8fe4107607b0360f1ffeacfebda3"
+    },
+    {
+      "path": "proofs/atom-not-equal/fixed_length_narrowing.ir.json",
+      "sha256": "b4b7c968dfd28f44559f64ed25302d9436c083c76d3e1946da97fc016277bbe1"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-abi_nonvacuity.smt2",
+      "sha256": "5283c6d69432c6249a3d08eed7bfcc27a2a5f61fb8f4137ed716ec6842cfe36b"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-acceptance_nonvacuity.smt2",
+      "sha256": "9b61776abc511c35d852f548b58c2411e211cf5cb8743e8b3e367a8f33a73054"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-counterexample.smt2",
+      "sha256": "fb82269060a8016e80b409a7027d10169f6e284b4aed78d1e26ed7254ea768e5"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-false_nonvacuity.smt2",
+      "sha256": "ddd5ec96fa6d4b5a3aec67ae193c7f78156d109f28d9fbd1559e1f19f74bb97b"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-off.clvm.hex",
+      "sha256": "9a4a6bae46e0991e58190efaaa8338909f376b0981ad3288c0f51c5b28c3834f"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-on.clvm.hex",
+      "sha256": "e70d1542527be2b7c230956c15da83e41a632f04a4434c4b0d992057b823502c"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment-true_nonvacuity.smt2",
+      "sha256": "90fbf56a6fe1cb403b911f5598033d70a85e9f6e6544a993f63dda8b2e31363c"
+    },
+    {
+      "path": "proofs/atom-not-equal/loose_environment.ir.json",
+      "sha256": "c4fe51967d4bc09f9c30e5d584c5bcac617bc9f5d5ff3c49b008aa4381e0bdd2"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-abi_nonvacuity.smt2",
+      "sha256": "bac8805bda9c1e89955e8a20d85bc7b0bb34bcbadf4d10a8610bee0ee3e72c0f"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-acceptance_nonvacuity.smt2",
+      "sha256": "7a8cf2bdcf9d9bdf44d1f38af3807b3b0bfece85ef7c65ea100ee50ebd0926ec"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-counterexample.smt2",
+      "sha256": "db2996966207f027f7339080d7cb674319855beb459e01fdb1330707e00d5ec2"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-false_nonvacuity.smt2",
+      "sha256": "35a6e0772f00b2d8f7348454fa7fb6a3ce94a81c34addf73ae58a0b8e810c008"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-off.clvm.hex",
+      "sha256": "aea359e21e34cff3a8f98707bd3173af87be1fac563870704b7b46b913426b70"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-on.clvm.hex",
+      "sha256": "01a0e5ec6a57bf456f2906e0293e41abeb33878636920496bcc80514415e3e6e"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq-true_nonvacuity.smt2",
+      "sha256": "94cbe772db43e00447876849b2859eb7e233d7e1911db5022d7a78364c2fb587"
+    },
+    {
+      "path": "proofs/atom-not-equal/operator_eq.ir.json",
+      "sha256": "6321532ff8cf3bdd8876a78694edf95f39348b42532ea6f65a02d9583d16edf1"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-abi_nonvacuity.smt2",
+      "sha256": "bef34fe390b479df15937e4c7dea99455f89c1439263a9c670884c7cf88b6e5d"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-acceptance_nonvacuity.smt2",
+      "sha256": "933707e0556a8b8128560dcb04741da6eb6dc83973407699a4ea6abe3fe8371e"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-counterexample.smt2",
+      "sha256": "63fea576978ba9b022a406fc1fd0518c788363e386f5790899801b1b7d01e1eb"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-false_nonvacuity.smt2",
+      "sha256": "237450d613b820c6bef3026b2e786ad140b1729f3b3159a92ab0a842b55537f8"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-off.clvm.hex",
+      "sha256": "6587b2904d573df1bfdabb8b2cc63cb6ba9993558afbf18add02998348796d66"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-on.clvm.hex",
+      "sha256": "9459ef64ffc7db5923e3e21cbcaeec0e80d4336f95a61edef81851906184638b"
+    },
+    {
+      "path": "proofs/atom-not-equal/original-true_nonvacuity.smt2",
+      "sha256": "2707252b319dbdaf3550b9865395aaf430aa7c2205b29f0aba894b8620b38df0"
+    },
+    {
+      "path": "proofs/atom-not-equal/original.ir.json",
+      "sha256": "be536fff2f614aab6dc5a85d1b023e27e86eb74f026fef32c3800bffa7c8ef48"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-abi_nonvacuity.smt2",
+      "sha256": "0b838eae5f204963efd1135555fbe0ab64fdffd4c68a5f0a699d35cfe82e45b8"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-acceptance_nonvacuity.smt2",
+      "sha256": "91792e0c0a7f961777013f53450cdd5bff9bea7de30b3d92dd45d51e0b88d440"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-counterexample.smt2",
+      "sha256": "b12974af80296d9872a8dedc1bfe82092043361da5231f13e4a0ec6dd1824edf"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-false_nonvacuity.smt2",
+      "sha256": "ff2a70ca0cd866ac220f332cec84b6e1d4b3a1e29264063df87d4f8c01b53e76"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-off.clvm.hex",
+      "sha256": "3f0169955c59476b4f3d853a84a4537b616ac4dda060a67f5a6be49328aafd3e"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-on.clvm.hex",
+      "sha256": "d6744f50343779039890c38a0b58ce44c58e17541fcbc6274f9f725df2662c99"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality-true_nonvacuity.smt2",
+      "sha256": "4b28a1cb83bb2565fb26eb72ff0863d78507718c30a4e649fb7a914d3c328ec2"
+    },
+    {
+      "path": "proofs/atom-not-equal/self_inequality.ir.json",
+      "sha256": "003e6e924ee6f94ad5ef57b517812f2df24f2067b221ddca179e3e5171839782"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-abi_nonvacuity.smt2",
+      "sha256": "c9980937a75a6e7370e63f9ddf53eeb2ab673f479c4bbf012e5917a1d739e4af"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-acceptance_nonvacuity.smt2",
+      "sha256": "8d398254d88d5ed9f5ec68b24a172bcc48c192a8ce8c0dc102b1cc0669acfb89"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-counterexample.smt2",
+      "sha256": "204be84bc2a1f785d92c249100f45d3bc0fc534c404340a606702568e00e0400"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-false_nonvacuity.smt2",
+      "sha256": "3a43c61501352270444942d7ffc9ab2cafe3d31c5b72efbb289536d37f2d263d"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-off.clvm.hex",
+      "sha256": "2810fa7c042c8535eea58892ed7aee594a6b7b15a2e7b3475712f503dcd5c3a1"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-on.clvm.hex",
+      "sha256": "bd615d2c205b75578457152b551eaf1e69ef0ea958c56a546fdfa4501bc26ab0"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands-true_nonvacuity.smt2",
+      "sha256": "045a63cab825bc66be80cc63e8d55286fffb04c0f0ae78ea01f036f3a2b3c02c"
+    },
+    {
+      "path": "proofs/atom-not-equal/swap_operands.ir.json",
+      "sha256": "d6d9364fbe7759fca22833ec8d45d7f1dcfa26cdbe9962ea1273c62033feb45b"
+    }
+  ],
+  "models": [
+    {
+      "id": "original",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/original.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/original-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/original-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/original-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/original-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/original-counterexample.smt2"
+      },
+      "result": {
+        "status": "proven",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 169,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff20ffff09ffff05ff0180ffff05ffff06ff0180808080ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "e4d92a082755eb987d7d13ee8964b99ca0bd329cd3dcee0eaa520123ad156d7d"
+        },
+        {
+          "bytes": 127,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff01ff20ffff09ff02ff05808080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "1d5941e564822d4d968f024cbdd0b3a13e2f6a0c4b8e436596be5d12a003afe9"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "abi_nonvacuity",
+            "acceptance_nonvacuity",
+            "false_witness"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "80"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2193,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1788,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1230,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 3644,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2663,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 2193
+              },
+              "artifact": "proofs/atom-not-equal/original-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 2193,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1788
+              },
+              "artifact": "proofs/atom-not-equal/original-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1788,
+                "error": null
+              }
+            }
+          ],
+          "native_control": null
+        },
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": "00"
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "true_witness"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "01"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2194,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1789,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1231,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 3645,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2664,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 2194
+              },
+              "artifact": "proofs/atom-not-equal/original-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 2194,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1789
+              },
+              "artifact": "proofs/atom-not-equal/original-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1789,
+                "error": null
+              }
+            }
+          ],
+          "native_control": null
+        }
+      ]
+    },
+    {
+      "id": "operator_eq",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/operator_eq.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/operator_eq-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/operator_eq-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/operator_eq-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/operator_eq-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/operator_eq-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 165,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff09ffff05ff0180ffff05ffff06ff01808080ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "acd398d268761970ff99747dc15dff675189d9a5493a3f45182e6948fd384b90"
+        },
+        {
+          "bytes": 123,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff01ff09ff02ff058080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "8f790301377c4d3ae58ba26851fc46e2c55408465658471b45ed49f513cb1871"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "80"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2193,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1788,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1230,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 3644,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2663,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1992
+              },
+              "artifact": "proofs/atom-not-equal/operator_eq-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1992,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1587
+              },
+              "artifact": "proofs/atom-not-equal/operator_eq-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1587,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_inequality",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/self_inequality.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/self_inequality-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/self_inequality-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/self_inequality-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/self_inequality-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/self_inequality-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 165,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff20ffff09ffff05ff0180ffff05ff01808080ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "39af264bfcc1ec06e64ca963708f988d5c689829d4ae5a80218f1eb98e48fd25"
+        },
+        {
+          "bytes": 127,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff01ff20ffff09ff02ff02808080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "844067f32bfa206cfb1a55bd44eb48c33f2de12b3b4a07b0074442050f77e379"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": "00"
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "01"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2194,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1789,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1231,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 3645,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2664,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 2162
+              },
+              "artifact": "proofs/atom-not-equal/self_inequality-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 2162,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1784
+              },
+              "artifact": "proofs/atom-not-equal/self_inequality-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1784,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "80"
+          }
+        }
+      ]
+    },
+    {
+      "id": "constant_true",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/constant_true.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/constant_true-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/constant_true-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/constant_true-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/constant_true-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/constant_true-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 149,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff0101ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "c034af5ad2dcee1712a4d709b9bb6b5e8ac8f421d72ecb05ab8bcb8983ff98d5"
+        },
+        {
+          "bytes": 119,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff01ff010180ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "a612e83c300e7d546e339c0982e6ab12bfdf24284e7ba8da9e73abc2bf8e518e"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "80"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2193,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1788,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1230,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 3644,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2663,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1713
+              },
+              "artifact": "proofs/atom-not-equal/constant_true-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1713,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1389
+              },
+              "artifact": "proofs/atom-not-equal/constant_true-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1389,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "constant_false",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/constant_false.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/constant_false-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/constant_false-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/constant_false-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/constant_false-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/constant_false-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 147,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff0180ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "b8bc8e2b3e1d563f1e6423a3faf02ae2548b442d789982b195b278ed766568b6"
+        },
+        {
+          "bytes": 117,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff018080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "cbfd84c7266a3472e97a8d4ad0ce3454927b2420a221ee2e007c82d8a0b5fb09"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": "00"
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "01"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2194,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1789,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1231,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 3645,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2664,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1737
+              },
+              "artifact": "proofs/atom-not-equal/constant_false-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1737,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1413
+              },
+              "artifact": "proofs/atom-not-equal/constant_false-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1413,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "80"
+          }
+        }
+      ]
+    },
+    {
+      "id": "swap_operands",
+      "origin": "actual_cargo_source",
+      "ir": "proofs/atom-not-equal/swap_operands.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/swap_operands-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/swap_operands-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/swap_operands-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/swap_operands-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/swap_operands-counterexample.smt2"
+      },
+      "result": {
+        "status": "proven",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 169,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff20ffff09ffff05ffff06ff018080ffff05ff01808080ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "9a9c70ce2969228644a4249677830b06abdaa18e935e679452583ead9194a689"
+        },
+        {
+          "bytes": 127,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ff07ffff01ff0880ffff01ff20ffff09ff05ff02808080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "f4860f1a45b115d580ad0d9d5d4be46d6f42c95375119c67d722a9f79428c836"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "abi_nonvacuity",
+            "acceptance_nonvacuity",
+            "false_witness"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "80"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2193,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1788,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1230,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 3644,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2663,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 2193
+              },
+              "artifact": "proofs/atom-not-equal/swap_operands-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 2193,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1788
+              },
+              "artifact": "proofs/atom-not-equal/swap_operands-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1788,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "80"
+          }
+        },
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": "00"
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "true_witness"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "01"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "01"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2194,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1789,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 1231,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 3645,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "01"
+                  },
+                  "cost": 2664,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 2194
+              },
+              "artifact": "proofs/atom-not-equal/swap_operands-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 2194,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "01",
+                "cost": 1789
+              },
+              "artifact": "proofs/atom-not-equal/swap_operands-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "01"
+                },
+                "cost": 1789,
+                "error": null
+              }
+            }
+          ],
+          "native_control": {
+            "status": "accepted",
+            "output_hex": "01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "loose_environment",
+      "origin": "synthetic_abi_ir_control",
+      "ir": "proofs/atom-not-equal/loose_environment.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/loose_environment-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/loose_environment-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/loose_environment-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/loose_environment-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/loose_environment-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "atom",
+            "hex": ""
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 83,
+          "clvm_hex": "ff20ffff09ffff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff05ff018080ff0180ffff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff05ffff06ff01808080ff01808080",
+          "optimize": false,
+          "tree_hash": "d4d8b1b7ccc95f3c2489e6d153d46546e50a82c3f535142705e0fcf83b73b900"
+        },
+        {
+          "bytes": 59,
+          "clvm_hex": "ff20ffff09ffff02ffff03ffff07ff0280ffff01ff0880ffff010280ff0180ffff02ffff03ffff07ff0580ffff01ff0880ffff010580ff01808080",
+          "optimize": true,
+          "tree_hash": "fd81372f2529353c6c908af7869c5c47baede495f1107955141f019a8603ddcd"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "pair",
+                  "first": {
+                    "kind": "atom",
+                    "hex": ""
+                  },
+                  "rest": {
+                    "kind": "atom",
+                    "hex": ""
+                  }
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "rejected"
+          },
+          "expected_modeled": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "original": {
+            "native": {
+              "status": "rejected"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "rejected"
+                  },
+                  "cost": null,
+                  "error": "InvalidOpArg(NodePtr(Pair, 84), \"= used on list\")",
+                  "failure": {
+                    "kind": "program",
+                    "code": "invalid_op_arg"
+                  }
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "rejected"
+                  },
+                  "cost": null,
+                  "error": "Raise(NodePtr(SmallAtom, 0))",
+                  "failure": {
+                    "kind": "program",
+                    "code": "raise"
+                  }
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "rejected"
+                  },
+                  "cost": null,
+                  "error": "Raise(NodePtr(SmallAtom, 0))",
+                  "failure": {
+                    "kind": "program",
+                    "code": "raise"
+                  }
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "rejected"
+                  },
+                  "cost": null,
+                  "error": "Raise(NodePtr(SmallAtom, 0))",
+                  "failure": {
+                    "kind": "program",
+                    "code": "raise"
+                  }
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "rejected"
+                  },
+                  "cost": null,
+                  "error": "Raise(NodePtr(SmallAtom, 0))",
+                  "failure": {
+                    "kind": "program",
+                    "code": "raise"
+                  }
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 1139
+              },
+              "artifact": "proofs/atom-not-equal/loose_environment-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 1139,
+                "error": null
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "accepted",
+                "output_hex": "80",
+                "cost": 977
+              },
+              "artifact": "proofs/atom-not-equal/loose_environment-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "accepted",
+                  "output_hex": "80"
+                },
+                "cost": 977,
+                "error": null
+              }
+            }
+          ],
+          "native_control": null
+        }
+      ]
+    },
+    {
+      "id": "fixed_length_narrowing",
+      "origin": "synthetic_abi_ir_control",
+      "ir": "proofs/atom-not-equal/fixed_length_narrowing.ir.json",
+      "queries": {
+        "abi_nonvacuity": "proofs/atom-not-equal/fixed_length_narrowing-abi_nonvacuity.smt2",
+        "acceptance_nonvacuity": "proofs/atom-not-equal/fixed_length_narrowing-acceptance_nonvacuity.smt2",
+        "true_nonvacuity": "proofs/atom-not-equal/fixed_length_narrowing-true_nonvacuity.smt2",
+        "false_nonvacuity": "proofs/atom-not-equal/fixed_length_narrowing-false_nonvacuity.smt2",
+        "counterexample": "proofs/atom-not-equal/fixed_length_narrowing-counterexample.smt2"
+      },
+      "result": {
+        "status": "refuted",
+        "abi_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": "0000"
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "0000"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "acceptance_nonvacuity": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "true_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": "00"
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "false_witness": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        },
+        "counterexample": {
+          "environment": {
+            "kind": "pair",
+            "first": {
+              "kind": "atom",
+              "hex": ""
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "atom",
+                "hex": ""
+              }
+            }
+          }
+        }
+      },
+      "artifacts": [
+        {
+          "bytes": 245,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff010280ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff0dffff05ffff06ff01808080ffff010280ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff20ffff09ffff05ff0180ffff05ffff06ff0180808080ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": false,
+          "tree_hash": "bf1869be38e6fa05f5eabbc60bcc3ca8174f38b5d6c306659a1275e209bf79e8"
+        },
+        {
+          "bytes": 191,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0280ffff010280ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0580ffff010280ffff01ff02ffff03ff07ffff01ff0880ffff01ff20ffff09ff02ff05808080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "optimize": true,
+          "tree_hash": "1ae5d06ada6c0484f422b083023312a8b6d8166a4d377715823a25a7b75de0e9"
+        }
+      ],
+      "replays": [
+        {
+          "witness": {
+            "environment": {
+              "kind": "pair",
+              "first": {
+                "kind": "atom",
+                "hex": ""
+              },
+              "rest": {
+                "kind": "pair",
+                "first": {
+                  "kind": "atom",
+                  "hex": ""
+                },
+                "rest": {
+                  "kind": "atom",
+                  "hex": ""
+                }
+              }
+            }
+          },
+          "roles": [
+            "counterexample"
+          ],
+          "expected_original": {
+            "status": "accepted",
+            "output_hex": "80"
+          },
+          "expected_modeled": {
+            "status": "rejected"
+          },
+          "original": {
+            "native": {
+              "status": "accepted",
+              "output_hex": "80"
+            },
+            "runs": [
+              {
+                "backend": "rust_mir",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2193,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rust_mir",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1788,
+                  "error": null
+                }
+              },
+              {
+                "backend": "chialisp",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 1230,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": false,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 3644,
+                  "error": null
+                }
+              },
+              {
+                "backend": "rue_source",
+                "optimize_lir": true,
+                "execution": {
+                  "outcome": {
+                    "status": "accepted",
+                    "output_hex": "80"
+                  },
+                  "cost": 2663,
+                  "error": null
+                }
+              }
+            ]
+          },
+          "modeled": [
+            {
+              "optimize": false,
+              "outcome": {
+                "status": "rejected",
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "kind": "program",
+                  "code": "raise"
+                }
+              },
+              "artifact": "proofs/atom-not-equal/fixed_length_narrowing-off.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "rejected"
+                },
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "kind": "program",
+                  "code": "raise"
+                }
+              }
+            },
+            {
+              "optimize": true,
+              "outcome": {
+                "status": "rejected",
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "kind": "program",
+                  "code": "raise"
+                }
+              },
+              "artifact": "proofs/atom-not-equal/fixed_length_narrowing-on.clvm.hex",
+              "retained_execution": {
+                "outcome": {
+                  "status": "rejected"
+                },
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "kind": "program",
+                  "code": "raise"
+                }
+              }
+            }
+          ],
+          "native_control": null
+        }
+      ]
+    }
+  ]
+}

@@ -45,3 +45,29 @@ The valid Rue lambda witness is recorded in the reproduction note.
 Upstream issue: https://github.com/xch-dev/rue/issues/111
 Patch: ../../patches/rue-quoted-run-nil.patch
 Scope and reproduction: ../../patches/rue-quoted-run-nil.md
+
+Fifth local fix: src/optimize/ops.rs retains nested Logand/Logior reductions.
+Flattening them deferred an inner integer check until every outer operand had
+evaluated. For a malformed external pair passed to a Rue Int entrypoint, that
+could change immediate InvalidOpArg rejection into CostExceeded from a recursive
+sibling. The conservative fix removes only those two flattening arms and keeps
+literal folding. Tests preserve rightmost-first evaluation, exact finite numeric
+results, malformed pair rejection, and well-typed recursive controls. Adapter
+regressions also exercise explicit source type guards. This does not establish
+a mismatch on well-typed inputs or a vulnerability in the Rust typed ABI.
+Upstream issue: https://github.com/xch-dev/rue/issues/112
+Patch: ../../patches/rue-nested-bitwise-failure-order.patch
+Scope and reproduction: ../../patches/rue-nested-bitwise-failure-order.md
+
+Sixth local fix: src/optimize/ops.rs removes double Not only when the underlying
+producer returns canonical Boolean bytes (nil or atom 1). Unknown paths and
+integer masks retain normalization. Without this check, valid Rue `value != 0`
+could return raw atom 2, and comparing it with true could change the answer.
+A separate truthiness-only rewrite in src/optimize/truthy.rs removes double Not
+when exact bytes are unobserved, while evaluating the original value once.
+Execution tests cover returned values, comparisons, tuple fields, Boolean
+operations, condition-only artifact equality, and required producer failures.
+This is not a general proof of arbitrary-LIR or other truthiness rewrites.
+Upstream issue: https://github.com/xch-dev/rue/issues/113
+Patch: ../../patches/rue-canonical-boolean-values.patch
+Scope and reproduction: ../../patches/rue-canonical-boolean-values.md

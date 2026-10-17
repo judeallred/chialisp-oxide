@@ -12,6 +12,8 @@ verified Cargo authoring metadata and source-snapshot changes. Explicitly allowi
 added puzzles still compares every baseline puzzle in its original order.
 The add-rue comparison admits newly validated Rue sources/builds and cross-language
 ledger runs while preserving every existing Rust/Chialisp observation.
+Runtime-frames mode permits only the reviewed optimization pipeline transition
+and optimized Rust artifacts/metrics for the two recursive tree helpers.
 """
 
 import argparse
@@ -32,6 +34,15 @@ ROOT = Path(__file__).resolve().parents[1]
 HEX = re.compile(r"(?:[0-9a-f]{2})+")
 HASH = re.compile(r"[0-9a-f]{64}")
 SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+PIPELINE = {
+    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "runtime_frame_elision", "rue_lir"]},
+    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+}
+PREVIOUS_PIPELINE = {
+    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
+    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+}
+RUNTIME_FRAME_PUZZLES = {"rightmost-tree", "last-list-element"}
 
 
 def require(condition, message):
@@ -75,6 +86,9 @@ def check_report(report, *, require_typed_failures=True):
             "Expected corpus schema_version 1")
     if require_typed_failures:
         require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
+        require(report.get("optimization_pipeline") == PIPELINE, "Missing or unsupported recorded optimization pipeline")
+    elif "optimization_pipeline" in report:
+        require(report["optimization_pipeline"] in (PIPELINE, PREVIOUS_PIPELINE), "Unsupported historical optimization pipeline")
     check_ledger_report(report, require_typed=require_typed_failures)
     puzzles = report["puzzles"]
     require(isinstance(puzzles, list) and puzzles, "Expected a nonempty puzzle corpus")
@@ -133,17 +147,17 @@ def check_report(report, *, require_typed_failures=True):
 def check_sources(report, root, require_rue=False):
     root = root.resolve()
     if require_rue:
-        require(report.get("optimization_pipeline") == {
-            "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
-            "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
-        }, "Missing or unsupported recorded optimization pipeline")
+        require(report.get("optimization_pipeline") == PIPELINE, "Missing or unsupported recorded optimization pipeline")
         require(report.get("rue_local_patches") == [
-            f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111)
+            f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)
         ], "Incomplete Rue local patch provenance")
     for puzzle in report["puzzles"]:
-        source = root / "puzzles" / puzzle["slug"] / "puzzle.rs"
+        source = contained_file(root, f"puzzles/{puzzle['slug']}/puzzle.rs")
         require(source.read_bytes().decode() == puzzle["source"],
                 f"{puzzle['slug']}: report contains stale puzzle source; rerun validation")
+        reference = contained_file(root, f"puzzles/{puzzle['slug']}/reference.clsp")
+        require(reference.read_bytes().decode() == puzzle["reference"],
+                f"{puzzle['slug']}: report contains stale Chialisp reference; rerun validation")
         if require_rue or "rue" in puzzle:
             rue = puzzle["rue"]
             require(rue["path"] == f"puzzles/{puzzle['slug']}/puzzle.rue", "Rue source identity mismatch")
@@ -220,6 +234,26 @@ def retained_puzzles(baseline, current):
     return result
 
 
+def runtime_frames_behavior(report):
+    """Retain every source/contract and only omit the two reviewed on metrics."""
+    result = copy.deepcopy(report)
+    result["optimization_pipeline"] = copy.deepcopy(PIPELINE)
+    require(RUNTIME_FRAME_PUZZLES <= {p["slug"] for p in result["puzzles"]}, "Missing reviewed runtime-frame fixture")
+    for puzzle in result["puzzles"]:
+        if puzzle["slug"] not in RUNTIME_FRAME_PUZZLES:
+            continue
+        for artifact in puzzle["artifacts"]:
+            if artifact["backend"] == "rust_mir" and artifact["optimize_lir"] is True:
+                for field in ("bytes", "clvm_hex", "tree_hash", "disassembly"):
+                    del artifact[field]
+        for case in puzzle["cases"]:
+            for run in case["runs"]:
+                if run["backend"] == "rust_mir" and run["optimize_lir"] is True:
+                    for field in ("cost", "error", "failure"):
+                        run["execution"].pop(field, None)
+    return result
+
+
 def comparison_projection(baseline, current, comparison, *, allow_added=False):
     """Validate current failures before dropping any comparison-only metadata.
 
@@ -229,6 +263,14 @@ def comparison_projection(baseline, current, comparison, *, allow_added=False):
     """
     check_report(current)
     check_report(baseline, require_typed_failures=False)
+    if comparison == "runtime-frames":
+        require(not allow_added, "Runtime-frame comparison cannot add puzzles")
+        require(baseline.get("optimization_pipeline") == PREVIOUS_PIPELINE, "Runtime-frame baseline must use the reviewed previous pipeline")
+        # Unlike older migration modes, this baseline already has typed failures;
+        # validate them rather than applying historical field exemptions.
+        typed_baseline = {**baseline, "optimization_pipeline": PIPELINE}
+        check_report(typed_baseline)
+        return runtime_frames_behavior(baseline), runtime_frames_behavior(current)
     compared = retained_puzzles(baseline, current) if allow_added else copy.deepcopy(current)
 
     def historical_shape(old, new):
@@ -317,10 +359,76 @@ class ComparisonTests(unittest.TestCase):
             "simulator": [{"passed": True}],
         }]}
 
+    def test_runtime_frames_preserves_every_unreviewed_record(self):
+        artifact = {"clvm_hex": "80", "bytes": 1, "tree_hash": "a" * 64, "disassembly": "()"}
+        builds = [("rust_mir", False), ("rust_mir", True), ("chialisp", True)]
+        baseline = {"schema_version": 1, "vm_failure_protocol": PROTOCOL,
+                    "optimization_pipeline": copy.deepcopy(PREVIOUS_PIPELINE),
+                    "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11", "rejection_protocol": LEDGER_PROTOCOL},
+                    "puzzles": []}
+        for slug in ("rightmost-tree", "last-list-element", "untouched"):
+            baseline["puzzles"].append({
+                "slug": slug, "kind": "pure_function", "environment": "raw", "validated": True,
+                "source": "same Rust", "source_dependencies": [], "reference": "same Chialisp",
+                "artifacts": [{**artifact, "backend": backend, "optimize_lir": optimize} for backend, optimize in builds],
+                "cases": [{"label": "accepted", "solution": "()", "native": {"status": "accepted", "output_hex": "80"},
+                           "runs": [{"backend": backend, "optimize_lir": optimize, "execution": {
+                               "outcome": {"status": "accepted", "output_hex": "80"}, "cost": 20, "error": None}}
+                                    for backend, optimize in builds]},
+                          {"label": "rejected", "solution": "1", "native": {"status": "rejected"},
+                           "runs": [{"backend": backend, "optimize_lir": optimize, "execution": {
+                               "outcome": {"status": "rejected"}, "cost": None, "error": "Raise(original)",
+                               "failure": {"kind": "program", "code": "raise"}}}
+                                    for backend, optimize in builds]}],
+                "simulator": [],
+            })
+        current = copy.deepcopy(baseline)
+        current["optimization_pipeline"] = copy.deepcopy(PIPELINE)
+        for puzzle in current["puzzles"][:2]:
+            puzzle["artifacts"][1].update(clvm_hex="01", disassembly="1", tree_hash="b" * 64)
+            puzzle["cases"][0]["runs"][1]["execution"]["cost"] = 10
+            puzzle["cases"][1]["runs"][1]["execution"].update(
+                error="PathIntoAtom", failure={"kind": "program", "code": "path_into_atom"})
+        self.assertIsNone(first_difference(*comparison_projection(baseline, current, "runtime-frames")))
+        for mutation in ("source", "dependency", "reference", "off_artifact", "off_cost", "reference_cost",
+                         "other_artifact", "other_cost", "result", "native", "resource", "missing_failure",
+                         "solution", "abi", "ledger", "remove", "reorder", "case_order", "run_order", "pipeline"):
+            bad = copy.deepcopy(current)
+            puzzle = bad["puzzles"][0]
+            if mutation == "source": puzzle["source"] = "changed Rust"
+            elif mutation == "dependency": puzzle["source_dependencies"] = [{"path": "changed.rs"}]
+            elif mutation == "reference": puzzle["reference"] = "changed reference"
+            elif mutation in ("off_artifact", "other_artifact"):
+                row = puzzle if mutation == "off_artifact" else bad["puzzles"][2]
+                row["artifacts"][0 if mutation == "off_artifact" else 1]["tree_hash"] = "c" * 64
+            elif mutation in ("off_cost", "reference_cost", "other_cost"):
+                row = bad["puzzles"][2] if mutation == "other_cost" else puzzle
+                row["cases"][0]["runs"][{"off_cost": 0, "reference_cost": 2, "other_cost": 1}[mutation]]["execution"]["cost"] += 1
+            elif mutation == "result": puzzle["cases"][0]["runs"][1]["execution"]["outcome"]["output_hex"] = "01"
+            elif mutation == "native": puzzle["cases"][0]["native"]["output_hex"] = "01"
+            elif mutation == "resource": puzzle["cases"][1]["runs"][1]["execution"]["failure"] = {"kind": "resource", "code": "cost_exceeded"}
+            elif mutation == "missing_failure": del puzzle["cases"][1]["runs"][1]["execution"]["failure"]
+            elif mutation == "solution": puzzle["cases"][0]["solution"] = "2"
+            elif mutation == "abi": puzzle["environment"] = "ignored"
+            elif mutation == "ledger": puzzle["simulator"] = [{"passed": True}]
+            elif mutation == "remove": bad["puzzles"].pop()
+            elif mutation == "reorder": bad["puzzles"].reverse()
+            elif mutation == "case_order": puzzle["cases"].reverse()
+            elif mutation == "run_order": puzzle["cases"][0]["runs"].reverse()
+            else: bad["optimization_pipeline"]["rue_source"]["optimized"].append("unexpected")
+            with self.subTest(mutation=mutation):
+                try:
+                    difference = first_difference(*comparison_projection(baseline, bad, "runtime-frames"))
+                except (ValueError, KeyError):
+                    continue
+                self.assertIsNotNone(difference)
+        with self.assertRaises(ValueError):
+            comparison_projection(current, current, "runtime-frames")
+
     def test_current_failures_are_checked_before_every_comparison_projection(self):
         artifact = {"clvm_hex": "80", "bytes": 1, "tree_hash": "a" * 64, "disassembly": "()"}
         builds = [("rust_mir", False), ("rust_mir", True), ("chialisp", True)]
-        current = {"schema_version": 1, "vm_failure_protocol": PROTOCOL,
+        current = {"schema_version": 1, "vm_failure_protocol": PROTOCOL, "optimization_pipeline": copy.deepcopy(PIPELINE),
                    "simulator": {"sdk": "chia-sdk-test 0.36.0", "consensus": "chia-consensus 0.36.1", "vm": "clvmr 0.16.2", "network": "TESTNET11", "rejection_protocol": LEDGER_PROTOCOL}, "puzzles": [{
             "slug": "example", "kind": "pure_function", "validated": True, "source": "source", "source_dependencies": [],
             "artifacts": [{**artifact, "backend": backend, "optimize_lir": optimize} for backend, optimize in builds],
@@ -416,10 +524,12 @@ class ComparisonTests(unittest.TestCase):
             puzzle = root / "puzzles/example/puzzle.rs"
             puzzle.parent.mkdir(parents=True)
             puzzle.write_text("fn puzzle() {}\n")
+            reference = puzzle.with_name("reference.clsp")
+            reference.write_text("(mod () ())\n")
             dependency = root / "domain.rs"
             dependency.write_text("// domain source\n")
             report = {"puzzles": [{
-                "slug": "example", "source": puzzle.read_text(),
+                "slug": "example", "source": puzzle.read_text(), "reference": reference.read_text(),
                 "source_dependencies": [{
                     "path": "domain.rs", "source": dependency.read_text(),
                     "sha256": hashlib.sha256(dependency.read_bytes()).hexdigest(),
@@ -430,6 +540,10 @@ class ComparisonTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "stale puzzle source"):
                 check_sources(report, root)
             puzzle.write_text(report["puzzles"][0]["source"])
+            reference.write_text("(mod () (x))\n")
+            with self.assertRaisesRegex(ValueError, "stale Chialisp reference"):
+                check_sources(report, root)
+            reference.write_text(report["puzzles"][0]["reference"])
             dependency.write_text("// changed condition encoder\n")
             with self.assertRaisesRegex(ValueError, "Stale dependency source"):
                 check_sources(report, root)
@@ -485,6 +599,7 @@ class ComparisonTests(unittest.TestCase):
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
                      "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
                      "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
+                     "crates/chialisp-oxide/src/owned_tree.rs",
                      "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:
                 target = root / path
@@ -599,8 +714,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--current", type=Path, default=ROOT / "corpus/validation.json")
     parser.add_argument("--baseline", type=Path, help="explicit pre-refactor corpus report")
-    parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration", "add-rue"), default="exact",
-                        help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata; add-rue preserves old builds while admitting independent Rue evidence")
+    parser.add_argument("--comparison", choices=("exact", "semantic", "cargo-migration", "add-rue", "runtime-frames"), default="exact",
+                        help="exact by default; semantic allows Rust codegen changes; cargo-migration allows verified authoring metadata; add-rue preserves old builds while admitting independent Rue evidence; runtime-frames permits only the two reviewed optimized recursive helpers")
     parser.add_argument("--changes", type=Path, help="write comparison scope and codegen metric changes as JSON")
     parser.add_argument("--allow-added-puzzles", action="store_true",
                         help="with cargo-migration baseline only: compare every original puzzle exactly, allowing additional rows")

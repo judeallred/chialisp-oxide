@@ -5,6 +5,10 @@
   "manifest": "puzzles/Cargo.toml",
   "library": "puzzles/lib.rs",
   "exports": {
+    "atom-not-equal": {
+      "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
+      "source": "puzzles/atom-not-equal/puzzle.rs"
+    },
     "boolean-gate": {
       "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
       "source": "puzzles/boolean-gate/puzzle.rs"
@@ -20,6 +24,10 @@
     "fixed-payment": {
       "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
       "source": "puzzles/fixed-payment/puzzle.rs"
+    },
+    "insertion-sort-by-keys": {
+      "entry": "chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle",
+      "source": "puzzles/insertion-sort-by-keys/puzzle.rs"
     },
     "intro-add": {
       "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
@@ -40,6 +48,10 @@
     "p2-conditions": {
       "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
       "source": "puzzles/p2-conditions/puzzle.rs"
+    },
+    "prefix-list": {
+      "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
+      "source": "puzzles/prefix-list/puzzle.rs"
     },
     "recovery-payment": {
       "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
@@ -70,25 +82,33 @@
     ".cargo/config.toml",
     "Cargo.lock",
     "Cargo.toml",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
     "crates/chialisp-oxide-macros/Cargo.toml",
     "crates/chialisp-oxide-macros/src/lib.rs",
     "crates/chialisp-oxide/Cargo.toml",
     "crates/chialisp-oxide/src/domain.rs",
     "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/owned_tree.rs",
     "crates/chialisp-oxide/src/tree.rs",
     "puzzles/Cargo.toml",
+    "puzzles/atom-not-equal/generated-cases.json",
+    "puzzles/atom-not-equal/puzzle.rs",
     "puzzles/authoring.json",
     "puzzles/boolean-gate/puzzle.rs",
     "puzzles/bounded-counter/puzzle.rs",
     "puzzles/capped-payment/puzzle.rs",
     "puzzles/fixed-payment/puzzle.rs",
     "puzzles/fixture_keys.rs",
+    "puzzles/insertion-sort-by-keys/generated-cases.json",
+    "puzzles/insertion-sort-by-keys/puzzle.rs",
     "puzzles/intro-add/puzzle.rs",
     "puzzles/intro-conditional/puzzle.rs",
     "puzzles/intro-list/puzzle.rs",
     "puzzles/last-list-element/puzzle.rs",
     "puzzles/lib.rs",
     "puzzles/p2-conditions/puzzle.rs",
+    "puzzles/prefix-list/generated-cases.json",
+    "puzzles/prefix-list/puzzle.rs",
     "puzzles/recovery-payment/puzzle.rs",
     "puzzles/rightmost-tree/puzzle.rs",
     "puzzles/signature-payment/puzzle.rs",

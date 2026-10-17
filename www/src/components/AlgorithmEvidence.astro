@@ -1,0 +1,35 @@
+---
+import evidence from '../../../experiments/tree-theorems/results.json';
+import { href, format } from '../lib/data';
+const bridge = evidence.finite_bridge;
+const sources = ['TreeTheorems.lean', 'ProofObligations.lean', 'check-model.py'];
+const sourceURL = (filename: string) => `https://github.com/judeallred/chialisp-oxide/blob/main/experiments/tree-theorems/${filename}`;
+---
+<section class="algorithm-evidence" aria-label="Lean algorithm model and finite execution bridge">
+  <p><span class="badge">recorded kernel check</span> <strong>Lean finite-tree algorithm theorems</strong></p>
+  <p>The manually authored model has {evidence.expected_theorem_types} independently checked theorem types. Its prefix, proper-list decoder, last-element helper and strict two-argument entry theorems quantify over all finite model trees. They are not extracted from Rust, MIR, the project IR or CLVM.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong>{bridge.cases}</strong><span>finite model equalities</span></div>
+    <div class="metric"><strong>{format(bridge.vm_replays_executed)}</strong><span>recorded VM replays</span></div>
+    <div class="metric"><strong>{bridge.artifacts.length}</strong><span>compiled artifacts</span></div>
+  </div>
+  <p>The finite bridge uses {bridge.prefix_cases} <a href={href('lab/prefix-list/')}>prefix-list</a> inputs and {bridge.last_inner_cases} <a href={href('lab/last-list-element/')}>last-list-element</a> inputs from the current corpus. Each input has native Rust and five separately recorded CLVM builds: Rust and Rue with optimization off/on, plus Chialisp. Closed Lean equalities check these exact input/output trees against the model; optional replay was executed for all {format(bridge.recorded_vm_observations)} recorded VM observations.</p>
+  <p><strong>These are separate evidence layers.</strong> Unbounded manual algorithm theorems do not turn finite Rust/Chialisp/Rue comparisons into a compiler-preservation proof. They establish neither extraction/lowering correctness nor termination, resource equivalence, consensus validity or production readiness. Resource and infrastructure failures cannot count as rejection witnesses.</p>
+  <p>The recorded full run includes {evidence.mutation_controls} protocol, expected-type, algorithm and execution-evidence corruption controls. Lean checks run with warnings treated as errors and <code>-t0</code>; the compiler/kernel and standard library remain trusted. Only the explicitly allowed axiom dependencies are accepted.</p>
+  <details><summary>Inspect all {evidence.theorems.length} theorem audits</summary>
+    <ul>{evidence.theorems.map(theorem => <li><code>{theorem.name}</code> · {theorem.axioms.length ? <>axioms: <code>{theorem.axioms.join(', ')}</code></> : 'no axioms'}</li>)}</ul>
+  </details>
+  <details data-pagefind-ignore><summary>Inspect the model, independent type oracle and checker</summary>
+    <p>These GitHub links show the source; the report records the exact SHA-256 identities checked for this run.</p>
+    <ul>{sources.map(filename => <li><a href={sourceURL(filename)}>{filename}</a> · <code class="algorithm-hash">{evidence.inputs.find(input => input.path === filename)?.sha256}</code></li>)}</ul>
+    <p>{evidence.lean.version}. Recorded Lean binary SHA-256: <code class="algorithm-hash">{evidence.lean.sha256}</code>.</p>
+    <p>The report also binds both adapters, manifests, declared dependencies, pinned helper/license provenance, current corpus results, generated bridge and compiled artifacts.</p>
+  </details>
+  <p><a href={href('reports/tree-theorems.json')}>Download the algorithm theorem and finite-bridge record →</a></p>
+  <p class="quiet">The site runs a freshness-only check of this record. It does not execute Lean or the VM, independently validate the recorded tool binaries, or replace the full kernel/replay run.</p>
+</section>
+<style>
+  .algorithm-evidence { border: 1px solid var(--oxide-line); border-radius: 6px; padding: 1.2rem; margin-block: 1.5rem; }
+  summary { cursor: pointer; } li { margin-block: .5rem; }
+  .algorithm-hash { overflow-wrap: anywhere; font-size: .7rem; }
+</style>

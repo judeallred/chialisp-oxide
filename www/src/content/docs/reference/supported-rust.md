@@ -15,7 +15,14 @@ ABI; see [ignored environments](/chialisp-oxide/reference/abi/#explicitly-ignore
 
 Extraction uses `nightly-2026-07-14`, reporting Rust 1.99.0-nightly. Ordinary Rust
 analysis, including type and borrow checking, must succeed before typed MIR
-lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
+lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed. The
+installed pinned compiler and matching unmodified standard library are trusted.
+Target configuration and actual loaded core/alloc/std and primitive-owner
+locations must use the pinned installation. Canonical aliases work; relocated
+roots, custom targets and backend overrides reject. These checks do not
+authenticate installed bytes. See
+[compiler trust](/chialisp-oxide/reference/compiler-trust/) and the
+[toolchain trust notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/toolchain-trust.md).
 
 ## Implemented values and control flow
 
@@ -23,15 +30,30 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 - Local values, tuple fields, comparisons, boolean negation, `if`, integer and
   boolean `match`, and acyclic control flow.
 - Checked `+`, `-`, and `*`; overflow rejects the puzzle.
+- Built-in integer `&`, `|`, `^` and `!` at each supported signed/unsigned
+  width; `bool` also supports strict `&`, `|` and `^`. These do not add
+  wrapping arithmetic or shift support. See [bit masks](#bit-masks-and-evaluation-order).
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
-- Local/SDK helpers, including lifetime-only generics for borrowed trees. Acyclic
+- Local/SDK helpers, including lifetime-only generics for borrowed and owned trees. Acyclic
   source graphs inline into expressions; self, mutual, and non-tail recursion
   use a closed runtime function table. Type/const generic functions remain rejected.
 - Named scalar and fixed-byte constants, including supported transparent wrappers
   of those values: typed policy amounts, recipient hashes, and public fixture keys.
   The restricted tree route also lowers supported promoted shared constants from their real MIR. General pointer and tuple constants remain unsupported.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
+- Ordinary `==` and `!=` on immutable `u8` slices and identical `[u8; N]`
+  arrays through immutable references, within the existing 256-element limit.
+  Actual primitive standard `PartialEq` implementations are resolved before
+  logical type erasure. Mixed slice/array comparisons, custom trait
+  implementations and arbitrary tree equality remain unsupported. See
+  [exact atom bytes](/chialisp-oxide/tutorials/atom-not-equal/).
+- Ordinary `<`, `<=`, `>` and `>=` on those same primitive byte types use
+  unsigned lexicographic ordering, matching CLVM `>s`. Proper prefixes come
+  first; padding and high-bit bytes remain data. The actual standard
+  `PartialOrd` members and concrete implementations are checked separately
+  from equality. This adds neither numeric decoding nor custom trait dispatch.
+  See [order entries by byte keys](/chialisp-oxide/tutorials/insertion-sort-by-keys/).
 - Nongeneric, single-field `#[repr(transparent)]` nominal wrappers declared
   locally or in the vetted SDK, over supported nonzero-size values.
   Rust checks their identity; lowering erases
@@ -43,7 +65,8 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
   dispatch are outside the accepted subset.
 - Supported MIR constant array projections. Ordinary indexing that needs an
   index local or reference is rejected.
-- Empty-slice patterns on supported borrowed atoms, such as `Tree::Atom([])`.
+- Empty-slice patterns on supported atom slices, such as `Tree::Atom([])` or
+  `OwnedTree::Atom([])`.
   Nil matches; nonempty zero bytes do not. The frontend validates the complete
   pinned MIR metadata-test chain and erases its compiler-generated pointer and
   `usize` intermediates. General length methods, indexing and raw pointers
@@ -51,6 +74,61 @@ lowering. No `RUSTC_BOOTSTRAP` is required. Printed MIR is not parsed.
 
 Byte arrays and tuple-like products use different encodings. The compiler does
 not use Rust's native in-memory layout as an on-chain ABI.
+
+The [byte-policy proof guide](/chialisp-oxide/verification/byte-proofs/) checks
+the actual Cargo IR of one strict byte-argument/Boolean export against an
+independent whole-environment specification. It covers the original, five real
+source controls and two labeled synthetic ABI edits, with nonvacuity checks and
+selected native/retained-program replays. This model result is separate from
+frontend support tests: it does not prove standard-library bridging, the
+emitted decoder, complete Rust/Chialisp parity or compiler preservation.
+
+## Bit masks and evaluation order
+
+Use named constants to explain each bit's meaning. A mask can express which
+features a policy allows; it does not establish who may exercise them.
+
+```rust
+const READ: u8 = 0b0000_0001;
+const WRITE: u8 = 0b0000_0010;
+const KNOWN: u8 = READ | WRITE;
+
+#[chialisp_oxide::puzzle]
+pub fn validate_flags(flags: u8) -> bool {
+    assert!((flags & !KNOWN) == 0);
+    (flags & WRITE) != 0
+}
+```
+
+Here `!KNOWN` is the 8-bit value `0b1111_1100`. It is not CLVM's unbounded
+complement, which would be negative. The frontend lowers unsigned complement
+as XOR with the maximum of the actual Rust width. Signed complement uses XOR
+with -1; signed values retain two's-complement semantics. Bitwise results stay
+within the original type, while the exact numeric ABI still rejects padded,
+out-of-range and incorrectly signed inputs. This is integer arithmetic, not a
+byte-string comparison or operation on serialized CLVM.
+
+On Boolean values, `left & right` and `left | right` evaluate **both** operands.
+`false & check()` still calls `check()`, and `true | check()` does too.
+Use `&&` or `||` when the intended policy is conditional evaluation. Failure
+and divergence in a required operand must remain observable in either compiler
+mode. These distinctions follow the [Rust operator rules](https://doc.rust-lang.org/reference/expressions/operator-expr.html#arithmetic-and-logical-binary-operators).
+
+The compiler regressions extract actual Cargo sources, compare native results,
+exercise strict/lazy failures and recursive calls, and execute both optimization
+modes. Separate fixed-width SMT models check bitwise identities and detect
+mutations. Those model checks do not prove MIR extraction or CLVM lowering.
+
+```sh
+cargo test --locked -p chialisp-oxide-driver --test bitwise
+cargo test --locked -p chialisp-oxide-ir --test bitwise
+cargo test --locked -p chialisp-oxide-verifier --test bitwise
+```
+
+A caller can supply any `u8` at this boundary. The assertion rejects unknown
+bits; no Rust type or mask supplies signature authorization, fee policy or
+conservation. SHA256, integer shifts, rotations and wrapping addition remain
+outside the supported subset.
 
 ## Runtime calls and borrowed recursion
 
@@ -77,8 +155,9 @@ callee starts with fresh locals; branch selection remains lazy.
 
 Runtime functions currently reject assignments through tuple/field projections;
 construct and assign a complete value instead. Constants and promoted shared
-values retain their bounded acyclic lowering path. CFG loops, allocating tree
-accumulators, closure captures, and general `apply` remain unsupported. Runtime
+values retain their bounded acyclic lowering path. CFG loops, closure captures,
+and general `apply` remain unsupported. Restricted owned tree construction is
+described below. Runtime
 recursion does not bypass rustc borrow checking or permit escaping local
 references. The input-policy attributes are unchanged; see the
 [version-4 wire contract](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers).
@@ -89,6 +168,50 @@ rejection. Current scalar/tree SMT models reject all runtime IR, including dead
 calls and unused tables. Finite witness replay is execution evidence rather than
 a termination or compiler-preservation proof. Durable regressions are documented
 in [runtime calls](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md).
+
+## Owned tree outputs with the alloc feature
+
+Enable the facade's opt-in `alloc` Cargo feature to use `OwnedTree<'a>`:
+
+```rust
+pub enum OwnedTree<'a> {
+    Atom(&'a [u8]),
+    Pair(Box<Self>, Box<Self>),
+}
+```
+
+Atom bytes remain borrowed; pair nodes have ordinary Rust ownership. Functions
+can consume an input tree, move its children out of their boxes, and construct
+an owned result without returning a reference to a stack-local node. Shared
+reads followed by a move still pass normal rustc borrow checking. This enables
+the [published prefix helper](/chialisp-oxide/tutorials/prefix-list/), which copies
+a proper list's outer spine onto an arbitrary final tail.
+
+This is a restricted value interpretation of the actual standard `Box` with
+its default `Global` allocator, not general heap or standard-library support.
+The compiler checks the recursive two-variant shape, actual Box identities,
+constructor calls, and complete compiler-generated metadata use chains. It
+keeps the original typed MIR intact. Atom/pair values have the existing tree
+ABI; addresses, allocation identity, and Rust memory layout are not exposed.
+Standard cleanup can be erased only for the validated pure owned shape, while
+initializers and their failures remain strict.
+
+Custom `Drop`, other Box pointees or allocator parameters, visible global
+allocator overrides on owned exports, pointer comparisons, raw-pointer
+conversion, leaks, and `mem::forget` remain rejected. The default facade has no
+heap feature enabled; unannotated native Rust can still use ordinary containers.
+
+Native owned-tree comparisons check whole input trees and the prefix result's
+depth before constructing boxed inputs or entering the policy panic adapter.
+Codec, allocation, and host-bound errors are inconclusive. Output encoding
+consumes trees iteratively, including when it encounters an output resource
+limit, so that an error does not leave a deep recursive output destructor.
+These safeguards do not claim that arbitrary native Rust cannot exhaust memory.
+
+The separate Lean experiment proves manually authored finite-tree algorithms
+against list specifications. It does not prove Rust ownership erasure or
+Rust/MIR/IR/CLVM preservation. Recursive owned exports still use version-4 IR,
+which the current SMT model APIs reject.
 
 ## Rejected features
 
@@ -101,7 +224,7 @@ It does not admit arbitrary enums, mutable references, or allocation. Recursive
 functions can traverse these borrowed values without changing Rust ownership. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
 
 General references, type/const generic functions, arbitrary external function calls, CFG loops,
-allocation, general structs/enums, casts, floating point, shifts, bitwise arithmetic,
+allocation beyond the restricted owned-tree Box route, general structs/enums, casts, floating point, shifts,
 division, and remainder are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
 `-Funsafe-code`, including unsafe code that MIR might otherwise eliminate.
@@ -152,7 +275,9 @@ The IR independently validates the complete entry and every function body:
 expression depth 256, 20,000 declared type nodes, type depth 32, and 500,000
 validation-work units. Runtime lowering checks an additional 128 new frame
 bindings beyond arguments and 500,000 work units, including local-type copies,
-before cloning scopes. A later estimated four-million-unit/depth-96 expansion
+before cloning scopes. Optimized runtime lowering separately limits live operand
+descriptors to 128 and direct expression descent to 192; forwarding values must
+not bypass the compiler's resource limits. A later estimated four-million-unit/depth-96 expansion
 check can reject an otherwise structurally valid table. These bounds constrain
 compiler work; they do not establish affordable or terminating execution for
 every input.

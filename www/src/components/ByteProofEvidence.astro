@@ -1,0 +1,133 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import evidence from '../../../corpus/byte-proofs.json';
+import source from '../../../puzzles/atom-not-equal/puzzle.rs?raw';
+import specification from '../../../proofs/atom-not-equal/specification.json';
+import originalIR from '../../../proofs/atom-not-equal/original.ir.json';
+import { href, format } from '../lib/data';
+
+type Model = (typeof evidence.models)[number];
+type ReplayGroup = Model['replays'][number];
+
+const models = evidence.models;
+const groups = models.flatMap<ReplayGroup>(model => model.replays);
+const sourceControls = evidence.source_lineage.controls;
+const proven = models.filter(model => model.result.status === 'proven').length;
+const refuted = models.filter(model => model.result.status === 'refuted').length;
+const sourceGroups = models.filter(model => model.origin === 'actual_cargo_source').flatMap<ReplayGroup>(model => model.replays).length;
+const nativeControls = groups.filter(group => group.native_control !== null).length;
+const originalRuns = groups.reduce((sum, group) => sum + group.original.runs.length, 0);
+const modeledRuns = groups.reduce((sum, group) => sum + group.modeled.length, 0);
+const retainedRuns = groups.reduce((sum, group) => sum + group.modeled.filter(run => 'retained_execution' in run).length, 0);
+const vmRuns = originalRuns + modeledRuns + retainedRuns;
+const labels: Record<string, string> = {
+  original: 'Original: left != right', operator_eq: 'Replace != with ==',
+  self_inequality: 'Compare left != left', constant_true: 'Return true',
+  constant_false: 'Return false', swap_operands: 'Swap operands: right != left',
+  loose_environment: 'Synthetic: ignore the outer tail',
+  fixed_length_narrowing: 'Synthetic: require two-byte operands',
+};
+const roles: Record<string, string> = {
+  abi_nonvacuity: 'valid modeled ABI', acceptance_nonvacuity: 'specified acceptance',
+  true_witness: 'specified true result', false_witness: 'specified false result',
+  counterexample: 'counterexample',
+};
+const github = (path: string) => `https://github.com/judeallred/chialisp-oxide/blob/main/${path}`;
+const download = (path: string) => href(`reports/byte-proofs/${encodeURIComponent(path.split('/').at(-1)!)}`);
+const outcome = (value: { status: string; output_hex?: string }) => {
+  if (value.status === 'rejected') return 'Program rejection';
+  if (value.output_hex === '80') return 'False · serialized hex 80';
+  if (value.output_hex === '01') return 'True · serialized hex 01';
+  throw new Error('Byte proof evidence requires a canonical Boolean outcome');
+};
+interface Tree { kind: string; hex?: string; first?: Tree; rest?: Tree }
+function preview(tree: Tree, budget = { nodes: 256 }, depth = 0): string {
+  if (--budget.nodes < 0 || depth > 64) return '…';
+  if (tree.kind === 'atom' && typeof tree.hex === 'string') {
+    if (tree.hex === '') return '()';
+    return tree.hex.length <= 128 ? `0x${tree.hex}` : `0x${tree.hex.slice(0, 128)}… [${tree.hex.length / 2} bytes]`;
+  }
+  if (tree.kind === 'pair' && tree.first && tree.rest) {
+    return `(${preview(tree.first, budget, depth + 1)} . ${preview(tree.rest, budget, depth + 1)})`;
+  }
+  throw new Error('Malformed recorded byte-proof environment');
+}
+---
+
+<section class="byte-evidence" aria-label="Source-derived byte policy model evidence" data-byte-proof-evidence>
+  <p><span class="badge">IR-model evidence</span> <strong>Exact byte inequality and its complete input contract</strong></p>
+  <p>{evidence.scope.claim} The counterexample domain includes arbitrary finite environment trees, including malformed lists and nonempty zero atoms.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong>{models.length}</strong><span>modeled programs</span></div>
+    <div class="metric"><strong>{proven}</strong><span>IR-model proofs</span></div>
+    <div class="metric"><strong>{refuted}</strong><span>refuted controls</span></div>
+    <div class="metric"><strong>{groups.length}</strong><span>finite replay groups</span></div>
+  </div>
+  <p>The IR extracted from the original and operand-swapped sources satisfies the same specification in the model. The other source controls and the two explicitly synthetic ABI controls have counterexamples. <strong>Rust accepts the source controls.</strong> These are policy mistakes checked against an additional specification, not new Rust compiler errors.</p>
+
+  <h3>Follow the actual source into the model</h3>
+  <div data-byte-proof-source={evidence.source_lineage.base.source}><Code code={source} lang="rust" /></div>
+  <p>The source is an annotated export of the actual Cargo library, <code>{evidence.authoring.entry}</code>. Extraction checks the fresh Cargo bundle, pinned compiler identity and local driver digest before retaining the exact IR bytes. The source-control files are separate real Cargo exports with recorded patches and native calls.</p>
+  <p>The independently written specification navigates the complete environment. It requires <code>pair(A, pair(B, empty-atom))</code> with atom operands; its output is the empty atom when their complete bytes match and atom <code>01</code> otherwise. The specification is not rebuilt from a mutated program's parameter types.</p>
+  <details data-pagefind-ignore>
+    <summary>Compare the retained source IR with the independent specification</summary>
+    <p><a href={download('original.ir.json')} download="original.ir.json">Download the exact original Cargo IR</a></p>
+    <Code code={JSON.stringify(originalIR, null, 2)} lang="json" />
+    <p><a href={download(evidence.specification.path)} download="specification.json">Download the independent whole-environment specification</a></p>
+    <Code code={JSON.stringify(specification, null, 2)} lang="json" />
+  </details>
+
+  <h3>Inspect the source controls and ABI counterexamples</h3>
+  <p>Each row group combines identical witnesses within one model. The {sourceGroups} actual-source groups include the original policy and the five Cargo controls. The two ABI controls are constructed IR, with no claim that a native Rust mutation produced them.</p>
+  {models.map(model => {
+    const control = sourceControls.find(control => control.id === model.id);
+    return <details class="byte-model" data-byte-proof-model={model.id} data-byte-proof-origin={model.origin} data-byte-proof-status={model.result.status}>
+      <summary><strong>{labels[model.id] ?? model.id}</strong> · {model.result.status === 'proven' ? 'model proven' : 'counterexample replayed'}</summary>
+      {model.id === 'original' ? <p><a href={github(evidence.source_lineage.base.source)}>Original Cargo source</a> · <a href={download(model.ir)}>Retained IR</a></p>
+        : control ? <>
+          <p><a href={github(control.source)}>Actual Rust source</a> · <a href={download(model.ir)}>Extracted Cargo IR</a></p>
+          <p>{control.operation}</p>
+          {control.id === 'self_inequality' && <p>The fixture deliberately allows <code>clippy::eq_op</code> and unused variables. Default Clippy may catch this obvious self-comparison; allowing the expected lint lets this separate model-counterexample check run. The complete added attributes are visible in its patch and linked source.</p>}
+          <details data-pagefind-ignore><summary>Read the exact source patch</summary><Code code={control.patch.text} lang="diff" /></details>
+        </> : <p>This is a synthetic ABI experiment. <a href={download(model.ir)}>Inspect the constructed IR</a>. {model.id === 'loose_environment' ? 'The raw environment adapter reads two atom heads but ignores extra or improper tails.' : 'The strict decoder requires two bytes per operand, excluding atom widths that the original permits.'}</p>}
+      <div class="byte-scroll" role="region" aria-label={`${labels[model.id] ?? model.id} witness outcomes`} tabindex="0" data-pagefind-ignore>
+        <table>
+          <caption>Recorded whole-environment witnesses and finite outcomes</caption>
+          <thead><tr><th scope="col">Witness roles and environment preview</th><th scope="col">Original contract</th><th scope="col">Modeled program</th></tr></thead>
+          <tbody>{model.replays.map(group => <tr data-byte-proof-replay={model.id}>
+            <th scope="row"><span>{group.roles.map(role => roles[role] ?? role).join(' · ')}</span><code class="byte-tree">{preview(group.witness.environment)}</code></th>
+            <td>{outcome(group.expected_original)}</td><td>{outcome(group.expected_modeled)}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+      <p class="quiet">Environment previews use explicit dotted pairs and hexadecimal atom contents. The JSON record retains complete witness bytes and typed VM failures.</p>
+    </details>;
+  })}
+
+  <h3>Keep model proofs and finite replays distinct</h3>
+  <p>ABI and specified-acceptance witnesses establish nonempty domains. Separate specified true and false witnesses are required for this helper. Their queries never constrain the source body to succeed, so constant results or an overly narrow ABI cannot hide behind rejection.</p>
+  <p>For each of the {groups.length} replay groups, the gate executes the original native policy and five original CLVM builds. The verifier compiles and internally replays modeled IR in both modes; a separate CLI run executes each retained serialized file. This records {format(vmRuns)} VM executions: {format(originalRuns)} original-language runs, {format(modeledRuns)} internal modeled-IR runs and {format(retainedRuns)} retained-file runs, plus {nativeControls} additional native source-control calls. Each internal/file pair must agree on the output and accepted cost or typed rejection code. Original Chialisp and Rue artifacts remain independent language builds; the constructed mutants are not labeled Chialisp or Rue source ports.</p>
+  <p>False is successful evaluation: its atom contents are empty and its serialized output hex is <code>80</code>. True has atom contents <code>01</code> and serialized output hex <code>01</code>. Literal atom contents <code>80</code>, <code>00</code> and <code>0000</code> are different data. Resources and infrastructure failures abort replay instead of confirming rejection.</p>
+  <p><strong>This proves a property of the stated IR model.</strong> It includes a modeled strict decoder and byte-sequence semantics. It does not prove rustc extraction, the standard-library primitive bridge, the actual ABI decoder, Rue optimization or CLVM lowering preserves those semantics. The pinned installed compiler and standard library remain trusted; source hashes are not a binary attestation.</p>
+  <details data-pagefind-ignore data-byte-proof-downloads>
+    <summary>Download {evidence.artifacts.length + 1} retained IR, query, compiled-artifact and specification files</summary>
+    <p>Each linked file is bound by SHA-256 in the proof record. Compiled artifacts and finite replay costs are evidence, not a universal preservation theorem.</p>
+    <ul>{[evidence.specification, ...evidence.artifacts].map(artifact => <li><a href={download(artifact.path)} download={artifact.path.split('/').at(-1)}>{artifact.path.split('/').at(-1)}</a> · <code class="byte-hash">{artifact.sha256}</code></li>)}</ul>
+  </details>
+  <p><a href={href('reports/byte-proofs.json')}>Download the complete byte proof and replay record →</a></p>
+  <p class="quiet">Recorded toolchain: {evidence.toolchain}. Solver: {evidence.solver}. A freshness check does not rerun Rust, Z3 or the VM, authenticate a fabricated run, or independently revalidate installed binaries.</p>
+</section>
+
+<style>
+  .byte-evidence { border: 1px solid var(--oxide-line); border-radius: 6px; padding: 1.2rem; margin-block: 1.5rem; }
+  .byte-model { margin-block: 1rem; border-block-start: 1px solid var(--oxide-line); padding-block-start: .75rem; }
+  summary { cursor: pointer; }
+  .byte-scroll { overflow-x: auto; margin-block: 1rem; }
+  table { width: 100%; margin: 0; }
+  caption { text-align: left; margin-block-end: .5rem; }
+  th, td { vertical-align: top; }
+  .byte-tree { display: block; margin-block-start: .5rem; white-space: normal; overflow-wrap: anywhere; }
+  .byte-hash { overflow-wrap: anywhere; font-size: .7rem; }
+  li { margin-block: .5rem; }
+  @media (max-width: 40rem) { .byte-evidence { padding: .8rem; } table { min-width: 34rem; } }
+</style>

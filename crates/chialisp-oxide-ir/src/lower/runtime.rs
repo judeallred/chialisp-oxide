@@ -18,6 +18,12 @@ enum Binding {
     Temporary(usize),
 }
 
+#[derive(Clone, Copy)]
+enum Value {
+    Slot(Binding),
+    Literal(LirId),
+}
+
 #[derive(Clone)]
 struct Scope<'a> {
     parameters: &'a [Parameter],
@@ -43,10 +49,13 @@ struct Runtime<'a, 'p> {
     lower: &'a mut Lower<'p>,
     next_temporary: usize,
     work: usize,
+    optimize: bool,
+    pending_operands: usize,
+    expression_depth: usize,
 }
 
 type Continuation<'a, 'p, 'c> =
-    dyn FnMut(&mut Runtime<'a, 'p>, &Scope<'_>, &[Binding]) -> Result<LirId> + 'c;
+    dyn FnMut(&mut Runtime<'a, 'p>, &Scope<'_>, &[Value]) -> Result<LirId> + 'c;
 
 impl<'a, 'p> Runtime<'a, 'p> {
     fn charge(&mut self, amount: usize) -> Result<()> {
@@ -89,6 +98,49 @@ impl<'a, 'p> Runtime<'a, 'p> {
         Ok(self.list_slot(3, index))
     }
 
+    fn value(&mut self, scope: &Scope<'_>, value: Value) -> Result<LirId> {
+        match value {
+            Value::Slot(binding) => self.slot(scope, binding),
+            Value::Literal(value) => Ok(value),
+        }
+    }
+
+    fn is_leaf(expression: &Expr) -> bool {
+        matches!(
+            expression,
+            Expr::Arg { .. }
+                | Expr::Local { .. }
+                | Expr::Atom { .. }
+                | Expr::Bytes { .. }
+                | Expr::Unit
+                | Expr::Bool { .. }
+                | Expr::Int { .. }
+        )
+    }
+
+    fn leaf(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<Value> {
+        Ok(match expression {
+            Expr::Arg { index } => Value::Slot(Binding::Argument(*index)),
+            Expr::Local { local_id } => Value::Slot(Binding::Local(*local_id)),
+            _ => Value::Literal(self.expression(expression, scope)?),
+        })
+    }
+
+    fn operand(&mut self) -> Result<()> {
+        if self.optimize {
+            // Forwarded values do not extend physical frames. Bound pending
+            // descriptors independently, before growing their vectors, so wide
+            // nested total operands cannot evade the old compilation bound.
+            ensure!(
+                self.pending_operands < 128,
+                "runtime frame operand budget exceeded"
+            );
+            self.pending_operands += 1;
+            self.charge(1)?;
+        }
+        Ok(())
+    }
+
     fn list_slot(&mut self, root: u8, index: usize) -> LirId {
         let mut path = BigUint::from(root);
         for _ in 0..index {
@@ -113,26 +165,64 @@ impl<'a, 'p> Runtime<'a, 'p> {
         &mut self,
         expressions: &[&Expr],
         scope: &Scope<'_>,
-        bindings: &mut Vec<Binding>,
+        bindings: &mut Vec<Value>,
         finish: &mut Continuation<'a, 'p, '_>,
     ) -> Result<LirId> {
         self.charge(1)?;
-        if let Some((first, remaining)) = expressions.split_first() {
-            let value = self.expression(first, scope)?;
-            let binding = Binding::Temporary(self.next_temporary);
-            self.next_temporary += 1;
-            let next = self.extend_scope(scope, binding)?;
-            bindings.push(binding);
-            let body = self.values(remaining, &next, bindings, finish)?;
-            bindings.pop();
-            Ok(self.continuation(value, body))
-        } else {
-            finish(self, scope, bindings)
-        }
+        let count = bindings.len();
+        let pending = self.pending_operands;
+        let result = (|| {
+            let mut remaining = expressions;
+            if self.optimize {
+                // Consume total leaves iteratively, never one Rust call per
+                // skipped frame. Slot identities are resolved only in finish's
+                // final scope, after every effectful operand has been bound.
+                while let Some((first, rest)) = remaining.split_first() {
+                    if !Self::is_leaf(first) {
+                        break;
+                    }
+                    self.operand()?;
+                    bindings.push(self.leaf(first, scope)?);
+                    remaining = rest;
+                }
+            }
+            if let Some((first, remaining)) = remaining.split_first() {
+                let value = self.expression(first, scope)?;
+                let binding = Binding::Temporary(self.next_temporary);
+                self.next_temporary += 1;
+                let next = self.extend_scope(scope, binding)?;
+                self.operand()?;
+                bindings.push(Value::Slot(binding));
+                let body = self.values(remaining, &next, bindings, finish)?;
+                Ok(self.continuation(value, body))
+            } else {
+                finish(self, scope, bindings)
+            }
+        })();
+        bindings.truncate(count);
+        self.pending_operands = pending;
+        result
     }
 
     fn expression(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<LirId> {
         self.charge(1)?;
+        if self.optimize {
+            // Direct unary lowering must not trade frame bounds for an
+            // unbounded native compiler stack. Check before descending.
+            ensure!(
+                self.expression_depth < 192,
+                "runtime expression depth budget exceeded"
+            );
+            self.expression_depth += 1;
+        }
+        let result = self.expression_inner(expression, scope);
+        if self.optimize {
+            self.expression_depth -= 1;
+        }
+        result
+    }
+
+    fn expression_inner(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<LirId> {
         Ok(match expression {
             Expr::Atom { hex } | Expr::Bytes { hex } => self.lower.bytes(hex::decode(hex)?),
             Expr::Unit => self.lower.nil(),
@@ -148,6 +238,14 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 value,
                 body,
             } => {
+                if self.optimize
+                    && matches!(body.as_ref(), Expr::Local { local_id: returned } if returned == local_id)
+                {
+                    // Returning the freshly bound value needs no continuation.
+                    // The initializer still runs exactly once in its outer scope,
+                    // including when it rejects or diverges.
+                    return self.expression(value, scope);
+                }
                 let value = self.expression(value, scope)?;
                 let mut next = self.extend_scope(scope, Binding::Local(*local_id))?;
                 next.locals.push((*local_id, ty.clone()));
@@ -181,7 +279,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     let callee = this.list_slot(2, *function_id);
                     let values = bindings
                         .iter()
-                        .map(|binding| this.slot(scope, *binding))
+                        .map(|binding| this.value(scope, *binding))
                         .collect::<Result<Vec<_>>>()?;
                     let arguments = this.lower.list(&values);
                     let table = this.table();
@@ -194,7 +292,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 self.values(&items, scope, &mut vec![], &mut |this, scope, bindings| {
                     let values = bindings
                         .iter()
-                        .map(|binding| this.slot(scope, *binding))
+                        .map(|binding| this.value(scope, *binding))
                         .collect::<Result<Vec<_>>>()?;
                     Ok(this.lower.list(&values))
                 })?
@@ -204,8 +302,8 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 scope,
                 &mut vec![],
                 &mut |this, scope, bindings| {
-                    let first = this.slot(scope, bindings[0])?;
-                    let rest = this.slot(scope, bindings[1])?;
+                    let first = this.value(scope, bindings[0])?;
+                    let rest = this.value(scope, bindings[1])?;
                     Ok(this.lower.alloc(Lir::Cons(first, rest)))
                 },
             )?,
@@ -219,8 +317,8 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 scope,
                 &mut vec![],
                 &mut |this, scope, bindings| {
-                    let left = this.slot(scope, bindings[0])?;
-                    let right = this.slot(scope, bindings[1])?;
+                    let left = this.value(scope, bindings[0])?;
+                    let right = this.value(scope, bindings[1])?;
                     this.lower.binary(*kind, left, right, ty)
                 },
             )?,
@@ -229,12 +327,16 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     self.lower
                         .program
                         .type_of_scoped(value, scope.parameters, &scope.locals)?;
+                if self.optimize {
+                    let value = self.expression(value, scope)?;
+                    return Ok(self.lower.field(value, *index, ty));
+                }
                 self.values(
                     &[value.as_ref()],
                     scope,
                     &mut vec![],
                     &mut |this, scope, bindings| {
-                        let value = this.slot(scope, bindings[0])?;
+                        let value = this.value(scope, bindings[0])?;
                         if matches!(ty, Some(Type::Tuple { .. })) {
                             let Lir::Path(mut path) = this.lower.arena[value].clone() else {
                                 unreachable!("a bound value is a frame path")
@@ -254,36 +356,54 @@ impl<'a, 'p> Runtime<'a, 'p> {
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
             | Expr::TreeRest { value }
-            | Expr::TreeAtomValue { value } => self.values(
-                &[value.as_ref()],
-                scope,
-                &mut vec![],
-                &mut |this, scope, bindings| {
-                    let value = this.slot(scope, bindings[0])?;
-                    Ok(match expression {
-                        Expr::AtomIsEmpty { .. } => {
-                            let nil = this.lower.nil();
-                            this.lower.alloc(Lir::Eq(value, nil))
-                        }
-                        Expr::Not { .. } => this.lower.alloc(Lir::Not(value)),
-                        Expr::TreeIsPair { .. } => this.lower.alloc(Lir::Listp(value, true)),
-                        Expr::TreeFirst { .. } => this.lower.alloc(Lir::First(value)),
-                        Expr::TreeRest { .. } => this.lower.alloc(Lir::Rest(value)),
-                        Expr::TreeAtomValue { .. } => this.lower.scalar(value, value),
-                        _ => unreachable!("matched unary expression"),
-                    })
-                },
-            )?,
+            | Expr::TreeAtomValue { value } => {
+                // These unary operations consume the operand once. AtomValue
+                // uses it in both a guard and result, so only total leaves may
+                // bypass the once-only binding for that operation.
+                if self.optimize
+                    && (!matches!(expression, Expr::TreeAtomValue { .. }) || Self::is_leaf(value))
+                {
+                    let value = self.expression(value, scope)?;
+                    return Ok(self.unary(expression, value));
+                }
+                self.values(
+                    &[value.as_ref()],
+                    scope,
+                    &mut vec![],
+                    &mut |this, scope, bindings| {
+                        let value = this.value(scope, bindings[0])?;
+                        Ok(this.unary(expression, value))
+                    },
+                )?
+            }
         })
+    }
+
+    fn unary(&mut self, expression: &Expr, value: LirId) -> LirId {
+        match expression {
+            Expr::AtomIsEmpty { .. } => {
+                let nil = self.lower.nil();
+                self.lower.alloc(Lir::Eq(value, nil))
+            }
+            Expr::Not { .. } => self.lower.alloc(Lir::Not(value)),
+            Expr::TreeIsPair { .. } => self.lower.alloc(Lir::Listp(value, true)),
+            Expr::TreeFirst { .. } => self.lower.alloc(Lir::First(value)),
+            Expr::TreeRest { .. } => self.lower.alloc(Lir::Rest(value)),
+            Expr::TreeAtomValue { .. } => self.lower.scalar(value, value),
+            _ => unreachable!("matched unary expression"),
+        }
     }
 }
 
-pub(super) fn bootstrap(lower: &mut Lower<'_>) -> Result<LirId> {
+pub(super) fn bootstrap(lower: &mut Lower<'_>, optimize: bool) -> Result<LirId> {
     let program = lower.program;
     let mut runtime = Runtime {
         lower,
         next_temporary: 0,
         work: 0,
+        optimize,
+        pending_operands: 0,
+        expression_depth: 0,
     };
     let mut functions = Vec::with_capacity(program.functions.len());
     for function in &program.functions {

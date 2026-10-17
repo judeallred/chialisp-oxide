@@ -43,6 +43,10 @@ The compiler is pinned to **nightly-2026-07-14**, reporting Rust 1.99.0-nightly,
 with `rustc-dev` and `llvm-tools-preview`. No `RUSTC_BOOTSTRAP` is required.
 Cargo supplies features, dependencies, generated code, and actual rustc
 arguments. Build scripts and procedural macros remain normal host programs.
+The installed pinned compiler and matching unmodified standard library are
+trusted. Target configuration and actual loaded core/alloc/std and primitive
+owners must use the pinned installation. These are location checks, not binary
+authentication; see [toolchain trust](docs/toolchain-trust.md).
 
 Each successful export build creates an immutable bundle under the consumer
 workspace's `target/chialisp-oxide/artifacts/<bundle>/manifest.json`, with typed IR,
@@ -86,15 +90,15 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-Fifteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
+Eighteen Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
 plus three canonical closed expressions from the pinned Chialisp Intro and the
-exact canonical `p2_conditions` program factory, plus the pinned `last_inner`
-helper through a visible module adapter. The
+exact canonical `p2_conditions` program factory, plus pinned `last_inner`,
+`prefix`, byte `!=`, and insertion-sort-by-key helpers through visible module adapters. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-138 explicit vectors and 10,063 generated integer/tree cases against five CLVM
+282 explicit vectors and 14,088 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Thirty-one
 complete-spend scenarios run separately in all three languages (93 ledger scenario runs). Only the eight condition-producing
 teaching fixtures have ledger scenarios; pure language results and program
@@ -114,13 +118,24 @@ python3 scripts/check-error-study.py
 python3 scripts/check-proofs.py
 python3 scripts/check-ir-proofs.py --output corpus/proofs.json
 python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
+python3 scripts/check-byte-proofs.py --output corpus/byte-proofs.json
 python3 scripts/check-canonical-factories.py --self-test
+python3 scripts/check-canonical-helpers.py --self-test
+python3 scripts/check-runtime-frames.py --replay --self-test
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently
 specified bounds and acceptance, detects a removed guard, and replays witnesses
 through native Rust and both CLVM optimization modes. These are **IR-model
 proofs**, not proofs of compiler preservation or absence of all security flaws.
+
+The [byte-policy proof guide](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/)
+adds actual Cargo IR for `atom-not-equal` and five source controls, plus two
+explicitly synthetic ABI controls. Its independent whole-environment
+specification compares exact 8-bit byte sequences and canonical Boolean output.
+Eight models have nonvacuity checks and retained optimization-off/on programs;
+selected witnesses also run through the original five language builds and
+actual native exports. These finite replays do not prove the compiler bridge.
 
 Optimized Rust now reproduces the published **nine-byte `p2_conditions` module
 and its exact tree hash**, alongside independently compiled Chialisp and Rue.
@@ -138,6 +153,10 @@ The [host-side VM harness](crates/chialisp-oxide-vm) distinguishes program
 rejection from resource exhaustion and infrastructure errors using typed VM
 codes. An inconclusive execution cannot count as a policy-rejection witness.
 Ledger negatives require exact consensus error codes and unchanged state.
+The pinned [Lean experiment](experiments/tree-theorems) separately checks 21
+algorithm theorem statements, independent expected types, axiom dependencies,
+and a finite bridge to both list-helper implementations. Its manual models
+and finite VM observations do not prove compiler preservation.
 Signature negatives submit actual unsigned, partial, or incorrectly signed
 bundles; a signer preflight error cannot count as ledger rejection.
 
@@ -146,8 +165,8 @@ bundles; a signer preflight error cannot count as ledger rejection.
 [The functionality map](docs/chialisp-functionality.md) distinguishes Rust’s
 ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
-Borrowed raw-tree construction/matching, recursive direct calls, and explicit whole-environment exports
-are implemented; arbitrary-precision integers, hashing and crypto,
+Borrowed raw-tree construction/matching, opt-in owned pair construction, recursive
+direct calls, and explicit whole-environment exports are implemented; arbitrary-precision integers, hashing and crypto,
 currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
 The [runtime-call implementation](docs/runtime-calls.md) lowers checked Rust
@@ -163,6 +182,28 @@ adds ordinary Rust `Tree::Atom([])` matching and ports Chia gaming's pinned
 zero-byte tails have different behavior; exact atom bytes and returned subtrees
 are preserved. The helper has source/license provenance and finite comparisons,
 without claiming a complete library port or published module identity.
+The [owned prefix lesson](https://judeallred.github.io/chialisp-oxide/tutorials/prefix-list/)
+adds a proper list onto an arbitrary tail with ordinary moves and restricted
+standard Box construction. Its 69 named and 1,183 generated inputs run against
+all five builds. Native whole-tree/output limits are testing errors, never
+policy rejections; [owned-tree semantics](docs/owned-trees.md) explains the boundary.
+The [exact-byte comparison lesson](https://judeallred.github.io/chialisp-oxide/tutorials/atom-not-equal/)
+uses ordinary Rust `&[u8]` equality and inequality, with a third pinned published
+helper adapter. Empty, padded and non-UTF8 atoms remain distinct byte data.
+Custom `PartialEq` and mixed slice/array comparisons remain unsupported; this
+pure Boolean example does not establish spend authorization.
+The [published byte-key insertion sort](https://judeallred.github.io/chialisp-oxide/tutorials/insertion-sort-by-keys/)
+uses ordinary Rust slice ordering and owned recursive outputs. It retains the
+exact helper's descending order, equal-key behavior and permissive base cases;
+this is a helper adapter, not a port of the complete credential proof checker.
+
+Optimized runtime lowering removes redundant frames while keeping fallible
+operands evaluated once in source order. The helper's optimized Rust program
+fell from 743 to 369 bytes; its `(1 2 3)` cost fell from 25,933 to 11,568.
+The independent Chialisp adapter costs 2,236 and optimized Rue costs 3,814 on
+that input, so substantial overhead remains. A pinned baseline and 58 old-artifact
+replays make these finite measurements reproducible; they are not a general
+performance or compiler-correctness proof.
 
 [The published-source catalog](corpus/published-puzzles.json) enumerates pinned
 repository trees and records its exact discovery scope. It includes Chialisp,
@@ -211,9 +252,11 @@ other programs, the naming variant, and supporting workflows remain unrun.
 The parent Intro page remains partial, and no CHIP migration is complete.
 See the [canonical Intro walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/canonical-intro/)
 for exact sources, environment contracts, and measured compiler gaps. No production security audit has been
-completed. Four vendored Rue fixes have upstream reports with reproductions,
+completed. Six vendored Rue fixes have upstream reports with reproductions,
 regression tests and standalone patches: [identity products #108](https://github.com/xch-dev/rue/issues/108),
 [strict truthiness #109](https://github.com/xch-dev/rue/issues/109),
-[pair reconstruction #110](https://github.com/xch-dev/rue/issues/110), and
-[quoted nil environments #111](https://github.com/xch-dev/rue/issues/111).
+[pair reconstruction #110](https://github.com/xch-dev/rue/issues/110),
+[quoted nil environments #111](https://github.com/xch-dev/rue/issues/111),
+[nested bitwise failure order #112](https://github.com/xch-dev/rue/issues/112), and
+[canonical Boolean values #113](https://github.com/xch-dev/rue/issues/113).
 See [vendor provenance](vendor/rue-lir/UPSTREAM.md) before upgrading Rue.

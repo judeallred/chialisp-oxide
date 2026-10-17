@@ -1,0 +1,32 @@
+; Strict two-tree-argument adapter; both upstream spans below are verbatim.
+(mod ENV
+  (defmacro or ARGS
+    (if ARGS
+        (qq (if (unquote (f ARGS))
+                1
+                (unquote (c or (r ARGS)))
+        ))
+    0)
+  )
+
+; Published helper from flag_proofs_checker.clsp lines 15-23.
+  (defun insertion_sort_by_keys (sorted insertions)
+    (if insertions
+        (if (or (not sorted) (>s (f (f insertions)) (f (f sorted))))
+            (insertion_sort_by_keys (c (f insertions) sorted) (r insertions))
+            (insertion_sort_by_keys (c (f sorted) (insertion_sort_by_keys (r sorted) (list (f insertions)))) (r insertions))
+        )
+        sorted
+    )
+  )
+  (if (l ENV)
+      (if (l (r ENV))
+          (if (r (r ENV))
+              (x)
+              (insertion_sort_by_keys (f ENV) (f (r ENV)))
+          )
+          (x)
+      )
+      (x)
+  )
+)

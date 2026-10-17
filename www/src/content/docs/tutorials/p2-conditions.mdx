@@ -79,7 +79,8 @@ Rust's enabled pipeline first removes redundant pair guards in typed IR, then
 runs Rue LIR optimization. The remaining first projection still rejects atom
 environments. This is a general conservative IR rule checked against the actual
 expression structure; it grants no special meaning to the puzzle or SDK helper's
-name. Rust's disabled pipeline runs neither pass. The
+name. The intervening runtime-frame stage has no effect on this runtime-free
+factory. Rust's disabled pipeline skips all three stages. The
 [architecture guide](/chialisp-oxide/reference/architecture/#conservative-tree-guard-optimization)
 explains the analysis and its limits.
 

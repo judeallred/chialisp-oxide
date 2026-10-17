@@ -4,6 +4,7 @@ description: Preserve a Chia gaming helper's proper-list contract in checked Rus
 ---
 
 import SourceComparison from '../../../components/SourceComparison.astro';
+import RuntimeFrameComparison from '../../../components/RuntimeFrameComparison.astro';
 
 **WIP prototype. Not ready for use with funds or production puzzles.**
 
@@ -67,9 +68,11 @@ sources, five compiled builds, named outcomes, generated cases, costs and tree
 hashes. The source adapter is visible in the comparison, so its accepted input
 contract can be reviewed directly. This pure function returns a CLVM value;
 it has no ledger scenarios or authorization claim.
-The current Rust calling convention produces a substantially larger program
-than this small Chialisp helper. The lab exposes that size difference and the
-execution costs; reducing frame and binding overhead remains compiler work.
+The optimized backend now removes redundant runtime frames without changing
+the Rust source. The comparison keeps the independent Chialisp and Rue costs
+visible: the Rust calling convention still has substantial overhead.
+
+<RuntimeFrameComparison slug="last-list-element" />
 
 ```sh
 cargo build --workspace --locked
@@ -77,6 +80,9 @@ cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
 ./scripts/chialisp-oxide validate --output corpus/validation.json
 cargo test -p chialisp-oxide-driver --test empty_atoms --locked
 cargo test -p chialisp-oxide-ir --test atom_is_empty --locked
+cargo test -p chialisp-oxide-ir --test runtime_optimization --locked
+python3 scripts/check-runtime-frames.py --replay
+python3 scripts/check-runtime-frames.py --self-test
 python3 scripts/check-canonical-helpers.py
 python3 scripts/check-canonical-helpers.py --self-test
 ```
@@ -95,14 +101,17 @@ exhaustion is likewise inconclusive.
 
 ## What remains unproved
 
-The new atom predicate has structural-model tests that preserve exact bytes and
-strict evaluation. That does not give this recursive helper a formal proof.
-Current model checkers reject all runtime function tables, and finite native/VM
-agreement establishes neither termination nor compiler preservation for arbitrary
-inputs. The [verification guide](/chialisp-oxide/verification/method/) keeps those
+The atom predicate has structural-model tests that preserve exact bytes and
+strict evaluation. A separate Lean algorithm model now proves the last-element
+property for all finite trees, with a finite bridge to executed examples. That
+manual model does not prove this compiled helper correct. Source-derived SMT
+models still reject all runtime function tables, and finite native/VM agreement
+establishes neither termination nor compiler preservation for arbitrary inputs. The [verification guide](/chialisp-oxide/verification/method/) keeps those
 claims separate.
 
-Returning an existing borrowed subtree needs no allocation. Helpers that build
-an unbounded reversed list or concatenate lists still need an explicit output
-ownership design. General atom equality, lengths, slicing, hashes and dynamic
-program evaluation remain separate compiler work.
+Returning an existing borrowed subtree needs no allocation. The
+[owned prefix lesson](/chialisp-oxide/tutorials/prefix-list/) now constructs a new
+list spine with opt-in `OwnedTree`, ordinary moves and restricted `Box::new`
+lowering. [Primitive byte equality](/chialisp-oxide/tutorials/atom-not-equal/)
+now uses ordinary Rust slice comparisons. General collections, byte lengths,
+slicing, hashes and dynamic program evaluation remain separate compiler work.

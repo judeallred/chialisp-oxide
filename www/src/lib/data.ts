@@ -73,6 +73,34 @@ export const canonicalExample = (puzzle: PuzzleReport) => tutorialExamples.find(
   && example.source_adaptation?.slug === puzzle.slug);
 export const canonicalPuzzle = (puzzle: PuzzleReport) => puzzle.provenance.classification === 'canonical_puzzle_port';
 export const canonicalHelper = (puzzle: PuzzleReport) => puzzle.provenance.classification === 'canonical_helper_port';
+const helperContracts: Record<string, { source: string; adapter: string; generated: string }> = {
+  'last-list-element': {
+    source: 'The raw wrapper passes the entire environment as the single last_inner argument.',
+    adapter: 'a raw module adapter: it passes the complete environment as one argument.',
+    generated: 'over bounded atom and pair trees',
+  },
+  'prefix-list': {
+    source: 'The strict wrapper passes exactly two input trees to prefix: the list and an arbitrary tail.',
+    adapter: 'a strict two-argument module adapter: it passes the list and arbitrary tail as separate arguments.',
+    generated: 'over bounded list spines, arbitrary tail trees and malformed argument lists',
+  },
+  'atom-not-equal': {
+    source: 'The strict wrapper passes exactly two atom arguments to the published != helper.',
+    adapter: 'a strict two-atom-argument module adapter: pair operands and malformed argument lists reject.',
+    generated: 'over exact atom bytes, lengths, padding and malformed argument lists',
+  },
+  'insertion-sort-by-keys': {
+    source: 'The strict wrapper passes exactly two input trees to insertion_sort_by_keys: the existing sequence and insertions.',
+    adapter: 'a strict two-argument module adapter: it preserves key comparisons and permissive base cases.',
+    generated: 'over byte keys, duplicate keys, untouched payload trees and malformed sequences',
+  },
+};
+export function helperContract(puzzle: PuzzleReport) {
+  if (!canonicalHelper(puzzle)) return undefined;
+  const contract = helperContracts[puzzle.slug];
+  if (!contract) throw new Error(`Missing helper adapter contract: ${puzzle.slug}`);
+  return contract;
+}
 export const kindLabel = (kind: string) => kind === 'program_factory' ? 'program factory' : kind === 'pure_function' ? 'pure function' : kind === 'coin_puzzle' ? 'coin puzzle' : kind.replaceAll('_', ' ');
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const href = (path: string) => `${base}/${path.replace(/^\//, '')}`;

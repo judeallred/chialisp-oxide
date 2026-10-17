@@ -4,8 +4,9 @@ Status: **implemented for the supported Rust subset**. Cargo extraction supports
 self recursion, mutual recursion, and non-tail calls through a finite,
 compiler-owned function table. Ordinary rustc type and borrow checking runs
 before extraction. This is runtime execution support, not a termination theorem
-or a general compiler-preservation proof. CFG loops, closures, allocation, and
-solution-selected application remain unsupported.
+or a general compiler-preservation proof. CFG loops, closures, general allocation,
+and solution-selected application remain unsupported. The optional owned-tree
+subset described below supports logical pair construction.
 
 ## Ordinary borrowed Rust
 
@@ -39,7 +40,10 @@ operations. Runtime functions additionally reject projected assignments: assign
 a complete supported value rather than mutating a tuple field. Rust still
 rejects escaping references to stack-local trees. Reverse and append that retain
 new accumulation nodes need a genuine ownership/arena design; runtime calls do
-not make those references valid.
+not make those references valid. The opt-in `OwnedTree` representation now
+supports a restricted owned accumulator without escaping references; see
+[owned trees](owned-trees.md). General collections and dynamic atom storage
+remain unsupported.
 
 ## Version-4 owned IR and lexical evaluation
 
@@ -74,12 +78,12 @@ Unchosen `If` branches remain lazy. Rust's
 therefore remains relevant when an operand rejects or diverges.
 
 Every runtime frame is `(compiler_function_table . slots)`. Initial slots are
-the arguments; each binding prepends one slot and enters a quoted continuation.
-Binding identities rebase argument/local paths after extension. A call starts a
-fresh slot list containing its arguments, while forwarding the closed table.
-Quoted bodies refer to table paths, not cyclic compiler-arena references. The
-bootstrap constructs that table; an attacker-controlled environment cannot
-supply a callee or executable body through this convention.
+the arguments; a retained binding prepends one slot and enters a quoted
+continuation. Binding identities rebase argument/local paths after extension.
+A call starts a fresh slot list containing its arguments, while forwarding the
+closed table. Quoted bodies refer to table paths, not cyclic compiler-arena
+references. The bootstrap constructs that table; an attacker-controlled
+environment cannot supply a callee or executable body through this convention.
 
 Version 4 is independent of input policy. Existing strict, ignored-nullary, and
 raw-tree ABI checks still apply, and the complete strict argument list is
@@ -93,6 +97,33 @@ silently downgraded to the legacy evaluator or admitted to a model as legacy IR.
 
 ## Optimization and resource boundaries
 
+The optimized pipeline is `typed_ir_tree_guards` →
+`runtime_frame_elision` → Rue LIR optimization. Runtime frame reductions run
+only with optimization on; off follows the existing continuation-based lowering
+and skips both owned optimizations and Rue LIR optimization. The source-derived
+IR and its version do not change when the backend removes a frame.
+
+In runtime operand lists, `Arg`, `Local`, and literals can pass directly to the
+consumer without a temporary frame. Argument/local descriptors retain their
+binding identities until the final consumer scope is known, so paths account for
+any intervening frames. Literal descriptors contain values independent of the
+frame. The compiler consumes these leaves iteratively. Non-leaf operands retain
+their ordered, once-only continuation bindings, including operands a callee or
+tuple projection later ignores.
+
+Single-consumer operations also avoid a redundant frame: `Not`, `TreeIsPair`,
+`TreeFirst`, `TreeRest`, `AtomIsEmpty`, and tuple/byte `Field` lower their operand
+once directly. A checked `TreeAtomValue` uses its operand in both the atom guard
+and returned value, so a non-leaf operand still gets a once-only binding. This
+prevents a call from running twice during checked atom extraction.
+
+One exact `Let` shape also needs no continuation: when its body is precisely
+`Local` of that binding, lowering returns the initializer directly. The
+initializer still evaluates once in the outer lexical scope, preserving its
+rejection, divergence, or checked overflow. Other `Let` bindings retain their
+strict initializers even when unused, and `Sequence` retains its ordered
+evaluation. These reductions do not infer general purity or termination.
+
 The owned pair-guard optimizer leaves every runtime program unchanged. Its
 successful-evaluation facts alone cannot justify removing this guard:
 
@@ -102,9 +133,9 @@ If(IsPair(arg), Sequence(spin(), First(arg)), Reject)
 
 For an atom, the guard rejects before entering `spin`. Dropping it would turn
 that rejection into divergence. Giving a call zero pair facts is insufficient
-because a later projection can still contribute through a union rule. Rue LIR
-optimization remains enabled in the optimized path; the unoptimized path skips
-both optimizer stages. Finite/rejection/resource controls exercise both modes.
+because a later projection can still contribute through a union rule. Frame
+reduction does not enable this guard rewrite. Finite, rejection, and deliberate
+resource controls exercise both compilation modes.
 
 Validation bounds the whole program: 64 functions, 64 parameters per function,
 20,000 expression nodes across the entry and every table body, expression depth
@@ -113,6 +144,12 @@ It checks unused functions, unreachable branches, arguments, and lexical bodies.
 Source extraction has additional MIR/expression limits. Runtime lowering checks
 before copying scopes: at most 128 additional lexical/temporary slots beyond
 arguments, and 500,000 cumulative work units including copied local types.
+Optimized lowering separately limits pending operand descriptors to 128 and
+active expression-lowering depth to 192. Forwarding a value or lowering a unary
+operation directly therefore cannot evade compilation bounds by avoiding a
+physical slot. The limits are checked before growing the corresponding vectors
+or descending further; they are compiler resource bounds, not execution-depth
+or termination guarantees.
 The later code-generation expansion check remains four million estimated units
 and depth 96. A valid 64-function table is not guaranteed to fit those budgets.
 
@@ -126,6 +163,25 @@ runs only inside the cost-bound VM.
 
 ## Durable evidence and remaining work
 
+The compact [`runtime-frame-baseline.json`](../corpus/runtime-frame-baseline.json)
+pins commit `6f1e197ef6647683f4c3d7dd171c5e7e4317b01c`, its full report's
+SHA-256/Git blob, and both Rust builds for the two recursive corpus helpers.
+[`check-runtime-frames.py`](../scripts/check-runtime-frames.py) retains exact
+source, contract, outcome, reference, ledger and unoptimized evidence across all
+15 fixtures while permitting only those two optimized Rust artifacts and metrics
+to change. Its corruption controls check that boundary. Optional `--replay`
+runs all 58 retained old-byte executions through the pinned current VM, including
+exact costs and typed failures; `--verify-git` additionally reconstructs the
+compact snapshot from the historical Git report and Rust sources.
+
+Measured optimized sizes fell from 339 to 175 bytes for `rightmost-tree` and
+743 to 369 bytes for `last-list-element`. On `(1 2 3)`, the respective optimized
+costs fell from 17,423 to 7,594 and 25,933 to 11,568. All 21 accepted named cases
+have lower recorded costs. This is finite measurement, not universal cost
+dominance: the current Chialisp/Rue implementations remain substantially cheaper.
+Changing the preserved evidence in future work requires an explicit reviewed
+comparison scope rather than weakening this baseline silently.
+
 - [`driver/tests/runtime_calls.rs`](../crates/chialisp-oxide-driver/tests/runtime_calls.rs)
   extracts actual Cargo/standalone Rust, compares finite native and optimized/
   unoptimized VM outcomes, and covers self/mutual/non-tail calls, unused failing
@@ -134,10 +190,18 @@ runs only inside the cost-bound VM.
   checks function selection, lexical paths, byte-field helper contexts, all
   external ABIs, strict argument order, lazy branches, divergence-sensitive
   guards, and a measured one-call versus two-call budget control.
+- [`ir/tests/runtime_optimization.rs`](../crates/chialisp-oxide-ir/tests/runtime_optimization.rs)
+  adds eight executed regressions comparing the original off path with optimized
+  lowering: heterogeneous forwarding, fresh nested tuple/byte scopes, discarded
+  strict operands, unary projection siblings, once-only checked atom extraction,
+  tail-identity initializers, divergence-sensitive selectors, and unused nested
+  ABI arguments. Exact expected outputs and typed failures remain the oracle;
+  a deliberate duplicate call supplies the once-only cost control.
 - [`ir/tests/runtime_validation.rs`](../crates/chialisp-oxide-ir/tests/runtime_validation.rs)
   and [`ir/tests/wire.rs`](../crates/chialisp-oxide-ir/tests/wire.rs) check lexical,
   signature, global-budget, and versioning boundaries, including runtime nodes
-  injected into old envelopes.
+  injected into old envelopes. Resource cases also cover nested wide operands,
+  effectful operands that still require frames, and optimized direct-unary depth.
 - [`verifier/tests/runtime_boundaries.rs`](../crates/chialisp-oxide-verifier/tests/runtime_boundaries.rs)
   requires every current scalar/tree model API to reject runtime IR, including
   dead calls and unused tables. Finite witness replay is allowed as execution

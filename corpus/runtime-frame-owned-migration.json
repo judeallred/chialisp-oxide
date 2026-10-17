@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "scope": "Owned prefix helper addition. Exact original15 measurements; two reviewed SDK documentation/re-export snapshots and separately freshness-checked Cargo authoring. Not a compiler-preservation or universal cost proof.",
+  "historical": {
+    "commit": "6f1e197ef6647683f4c3d7dd171c5e7e4317b01c",
+    "report_sha256": "96b0f8f5bf18eb132f787fb35f12299b9bdcdad35afbd19eddc9bbfca2e702eb",
+    "normalized_runtime_frame_sha256": "380cc4197aa7be70aedd7d096ece32dbddc517e0e675e64afda38901a23c7f85"
+  },
+  "reviewed_before": {
+    "status": "reviewed_uncommitted_snapshot",
+    "report_sha256": "14b37c5dcca3d402a9e2264ae956ca4f76aa4aa0b046d1e0c3b02f5cf2b2c61c",
+    "normalized_report_sha256": "1bc4aef65195b1a619245a519de5acac0af7d2fef00c147f7eb90900b00c8212"
+  },
+  "preserved_slugs": [
+    "fixed-payment",
+    "capped-payment",
+    "split-payment",
+    "timelocked-payment",
+    "signature-payment",
+    "two-signature-payment",
+    "recovery-payment",
+    "bounded-counter",
+    "boolean-gate",
+    "intro-list",
+    "intro-add",
+    "intro-conditional",
+    "p2-conditions",
+    "rightmost-tree",
+    "last-list-element"
+  ],
+  "added_slug": "prefix-list",
+  "sdk_dependencies": [
+    {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "before": {
+        "sha256": "338637a61130db7ae1c1a139d1561fdb7410b6a1eea527081fae1c6d7323f3fc",
+        "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n"
+      },
+      "after": {
+        "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b",
+        "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n"
+      }
+    },
+    {
+      "path": "crates/chialisp-oxide/src/tree.rs",
+      "before": {
+        "sha256": "8613c2c40584ba7aa1760f7150d802cf0ffa2f85bd4754dc4a840eceb7ddd494",
+        "source": "//! Immutable CLVM data, with ordinary Rust lifetimes and pattern matching.\n//!\n//! A tree carries its original atom bytes. Numeric padding, improper pairs and\n//! arbitrary tails are data; this type does not interpret or normalize them.\n//! The compiler supports direct recursive traversal of this restricted shape.\n//! General enums, mutable references, allocating output trees, and general\n//! runtime program evaluation remain outside the supported subset.\n\n#[derive(Clone, Copy, Debug, PartialEq, Eq)]\npub enum Tree<'a> {\n    Atom(&'a [u8]),\n    Pair(&'a Tree<'a>, &'a Tree<'a>),\n}\n\n/// CLVM's quote operator as data, for constructing a quoted program.\npub const QUOTE: Tree<'static> = Tree::Atom(&[1]);\n\n/// Construct a program returning `value` when applied to any environment.\n///\n/// This is an ordinary Rust function. The compiler checks and lowers its MIR;\n/// its name does not grant it intrinsic semantics.\npub fn quote<'a>(value: &'a Tree<'a>) -> Tree<'a> {\n    Tree::Pair(&QUOTE, value)\n}\n"
+      },
+      "after": {
+        "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4",
+        "source": "//! Immutable CLVM data, with ordinary Rust lifetimes and pattern matching.\n//!\n//! A tree carries its original atom bytes. Numeric padding, improper pairs and\n//! arbitrary tails are data; this type does not interpret or normalize them.\n//! The compiler supports direct recursive traversal of this restricted shape.\n//! The opt-in `alloc` feature adds `OwnedTree` for restricted owned\n//! pair construction. General enums, mutable references, pointer/allocator APIs,\n//! and general runtime program evaluation remain outside the supported subset.\n\n#[derive(Clone, Copy, Debug, PartialEq, Eq)]\npub enum Tree<'a> {\n    Atom(&'a [u8]),\n    Pair(&'a Tree<'a>, &'a Tree<'a>),\n}\n\n/// CLVM's quote operator as data, for constructing a quoted program.\npub const QUOTE: Tree<'static> = Tree::Atom(&[1]);\n\n/// Construct a program returning `value` when applied to any environment.\n///\n/// This is an ordinary Rust function. The compiler checks and lowers its MIR;\n/// its name does not grant it intrinsic semantics.\npub fn quote<'a>(value: &'a Tree<'a>) -> Tree<'a> {\n    Tree::Pair(&QUOTE, value)\n}\n"
+      }
+    }
+  ]
+}

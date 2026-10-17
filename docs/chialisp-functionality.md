@@ -94,6 +94,19 @@ SMT results establish their stated formulas under their assumptions. A native
 Rust interpreter demonstrates expressibility. Those statements must not be
 substituted for a preservation proof across this entire chain.
 
+The [byte-policy proof guide](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/)
+is a concrete narrower result: actual Cargo IR for `atom-not-equal` satisfies an
+independent specification of the complete strict two-atom environment and
+canonical Boolean output, with atoms modeled as sequences of 8-bit values. Its
+eight models include five real source controls and two explicitly synthetic
+ABI edits in addition to the original. Solver-checked nonvacuity and selected
+native/VM replays tie the model to observed implementations; they do not prove
+ABI lowering, primitive bridging or all-input compiled behavior. The
+[installed pinned toolchain is trusted](toolchain-trust.md). Target configuration
+and loaded primitive-owner library locations are checked; installed bytes are
+not authenticated. This result
+does not establish full Chialisp or whole-library parity.
+
 ## Functionality matrix
 
 The Chialisp [operator reference](https://chialisp.com/operators/) defines the
@@ -110,7 +123,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
-| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree::Atom`/`Tree::Pair`, checked projections and direct recursive traversal; native arena codec | Broader byte/number operations, output ownership and per-operator proofs |
+| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree` and opt-in `OwnedTree` pair construction/matching; checked projections and direct recursion; bounded native codecs | Dynamic atom storage, broader byte/number operations and per-operator preservation proofs |
 | Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit v3 raw whole-tree export | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | No user-facing dynamic apply; internal backend applications are not a source API | A reviewed program/environment SDK and IR, dialect rules, failures, and cost bounds |
@@ -118,11 +131,11 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `+`, `-`, `*` | Primitive checked arithmetic or explicit big integers | Checked fixed-width operations implemented | Per-operation widening/overflow contract; never silently map Rust overflow to unbounded arithmetic |
 | `/`, `divmod`, `%` | Explicit quotient/remainder algorithms | Rejected | CLVM floor rounding versus Rust signed truncation, remainder signs, zero, and signed minimum cases |
 | `modpow` | Modular exponentiation | Rejected | Negative operands, exceptional domains, canonical results, and VM costs |
-| Atom `=`; numeric `>`; byte `>s` | Separate byte and numeric comparisons | Typed scalar equality/order and exact empty-atom slice patterns | General raw-atom equality versus numeric equality; variable-byte ordering and padding cases |
+| Atom `=`; numeric `>`; byte `>s` | Separate byte and numeric comparisons | Typed scalar equality/order; primitive byte-slice/fixed-array equality and unsigned lexicographic ordering, nil patterns, published `!=` and insertion-sort adapters | General tree/trait equality, ordered-byte models and per-operation preservation/resource proofs |
 | Truthiness; `not`, `all`, `any` | Explicit CLVM truth conversion and evaluation order | Canonical Rust `bool`; boolean negation/control flow | Nil versus nonempty atoms/pairs; eager operand effects versus Rust short-circuit operators |
 | Lazy `if`; strict `i`; `x` | Branches, evaluated operands, and explicit failure | Rust lazy branches and plain assertions supported | General strict-conditional and raw failure-value semantics; discarded failures must remain observable |
 | Byte `concat`, `strlen`, `substr` | Byte vectors/slices with specified bounds | Fixed bytes and static projections; no general byte operations | Dynamic lengths, invalid slices, allocation bounds, and byte-exact results |
-| `logand`, `logior`, `logxor`, `lognot`, `ash`, `lsh` | Explicit signed-byte integer operations | Rejected | Unbounded sign extension, logical versus arithmetic shifts, shift limits, and costs |
+| `logand`, `logior`, `logxor`, `lognot`, `ash`, `lsh` | Primitive integer masks with explicit widths | Fixed-width integer `&`, `|`, `^`, `!` and strict Boolean `&`, `|`, `^`; unsigned complement uses a width mask | Unbounded sign extension, shifts/rotations, shift limits, and preservation/resource proofs |
 | `sha256`, tree hashing | A reviewed hash library and tree encoding | Hash constants can be carried; computing hashes on-chain is unsupported | Exact concatenation/domain separation, variable inputs, vectors, and hash assumptions |
 | `keccak256`, `coinid` | Reviewed algorithms with exact wire formats | Unsupported | Activation context, amount/identifier validation, padding, exception behavior, and cost vectors |
 | BLS exponent/public-key and G1/G2 operations | Curve libraries with specified encodings | No on-chain crypto arithmetic/verification lowering | Point validation, infinity, subgroup rules, scalars, mapping DSTs, exceptional inputs, and costs |
@@ -131,7 +144,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | No explicit source support | Exact extension and cost semantics; no assumption that unknown operators are harmless |
 | `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants | General aggregate constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
-| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` helper adapter; loops/allocation rejected | Further published helpers, output ownership, termination/resource and compiler-preservation proofs |
+| Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | No general curry or nested-puzzle API | Exact canonical module and instance identity plus adversarial composition tests |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
@@ -158,10 +171,10 @@ every compiler version.
 | Numeric opcode(s) | Names, in opcode order | Rust authoring coverage today |
 | --- | --- | --- |
 | 1, 2, 36 | `q`, `a`, `softfork` | Literals and raw-tree `quote`; no user-facing dynamic apply or softfork API |
-| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw tree construction/projections/pair tests, lazy branches, assertions, scalar comparisons and exact empty-atom tests |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw tree construction/projections/pair tests, lazy branches, assertions, scalar comparisons, exact primitive byte equality/unsigned lexicographic ordering, and empty-atom tests |
 | 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering; decoder-generated byte checks do not count as an authoring API |
 | 16–18 | `+`, `-`, `*` | Checked fixed-width arithmetic only |
-| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons only; remaining operations rejected |
+| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons and fixed-width `&`, `|`, `^`, `!`; unsigned `!` uses masked XOR, not opcode27 directly. Division and shifts remain rejected |
 | 29, 30 | `point_add` (documentation: `g1_add`), `pubkey_for_exp` | Missing crypto-op lowering |
 | 32–34 | `not`, `any`, `all` | `not` on Rust `bool`; no explicit strict variadic `any`/`all` or general truthiness API |
 | 48–51 | `coinid`, `g1_subtract`, `g1_multiply`, `g1_negate` | Missing |
@@ -269,7 +282,8 @@ the returned program, and separately compares published module identity.
 Optimized Rust now reproduces the published nine-byte module exactly, as do
 the independent Chialisp compiler and optimized Rue source. Unoptimized Rust
 and Rue have different artifacts. Rust's enabled pipeline runs the conservative
-typed IR tree-guard pass followed by Rue LIR; the first projection still rejects
+typed IR tree-guard pass, runtime frame elision, then Rue LIR. Frame elision has
+no effect on this runtime-free factory; the first projection still rejects
 atom environments after a redundant guard is removed. The report records both
 pipelines and actual byte/hash comparisons. This one measured factory identity
 does not establish general module or curried-instance compatibility.

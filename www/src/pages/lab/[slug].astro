@@ -4,12 +4,18 @@ import { Code } from '@astrojs/starlight/components';
 import SourceComparison from '../../components/SourceComparison.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
-import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
+import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
 const canonicalModule = canonicalPuzzle(puzzle);
 const helperAdapter = canonicalHelper(puzzle);
+const helper = helperContract(puzzle);
+const generatedScope = helper?.generated ?? (puzzle.environment === 'ignored' || puzzle.environment === 'raw' ? 'over bounded atom and pair trees' : 'around the scalar policy boundary');
+const sourceContract = canonical || canonicalModule
+  ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.'
+  : helper ? `The Chialisp comparison embeds the original helper verbatim inside ${helper.adapter}`
+  : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.';
 const factoryGroups = new Map<string, NonNullable<PuzzleReport['factory_checks']>>();
 for (const check of puzzle.factory_checks ?? []) {
   factoryGroups.set(check.environment, [...(factoryGroups.get(check.environment) ?? []), check]);
@@ -32,7 +38,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
     <div class="metric"><strong>{puzzle.simulator.length}</strong><span>ledger scenarios</span></div>
   </div>
   <h2 id="sources">Compare the sources</h2>
-  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {canonical || canonicalModule ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.' : helperAdapter ? 'The Chialisp comparison embeds the original helper verbatim inside the displayed module adapter, which calls it on the complete environment.' : 'The Chialisp comparison is compiled independently and includes checks for this fixture’s ABI.'}</p>
+  <p>These are the exact source strings recorded in the validation report. Cargo exports <code>{authoring.exports[puzzle.slug].entry}</code> from <code>{authoring.manifest}</code>; the native oracle links the same library. {sourceContract}</p>
   <p class="callout-note">{puzzle.environment === 'ignored'
     ? <>Environment contract: explicitly ignored. This parameterless export accepts any CLVM tree that the VM can parse and process within its resource limits. It adds no proper-list, arity, or scalar encoding check. <a href={href('reference/abi/#explicitly-ignored-environments')}>Read the opt-in ABI contract.</a></>
     : puzzle.environment === 'raw'
@@ -41,7 +47,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   <SourceComparison slug={puzzle.slug} />
   <h2 id="artifacts">Compiled artifacts</h2>
   <p>All five compiled builds from three source languages are compared on the same input trees. Different tree hashes are visible below; equivalent tested behavior does not imply canonical module-hash compatibility.</p>
-  <p class="quiet">Rust optimization on runs the typed IR tree-guard pass followed by Rue LIR optimization; off skips both. Rue source on/off controls its LIR optimizer. The report records these pipelines explicitly, while retaining the historical <code>optimize_lir</code> field name. Costs and rejection diagnostics can change between modes.</p>
+  <p class="quiet">Rust optimization on runs the typed IR tree-guard pass, runtime frame elision, then Rue LIR optimization; off skips all three. Frame elision applies only to runtime lowering. Rue source on/off controls its LIR optimizer. The report records these pipelines explicitly, while retaining the historical <code>optimize_lir</code> field name. Costs and rejection diagnostics can change between modes.</p>
   <div class="table-scroll"><table><caption>Serialized program sizes and tree hashes</caption><thead><tr><th scope="col">Backend</th><th scope="col">Optimization</th><th scope="col">Bytes</th><th scope="col">CLVM tree hash</th></tr></thead><tbody>
     {puzzle.artifacts.map(artifact => <tr><th scope="row">{artifact.backend === 'rust_mir' ? 'Rust MIR → Rue LIR' : backendLabel(artifact.backend)}</th><td>{artifact.optimize_lir ? 'on' : 'off'}</td><td>{format(artifact.bytes)}</td><td class="hash" data-pagefind-ignore><code>{artifact.tree_hash}</code></td></tr>)}
   </tbody></table></div>
@@ -54,7 +60,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   {puzzle.artifacts.map(artifact => <details class="artifact"><summary>{backendLabel(artifact.backend)} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary><div data-pagefind-ignore><Code code={artifact.disassembly} lang="lisp" /><Code code={artifact.clvm_hex} lang="text" /></div></details>)}
   <p class="quiet">The disassembler can print mnemonic names for numeric atoms inside quoted data. A name such as <code>g1_negate</code> in a returned condition list does not mean that operator is executed; inspect the quoted context and serialized bytes.</p>
   <h2 id="vectors">Adversarial input vectors</h2>
-  <p>Each named vector records native Rust and five CLVM executions: Chialisp, plus Rust and Rue with optimization off/on using the pipelines above. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? (puzzle.environment === 'ignored' || puzzle.environment === 'raw' ? ' over bounded atom and pair trees' : ' around the scalar policy boundary') : ''}. A rejected VM run has no returned successful cost.</p>
+  <p>Each named vector records native Rust and five CLVM executions: Chialisp, plus Rust and Rue with optimization off/on using the pipelines above. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? ` ${generatedScope}` : ''}. A rejected VM run has no returned successful cost.</p>
   <div class="table-scroll"><table><caption>Named input outcomes and successful VM execution costs</caption><thead><tr><th scope="col">Case / solution</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th></tr></thead><tbody>
     {puzzle.cases.map(test => <tr><th scope="row">{test.label}<code class="solution">{test.solution}</code></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span></td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}
   </tbody></table></div>
@@ -79,7 +85,7 @@ if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factor
   </div> : <div class="callout-note">{puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
   <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? 'This ports one exact tutorial expression. It does not complete its parent page, a canonical protocol module, or a CHIP migration.' : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : helperAdapter ? 'This ports one published helper through an explicit module adapter. It does not complete the source library, its macros, a protocol, or a CHIP. It makes no published module-hash compatibility claim.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
-  {helperAdapter && <p><a href={href('tutorials/last-list-element/')}>Read the helper’s source span, license, input contract and reproduction steps.</a></p>}
+  {helper && <p><a href={href(`tutorials/${puzzle.slug}/`)}>Read the helper’s source span, license, input contract and reproduction steps.</a></p>}
   <ul>{puzzle.provenance.references.map(url => <li><a href={url}>{new URL(url).hostname}{new URL(url).pathname}</a></li>)}</ul>
   <p>Rue source SHA-256: <code class="dependency-hash" data-pagefind-ignore>{puzzle.rue.sha256}</code>. It is compiled independently; Rust’s use of Rue LIR does not substitute for this source comparison.</p>
   <RuntimeVersions />

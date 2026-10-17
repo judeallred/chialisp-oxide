@@ -14,9 +14,11 @@ use rustc_middle::{
 };
 use rustc_span::Span;
 
+mod byte_comparison;
 mod constants;
 mod empty_atoms;
 mod newtypes;
+mod owned;
 mod runtime;
 mod totality;
 mod trees;
@@ -28,6 +30,34 @@ pub struct Lowerer<'tcx> {
     active_blocks: Cell<usize>,
     total_functions: RefCell<HashMap<DefId, bool>>,
     constants: RefCell<Vec<(DefId, Option<Promoted>)>>,
+    owned_plans: RefCell<HashMap<usize, std::rc::Rc<owned::Plan<'tcx>>>>,
+    explicit_allocator: Cell<Option<bool>>,
+}
+
+#[derive(Clone)]
+struct Environment {
+    values: Vec<Option<Expr>>,
+    // Compiler pointer metadata stays outside ordinary typed MIR locals.
+    boxes: HashMap<Local, std::rc::Rc<Expr>>,
+}
+impl Environment {
+    fn new(count: usize) -> Self {
+        Self {
+            values: vec![None; count],
+            boxes: HashMap::new(),
+        }
+    }
+}
+impl std::ops::Deref for Environment {
+    type Target = [Option<Expr>];
+    fn deref(&self) -> &Self::Target {
+        &self.values
+    }
+}
+impl std::ops::DerefMut for Environment {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.values
+    }
 }
 
 const MAX_EXPRESSION_NODES: usize = 8_192;
@@ -73,6 +103,8 @@ impl<'tcx> Lowerer<'tcx> {
             active_blocks: Cell::new(0),
             total_functions: RefCell::new(HashMap::new()),
             constants: RefCell::new(Vec::new()),
+            owned_plans: RefCell::new(HashMap::new()),
+            explicit_allocator: Cell::new(None),
         }
     }
 
@@ -150,11 +182,7 @@ impl<'tcx> Lowerer<'tcx> {
         Ok(())
     }
 
-    fn clone_locals(
-        &self,
-        locals: &[Option<Expr>],
-        span: Span,
-    ) -> Result<Vec<Option<Expr>>, String> {
+    fn clone_locals(&self, locals: &Environment, span: Span) -> Result<Environment, String> {
         let mut count = 0;
         for value in locals.iter().flatten() {
             count += self.expression_size(value, span)?;
@@ -163,7 +191,10 @@ impl<'tcx> Lowerer<'tcx> {
                 return Err(self.error(span, "local substitution environment limit exceeded"));
             }
         }
-        Ok(locals.to_vec())
+        for value in locals.boxes.values() {
+            self.check_expression(value, span)?;
+        }
+        Ok(locals.clone())
     }
 
     fn error(&self, span: Span, message: impl std::fmt::Display) -> String {
@@ -226,6 +257,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
             ty::Adt(..) => {
+                if let Some(inner) = self.owned_tree_box(ty,span)? { return self.lower_type(inner, span, depth + 1); }
                 if self.tree_shape(ty, span)?.is_some() { return Ok((Type::Tree, 1)); }
                 let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
                 return self.lower_type(inner, span, depth + 1);
@@ -284,6 +316,7 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "unsafe functions are unsupported"));
         }
         let body = self.tcx.optimized_mir(id);
+        self.owned_plan(body)?;
         Ok(body)
     }
 
@@ -301,7 +334,7 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "internal helper argument count mismatch"));
         }
         self.ty(body.return_ty(), span)?;
-        let mut locals = vec![None; body.local_decls.len()];
+        let mut locals = Environment::new(body.local_decls.len());
         for (local, value) in body.args_iter().zip(arguments) {
             self.check_expression(&value, span)?;
             self.ty(body.local_decls[local].ty, span)?;
@@ -322,7 +355,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         block: BasicBlock,
-        mut locals: Vec<Option<Expr>>,
+        mut locals: Environment,
         path: &mut Vec<BasicBlock>,
         stack: &mut Vec<DefId>,
         mut patterns: empty_atoms::State<'_, 'tcx>,
@@ -346,11 +379,23 @@ impl<'tcx> Lowerer<'tcx> {
         }
         path.push(block);
         let mut effects = Vec::new();
+        let owned = self.owned_plan(body)?;
         for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
             match &statement.kind {
                 StatementKind::Assign(assignment) => {
                     let (place, rvalue) = &**assignment;
+                    if let Some(action) = owned.actions.get(&Location {
+                        block,
+                        statement_index,
+                    }) {
+                        if let owned::Action::Capture { pointer, source } = action {
+                            let value = self.place(body, *source, &locals, statement_span)?;
+                            self.check_expression(&value, statement_span)?;
+                            locals.boxes.insert(*pointer, std::rc::Rc::new(value));
+                        }
+                        continue;
+                    }
                     if let Some(action) = patterns.patterns.action(Location {
                         block,
                         statement_index,
@@ -388,153 +433,189 @@ impl<'tcx> Lowerer<'tcx> {
             }
         }
         let terminator = data.terminator();
-        let result = match &terminator.kind {
-            TerminatorKind::Return => {
-                self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
-            }
-            TerminatorKind::Goto { target } => {
-                self.block(body, *target, locals, path, stack, patterns)?
-            }
-            TerminatorKind::SwitchInt { discr, targets } => {
-                let value = self.operand(body, discr, &locals, span)?;
-                let tree = self.tree_discriminant(body, discr, &locals, span)?;
-                let ty = if tree.is_some() {
-                    Type::Int {
-                        bits: 8,
-                        signed: false,
-                    }
-                } else {
-                    self.ty(discr.ty(&body.local_decls, self.tcx), span)?
-                };
-                let mut result = self.block(
-                    body,
-                    targets.otherwise(),
-                    self.clone_locals(&locals, span)?,
-                    &mut path.clone(),
-                    stack,
-                    patterns.clone(),
-                )?;
-                for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
-                    let condition = if let Some((is_pair, shape)) = &tree {
-                        if bits == shape.pair.index() as u128 {
-                            is_pair.clone()
-                        } else if bits == shape.atom.index() as u128 {
-                            Expr::Not {
-                                value: Box::new(is_pair.clone()),
-                            }
-                        } else {
-                            Expr::Bool { value: false }
+        let result = if let Some(target) = owned.targets.get(&block) {
+            self.block(body, *target, locals, path, stack, patterns)?
+        } else {
+            match &terminator.kind {
+                TerminatorKind::Return => {
+                    self.place(body, Place::from(Local::from_usize(0)), &locals, span)?
+                }
+                TerminatorKind::Goto { target } => {
+                    self.block(body, *target, locals, path, stack, patterns)?
+                }
+                TerminatorKind::SwitchInt { discr, targets } => {
+                    let value = self.operand(body, discr, &locals, span)?;
+                    let tree = self.tree_discriminant(body, discr, &locals, span)?;
+                    let ty = if tree.is_some() {
+                        Type::Int {
+                            bits: 8,
+                            signed: false,
                         }
                     } else {
-                        Expr::Binary {
-                            kind: BinaryOp::Eq,
-                            left: Box::new(value.clone()),
-                            right: Box::new(self.scalar(bits, &ty, span)?),
-                            ty: ty.clone(),
-                        }
+                        self.ty(discr.ty(&body.local_decls, self.tcx), span)?
                     };
-                    result = Expr::If {
+                    let mut result = self.block(
+                        body,
+                        targets.otherwise(),
+                        self.clone_locals(&locals, span)?,
+                        &mut path.clone(),
+                        stack,
+                        patterns.clone(),
+                    )?;
+                    for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
+                        let condition = if let Some((is_pair, shape)) = &tree {
+                            if bits == shape.pair.index() as u128 {
+                                is_pair.clone()
+                            } else if bits == shape.atom.index() as u128 {
+                                Expr::Not {
+                                    value: Box::new(is_pair.clone()),
+                                }
+                            } else {
+                                Expr::Bool { value: false }
+                            }
+                        } else {
+                            Expr::Binary {
+                                kind: BinaryOp::Eq,
+                                left: Box::new(value.clone()),
+                                right: Box::new(self.scalar(bits, &ty, span)?),
+                                ty: ty.clone(),
+                            }
+                        };
+                        result = Expr::If {
+                            condition: Box::new(condition),
+                            then_value: Box::new(self.block(
+                                body,
+                                target,
+                                self.clone_locals(&locals, span)?,
+                                &mut path.clone(),
+                                stack,
+                                patterns.clone(),
+                            )?),
+                            else_value: Box::new(result),
+                        };
+                        self.check_expression(&result, span)?;
+                    }
+                    result
+                }
+                TerminatorKind::Assert {
+                    cond,
+                    expected,
+                    target,
+                    ..
+                } => {
+                    let mut condition = self.operand(body, cond, &locals, span)?;
+                    if !expected {
+                        condition = Expr::Not {
+                            value: Box::new(condition),
+                        };
+                    }
+                    Expr::If {
                         condition: Box::new(condition),
-                        then_value: Box::new(self.block(
+                        then_value: Box::new(
+                            self.block(body, *target, locals, path, stack, patterns)?,
+                        ),
+                        else_value: Box::new(Expr::Reject {
+                            message: self.error(span, "Rust assertion failed"),
+                        }),
+                    }
+                }
+                TerminatorKind::Call {
+                    func,
+                    args,
+                    destination,
+                    target,
+                    ..
+                } => {
+                    let fn_ty = func.ty(&body.local_decls, self.tcx);
+                    let ty::FnDef(id, generic_args) = fn_ty.kind() else {
+                        return Err(self.error(span, "indirect function calls are unsupported"));
+                    };
+                    let name = self.tcx.def_path_str(*id);
+                    if self.panic_function(*id) {
+                        Expr::Reject {
+                            message: self.error(span, "Rust panic/assertion rejects the puzzle"),
+                        }
+                    } else if self.box_constructor(body, func, args, *destination, span)? {
+                        let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                        self.assign(body, *destination, value, &mut locals, span)?;
+                        self.block(
                             body,
-                            target,
-                            self.clone_locals(&locals, span)?,
-                            &mut path.clone(),
+                            target.ok_or_else(|| self.error(span, "Box::new must return"))?,
+                            locals,
+                            path,
                             stack,
-                            patterns.clone(),
-                        )?),
-                        else_value: Box::new(result),
-                    };
-                    self.check_expression(&result, span)?;
-                }
-                result
-            }
-            TerminatorKind::Assert {
-                cond,
-                expected,
-                target,
-                ..
-            } => {
-                let mut condition = self.operand(body, cond, &locals, span)?;
-                if !expected {
-                    condition = Expr::Not {
-                        value: Box::new(condition),
-                    };
-                }
-                Expr::If {
-                    condition: Box::new(condition),
-                    then_value: Box::new(self.block(body, *target, locals, path, stack, patterns)?),
-                    else_value: Box::new(Expr::Reject {
-                        message: self.error(span, "Rust assertion failed"),
-                    }),
-                }
-            }
-            TerminatorKind::Call {
-                func,
-                args,
-                destination,
-                target,
-                ..
-            } => {
-                let fn_ty = func.ty(&body.local_decls, self.tcx);
-                let ty::FnDef(id, generic_args) = fn_ty.kind() else {
-                    return Err(self.error(span, "indirect function calls are unsupported"));
-                };
-                let name = self.tcx.def_path_str(*id);
-                if self.panic_function(*id) {
-                    Expr::Reject {
-                        message: self.error(span, "Rust panic/assertion rejects the puzzle"),
-                    }
-                } else {
-                    if generic_args
-                        .skip_binder()
-                        .iter()
-                        .any(|argument| argument.as_region().is_none())
+                            patterns,
+                        )?
+                    } else if let Some(comparison) =
+                        self.byte_comparison(body, func, args, *destination, span)?
                     {
-                        return Err(
-                            self.error(span, format!("generic call `{name}` is unsupported"))
-                        );
-                    }
-                    if !id.is_local() && !self.allowed_external(*id) {
-                        return Err(self.error(
-                            span,
-                            format!(
-                                "external call `{name}` is unsupported; use local pure helpers"
-                            ),
-                        ));
-                    }
-                    if args.len() > 64 {
-                        return Err(self.error(span, "calls are limited to 64 arguments"));
-                    }
-                    let mut values = Vec::new();
-                    let mut nodes = 0;
-                    for arg in args {
-                        let value = self.operand(body, &arg.node, &locals, arg.span)?;
-                        nodes += self.expression_size(&value, arg.span)?;
-                        if nodes > MAX_EXPRESSION_NODES * 4 {
+                        let left = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                        let right = self.operand(body, &args[1].node, &locals, args[1].span)?;
+                        let value = comparison.expression(left, right);
+                        self.check_expression(&value, span)?;
+                        self.assign(body, *destination, value, &mut locals, span)?;
+                        self.block(
+                            body,
+                            target
+                                .ok_or_else(|| self.error(span, "byte comparison must return"))?,
+                            locals,
+                            path,
+                            stack,
+                            patterns,
+                        )?
+                    } else {
+                        if generic_args
+                            .skip_binder()
+                            .iter()
+                            .any(|argument| argument.as_region().is_none())
+                        {
                             return Err(
-                                self.error(span, "helper argument expansion limit exceeded")
+                                self.error(span, format!("generic call `{name}` is unsupported"))
                             );
                         }
-                        values.push(value);
+                        if !id.is_local() && !self.allowed_external(*id) {
+                            return Err(self.error(
+                                span,
+                                format!(
+                                    "external call `{name}` is unsupported; use local pure helpers"
+                                ),
+                            ));
+                        }
+                        if args.len() > 64 {
+                            return Err(self.error(span, "calls are limited to 64 arguments"));
+                        }
+                        let mut values = Vec::new();
+                        let mut nodes = 0;
+                        for arg in args {
+                            let value = self.operand(body, &arg.node, &locals, arg.span)?;
+                            nodes += self.expression_size(&value, arg.span)?;
+                            if nodes > MAX_EXPRESSION_NODES * 4 {
+                                return Err(
+                                    self.error(span, "helper argument expansion limit exceeded")
+                                );
+                            }
+                            values.push(value);
+                        }
+                        let value = self.function(*id, values, stack)?;
+                        // Totality concerns the validated function's own MIR,
+                        // rather than re-evaluating previously computed arguments.
+                        if !self.function_is_total(*id) {
+                            effects.push(value.clone());
+                        }
+                        self.assign(body, *destination, value, &mut locals, span)?;
+                        let target = target.ok_or_else(|| {
+                            self.error(span, "diverging helper calls are unsupported")
+                        })?;
+                        self.block(body, target, locals, path, stack, patterns)?
                     }
-                    let value = self.function(*id, values, stack)?;
-                    // Totality concerns the validated function's own MIR,
-                    // rather than re-evaluating previously computed arguments.
-                    if !self.function_is_total(*id) {
-                        effects.push(value.clone());
-                    }
-                    self.assign(body, *destination, value, &mut locals, span)?;
-                    let target = target.ok_or_else(|| {
-                        self.error(span, "diverging helper calls are unsupported")
-                    })?;
-                    self.block(body, target, locals, path, stack, patterns)?
+                }
+                TerminatorKind::Unreachable => Expr::Reject {
+                    message: self.error(span, "unreachable Rust path"),
+                },
+                other => {
+                    return Err(self.error(span, format!("unsupported MIR terminator: {other:?}")));
                 }
             }
-            TerminatorKind::Unreachable => Expr::Reject {
-                message: self.error(span, "unreachable Rust path"),
-            },
-            other => return Err(self.error(span, format!("unsupported MIR terminator: {other:?}"))),
         };
         path.pop();
         let mut result = result;
@@ -553,7 +634,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         operand: &Operand<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &Environment,
         span: Span,
     ) -> Result<Expr, String> {
         match operand {
@@ -611,15 +692,36 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         place: Place<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &Environment,
         span: Span,
     ) -> Result<Expr, String> {
-        let mut value = locals[place.local.index()]
-            .clone()
-            .ok_or_else(|| self.error(span, "MIR reads an uninitialized local"))?;
-        let mut current_ty = body.local_decls[place.local].ty;
+        let plan = self.owned_plan(body)?;
+        let captured = plan.roots.get(&place.local);
+        let mut value = if captured.is_some() {
+            if place.projection.first() != Some(&ProjectionElem::Deref) {
+                return Err(self.error(span, "Box pointer metadata cannot be observed as a value"));
+            }
+            locals
+                .boxes
+                .get(&place.local)
+                .map(|value| (**value).clone())
+                .ok_or_else(|| {
+                    self.error(span, "Box dereference precedes its initialized snapshot")
+                })?
+        } else {
+            locals[place.local.index()]
+                .clone()
+                .ok_or_else(|| self.error(span, "MIR reads an uninitialized local"))?
+        };
+        let mut current_ty = captured
+            .copied()
+            .unwrap_or(body.local_decls[place.local].ty);
         let mut variant = None;
-        for projection in place.projection {
+        for projection in place
+            .projection
+            .iter()
+            .skip(usize::from(captured.is_some()))
+        {
             match projection {
                 ProjectionElem::Deref
                     if matches!(current_ty.kind(), ty::Ref(_, _, ty::Mutability::Not))
@@ -629,6 +731,9 @@ impl<'tcx> Lowerer<'tcx> {
                         unreachable!()
                     };
                     current_ty = *inner;
+                }
+                ProjectionElem::Deref if self.owned_tree_box(current_ty, span)?.is_some() => {
+                    current_ty = self.owned_tree_box(current_ty, span)?.unwrap();
                 }
                 ProjectionElem::Downcast(_, index)
                     if self.tree_shape(current_ty, span)?.is_some() =>
@@ -709,7 +814,7 @@ impl<'tcx> Lowerer<'tcx> {
         body: &Body<'tcx>,
         place: Place<'tcx>,
         value: Expr,
-        locals: &mut [Option<Expr>],
+        locals: &mut Environment,
         span: Span,
     ) -> Result<(), String> {
         if place.projection.is_empty() {
@@ -774,7 +879,7 @@ impl<'tcx> Lowerer<'tcx> {
         &self,
         body: &Body<'tcx>,
         value: &Rvalue<'tcx>,
-        locals: &[Option<Expr>],
+        locals: &Environment,
         span: Span,
     ) -> Result<Expr, String> {
         match value {
@@ -813,10 +918,13 @@ impl<'tcx> Lowerer<'tcx> {
                     BinOp::Le => BinaryOp::Le,
                     BinOp::Gt => BinaryOp::Gt,
                     BinOp::Ge => BinaryOp::Ge,
+                    BinOp::BitAnd => BinaryOp::Bitand,
+                    BinOp::BitOr => BinaryOp::Bitor,
+                    BinOp::BitXor => BinaryOp::Bitxor,
                     BinOp::Add | BinOp::AddWithOverflow => BinaryOp::Add,
                     BinOp::Sub | BinOp::SubWithOverflow => BinaryOp::Sub,
                     BinOp::Mul | BinOp::MulWithOverflow => BinaryOp::Mul,
-                    _ => return Err(self.error(span, format!("unsupported integer operation `{op:?}`; wrapping, division, shifts and bitwise operations need distinct verified semantics"))),
+                    _ => return Err(self.error(span, format!("unsupported integer operation `{op:?}`; wrapping, division and shifts need distinct verified semantics"))),
                 };
                 let expression = Expr::Binary {
                     kind,
@@ -839,12 +947,36 @@ impl<'tcx> Lowerer<'tcx> {
                     Ok(expression)
                 }
             }
-            Rvalue::UnaryOp(UnOp::Not, operand)
-                if operand.ty(&body.local_decls, self.tcx).is_bool() =>
-            {
-                Ok(Expr::Not {
-                    value: Box::new(self.operand(body, operand, locals, span)?),
-                })
+            Rvalue::UnaryOp(UnOp::Not, operand) => {
+                let ty = self.ty(operand.ty(&body.local_decls, self.tcx), span)?;
+                let value = self.operand(body, operand, locals, span)?;
+                match &ty {
+                    Type::Bool => Ok(Expr::Not {
+                        value: Box::new(value),
+                    }),
+                    Type::Int { bits, signed } if matches!(bits, 8 | 16 | 32 | 64 | 128) => {
+                        // Rust complements only its fixed-width word. CLVM's
+                        // signed integer XOR therefore needs an explicit mask:
+                        // -1 for signed words, exactly N one bits for unsigned.
+                        let mask = if *signed {
+                            "-1".into()
+                        } else {
+                            (u128::MAX >> (128 - bits)).to_string()
+                        };
+                        Ok(Expr::Binary {
+                            kind: BinaryOp::Bitxor,
+                            left: Box::new(value),
+                            right: Box::new(Expr::Int {
+                                value: mask,
+                                ty: ty.clone(),
+                            }),
+                            ty,
+                        })
+                    }
+                    _ => {
+                        Err(self.error(span, "unary ! supports only bool and fixed-width integers"))
+                    }
+                }
             }
             Rvalue::Aggregate(kind, operands) => {
                 let mut items = Vec::new();

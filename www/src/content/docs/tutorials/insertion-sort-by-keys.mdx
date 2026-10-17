@@ -1,0 +1,148 @@
+---
+title: Order entries by byte keys
+description: Port a published insertion-sort helper with ordinary Rust slice ordering, preserve its base cases, and compare independently compiled Chialisp and Rue.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles, backendLabel, format } from '../../../lib/data';
+
+export const sortPuzzle = puzzles.find(puzzle => puzzle.slug === 'insertion-sort-by-keys');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Coin protocols often need a deterministic order for keys and their associated
+data. A key is a byte sequence: comparing it as a signed integer changes its
+meaning. Rust already provides the intended operation for `&[u8]`:
+
+```rust
+fn comes_before(left_key: &[u8], right_key: &[u8]) -> bool {
+    left_key > right_key // Descending unsigned byte order.
+}
+```
+
+This lesson ports the [`insertion_sort_by_keys` helper from Chia's published
+credential flag-proof checker](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/vc_puzzles/cr_puzzles/flag_proofs_checker.clsp#L15-L23).
+Its original `>s` compares bytes in precisely
+that order. The complete enclosing checker also performs other work; this
+example ports the sorting helper and its supporting short-circuit macro only.
+It does not validate credentials, execute a complete spend or establish a
+published module hash.
+
+## Read the three implementations
+
+<SourceComparison slug="insertion-sort-by-keys" />
+
+The Chialisp helper and supporting `or` macro are retained verbatim from their
+pinned source files. The visible module wrapper adds an exact two-argument
+environment: `(existing_sequence insertions)`. Both arguments are arbitrary
+trees. It rejects extra arguments, missing arguments and improper outer tails.
+It deliberately leaves the helper's internal contracts unchanged.
+
+The Rust export uses the opt-in `alloc` feature and `OwnedTree`. It moves complete
+entries, rebuilds list pairs with standard `Box` constructors and compares
+borrowed atom keys with ordinary Rust ordering. Rue has its own source port and
+independent compiler invocation. Both optimization settings are measured for
+Rust and Rue; the Chialisp reference uses its independent compiler.
+
+## Understand the key order
+
+Unsigned lexicographic comparison first looks at the earliest different byte.
+If every shared byte matches, the shorter sequence comes first in ascending
+order. This helper inserts a larger key before the current head. Starting from
+a proper descending sorted sequence preserves descending order; an arbitrary
+initial tree has no such guarantee.
+
+```text
+key A       key B        A > B       reason
+0xff        0x01         true        255 is greater than 1 as a byte
+0x01        0x0001       true        first byte 1 is greater than 0
+0x0000      0x00         true        a proper extension follows its prefix
+0x00        ()           true        the empty byte sequence comes first
+0x01        0x01         false       equal keys are not greater
+```
+
+`0xff` is negative one under signed integer decoding. `0x01` and `0x0001`
+can represent the same integer. Those interpretations have no role in `>s` or
+Rust `u8` slice ordering. Non-UTF8 data needs no string conversion.
+
+Ordinary `<`, `<=`, `>` and `>=` are supported for immutable byte slices and
+identical fixed `[u8; N]` arrays within the frontend's 256-element array limit.
+Array operands retain their exact-width ABI checks. The frontend checks the
+actual core `PartialOrd` member and resolved primitive implementation before
+lowering; a custom implementation or familiar method name gains no special
+semantics. Mixed slice/array comparison and general trait dispatch remain
+unsupported.
+
+## Preserve the original helper's contracts
+
+For an initially empty sequence, inserting
+`((0x01 . "one") (0xff . "high") (0x0001 . "padded"))` produces
+`((0xff . "high") (0x01 . "one") (0x0001 . "padded"))`.
+Each payload stays attached to its key. When the existing sequence is a proper
+descending sorted list, its equal-key entries remain before newly inserted
+entries, and equal-key insertions retain their input order. The helper does not
+check that precondition. An unsorted initial sequence need not become sorted,
+and a new entry can then appear before an existing entry with the same key.
+Rust type checking does not prove that precondition. The named unsorted
+counterexample is part of the three-language evidence.
+
+Its permissive base cases are observable:
+
+- Empty insertions return the existing tree unchanged, even if that tree is an
+  atom or an improper list.
+- Inserting one arbitrary entry into an empty sequence need not inspect its
+  key. A malformed singleton entry can therefore succeed.
+- A later comparison can reject when a required list pair, entry pair or atom
+  key is absent. Payloads remain arbitrary trees.
+- Nil is the empty atom. A nonempty zero byte is truthy in the original helper
+  and cannot silently become an empty list.
+
+Replacing these cases with a stricter Rust collection decoder would change
+the original helper's accepted inputs. A protocol can impose stronger entry
+types and validation through a separately specified adapter. This port keeps
+the original behavior visible so compatibility and added policy checks are
+distinct decisions.
+
+## Inspect the evidence
+
+The [laboratory page](/chialisp-oxide/lab/insertion-sort-by-keys/) records
+{sortPuzzle?.cases.length} named cases and {format(sortPuzzle?.generated_cases ?? 0)}
+generated inputs through actual native Rust and all five CLVM builds. Cases
+include byte prefixes, high-bit bytes, padding, duplicate keys, arbitrary
+payloads, base cases and malformed inputs. The independent checker derives
+expected outputs and challenges altered ordering and validation behavior.
+
+<table>
+  <caption>Recorded serialized program sizes</caption>
+  <thead><tr><th scope="col">Build</th><th scope="col">Program bytes</th></tr></thead>
+  <tbody>{sortPuzzle?.artifacts.map(artifact => <tr><th scope="row">{backendLabel(artifact.backend)} / {artifact.backend === 'chialisp' ? 'reference' : artifact.optimize_lir ? 'on' : 'off'}</th><td>{format(artifact.bytes)}</td></tr>)}</tbody>
+</table>
+
+Native testing preflights both complete trees and a conservative potential
+output-depth bound before allocating owned values. These are host testing
+limits; exceeding them is inconclusive, not puzzle rejection. VM resource
+failures are also inconclusive. This prevents a testing limit from becoming
+false evidence that the compiled policy rejects an input.
+
+The current [SMT models](/chialisp-oxide/verification/formal/) reject runtime
+recursion and ordered byte nodes, including unused ordered nodes. The existing
+byte-equality proof does not prove sorting. These finite comparisons establish
+neither termination for arbitrary inputs, compiler preservation, constant-time
+execution nor a credential authorization property.
+
+## Reproduce and change it
+
+```sh
+cargo build --workspace --locked
+./scripts/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --output corpus/validation.json
+cargo test -p chialisp-oxide-driver --test byte_ordering --locked
+cargo test -p chialisp-oxide-ir --test atom_ordering --locked
+python3 scripts/check-insertion-sort.py --self-test
+```
+
+Reverse the comparison, change `>` to `>=`, interpret a key as an integer, or
+require every entry to be valid before a base case returns. Each changes a
+different part of the contract. Compare the resulting outputs and typed
+failures against the unchanged original before deciding whether that change
+belongs in a new adapter.

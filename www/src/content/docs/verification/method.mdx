@@ -5,6 +5,7 @@ description: Read the native, differential, generated-input, ledger, mutation, a
 
 import EvidenceSummary from '../../../components/EvidenceSummary.astro';
 import RuntimeVersions from '../../../components/RuntimeVersions.astro';
+import RuntimeFrameComparison from '../../../components/RuntimeFrameComparison.astro';
 import { totals, format } from '../../../lib/data';
 
 <EvidenceSummary />
@@ -65,12 +66,23 @@ Rust CLVM, independently compiled Chialisp CLVM, and Rue source compiled with
 optimization off/on. The scalar examples also
 have generated sweeps around their bounds.
 
-Rust's enabled pipeline first runs the typed IR tree-guard pass and then Rue
-LIR optimization; its disabled pipeline runs neither. Rue source off/on controls
+Rust's enabled pipeline runs the typed IR tree-guard pass, runtime frame elision,
+then Rue LIR optimization; its disabled pipeline runs none of these stages.
+Frame elision applies only to runtime lowering. Rue source off/on controls
 only its LIR optimizer. The report records this distinction in
 `optimization_pipeline`, alongside the historical `optimize_lir` build flag.
 The comparison contract covers rejection and exact returned bytes, while costs
 and error strings may differ.
+
+Runtime frame elision forwards already-bound values and literals without new
+slots, lowers operations that consume an operand once directly, and returns a
+tail binding's initializer directly. Fallible multi-operand computations still
+execute once in source order. The pair-guard pass continues to leave runtime IR
+unchanged: moving a rejection past a diverging call would change behavior.
+Executed regressions cover these boundaries; current model proofs reject runtime
+IR and do not prove this lowering correct for arbitrary programs.
+
+<RuntimeFrameComparison />
 
 The typed IR pass also has an independently implemented bounded interpreter and
 tree/expression matrix. It checks original and rewritten behavior, repeated
@@ -166,6 +178,23 @@ Both are fixed in this checkout, with test-first reproductions and standalone
 upstream patches. The regressions compare exact outputs and rejection with
 optimization off/on. They illustrate why a source/IR-model proof and optimizer
 preservation remain separate obligations.
+
+Bitwise review found a separate failure-order discrepancy:
+[nested integer reductions could move validation past a recursive operand](https://github.com/xch-dev/rue/issues/112).
+A pair supplied to a Rue `Int` entrypoint changed from an immediate
+`invalid_op_arg` to resource exhaustion after optimization. The fix retains the
+inner reduction. Tests preserve the opposite evaluation-order control, valid
+atom inputs and explicit type guards. No mismatch was demonstrated on well-typed
+operands; the Rust strict ABI rejects the malformed pair before policy execution.
+
+A separate [canonical Boolean value discrepancy](https://github.com/xch-dev/rue/issues/113)
+affects well-typed integer inputs. For input `2`, `value != 0` returned canonical
+true without optimization but atom `2` after optimization; `(value != 0) == true`
+then changed from true to false. The fix preserves Boolean value normalization
+while retaining condition-only truthiness simplification. Source and public-LIR
+regressions compare exact bytes, tuple fields, nested Boolean use and required
+failures. These are concrete counterexamples and regression controls, not a
+universal optimizer-preservation proof.
 
 ## Runtime boundaries are explicit
 

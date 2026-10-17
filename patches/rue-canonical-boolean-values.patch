@@ -1,0 +1,498 @@
+diff --git a/crates/rue-compiler/tests/canonical_boolean_values.rs b/crates/rue-compiler/tests/canonical_boolean_values.rs
+new file mode 100644
+index 0000000..ce969f7
+--- /dev/null
++++ b/crates/rue-compiler/tests/canonical_boolean_values.rs
+@@ -0,0 +1,121 @@
++use std::path::Path;
++
++use clvmr::{Allocator, ChiaDialect, MEMPOOL_MODE, run_program, serde::node_to_bytes};
++use rue_compiler::{Compiler, FileTree, normalize_path};
++use rue_diagnostic::DiagnosticSeverity;
++use rue_options::CompilerOptions;
++
++fn diagnostics(compiler: &mut Compiler, root: &Path) {
++    let errors = compiler
++        .take_diagnostics()
++        .into_iter()
++        .filter(|d| d.kind.severity() == DiagnosticSeverity::Error)
++        .map(|d| d.message(root))
++        .collect::<Vec<_>>();
++    assert!(errors.is_empty(), "{}", errors.join("\n"));
++}
++
++fn execute(fixture: &str, optimize: bool, input: i16) -> Vec<u8> {
++    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
++        .join("tests/fixtures/canonical_bool")
++        .join(fixture);
++    let root = path.parent().unwrap();
++    let mut compiler = Compiler::new(CompilerOptions {
++        optimize_lir: optimize,
++        auto_inline: true,
++        optimize_static_pairs: false,
++        debug_symbols: false,
++        ..CompilerOptions::default()
++    });
++    let tree = FileTree::compile_file(&mut compiler, &path);
++    diagnostics(&mut compiler, root);
++    let mut allocator = Allocator::new();
++    let program = tree.unwrap().main(
++        &mut compiler,
++        &mut allocator,
++        &normalize_path(&path).unwrap(),
++        root.to_owned(),
++    );
++    diagnostics(&mut compiler, root);
++    let program = program.unwrap().unwrap();
++    let environment = allocator.new_number(input.into()).unwrap();
++    let result = run_program(
++        &mut allocator,
++        &ChiaDialect::new(MEMPOOL_MODE),
++        program,
++        environment,
++        1_000_000,
++    )
++    .unwrap();
++    node_to_bytes(&allocator, result.1).unwrap()
++}
++
++fn bool_bytes(value: bool) -> Vec<u8> {
++    vec![if value { 1 } else { 0x80 }]
++}
++
++#[test]
++fn returned_nonzero_comparisons_are_canonical_booleans() {
++    for value in [-129, -128, -2, -1, 0, 1, 2, 3, 6, 127, 128, 255, 256] {
++        for optimize in [false, true] {
++            assert_eq!(
++                execute("nonzero.rue", optimize, value),
++                bool_bytes(value != 0),
++                "input={value},optimize={optimize}"
++            );
++        }
++    }
++}
++
++#[test]
++fn comparing_a_nonzero_result_to_true_preserves_the_boolean_answer() {
++    for value in [-2, -1, 0, 1, 2, 3, 6, 128] {
++        for optimize in [false, true] {
++            assert_eq!(
++                execute("equal_true.rue", optimize, value),
++                bool_bytes(value != 0),
++                "input={value},optimize={optimize}"
++            );
++        }
++    }
++}
++
++#[test]
++fn integer_masks_return_boolean_values() {
++    for value in -2..=8 {
++        for optimize in [false, true] {
++            assert_eq!(
++                execute("mask.rue", optimize, value),
++                bool_bytes(value & 6 != 0)
++            );
++        }
++    }
++}
++
++#[test]
++fn tuple_fields_and_eager_boolean_operations_preserve_their_contracts() {
++    for value in 0..=7 {
++        for optimize in [false, true] {
++            let mut expected = vec![0xff];
++            expected.extend(bool_bytes(value & 2 != 0));
++            expected.extend(bool_bytes(value & 1 != 0));
++            assert_eq!(execute("tuple.rue", optimize, value), expected);
++            assert_eq!(
++                execute("nested.rue", optimize, value),
++                bool_bytes(value & 2 != 0 && value & 1 == 0)
++            );
++        }
++    }
++}
++
++#[test]
++fn condition_only_uses_keep_the_same_branch() {
++    for value in [-2, -1, 0, 1, 2, 3, 128] {
++        for optimize in [false, true] {
++            assert_eq!(
++                execute("condition.rue", optimize, value),
++                vec![if value == 0 { 17 } else { 42 }]
++            );
++        }
++    }
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/condition.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/condition.rue
+new file mode 100644
+index 0000000..d61977a
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/condition.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> Int {
++    if value != 0 { 42 } else { 17 }
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/equal_true.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/equal_true.rue
+new file mode 100644
+index 0000000..b16c6c1
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/equal_true.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> Bool {
++    (value != 0) == true
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/mask.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/mask.rue
+new file mode 100644
+index 0000000..a159058
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/mask.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> Bool {
++    (value & 6) != 0
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/nested.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/nested.rue
+new file mode 100644
+index 0000000..50c1f99
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/nested.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> Bool {
++    ((value & 2) != 0) & !((value & 1) != 0)
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/nonzero.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/nonzero.rue
+new file mode 100644
+index 0000000..418a8d1
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/nonzero.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> Bool {
++    value != 0
++}
+diff --git a/crates/rue-compiler/tests/fixtures/canonical_bool/tuple.rue b/crates/rue-compiler/tests/fixtures/canonical_bool/tuple.rue
+new file mode 100644
+index 0000000..f7a270d
+--- /dev/null
++++ b/crates/rue-compiler/tests/fixtures/canonical_bool/tuple.rue
+@@ -0,0 +1,3 @@
++fn main(...value: Int) -> (Bool, Bool) {
++    ((value & 2) != 0, (value & 1) != 0)
++}
+diff --git a/crates/rue-lir/src/optimize/ops.rs b/crates/rue-lir/src/optimize/ops.rs
+index 77d1909..fdb3974 100644
+--- a/crates/rue-lir/src/optimize/ops.rs
++++ b/crates/rue-lir/src/optimize/ops.rs
+@@ -334,14 +334,32 @@ pub fn opt_gtbytes(arena: &mut Arena<Lir>, left: LirId, right: LirId) -> LirId {
+     arena.alloc(Lir::GtBytes(left, right))
+ }
+ 
+-// If the value is another not, we can unwrap both
+-// If it resolves to true or false, we know the result
++// These operations return nil or atom 1 whenever they return successfully.
++// Returning the producer itself still preserves its operand evaluation/errors.
++fn returns_canonical_boolean(arena: &Arena<Lir>, value: LirId) -> bool {
++    match &arena[value] {
++        Lir::Atom(atom) => atom.is_empty() || atom == &[1],
++        Lir::Not(..)
++        | Lir::Eq(..)
++        | Lir::Gt(..)
++        | Lir::GtBytes(..)
++        | Lir::Listp(..)
++        | Lir::All(..)
++        | Lir::Any(..) => true,
++        _ => false,
++    }
++}
++
++// Double negation normalizes arbitrary truthy values to canonical Bool bytes.
++// Only remove it when the original value already has that representation.
+ pub fn opt_not(arena: &mut Arena<Lir>, value: LirId) -> LirId {
+     match opt_truthy(arena, value) {
+         Ok(true) => arena.alloc(Lir::Atom(vec![])),
+         Ok(false) => arena.alloc(Lir::Atom(vec![1])),
+         Err(value) => {
+-            if let Lir::Not(value) = arena[value].clone() {
++            if let Lir::Not(value) = arena[value].clone()
++                && returns_canonical_boolean(arena, value)
++            {
+                 return value;
+             }
+ 
+diff --git a/crates/rue-lir/src/optimize/truthy.rs b/crates/rue-lir/src/optimize/truthy.rs
+index f4187d3..ef73eef 100644
+--- a/crates/rue-lir/src/optimize/truthy.rs
++++ b/crates/rue-lir/src/optimize/truthy.rs
+@@ -14,6 +14,12 @@ pub fn opt_truthy(arena: &mut Arena<Lir>, value: LirId) -> Result<bool, LirId> {
+             }
+         }
+         Lir::Not(inner) => {
++            // A truthiness-only consumer does not observe Bool's exact bytes.
++            // Removing both nots still evaluates the original value once.
++            if let Lir::Not(value) = arena[inner].clone() {
++                return opt_truthy(arena, value);
++            }
++
+             if let Lir::Eq(left, right) = arena[inner].clone() {
+                 if let Lir::Atom(left) = arena[left].clone()
+                     && left.is_empty()
+diff --git a/crates/rue-lir/tests/canonical_boolean_values.rs b/crates/rue-lir/tests/canonical_boolean_values.rs
+new file mode 100644
+index 0000000..f65c729
+--- /dev/null
++++ b/crates/rue-lir/tests/canonical_boolean_values.rs
+@@ -0,0 +1,254 @@
++use clvmr::{
++    Allocator, ChiaDialect, MEMPOOL_MODE, error::EvalErr, run_program, serde::node_to_bytes,
++};
++use id_arena::Arena;
++use rue_lir::{CodegenOptions, Lir, LirId};
++
++#[derive(Clone, Copy, Debug)]
++enum Producer {
++    Path,
++    Mask,
++    Not,
++    Eq,
++    Gt,
++    GtBytes,
++    Listp,
++    All,
++    Any,
++    Raise,
++    NotRaise,
++    ListpRaise,
++    AllRaise,
++    AnyRaise,
++}
++
++#[derive(Clone, Copy)]
++enum Context {
++    Value,
++    EqualsTrue,
++    Condition,
++}
++
++#[derive(Debug, PartialEq, Eq)]
++enum Observation {
++    Accepted(Vec<u8>),
++    Raise,
++    InvalidOpArg,
++}
++
++fn producer(arena: &mut Arena<Lir>, kind: Producer) -> LirId {
++    let path = arena.alloc(Lir::Path(1_u8.into()));
++    let nil = arena.alloc(Lir::Atom(vec![]));
++    let one = arena.alloc(Lir::Atom(vec![1]));
++    let six = arena.alloc(Lir::Atom(vec![6]));
++    match kind {
++        Producer::Path => path,
++        Producer::Mask => arena.alloc(Lir::Logand(vec![path, six])),
++        Producer::Not => arena.alloc(Lir::Not(path)),
++        Producer::Eq => arena.alloc(Lir::Eq(path, one)),
++        Producer::Gt => arena.alloc(Lir::Gt(path, one)),
++        Producer::GtBytes => arena.alloc(Lir::GtBytes(path, one)),
++        Producer::Listp => arena.alloc(Lir::Listp(path, true)),
++        Producer::All => arena.alloc(Lir::All(vec![path, one])),
++        Producer::Any => arena.alloc(Lir::Any(vec![path, nil])),
++        Producer::Raise => arena.alloc(Lir::Raise(vec![])),
++        Producer::NotRaise => {
++            let failure = arena.alloc(Lir::Raise(vec![]));
++            arena.alloc(Lir::Not(failure))
++        }
++        Producer::ListpRaise => {
++            let failure = arena.alloc(Lir::Raise(vec![]));
++            arena.alloc(Lir::Listp(failure, true))
++        }
++        Producer::AllRaise => {
++            let failure = arena.alloc(Lir::Raise(vec![]));
++            arena.alloc(Lir::All(vec![failure, one]))
++        }
++        Producer::AnyRaise => {
++            let failure = arena.alloc(Lir::Raise(vec![]));
++            arena.alloc(Lir::Any(vec![one, failure]))
++        }
++    }
++}
++
++fn compile(kind: Producer, double_not: bool, context: Context, optimize: bool) -> Vec<u8> {
++    let mut arena = Arena::new();
++    let mut root = producer(&mut arena, kind);
++    if double_not {
++        let inner = arena.alloc(Lir::Not(root));
++        root = arena.alloc(Lir::Not(inner));
++    }
++    root = match context {
++        Context::Value => root,
++        Context::EqualsTrue => {
++            let one = arena.alloc(Lir::Atom(vec![1]));
++            arena.alloc(Lir::Eq(root, one))
++        }
++        Context::Condition => {
++            let yes = arena.alloc(Lir::Atom(vec![42]));
++            let no = arena.alloc(Lir::Atom(vec![17]));
++            arena.alloc(Lir::If(root, yes, no, false))
++        }
++    };
++    if optimize {
++        root = rue_lir::optimize(&mut arena, root);
++    }
++    let mut allocator = Allocator::new();
++    let program = rue_lir::codegen(
++        &arena,
++        &mut allocator,
++        root,
++        CodegenOptions {
++            optimize_static_pairs: false,
++        },
++    )
++    .unwrap();
++    node_to_bytes(&allocator, program).unwrap()
++}
++
++fn run(bytes: &[u8], environment: &str) -> Observation {
++    let mut allocator = Allocator::new();
++    let program = clvmr::serde::node_from_bytes(&mut allocator, bytes).unwrap();
++    let environment = rue_clvm::assemble(&mut allocator, environment).unwrap();
++    match run_program(
++        &mut allocator,
++        &ChiaDialect::new(MEMPOOL_MODE),
++        program,
++        environment,
++        1_000_000,
++    ) {
++        Ok(output) => Observation::Accepted(node_to_bytes(&allocator, output.1).unwrap()),
++        Err(EvalErr::Raise(_)) => Observation::Raise,
++        Err(EvalErr::InvalidOpArg(_, _)) => Observation::InvalidOpArg,
++        Err(error) => panic!("unexpected VM failure: {error:?}"),
++    }
++}
++
++#[test]
++fn double_not_returns_canonical_values_for_unknown_atoms_and_trees() {
++    for context in [Context::Value, Context::EqualsTrue] {
++        for environment in [
++            "()", "1", "2", "3", "0x00", "0x0001", "0xff", "(1 . 2)", "(1 2)",
++        ] {
++            let expected = if environment == "()" {
++                vec![0x80]
++            } else {
++                vec![1]
++            };
++            for optimize in [false, true] {
++                assert_eq!(
++                    run(
++                        &compile(Producer::Path, true, context, optimize),
++                        environment
++                    ),
++                    Observation::Accepted(expected.clone()),
++                    "optimize={optimize}, environment={environment}"
++                );
++            }
++        }
++    }
++}
++
++#[test]
++fn double_not_normalizes_integer_masks_instead_of_returning_the_mask() {
++    for (environment, expected) in [
++        ("0", 0x80),
++        ("1", 0x80),
++        ("2", 1),
++        ("3", 1),
++        ("4", 1),
++        ("6", 1),
++        ("-1", 1),
++    ] {
++        for optimize in [false, true] {
++            assert_eq!(
++                run(
++                    &compile(Producer::Mask, true, Context::Value, optimize),
++                    environment
++                ),
++                Observation::Accepted(vec![expected])
++            );
++        }
++    }
++}
++
++#[test]
++fn canonical_boolean_producers_keep_exact_values_and_safe_double_not_elision() {
++    for kind in [
++        Producer::Not,
++        Producer::Eq,
++        Producer::Gt,
++        Producer::GtBytes,
++        Producer::Listp,
++        Producer::All,
++        Producer::Any,
++    ] {
++        for environment in ["()", "1", "2", "0x00", "0x0001"] {
++            let expected = run(&compile(kind, false, Context::Value, false), environment);
++            for optimize in [false, true] {
++                assert_eq!(
++                    run(&compile(kind, true, Context::Value, optimize), environment),
++                    expected,
++                    "producer={kind:?},optimize={optimize}"
++                );
++            }
++        }
++        assert_eq!(
++            compile(kind, true, Context::Value, true),
++            compile(kind, false, Context::Value, true),
++            "producer={kind:?}: safe elision was lost"
++        );
++    }
++}
++
++#[test]
++fn truthiness_contexts_can_still_remove_boolean_normalization() {
++    let normalized = compile(Producer::Path, true, Context::Condition, true);
++    let direct = compile(Producer::Path, false, Context::Condition, true);
++    assert_eq!(normalized, direct);
++    for environment in ["()", "1", "2", "0x00", "(1 . 2)"] {
++        let expected = if environment == "()" { 17 } else { 42 };
++        for optimize in [false, true] {
++            assert_eq!(
++                run(
++                    &compile(Producer::Path, true, Context::Condition, optimize),
++                    environment
++                ),
++                Observation::Accepted(vec![expected])
++            );
++        }
++    }
++}
++
++#[test]
++fn normalization_keeps_required_program_failures() {
++    for context in [Context::Value, Context::EqualsTrue, Context::Condition] {
++        for optimize in [false, true] {
++            for kind in [
++                Producer::Raise,
++                Producer::NotRaise,
++                Producer::ListpRaise,
++                Producer::AllRaise,
++                Producer::AnyRaise,
++            ] {
++                assert_eq!(
++                    run(&compile(kind, true, context, optimize), "()"),
++                    Observation::Raise,
++                    "producer={kind:?}"
++                );
++            }
++            for kind in [
++                Producer::Eq,
++                Producer::Gt,
++                Producer::GtBytes,
++                Producer::Mask,
++            ] {
++                assert_eq!(
++                    run(&compile(kind, true, context, optimize), "(1 . 2)"),
++                    Observation::InvalidOpArg,
++                    "producer={kind:?}"
++                );
++            }
++        }
++    }
++}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "scope": "Exact Cargo source lineage for four deliberate negative controls and one positive equivalence control. No compilation, solver execution or compiler-preservation result is asserted by this manifest.",
+  "base": {
+    "source": "puzzles/atom-not-equal/puzzle.rs",
+    "sha256": "6d611d79de75c7f657ec489d67af5df17b38b2194257ea10e7e9d6ecf0e76b77"
+  },
+  "abi": {
+    "environment": "strict",
+    "parameters": [
+      "&[u8]",
+      "&[u8]"
+    ],
+    "result": "bool"
+  },
+  "native_cli": {
+    "binary": "chialisp-oxide-byte-proof-native",
+    "arguments": [
+      "VARIANT",
+      "LEFT_HEX",
+      "RIGHT_HEX"
+    ],
+    "stdout": "JSON Boolean literal plus LF on successful invocation; no stdout on argument/variant/hex errors.",
+    "scope": "Actual exported function call over validated atom payloads; this host CLI does not parse or validate an outer CLVM environment.",
+    "source": "experiments/byte-proofs/src/bin/native.rs",
+    "source_sha256": "d3e9df611486c4ecef51b9affe5e3df3e3abd248b28923ac4975552e725a2ffc"
+  },
+  "controls": [
+    {
+      "id": "operator_eq",
+      "role": "negative_mutant",
+      "entry": "chialisp_oxide_byte_proofs::operator_eq::puzzle",
+      "source": "experiments/byte-proofs/src/operator_eq.rs",
+      "source_sha256": "77e20ca2bced0c2480d579075fae1a614bcc74f51cc04502d053a5c855196bff",
+      "operation": "Replace only the != expression with ==; preserve the strict two-slice signature.",
+      "patch": {
+        "format": "unified_diff",
+        "sha256": "810755299b90b3d8bff689317d546ca08318bd4e7428061fa6411dcb45e3e9ed",
+        "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/operator_eq.rs\n@@ -1,4 +1,4 @@\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    left == right\n }\n"
+      }
+    },
+    {
+      "id": "self_inequality",
+      "role": "negative_mutant",
+      "entry": "chialisp_oxide_byte_proofs::self_inequality::puzzle",
+      "source": "experiments/byte-proofs/src/self_inequality.rs",
+      "source_sha256": "d34ba8e4dcf569ba68cd2bc5842645d63285ea684c6fe5e5b14a89a4e1033f3a",
+      "operation": "Replace the right operand with left. The local unused-variable and eq_op allows are intentional non-policy annotations.",
+      "patch": {
+        "format": "unified_diff",
+        "sha256": "0a997044d61dea69e82622879b9ebe40cfca19e0b9ea80ca7223071ec57a8a7b",
+        "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/self_inequality.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables, clippy::eq_op)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    left != left\n }\n"
+      }
+    },
+    {
+      "id": "constant_true",
+      "role": "negative_mutant",
+      "entry": "chialisp_oxide_byte_proofs::constant_true::puzzle",
+      "source": "experiments/byte-proofs/src/constant_true.rs",
+      "source_sha256": "d7a321f4b532e7848b606084fa5d1a5156314b5727b2ab000e7cdd1b707fd18e",
+      "operation": "Replace the expression with true. The local unused-variable allow is intentional.",
+      "patch": {
+        "format": "unified_diff",
+        "sha256": "dd91e0661ae05f6e0804dd5ef5c687d0d11a84d6493e4fea63532c1b1f4ebf6e",
+        "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/constant_true.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    true\n }\n"
+      }
+    },
+    {
+      "id": "constant_false",
+      "role": "negative_mutant",
+      "entry": "chialisp_oxide_byte_proofs::constant_false::puzzle",
+      "source": "experiments/byte-proofs/src/constant_false.rs",
+      "source_sha256": "b08d7c31dd596e7357fdfd909f26c17ee30e90d8ed34b879f055b91756db5f79",
+      "operation": "Replace the expression with false. The local unused-variable allow is intentional.",
+      "patch": {
+        "format": "unified_diff",
+        "sha256": "54018b23ad80b4171f15669ab9ae6d4fd9dbac9bb25d0d04da0bf9ebecd23b35",
+        "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/constant_false.rs\n@@ -1,4 +1,5 @@\n+#[allow(unused_variables)]\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    false\n }\n"
+      }
+    },
+    {
+      "id": "swap_operands",
+      "role": "positive_equivalence_control",
+      "entry": "chialisp_oxide_byte_proofs::swap_operands::puzzle",
+      "source": "experiments/byte-proofs/src/swap_operands.rs",
+      "source_sha256": "6a8694c04b73338282f579bce0c81da8b7526fef80a2c2e0b386dee3a171070a",
+      "operation": "Swap left and right operands while retaining != and the strict two-slice signature.",
+      "patch": {
+        "format": "unified_diff",
+        "sha256": "01a390f54e0d711563e88ae8d62f64d63f368f31aecd4663c091ca86637590c0",
+        "text": "--- a/puzzles/atom-not-equal/puzzle.rs\n+++ b/experiments/byte-proofs/src/swap_operands.rs\n@@ -1,4 +1,4 @@\n #[chialisp_oxide::puzzle]\n pub fn puzzle(left: &[u8], right: &[u8]) -> bool {\n-    left != right\n+    right != left\n }\n"
+      }
+    }
+  ],
+  "manifest": {
+    "path": "experiments/byte-proofs/Cargo.toml",
+    "sha256": "c3cb8174609c1aa914d098c9c1574f8eae749ff1862ae8a474b50360d821e541"
+  },
+  "library": {
+    "path": "experiments/byte-proofs/src/lib.rs",
+    "sha256": "6ae5e4f17b8c6fc1dabe3c8fc9b32971b082973f0c39521c9402f2229d69b17b"
+  }
+}

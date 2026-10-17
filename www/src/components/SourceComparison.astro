@@ -1,12 +1,16 @@
 ---
 import { Code } from '@astrojs/starlight/components';
-import { puzzles, canonicalExample, canonicalPuzzle, canonicalHelper } from '../lib/data';
+import { puzzles, report, format, href, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract } from '../lib/data';
+import { sourceDataArtifacts } from '../lib/source-data.mjs';
 interface Props { slug: string; }
 const puzzle = puzzles.find(p => p.slug === Astro.props.slug);
 if (!puzzle) throw new Error(`Missing validated source comparison: ${Astro.props.slug}`);
 const canonical = canonicalExample(puzzle);
 const canonicalModule = canonicalPuzzle(puzzle);
 const helperAdapter = canonicalHelper(puzzle);
+const helper = helperContract(puzzle);
+const sourceData = new Map(sourceDataArtifacts(report).map(entry => [entry.path, entry]));
+const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'json' : /\.(?:clsp|clinc|clib)$/.test(filename) ? 'lisp' : 'rust';
 ---
 <div class="source-comparison">
   <div class="split-source">
@@ -26,14 +30,18 @@ const helperAdapter = canonicalHelper(puzzle);
   <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
   {canonical && <p class="source-note">The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment. <a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
   {canonicalModule && <p class="source-note">The original upstream module is retained byte for byte, without an adapter or added argument guard. The raw environment contract and published module identity are recorded separately from finite behavioral comparisons.</p>}
-  {helperAdapter && <p class="source-note">The original helper is retained verbatim inside the displayed module wrapper. The wrapper invokes the helper on the entire environment. Finite behavioral comparisons do not claim identity with a published standalone module.</p>}
+  {helper && <p class="source-note">The original helper is retained verbatim inside the displayed module wrapper. {helper.source} Finite behavioral comparisons do not claim identity with a published standalone module.</p>}
   {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].length > 0 && <div class="source-dependencies">
     <p class="source-note">Supporting files are recorded separately so fixture data and helper definitions do not obscure the puzzle policy.</p>
-    {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].map(dependency => <details class="source-dependency" data-source-dependency={dependency.path}>
-      <summary>{dependency.path.endsWith('/fixture_keys.rs') ? 'Public fixture key bytes' : 'Supporting source'}: <code>{dependency.path}</code></summary>
-      <p class="source-note">Complete source from this fixture’s declared dependencies. SHA-256: <code class="dependency-hash" data-pagefind-ignore>{dependency.sha256}</code>.</p>
+    {[...puzzle.source_dependencies, ...puzzle.rue.dependencies].map(dependency => <details class="source-dependency" data-source-dependency={dependency.path} data-source-language={dependencyLanguage(dependency.path)}>
+      <summary>{sourceData.has(dependency.path) ? 'Generated validation inputs' : dependency.path.endsWith('/fixture_keys.rs') ? 'Public fixture key bytes' : 'Supporting source'}: <code>{dependency.path}</code></summary>
+      <p class="source-note">{sourceData.has(dependency.path) ? 'Complete data from this fixture’s declared dependencies.' : 'Complete source from this fixture’s declared dependencies.'} SHA-256: <code class="dependency-hash" data-pagefind-ignore>{dependency.sha256}</code>.</p>
       {dependency.path.endsWith('/fixture_keys.rs') && <p class="source-note">These deterministic public test keys have publicly known secret seeds. Never use them for real funds.</p>}
-      <Code code={dependency.source} lang={dependency.path.endsWith('.clsp') ? 'lisp' : 'rust'} title={dependency.path} wrap preserveIndent />
+      {sourceData.has(dependency.path) ? <p class="source-note" data-source-data-card>
+        {format(sourceData.get(dependency.path)!.rows)} generated inputs · {format(sourceData.get(dependency.path)!.bytes)} bytes.
+        {' '}<a href={href(`reports/source-data/${sourceData.get(dependency.path)!.basename}`)} download={sourceData.get(dependency.path)!.basename} data-source-download={sourceData.get(dependency.path)!.basename}>Download exact JSON</a>.
+        {' '}Use this file to inspect or rerun the fixture’s generated cases.
+      </p> : <Code code={dependency.source} lang={dependencyLanguage(dependency.path)} title={dependency.path} wrap preserveIndent />}
     </details>)}
   </div>}
 </div>

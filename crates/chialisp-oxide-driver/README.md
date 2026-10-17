@@ -55,6 +55,22 @@ modules export paths such as `chialisp_oxide_puzzles::bounded_counter::puzzle`; 
 native oracle calls those same Rust functions. Corpus validation builds the
 library once through Cargo and loads the typed exports from the fresh bundle.
 
+Target configuration must use the pinned canonical sysroot and built-in host
+target. Common extraction/metadata callbacks check parsed configuration, then
+bound and inspect the frozen loaded-crate graph before exporting IR or
+continuing target metadata. Actual core/alloc/std and primitive language/
+diagnostic item owners must resolve directly inside the pinned target-library
+directory, including aliases and transitive dependencies. Explicit codegen
+backend overrides reject before target probes that can load a backend early.
+Native-valid copied metadata, sysroot aliases, response routing and probe
+controls live in `tests/toolchain.rs`.
+
+The router expands a copy for classification but passes original argv to rustc;
+parsed crate/target identity must match. Response-file contents and installed
+toolchain bytes remain trusted mutable build inputs. This is location-policy
+enforcement, not authentication or a compiler/plugin sandbox. See
+[toolchain trust](../../docs/toolchain-trust.md).
+
 A standalone source harness remains available for independent compiler
 regressions and research:
 
@@ -69,6 +85,8 @@ analysis, explicitly force borrow checking for every local type-check root
 (including its nested closures), and check diagnostics before lowering typed
 MIR. The frontend does not parse printed MIR or translate Rust syntax with
 `syn`. A Rust checking or lowering failure prevents a successful export.
+The standalone source harness rejects `@response-file` input; use Cargo for
+compiler response files, or spell a literal leading-`@` filename as `./@name.rs`.
 
 The supported subset includes:
 
@@ -78,8 +96,14 @@ The supported subset includes:
   field, no custom `Drop`, a nonzero layout, and a recursively supported inner
   type. Rustc checks nominal distinctions such as `PuzzleHash` versus `CoinId`
   before wrapper construction and projection erase to the inner ABI.
-- Local values, tuple fields, comparisons, `!bool`, `if`, integer/boolean
-  `match`, and acyclic control flow.
+- Local values, tuple fields, comparisons, boolean/integer `!`, `if`,
+  integer/boolean `match`, and acyclic control flow.
+- Built-in `&`, `|` and `^` on matching fixed-width integers or `bool`.
+  Integer complement preserves its Rust width: unsigned `!` xors with that
+  width's maximum; signed `!` xors with -1. Boolean `&` and `|` evaluate both
+  operands, unlike `&&` and `||`. User trait names do not grant primitive semantics;
+  local supported implementations retain their actual MIR bodies. Shifts and
+  explicit wrapping operations remain unsupported.
 - Immutable borrowed trees: exactly two enum variants with fields `(&[u8])`
   and `(&Self, &Self)`, one lifetime, ordinary Rust enum representation, and no
   destructor. This validates structure rather than names or discriminant order.
@@ -105,6 +129,11 @@ The supported subset includes:
   unused calls and evaluate their arguments once, left to right. Self, mutual,
   and non-tail recursion are supported within the accepted types/MIR subset.
 - Byte arrays passed as parameters and constant byte-array construction.
+  Primitive byte equality and unsigned lexicographic ordering use ordinary
+  `==`, `!=`, `<`, `<=`, `>` and `>=` on immutable `u8` slices or identical
+  fixed byte arrays. Actual core `PartialEq`/`PartialOrd` methods and concrete
+  implementations are checked before erasing types; custom implementations,
+  mutable operands and mixed slice/array comparisons remain unsupported.
   Named fixed-byte constants, including supported transparent wrappers, are
   evaluated by rustc and read only after checking their exact bounded layout,
   allocation bounds, initialized bytes, and absence of pointer provenance.
@@ -114,8 +143,8 @@ The supported subset includes:
 Unannotated native functions may use ordinary Rust features, including
 allocation and closures, provided they are not reachable from a puzzle. They
 still undergo Rust checking. General references, type/const generics, other external calls,
-CFG loops, allocation, ordinary structs/enums, casts, floats, shifts,
-bitwise arithmetic, division/remainder, and non-Rust function ABIs are rejected
+CFG loops, general allocation, ordinary structs/enums, casts, floats, shifts,
+division/remainder, and non-Rust function ABIs are rejected
 when encountered in an exported puzzle. Panic messages and formatted
 assertions currently require unsupported Rust formatting calls. Unsafe Rust and
 unstable source features are forbidden across the selected library and SDK by
@@ -199,15 +228,23 @@ Decoding does not invoke constructors or establish user-defined invariants;
 puzzle checks must enforce these at runtime. Zero-sized wrappers, multiple
 fields (including extra zero-sized fields), generic wrappers, other external
 wrappers such as `NonZeroU64`, destructors, and macro-generated wrapper
-declarations are rejected. Apart from the narrowly validated borrowed trees,
+declarations are rejected. Apart from the narrowly validated borrowed and owned trees,
 named tuple/other aggregate constants and borrowed
 wrapper methods remain unsupported. The SDK's `Copy` domain values provide
 by-value constructors, unit-explicit getters, and comparisons without adding
 reference or trait-operator semantics to the compiler.
 
-Borrowed tree support and runtime calls permit recursive traversal without
-allocating an owned output graph. They do not provide unbounded integer
-arithmetic, hashing, arbitrary application, or a safe allocating accumulator.
+Borrowed trees support traversal; opt-in `OwnedTree` additionally supports
+restricted owned pair construction and recursive accumulators. Actual standard
+Box/Global/constructor identities and closed compiler metadata chains are
+validated; pointer values remain separate from logical locals. Native move and
+borrow checking precedes extraction. Custom Drop/allocators, user pointers and
+general Box APIs remain unsupported. Explicit global allocators visible in the
+crate graph reject owned exports. The real Cargo regressions in
+`tests/owned_trees.rs` check snapshots, cleanup, strict failure order and
+ownership diagnostics. See [owned trees](../../docs/owned-trees.md). This does
+not provide unbounded integer arithmetic, hashing, arbitrary application,
+dynamic atom storage, or general collections.
 Source and value equivalence alone do not establish byte/hash/cost identity
 with a canonical module. The optimized `p2_conditions` Rust port now reproduces
 the published nine-byte module and tree hash; its unoptimized artifact differs.

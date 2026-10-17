@@ -46,21 +46,21 @@ capabilities of every native Rust crate.
 
 | Feature | Native Rust route | Current compiler | Needed for broader support |
 | --- | --- | --- | --- |
-| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` construction/matching, checked projections and direct recursive traversal | Output ownership, broader operations and preservation proofs |
+| Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` and opt-in `OwnedTree` pair construction/matching, checked projections and direct recursion | Dynamic atom storage, broader operations and preservation proofs |
 | Environment paths and argument patterns | Explicit projections | Typed lists by default; ignored nullary or explicit raw whole-tree exports | Broader patterns and explicit typed adapters |
 | Quote and dynamic apply | Data trees and an interpreter | Literals and `quote(&Tree)` supported; no source-level general apply | Program/environment types, strictness, dialect and cost rules |
 | Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Canonical fixed-width integers only | Explicit unbounded numeric semantics and resource policy |
 | Addition, subtraction, multiplication | Checked primitives or big integers | Checked fixed-width operations | Preserve overflow distinctions; never silently widen Rust arithmetic |
 | Division, remainder, modular exponentiation | Specified integer algorithms | Rejected | Floor versus truncating division, signs, zero and boundary cases |
-| Raw equality, ordering and truthiness | Separate byte/number/tree operations | Typed scalar comparison, canonical `bool`, exact empty-atom patterns | General atom comparison/truth, padding and eager versus short-circuit effects |
+| Raw equality, ordering and truthiness | Separate byte/number/tree operations | Typed scalar comparison, exact primitive atom-byte equality and unsigned lexicographic ordering, canonical `bool` and nil patterns | General atom truthiness, tree/trait equality, ordered-byte models and preservation/resource proofs |
 | Lazy/strict conditionals and failure | Branches and explicit evaluation | Rust lazy branches and plain assertions | General strict-conditional and raw failure-value contracts |
-| Variable bytes and bit operations | Byte collections and integer operations | Fixed bytes/static projections; bit operations rejected | Dynamic lengths, slices, sign extension, shifts and costs |
+| Variable bytes and bit operations | Byte collections and integer operations | Fixed bytes/static projections and built-in fixed-width integer `&`, `\|`, `^`, `!` | Dynamic lengths, slices, sign extension, shifts and costs |
 | SHA-256, tree hashes, Keccak, coin IDs | Reviewed algorithms and exact encodings | Carrying constants is supported; computing these is not | Native/VM vectors, domain separation, activation and cost |
 | BLS and secp operations | Reviewed crypto libraries | No on-chain crypto-op lowering | Encodings, invalid points/signatures, subgroup/DST rules and cost |
 | Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
 | Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
-| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` adapter; loops/allocation/closures rejected | Further helpers, output ownership and termination/resource/preservation proofs |
+| Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` and owned `prefix` adapters; general allocation/loops/closures rejected | Further helpers, broader collections and termination/resource/preservation proofs |
 | Currying and nested/standard puzzles | Explicit program trees | No general curry/delegated-program API | Canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
 | Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
@@ -80,7 +80,7 @@ evidence from that simulator does not activate new operations in another pin.
 | 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Products, raw tree constructors/projections/pair tests, branches/assertions/scalar comparisons and exact empty-atom tests |
 | 11–14 | `sha256`, `substr`, `strlen`, `concat` | No general source lowering |
 | 16–18 | `+`, `-`, `*` | Checked fixed widths |
-| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons; remaining operations rejected |
+| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons and fixed-width `&`, `|`, `^`, `!`; unsigned complement uses masked XOR. Division and shifts remain rejected |
 | 29, 30 | `point_add` (docs: `g1_add`), `pubkey_for_exp` | Missing |
 | 32–34 | `not`, `any`, `all` | `not` on Rust `bool`; no explicit strict variadic `any`/`all` API |
 | 48–51 | `coinid`, `g1_subtract`, `g1_multiply`, `g1_negate` | Missing |
@@ -140,6 +140,10 @@ also distinct from implementing a BLS verification opcode.
 
 ## Semantics that must stay explicit
 
+- Integer masks preserve the Rust width and sign. Unsigned `!0_u8` is 255;
+  raw CLVM `lognot 0` is -1. Boolean `&`/`|` are strict; `&&`/`||` are lazy.
+  See [bit masks and evaluation order](/chialisp-oxide/reference/supported-rust/#bit-masks-and-evaluation-order).
+
 - Rust signed division truncates; CLVM's documented division floors. A direct
   spelling substitution is insufficient.
 - Fixed-width overflow, numeric padding, raw-tree shape, and truthiness are
@@ -166,10 +170,11 @@ source, produced-program execution and published module identity.
 Optimized Rust, independent Chialisp, and optimized Rue now reproduce the exact
 published nine-byte module and tree hash. The unoptimized artifacts differ.
 Rust's typed IR guard pass retains checked projections, then Rue LIR completes
-the enabled pipeline. This identity is measured for one factory; it does not
+the enabled pipeline. Its intervening runtime-frame stage has no effect on this
+runtime-free factory. This identity is measured for one factory; it does not
 establish general canonical or curried-instance compatibility. Its structural
 IR-model proof is separate from compiler preservation. Broader compatibility still
-needs unbounded integers, broader list ownership, dynamic program execution and
+needs unbounded integers, broader collections and atom storage, dynamic program execution and
 primitive-by-primitive validation. No unsafe opaque extern intrinsic should bypass those obligations.
 Conservative constant folding/sharing is another useful compiler task, provided
 failure, overflow and branch behavior remain covered.
@@ -185,6 +190,11 @@ adds a pinned `last_inner` source span through an explicit module adapter.
 Its Rust empty-slice pattern preserves the difference between nil and nonempty
 zero-byte tails. This is one helper port, with source/license checks and finite
 comparisons, rather than completion of the surrounding library or a CHIP.
+
+The [exact-byte lesson](/chialisp-oxide/tutorials/atom-not-equal/) adds ordinary
+Rust slice `==` and `!=`, preserving nil, padding and arbitrary bytes. It ports
+one pinned inline helper under a strict two-atom ABI. It does not enable hashing,
+general trait dispatch or a complete authorization policy.
 
 The longer repository document
 [chialisp-functionality.md](https://github.com/judeallred/chialisp-oxide/blob/main/docs/chialisp-functionality.md)

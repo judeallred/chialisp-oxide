@@ -1,0 +1,32 @@
+// Independent translation; the strict outer ABI is an explicit adapter.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    assert environment.rest is (Any, Any);
+    assert environment.rest.rest is nil;
+    insertion_sort_by_keys(environment.first, environment.rest.first)
+}
+
+fn insertion_sort_by_keys(sorted: Any, insertions: Any) -> Any {
+    if insertions is nil {
+        sorted
+    } else {
+        assert insertions is (Any, Any);
+        if (sorted is nil) || first_key(insertions) > first_key(sorted) {
+            insertion_sort_by_keys((insertions.first, sorted), insertions.rest)
+        } else {
+            assert sorted is (Any, Any);
+            let singleton = (insertions.first, nil);
+            let inserted = insertion_sort_by_keys(sorted.rest, singleton);
+            insertion_sort_by_keys((sorted.first, inserted), insertions.rest)
+        }
+    }
+}
+
+fn first_key(list: Any) -> Bytes {
+    assert list is (Any, Any);
+    let entry = list.first;
+    assert entry is (Any, Any);
+    let key = entry.first;
+    assert key is Bytes;
+    key
+}

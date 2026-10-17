@@ -6,11 +6,14 @@ extern crate rustc_hir;
 extern crate rustc_index;
 extern crate rustc_interface;
 extern crate rustc_middle;
+extern crate rustc_session;
 extern crate rustc_span;
+extern crate rustc_target;
 
 mod cargo;
 mod exports;
 mod lower;
+mod toolchain;
 
 use std::{io::Write, path::PathBuf};
 
@@ -24,17 +27,23 @@ struct Driver {
     entry: String,
     output: Option<PathBuf>,
     cargo_output: Option<PathBuf>,
+    route: Option<toolchain::Route>,
     result: Result<(), String>,
 }
 
-fn configure(config: &mut rustc_interface::interface::Config, encode_dependencies: bool) {
+fn configure(
+    config: &mut rustc_interface::interface::Config,
+    encode_dependencies: bool,
+    route: Option<&toolchain::Route>,
+) {
+    toolchain::configure(config, route);
     config.opts.unstable_opts.mir_opt_level = Some(0);
     config.opts.unstable_opts.always_encode_mir = encode_dependencies;
 }
 
 impl Callbacks for Driver {
     fn config(&mut self, config: &mut rustc_interface::interface::Config) {
-        configure(config, self.cargo_output.is_some());
+        configure(config, self.cargo_output.is_some(), self.route.as_ref());
     }
 
     fn after_analysis<'tcx>(
@@ -51,6 +60,10 @@ impl Callbacks for Driver {
             }
         }
         tcx.dcx().abort_if_errors();
+        if let Err(error) = toolchain::loaded(tcx) {
+            self.result = Err(error);
+            return Compilation::Stop;
+        }
         self.result = self.extract(tcx);
         if self.cargo_output.is_some() && self.result.is_ok() {
             // Cargo needs the normal metadata for downstream crates. Artifacts
@@ -233,10 +246,17 @@ fn standalone(arguments: Vec<String>) -> std::process::ExitCode {
     if source == "--help" || source == "-h" {
         usage();
     }
+    if source.starts_with('@') {
+        eprintln!(
+            "error: chialisp-oxide: unsupported toolchain configuration: standalone response-file input is unsupported; use the Cargo wrapper for response files, or ./@file.rs for a literal source filename"
+        );
+        return std::process::ExitCode::FAILURE;
+    }
     let mut driver = Driver {
         entry: "puzzle".into(),
         output: None,
         cargo_output: None,
+        route: None,
         result: Err("Rust checking did not complete".into()),
     };
     while let Some(argument) = arguments.next() {

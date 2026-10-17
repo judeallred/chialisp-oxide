@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "scope": "Manually authored finite-tree algorithm theorems plus finite recorded execution bridge; no Rust/MIR/IR/CLVM preservation proof.",
+  "vm_failure_protocol": "clvmr-0.21.0/v1",
+  "lean": {
+    "version": "Lean (version 4.35.0, arm64-apple-darwin24.6.0, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)",
+    "sha256": "d1d9c26a539f54fe839d2aa7760bf1ac1dd76a30b26e2c9684bebf2900038fcf",
+    "arguments": [
+      "-E",
+      "warning",
+      "--json",
+      "-t0"
+    ]
+  },
+  "inputs": [
+    {
+      "path": "TreeTheorems.lean",
+      "sha256": "ec005d04db5c4d43e51a00a9e0aff473ad35449b5b917b826f2cf51a4d2b8332"
+    },
+    {
+      "path": "ProofObligations.lean",
+      "sha256": "3ec7c455c87a0468b4445a0fe2f0aace374824219a3490fb614ef82d77f78d08"
+    },
+    {
+      "path": "check-model.py",
+      "sha256": "1ed8755919de23202ef075509279aaae91d667f1be9337c7cdd4e8ab5f83427a"
+    },
+    {
+      "path": "corpus/validation.json",
+      "sha256": "244ccf48fe0ad5e286d43f18f9b88da60567869562e3ea2e7efc9f969ebd1377"
+    },
+    {
+      "path": "scripts/check-canonical-helpers.py",
+      "sha256": "1e8ab0dfb17d925e2c2ae47370cb50e66ec269f5633dd8f08f77485eae60d3f5"
+    },
+    {
+      "path": "scripts/check-insertion-sort.py",
+      "sha256": "d4e0ac88b981bdd5c677eb0f2f4d2b3d3c859c2b0871d394d74ecefc4a104c39"
+    },
+    {
+      "path": "scripts/cargo_authoring.py",
+      "sha256": "7bd29b007f9dde934633e25ebdd38bc251bce9559ab1ef9b7577551a34a96b78"
+    },
+    {
+      "path": "scripts/vm_failures.py",
+      "sha256": "023596311a11578c4a8e4fbfdad04898bf52e0082ebd5d345c6c7adf35a093ff"
+    },
+    {
+      "path": "scripts/check-canonical-factories.py",
+      "sha256": "e1c2ab549fcb02dd3c9a5151d49cbbe4e3ed1b80a9e6b152ebc575a54ff45ead"
+    },
+    {
+      "path": "corpus/validate_published_puzzles.py",
+      "sha256": "779c63d6b26f74573894b09a7476d793ab8c68bf4bc220fb730bf5e5f2721450"
+    },
+    {
+      "path": "crates/chialisp-oxide-vm/failure-protocol.json",
+      "sha256": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de"
+    },
+    {
+      "path": "experiments/tree-theorems/lean-toolchain",
+      "sha256": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c"
+    },
+    {
+      "path": "experiments/tree-theorems/lakefile.toml",
+      "sha256": "881595bc59b7bbc8cb41748662a880953a92ed0766a282ecd2a47bbf4d9ab7b1"
+    },
+    {
+      "path": "experiments/tree-theorems/lake-manifest.json",
+      "sha256": "a4b58bc8c5079ab2ed590843d86a380c6af169a7d065668f7a005a67527bfb0f"
+    },
+    {
+      "path": ".cargo/config.toml",
+      "sha256": "81ea38274f89de1a7909ac8bf46e5bfc8912beb210891fd3ecf7bab84d44ec5e"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "6e15a262c81b0db8c5c140652946e90a8864d7a8f0fe5b5ccb0dba9511154945"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "8cbba7086756b85a61ac49df6cb0852dd233c88675d8d495c3aba31c8c772aca"
+    },
+    {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+      "sha256": "f58331cdceeb52133d780bc3adc9b4d1154277510f39be9d4fa78a4d9acd2d4a"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/Cargo.toml",
+      "sha256": "a3f972823b408d19ee610f0a5b8de3c89d37140f7893409b9a923e96c899989b"
+    },
+    {
+      "path": "crates/chialisp-oxide-macros/src/lib.rs",
+      "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+    },
+    {
+      "path": "crates/chialisp-oxide/Cargo.toml",
+      "sha256": "14892de653c424cfc2fef838d05ec36b57f45e734d4b3dfc519e57833e83f072"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/domain.rs",
+      "sha256": "46271aa1f4971cbd35a99ec43c1788e4ee8111d7e16b6a79fec7a952005ef59a"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/lib.rs",
+      "sha256": "375d5a811000959b95d2d74e406db9414ace1ece9643fd2efd1702555e59795b"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/owned_tree.rs",
+      "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+    },
+    {
+      "path": "crates/chialisp-oxide/src/tree.rs",
+      "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4"
+    },
+    {
+      "path": "puzzles/Cargo.toml",
+      "sha256": "7dcaca9bab2b59336bf1bb70f2815308b847ddfe08988009ef69fec9ad2794dc"
+    },
+    {
+      "path": "puzzles/atom-not-equal/generated-cases.json",
+      "sha256": "2180534cb9327c4f598d0451027bb1efdc5b36f1979abdb516d5d6f29eff686d"
+    },
+    {
+      "path": "puzzles/atom-not-equal/puzzle.rs",
+      "sha256": "6d611d79de75c7f657ec489d67af5df17b38b2194257ea10e7e9d6ecf0e76b77"
+    },
+    {
+      "path": "puzzles/authoring.json",
+      "sha256": "bf2db83e609c9530227ae8faaf403c5fd8956fce005fa185bc5c0082bc9cacef"
+    },
+    {
+      "path": "puzzles/boolean-gate/puzzle.rs",
+      "sha256": "bcf282130a8a5529687cdcb53f45931c6c8de8c0cc67b27c1ac026d04c13656c"
+    },
+    {
+      "path": "puzzles/bounded-counter/puzzle.rs",
+      "sha256": "cc0194ce1a82341e9be0756a91b41872f655fab04ffc653049888bc3e8a88b65"
+    },
+    {
+      "path": "puzzles/capped-payment/puzzle.rs",
+      "sha256": "6c7660ce193f7f941acdd2ffa7e3fbc2c89b0e264f6b9b79e038f9ead9bdbbe9"
+    },
+    {
+      "path": "puzzles/fixed-payment/puzzle.rs",
+      "sha256": "e3d32e261b8403c9bf971f7d6c621552ff9ddf0964413c0e01f838f28540a84f"
+    },
+    {
+      "path": "puzzles/fixture_keys.rs",
+      "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
+    },
+    {
+      "path": "puzzles/insertion-sort-by-keys/generated-cases.json",
+      "sha256": "d44ec2da7663214c056c8cb835bcbee4412c45c55bd48e3699bc981abb01e511"
+    },
+    {
+      "path": "puzzles/insertion-sort-by-keys/puzzle.rs",
+      "sha256": "e11de1268e27f2a984a294eaa172585b54b07be4ffa0ec94ee87f150320a6adb"
+    },
+    {
+      "path": "puzzles/intro-add/puzzle.rs",
+      "sha256": "1ec4572c9d4eb3e1c667d6d6b991b6fb159cf9751f08485bf489b6b4be3256e9"
+    },
+    {
+      "path": "puzzles/intro-conditional/puzzle.rs",
+      "sha256": "896429d8aba49868510ff97b890a8d3ef6e1c23bf7a1862b7e523e3a7b9f0694"
+    },
+    {
+      "path": "puzzles/intro-list/puzzle.rs",
+      "sha256": "7109fb7818c939aaf060c4f49aa4ba5ea3293563755ed385724d5f976ad061d3"
+    },
+    {
+      "path": "puzzles/last-list-element/puzzle.rs",
+      "sha256": "8e194cc507486c3735f54d43628dcbc3ad1ad559c38a2abf558bcab06f55b036"
+    },
+    {
+      "path": "puzzles/lib.rs",
+      "sha256": "7c639ec35326e083c7eada08f8287032e724d91c620c1282af69ca20d7952dfe"
+    },
+    {
+      "path": "puzzles/p2-conditions/puzzle.rs",
+      "sha256": "dece69447759f76a8c5617bcc42efe5607901cd571891e27800cf6b77a385753"
+    },
+    {
+      "path": "puzzles/prefix-list/generated-cases.json",
+      "sha256": "77586fa20be55bdae4dfad53b44786911c5da2835ca64221972da8d899779ba4"
+    },
+    {
+      "path": "puzzles/prefix-list/puzzle.rs",
+      "sha256": "b220765797e793f85c526adaaff0ce9d22bf57dc5f27709ac9b5cec0979ae4dd"
+    },
+    {
+      "path": "puzzles/recovery-payment/puzzle.rs",
+      "sha256": "edbf48beb1d6817e70f6ff1c2f0c9f2ee50f608f1238ce8747b25099d5c5d5e6"
+    },
+    {
+      "path": "puzzles/rightmost-tree/puzzle.rs",
+      "sha256": "2d523221c500cb4b8d5748369b949e22c7dee68dbc20c8b3e73bb7d8c14009d2"
+    },
+    {
+      "path": "puzzles/signature-payment/puzzle.rs",
+      "sha256": "6480ebbb3ed43921781b066906596389830fd8659951faaf8d922dcc0038a2d1"
+    },
+    {
+      "path": "puzzles/split-payment/puzzle.rs",
+      "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
+    },
+    {
+      "path": "puzzles/timelocked-payment/puzzle.rs",
+      "sha256": "dcaf5ffa041c01ac1c627a04b593ea4ed8486207ccfc2ed528f9011aca6a7682"
+    },
+    {
+      "path": "puzzles/two-signature-payment/puzzle.rs",
+      "sha256": "e6da886e56727a918fa8a571b5933d77be550a9ca71f6a788646fc162a3895bf"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
+    },
+    {
+      "path": "puzzles/prefix-list/puzzle.json",
+      "sha256": "a5036ccae970c8ab2299be22578c4119a2e1ab2c94ee874fc5d5555f3d7232f5"
+    },
+    {
+      "path": "puzzles/prefix-list/reference.clsp",
+      "sha256": "2d9bf20728e252132d362d5d825e5ec5d359c2a65a8e5c4d73a9c1d656b4125f"
+    },
+    {
+      "path": "puzzles/prefix-list/puzzle.rue",
+      "sha256": "284af82abe643805bd1dde35ec60ea82988028cb4dfa169ebb159fd36b06cc11"
+    },
+    {
+      "path": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc",
+      "sha256": "aeb7cd23e4b062fa35e8d47f332f6c6c25cfed883734043967b6ba59caca7f19"
+    },
+    {
+      "path": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/prefix.clinc",
+      "sha256": "48caa279faddbe3a2bfaedac0a34b3ff814bf5b69ebb0708292120fac8d7e227"
+    },
+    {
+      "path": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/LICENSE.MD",
+      "sha256": "d2e8598a416f31a166c5ec34aef7568111a4eb903d7958551290f8fcd3e9c22c"
+    },
+    {
+      "path": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/commit.git",
+      "sha256": "eeacf0acd9363c67103dc110f270f4c0f868a65a5a644de164935cdbd288dab5"
+    },
+    {
+      "path": "corpus/upstream/published-puzzles/Chia-Network--chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/tree.json",
+      "sha256": "7c545d9100d060ec52722e2047ee2cc6cef33b4aa82feb2a04a55caec46a9b67"
+    },
+    {
+      "path": "puzzles/last-list-element/puzzle.json",
+      "sha256": "c4bad45f867e3170cfaf963e797f215b1c40b74e737368c711629d0350745e26"
+    },
+    {
+      "path": "puzzles/last-list-element/reference.clsp",
+      "sha256": "988f8502c47c994f2b1b95806ac3bb6ddeb9cb120c55a15b6c151effd5330a81"
+    },
+    {
+      "path": "puzzles/last-list-element/puzzle.rue",
+      "sha256": "d24189842326239f3bb14ac2695d080b6fc69debcb0e80fcd4b8ad918f2ec41e"
+    },
+    {
+      "path": "corpus/upstream/chia-gaming/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/last_inner.clinc",
+      "sha256": "67984c12a663e4522c28d8343eefe6aee7e79100c326282822ddb823cabaa6dc"
+    }
+  ],
+  "theorems": [
+    {
+      "name": "decode_listTree",
+      "axioms": []
+    },
+    {
+      "name": "decode_sound",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "decode_eq_some_iff",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "decode_none_iff_not_proper",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefix_correct",
+      "axioms": []
+    },
+    {
+      "name": "prefix_listTree",
+      "axioms": []
+    },
+    {
+      "name": "prefix_none_iff_decode_none",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefix_failure_iff",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefix_success_iff",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "foldr_preserves_tail",
+      "axioms": []
+    },
+    {
+      "name": "prefix_preserves_tail",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "lastInner_correct",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "lastInner_listTree",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "lastInner_rejects_atom",
+      "axioms": []
+    },
+    {
+      "name": "lastInner_rejects_nonempty_tail",
+      "axioms": []
+    },
+    {
+      "name": "strictTwo_exact",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "strictTwo_rejects_extra",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "strictTwo_rejects_nonempty_terminator",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefixEntry_exact",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefixEntry_rejects_extra",
+      "axioms": [
+        "propext"
+      ]
+    },
+    {
+      "name": "prefixEntry_rejects_nonempty_terminator",
+      "axioms": [
+        "propext"
+      ]
+    }
+  ],
+  "expected_theorem_types": 21,
+  "finite_bridge": {
+    "cases": 85,
+    "prefix_cases": 69,
+    "last_inner_cases": 16,
+    "recorded_vm_observations": 425,
+    "generated_lean_sha256": "179ae6cfd0b9e98f0134938d480e5d1e45449c03c643999972ce1c117f9f24de",
+    "generated_lean_bytes": 51308,
+    "vm_replays_executed": 425,
+    "artifacts": [
+      {
+        "label": "prefix-list/rust_mir/False",
+        "sha256": "db5eae9204d1821e6114cd08fdd8ff8632599eac9dca76443b169ebde73d0fa3",
+        "bytes": 878,
+        "tree_hash": "b562371df5341d10e1f0104fbdbce9f000404f75edb16b0bc224dc944ad9393d"
+      },
+      {
+        "label": "prefix-list/rust_mir/True",
+        "sha256": "693c3c1297f5f8756e76c6f678446de7d38f6303fafc03f09b50c3a10dd52301",
+        "bytes": 429,
+        "tree_hash": "5eed43aa7e768f71dbfd82f5181f785b3df1f145de58eb27a83601287412dc4b"
+      },
+      {
+        "label": "prefix-list/chialisp/True",
+        "sha256": "65c52543107c54fae363576246a325608c0f3e4a6b64be27db6bb310bd0c0ac5",
+        "bytes": 157,
+        "tree_hash": "9afa336195566b467515c13ce4d742b6885bdada48196e484879dc3d7d23a238"
+      },
+      {
+        "label": "prefix-list/rue_source/False",
+        "sha256": "6a6f59a3c62774af5441c29ec8efca913e77fb911b247d015317ac23b5394f80",
+        "bytes": 313,
+        "tree_hash": "91d3f761e972767688086dcaf84f0b0318af869c6295aec27f29f347d71ec03f"
+      },
+      {
+        "label": "prefix-list/rue_source/True",
+        "sha256": "7e27ea0106376ad92af5892cffe2d4c987b31949ed543ae21788246ba3523a11",
+        "bytes": 253,
+        "tree_hash": "288867ddb33918d31551a9dc6f5cd98b05d4ed27f95034a3d63f419d95416a44"
+      },
+      {
+        "label": "last-list-element/rust_mir/False",
+        "sha256": "70a96bac992b81db046b3393d1a9a02c0c178ba608c0a0f4fa4cbc15dc683686",
+        "bytes": 751,
+        "tree_hash": "02124b86f59ef0d92c1aea4b04afb2dceca609c4aecf0a6fafd45bdf5056bcfe"
+      },
+      {
+        "label": "last-list-element/rust_mir/True",
+        "sha256": "9cf1a3a52349934ca61d69d24863ee9cc70da8e0db09711cca426407be0f1ac8",
+        "bytes": 369,
+        "tree_hash": "e4cabfc3b8f216f6403db2c90347a9b7bc9a8d3cbb534eb8898cab486507cd4a"
+      },
+      {
+        "label": "last-list-element/chialisp/True",
+        "sha256": "a412d2027105ebd154570a54c68a54e14d6f5c3abc57c8144be892093ca66fe7",
+        "bytes": 71,
+        "tree_hash": "57e4b8a91ba163232d4c13d26b5e8d80bb7bc2ac38ccf1e6072898541f8308f1"
+      },
+      {
+        "label": "last-list-element/rue_source/False",
+        "sha256": "47c176b14c9499b1e0111c29989c16489a506058f2967fdc09eabbc23a1fd76e",
+        "bytes": 151,
+        "tree_hash": "ba0f8096681c75fa84e8bf9586161525a465fc246f2d6d2821115497ba5f4ffe"
+      },
+      {
+        "label": "last-list-element/rue_source/True",
+        "sha256": "164abccda2c7f4aa09a3010b2b4e286ca8b8a3eddac05e3549bfd0089e2cbac1",
+        "bytes": 125,
+        "tree_hash": "f8247e8f0b5b004c3096c881ba7bfcbdf4ae8e97281bf69620e392884d3d2955"
+      }
+    ],
+    "replay_cli_sha256": "800d1c2538228692384835332e67909bfefccd8dbcd63b4d9d2489341c994202"
+  },
+  "mutation_controls": 38,
+  "limitations": [
+    "Lean compiler/kernel and standard-library trust remain; this is not independent proof-checker validation.",
+    "The definitions are manual models, not extracted Rust or verified CLVM semantics.",
+    "Current corpus VM inputs/outputs are finite observations; optional replay rechecks their bytes/costs/failure codes.",
+    "The Rust/Rue/Chialisp bridge is finite execution evidence, not a compiler-preservation or recursive runtime-IR proof."
+  ]
+}

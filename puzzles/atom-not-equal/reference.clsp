@@ -1,0 +1,9 @@
+; Strict two-argument adapter around the exact published inline helper.
+(mod ENV
+(defun-inline != (A B) (not (= A B)))
+  (if (l ENV)
+      (if (l (r ENV))
+          (if (r (r ENV)) (x) (!= (f ENV) (f (r ENV))))
+          (x))
+      (x))
+)

@@ -1,0 +1,48 @@
+{
+  "ir_version": 3,
+  "environment": "raw",
+  "program": {
+    "name": "synthetic::loose_environment",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "bool"
+    },
+    "body": {
+      "op": "binary",
+      "kind": "ne",
+      "left": {
+        "op": "tree_atom_value",
+        "value": {
+          "op": "tree_first",
+          "value": {
+            "op": "arg",
+            "index": 0
+          }
+        }
+      },
+      "right": {
+        "op": "tree_atom_value",
+        "value": {
+          "op": "tree_first",
+          "value": {
+            "op": "tree_rest",
+            "value": {
+              "op": "arg",
+              "index": 0
+            }
+          }
+        }
+      },
+      "ty": {
+        "kind": "atom"
+      }
+    }
+  }
+}

@@ -1,16 +1,24 @@
 //! IR-derived SMT obligations, not a proof of rustc extraction or CLVM lowering.
 //!
-//! The domain is well-typed scalar/tuple inputs, after successful ABI decoding.
-//! Byte values and byte projections are rejected, including in unreachable code.
-//! Runtime calls, function tables and local bindings are outside both models;
+//! The scalar API models well-typed scalar/tuple inputs after ABI decoding and
+//! rejects byte values, including in unreachable code. Separate structural APIs
+//! model complete trees, byte sequences and explicit strict-ABI Boolean results.
+//! Runtime calls, function tables and local bindings are outside these models;
 //! the execution-only replay APIs do not extend these proof semantics.
 //! Rejection and checked arithmetic are modeled explicitly; `If` is lazy while
 //! tuples, binary operands, projections, and `Sequence` evaluate strictly.
 
+mod model_bindings;
 mod replay;
+mod scalar_bitwise;
+mod structural_boolean;
 mod tree;
 mod tree_witness;
 pub use replay::{Replay, ReplayFailure, ReplayOutcome, classify_replay_failure, replay};
+pub use structural_boolean::{
+    StructuralBooleanQueries, StructuralBooleanVerification, TreeBooleanSpecification,
+    TreePredicate, emit_structural_boolean, replay_structural_boolean, verify_structural_boolean,
+};
 pub use tree::{
     TreeCase, TreeQueries, TreeShape, TreeSpecification, TreeTerm, TreeVerification, emit_tree,
     emit_tree_equivalence, verify_tree, verify_tree_equivalence,
@@ -202,6 +210,8 @@ struct Translation {
     serial: usize,
     arguments: Vec<Value>,
     symbols: Vec<String>,
+    bitvectors: bool,
+    integer_bitvectors: BTreeMap<(String, u16, bool), String>,
 }
 
 fn numeral(value: &str) -> Result<String> {
@@ -252,6 +262,9 @@ impl Translation {
     fn input(&mut self, ty: &Type, name: &str) -> Result<Value> {
         Ok(match ty {
             Type::Int { .. } => {
+                if self.bitvectors {
+                    return self.bitvector_input(ty, name);
+                }
                 let (min, max) = bounds(ty)?;
                 self.text.push_str(&format!("(declare-const {name} Int)\n(assert (and (<= {min} {name}) (<= {name} {max})))\n"));
                 self.symbols.push(name.into());
@@ -362,7 +375,8 @@ impl Translation {
             }
             Expr::Not { value } => {
                 let value = self.expression(value)?;
-                let term = format!("(not {})", value.value.context("diverging not")?.boolean()?);
+                let boolean = value.value.unwrap_or(Value::Bool("false".into()));
+                let term = format!("(not {})", boolean.boolean()?);
                 (value.success, Some(Value::Bool(self.define("Bool", &term))))
             }
             Expr::If {
@@ -396,11 +410,29 @@ impl Translation {
             } => {
                 let a = self.expression(left)?;
                 let b = self.expression(right)?;
-                let av = a.value.context("diverging left operand")?;
-                let bv = b.value.context("diverging right operand")?;
+                // A typed bottom has no observable value. Use only a
+                // sort-correct placeholder; success still requires both strict
+                // children. Unsupported sibling expressions already translated
+                // above and unsupported types still fail in default_value.
+                let av = match a.value {
+                    Some(value) => value,
+                    None => default_value(ty)?,
+                };
+                let bv = match b.value {
+                    Some(value) => value,
+                    None => default_value(ty)?,
+                };
                 let (l, lb) = av.scalar()?;
                 let (r, rb) = bv.scalar()?;
                 ensure!(lb == rb, "binary operand sort mismatch");
+                if matches!(kind, BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor) {
+                    let value = self.bitwise(*kind, l, r, ty)?;
+                    let success = format!("(and {} {})", a.success, b.success);
+                    return Ok(Evaluated {
+                        success: self.define("Bool", &success),
+                        value: Some(value),
+                    });
+                }
                 let op = match kind {
                     BinaryOp::Eq | BinaryOp::Ne => "=",
                     BinaryOp::Lt => "<",
@@ -538,7 +570,10 @@ fn require_expression_model(program: &Program, model: &str) -> Result<()> {
 pub fn emit(program: &Program, specification: &Specification) -> Result<Queries> {
     program.validate().context("invalid IR")?;
     require_expression_model(program, "scalar SMT")?;
-    let mut tr = Translation::default();
+    let mut tr = Translation {
+        bitvectors: scalar_bitwise::contains_integer_bitwise(&program.body),
+        ..Translation::default()
+    };
     for (index, parameter) in program.parameters.iter().enumerate() {
         let argument = tr.input(&parameter.ty, &format!("arg_{index}"))?;
         tr.arguments.push(argument);
@@ -560,8 +595,9 @@ pub fn emit(program: &Program, specification: &Specification) -> Result<Queries>
             tr.predicate(predicate, None)?
         ),
     };
+    let logic = if tr.bitvectors { "ALL" } else { "QF_NIA" };
     let base = format!(
-        "; IR-model only; typed canonical input domain, no byte/ABI/compiler proof.\n(set-logic QF_NIA)\n{}(assert {assumptions})\n",
+        "; IR-model only; typed canonical input domain, no byte/ABI/compiler proof.\n(set-logic {logic})\n{}(assert {assumptions})\n",
         tr.text
     );
     Ok(Queries {

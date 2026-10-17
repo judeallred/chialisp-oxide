@@ -3,8 +3,9 @@
 //! A tree carries its original atom bytes. Numeric padding, improper pairs and
 //! arbitrary tails are data; this type does not interpret or normalize them.
 //! The compiler supports direct recursive traversal of this restricted shape.
-//! General enums, mutable references, allocating output trees, and general
-//! runtime program evaluation remain outside the supported subset.
+//! The opt-in `alloc` feature adds `OwnedTree` for restricted owned
+//! pair construction. General enums, mutable references, pointer/allocator APIs,
+//! and general runtime program evaluation remain outside the supported subset.
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Tree<'a> {

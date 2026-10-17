@@ -162,6 +162,15 @@ impl Lower<'_> {
             self.alloc(Lir::First(base))
         }
     }
+    fn greater(&mut self, l: LirId, r: LirId, ty: &Type) -> LirId {
+        // Atoms and fixed bytes use unsigned byte lexicographic ordering;
+        // integer comparison keeps signed CLVM numeric semantics.
+        self.alloc(if matches!(ty, Type::Atom | Type::Bytes { .. }) {
+            Lir::GtBytes(l, r)
+        } else {
+            Lir::Gt(l, r)
+        })
+    }
     fn binary(&mut self, kind: BinaryOp, l: LirId, r: LirId, ty: &Type) -> Result<LirId> {
         let root = match kind {
             BinaryOp::Eq => self.alloc(Lir::Eq(l, r)),
@@ -169,19 +178,25 @@ impl Lower<'_> {
                 let equal = self.alloc(Lir::Eq(l, r));
                 self.alloc(Lir::Not(equal))
             }
-            BinaryOp::Gt => self.alloc(Lir::Gt(l, r)),
-            BinaryOp::Lt => self.alloc(Lir::Gt(r, l)),
+            BinaryOp::Gt => self.greater(l, r, ty),
+            BinaryOp::Lt => self.greater(r, l, ty),
             BinaryOp::Ge => {
-                let less = self.alloc(Lir::Gt(r, l));
+                let less = self.greater(r, l, ty);
                 self.alloc(Lir::Not(less))
             }
             BinaryOp::Le => {
-                let greater = self.alloc(Lir::Gt(l, r));
+                let greater = self.greater(l, r, ty);
                 self.alloc(Lir::Not(greater))
             }
             BinaryOp::Add => self.alloc(Lir::Add(vec![l, r])),
             BinaryOp::Sub => self.alloc(Lir::Sub(vec![l, r])),
             BinaryOp::Mul => self.alloc(Lir::Mul(vec![l, r])),
+            // Fixed-width integer operands are already range checked. Infinite
+            // two's-complement operations therefore stay in the same width;
+            // canonical bools are precisely the integer values zero and one.
+            BinaryOp::Bitand => self.alloc(Lir::Logand(vec![l, r])),
+            BinaryOp::Bitor => self.alloc(Lir::Logior(vec![l, r])),
+            BinaryOp::Bitxor => self.alloc(Lir::Logxor(vec![l, r])),
             _ => unreachable!("validated operations only"),
         };
         Ok(
@@ -306,7 +321,7 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
         }
     }
     let body = if program.uses_runtime() {
-        runtime::bootstrap(&mut lower)?
+        runtime::bootstrap(&mut lower, optimize)?
     } else {
         lower.expression(&program.body)?
     };
@@ -369,6 +384,9 @@ fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
             Lir::Add(args)
             | Lir::Sub(args)
             | Lir::Mul(args)
+            | Lir::Logand(args)
+            | Lir::Logior(args)
+            | Lir::Logxor(args)
             | Lir::All(args)
             | Lir::Any(args)
             | Lir::Concat(args)

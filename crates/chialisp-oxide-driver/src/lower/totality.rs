@@ -38,7 +38,15 @@ impl<'tcx> Lowerer<'tcx> {
             Rvalue::UnaryOp(UnOp::Not, _) => true,
             Rvalue::BinaryOp(op, _) => matches!(
                 op,
-                BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Le | BinOp::Gt | BinOp::Ge
+                BinOp::Eq
+                    | BinOp::Ne
+                    | BinOp::Lt
+                    | BinOp::Le
+                    | BinOp::Gt
+                    | BinOp::Ge
+                    | BinOp::BitAnd
+                    | BinOp::BitOr
+                    | BinOp::BitXor
             ),
             // Checked arithmetic and all uncertain/future operations retain
             // evaluation, even if a particular set of arguments would succeed.
@@ -92,11 +100,24 @@ impl<'tcx> Lowerer<'tcx> {
                 TerminatorKind::Return
                 | TerminatorKind::Goto { .. }
                 | TerminatorKind::SwitchInt { .. } => true,
-                TerminatorKind::Call { func, .. } => {
-                    match func.ty(&body.local_decls, self.tcx).kind() {
-                        ty::FnDef(id, _) => self.function_is_total(*id),
-                        _ => false,
-                    }
+                TerminatorKind::Call {
+                    func,
+                    args,
+                    destination,
+                    ..
+                } => {
+                    self.byte_comparison(
+                        body,
+                        func,
+                        args,
+                        *destination,
+                        block.terminator().source_info.span,
+                    )
+                    .is_ok_and(|comparison| comparison.is_some())
+                        || match func.ty(&body.local_decls, self.tcx).kind() {
+                            ty::FnDef(id, _) => self.function_is_total(*id),
+                            _ => false,
+                        }
                 }
                 // Assert, panic/divergence, Unreachable and any unsupported
                 // terminator may fail. Do not infer totality from return values.

@@ -1,0 +1,35 @@
+{
+  "name": "chialisp_oxide_byte_proofs::self_inequality::puzzle",
+  "parameters": [
+    {
+      "name": "left",
+      "ty": {
+        "kind": "atom"
+      }
+    },
+    {
+      "name": "right",
+      "ty": {
+        "kind": "atom"
+      }
+    }
+  ],
+  "result": {
+    "kind": "bool"
+  },
+  "body": {
+    "op": "binary",
+    "kind": "ne",
+    "left": {
+      "op": "arg",
+      "index": 0
+    },
+    "right": {
+      "op": "arg",
+      "index": 0
+    },
+    "ty": {
+      "kind": "atom"
+    }
+  }
+}

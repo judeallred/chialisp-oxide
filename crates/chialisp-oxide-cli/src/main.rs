@@ -173,7 +173,7 @@ fn main() -> Result<()> {
                 "toolchain": compiler.trim(), "rue_revision": RUE_REV,
                 "rue_local_patches": RUE_LOCAL_PATCHES,
                 "optimization_pipeline": {
-                    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
+                    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "runtime_frame_elision", "rue_lir"]},
                     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]}
                 },
                 "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",

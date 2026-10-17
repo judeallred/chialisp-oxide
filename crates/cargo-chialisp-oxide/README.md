@@ -44,7 +44,7 @@ or transitive dependency; it is build metadata, not a complete reproducibility p
 
 Current limits: one library package at a time; no existing compiler wrappers;
 only concrete vetted SDK calls and local helpers; no arbitrary Rust dependency
-bodies, type/const generics, allocation, general references, CFG loops, or unsupported integer
+bodies, type/const generics, general allocation/references, CFG loops, or unsupported integer
 operations in exported code. Normal native code outside an export's reachable
 call graph can use broader Rust. Supported direct recursive calls use finite
 version-4 function tables and strict lexical bindings; runtime functions still

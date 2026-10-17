@@ -212,15 +212,73 @@ security. Source-derived artifacts and actual native/VM witness replays connect
 the pipeline for those executions. There is no general compiler-preservation
 theorem or Lean proof here.
 
+## Whole-environment structural Boolean checker
+
+`TreeBooleanSpecification` independently specifies `acceptance` and Boolean
+`output` over the complete environment. Its predicates include constructor
+checks, exact byte equality/length, negation, conjunction and disjunction over
+raw `TreeTerm` paths. Projection and atom-operation definedness is retained
+through every predicate; an undefined expected output on an accepted input
+is a counterexample. `All`/`Any` require every child to be defined.
+
+The program signature supports flat strict `Atom`, `Bytes { len }` and `Bool`
+parameters returning `Bool`, or one raw `Tree` parameter returning `Bool`.
+The model separately decodes pair links, atom shapes, fixed lengths, canonical
+Boolean arguments and the exact empty final tail. Arbitrary finite byte atoms
+use `Seq (_ BitVec 8)` without integer or text normalization. Ignored
+environments, integer/tuple parameters and runtime IR remain unsupported;
+unsupported expressions fail even in dead branches.
+
+```sh
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean proofs/atom-not-equal/specification.json
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean proofs/atom-not-equal/specification.json --emit-json
+target/debug/chialisp-oxide-verifier proofs/atom-not-equal/original.ir.json \
+  --structural-boolean-replay witness.json
+python3 scripts/check-byte-proofs.py
+```
+
+The queries separately check ABI nonvacuity, independent specified acceptance,
+specified true/false domains and a counterexample. Specified-domain queries do
+not require the program body to succeed. The generic API reports absent
+true/false domains as optional witnesses; the byte-inequality gate requires
+both. Unknown, timeout, unsupported and malformed results produce no proof.
+
+The source gate extracts the actual Cargo export and five actual Rust controls,
+labels two constructed ABI controls separately, and retains exact IR, queries
+and off/on CLVM files. Witnesses run through native sources, five original
+language builds, internal modeled replay and separate execution of the retained
+modeled files. Accepted results/costs or typed rejection metadata must agree
+between the last two paths. A freshness check does not rerun these tools.
+
+This is an IR-model proof including a modeled decoder, with finite execution
+evidence. It does not prove extraction, the primitive bridge, ABI/CLVM
+preservation or security of a coin protocol. The pinned installed compiler and
+standard library remain trusted; see [toolchain trust](../../docs/toolchain-trust.md)
+and the [walkthrough](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/).
+
 ## Scalar claim scope
 
-This is an **IR-model proof over well-typed input values**, using Z3's QF_NIA
-logic. Signed/unsigned integer widths and checked add/subtract/multiply are
-modeled. Bool, integers, tuples, unit, projections, strict sequences, lazy
-conditionals, comparisons, and rejection are supported. Tuples evaluate every
-field before projection, including fields whose values are discarded.
+This is an **IR-model proof over well-typed input values**. Existing arithmetic
+queries use Z3's QF_NIA logic; integer bitwise queries select a logic supporting
+both integers and bitvectors. Signed/unsigned widths and checked
+add/subtract/multiply are modeled. Programs with integer `&`, `|` or `^`
+declare finite-width bitvector inputs and derive witness-facing Int aliases
+using exact signed/unsigned interpretation. This is a bijective representation
+of the same typed input domain, without new axioms or bounds. Bitwise results
+retain their typed word representation; mathematical checked-arithmetic results
+use an exact conversion when a later bitwise operation consumes them. Integer `!` is lowered to typed XOR before reaching this
+model. Boolean `&`, `|` and `^` retain both operand success conditions, unlike
+lazy `&&`/`||` control flow.
 
-Byte values, byte operations, division, bitwise operations, loops, runtime calls,
+Bool, integers, tuples, unit, projections, strict sequences, lazy conditionals,
+comparisons, and rejection are supported. Tuples evaluate every field before
+projection, including fields whose values are discarded. The `bitwise` test
+suite checks independent identities across widths and signedness, mutation
+counterexamples and VM replay; it is separate from the recorded corpus proofs.
+
+Byte values, byte operations, division, shifts, wrapping arithmetic, loops, runtime calls,
 lexical bindings, recursion, hashing, signatures, and chain context are
 unsupported by the scalar model. Byte operations fail
 explicitly even in unreachable branches. The model assumes ABI decoding has

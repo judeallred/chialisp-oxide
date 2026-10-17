@@ -29,9 +29,9 @@ checkCorpusExecutions(report);
 checkLedgerReport(report);
 console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent corruption controls passed`);
 console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
-assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
+assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
 assert.deepEqual(report.optimization_pipeline, {
-  rust_mir: { unoptimized: [], optimized: ['typed_ir_tree_guards', 'rue_lir'] },
+  rust_mir: { unoptimized: [], optimized: ['typed_ir_tree_guards', 'runtime_frame_elision', 'rue_lir'] },
   rue_source: { unoptimized: [], optimized: ['rue_lir'] },
 }, 'The recorded optimization pipeline is missing or unsupported');
 assert(report.puzzles.length > 0, 'A successful validation report is required');
@@ -47,7 +47,7 @@ async function checkAuthoring(snapshot, label) {
     assert.deepEqual(snapshot[field], configuration[field], `${label}: Cargo ${field} changed`);
   }
   assert.deepEqual(snapshot.sources.map(source => source.path), [...configuration.inputs].sort(), `${label}: declared Cargo inputs changed`);
-  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
+  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide/src/owned_tree.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
     assert(configuration.inputs.includes(required), `${label}: missing required Cargo input ${required}`);
   }
   for (const source of snapshot.sources) await checkRecordedHash(source.path, source.sha256);
@@ -89,8 +89,8 @@ for (const puzzle of report.puzzles) {
   assert.equal(puzzle.title, manifest.title, `${puzzle.slug}: title changed`);
   assert.equal(puzzle.kind, manifest.kind, `${puzzle.slug}: result kind changed`);
   assert.deepEqual(puzzle.provenance, manifest.provenance, `${puzzle.slug}: provenance changed`);
-  for (const field of ['environment', 'reference_mode']) {
-    assert.equal(puzzle[field], manifest[field], `${puzzle.slug}: ${field} contract changed`);
+  for (const [field, defaultValue] of [['environment', 'strict'], ['reference_mode', 'module']]) {
+    assert.equal(puzzle[field] ?? defaultValue, manifest[field] ?? defaultValue, `${puzzle.slug}: ${field} contract changed`);
   }
   assert.equal(puzzle.artifacts.length, 5, `${puzzle.slug}: missing compiler path`);
   const paths = list => list.map(item => `${item.backend}:${item.optimize_lir}`).sort();
@@ -203,6 +203,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

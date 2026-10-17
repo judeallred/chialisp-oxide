@@ -56,16 +56,31 @@ jobs:
           python3 scripts/check-tree-proofs.py --self-test
       - name: Validate Rust, Chialisp, native execution, and complete spends
         run: target/debug/chialisp-oxide validate --output corpus/validation.json
+      - name: Check source-derived byte contracts and policy counterexamples
+        run: |
+          python3 scripts/test_cargo_bundle.py
+          python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json"
+          python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json" --check
+          python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json" --self-test
+          python3 scripts/check-byte-proofs.py --compare "$RUNNER_TEMP/byte-proofs.json"
       - name: Check readable-source evidence and comparison controls
         run: |
           python3 scripts/check-readable-puzzles.py --self-test
           python3 scripts/check-readable-puzzles.py
+          python3 scripts/check-runtime-frames.py --replay
+          python3 scripts/check-runtime-frames.py --self-test
           python3 scripts/check-canonical-factories.py
           python3 scripts/check-canonical-factories.py --self-test
           python3 scripts/check-canonical-helpers.py
           python3 scripts/check-canonical-helpers.py --self-test
+          python3 scripts/check-insertion-sort.py
+          python3 scripts/check-insertion-sort.py --self-test
       - name: Require committed validation data to match current compiler
-        run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions
+        run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: byte-proof-runner
+          path: ${{ runner.temp }}/byte-proofs.json
       - uses: actions/upload-artifact@v4
         with:
           name: compiler-validation
@@ -74,8 +89,45 @@ jobs:
             corpus/proofs.json
             corpus/error-study.json
             corpus/tree-proofs.json
+            corpus/byte-proofs.json
             proofs/p2-conditions/
+            proofs/atom-not-equal/
             proofs/bounded-counter/
+            target/debug/chialisp-oxide
+  tree-theorems:
+    needs: compiler
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: compiler-validation
+          path: ${{ runner.temp }}/compiler-validation
+      - uses: actions/cache@v4
+        id: lean-cache
+        with:
+          path: ${{ runner.temp }}/lean-4.35.0-linux
+          key: lean-4.35.0-linux-7289597a44543246c9227b8cae501767e095ce17f6d448b95fc4a8dc97268f6d
+      - name: Install checksum-pinned official Lean release
+        if: steps.lean-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y zstd
+          lean_archive="$RUNNER_TEMP/lean-4.35.0-linux.tar.zst"
+          curl --fail --location --retry 3 --output "$lean_archive" https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-linux.tar.zst
+          printf '%s  %s\n' '7289597a44543246c9227b8cae501767e095ce17f6d448b95fc4a8dc97268f6d' "$lean_archive" | sha256sum --check
+          tar --zstd -xf "$lean_archive" -C "$RUNNER_TEMP"
+          rm "$lean_archive"
+      - name: Check finite-tree theorems, corruption controls and VM bridge
+        run: |
+          chmod u+x "$RUNNER_TEMP/compiler-validation/target/debug/chialisp-oxide"
+          python3 experiments/tree-theorems/check-model.py \
+            --lean "$RUNNER_TEMP/lean-4.35.0-linux/bin/lean" \
+            --cli "$RUNNER_TEMP/compiler-validation/target/debug/chialisp-oxide" \
+            --self-test --replay-vm --output "$RUNNER_TEMP/tree-theorems.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tree-algorithm-evidence
+          path: ${{ runner.temp }}/tree-theorems.json
   docs:
     runs-on: ubuntu-latest
     steps:
