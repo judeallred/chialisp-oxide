@@ -100,6 +100,10 @@ jobs:
           python3 scripts/check-insertion-sort.py
           python3 scripts/check-insertion-sort.py --self-test
           python3 scripts/check-hashing-puzzles.py --self-test --replay
+      - name: Check canonical password module and separate fixed-hash instances
+        run: |
+          python3 -m unittest discover -s scripts -p test_password_coin.py
+          python3 scripts/check-password-coin.py --self-test --replay --extract-ir
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
       - uses: actions/upload-artifact@v4

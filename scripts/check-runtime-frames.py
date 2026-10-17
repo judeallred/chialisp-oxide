@@ -15,6 +15,9 @@ Rue issues112 and113 first pin the complete reviewed18-fixture report while
 allowing only their two exact patch-provenance URLs and checked authoring data.
 The hashing extension preserves those18 observations while appending only the
 two reviewed fixtures and normalizing one exact facade source transition.
+The password extension preserves all20 observations while appending only its
+raw template and separately labeled instances. Only two exact reviewed native
+source metadata transitions are normalized, after full-current closure checks.
 """
 import argparse
 import copy
@@ -27,6 +30,9 @@ import tempfile
 
 from vm_failures import check_execution
 from runtime_hash_migration import controls as hashing_controls, preserve as hashing_preservation
+from runtime_password_migration import (controls as password_controls, current_native_sources,
+                                        preserve as password_preservation)
+from password_evidence import validate as password_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMIT = "6f1e197ef6647683f4c3d7dd171c5e7e4317b01c"
@@ -281,13 +287,17 @@ def check(report, baseline, migration=None):
         require(reference.read_bytes().decode() == puzzle["reference"],
                 f"{puzzle['slug']}: report contains stale reference source; rerun validation")
     readable["check_recorded"](report.get("authoring"), ROOT, [p["slug"] for p in report["puzzles"]])
+    # Full-current native bytes and dedicated typed instance evidence must be
+    # checked before any new row/metadata is projected into historical layers.
+    current_native_sources(report)
+    password_evidence(report)
     if migration is None:
         migration = load_migration(MIGRATION_PATH.read_bytes())
     require(baseline["baseline"] == {"repository": "https://github.com/judeallred/chialisp-oxide", "commit": COMMIT,
             "report": {"path": REPORT_PATH, "sha256": REPORT_SHA256, "git_blob_sha1": REPORT_BLOB}}, "Changed historical provenance")
     require(baseline["schema_version"] == 1 and baseline["max_cost"] == MAX_COST
             and baseline["optimization_pipeline"] == readable["PREVIOUS_PIPELINE"], "Changed baseline contract")
-    compatible = bitwise_patch_preservation(hashing_preservation(report))
+    compatible = bitwise_patch_preservation(hashing_preservation(password_preservation(report)))
     previous = byte_ordering_preservation(compatible, baseline["corpus"]["slugs"])
     retained = owned_preservation(previous, baseline, migration)
     require(corpus_counts(retained) == baseline["corpus"], "Original corpus order, coverage or ledger counts changed")
@@ -598,7 +608,8 @@ def self_test(report, baseline):
     migration = load_migration(MIGRATION_PATH.read_bytes())
     # Validate this projection once, then exercise the older boundaries using
     # their actual accepted17-fixture input, not an invalid18-fixture report.
-    hashing_previous = hashing_preservation(report)
+    password_previous = password_preservation(report)
+    hashing_previous = hashing_preservation(password_previous)
     previous = byte_ordering_preservation(bitwise_patch_preservation(hashing_previous), migration["preserved_slugs"])
     owned_preservation(previous, baseline, migration)
     # Exercise the preservation boundary directly as well as the full source
@@ -673,7 +684,8 @@ def self_test(report, baseline):
         except ValueError: controls += 1; continue
         raise ValueError(f"Altered byte-equality migration passed: {mutation}")
     return (controls + ordering_controls(hashing_previous, baseline)
-            + bitwise_patch_controls(hashing_previous) + hashing_controls(report))
+            + bitwise_patch_controls(hashing_previous) + hashing_controls(password_previous)
+            + password_controls(report))
 
 
 def main():

@@ -7,6 +7,7 @@ mod native_hash;
 mod native_owned_tests;
 mod native_owned_tree;
 mod native_tree;
+mod password;
 mod spends;
 use anyhow::{Context, Result, ensure};
 pub use authoring::{Authoring, Export, authoring};
@@ -40,6 +41,7 @@ pub const PUZZLES: &[&str] = &[
     "insertion-sort-by-keys",
     "sha256tree",
     "singleton-launcher",
+    "password-coin",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -192,6 +194,8 @@ pub struct PuzzleReport {
     pub factory_checks: Vec<factories::FactoryCheck>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub module_identity: Option<factories::ModuleIdentity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub curried_instances: Option<password::CurriedInstances>,
     pub validated: bool,
 }
 fn expectation(slug: &str, solution: &str) -> Result<Outcome> {
@@ -458,6 +462,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         "atom-not-equal",
         "insertion-sort-by-keys",
         "sha256tree",
+        "password-coin",
     ]
     .contains(&slug)
     {
@@ -564,7 +569,11 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             }
         }
     }
-    let resource_controls = hash_resource_controls(slug, &programs)?;
+    let resource_controls = if slug == "password-coin" {
+        Some(password::resource_controls(&cases, &programs)?)
+    } else {
+        hash_resource_controls(slug, &programs)?
+    };
     let artifacts: Vec<Artifact> = programs
         .iter()
         .map(|(backend, opt, code)| artifact(backend, *opt, code))
@@ -606,6 +615,11 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     } else {
         None
     };
+    let curried_instances = if slug == "password-coin" {
+        Some(password::validate(&cases, &programs)?)
+    } else {
+        None
+    };
     if !native_sources.is_empty() {
         // A changed declared input must not publish observations from an older
         // native binary, even when the change happened during compilation.
@@ -634,6 +648,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         simulator_comparisons,
         factory_checks,
         module_identity,
+        curried_instances,
         validated: true,
     })
 }

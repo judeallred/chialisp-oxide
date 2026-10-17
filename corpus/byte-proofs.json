@@ -75,6 +75,10 @@
         "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
         "source": "puzzles/p2-conditions/puzzle.rs"
       },
+      "password-coin": {
+        "entry": "chialisp_oxide_puzzles::password_coin::puzzle",
+        "source": "puzzles/password-coin/puzzle.rs"
+      },
       "prefix-list": {
         "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
         "source": "puzzles/prefix-list/puzzle.rs"
@@ -143,11 +147,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "2d0406eb2d2c5af5d85665868dbdca659808feaa66bcc6d7b4500996b787a745"
+        "sha256": "88a910b8e410da586fde6d8014c9aea865996cfb26656cbfd8b85ca7f929ff61"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "7194dc0809eaab680aea7fceb50aba92ff2ccb387ae48e041d7d4794d5793718"
+        "sha256": "c24d2e546ac0ed07382af65a69332f93e9d093d94c0efd745a2b076590f5bf9e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -156,6 +160,14 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
         "sha256": "25276798b987eac4786c8c935644f825c72f221394d1dc6f9eb64f9c01eceba1"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/password.rs",
+        "sha256": "0268c011975323867bee43e126b808fa00655ab220fe7d0ed653769e79dd657a"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/password/ledger.rs",
+        "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
@@ -223,7 +235,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "fbeae000a1fb9151b2384ada6cf2e846ad653f7e132bd262410ec1d591e8df4c"
+        "sha256": "ef6e8969e79b51faa53fd263e084a64887643aef2affb5e963d2f636f45c89e8"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -271,11 +283,19 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "991aa5bfb0531ea6b2250dab26e0b4796bc552008efbb0e03f35a57c5f7a968a"
+        "sha256": "e6dce5cc0876937f29ea71204bdafcd528196b6b0bc4b187e8e8a4b668abe3e2"
       },
       {
         "path": "puzzles/p2-conditions/puzzle.rs",
         "sha256": "dece69447759f76a8c5617bcc42efe5607901cd571891e27800cf6b77a385753"
+      },
+      {
+        "path": "puzzles/password-coin/generated-cases.json",
+        "sha256": "b0efaf3404d34669f0aa759bb259c227edf900b4850668bbf83c0f6d8035e025"
+      },
+      {
+        "path": "puzzles/password-coin/puzzle.rs",
+        "sha256": "4d33f13106b47379a2bbe45bb5b7441358c8ed7d8d83d9bc352d96877ab9966a"
       },
       {
         "path": "puzzles/prefix-list/generated-cases.json",
@@ -572,7 +592,7 @@
     },
     {
       "path": "corpus/validation.json",
-      "sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791"
+      "sha256": "52b2ef139c93f3d2235fd946d70096d4311bf455a2d244b68d541eda3f137cab"
     },
     {
       "path": "crates/cargo-chialisp-oxide/Cargo.toml",
@@ -620,11 +640,11 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-      "sha256": "2d0406eb2d2c5af5d85665868dbdca659808feaa66bcc6d7b4500996b787a745"
+      "sha256": "88a910b8e410da586fde6d8014c9aea865996cfb26656cbfd8b85ca7f929ff61"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native.rs",
-      "sha256": "7194dc0809eaab680aea7fceb50aba92ff2ccb387ae48e041d7d4794d5793718"
+      "sha256": "c24d2e546ac0ed07382af65a69332f93e9d093d94c0efd745a2b076590f5bf9e"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -641,6 +661,14 @@
     {
       "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
       "sha256": "25276798b987eac4786c8c935644f825c72f221394d1dc6f9eb64f9c01eceba1"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/password.rs",
+      "sha256": "0268c011975323867bee43e126b808fa00655ab220fe7d0ed653769e79dd657a"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/password/ledger.rs",
+      "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/spends.rs",

@@ -215,6 +215,19 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             tree,
         ))?));
     }
+    if slug == "password-coin" {
+        let arena = bumpalo::Bump::new();
+        // Bound the whole attacker-controlled input, including ignored tails,
+        // before allocation. Host exhaustion propagates outside the panic catch.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::password_coin::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "singleton-launcher" {
         let arena = bumpalo::Bump::new();
         // Include the ignored tail in the host budget, while preserving the

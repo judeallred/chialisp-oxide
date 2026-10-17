@@ -99,7 +99,9 @@ def checked_report(root):
 
 
 def check_promotion(row, excerpt, report, root):
-    """Bind only the reviewed closed expressions to actual source/report bytes."""
+    """Bind only explicitly reviewed examples to actual source/report bytes."""
+    if row["id"] == "chialisp-example:password-coin":
+        return check_password_promotion(row, excerpt, report, root)
     slug = row["id"].split(":", 1)[1]
     require(slug in EXPECTATIONS, "Only the three closed Intro expressions have a reviewed promotion contract")
     require(row["kind"] == "closed_expression" and row["implementation_status"] == "implemented"
@@ -170,6 +172,51 @@ def check_promotion(row, excerpt, report, root):
         "expected_output": EXPECTATIONS[slug], "expected_output_hex": EXPECTED_HEX[slug],
         "claim_scope": "executed_differential_cases_only", "ledger": "not_applicable_pure_function",
     }, f"{slug}: changed ABI/result/proof-scope claim")
+
+
+def check_password_promotion(row, excerpt, report, root):
+    """Promote the exact module span, not its page or a secure coin design."""
+    from password_evidence import validate as check_password_evidence
+    from password_provenance import SPAN_SHA
+
+    require(row["id"] == "chialisp-example:password-coin" and row["kind"] == "puzzle"
+            and row["implementation_status"] == "implemented"
+            and row["validation_status"] == "differential_only", "Unreviewed password promotion state")
+    require(not any(key in row for key in ("validated", "passed", "executed")), "Unsupported password execution claim")
+    source = row["source"]
+    require(source["path"] == "docs/chialisp-primer/first-smart-coin.md"
+            and type(source["start_line"]) is int and source["start_line"] == 21
+            and type(source["end_line"]) is int and source["end_line"] == 40
+            and source["sha256"] == SPAN_SHA, "Password promotion is only the exact complete20-line module")
+    paths = {"rust_source": "puzzles/password-coin/puzzle.rs", "reference": "puzzles/password-coin/reference.clsp",
+             "rue_source": "puzzles/password-coin/puzzle.rue", "manifest": "puzzles/password-coin/puzzle.json"}
+    require(row["local_examples"] == [paths["rust_source"], paths["reference"], paths["rue_source"]]
+            and row["evidence"] == ["corpus/validation.json"], "Password promotion lacks exact three-source/report bindings")
+    payloads = {key: confined_file(root, path).read_bytes() for key, path in paths.items()}
+    require(excerpt.encode() == payloads["reference"] and sha256(payloads["reference"]) == SPAN_SHA,
+            "Password reference must be the complete original module, without extraction wrappers")
+    # Reuse the independently authored whole-tree/hash/curry/ledger validator;
+    # do not copy the policy relation into an inventory promotion check.
+    check_password_evidence(report, reader=lambda path: confined_file(root, path).read_bytes())
+    selected = [p for p in report["puzzles"] if p["slug"] == "password-coin"]
+    require(len(selected) == 1 and selected[0]["provenance"]["example_id"] == row["id"], "Password example/report identity mismatch")
+    adaptation = {"operation": "extract_complete_chialisp_module", "source_span_sha256": SPAN_SHA,
+                  "report": "corpus/validation.json", "report_sha256": sha256((root / "corpus/validation.json").read_bytes()),
+                  "slug": "password-coin"}
+    for key, path in paths.items():
+        adaptation[key] = path
+        adaptation[key + "_sha256"] = sha256(payloads[key])
+    require(row["source_adaptation"] == adaptation, "Stale or changed complete-module extraction/source/evidence binding")
+    contract = row["validation_contract"]
+    require(type(contract.get("whole_page_completed")) is bool
+            and type(contract.get("runtime_umbrella_semantic_rejection_credit")) is bool,
+            "Password completion/semantic-credit flags must be exact booleans")
+    require(contract == {"abi": "raw_one_tree", "environment": "raw", "reference_mode": "module",
+        "claim_scope": "executed_raw_differential_cases_and_separate_fixed_instance_observations_only",
+        "instance_protocol": "chialisp-oxide-password-instances/v1",
+        "ledger": "separate_fixed_commitment_instance_observations_only", "hash_proof": "not_claimed",
+        "compiler_preservation": "not_claimed", "whole_page_completed": False,
+        "runtime_umbrella_semantic_rejection_credit": False}, "Unreviewed password ABI/proof/page/ledger claim")
 
 
 def validate(inventory, root=ROOT, upstream_tree=None):
@@ -395,18 +442,62 @@ class InventoryControls(unittest.TestCase):
         spec.loader.exec_module(checks)
         original = load(ROOT / "corpus/inventory.json")
         self.assertEqual(checks.validate(original), [])
-        for mutation in ("complete_page", "page_validation", "coverage"):
+        for identity in ("chialisp:chialisp-primer/intro", "chialisp:chialisp-primer/first-smart-coin"):
+            for mutation in ("complete_page", "page_validation", "coverage"):
+                changed = copy.deepcopy(original)
+                page = next(item for item in changed["entries"] if item["id"] == identity)
+                if mutation == "complete_page":
+                    page["implementation_status"] = "implemented"
+                elif mutation == "page_validation":
+                    page["validation_status"] = "differential_only"
+                    page["local_examples"], page["evidence"] = ["puzzles/intro-add/puzzle.rs"], ["corpus/validation.json"]
+                else:
+                    page["example_coverage"]["implemented_examples"].pop()
+                with self.subTest(page=identity, mutation=mutation):
+                    self.assertTrue(checks.validate(changed))
+
+    def test_password_promotion_is_source_bound_and_keeps_instance_credit_separate(self):
+        inventory = load(ROOT / "corpus/tutorial-examples.json")
+        report = checked_report(ROOT)
+        row = next(item for item in inventory["examples"] if item["id"] == "chialisp-example:password-coin")
+        lines = (ROOT / row["source"]["snapshot"]).read_text().splitlines(keepends=True)
+        excerpt = "".join(lines[20:40])
+        check_promotion(row, excerpt, report, ROOT)
+        for mutation in ("operation", "reference", "manifest_hash", "report_hash", "instance_protocol", "whole_page",
+                         "numeric_page_flag", "numeric_credit_flag", "hash_proof", "compiler_proof", "fixed_hash",
+                         "umbrella_credit", "numeric_umbrella_credit", "consensus_code", "ordinary_ledger", "unknown_id"):
+            changed, evidence = copy.deepcopy(row), copy.deepcopy(report)
+            puzzle = next(p for p in evidence["puzzles"] if p["slug"] == "password-coin")
+            if mutation == "operation": changed["source_adaptation"]["operation"] = "extract_single_quoted_run_expression"
+            elif mutation == "reference": puzzle["reference"] = "(mod ENV (x))\n"
+            elif mutation == "manifest_hash": changed["source_adaptation"]["manifest_sha256"] = "0" * 64
+            elif mutation == "report_hash": changed["source_adaptation"]["report_sha256"] = "0" * 64
+            elif mutation == "instance_protocol": changed["validation_contract"]["instance_protocol"] = "unreviewed/v2"
+            elif mutation == "whole_page": changed["validation_contract"]["whole_page_completed"] = True
+            elif mutation == "numeric_page_flag": changed["validation_contract"]["whole_page_completed"] = 0
+            elif mutation == "numeric_credit_flag": changed["validation_contract"]["runtime_umbrella_semantic_rejection_credit"] = 0
+            elif mutation == "hash_proof": changed["validation_contract"]["hash_proof"] = "universal_sha_proof"
+            elif mutation == "compiler_proof": changed["validation_contract"]["compiler_preservation"] = "proved"
+            elif mutation == "fixed_hash": puzzle["curried_instances"]["fixed_argument"] = "80"
+            elif mutation in ("umbrella_credit", "numeric_umbrella_credit"):
+                puzzle["curried_instances"]["ledger"][0]["attempts"][2]["consensus"]["semantic_rejection_credit"] = True if mutation == "umbrella_credit" else 1
+            elif mutation == "consensus_code": puzzle["curried_instances"]["ledger"][0]["attempts"][3]["consensus"]["code"] = "GeneratorRuntimeError"
+            elif mutation == "ordinary_ledger": puzzle["simulator"] = [{"passed": True}]
+            else: changed["id"] = "chialisp-example:unreviewed-password-port"
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):
+                check_promotion(changed, excerpt, evidence, ROOT)
+        with self.assertRaisesRegex(ValueError, "complete original module"):
+            check_promotion(row, "(mod ENV (x))\n", report, ROOT)
+
+    def test_password_host_workflow_is_not_promoted_by_project_instance_tests(self):
+        original = load(ROOT / "corpus/tutorial-examples.json")
+        for identity in ("chialisp-support:password-create-spend", "chialisp-support:password-insecurity"):
             changed = copy.deepcopy(original)
-            page = next(item for item in changed["entries"] if item["id"] == "chialisp:chialisp-primer/intro")
-            if mutation == "complete_page":
-                page["implementation_status"] = "implemented"
-            elif mutation == "page_validation":
-                page["validation_status"] = "differential_only"
-                page["local_examples"], page["evidence"] = ["puzzles/intro-add/puzzle.rs"], ["corpus/validation.json"]
-            else:
-                page["example_coverage"]["implemented_examples"].pop()
-            with self.subTest(mutation=mutation):
-                self.assertTrue(checks.validate(changed))
+            record = next(row for row in changed["supporting_material"] if row["id"] == identity)
+            record["validation_status"] = "differential_only"
+            record["evidence"] = ["corpus/validation.json"]
+            with self.subTest(record=identity), self.assertRaises(ValueError):
+                validate(changed)
 
 
 def main():

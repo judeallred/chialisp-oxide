@@ -12,6 +12,9 @@ const definitions = [
   // The raw ABI also executes 2,048 shared trees, ten widths and one spine.
   // This download is the additional 275-row file, not that algorithmic suite.
   { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', inheritedRows: 2059 },
+  // Password-specific byte/hash pairs are downloaded separately from the same
+  // 2,059 shared raw-environment inputs executed by the corpus.
+  { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', inheritedRows: 2059 },
 ];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 

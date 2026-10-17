@@ -22,14 +22,23 @@ including a leading zero. An atom containing zero bytes differs from nil.
 ## Current experiment boundary
 
 The paired corpus executes a published `sha256tree` helper adapter and the
-canonical singleton launcher through actual Cargo exports, native Rust,
-Chialisp and both Rust/Rue optimization modes. The complete twenty-port report
-records 341 named and 18,481 generated comparisons plus 40 ledger scenario
-groups in three languages. Local macOS verification passes 418 workspace tests,
+canonical singleton launcher and original password tutorial module through actual
+Cargo exports, native Rust, Chialisp and both Rust/Rue optimization modes.
+The complete twenty-one-port report records 389 named and 20,796 generated comparisons plus 40 ledger scenario
+groups in three languages. Local macOS verification passes 422 workspace tests,
 all-target Clippy with warnings denied, 158 hash-evidence corruption controls and
 22,285 retained hash-artifact VM replays. The source-derived proof, error-study,
 Lean and site gates also pass. These checks do not establish general external
 library support, cryptographic security or compiler preservation.
+
+The password module hashes arbitrary atom bytes through the same reviewed
+helper, without a new compiler admission. Its reusable raw module is distinct
+from the fixed-hash instances tested separately. The instance experiment
+records successful unsigned destination changes: hash equality and currying do
+not establish a secure authorization policy. Its lower-budget observations,
+and consensus runtime umbrellas without semantic rejection credit, remain
+separate from ordinary passing comparisons. See the
+[password lesson](https://judeallred.github.io/chialisp-oxide/tutorials/password-coin/).
 
 The IR operation is part of version 4's strict runtime semantics. Its arguments
 evaluate once, in order; an unused digest does not discard the computation.

@@ -20,6 +20,44 @@ direct ledger admission claims. The validation, scalar, structural-tree and
 byte-policy reports in `corpus/` record their actual inputs and scope. The early
 backend-only experiment below remains a separate baseline.
 
+## Password module and instance boundary
+
+The canonical password tutorial has a separate finite evidence contract. Its
+original complete module accepts a raw environment and lets the caller supply
+the expected hash. Standard-curried instances bind that hash before the coin is
+created. The five module builds and their instances retain separate identities;
+the host constructor quotes both the module and bound digest rather than
+executing either while constructing the tree.
+
+`scripts/check-password-coin.py` independently hashes exact atom bytes, selects
+the original fields and checks unchanged condition-tree output. It reconstructs
+the curry trees, serialization and hashes without calling the Rust builder.
+Source, native closure and complete current Cargo provenance are checked before
+the exact twenty-port historical projection. Optional fresh Cargo bundles also
+check that those earlier IR/artifact bytes remain unchanged in both modes.
+This is freshness and finite agreement, not compiler authentication or a
+translation theorem. Existing formal models reject SHA operations.
+
+The ledger experiment submits seven transactions per language from separately
+initialized simulator states. Intended payments and unsigned retargeting both
+succeed; the wrong-instance reveal passes its own primary VM check before
+failing the original coin's committed puzzle hash. Dedicated consensus failures
+must have their expected codes and preserve the complete simulator state.
+Wrong-password `GeneratorRuntimeError` observations remain broad runtime
+umbrellas without semantic rejection credit. Low-cost resource observations
+are inconclusive and separate from ordinary passing cases.
+
+```sh
+python3 scripts/check-password-coin.py --self-test --replay --extract-ir
+```
+
+Run this after Rust builds and tests finish. It replays retained primary-VM
+bytes and extracts fresh Cargo bundles in both modes, without rebuilding the
+compiler tools or making new consensus submissions.
+Regenerate the complete report with the actual CLI to repeat ledger validation.
+The [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/password-coin/)
+explains why these successful checks still leave the password policy unsafe.
+
 ## Solver environment
 
 CI uses the official [Z3 4.15.4 release](https://github.com/Z3Prover/z3/releases/tag/z3-4.15.4).

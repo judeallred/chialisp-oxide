@@ -9,8 +9,10 @@ import { MAX_SOURCE_DATA_BYTES, sourceDataArtifact, sourceDataArtifacts, readSou
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const report = JSON.parse(await readFile(path.join(root, 'corpus/validation.json'), 'utf8'));
 const artifacts = sourceDataArtifacts(report);
-assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json']);
-assert.equal(artifacts.length, 4);
+assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json', 'password-coin-generated-cases.json']);
+assert.equal(artifacts.length, 5);
+assert.deepEqual(artifacts.map(entry => entry.rows), [1183, 2557, 285, 275, 256]);
+assert.equal(report.puzzles.find(puzzle => puzzle.slug === 'password-coin').generated_cases, 256 + 2059);
 const actualBytes = new Map();
 for (const entry of artifacts) {
   const bytes = await readSourceDataArtifact(entry);
@@ -23,6 +25,10 @@ for (const entry of artifacts) {
 }
 assert.equal(sourceDataArtifact('puzzles/other/generated-cases.json'), undefined);
 assert.equal(sourceDataArtifact('puzzles/prefix-list/../prefix-list/generated-cases.json'), undefined);
+assert.deepEqual(sourceDataArtifact('puzzles/password-coin/generated-cases.json'), {
+  path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json',
+});
+assert.equal(sourceDataArtifact('puzzles/password-coin/../password-coin/generated-cases.json'), undefined);
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const owner = value => value.puzzles.find(puzzle => puzzle.slug === 'prefix-list');
@@ -31,6 +37,8 @@ const setSource = (value, source) => {
   dependency(value).source = source;
   dependency(value).sha256 = hash(source);
 };
+const passwordOwner = value => value.puzzles.find(puzzle => puzzle.slug === 'password-coin');
+const passwordDependency = value => passwordOwner(value).source_dependencies.find(row => row.path === 'puzzles/password-coin/generated-cases.json');
 let controls = 0;
 const mutations = [
   ['missing fixture', value => { value.puzzles = value.puzzles.filter(puzzle => puzzle.slug !== 'prefix-list'); }],
@@ -52,6 +60,16 @@ const mutations = [
   ['changed generated count', value => { owner(value).generated_cases += 1; }],
   ['Boolean generated count', value => { owner(value).generated_cases = true; }],
   ['omitted shared raw suite', value => { value.puzzles.find(puzzle => puzzle.slug === 'sha256tree').generated_cases -= 2059; }],
+  ['missing password owner', value => { value.puzzles = value.puzzles.filter(puzzle => puzzle.slug !== 'password-coin'); }],
+  ['duplicate password owner', value => { value.puzzles.push(structuredClone(passwordOwner(value))); }],
+  ['missing password data dependency', value => { passwordOwner(value).source_dependencies = passwordOwner(value).source_dependencies.filter(row => row.path !== 'puzzles/password-coin/generated-cases.json'); }],
+  ['duplicated password dependency', value => { passwordOwner(value).source_dependencies.push(structuredClone(passwordDependency(value))); }],
+  ['password dataset under Rue owner', value => { passwordOwner(value).rue.dependencies.push(structuredClone(passwordDependency(value))); }],
+  ['password dataset under another owner', value => { value.puzzles[0].source_dependencies.push(structuredClone(passwordDependency(value))); }],
+  ['password source/hash disagreement', value => { passwordDependency(value).source += '\n'; }],
+  ['omitted password inherited suite', value => { passwordOwner(value).generated_cases = 256; }],
+  ['password inherits another count', value => { passwordOwner(value).generated_cases = 256 + 2048; }],
+  ['Boolean password generated count', value => { passwordOwner(value).generated_cases = true; }],
 ];
 for (const [label, mutate] of mutations) {
   const bad = structuredClone(report);
@@ -116,6 +134,17 @@ try {
   await rename(folder, elsewhere); await symlink(elsewhere, folder);
   await assert.rejects(() => readSourceDataArtifact(entry), /symlink/); controls++;
   await rm(folder); await rename(elsewhere, folder);
+
+  // The new allowlist entry must pass through the same physical-file guard,
+  // rather than merely appearing in the generated endpoint list.
+  const passwordEntry = artifacts.find(artifact => artifact.path === 'puzzles/password-coin/generated-cases.json');
+  const passwordFile = path.join(checkout, passwordEntry.path);
+  const passwordSaved = actualBytes.get(passwordEntry.path);
+  assert.deepEqual(await readSourceDataArtifact(passwordEntry), passwordSaved);
+  await rm(passwordFile); await symlink(outside, passwordFile);
+  await assert.rejects(() => readSourceDataArtifact(passwordEntry), /symlink/); controls++;
+  await rm(passwordFile); await writeFile(passwordFile, passwordSaved);
+  await assert.rejects(() => readSourceDataArtifact({ ...passwordEntry, rows: passwordEntry.rows + 2059 }), /row count/); controls++;
 
   // The inclusive allocation bound has a valid boundary case; the next byte
   // fails above. This is a test-only temporary file, never a corpus edit.

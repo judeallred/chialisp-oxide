@@ -1,0 +1,91 @@
+---
+import SolutionPreview from './SolutionPreview.astro';
+import { backendLabel, format, href, type CurriedInstanceEvidence } from '../lib/data';
+
+interface Props { evidence: CurriedInstanceEvidence }
+const { evidence } = Astro.props;
+const attempts = evidence.ledger.flatMap(comparison => comparison.attempts);
+const accepted = attempts.filter(attempt => attempt.consensus.status === 'accepted').length;
+const semanticRejections = attempts.filter(attempt => attempt.consensus.semantic_rejection_credit).length;
+const umbrellas = attempts.filter(attempt => attempt.consensus.status === 'runtime_umbrella').length;
+const fixedRuns = evidence.cases.reduce((count, example) => count + example.runs.length, 0);
+const varyingRuns = evidence.varying_arguments.reduce((count, example) => count + example.runs.length, 0);
+const modeLabel = (backend: string, optimize: boolean) => backend === 'chialisp' ? 'reference' : optimize ? 'on' : 'off';
+---
+<section data-instance-protocol={evidence.protocol}>
+  <h2 id="curried-instances">Spend a fixed-hash instance</h2>
+  <p>The raw module above receives its expected hash as input. Currying binds a fixed public fixture hash into each build’s program before creating its coin. Read the <a href={href('tutorials/password-coin/')}>password-coin lesson</a> for the commitment boundary and the unsigned-condition weakness.</p>
+  <p>CLVM-encoded bound argument: <code class="hash" data-pagefind-ignore>{evidence.fixed_argument}</code>. The serialization prefix is part of this displayed encoding; the argument itself is a 32-byte digest.</p>
+
+  <div class="table-scroll"><table>
+    <caption>Each build’s module and fixed-argument instance are distinct program identities</caption>
+    <thead><tr><th scope="col">Build</th><th scope="col">Module tree hash</th><th scope="col">Instance bytes</th><th scope="col">Instance tree hash</th></tr></thead>
+    <tbody>{evidence.artifacts.map(({ module_tree_hash, artifact }) => <tr data-instance-build={`${artifact.backend}/${artifact.optimize_lir}`}>
+      <th scope="row">{backendLabel(artifact.backend)} / {modeLabel(artifact.backend, artifact.optimize_lir)}</th>
+      <td><code class="hash" data-pagefind-ignore>{module_tree_hash}</code></td>
+      <td>{format(artifact.bytes)}</td>
+      <td><code class="hash" data-pagefind-ignore>{artifact.tree_hash}</code></td>
+    </tr>)}</tbody>
+  </table></div>
+
+  <h3>Test the locked argument</h3>
+  <p data-instance-case-count={evidence.cases.length} data-instance-vm-count={fixedRuns}>{format(evidence.cases.length)} fixed-hash case groups record {format(fixedRuns)} VM executions and an actual native invocation with the bound hash prepended. Labels identify the originating raw vector; the displayed solution is its derived tail. An attacker-supplied raw hash field is removed before these fixed-hash tests, so their outcomes are recomputed independently.</p>
+  <details class="instance-details"><summary>Inspect the fixed-hash input matrix</summary>
+    <div class="table-scroll"><table>
+      <caption>Actual instance solutions, native outcomes and five compiled builds</caption>
+      <thead><tr><th scope="col">Derived case / solution</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th></tr></thead>
+      <tbody>{evidence.cases.map(example => <tr>
+        <th scope="row">{example.label}<SolutionPreview value={example.solution} /></th>
+        <td>{example.native.status}</td>
+        {example.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'no successful cost' : `${format(run.execution.cost)} cost`}</small></td>)}
+      </tr>)}</tbody>
+    </table></div>
+  </details>
+  <p data-instance-varying-count={evidence.varying_arguments.length} data-instance-varying-vm-count={varyingRuns}>Another {evidence.varying_arguments.length} varying-hash controls run {format(varyingRuns)} VM executions. Matching passwords must succeed and pass their condition trees through unchanged; these controls also challenge a constructor that accidentally hardcodes one argument.</p>
+  <div class="table-scroll"><table>
+    <caption>Nonvacuous controls for the host curry constructor</caption>
+    <thead><tr><th scope="col">Password bytes</th><th scope="col">CLVM-encoded argument</th><th scope="col">Matching exact outputs</th></tr></thead>
+    <tbody>{evidence.varying_arguments.map(example => <tr>
+      <th scope="row"><code>{example.password_hex || 'empty atom'}</code></th>
+      <td><code class="hash" data-pagefind-ignore>{example.argument_hex}</code></td>
+      <td>{example.runs.filter(run => run.execution.outcome.status === 'accepted' && run.execution.outcome.output_hex === example.native.output_hex).length} / {example.runs.length} builds</td>
+    </tr>)}</tbody>
+  </table></div>
+
+  <h3>Submit the committed instance</h3>
+  <p data-instance-submissions={attempts.length} data-instance-accepted={accepted} data-instance-semantic-rejections={semanticRejections} data-instance-umbrellas={umbrellas}>{format(attempts.length)} actual transaction submissions contain {accepted} accepted spends, {semanticRejections} checked dedicated consensus rejections, and {umbrellas} runtime-umbrella observations with no semantic rejection credit. These submissions are separate from the report’s ordinary ledger scenario-group totals.</p>
+  <p>Each language uses its own instance identity. The intended destination and unsigned retargeting attempts start from the same coin in separate initial simulator states, and both succeed. The wrong-reveal control first succeeds in the primary VM with its own matching password, then fails consensus for the original coin.</p>
+  {evidence.ledger.map(comparison => <details class="instance-details" data-instance-ledger={comparison.backend}>
+    <summary>{backendLabel(comparison.backend)} · {comparison.transaction_attempts} actual transaction submissions</summary>
+    <p>{comparison.simulator} · {comparison.consensus} · {comparison.vm} · {comparison.network}. The separately retained primary execution is clvmr 0.21.0.</p>
+    <div class="table-scroll"><table>
+      <caption>Accepted spends, dedicated consensus codes, and excluded runtime observations</caption>
+      <thead><tr><th scope="col">Attempt / solution</th><th scope="col">Primary VM</th><th scope="col">Consensus observation</th><th scope="col">State</th><th scope="col">Revealed program hash</th></tr></thead>
+      <tbody>{comparison.attempts.map(attempt => <tr data-instance-attempt={attempt.label} data-instance-result={attempt.consensus.status}>
+        <th scope="row">{attempt.label}<SolutionPreview value={attempt.solution} /><small>Coin <code class="hash" data-pagefind-ignore>{attempt.coin_id}</code></small></th>
+        <td>{attempt.vm_021.outcome.status}<small>{attempt.vm_021.cost === null ? attempt.vm_021.failure?.code : `${format(attempt.vm_021.cost)} cost`}</small></td>
+        <td><span class:list={['outcome', { accepted: attempt.consensus.status === 'accepted', umbrella: attempt.consensus.status === 'runtime_umbrella' }]}>{attempt.consensus.status}</span>{attempt.consensus.code && <small><code>{attempt.consensus.code}</code></small>}{attempt.consensus.status === 'runtime_umbrella' && <small>Observation only; no semantic rejection credit.</small>}</td>
+        <td>{attempt.full_state_unchanged ? 'unchanged' : 'spend applied'}</td>
+        <td><code class="hash" data-pagefind-ignore>{attempt.reveal_tree_hash}</code></td>
+      </tr>)}</tbody>
+    </table></div>
+  </details>)}
+  <p>The four dedicated expected rejection codes belong to this instance experiment’s versioned evidence contract. They do not expand the ordinary ledger rejection protocol. <code>GeneratorRuntimeError</code> remains a broad upstream runtime observation, even when the separate primary VM records a program failure and the simulator preserves its state.</p>
+
+  <details class="instance-details"><summary>Inspect the curry construction and evidence provenance</summary>
+    <dl><dt>Evidence contract</dt><dd><code>{evidence.protocol}</code></dd><dt>Standard tree</dt><dd><code>{evidence.scheme}</code></dd><dt>Executed constructor</dt><dd>{evidence.constructor}</dd><dt>Reference role</dt><dd>{evidence.source_role}</dd></dl>
+    <p>The <a href={evidence.source}>pinned algorithm reference</a> supplies provenance. The private constructor is checked independently by reconstructing exact trees, bytes and hashes; this does not claim that the reference library’s builder executed.</p>
+  </details>
+  <p><a href={href('reports/validation.json')}>Download every reveal, exact solution, execution envelope and state record.</a> These finite checks do not establish the security of this password policy.</p>
+</section>
+
+<style>
+  table { min-width: 48rem; }
+  .hash { overflow-wrap: anywhere; white-space: normal; }
+  td .hash, th .hash { display: block; max-width: 17rem; font-size: .65rem; }
+  small { display: block; margin-top: .4rem; color: var(--sl-color-gray-3); font-weight: normal; }
+  .instance-details { margin-block: 1rem; }
+  .umbrella { color: var(--sl-color-orange-high); }
+  dt { margin-top: .8rem; font-weight: bold; }
+  dd { margin-left: 0; overflow-wrap: anywhere; }
+</style>

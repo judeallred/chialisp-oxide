@@ -16,15 +16,17 @@
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - An explicit SHA-256 bridge admits one reviewed safe native implementation by
   actual signature and complete typed-MIR closure/profile fingerprint. Cargo
-  extraction and the fresh corpus report cover all twenty annotated exports,
-  including the raw-domain `sha256tree` helper adapter and singleton launcher.
+  extraction and the fresh corpus report cover all twenty-one annotated exports,
+  including the raw-domain `sha256tree` helper adapter, singleton launcher and
+  original password tutorial module.
   Immutable fixed-byte-array references coerce to slices for lengths up to 256;
   this does not admit general casts, mutable slices or arbitrary hash libraries.
 - Ten original teaching examples, three exact canonical Intro expressions, and
   the canonical `p2_conditions` program factory, five pinned published helpers
-  through explicit module adapters, and the singleton launcher, with
+  through explicit module adapters, the singleton launcher and original password
+  module, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 341 explicit and 18,481 generated integer/tree/byte vectors. Canonical closed
+  oracles, 389 explicit and 20,796 generated integer/tree/byte vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
 - Forty complete-spend scenario groups run separately for Rust, Chialisp, and Rue
   (120 ledger scenario runs) through chia-wallet-sdk's simulator, plus
@@ -39,6 +41,13 @@
   that identity; optimized Rust is 1,116 bytes with a different hash. Executed
   output and spend agreement is separate from module identity and the unported
   remainder of the singleton lifecycle.
+- The exact password tutorial module preserves its raw environment and returns
+  arbitrary condition trees. Separate fixed-hash curry instances record 48
+  case groups in five builds, three varying-hash controls and 21 actual ledger
+  submissions. Unsigned destination retargeting succeeds; currying does not
+  repair that policy. Dedicated consensus rejections and broad runtime-umbrella
+  observations have separate credit. The complete tutorial's funding/RPC/support
+  workflow and a typed public instance-authoring API remain unimplemented.
 - Borrowed raw atom/pair trees preserve byte contents and improper tails.
   Optimized Rust reproduces the published factory module's bytes and hash;
   its actual IR rewrite has a separate structural-model equivalence check.
@@ -108,13 +117,29 @@ a prerequisite for broader algorithms, not general RustCrypto support. The
 implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and returns
 32 bytes through strict version-4 runtime bindings. Installed rustc/std and
 native-object consistency remain trusted; all proof models reject hash nodes.
-The fresh twenty-port report records native, five-build differential and ledger
-agreement. Local macOS verification passes 418 workspace tests and all-target
+The fresh twenty-one-port report records native, five-build differential and ledger
+agreement. Local macOS verification passes 422 workspace tests and all-target
 Clippy with warnings denied. The hash gate passes 158 corruption controls and
 22,285 retained-artifact VM replays; all preceding eighteen ports' recorded
 artifacts and observations remain exact. Source-derived proof, error-study,
 Lean and site gates also pass. These finite checks do not establish full
 Chialisp parity, compiler preservation or production readiness.
+
+The password module adds no compiler exception. It uses ordinary tree matches,
+the reviewed hash helper and primitive byte equality. Its 21 instance submissions
+are additional observations, separate from the 40 ordinary scenario groups.
+The independent password checker checks exact source extraction, the complete
+raw-tree relation, quoted curry trees, instance hashes, typed outcomes, state
+rollback and finite evidence corruption controls. Retained-byte replay does not
+resubmit consensus transactions or prove preservation. Fresh extraction retains
+all twenty earlier ports' IR and artifacts in both optimization modes.
+
+The password experiment exposes remaining runtime overhead: optimized Rust is
+855 bytes versus Chialisp's 31 and optimized Rue's 213. Its named valid curried
+spend costs 12,915 VM units versus 1,321 and 3,937 respectively. Those finite
+measurements include the instance wrapper but exclude bundle/condition costs.
+Any optimization must retain exact raw input domains and strict failure behavior;
+narrowing the original ABI or discarding required work would change the program.
 
 1. Extend the implemented runtime-call IR and checked Rust recursion to further
    published list helpers. `last_inner` now has empty-atom matching and an
@@ -134,6 +159,16 @@ Chialisp parity, compiler preservation or production readiness.
 2. Expand the Cargo SDK beyond transparent domain wrappers to typed
    structures/enums, immutable lists,
    further reviewed primitives, currying, and carefully scoped library support.
+   The current `OwnedTree::Atom` borrows immutable bytes. It cannot return a
+   newly computed local digest inside an arbitrary condition tail: Rust rejects
+   that escaping borrow. An owned atom representation needs explicit native
+   and CLVM semantics before porting `p2_delegated_conditions`; replacing its
+   cons structure with a proper tuple would change the original contract.
+   The pinned `p2_singleton` module is a nearer protocol candidate because its
+   fixed three-condition result can own digest arrays. It still needs actual
+   Cargo admission, raw-domain differential cases, instance hashes and real
+   announcement composition tests. A synthetic announcement counterpart alone
+   would not complete the singleton lifecycle.
    The legacy totality cache still treats slice-pattern metadata conservatively,
    so an inlined atom helper can retain a redundant evaluation sequence. Any
    refinement must consult the validated pattern plan rather than declaring

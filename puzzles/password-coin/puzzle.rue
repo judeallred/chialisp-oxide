@@ -1,0 +1,16 @@
+// Independent source translation of the pinned raw password module.
+// A host-curried instance, not an attacker-chosen first field, binds the hash.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let expected_hash = environment.first;
+    let remainder = environment.rest;
+    assert remainder is (Any, Any);
+    let password = remainder.first;
+    let after_password = remainder.rest;
+    assert password is Bytes;
+    let digest = sha256(...[password]);
+    assert expected_hash is Bytes;
+    assert digest == expected_hash;
+    assert after_password is (Any, Any);
+    after_password.first
+}

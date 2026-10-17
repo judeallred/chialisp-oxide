@@ -17,6 +17,12 @@ export interface LedgerScenario {
   scope: 'ledger';
   rejections: { stage: 'consensus'; code: string }[];
 }
+export interface Execution {
+  outcome: Outcome;
+  cost: number | null;
+  error: string | null;
+  failure?: { kind: string; code: string };
+}
 export interface CaseReport {
   label: string;
   solution: string;
@@ -24,12 +30,63 @@ export interface CaseReport {
   runs: {
     backend: string;
     optimize_lir: boolean;
-    execution: {
-      outcome: Outcome;
-      cost: number | null;
-      error: string | null;
-      failure?: { kind: string; code: string };
-    };
+    execution: Execution;
+  }[];
+}
+export interface InstanceState {
+  created_height: number | null;
+  spent_height: number | null;
+  children: { coin_id: string; parent_coin_id: string; puzzle_hash: string; amount: number }[];
+}
+export interface InstanceAttempt {
+  label: string;
+  argument_hex: string;
+  coin_id: string;
+  coin_puzzle_hash: string;
+  reveal_hex: string;
+  reveal_tree_hash: string;
+  solution: string;
+  solution_hex: string;
+  vm_021: Execution;
+  consensus: {
+    status: 'accepted' | 'consensus_rejected' | 'runtime_umbrella';
+    code: string | null;
+    error: string | null;
+    semantic_rejection_credit: boolean;
+  };
+  before: InstanceState;
+  after: InstanceState;
+  full_state_unchanged: boolean;
+}
+export interface CurriedInstanceEvidence {
+  protocol: string;
+  constructor: string;
+  source_role: string;
+  scheme: string;
+  source: string;
+  revision: string;
+  fixed_argument: string;
+  artifacts: { module_tree_hash: string; artifact: Artifact }[];
+  cases: CaseReport[];
+  varying_arguments: {
+    argument_hex: string;
+    password_hex: string;
+    solution: string;
+    environment: string;
+    native: Outcome;
+    runs: { module_tree_hash: string; artifact: Artifact; execution: Execution }[];
+  }[];
+  ledger: {
+    backend: string;
+    optimize_lir: boolean;
+    simulator: string;
+    consensus: string;
+    vm: string;
+    network: string;
+    module_tree_hash: string;
+    instance_tree_hash: string;
+    transaction_attempts: number;
+    attempts: InstanceAttempt[];
   }[];
 }
 export interface PuzzleReport {
@@ -55,6 +112,7 @@ export interface PuzzleReport {
   simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: LedgerScenario[] }[];
   factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
+  curried_instances?: CurriedInstanceEvidence;
   validated: boolean;
 }
 export interface Authoring {
@@ -79,7 +137,7 @@ export interface TutorialExample {
   local_examples: string[];
   evidence: string[];
   variants: { id: string }[];
-  source_adaptation?: { slug: string; reference: string; rust_source: string };
+  source_adaptation?: { slug: string; reference: string; rust_source: string; operation: string };
 }
 
 export const report = validation;
@@ -146,6 +204,7 @@ export const totals = {
   pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
   programFactories: puzzles.filter(puzzle => puzzle.kind === 'program_factory').length,
   canonicalPorts: puzzles.filter(puzzle => canonicalExample(puzzle)).length,
+  canonicalExpressionPorts: puzzles.filter(puzzle => canonicalExample(puzzle) && puzzle.reference_mode === 'expression').length,
   canonicalPuzzlePorts: puzzles.filter(puzzle => canonicalPuzzle(puzzle)).length,
   canonicalHelperPorts: puzzles.filter(puzzle => canonicalHelper(puzzle)).length,
   originalExamples: puzzles.filter(puzzle => !canonicalExample(puzzle) && !canonicalPuzzle(puzzle) && !canonicalHelper(puzzle)).length,

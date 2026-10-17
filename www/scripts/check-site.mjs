@@ -132,6 +132,51 @@ const decodeAttribute = value => value.replace(/&(?:#x([0-9a-f]+)|#([0-9]+)|(amp
   (_, hex, decimal, named) => hex || decimal
     ? String.fromCodePoint(Number.parseInt(hex ?? decimal, hex ? 16 : 10))
     : ({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" })[named.toLowerCase()]);
+const plainText = value => decodeAttribute(value.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+const attribute = (tag, name) => tag.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
+function checkSolutionPreviews(markup, values, label) {
+  const decodedMarkup = decodeAttribute(markup);
+  const previews = [...markup.matchAll(/<code\b([^>]*)>([\s\S]*?)<\/code>/g)]
+    .filter(match => attribute(match[1], 'class')?.split(/\s+/).includes('solution'));
+  assert.equal(previews.length, values.length, `${label}: missing/extra solution previews`);
+  for (const [index, value] of values.entries()) {
+    const [, tag, contents] = previews[index];
+    const truncated = value.length > 512;
+    const expected = truncated ? `${value.slice(0, 384)} … ${value.slice(-64)}` : value;
+    assert(!/<[^>]+>/.test(contents), `${label}/${index}: solution preview must remain escaped text`);
+    assert.equal(decodeAttribute(contents), expected, `${label}/${index}: changed preview prefix/suffix or exact input`);
+    assert(/\bdata-pagefind-ignore(?:=|\s|$)/.test(tag), `${label}/${index}: raw input must not pollute search`);
+    if (truncated) {
+      assert.equal(attribute(tag, 'data-solution-preview'), String(value.length), `${label}/${index}: missing/wrong original length`);
+      assert(markup.includes(`Preview of ${new Intl.NumberFormat('en-US').format(value.length)} characters. The validation JSON retains the exact input.`), `${label}/${index}: truncation/full-report scope is missing`);
+      assert(!decodedMarkup.includes(value), `${label}/${index}: full long input bypassed its bounded preview`);
+    } else {
+      assert(!/\bdata-solution-preview\b/.test(tag), `${label}/${index}: short input is incorrectly marked truncated`);
+    }
+  }
+}
+// Challenge the checker itself: boundary values are accepted, while changed
+// prefix/suffix/length, missing rows and hidden complete inputs must fail.
+const escapePreview = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const previewFixture = value => `<code class="solution" data-pagefind-ignore${value.length > 512 ? ` data-solution-preview="${value.length}"` : ''}>${escapePreview(value.length > 512 ? `${value.slice(0, 384)} … ${value.slice(-64)}` : value)}</code>${value.length > 512 ? `<small>Preview of ${new Intl.NumberFormat('en-US').format(value.length)} characters. The validation JSON retains the exact input.</small>` : ''}`;
+for (const value of ['', '<&>', 'x'.repeat(512), 'x'.repeat(513), 'x'.repeat(384) + 'middle'.repeat(12) + 'z'.repeat(64)]) checkSolutionPreviews(previewFixture(value), [value], 'preview positive control');
+const longPreview = 'p'.repeat(384) + 'hidden-middle'.repeat(6) + 's'.repeat(64);
+const goodPreview = previewFixture(longPreview);
+let previewControls = 0;
+for (const [name, bad] of [
+  ['prefix', goodPreview.replace('p'.repeat(384), 'q' + 'p'.repeat(383))],
+  ['suffix', goodPreview.replace('s'.repeat(64), 's'.repeat(63) + 't')],
+  ['original length', goodPreview.replace(`data-solution-preview="${longPreview.length}"`, `data-solution-preview="${longPreview.length + 1}"`)],
+  ['missing length', goodPreview.replace(` data-solution-preview="${longPreview.length}"`, '')],
+  ['missing search exclusion', goodPreview.replace(' data-pagefind-ignore', '')],
+  ['hidden full input', goodPreview + `<span>${longPreview}</span>`],
+  ['missing row', ''],
+  ['duplicate row', goodPreview + goodPreview],
+]) {
+  assert.notEqual(bad, goodPreview, `No-op preview control: ${name}`);
+  assert.throws(() => checkSolutionPreviews(bad, [longPreview], name), undefined, `Accepted corrupt preview: ${name}`);
+  previewControls++;
+}
 // Expressive Code normalizes surrounding/trailing whitespace, but wrapping
 // must not add newlines or otherwise rewrite the copied program text.
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
@@ -147,6 +192,7 @@ const sourceDataDownloads = [
   { slug: 'atom-not-equal', path: 'puzzles/atom-not-equal/generated-cases.json', basename: 'atom-not-equal-generated-cases.json', rows: 2557 },
   { slug: 'insertion-sort-by-keys', path: 'puzzles/insertion-sort-by-keys/generated-cases.json', basename: 'insertion-sort-by-keys-generated-cases.json', rows: 285 },
   { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', rows: 275 },
+  { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', rows: 256 },
 ];
 const sourceDataDirectory = path.join(root, 'reports/source-data');
 for (const download of sourceDataDownloads) {
@@ -161,6 +207,7 @@ for (const download of sourceDataDownloads) {
   assert.equal(createHash('sha256').update(source).digest('hex'), dependency.sha256, 'Source-data hash differs');
   assert.deepEqual(published, source, 'Published generated vectors differ from the original bytes');
   assert.equal(JSON.parse(published.toString('utf8')).length, download.rows, 'Generated-vector download lost cases');
+  assert.equal(puzzle.generated_cases, download.rows + (['sha256tree', 'password-coin'].includes(download.slug) ? 2059 : 0), `${download.slug}: inherited raw inputs were dropped or counted in the download`);
   for (const route of [`lab/${download.slug}`, `tutorials/${download.slug}`]) {
     const filename = path.join(root, route, 'index.html');
     const page = await html(filename);
@@ -176,6 +223,12 @@ let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
   const detailText = decodeAttribute(detail.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+  checkSolutionPreviews(detail, [
+    ...puzzle.cases.map(test => test.solution),
+    ...(puzzle.resource_controls?.cases ?? []).map(test => test.solution),
+    ...(puzzle.curried_instances?.cases ?? []).map(test => test.solution),
+    ...(puzzle.curried_instances?.ledger ?? []).flatMap(comparison => comparison.attempts.map(attempt => attempt.solution)),
+  ], `${puzzle.slug}: exact report input previews`);
   const comparisonBudget = new Intl.NumberFormat('en-US').format(puzzle.validation_max_cost ?? 1_000_000);
   assert(detailText.includes(`Every build uses a ceiling of ${comparisonBudget} cost units per input`), `${puzzle.slug}: missing actual comparison budget`);
   const resourceSection = detail.match(/<section[^>]*aria-label="Lower-budget resource controls"[^>]*>([\s\S]*?)<\/section>/)?.[1];
@@ -272,6 +325,171 @@ for (const puzzle of validation.puzzles) {
     assert(!detail.includes('This original teaching fixture'), `${puzzle.slug}: published helper misclassified as original teaching`);
   }
 }
+// Password modules are reusable raw templates. Fixed commitments and actual
+// spend attempts have their own evidence contract and do not inflate ordinary
+// ledger scenario counts or turn a runtime umbrella into semantic rejection.
+const passwordRows = validation.puzzles.filter(puzzle => puzzle.slug === 'password-coin');
+assert.equal(passwordRows.length, 1, 'Missing/duplicate executed password module');
+const passwordPuzzle = passwordRows[0];
+const passwordDetail = await html(path.join(root, 'lab/password-coin/index.html'));
+const passwordTutorial = await html(path.join(root, 'tutorials/password-coin/index.html'));
+const passwordText = plainText(passwordDetail);
+const passwordLessonText = plainText(passwordTutorial);
+const instance = passwordPuzzle.curried_instances;
+assert(instance && instance.protocol === 'chialisp-oxide-password-instances/v1', 'Missing dedicated fixed-commitment evidence');
+assert.deepEqual(passwordPuzzle.simulator, [], 'Raw password template must not claim locked-coin ledger groups');
+assert.deepEqual(passwordPuzzle.simulator_comparisons, [], 'Raw template must keep instance spends separate');
+assert.equal(passwordPuzzle.environment, 'raw');
+assert.equal(passwordPuzzle.reference_mode ?? 'module', 'module');
+assert.equal(instance.scheme, '(a (q . M) (c (q . H) 1))');
+assert.equal(instance.constructor, 'private standard-tree constructor using clvmr 0.21.0; no clvm-utils call');
+assert.equal(instance.source_role, 'algorithm-reference provenance, not an executed library dependency');
+assert.equal(instance.fixed_argument, 'a0' + createHash('sha256').update('abc').digest('hex'), 'The fixed public commitment changed');
+const passwordModes = [['rust_mir', false], ['rust_mir', true], ['chialisp', true], ['rue_source', false], ['rue_source', true]];
+const checkPasswordModes = (rows, label) => {
+  assert(rows.every(row => typeof row.optimize_lir === 'boolean'), `${label}: nonboolean mode`);
+  assert.deepEqual(rows.map(row => [row.backend, row.optimize_lir]), passwordModes, `${label}: missing/duplicate/reordered mode`);
+};
+checkPasswordModes(passwordPuzzle.artifacts, 'Password raw modules');
+checkPasswordModes(instance.artifacts.map(row => row.artifact), 'Fixed instances');
+assert.equal(instance.artifacts.length, 5);
+for (const [index, record] of instance.artifacts.entries()) {
+  const module = passwordPuzzle.artifacts[index];
+  assert.equal(record.module_tree_hash, module.tree_hash, 'Instance is detached from its own language module');
+  assert.equal(record.artifact.clvm_hex, `ff02ffff01${module.clvm_hex}ffff04ffff01${instance.fixed_argument}ff018080`, 'Fixed instance does not quote its exact module and argument');
+  assert.equal(record.artifact.bytes, record.artifact.clvm_hex.length / 2);
+  assert.notEqual(record.artifact.tree_hash, module.tree_hash, 'Module/instance identities were conflated');
+}
+const instanceSectionMatches = [...passwordDetail.matchAll(/<section\b[^>]*data-instance-protocol="([^"]+)"[^>]*>([\s\S]*?)<\/section>/g)];
+assert.equal(instanceSectionMatches.length, 1, 'Missing/extra fixed-instance section');
+assert.equal(instanceSectionMatches[0][1], instance.protocol);
+const instanceSection = instanceSectionMatches[0][2];
+const instanceText = plainText(instanceSection);
+const numberMarker = (name, expected) => {
+  const matches = [...instanceSection.matchAll(new RegExp(`\\b${name}="([^"]*)"`, 'g'))];
+  assert.equal(matches.length, 1, `Missing/duplicate instance marker ${name}`);
+  assert.equal(matches[0][1], String(expected), `${name}: rendered count differs from actual observations`);
+};
+assert.equal(instance.cases.length, 48);
+const fixedRuns = instance.cases.reduce((count, test) => count + test.runs.length, 0);
+assert.equal(fixedRuns, 240);
+numberMarker('data-instance-case-count', 48);
+numberMarker('data-instance-vm-count', fixedRuns);
+const buildRows = [...instanceSection.matchAll(/<tr\b[^>]*data-instance-build="([^"]+)"[^>]*>([\s\S]*?)<\/tr>/g)];
+assert.deepEqual(buildRows.map(row => row[1]), passwordModes.map(([backend, optimize]) => `${backend}/${optimize}`));
+for (const [index, row] of buildRows.entries()) {
+  const record = instance.artifacts[index];
+  assert(row[2].includes(record.module_tree_hash) && row[2].includes(record.artifact.tree_hash), 'Displayed module/instance identity differs from the record');
+  assert(plainText(row[2]).includes(new Intl.NumberFormat('en-US').format(record.artifact.bytes)), 'Displayed instance byte count differs');
+}
+const fixedTable = [...instanceSection.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)]
+  .find(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Actual instance solutions, native outcomes and five compiled builds')?.[1];
+assert(fixedTable, 'Missing fixed-hash input/outcome matrix');
+const fixedRows = [...fixedTable.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].slice(1);
+assert.equal(fixedRows.length, 48);
+for (const [index, test] of instance.cases.entries()) {
+  checkNativeOutcome(test.native, `fixed-H/${test.label}`);
+  checkPasswordModes(test.runs, `fixed-H/${test.label}`);
+  const cells = [...fixedRows[index][1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)].map(match => plainText(match[1]));
+  assert.equal(cells.length, 6);
+  assert.equal(cells[0], test.native.status, 'Displayed fixed-H native result changed');
+  for (const [mode, run] of test.runs.entries()) {
+    assert.deepEqual(checkExecution(run.execution), test.native, 'Fixed-H VM/native outcome differs');
+    if (run.execution.cost !== null) assert(run.execution.cost <= 1_000_000);
+    assert.equal(cells[mode + 1], `${run.execution.outcome.status} ${run.execution.cost === null ? 'no successful cost' : `${new Intl.NumberFormat('en-US').format(run.execution.cost)} cost`}`, 'Displayed fixed-H VM result/cost changed');
+  }
+}
+assert.equal(instance.varying_arguments.length, 3);
+const varyingRuns = instance.varying_arguments.reduce((count, row) => count + row.runs.length, 0);
+assert.equal(varyingRuns, 15);
+numberMarker('data-instance-varying-count', 3);
+numberMarker('data-instance-varying-vm-count', varyingRuns);
+const varyingTable = [...instanceSection.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)]
+  .find(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Nonvacuous controls for the host curry constructor')?.[1];
+assert(varyingTable, 'Missing nonvacuous varying-H matrix');
+const varyingRows = [...varyingTable.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].slice(1);
+assert.equal(varyingRows.length, 3);
+for (const [index, control] of instance.varying_arguments.entries()) {
+  assert.equal(control.password_hex, ['', '616263', '0000'][index], 'Varying-H controls must keep their three distinct byte messages');
+  assert.equal(control.argument_hex, 'a0' + createHash('sha256').update(Buffer.from(control.password_hex, 'hex')).digest('hex'));
+  assert.equal(control.native.status, 'accepted');
+  checkNativeOutcome(control.native);
+  checkPasswordModes(control.runs.map(run => run.artifact), 'Varying-H artifacts');
+  for (const [mode, run] of control.runs.entries()) {
+    assert.equal(run.module_tree_hash, passwordPuzzle.artifacts[mode].tree_hash);
+    assert.equal(run.artifact.clvm_hex, `ff02ffff01${passwordPuzzle.artifacts[mode].clvm_hex}ffff04ffff01${control.argument_hex}ff018080`);
+    assert.deepEqual(checkExecution(run.execution), control.native, 'Varying-H output differs');
+  }
+  const cells = [...varyingRows[index][1].matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/g)].map(match => plainText(match[1]));
+  assert.deepEqual(cells, [control.password_hex || 'empty atom', control.argument_hex, '5 / 5 builds'], 'Displayed varying-H bytes/results differ from the actual controls');
+}
+const ledgerModes = [['rust_mir', true], ['chialisp', true], ['rue_source', true]];
+assert(instance.ledger.every(row => typeof row.optimize_lir === 'boolean'));
+assert.deepEqual(instance.ledger.map(row => [row.backend, row.optimize_lir]), ledgerModes);
+const instanceAttempts = instance.ledger.flatMap(row => row.attempts);
+assert.equal(instanceAttempts.length, 21);
+const acceptedInstances = instanceAttempts.filter(row => row.consensus.status === 'accepted').length;
+const semanticInstances = instanceAttempts.filter(row => row.consensus.semantic_rejection_credit).length;
+const umbrellaInstances = instanceAttempts.filter(row => row.consensus.status === 'runtime_umbrella').length;
+assert.equal(acceptedInstances, 6);
+assert.equal(semanticInstances, 12);
+assert.equal(umbrellaInstances, 3);
+for (const [name, count] of [['data-instance-submissions', 21], ['data-instance-accepted', 6], ['data-instance-semantic-rejections', 12], ['data-instance-umbrellas', 3]]) numberMarker(name, count);
+const consensusCodes = [null, null, 'GeneratorRuntimeError', 'InvalidPuzzleHash', 'InvalidCoinAmount', 'InvalidCondition', 'WrongPuzzleHash'];
+for (const comparison of instance.ledger) {
+  assert.equal(comparison.transaction_attempts, 7);
+  assert.equal(comparison.attempts.length, 7);
+  const section = instanceSection.match(new RegExp(`<details[^>]*data-instance-ledger="${comparison.backend}"[^>]*>([\\s\\S]*?)</details>`))?.[1];
+  assert(section, `Missing ${comparison.backend} instance submissions`);
+  for (const version of ['chia-sdk-test 0.36.0', 'chia-consensus 0.36.1', 'clvmr 0.16.2', 'TESTNET11', 'clvmr 0.21.0']) assert(plainText(section).includes(version), 'Instance primary/consensus VM versions were conflated');
+  const rows = [...section.matchAll(/<tr\b([^>]*data-instance-attempt="[^"]+"[^>]*)>([\s\S]*?)<\/tr>/g)];
+  assert.equal(rows.length, 7);
+  for (const [index, attempt] of comparison.attempts.entries()) {
+    const status = index < 2 ? 'accepted' : index === 2 ? 'runtime_umbrella' : 'consensus_rejected';
+    assert.equal(typeof attempt.consensus.semantic_rejection_credit, 'boolean');
+    assert.equal(attempt.consensus.semantic_rejection_credit, index >= 3, 'Umbrella or accepted spend received semantic rejection credit');
+    assert.equal(attempt.consensus.status, status);
+    assert.equal(attempt.consensus.code, consensusCodes[index]);
+    assert.equal(typeof attempt.full_state_unchanged, 'boolean');
+    assert.equal(attempt.full_state_unchanged, index >= 2);
+    if (index >= 2) assert.deepEqual(attempt.after, attempt.before, 'Rejected instance changed recorded state');
+    const observed = checkExecution(attempt.vm_021);
+    if (index === 2) assert.deepEqual(attempt.vm_021.failure, { kind: 'program', code: 'raise' });
+    else assert.equal(observed.status, 'accepted', 'Malformed conditions/reveal must evaluate before consensus');
+    assert.equal(decodeAttribute(attribute(rows[index][1], 'data-instance-attempt')), attempt.label);
+    assert.equal(attribute(rows[index][1], 'data-instance-result'), status);
+    const cells = [...rows[index][2].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/g)].map(match => plainText(match[1]));
+    assert.equal(cells.length, 4);
+    assert.equal(cells[0], `${observed.status} ${attempt.vm_021.cost === null ? attempt.vm_021.failure.code : `${new Intl.NumberFormat('en-US').format(attempt.vm_021.cost)} cost`}`);
+    assert.equal(cells[1], `${status}${consensusCodes[index] ? ` ${consensusCodes[index]}` : ''}${index === 2 ? ' Observation only; no semantic rejection credit.' : ''}`);
+    assert.equal(cells[2], attempt.full_state_unchanged ? 'unchanged' : 'spend applied');
+    assert.equal(cells[3], attempt.reveal_tree_hash);
+    assert(rows[index][2].includes(attempt.coin_id), 'Instance row lost its actual input coin id');
+  }
+  assert.equal(comparison.attempts[0].coin_id, comparison.attempts[1].coin_id, 'Unsigned retargeting must begin with the identical coin');
+  assert.notEqual(comparison.attempts[6].reveal_tree_hash, comparison.instance_tree_hash, 'Wrong-reveal control did not change identity');
+}
+for (const label of ['separate from the report’s ordinary ledger scenario-group totals', 'no semantic rejection credit', 'not an executed library dependency', 'does not claim that the reference library’s builder executed']) assert(instanceText.includes(label), `Instance evidence loses claim boundary: ${label}`);
+assert(passwordText.includes('raw module alone receives no password-locked spend credit'), 'Raw template is incorrectly credited with locked-coin spends');
+for (const page of [passwordDetail, passwordTutorial]) {
+  assert(page.includes('Original Chialisp module') && page.includes('no source wrapper'), 'Password source must be labeled as an unchanged complete module');
+  const copies = [...page.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+  for (const source of [passwordPuzzle.source, passwordPuzzle.reference, passwordPuzzle.rue.source]) assert(copies.includes(normalizedCode(source)), 'Password source copy differs from the actual executed program');
+}
+for (const scope of ['trusted expected hash', 'Its measured compiled size is 31 bytes', 'WrongPuzzleHash', 'Both spends succeed', 'Resource exhaustion is inconclusive', 'current formal models reject SHA', 'do not prove cryptographic security', 'compiler preservation', 'general typed instance-authoring workflow']) assert(passwordLessonText.toLowerCase().includes(scope.toLowerCase()), `Password lesson misses its commitment/evidence boundary: ${scope}`);
+const passwordSample = instance.cases.find(test => test.label === 'derived tail: valid_spend');
+assert(passwordSample, 'Missing actual fixed-instance cost example');
+const measured = [['rust_mir', 855, 12915], ['chialisp', 31, 1321], ['rue_source', 213, 3937]].map(([backend, bytes, cost]) => {
+  const artifact = passwordPuzzle.artifacts.find(row => row.backend === backend && row.optimize_lir === true);
+  const run = passwordSample.runs.find(row => row.backend === backend && row.optimize_lir === true);
+  assert.equal(artifact?.bytes, bytes, `${backend}: reviewed module-size measurement changed`);
+  assert.equal(run?.execution.cost, cost, `${backend}: reviewed fixed-instance cost measurement changed`);
+  return { bytes: new Intl.NumberFormat('en-US').format(bytes), cost: new Intl.NumberFormat('en-US').format(cost) };
+});
+assert(passwordLessonText.includes(`The optimized Rust module is ${measured[0].bytes} bytes, compared with ${measured[1].bytes} for Chialisp and ${measured[2].bytes} for optimized Rue.`), 'Lesson module-size comparison differs from the executed artifacts');
+assert(passwordLessonText.includes(`The named valid curried spend costs ${measured[0].cost} VM units in optimized Rust, ${measured[1].cost} in Chialisp, and ${measured[2].cost} in optimized Rue.`), 'Lesson cost comparison differs from the actual named instance');
+for (const scope of ['not general cost guarantees', 'exclude overall consensus condition and bundle costs']) assert(passwordLessonText.includes(scope), `Password measurements lose their finite scope: ${scope}`);
+
 const recursiveTutorial = await html(path.join(root, 'tutorials/recursive-trees/index.html'));
 const recursivePuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'rightmost-tree');
 assert(recursivePuzzle, 'Missing executed recursive-tree corpus fixture');
@@ -476,22 +694,53 @@ for (const name of ['cargo-chialisp-oxide', 'chialisp-oxide-driver', 'cargo chia
 }
 const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
 const coverage = await html(path.join(root, 'coverage/index.html'));
+const introIds = new Set(['chialisp-example:intro-list', 'chialisp-example:intro-add', 'chialisp-example:intro-conditional']);
+const implementedExamples = [];
 for (const example of tutorialExamples.examples) {
   assert(coverage.includes(example.title), `Missing canonical example: ${example.id}`);
   if (example.implementation_status === 'implemented') {
+    implementedExamples.push(example.id);
     assert.equal(example.validation_status, 'differential_only');
     const puzzle = validation.puzzles.find(puzzle => puzzle.slug === example.source_adaptation?.slug);
     assert(puzzle?.validated, `${example.id}: missing canonical validation`);
     const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
-    assert(detail.includes('Original Chialisp expression') && detail.includes('no source wrapper'), `${example.id}: original source must be labeled`);
-    assert(detail.includes('Environment contract: explicitly ignored.'), `${example.id}: missing original environment contract`);
-    assert.equal(puzzle.environment, 'ignored');
-    assert.equal(puzzle.reference_mode, 'expression');
+    assert.equal(puzzle.provenance.classification, 'canonical_tutorial_port');
+    assert(detail.includes('no source wrapper'), `${example.id}: original source must remain unwrapped`);
+    if (introIds.has(example.id)) {
+      assert.equal(example.source_adaptation.operation, 'extract_single_quoted_run_expression');
+      assert(detail.includes('Original Chialisp expression'), `${example.id}: original expression must be labeled`);
+      assert(detail.includes('Environment contract: explicitly ignored.'), `${example.id}: missing original environment contract`);
+      assert.equal(puzzle.environment, 'ignored');
+      assert.equal(puzzle.reference_mode, 'expression');
+      assert.equal(example.validation_contract.abi, 'ignored_environment_nullary');
+      assert.equal(example.validation_contract.environment, 'ignored');
+      assert.equal(example.validation_contract.reference_mode, 'expression');
+    } else {
+      assert.equal(example.id, 'chialisp-example:password-coin', 'An unreviewed canonical example was promoted');
+      assert.equal(puzzle.slug, 'password-coin');
+      assert.equal(example.source_adaptation.operation, 'extract_complete_chialisp_module');
+      assert.deepEqual(example.validation_contract, {
+        abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module',
+        claim_scope: 'executed_raw_differential_cases_and_separate_fixed_instance_observations_only',
+        instance_protocol: 'chialisp-oxide-password-instances/v1',
+        ledger: 'separate_fixed_commitment_instance_observations_only',
+        hash_proof: 'not_claimed', compiler_preservation: 'not_claimed',
+        whole_page_completed: false, runtime_umbrella_semantic_rejection_credit: false,
+      }, 'Password module/instance promotion has a changed claim contract');
+      assert(detail.includes('Original Chialisp module') && detail.includes('Environment contract: raw tree.'), 'Password promotion needs its original complete-module/raw ABI labels');
+      assert.equal(puzzle.environment, 'raw');
+      assert.equal(puzzle.reference_mode ?? 'module', 'module');
+      assert.equal(puzzle.provenance.source_adaptation.kind, 'none');
+      assert(!Object.hasOwn(puzzle, 'module_identity'), 'Tutorial module must not invent a published artifact identity');
+      assert.deepEqual(puzzle.simulator, [], 'Raw tutorial module has no locked-coin scenario credit');
+      assert.equal(puzzle.curried_instances?.protocol, example.validation_contract.instance_protocol);
+    }
   } else {
     assert.equal(example.implementation_status, 'not_started');
     assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
   }
 }
+assert.deepEqual(implementedExamples.sort(), [...introIds, 'chialisp-example:password-coin'].sort(), 'Only the three closed Intro expressions and exact password module are promoted');
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 const homepage = await html(path.join(root, 'index.html'));
 const consensusChecks = validation.puzzles.reduce((sum, puzzle) => sum
@@ -539,7 +788,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -597,6 +846,10 @@ try {
         : ['tutorials/singleton-launcher/', 'lab/singleton-launcher/'];
       for (const route of routes) assert(matches.some(row => row.url === `${base}${route}`), `Hash documentation is not discoverable in production search: ${route}`);
     }
+    if (term === 'password' || term === 'currying') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      for (const route of ['tutorials/password-coin/', 'lab/password-coin/']) assert(matches.some(row => row.url === `${base}${route}`), `Password module/instance documentation is not discoverable for ${term}: ${route}`);
+    }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }
   await pagefind.destroy();
@@ -604,4 +857,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 9 JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceDataDownloads.length * 2} 512KiB page budgets, ${byteVmRuns} typed byte-proof VM observations, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, 9 JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceDataDownloads.length * 2} 512KiB page budgets, ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);

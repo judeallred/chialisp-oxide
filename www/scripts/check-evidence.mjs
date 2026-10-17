@@ -183,26 +183,47 @@ for (const example of tutorialExamples.examples) {
   assert.equal(example.validation_status, 'differential_only', `${example.id}: unsupported validation claim`);
   const adaptation = example.source_adaptation;
   assert(adaptation, `${example.id}: missing exact-source adaptation`);
-  assert.equal(adaptation.operation, 'extract_single_quoted_run_expression');
   assert.equal(adaptation.source_span_sha256, example.source.sha256);
   const lines = (await recordedSource(example.source.snapshot)).match(/[^\n]*\n|[^\n]+$/g) ?? [];
   const span = lines.slice(example.source.start_line - 1, example.source.end_line).join('');
-  const expression = span.match(/^run '([^']+)'\n$/)?.[1];
-  assert(expression, `${example.id}: source is not one exact run expression`);
   const puzzle = report.puzzles.find(puzzle => puzzle.slug === adaptation.slug);
   assert(puzzle?.validated, `${example.id}: canonical example has no validated puzzle`);
   assert.equal(puzzle.provenance.classification, 'canonical_tutorial_port');
   assert.equal(puzzle.provenance.example_id, example.id);
-  assert.equal(puzzle.environment, 'ignored', `${example.id}: original environment behavior changed`);
-  assert.equal(puzzle.reference_mode, 'expression', `${example.id}: canonical source must use raw-expression compilation`);
   const contract = example.validation_contract;
   assert(contract, `${example.id}: missing explicit original validation contract`);
-  assert.equal(contract.abi, 'ignored_environment_nullary');
-  assert.equal(contract.environment, puzzle.environment);
-  assert.equal(contract.reference_mode, puzzle.reference_mode);
-  assert.equal(contract.claim_scope, 'executed_differential_cases_only');
-  assert.equal(contract.ledger, 'not_applicable_pure_function');
-  assert(puzzle.cases.length > 0 && puzzle.cases.every(test => test.native.status === 'accepted' && test.native.output_hex === contract.expected_output_hex), `${example.id}: observed original output differs from its contract`);
+  if (example.id === 'chialisp-example:password-coin') {
+    assert.equal(adaptation.slug, 'password-coin');
+    assert.equal(adaptation.operation, 'extract_complete_chialisp_module');
+    assert.equal(puzzle.environment, 'raw', 'Password module must retain its complete raw environment');
+    assert.equal(puzzle.reference_mode ?? 'module', 'module', 'Password source must use module compilation');
+    assert.equal(puzzle.reference, span, 'The complete password module was rewritten or wrapped');
+    assert.deepEqual(contract, {
+      abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module',
+      claim_scope: 'executed_raw_differential_cases_and_separate_fixed_instance_observations_only',
+      instance_protocol: 'chialisp-oxide-password-instances/v1',
+      ledger: 'separate_fixed_commitment_instance_observations_only',
+      hash_proof: 'not_claimed', compiler_preservation: 'not_claimed',
+      whole_page_completed: false, runtime_umbrella_semantic_rejection_credit: false,
+    }, 'Password promotion must retain its bounded module/instance contract');
+    assert.equal(puzzle.curried_instances?.protocol, contract.instance_protocol);
+    assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
+    await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
+    assert(example.local_examples.includes(adaptation.rue_source));
+  } else {
+    assert.equal(adaptation.operation, 'extract_single_quoted_run_expression');
+    const expression = span.match(/^run '([^']+)'\n$/)?.[1];
+    assert(expression, `${example.id}: source is not one exact run expression`);
+    assert.equal(puzzle.environment, 'ignored', `${example.id}: original environment behavior changed`);
+    assert.equal(puzzle.reference_mode, 'expression', `${example.id}: canonical source must use raw-expression compilation`);
+    assert.equal(contract.abi, 'ignored_environment_nullary');
+    assert.equal(contract.environment, puzzle.environment);
+    assert.equal(contract.reference_mode, puzzle.reference_mode);
+    assert.equal(contract.claim_scope, 'executed_differential_cases_only');
+    assert.equal(contract.ledger, 'not_applicable_pure_function');
+    assert(puzzle.cases.length > 0 && puzzle.cases.every(test => test.native.status === 'accepted' && test.native.output_hex === contract.expected_output_hex), `${example.id}: observed original output differs from its contract`);
+    assert.equal(puzzle.reference, `${expression}\n`, `${example.id}: original expression was rewritten or wrapped`);
+  }
   assert.equal(puzzle.kind, 'pure_function');
   assert.deepEqual(puzzle.simulator, [], `${example.id}: pure expression must not claim ledger validation`);
   assert.equal(adaptation.reference, `puzzles/${puzzle.slug}/reference.clsp`);
@@ -212,7 +233,6 @@ for (const example of tutorialExamples.examples) {
   for (const field of ['reference', 'rust_source', 'manifest', 'report']) {
     await checkRecordedHash(adaptation[field], adaptation[`${field}_sha256`]);
   }
-  assert.equal(puzzle.reference, `${expression}\n`, `${example.id}: original expression was rewritten or wrapped`);
   assert(example.local_examples.includes(adaptation.reference) && example.local_examples.includes(adaptation.rust_source));
   assert(example.evidence.includes(adaptation.report));
   canonicalPorts++;
@@ -222,6 +242,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['scripts/check-password-coin.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

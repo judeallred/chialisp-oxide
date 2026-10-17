@@ -15,7 +15,7 @@ const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'j
 <div class="source-comparison">
   <div class="split-source">
     <section class="source-column" aria-label="Chialisp source" data-language="chialisp">
-      <div class="source-label"><span class="badge">{canonical ? 'Original Chialisp expression' : canonicalModule ? 'Original Chialisp module' : helperAdapter ? 'Original helper + module adapter' : 'Chialisp reference'}</span> independent compiler · {canonical || canonicalModule ? 'no source wrapper' : helperAdapter ? 'explicit source wrapper' : 'same tested ABI'}</div>
+      <div class="source-label"><span class="badge">{canonical ? (puzzle.reference_mode === 'expression' ? 'Original Chialisp expression' : 'Original Chialisp module') : canonicalModule ? 'Original Chialisp module' : helperAdapter ? 'Original helper + module adapter' : 'Chialisp reference'}</span> independent compiler · {canonical || canonicalModule ? 'no source wrapper' : helperAdapter ? 'explicit source wrapper' : 'same tested ABI'}</div>
       <Code code={puzzle.reference} lang="lisp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
     </section>
     <section class="source-column" aria-label="Rust source" data-language="rust">
@@ -28,7 +28,10 @@ const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'j
     </section>
   </div>
   <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
-  {canonical && <p class="source-note">The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment. <a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
+  {canonical && <p class="source-note">{puzzle.reference_mode === 'expression'
+    ? <>The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment.</>
+    : <>The original module span is retained from the pinned tutorial without an adapter. The ports preserve its raw environment contract; instance commitments and spend observations are recorded separately.</>}
+    {' '}<a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
   {canonicalModule && <p class="source-note">The original upstream module is retained byte for byte, without an adapter or added argument guard. The raw environment contract and published module identity are recorded separately from finite behavioral comparisons.</p>}
   {Object.keys(puzzle.reference_includes ?? {}).length > 0 && <p class="source-note" data-reference-includes>The independent reference compiler binds each include to its exact recorded supporting file: {Object.entries(puzzle.reference_includes ?? {}).map(([name, filename], index) => <>{index > 0 ? '; ' : ''}<code>{name}</code>{' → '}<code>{filename}</code></>)}. Undeclared includes fail.</p>}
   {helper && <p class="source-note">The original helper is retained verbatim inside the displayed module wrapper. {helper.source} Finite behavioral comparisons do not claim identity with a published standalone module.</p>}

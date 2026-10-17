@@ -50,13 +50,18 @@ The longer Chialisp reference makes its untrusted-solution checks explicit.
 
 ## First canonical tutorial ports
 
-The corpus includes {totals.canonicalPorts} exact closed expressions from the
+The corpus includes {totals.canonicalExpressionPorts} exact closed expressions from the
 pinned Chialisp Intro, alongside {totals.originalExamples} original teaching
 fixtures. Their Rust exports preserve the originals’ ignored environments;
 the Chialisp sources receive no module wrapper. [Follow the Intro
 walkthrough](/chialisp-oxide/tutorials/canonical-intro/) to compare sources,
 outputs, costs, and recorded tree hashes. These examples do not complete the
 primer or a CHIP migration.
+
+The [password-coin lesson](/chialisp-oxide/tutorials/password-coin/) preserves
+another original module and distinguishes its reusable code from a committed
+coin instance. It also demonstrates a policy weakness that Rust still permits:
+a disclosed password can authorize unsigned destination changes.
 
 ## Learn the policy. Inspect the evidence.
 
@@ -98,8 +103,9 @@ theorems and a finite execution bridge appear in the
 Rust equality while preserving every atom byte and checking its input shape.
 The separate [tree-hash lesson](/chialisp-oxide/tutorials/sha256tree/) uses a
 reviewed SHA-256 bridge with exact atom bytes and an explicit raw-tree contract.
-Unbounded integers, other cryptographic operators, currying and general runtime
-program evaluation remain backend work.
+Unbounded integers, other cryptographic operators, a general public curry API
+and runtime program evaluation remain work. The password experiment's host
+constructor has separate finite instance checks.
 
 ## Experimental evidence has limits
 

@@ -62,7 +62,7 @@ capabilities of every native Rust crate.
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
 | Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
 | Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` and owned `prefix` adapters; general allocation/loops/closures rejected | Further helpers, broader collections and termination/resource/preservation proofs |
-| Currying and nested/standard puzzles | Explicit program trees | No general curry/delegated-program API | Canonical module/instance hashes and composition validation |
+| Currying and nested/standard puzzles | Explicit program trees | Separately tested host curry instances for the canonical password module; no general public curry/delegated-program API | Broader typed authoring, canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
 | Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
 | Host I/O, clocks, randomness, network state | Native Rust facilities | No implicit puzzle capability | Explicit committed inputs or consensus conditions |

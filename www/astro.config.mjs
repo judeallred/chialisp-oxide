@@ -44,6 +44,7 @@ export default defineConfig({
           { label: 'Compare exact atom bytes', slug: 'tutorials/atom-not-equal' },
           { label: 'Order entries by byte keys', slug: 'tutorials/insertion-sort-by-keys' },
           { label: 'Hash exact bytes and trees', slug: 'tutorials/sha256tree' },
+          { label: 'Bind a password hash to a coin', slug: 'tutorials/password-coin' },
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
         ] },
         { label: 'Inspect the evidence', items: [

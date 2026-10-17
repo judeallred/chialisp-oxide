@@ -277,8 +277,11 @@ through the Cargo frontend; its original Chialisp byte identity is recorded
 separately from the Rust/Rue behavior comparisons. Fresh full-corpus and ledger
 validation is required before promoting their recorded evidence. The official
 [password-coin tutorial](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/first-smart-coin.md)
-is a later witness, preserving its insecurity warning; its complete workflow
-also requires currying and spend validation and remains a coverage gap.
+now has an exact original-module port, preserving its insecurity warning.
+Separate standard-curried instances fix the expected hash and execute real
+ledger submissions, including successful unsigned destination changes. The
+complete tutorial's funding/RPC/support workflow and a public typed curry API
+remain coverage gaps; a finite module comparison does not complete that page.
 
 ## Deliver the goals in stages
 
@@ -401,13 +404,13 @@ chialisp-oxide-ir JSON. The backend enforces canonical typed ABI decoding, fixed
 checked arithmetic, strict unused failures, lazy branches, and compile-time
 expansion limits before Rue code generation. Unsupported MIR fails closed.
 
-Twenty Chialisp/Rust/Rue source comparisons use the actual Cargo library
+Twenty-one Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs the typed IR tree-guard pass, runtime
 frame elision, then Rue LIR optimization; off skips all three stages. Frame
 elision applies only to runtime lowering. Rue source uses its LIR off/on switch.
-The validation report records these pipelines explicitly: 341 named and 18,481
-generated cases, plus 25 separate low-budget hash observations. The eight teaching
+The validation report records these pipelines explicitly: 389 named and 20,796
+generated cases, plus 40 separate low-budget hash/password observations. The eight teaching
 coin fixtures and singleton launcher have 40 ledger scenario groups executed for
 each language (120 ledger scenario runs). Ten original teaching examples, including recursive
 raw-tree traversal,
@@ -418,6 +421,12 @@ The published `last_inner`, owned `prefix`, byte `!=`, insertion-sort-by-key and
 `sha256tree` helpers are tracked separately
 through explicit module adapters with exact source-span/license provenance. These do not claim a
 whole-library port or standalone canonical module identity.
+The exact password tutorial module preserves its whole raw environment. Its
+fixed-hash instances separately record 48 five-build case groups, three varying
+hash controls and 21 actual transaction submissions. Six succeed, twelve fail
+with dedicated consensus codes, and three runtime-umbrella observations receive
+no semantic rejection credit. Its accepted unsigned retargeting illustrates a
+policy error that remains valid Rust.
 The launcher retains its pinned whole source/include/license and published
 175-byte artifact. Independent Chialisp reproduces that identity; optimized Rust
 emits 1,116 bytes with a different hash. Its finite output/ledger comparisons do

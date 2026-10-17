@@ -15,7 +15,7 @@ VALIDATION_STATES = {"not_run", "differential_only", "simulator_checked"}
 
 def validate(inventory: dict, root: Path = ROOT) -> list[str]:
     errors = []
-    if inventory.get("schema_version") != 1:
+    if type(inventory.get("schema_version")) is not int or inventory["schema_version"] != 1:
         errors.append("unsupported schema_version")
     entries = inventory.get("entries", [])
     if not entries:
@@ -56,17 +56,26 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
         promoted = [row["id"] for row in examples if row["page_id"] == identity
                     and row["implementation_status"] == "implemented"]
         if promoted or "example_coverage" in entry:
-            # An executed expression does not complete the surrounding page's
-            # installation, atom/string demonstrations or host workflows.
-            if identity != "chialisp:chialisp-primer/intro" or set(promoted) != {
-                "chialisp-example:intro-list", "chialisp-example:intro-add", "chialisp-example:intro-conditional",
-            }:
+            # A source span and project-specific host tests do not complete
+            # surrounding installation, wallet, funding or RPC workflows.
+            reviewed = {
+                "chialisp:chialisp-primer/intro": {
+                    "examples": ["chialisp-example:intro-list", "chialisp-example:intro-add", "chialisp-example:intro-conditional"],
+                    "scope": "individual_closed_expressions_only",
+                },
+                "chialisp:chialisp-primer/first-smart-coin": {
+                    "examples": ["chialisp-example:password-coin"],
+                    "scope": "password_module_and_separate_instances_only",
+                },
+            }
+            contract = reviewed.get(identity)
+            if contract is None or promoted != contract["examples"]:
                 errors.append(f"{identity}: individual-example coverage changed without a reviewed page contract")
             if implementation != "in_progress" or validation != "not_run" or entry.get("local_examples") or entry.get("evidence"):
                 errors.append(f"{identity}: partial example coverage must not promote the complete page")
             if entry.get("example_coverage") != {
                 "inventory": "corpus/tutorial-examples.json", "implemented_examples": promoted,
-                "scope": "individual_closed_expressions_only",
+                "scope": contract["scope"] if contract is not None else None,
             }:
                 errors.append(f"{identity}: missing or stale individual-example coverage links")
     return errors

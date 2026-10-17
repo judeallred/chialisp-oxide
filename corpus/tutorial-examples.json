@@ -195,7 +195,7 @@
         "manifest": "puzzles/intro-list/puzzle.json",
         "manifest_sha256": "c59e21c8eeff1b08ee017b2b39fcb246eece44529305e3c3a8e3c934e16a9a32",
         "report": "corpus/validation.json",
-        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
+        "report_sha256": "52b2ef139c93f3d2235fd946d70096d4311bf455a2d244b68d541eda3f137cab",
         "slug": "intro-list"
       },
       "validation_contract": {
@@ -264,7 +264,7 @@
         "manifest": "puzzles/intro-add/puzzle.json",
         "manifest_sha256": "4251fbf582ab86e70887ca872fee9a006958431beb58fa8981d1988666662164",
         "report": "corpus/validation.json",
-        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
+        "report_sha256": "52b2ef139c93f3d2235fd946d70096d4311bf455a2d244b68d541eda3f137cab",
         "slug": "intro-add"
       },
       "validation_contract": {
@@ -333,7 +333,7 @@
         "manifest": "puzzles/intro-conditional/puzzle.json",
         "manifest_sha256": "4eda90304bceb9ede7ee525cc37ba9fbbff04fb6ebdcdcf7d435ef74a9aa8741",
         "report": "corpus/validation.json",
-        "report_sha256": "7866a312bfe5c05c2c0c7543b8c52eada14f1dbab793f46dfd4f70f0d3fbe791",
+        "report_sha256": "52b2ef139c93f3d2235fd946d70096d4311bf455a2d244b68d541eda3f137cab",
         "slug": "intro-conditional"
       },
       "validation_contract": {
@@ -459,23 +459,56 @@
         "representation": "chialisp_source",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/first-smart-coin.md#L21-L40"
       },
-      "feasibility": "Requires SHA256, currying and arbitrary tree/condition semantics; intentionally insecure teaching policy.",
+      "feasibility": "Implemented as an unchanged raw Chialisp module, actual Cargo Rust export and separate Rue source. A private standard-tree host constructor creates separately measured fixed-commitment instances; this does not make the password design secure.",
       "semantic_gaps": [
-        "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately.",
-        "SHA256 accepts the original password bytes rather than a fixed 32-byte message type.",
-        "The returned conditions are attacker-supplied CLVM values, not a fixed heterogeneous tuple.",
-        "Currying and its serialized/tree-hash contract are not implemented by the current compiler."
+        "Raw whole-tree behavior uses the original first three pair projections, exact hash/password atom bytes and ignored tail. Native host limits and VM resource exhaustion are outside semantic policy rejection.",
+        "Returned conditions remain arbitrary CLVM data, not a typed condition list. Only the separately recorded fixed-instance ledger attempts check the selected complete-spend scenarios.",
+        "Standard currying is a private host tree constructor; source-level eval/curry syntax and the tutorial wallet, funding and RPC workflow remain unimplemented or unexecuted.",
+        "Finite differential cases and instance observations do not prove SHA security, compiler preservation, general authorization, conservation or production readiness."
       ],
       "notes": [
         "Preserve the warning that plaintext passwords are exposed and a farmer can redirect unsigned conditions; never mark this as a secure payment pattern."
       ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/password-coin/puzzle.rs",
+        "puzzles/password-coin/reference.clsp",
+        "puzzles/password-coin/puzzle.rue"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
-      "proposed_observations": []
+      "proposed_observations": [],
+      "source_adaptation": {
+        "operation": "extract_complete_chialisp_module",
+        "source_span_sha256": "e2a4ee5c44ad50cd851da120c0c38ba51b344815a39a9c70df42a0af9679ce29",
+        "reference": "puzzles/password-coin/reference.clsp",
+        "reference_sha256": "e2a4ee5c44ad50cd851da120c0c38ba51b344815a39a9c70df42a0af9679ce29",
+        "rust_source": "puzzles/password-coin/puzzle.rs",
+        "rust_source_sha256": "4d33f13106b47379a2bbe45bb5b7441358c8ed7d8d83d9bc352d96877ab9966a",
+        "rue_source": "puzzles/password-coin/puzzle.rue",
+        "rue_source_sha256": "f2d3247c18900f7ae90c00c53b8c8c4457cff2fe115616322208193fbbadba7a",
+        "manifest": "puzzles/password-coin/puzzle.json",
+        "manifest_sha256": "24bbdca0bba54fbb5d6fda83ae1d70597211a74d7dd0a3e212a4c31039eac3e2",
+        "report": "corpus/validation.json",
+        "report_sha256": "52b2ef139c93f3d2235fd946d70096d4311bf455a2d244b68d541eda3f137cab",
+        "slug": "password-coin"
+      },
+      "validation_contract": {
+        "abi": "raw_one_tree",
+        "environment": "raw",
+        "reference_mode": "module",
+        "claim_scope": "executed_raw_differential_cases_and_separate_fixed_instance_observations_only",
+        "instance_protocol": "chialisp-oxide-password-instances/v1",
+        "ledger": "separate_fixed_commitment_instance_observations_only",
+        "hash_proof": "not_claimed",
+        "compiler_preservation": "not_claimed",
+        "whole_page_completed": false,
+        "runtime_umbrella_semantic_rejection_credit": false
+      }
     },
     {
       "id": "chialisp-example:currying-multiply",

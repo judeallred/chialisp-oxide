@@ -94,34 +94,45 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The current [corpus report](corpus/validation.json) records twenty
+The current [corpus report](corpus/validation.json) records twenty-one
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
 plus three canonical closed expressions from the pinned Chialisp Intro and the
 exact canonical `p2_conditions` program factory, pinned `last_inner`,
 `prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
-module adapters, and the singleton launcher module. The
+module adapters, the singleton launcher module, and the exact password tutorial
+module with separate curried-instance observations. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-341 explicit vectors and 18,481 generated integer/tree/byte cases against five CLVM
+389 explicit vectors and 20,796 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton
 launcher have ledger scenarios; pure language results and program
 factories are not direct spends. Factory validation separately executes the
 returned program on four environments for every successful named compiler run.
+The raw password module is also a pure-function comparison: its caller supplies
+the expected hash. Separate standard-curried instances fix that hash and record
+48 case groups across five builds, three varying-hash controls and 21 actual
+transaction submissions. Six spends succeed, including unsigned destination
+changes; twelve fail with dedicated consensus codes. Three wrong-password
+`GeneratorRuntimeError` observations receive no semantic rejection credit.
+This deliberately insecure tutorial is a lesson in authority boundaries, not a
+password wallet. See the [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/password-coin/).
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
 
 The `sha256tree` helper uses an explicit ten-million VM-cost comparison budget
 in all five builds; other examples retain one million. Its five deep-input
 controls also produce 25 separate observations at one million, including typed
-cost exhaustion. These controls do not add passing cases or policy rejections
-to the totals above. The preservation gate retains the preceding eighteen
-ports' exact artifacts and observations and passes 149 migration controls.
+cost exhaustion. The password module adds three inputs across five builds at
+a lower budget, giving 40 separate diagnostic observations in total. These
+controls do not add passing cases or policy rejections to the totals above.
+The preservation gates retain the preceding twenty ports' exact artifacts and
+observations, as well as the earlier eighteen-port migration boundary.
 
-Local macOS verification passes 418 workspace tests and all-target Clippy with
+Local macOS verification passes 422 workspace tests and all-target Clippy with
 warnings denied. The hash evidence gate passes 158 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,
 error-study, Lean and documentation gates are checked separately; these finite
@@ -149,6 +160,7 @@ python3 scripts/check-canonical-factories.py --self-test
 python3 scripts/check-canonical-helpers.py --self-test
 python3 scripts/check-runtime-frames.py --replay --self-test
 python3 scripts/check-hashing-puzzles.py --self-test --replay
+python3 scripts/check-password-coin.py --self-test --replay --extract-ir
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently

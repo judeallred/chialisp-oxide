@@ -1,6 +1,6 @@
 ---
 import { puzzles, canonicalExample, format, href, type Artifact } from '../lib/data';
-const examples = puzzles.filter(puzzle => canonicalExample(puzzle));
+const examples = puzzles.filter(puzzle => canonicalExample(puzzle) && puzzle.reference_mode === 'expression');
 const rows = examples.map(puzzle => {
   const empty = puzzle.cases.find(test => test.solution === '()');
   if (!empty) throw new Error(`${puzzle.slug}: missing original empty-environment observation`);

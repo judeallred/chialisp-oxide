@@ -146,7 +146,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
-| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing and one launcher port; no general curry or nested-puzzle API | Canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust launcher module identity still differs |
+| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, one launcher port and separately validated host-curried password instances; no general public curry or nested-puzzle API | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust launcher module identity still differs |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Runtime costs and selected ledger scenarios measured | Whole-spend costs, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
@@ -267,24 +267,33 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The [fresh corpus report](../corpus/validation.json) records twenty actual Cargo
+The [fresh corpus report](../corpus/validation.json) records twenty-one actual Cargo
 exports, including the full raw-domain `sha256tree` helper adapter and singleton
-launcher through the [reviewed SHA bridge](hashing.md). Native Rust and five
-separately compiled CLVM builds agree on 341 named and 18,481 generated cases.
+launcher and original password tutorial module through the [reviewed SHA bridge](hashing.md).
+Native Rust and five separately compiled CLVM builds agree on 389 named and 20,796 generated cases.
 Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
 language-specific scenario runs. Local macOS verification additionally passes
-418 workspace tests, all-target Clippy with warnings denied, 158 hash-evidence
+422 workspace tests, all-target Clippy with warnings denied, 158 hash-evidence
 corruption controls and 22,285 retained hash-artifact VM replays. The
 source-derived proof, error-study, Lean and documentation gates also pass.
 These are finite observations, not a parity or compiler-preservation theorem.
 
 The hash helper uses a fixed ten-million cost budget for ordinary comparisons;
-the other nineteen examples retain one million. Its five deep-input controls
+the other twenty examples retain one million. Its five deep-input controls
 also run at one million in all five builds, adding 25 separate typed resource
 observations. Cost exhaustion stays inconclusive and does not count as policy
 rejection or additional passing coverage. The preservation gate passes 149
 migration controls and retains all prior eighteen ports' exact artifacts and
 observations.
+
+The password module's complete raw-tree contract is separate from authorization:
+its caller supplies both expected hash and password. Standard-curried fixed-hash
+instances add 48 five-build case groups, three varying-hash controls and 21 real
+transaction submissions. Six are accepted, including unsigned destination
+retargeting; twelve match dedicated consensus rejection codes. Three broader
+runtime failures are recorded without semantic rejection credit. These tests
+do not complete the tutorial's funding, RPC or support workflow, and do not
+establish the safety of the password design or a general public curry API.
 
 Both new ports record pinned source, license and Git commit/tree provenance;
 the launcher also binds its exact include. The `sha256tree` source span is a

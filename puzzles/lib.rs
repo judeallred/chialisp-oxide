@@ -51,3 +51,6 @@ pub mod sha256tree;
 
 #[path = "singleton-launcher/puzzle.rs"]
 pub mod singleton_launcher;
+
+#[path = "password-coin/puzzle.rs"]
+pub mod password_coin;

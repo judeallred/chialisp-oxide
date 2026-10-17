@@ -1,0 +1,15 @@
+---
+import { format } from '../lib/data';
+
+interface Props { value: string }
+const { value } = Astro.props;
+const truncated = value.length > 512;
+const preview = truncated ? `${value.slice(0, 384)} … ${value.slice(-64)}` : value;
+---
+<code class="solution" data-pagefind-ignore data-solution-preview={truncated ? value.length : undefined}>{preview}</code>
+{truncated && <small class="preview-note">Preview of {format(value.length)} characters. The validation JSON retains the exact input.</small>}
+
+<style>
+  .solution { display: block; color: var(--sl-color-gray-3); font-size: .65rem; margin-top: .4rem; overflow-wrap: anywhere; max-width: 18rem; }
+  .preview-note { display: block; max-width: 18rem; margin-top: .4rem; color: var(--sl-color-gray-3); font-weight: normal; line-height: 1.5; }
+</style>
