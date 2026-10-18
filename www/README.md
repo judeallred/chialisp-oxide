@@ -63,5 +63,10 @@ The lab compares actual Chialisp, Rust, and Rue source and five compiled builds.
 The published-source catalog provides bounded metadata search and pagination;
 Rust host builders and generated bindings are distinct from Rust→CLVM puzzle
 sources. The dedicated error study is driven by actual missed-test witnesses
-and compiler diagnostics, including policy bugs that still compile. Six report
+and compiler diagnostics, including policy bugs that still compile. Thirteen report
 endpoints are checked against their source/proof/discovery inputs before build.
+The current cost table binds signed `c87957e2` to the reviewed runtime-refinement
+profile; historical helper-inlining and earlier cost snapshots stay immutable.
+The canonical-integer report has a metadata-only decoder-source binding. Site
+builds run its offline `--check-recorded` freshness gate; compiler CI separately
+reruns Z3. These checks do not promote a model law into a compiler theorem.

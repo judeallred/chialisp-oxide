@@ -273,7 +273,7 @@ launcher and original password tutorial module through the [reviewed SHA bridge]
 Native Rust and five separately compiled CLVM builds agree on 389 named and 20,796 generated cases.
 Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
 language-specific scenario runs. Local macOS verification additionally passes
-482 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
+502 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
 corruption controls and 22,285 retained hash-artifact VM replays. The
 source-derived proof, error-study, Lean and documentation gates also pass.
 These are finite observations, not a parity or compiler-preservation theorem.
@@ -330,8 +330,9 @@ the returned program, and separately compares published module identity.
 Optimized Rust now reproduces the published nine-byte module exactly, as do
 the independent Chialisp compiler and optimized Rue source. Unoptimized Rust
 and Rue have different artifacts. Rust's enabled pipeline runs the conservative
-checked constants, forward facts, constants again, legacy tree guards, bounded
-helper inlining, runtime frame elision, Rue LIR and static pair codegen. Frame
+checked constants, forward facts, constants again, branch-local integer intervals,
+legacy tree guards, bounded helper inlining, runtime frame elision, lazy
+canonical-integer decoding, Rue LIR and static pair codegen. Frame
 elision has no effect on this runtime-free factory; the first projection still rejects
 atom environments after a redundant guard is removed. The report records both
 pipelines and actual byte/hash comparisons. This one measured factory identity

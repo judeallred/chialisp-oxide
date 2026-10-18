@@ -182,8 +182,9 @@ source, produced-program execution and published module identity.
 Optimized Rust, independent Chialisp, and optimized Rue now reproduce the exact
 published nine-byte module and tree hash. The unoptimized artifacts differ.
 The enabled Rust pipeline runs checked constants, forward facts, constants
-again, legacy tree guards, bounded helper inlining, runtime frame elision, Rue
-LIR and static pair codegen.
+again, branch-local integer intervals, legacy tree guards, bounded helper
+inlining, runtime frame elision, the lazy canonical-integer decoder, Rue LIR
+and static pair codegen.
 Frame elision has no effect on this runtime-free factory; checked
 projections remain. This identity is measured for one factory; it does not
 establish general canonical or curried-instance compatibility. Its structural

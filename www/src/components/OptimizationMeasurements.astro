@@ -1,6 +1,6 @@
 ---
-import predecessor from '../../../corpus/cost-optimization-baseline.json';
-import baseline from '../../../corpus/helper-inlining-baseline.json';
+import predecessor from '../../../corpus/helper-inlining-baseline.json';
+import baseline from '../../../corpus/runtime-refinement-baseline.json';
 import { createHash } from 'node:crypto';
 import { puzzles, format } from '../lib/data';
 
@@ -10,15 +10,15 @@ type ReviewedPuzzle = {
   cases: { label: string; solution_sha256: string; execution: { outcome: { status: string; output_hex?: string }; cost: number | null } }[];
 };
 const reviewedPuzzles: readonly ReviewedPuzzle[] = baseline.reviewed_after.puzzles;
-if (baseline.protocol !== 'chialisp-oxide-helper-inlining/v1'
-    || baseline.baseline.commit !== '405792113242aed8d94d3dc4805ed68fc667b3d1'
+if (baseline.protocol !== 'chialisp-oxide-runtime-refinement/v1'
+    || baseline.baseline.commit !== 'c87957e2d28c832ec76551aa0c5e16e31f973b2f'
     || baseline.baseline.report_sha256 !== predecessor.reviewed_after.report_sha256
-    || baseline.predecessor.path !== 'corpus/cost-optimization-baseline.json'
-    || baseline.predecessor.sha256 !== '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308'
+    || baseline.predecessor.path !== 'corpus/helper-inlining-baseline.json'
+    || baseline.predecessor.sha256 !== '0b7326f83065ab1bc186a1e9b0d3b5c581fa7cc3110845cc4b6db70a39b5da52'
     || baseline.reviewed_after.status !== 'reviewed_final'
     || predecessor.reviewed_after.puzzles.length !== 21
     || reviewedPuzzles.length !== 21) {
-  throw new Error('Missing final reviewed helper-inlining comparison');
+  throw new Error('Missing final reviewed interval and integer-decoder comparison');
 }
 const rows = predecessor.reviewed_after.puzzles.map((before, index) => {
   const puzzle = puzzles.find(puzzle => puzzle.slug === before.slug);
@@ -47,10 +47,25 @@ const rows = predecessor.reviewed_after.puzzles.map((before, index) => {
   }
   return { puzzle, before: before.artifact, after, label: sample.label, oldCost: sample.execution.cost, newCost: current.cost };
 });
+const deltas = predecessor.reviewed_after.puzzles.flatMap((before, index) => before.cases.flatMap((sample, caseIndex) => {
+  if (sample.execution.outcome.status !== 'accepted') return [];
+  const after = reviewedPuzzles[index].cases[caseIndex]?.execution;
+  if (after?.outcome.status !== 'accepted' || sample.execution.cost === null || after.cost === null
+      || after.outcome.output_hex !== sample.execution.outcome.output_hex) {
+    throw new Error(`Invalid accepted-cost summary: ${before.slug}/${sample.label}`);
+  }
+  return [after.cost - sample.execution.cost];
+}));
+const lower = deltas.filter(delta => delta < 0).length;
+const equal = deltas.filter(delta => delta === 0).length;
+const higher = deltas.filter(delta => delta > 0).length;
+const smaller = rows.filter(row => row.after.bytes < row.before.bytes);
 ---
+<p data-cost-summary data-accepted={deltas.length} data-lower={lower} data-equal={equal} data-higher={higher}>Across {format(deltas.length)} accepted named inputs, {format(lower)} use less VM cost, {format(equal)} are unchanged, and {format(higher)} cost more. These finite counts cover the complete retained set.</p>
+<p data-cost-changed-artifacts>Smaller modules in this iteration: {smaller.map((row, index) => <>{index > 0 ? '; ' : ''}<a href={`/chialisp-oxide/lab/${row.puzzle.slug}/`}>{row.puzzle.title}</a>{' '}{format(row.before.bytes)} → {format(row.after.bytes)} bytes</>)}.</p>
 <div class="table-wrap">
   <table>
-    <caption>Optimized Rust before and after helper inlining: first accepted named input per puzzle</caption>
+    <caption>Optimized Rust before and after interval and decoder refinement: first accepted named input per puzzle</caption>
     <thead><tr><th scope="col">Puzzle / input</th><th scope="col">Before bytes</th><th scope="col">Now bytes</th><th scope="col">Before VM cost</th><th scope="col">Now VM cost</th></tr></thead>
     <tbody>{rows.map(row => <tr data-cost-puzzle={row.puzzle.slug}>
       <th scope="row"><a href={`/chialisp-oxide/lab/${row.puzzle.slug}/`}>{row.puzzle.title}</a><small>{row.label}</small></th>
@@ -59,7 +74,7 @@ const rows = predecessor.reviewed_after.puzzles.map((before, index) => {
     </tr>)}</tbody>
   </table>
 </div>
-<p class="quiet">The before measurements come from signed commit <a href={`${baseline.baseline.repository}/commit/${baseline.baseline.commit}`}><code>{baseline.baseline.commit.slice(0, 8)}</code></a>. Both columns enable optimization. Inputs and accepted output bytes agree; each row links to the complete Chialisp, Rust and Rue comparison. These are individual executed inputs, not averages or a universal performance bound. The <a href="/chialisp-oxide/reports/helper-inlining-baseline.json">reviewed helper-inlining transition</a>, its <a href="/chialisp-oxide/reports/cost-optimization-baseline.json">unchanged predecessor measurements</a> and the <a href="/chialisp-oxide/reports/validation.json">current validation report</a> retain the finite observations.</p>
+<p class="quiet">The before measurements come from signed commit <a href={`${baseline.baseline.repository}/commit/${baseline.baseline.commit}`}><code>{baseline.baseline.commit.slice(0, 8)}</code></a>. Both columns enable optimization. Inputs and accepted output bytes agree; each row links to the complete Chialisp, Rust and Rue comparison. These are individual executed inputs, not averages or a universal performance bound. The <a href="/chialisp-oxide/reports/runtime-refinement-baseline.json">reviewed interval and decoder transition</a>, its unchanged <a href="/chialisp-oxide/reports/helper-inlining-baseline.json">helper-inlining</a> and <a href="/chialisp-oxide/reports/cost-optimization-baseline.json">earlier cost snapshots</a>, and the <a href="/chialisp-oxide/reports/validation.json">current validation report</a> retain the finite observations. Module bytes and primary VM execution cost exclude transaction-generator encoding and condition costs.</p>
 <style>
   .table-wrap { overflow-x: auto; }
   table { width: 100%; font-size: .8rem; }

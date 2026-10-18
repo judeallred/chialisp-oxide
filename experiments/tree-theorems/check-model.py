@@ -164,6 +164,7 @@ def finite_inputs(corpus=None):
         "scripts/check-readable-puzzles.py",
         "scripts/runtime_cost_migration.py",
         "scripts/runtime_inline_migration.py",
+        "scripts/runtime_refinement_migration.py",
         "scripts/runtime_password_migration.py",
         "scripts/password_evidence.py",
         "scripts/password_ledger.py",
@@ -171,6 +172,7 @@ def finite_inputs(corpus=None):
         "scripts/password_vectors.py",
         "corpus/cost-optimization-baseline.json",
         "corpus/helper-inlining-baseline.json",
+        "corpus/runtime-refinement-baseline.json",
         "crates/chialisp-oxide-simulator/rejection-protocol.json",
     )]
     inputs += [contained_file(ROOT, source["path"]) for source in corpus["authoring"]["sources"]]

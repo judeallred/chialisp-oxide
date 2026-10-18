@@ -17,7 +17,8 @@ def rejected(action, label):
 def self_test(report):
     preserve(report)
     from runtime_inline_migration import is_inline, project_validated as inline_projection
-    if is_inline(report):
+    from runtime_refinement_migration import is_refinement
+    if is_inline(report) or is_refinement(report):
         # Public preserve above validates current evidence before this pure
         # historical boundary. The outer layer has its own direct mutants.
         report = inline_projection(report)

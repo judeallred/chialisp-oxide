@@ -124,6 +124,12 @@ Signed parameters preserve signed bounds. Arithmetic uses those same declared
 bounds and rejects on overflow. The VM's arbitrary-precision arithmetic is an
 implementation mechanism, not permission to change Rust integer semantics.
 
+The optimized integer decoder uses a lazy nil case and unsigned byte bounds
+`[0080, ff80)` for nonempty minimal signed encodings. It retains atom shape,
+length and numeric-width checks before running the body. The separate
+[canonicality law](/chialisp-oxide/reference/optimization/#decode-canonical-integers-without-repeating-the-body)
+is a Seq8 model with source-hash metadata, not a translation proof of this ABI.
+
 ## Booleans, bytes, and products
 
 A boolean accepts exactly `()` or `1`; other truthy atoms such as `2` reject.

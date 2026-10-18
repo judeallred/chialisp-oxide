@@ -1,0 +1,221 @@
+{
+  "baseline": {
+    "queries": [
+      {
+        "expected_status": "unsat",
+        "name": "equivalence",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "valid-nil",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "valid-positive-128",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "valid-negative-129",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "unsat",
+        "name": "reject-00",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "invalid-domain-00",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "unsat",
+        "name": "reject-0001",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "invalid-domain-0001",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "unsat",
+        "name": "reject-ffff",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "invalid-domain-ffff",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "unsat",
+        "name": "reject-ff80",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "invalid-domain-ff80",
+        "observed_status": "sat"
+      },
+      {
+        "expected_status": "unsat",
+        "name": "reject-007f00",
+        "observed_status": "unsat"
+      },
+      {
+        "expected_status": "sat",
+        "name": "invalid-domain-007f00",
+        "observed_status": "sat"
+      }
+    ],
+    "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x80))\n           (less_than_two value #xff #x80))))\n(echo \"equivalence\")\n(push)\n(assert (not (= minimal interval)))\n(check-sat)\n(pop)\n(echo \"valid-nil\")\n(push)\n(assert (= value (as seq.empty Bytes)))\n(assert minimal)\n(assert interval)\n(check-sat)\n(pop)\n(echo \"valid-positive-128\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x80))))\n(assert minimal)\n(assert interval)\n(check-sat)\n(pop)\n(echo \"valid-negative-129\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #x7f))))\n(assert minimal)\n(assert interval)\n(check-sat)\n(pop)\n(echo \"reject-00\")\n(push)\n(assert (= value (seq.unit #x00)))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"invalid-domain-00\")\n(push)\n(assert (= value (seq.unit #x00)))\n(assert (not minimal))\n(assert (not interval))\n(check-sat)\n(pop)\n(echo \"reject-0001\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x01))))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"invalid-domain-0001\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x01))))\n(assert (not minimal))\n(assert (not interval))\n(check-sat)\n(pop)\n(echo \"reject-ffff\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #xff))))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"invalid-domain-ffff\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #xff))))\n(assert (not minimal))\n(assert (not interval))\n(check-sat)\n(pop)\n(echo \"reject-ff80\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #x80))))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"invalid-domain-ff80\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #x80))))\n(assert (not minimal))\n(assert (not interval))\n(check-sat)\n(pop)\n(echo \"reject-007f00\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x7f) (seq.unit #x00))))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"invalid-domain-007f00\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x7f) (seq.unit #x00))))\n(assert (not minimal))\n(assert (not interval))\n(check-sat)\n(pop)\n",
+    "smt2_sha256": "38bd88e13419be9f10ebb4d8f4474c0ed2e9f239cf67808f15e001a8bcc64833"
+  },
+  "decoder_sources": [
+    {
+      "path": "crates/chialisp-oxide-ir/src/lower.rs",
+      "sha256": "fb769d5f14e09b0c50fc03e73fc62bcdaa5a5a8a47ea1a33a1e8bb7837b6e854"
+    },
+    {
+      "path": "crates/chialisp-oxide-ir/tests/integer_decoder.rs",
+      "sha256": "c52e330f33a3cda3c102a6181c259a7e5befd754279b4843e0fda4250ddd780a"
+    }
+  ],
+  "implementation_sources": [
+    {
+      "path": "proofs/integer-canonicality.smt2",
+      "sha256": "68cca1a7f136b1e6ff6bf3e2da89e2cfc1e12f5c2086fc8671e240fc6cf65ef1"
+    },
+    {
+      "path": "scripts/check-integer-canonicality.py",
+      "sha256": "5012c799166045da0eff675cdbdd0b7775d8f115b4ef86db859a237a0fc19f10"
+    }
+  ],
+  "model_source_mutations": [
+    {
+      "mutated_model_sha256": "429740d1fd1c6679c2063a295ebe75edf450c2aa813e38d605e2ccaf66dbb6a8",
+      "mutated_query": {
+        "queries": [
+          {
+            "expected_status": "sat",
+            "name": "lower-007f-after",
+            "observed_status": "sat"
+          },
+          {
+            "expected_status": "sat",
+            "name": "lower-007f-inequivalent",
+            "observed_status": "sat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x7f))\n           (less_than_two value #xff #x80))))\n(echo \"lower-007f-after\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x7f) (seq.unit #x00))))\n(assert (not minimal))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"lower-007f-inequivalent\")\n(push)\n(assert (not (= minimal interval)))\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "cdd6d0d96f5cfec60df72cd5f0aef0e17feabc8fa50f755b551f31bf684b99ed"
+      },
+      "name": "lower-007f",
+      "original_query": {
+        "queries": [
+          {
+            "expected_status": "unsat",
+            "name": "lower-007f-before",
+            "observed_status": "unsat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x80))\n           (less_than_two value #xff #x80))))\n(echo \"lower-007f-before\")\n(push)\n(assert (= value (seq.++ (seq.unit #x00) (seq.unit #x7f) (seq.unit #x00))))\n(assert (not minimal))\n(assert interval)\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "fe711405fc3d8a2f0ab324e81ea4c88221dc491e7b49585ddc567db26a61ec8a"
+      },
+      "scope": "actual SMT model-source mutation; not a Rust/CLVM compiler mutation",
+      "witness_hex": "007f00"
+    },
+    {
+      "mutated_model_sha256": "d8f5062a8759879ad883ca2ebcf6a274ecfd569cd16737d5552569eda6b05d4b",
+      "mutated_query": {
+        "queries": [
+          {
+            "expected_status": "sat",
+            "name": "upper-ff81-after",
+            "observed_status": "sat"
+          },
+          {
+            "expected_status": "sat",
+            "name": "upper-ff81-inequivalent",
+            "observed_status": "sat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x80))\n           (less_than_two value #xff #x81))))\n(echo \"upper-ff81-after\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #x80))))\n(assert (not minimal))\n(assert interval)\n(check-sat)\n(pop)\n(echo \"upper-ff81-inequivalent\")\n(push)\n(assert (not (= minimal interval)))\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "e6597cc43d332c2256b13c0a1fbb71c1089e391f61ae7c3a5ca4e25e8f18fe60"
+      },
+      "name": "upper-ff81",
+      "original_query": {
+        "queries": [
+          {
+            "expected_status": "unsat",
+            "name": "upper-ff81-before",
+            "observed_status": "unsat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x80))\n           (less_than_two value #xff #x80))))\n(echo \"upper-ff81-before\")\n(push)\n(assert (= value (seq.++ (seq.unit #xff) (seq.unit #x80))))\n(assert (not minimal))\n(assert interval)\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "114cfd88657063799ecfa72ee38acd2238ca43c79b152d9002946e1ba5975fe2"
+      },
+      "scope": "actual SMT model-source mutation; not a Rust/CLVM compiler mutation",
+      "witness_hex": "ff80"
+    },
+    {
+      "mutated_model_sha256": "5ab2b4cb329f2f09c218c7ddae101ddb4992ae74631427ef2ec8383ad38ed6ce",
+      "mutated_query": {
+        "queries": [
+          {
+            "expected_status": "sat",
+            "name": "drop-nil-after",
+            "observed_status": "sat"
+          },
+          {
+            "expected_status": "sat",
+            "name": "drop-nil-inequivalent",
+            "observed_status": "sat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (and (not (less_than_two value #x00 #x80))\n       (less_than_two value #xff #x80)))\n(echo \"drop-nil-after\")\n(push)\n(assert (= value (as seq.empty Bytes)))\n(assert minimal)\n(assert (not interval))\n(check-sat)\n(pop)\n(echo \"drop-nil-inequivalent\")\n(push)\n(assert (not (= minimal interval)))\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "e2a28e1df214dcb28cbdcb42d52218a7058d38b3b055ef0b36d7c42b70e23e93"
+      },
+      "name": "drop-nil",
+      "original_query": {
+        "queries": [
+          {
+            "expected_status": "unsat",
+            "name": "drop-nil-before",
+            "observed_status": "unsat"
+          }
+        ],
+        "smt2": "; Model-level equivalence of sign-extension minimality and two unsigned-byte\n; lexicographic bounds, over arbitrary finite byte sequences. This does not\n; prove the actual CLVM opcode, lowering, execution cost or compiler preservation.\n(set-option :timeout 10000)\n(define-sort Bytes () (Seq (_ BitVec 8)))\n(declare-const value Bytes)\n(define-fun less_than_two ((s Bytes) (a (_ BitVec 8)) (b (_ BitVec 8))) Bool\n  (or (= (seq.len s) 0)\n      (and (> (seq.len s) 0)\n           (or (bvult (seq.nth s 0) a)\n               (and (= (seq.nth s 0) a)\n                    (or (= (seq.len s) 1)\n                        (and (> (seq.len s) 1) (bvult (seq.nth s 1) b))))))))\n(define-fun minimal () Bool\n  (or (= (seq.len value) 0)\n      (and\n        (or (not (= (seq.nth value 0) #x00))\n            (and (> (seq.len value) 1) (bvuge (seq.nth value 1) #x80)))\n        (or (not (= (seq.nth value 0) #xff))\n            (= (seq.len value) 1)\n            (bvult (seq.nth value 1) #x80)))))\n(define-fun interval () Bool\n  (or (= (seq.len value) 0)\n      (and (not (less_than_two value #x00 #x80))\n           (less_than_two value #xff #x80))))\n(echo \"drop-nil-before\")\n(push)\n(assert (= value (as seq.empty Bytes)))\n(assert minimal)\n(assert (not interval))\n(check-sat)\n(pop)\n",
+        "smt2_sha256": "831c95acba4f309f81880815dcf901d7426cc2b506e66f5d04663b0fddf8cc51"
+      },
+      "scope": "actual SMT model-source mutation; not a Rust/CLVM compiler mutation",
+      "witness_hex": ""
+    }
+  ],
+  "protocol": "chialisp-oxide-integer-canonicality/v1",
+  "schema_version": 1,
+  "scope": {
+    "decoder_source_binding": "metadata freshness only; source is not translated into this model",
+    "domain": "all arbitrary finite sequences of unsigned 8-bit bytes",
+    "law": "minimal signed sign extension iff nil or unsigned lexicographic bytes in [0080, ff80)",
+    "method": "Z3 Seq8 model: negated equivalence UNSAT, explicit positive/negative witnesses and bound mutations",
+    "not_proven": [
+      "actual CLVM opcode semantics",
+      "exact environment ABI",
+      "integer-width admission",
+      "compiler or optimizer preservation",
+      "VM execution cost",
+      "native/VM execution bridge"
+    ],
+    "solver_assumption": "the installed version-matching Z3 executable is trusted; no binary authentication claim"
+  },
+  "solver": {
+    "name": "Z3",
+    "version": "Z3 version 4.15.4 - 64 bit"
+  },
+  "solver_protocol_controls": 19
+}

@@ -71,7 +71,7 @@ def rust_on(rows):
 
 def is_new(report):
     pipeline = report.get("optimization_pipeline")
-    if pipeline == READABLE["INLINE_PIPELINE"]:
+    if pipeline in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"]):
         return True  # New relative to the original pre-cost pipeline as well.
     require(pipeline in (OLD_PIPELINE, NEW_PIPELINE), "Unknown optimization pipeline")
     return pipeline == NEW_PIPELINE
@@ -115,6 +115,9 @@ def check_rows(actual, old, new=None, *, diagnostic=False, slug=None):
 
 def hash_diagnostic_profile(report):
     """Small closed profile for the direct hash gate; no historical projection."""
+    if report.get("optimization_pipeline") == READABLE["REFINEMENT_PIPELINE"]:
+        from runtime_refinement_migration import hash_diagnostic_profile as selected
+        return selected(report)
     if report.get("optimization_pipeline") == READABLE["INLINE_PIPELINE"]:
         from runtime_inline_migration import hash_diagnostic_profile as selected
         return selected(report)
@@ -219,7 +222,7 @@ def project_validated(report):
 
 
 def preserve(report):
-    if report.get("optimization_pipeline") == READABLE["INLINE_PIPELINE"]:
+    if report.get("optimization_pipeline") in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"]):
         from runtime_inline_migration import preserve as outer_preservation
         # The outer layer checks actual current evidence first. Never run
         # current-source checks again on its historical signed405 projection.

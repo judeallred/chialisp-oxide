@@ -119,7 +119,7 @@ implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and return
 32 bytes through strict version-4 runtime bindings. Installed rustc/std and
 native-object consistency remain trusted; all proof models reject hash nodes.
 The fresh twenty-one-port report records native, five-build differential and ledger
-agreement. Local macOS verification passes 482 workspace tests and all-target
+agreement. Local macOS verification passes 502 workspace tests and all-target
 Clippy with warnings denied. The hash gate passes 168 corruption controls and
 22,285 retained-artifact VM replays. Historical migration gates retain the
 earlier reports; a separate closed transition reviews the optimized Rust
@@ -162,13 +162,34 @@ measurements include the instance wrapper but exclude bundle/condition costs.
 Any optimization must retain exact raw input domains and strict failure behavior;
 narrowing the original ABI or discarding required work would change the program.
 
-The next numeric experiment is branch-aware integer intervals over immutable
-arguments and locals. A successful `counter < 1000` or `amount <= 1000` can prove
-an unused repeated addition/subtraction total. First remove only that duplicate
-initializer, keep the final checked operation and full decoder, and compare
-off/on artifacts with boundary, padding, overflow and divergence controls.
-Factoring repeated decoder continuations is a separate size experiment; larger
-recursive helper bodies and post-inlining facts need separate cost measurements.
+A third closed transition retains signed commit `c87957e2` and its unchanged
+helper-inlining snapshot. Branch-local intervals now remove proven-total
+repeated checked Add/Sub initializers without removing the final checked
+operation. The integer decoder uses a lazy nil case and unsigned byte bounds
+`[0080, ff80)`, preserving scalar shape, length, canonicality, numeric range and
+body order. Compared with that signed milestone, optimized capped-payment is
+1,275 → 539 bytes, split-payment 2,575 → 839, and counter 1,885 → 567. Eight of
+247 accepted named inputs cost less in the primary VM, 239 are unchanged, and
+none costs more in this finite set. All 21 unoptimized artifacts remain exact.
+The current profile is `corpus/runtime-refinement-baseline.json`.
+
+A separate Seq8 model proves the signed-encoding law, with source-hash metadata,
+positive/negative witnesses and model-source mutations. It does not translate
+the decoder source or prove opcodes, integer-width admission, the complete ABI,
+execution cost or compiler preservation. Finite decoder and interval tests
+remain separate. Post-inlining refinement and larger recursive helper frames
+still need profiling before further rewrites.
+
+A constant-SHA experiment was **not adopted**. Folding the tiny `"abc"` hash
+changed 22 → 47 module bytes while reducing primary VM cost from 699 → 151.
+The isolated `p2_singleton` prototype grew 1,972 → 2,158 bytes while its 136
+accepted inputs each saved 5,454 VM units. Complete transaction/generator costs
+were not measured for that variant. A conservative size-aware version folding
+only payloads of at least 32 bytes changed none of the current 21 ports or the
+prototype. Its accounting for repeated traversal of shared LIR also needs work.
+These external experiments add no published corpus or consensus coverage and
+introduce no public compiler feature. Future optimization should compare both
+serialized programs and actual transaction costs rather than VM cost alone.
 
 1. Extend the implemented runtime-call IR and checked Rust recursion to further
    published list helpers. `last_inner` now has empty-atom matching and an

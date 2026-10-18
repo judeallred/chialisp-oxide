@@ -125,6 +125,9 @@ def hash_diagnostic_profile(report):
 
 def project_validated(report):
     """Historical projection only; public preserve checks current sources first."""
+    if report.get("optimization_pipeline") == cost.READABLE["REFINEMENT_PIPELINE"]:
+        from runtime_refinement_migration import project_validated as outer_projection
+        report = outer_projection(report)
     baseline = predecessor()
     old_rows = baseline["reviewed_after"]["puzzles"]
     require([p["slug"] for p in report["puzzles"]] == [p["slug"] for p in old_rows]
@@ -135,6 +138,22 @@ def project_validated(report):
                 "Historical helper baseline is not exactly signed405")
         return copy.deepcopy(report)
     after_rows = reviewed_new(report)["puzzles"]
+    result = project_slots(report, old_rows, after_rows)
+    result["optimization_pipeline"] = copy.deepcopy(OLD_PIPELINE)
+    result["rue_local_patches"] = copy.deepcopy(BEFORE_PATCHES)
+    require(sha(canonical(result)) == REPORT_CANONICAL,
+            "Helper-inlining changed retained405 OFF/reference/Rue/raw sources/ABI/order/coverage/outcomes/ledger or unknown metadata")
+    return result
+
+
+def project_slots(report, old_rows, after_rows):
+    """Restore only reviewed optimized slots; caller must check its whole digest.
+
+    This shared implementation does not select a stage, validate current source
+    freshness, or authorize a new profile. Each closed caller owns those gates.
+    """
+    require([p["slug"] for p in report["puzzles"]] == [p["slug"] for p in old_rows]
+            == [p["slug"] for p in after_rows], "Changed optimized-slot fixture identity/order")
     result = copy.deepcopy(report)
     for current, target, old, measured in zip(report["puzzles"], result["puzzles"], old_rows, after_rows):
         cost.artifact_bytes(rust_on(current["artifacts"]))
@@ -166,10 +185,6 @@ def project_validated(report):
         require(same(ledger, candidate["ledger"]), "Unreviewed inlined Rust-on ledger evidence")
         cost.check_ledger_transition(ledger, previous["ledger"])
         t["ledger"][c["ledger"].index(ledger)] = copy.deepcopy(previous["ledger"])
-    result["optimization_pipeline"] = copy.deepcopy(OLD_PIPELINE)
-    result["rue_local_patches"] = copy.deepcopy(BEFORE_PATCHES)
-    require(sha(canonical(result)) == REPORT_CANONICAL,
-            "Helper-inlining changed retained405 OFF/reference/Rue/raw sources/ABI/order/coverage/outcomes/ledger or unknown metadata")
     return result
 
 

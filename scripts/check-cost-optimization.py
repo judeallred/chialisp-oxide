@@ -123,7 +123,8 @@ def main():
     report = json.loads(report_bytes, object_pairs_hook=unique_object)
     if is_new(report):
         from runtime_inline_migration import is_inline, load as inline_profile
-        profile = inline_profile() if is_inline(report) else load()
+        from runtime_refinement_migration import is_refinement, load as refinement_profile
+        profile = refinement_profile() if is_refinement(report) else inline_profile() if is_inline(report) else load()
         require(sha(report_bytes) == profile["reviewed_after"]["report_sha256"], "Current report bytes differ from final reviewed cost profile")
     print("PASS: closed cost evidence", measurements(report))
     for path in args.ir_bundle:

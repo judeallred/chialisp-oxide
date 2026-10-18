@@ -5,6 +5,7 @@ mod budget;
 mod constants;
 mod facts;
 mod inline;
+mod intervals;
 
 pub(crate) struct Plan {
     pub program: Program,
@@ -42,11 +43,13 @@ fn refine(program: &Program) -> Result<Option<Program>> {
         return Ok(None);
     }
     let result = constants::optimize(&refined)?;
+    let result = intervals::optimize(&result)?.unwrap_or(result);
     Ok(budget::allows_recursive_refinement(&result).then_some(result))
 }
 
-/// Simplify checked constants and forward execution-success facts, then remove
-/// eligible legacy pair guards and inline bounded closed helpers. Preserve
+/// Simplify checked constants, forward execution-success facts and proven-total
+/// discarded arithmetic, then remove eligible legacy pair guards and inline
+/// bounded closed helpers. Preserve
 /// values, rejection and strict effects; VM costs, resource thresholds and
 /// diagnostic strings are not preserved.
 ///

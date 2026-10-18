@@ -69,12 +69,14 @@ const publishedReports = [
   ['tree-theorems', 'experiments/tree-theorems/results.json'],
   ['cost-optimization-baseline', 'corpus/cost-optimization-baseline.json'],
   ['helper-inlining-baseline', 'corpus/helper-inlining-baseline.json'],
+  ['runtime-refinement-baseline', 'corpus/runtime-refinement-baseline.json'],
+  ['integer-canonicality-proof', 'corpus/integer-canonicality-proof.json'],
 ];
 for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
-  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline'].includes(name)) {
+  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof'].includes(name)) {
     assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
   }
 }
@@ -186,35 +188,47 @@ for (const [name, bad] of [
 // Expressive Code normalizes surrounding/trailing whitespace, but wrapping
 // must not add newlines or otherwise rewrite the copied program text.
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
+let checkedSourceCopies = 0;
 const costPredecessorBytes = await readFile(path.join(root, 'reports/cost-optimization-baseline.json'));
 assert.equal(createHash('sha256').update(costPredecessorBytes).digest('hex'), '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308', 'Historical cost baseline bytes changed');
 const costPredecessor = JSON.parse(costPredecessorBytes.toString('utf8'));
-const costBaseline = JSON.parse(await readFile(path.join(root, 'reports/helper-inlining-baseline.json'), 'utf8'));
-const costBefore = costPredecessor.reviewed_after.puzzles;
+const costHelperBytes = await readFile(path.join(root, 'reports/helper-inlining-baseline.json'));
+assert.equal(createHash('sha256').update(costHelperBytes).digest('hex'), '0b7326f83065ab1bc186a1e9b0d3b5c581fa7cc3110845cc4b6db70a39b5da52', 'Historical helper-inlining baseline bytes changed');
+const costHelper = JSON.parse(costHelperBytes.toString('utf8'));
+const costBaseline = JSON.parse(await readFile(path.join(root, 'reports/runtime-refinement-baseline.json'), 'utf8'));
+const costBefore = costHelper.reviewed_after.puzzles;
 const costReview = costBaseline.reviewed_after;
 assert.equal(costPredecessor.protocol, 'chialisp-oxide-cost-migration/v1');
 assert.equal(costPredecessor.reviewed_after.status, 'reviewed_final');
-assert.equal(costBaseline.protocol, 'chialisp-oxide-helper-inlining/v1');
+assert.equal(costHelper.protocol, 'chialisp-oxide-helper-inlining/v1');
+assert.equal(costHelper.baseline.commit, '405792113242aed8d94d3dc4805ed68fc667b3d1');
+assert.equal(costHelper.baseline.report_sha256, 'edaeebaebe368b72bb471c37b0fd608d1000f5a83b1f8defc9c8ec6eb04b468d');
+assert.deepEqual(costHelper.predecessor, { path: 'corpus/cost-optimization-baseline.json', sha256: createHash('sha256').update(costPredecessorBytes).digest('hex') });
+assert.equal(costPredecessor.reviewed_after.report_sha256, costHelper.baseline.report_sha256);
+assert.deepEqual(costHelper.optimization_pipeline.before, costPredecessor.reviewed_after.optimization_pipeline);
+assert.equal(costHelper.reviewed_after.status, 'reviewed_final');
+assert.equal(costBaseline.protocol, 'chialisp-oxide-runtime-refinement/v1');
 assert.equal(costBaseline.baseline.repository, 'https://github.com/judeallred/chialisp-oxide');
-assert.equal(costBaseline.baseline.commit, '405792113242aed8d94d3dc4805ed68fc667b3d1');
-assert.equal(costBaseline.baseline.report_sha256, 'edaeebaebe368b72bb471c37b0fd608d1000f5a83b1f8defc9c8ec6eb04b468d');
-assert.equal(costBaseline.baseline.report_git_blob_sha1, '41283c25de4beb2ce31aa33a2bfd0aa8262302d8');
-assert.deepEqual(costBaseline.predecessor, { path: 'corpus/cost-optimization-baseline.json', sha256: createHash('sha256').update(costPredecessorBytes).digest('hex') });
-assert.equal(costPredecessor.reviewed_after.report_sha256, costBaseline.baseline.report_sha256);
-assert.deepEqual(costBaseline.optimization_pipeline.before, costPredecessor.reviewed_after.optimization_pipeline);
+assert.equal(costBaseline.baseline.commit, 'c87957e2d28c832ec76551aa0c5e16e31f973b2f');
+assert.equal(costBaseline.baseline.report_sha256, 'c3448703f6912d94900b2d012aabb610f1f2efc174f19699094fd43229f4e1ac');
+assert.equal(costBaseline.baseline.report_git_blob_sha1, '38c14f911eb6462044fd8bf0d0b11d6404457614');
+assert.deepEqual(costBaseline.predecessor, { path: 'corpus/helper-inlining-baseline.json', sha256: createHash('sha256').update(costHelperBytes).digest('hex') });
+assert.equal(costHelper.reviewed_after.report_sha256, costBaseline.baseline.report_sha256);
+assert.deepEqual(costBaseline.optimization_pipeline.before, costHelper.reviewed_after.optimization_pipeline);
 assert.deepEqual(costBaseline.optimization_pipeline.after, validation.optimization_pipeline);
-assert.deepEqual(costBaseline.rue_local_patches.before, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`));
-assert.equal(costBaseline.rue_local_patches.status, 'reviewed');
-assert.deepEqual(costBaseline.rue_local_patches.added, ['https://github.com/xch-dev/rue/issues/114']);
-assert(!costBaseline.rue_local_patches.before.includes(costBaseline.rue_local_patches.added[0]));
-assert.deepEqual(validation.rue_local_patches, [...costBaseline.rue_local_patches.before, ...costBaseline.rue_local_patches.added]);
-// This intentionally fails while the reviewed transition still names a scratch
-// benchmark. Only the final freshly generated report can supply release pins.
+assert.deepEqual(costHelper.rue_local_patches.before, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`));
+assert.equal(costHelper.rue_local_patches.status, 'reviewed');
+assert.deepEqual(costHelper.rue_local_patches.added, ['https://github.com/xch-dev/rue/issues/114']);
+assert(!costHelper.rue_local_patches.before.includes(costHelper.rue_local_patches.added[0]));
+assert.deepEqual(validation.rue_local_patches, [...costHelper.rue_local_patches.before, ...costHelper.rue_local_patches.added]);
+// Pending profiles never substitute scratch measurements for a publication.
 assert.equal(costReview.status, 'reviewed_final', 'Optimization measurements must be final reviewed evidence');
 assert.equal(costReview.report_path, 'corpus/validation.json');
 assert.equal(costReview.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Reviewed optimization report is stale');
 assert.deepEqual(costReview.optimization_pipeline, validation.optimization_pipeline);
-assert.equal(costBefore.length, 21, 'The signed405 baseline must retain its entire reviewed corpus');
+assert.equal(costBefore.length, 21, 'The signed c879 baseline must retain its entire reviewed corpus');
+// The immutable earliest cost snapshot owns the Cargo authoring metadata;
+// helper-inlining and runtime-refinement profiles retain observation slots.
 assert.deepEqual(costPredecessor.authoring, validation.authoring, 'Optimization comparisons changed their Cargo source inputs');
 assert.deepEqual(costBefore.map(row => row.slug), validation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
 assert.deepEqual(costReview.puzzles.map(row => row.slug), costBefore.map(row => row.slug), 'Missing/extra/reordered reviewed optimization row');
@@ -265,17 +279,51 @@ for (const [index, before] of costBefore.entries()) {
   for (const [label, value] of [['before', sample.execution.cost], ['now', current.cost]]) safeMetric(value, 0, `${before.slug}/${label} cost`);
   costRows.push({ slug: puzzle.slug, title: puzzle.title, label: sample.label, values: [before.artifact.bytes, after.bytes, sample.execution.cost, current.cost] });
 }
+const acceptedCostDeltas = costBefore.flatMap((before, index) => before.cases.flatMap((sample, caseIndex) => {
+  if (sample.execution.outcome.status !== 'accepted') return [];
+  const after = costReview.puzzles[index].cases[caseIndex].execution;
+  assert.deepEqual(after.outcome, sample.execution.outcome, `${before.slug}/${sample.label}: accepted-cost summary changes outcome`);
+  safeMetric(sample.execution.cost, 0, `${before.slug}/${sample.label} before cost`);
+  safeMetric(after.cost, 0, `${before.slug}/${sample.label} current cost`);
+  return [after.cost - sample.execution.cost];
+}));
 const optimizationFilename = path.join(root, 'reference/optimization/index.html');
 const optimizationGuide = await html(optimizationFilename);
 assert((await readFile(optimizationFilename)).length <= 512 * 1024, 'Optimization guide exceeds its 512KiB HTML budget');
 const optimizationText = plainText(optimizationGuide);
 for (const label of ['Successful execution gives useful facts', 'only facts valid on every successful incoming branch', 'A rejecting branch has no successful continuation', 'A callee starts a fresh scope', 'removing the earlier guard', 'an unused call, SHA computation or checked projection still runs', 'not averages or a universal performance bound', 'no general compiler-preservation proof']) assert(optimizationText.includes(label), `Optimization guide loses its claim boundary: ${label}`);
 for (const label of ['Recursive functions keep their calls', 'Every argument becomes an ordered lexical binding', 'an unused argument that rejects, overflows, hashes or diverges', 'Callee locals receive fresh identities', 'Only typed compiler-limit failures', 'compilation retries the previous optimized program', 'Type errors and other compiler errors remain errors', 'Public optimize() results', 'serialized and compiled again']) assert(optimizationText.includes(label), `Helper-inlining guide loses its strictness or serialization boundary: ${label}`);
-for (const route of ['reports/helper-inlining-baseline.json', 'reports/cost-optimization-baseline.json', 'reports/validation.json']) assert(optimizationGuide.includes(`href="${base}${route}"`), `Optimization guide misses evidence download: ${route}`);
+for (const route of ['reports/runtime-refinement-baseline.json', 'reports/helper-inlining-baseline.json', 'reports/cost-optimization-baseline.json', 'reports/integer-canonicality-proof.json', 'reports/validation.json']) assert(optimizationGuide.includes(`href="${base}${route}"`), `Optimization guide misses evidence download: ${route}`);
 assert(optimizationGuide.includes(`href="${costBaseline.baseline.repository}/commit/${costBaseline.baseline.commit}"`), 'Optimization guide lost its exact signed baseline source link');
+const summaries = [...optimizationGuide.matchAll(/<p\b[^>]*data-cost-summary[^>]*>/g)];
+assert.equal(summaries.length, 1, 'Missing/duplicate accepted-cost summary');
+for (const [name, expected] of Object.entries({ accepted: acceptedCostDeltas.length, lower: acceptedCostDeltas.filter(delta => delta < 0).length, equal: acceptedCostDeltas.filter(delta => delta === 0).length, higher: acceptedCostDeltas.filter(delta => delta > 0).length })) {
+  assert(summaries[0][0].includes(`data-${name}="${expected}"`), `Accepted-cost summary differs from complete measurements: ${name}`);
+}
+const canonicality = JSON.parse(await readFile(path.join(root, 'reports/integer-canonicality-proof.json'), 'utf8'));
+assert.equal(canonicality.protocol, 'chialisp-oxide-integer-canonicality/v1');
+assert.equal(canonicality.baseline.queries.length, 14);
+assert.equal(canonicality.model_source_mutations.length, 3);
+assert(optimizationGuide.includes('data-integer-canonicality="chialisp-oxide-integer-canonicality/v1"'), 'Missing recorded canonicality evidence');
+assert(optimizationText.includes(canonicality.solver.version), 'Canonicality solver metadata not displayed');
+assert(optimizationText.includes(canonicality.scope.decoder_source_binding), 'Canonicality source binding overstated');
+for (const claim of ['Refine checked integer intervals', 'Decode canonical integers without repeating the body', 'final operation remains checked', 'budget exhaustion skips this optional pass', 'not compiler mutations', 'without running Z3', 'does not prove actual CLVM opcodes', 'complete transaction', 'generator encoding', 'exact transaction costs need their own simulator or consensus measurement']) {
+  assert(optimizationText.includes(claim), `Interval/decoder guide loses its execution or model scope: ${claim}`);
+}
+for (const name of ['equivalence', 'valid-nil', 'valid-positive-128', 'valid-negative-129', 'reject-00', 'reject-0001', 'reject-ffff', 'reject-ff80', 'reject-007f00']) {
+  const query = canonicality.baseline.queries.find(query => query.name === name);
+  assert(query && query.expected_status === query.observed_status, `Canonicality display lacks retained query: ${name}`);
+}
+const counterSource = validation.puzzles.find(puzzle => puzzle.slug === 'bounded-counter');
+assert(counterSource, 'Missing measured counter source');
+const optimizationCopies = [...optimizationGuide.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+for (const [language, source] of [['Rust', counterSource.source], ['Chialisp', counterSource.reference], ['Rue', counterSource.rue.source]]) {
+  assert(optimizationCopies.includes(normalizedCode(source)), `Optimization tutorial copy payload differs from executed ${language} counter source`);
+  checkedSourceCopies++;
+}
 function checkCostRows(markup, rows) {
   const table = [...markup.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)]
-    .filter(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Optimized Rust before and after helper inlining: first accepted named input per puzzle');
+    .filter(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Optimized Rust before and after interval and decoder refinement: first accepted named input per puzzle');
   assert.equal(table.length, 1, 'Missing/duplicate optimization measurement table');
   const headers = [...table[0][1].matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map(match => plainText(match[1]));
   assert.deepEqual(headers, ['Puzzle / input', 'Before bytes', 'Now bytes', 'Before VM cost', 'Now VM cost'], 'Optimization table columns changed');
@@ -349,7 +397,6 @@ for (const download of sourceDataDownloads) {
   }
 }
 assert.deepEqual((await readdir(sourceDataDirectory)).sort(), sourceDataDownloads.map(entry => entry.basename).sort(), 'Unexpected/missing generated-source data download');
-let checkedSourceCopies = 0;
 for (const puzzle of validation.puzzles) {
   const detail = await html(path.join(root, `lab/${puzzle.slug}/index.html`));
   const detailText = decodeAttribute(detail.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
@@ -940,7 +987,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -1002,7 +1049,7 @@ try {
       const matches = await Promise.all(search.results.map(row => row.data()));
       for (const route of ['tutorials/password-coin/', 'lab/password-coin/']) assert(matches.some(row => row.url === `${base}${route}`), `Password module/instance documentation is not discoverable for ${term}: ${route}`);
     }
-    if (term === 'cost' || term === 'facts' || term === 'helper inlining') {
+    if (term === 'cost' || term === 'facts' || term === 'helper inlining' || term === 'intervals' || term === 'canonical integers') {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}reference/optimization/`), `Measured optimization and execution-success facts are not discoverable for ${term}`);
     }

@@ -407,13 +407,21 @@ expansion limits before Rue code generation. Unsupported MIR fails closed.
 Twenty-one Chialisp/Rust/Rue source comparisons use the actual Cargo library
 functions as native oracles, independent Chialisp compilation, and Rue source
 compilation. Rust optimization on runs checked constants, forward success
-facts, constants again, legacy tree guards, bounded helper inlining, runtime
-frame elision, Rue LIR and static pair codegen. Off skips these optional stages.
+facts, constants again, branch-local integer intervals, legacy tree guards,
+bounded helper inlining, runtime frame elision, lazy canonical-integer decoding,
+Rue LIR and static pair codegen. Off skips these optional stages.
 Frame elision applies only to runtime lowering; the legacy backward guard pass
 stays disabled there.
 Forward facts use only continuations reached after successful evaluation, so
 they do not move earlier failures past divergence. Rue source uses its LIR
 off/on switch. See [runtime optimization boundaries](runtime-calls.md).
+The interval rewrite removes only a discarded, repeated checked Add/Sub tuple
+after proving all of its work total; the final arithmetic stays checked.
+Canonical integer decoding uses a lazy nil case and unsigned byte bounds while
+retaining shape, length and numeric-range checks. Its separate Seq8 encoding-law
+model binds decoder source hashes as metadata, without translating or proving
+the compiler implementation. Serialized module bytes and primary VM costs are
+separate from transaction-generator encoding and condition costs.
 The validation report records these pipelines explicitly: 389 named and 20,796
 generated cases, plus 40 separate low-budget hash/password observations. The eight teaching
 coin fixtures and singleton launcher have 40 ledger scenario groups executed for

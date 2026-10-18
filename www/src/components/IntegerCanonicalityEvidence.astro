@@ -1,0 +1,45 @@
+---
+import proof from '../../../corpus/integer-canonicality-proof.json';
+
+if (proof.protocol !== 'chialisp-oxide-integer-canonicality/v1'
+    || proof.baseline.queries.length !== 14
+    || proof.model_source_mutations.length !== 3
+    || proof.baseline.queries.some(query => query.expected_status !== query.observed_status)
+    || proof.scope.decoder_source_binding !== 'metadata freshness only; source is not translated into this model') {
+  throw new Error('Missing recorded integer-canonicality model evidence');
+}
+const witnesses = [
+  { hex: 'nil', name: 'valid-nil', minimal: true },
+  { hex: '0080', name: 'valid-positive-128', minimal: true },
+  { hex: 'ff7f', name: 'valid-negative-129', minimal: true },
+  { hex: '00', name: 'reject-00', minimal: false },
+  { hex: '0001', name: 'reject-0001', minimal: false },
+  { hex: 'ffff', name: 'reject-ffff', minimal: false },
+  { hex: 'ff80', name: 'reject-ff80', minimal: false },
+  { hex: '007f00', name: 'reject-007f00', minimal: false },
+];
+for (const witness of witnesses) {
+  const query = proof.baseline.queries.find(query => query.name === witness.name);
+  if (query?.observed_status !== (witness.minimal ? 'sat' : 'unsat')) {
+    throw new Error(`Missing canonicality witness: ${witness.name}`);
+  }
+}
+---
+<div data-integer-canonicality="chialisp-oxide-integer-canonicality/v1">
+  <p>The retained Seq8 model reports <strong>UNSAT</strong> for a counterexample to the encoding law over arbitrary finite byte sequences. Its 14 baseline queries include positive witnesses and explicit padding rejections. Three model-source mutations supply nine further queries; they change the lower bound, upper bound or nil case. These are model-source mutations, not compiler mutations.</p>
+  <div class="table-wrap">
+    <table>
+      <caption>Recorded encoding witnesses; Rust integer bounds are checked separately</caption>
+      <thead><tr><th scope="col">Atom bytes</th><th scope="col">Minimal signed encoding?</th></tr></thead>
+      <tbody>{witnesses.map(witness => <tr><td><code>{witness.hex}</code></td><td>{witness.minimal ? 'Yes' : 'No'}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Recorded solver: <code>{proof.solver.version}</code>. The decoder-source binding is <strong>metadata freshness only; source is not translated into this model</strong>. This law does not prove actual CLVM opcodes, the complete ABI, integer-width admission, compiler preservation or execution costs. Finite VM tests check the emitted decoder separately.</p>
+  <p>Documentation builds inspect retained query text, statuses and current source hashes without running Z3. Compiler verification reruns the solver. Download the <a href="/chialisp-oxide/reports/integer-canonicality-proof.json">exact canonicality model report</a> or read the <a href="https://github.com/judeallred/chialisp-oxide/blob/main/proofs/integer-canonicality.smt2">SMT model source</a>.</p>
+</div>
+<style>
+  .table-wrap { overflow-x: auto; }
+  table { font-size: .85rem; }
+  caption { text-align: left; padding-bottom: .5rem; }
+  td { white-space: nowrap; }
+</style>

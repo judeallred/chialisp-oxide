@@ -189,7 +189,7 @@ fn main() -> Result<()> {
                 "toolchain": compiler.trim(), "rue_revision": RUE_REV,
                 "rue_local_patches": RUE_LOCAL_PATCHES,
                 "optimization_pipeline": {
-                    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_constants", "typed_ir_success_facts", "typed_ir_constants", "typed_ir_tree_guards", "typed_ir_helper_inlining", "runtime_frame_elision", "rue_lir", "static_pair_codegen"]},
+                    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_constants", "typed_ir_success_facts", "typed_ir_constants", "typed_ir_intervals", "typed_ir_tree_guards", "typed_ir_helper_inlining", "runtime_frame_elision", "lazy_integer_decoder", "rue_lir", "static_pair_codegen"]},
                     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]}
                 },
                 "execution_vm": "clvmr 0.21.0 MEMPOOL_MODE",

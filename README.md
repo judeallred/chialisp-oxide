@@ -135,14 +135,15 @@ changes while keeping source IR, unoptimized artifacts, other languages and
 semantic observations fixed. Resource controls remain separate from coverage.
 
 The optimizer now folds checked constants, propagates facts after successful
-execution, inlines bounded helpers, and removes redundant runtime frames and
-constructor checks. All
+execution, refines branch-local integer bounds, inlines bounded helpers, and
+removes redundant runtime frames and constructor checks. A compact integer
+decoder retains complete shape, canonicality and numeric-range validation. All
 three closed Intro expressions reproduce the original Chialisp bytes and
 20-unit VM cost. The [optimization guide](https://judeallred.github.io/chialisp-oxide/reference/optimization/)
 shows retained before/after measurements for all 21 puzzles and explains the
 strict-evaluation boundary. Runtime puzzles still have substantial cost gaps.
 
-Local macOS verification passes 482 workspace tests and all-target Clippy with
+Local macOS verification passes 502 workspace tests and all-target Clippy with
 warnings denied. The hash evidence gate passes 168 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,
 error-study, Lean and documentation gates are checked separately; these finite
@@ -173,12 +174,20 @@ python3 scripts/check-hashing-puzzles.py --self-test --replay
 python3 scripts/check-password-coin.py --self-test --replay --extract-ir
 python3 scripts/check-cost-optimization.py --self-test --replay
 python3 scripts/check-helper-inlining.py --self-test --replay
+python3 scripts/check-runtime-refinement.py --self-test --replay
+python3 scripts/check-integer-canonicality.py --check --self-test
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently
 specified bounds and acceptance, detects a removed guard, and replays witnesses
 through native Rust and both CLVM optimization modes. These are **IR-model
 proofs**, not proofs of compiler preservation or absence of all security flaws.
+
+The separate canonical-integer report checks a manually specified Seq8 encoding
+law with 23 solver queries and three model-source mutations. Its decoder-source
+hashes provide metadata freshness only; they do not translate or prove the
+decoder implementation, width checks, ABI, opcodes or compiler preservation.
+Documentation builds inspect retained evidence offline; compiler CI reruns Z3.
 
 The [byte-policy proof guide](https://judeallred.github.io/chialisp-oxide/verification/byte-proofs/)
 adds actual Cargo IR for `atom-not-equal` and five source controls, plus two

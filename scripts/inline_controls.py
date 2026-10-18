@@ -13,9 +13,14 @@ def rejected(action, label):
     raise ValueError("Cost-profile corruption passed: " + label)
 
 
-def self_test(report):
-    preserve(report)
-    project_validated(report)
+def self_test(report, *, projection=project_validated, current_validation=preserve,
+              normalize_refinement=True, baseline_ledger=None):
+    current_validation(report)
+    from runtime_refinement_migration import is_refinement, project_validated as refinement_projection
+    if normalize_refinement and is_refinement(report):
+        report = refinement_projection(report)
+    # Establish this historical stage's positive object before any mutation.
+    projection(report)
     controls = 0
     for mutation in ("source", "reference", "rue", "dependency", "native", "authoring", "abi", "input", "native_output",
                      "off_artifact", "off_cost", "reference_artifact", "rue_cost", "on_artifact", "on_cost", "on_failure",
@@ -78,9 +83,10 @@ def self_test(report):
         require(canonical(bad) != canonical(report), "No-op cost-profile corruption: " + mutation)
         # Exercise the projection itself as well as source checks. This prevents
         # whole-current freshness from masking a permissive normalization rule.
-        rejected(lambda: project_validated(bad), mutation)
+        rejected(lambda: projection(bad), mutation)
         controls += 1
-    old = predecessor()["reviewed_after"]["puzzles"][-1]["curried_instances"]["ledger"]
+    old = (predecessor()["reviewed_after"]["puzzles"][-1]["curried_instances"]["ledger"]
+           if baseline_ledger is None else baseline_ledger)
     actual = copy.deepcopy(rust_on(report["puzzles"][-1]["curried_instances"]["ledger"]))
     for attempt in actual["attempts"]:
         attempt["coin_id"] = "11" * 32

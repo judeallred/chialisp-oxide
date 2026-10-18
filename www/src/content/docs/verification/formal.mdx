@@ -117,8 +117,9 @@ produces 13 bytes without Rue optimization and 9 with it. Optimized Rust,
 independently compiled Chialisp, and optimized Rue therefore reproduce the
 published bytes and tree hash. This identity is measured from compiled artifacts;
 it is not inferred from the SMT result. Rust optimization enables checked
-constants, forward success facts, constants again, legacy tree guards, bounded
-helper inlining, runtime frame elision, Rue LIR and static pair codegen. The frame
+constants, forward success facts, constants again, branch-local integer intervals,
+legacy tree guards, bounded helper inlining, runtime frame elision, the lazy
+canonical-integer decoder, Rue LIR and static pair codegen. The frame
 stage has no effect on this runtime-free factory; unoptimized mode skips these optional stages. This
 model proof concerns the stated guard rewrite; it does not prove every new pass.
 
@@ -136,6 +137,22 @@ optimization. These executed tests complement the model proof for this factory.
 They do not establish a universal theorem for the optimization algorithm, Rue's
 passes, or source-to-CLVM compilation. Cost and diagnostic strings can change;
 the equivalence relation covers modeled rejection and successful output only.
+
+## A separate canonical-integer law
+
+The [integer decoder model](/chialisp-oxide/reference/optimization/#decode-canonical-integers-without-repeating-the-body)
+checks an encoding law over arbitrary finite byte sequences: minimal signed
+atoms are nil or lie in unsigned lexicographic `[0080, ff80)`. Its retained
+14 baseline queries and nine mutation queries are distinct from the
+source-derived factory and byte-policy models above. The decoder-source hashes
+are metadata freshness only; no source-to-model translation or native/VM bridge
+is claimed. Finite VM tests exercise the implementation separately.
+
+The [exact report](/chialisp-oxide/reports/integer-canonicality-proof.json)
+retains solver/version metadata, full queries, statuses and scope. Documentation
+builds inspect that record offline; compiler verification reruns Z3. This law
+does not prove actual CLVM opcodes, complete ABI checking, numeric width,
+compiler preservation or transaction costs.
 It does not turn a resource-limited inconclusive execution into model evidence.
 
 ## Integer masks and strict Boolean operations

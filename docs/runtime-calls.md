@@ -98,8 +98,9 @@ silently downgraded to the legacy evaluator or admitted to a model as legacy IR.
 ## Optimization and resource boundaries
 
 The optimized pipeline is checked constant folding → forward success facts →
-constant folding again → legacy tree guards → bounded helper inlining → runtime
-frame elision → Rue LIR optimization → static pair code generation. Off retains the original lowering
+constant folding again → branch-local integer intervals → legacy tree guards →
+bounded helper inlining → runtime frame elision → lazy canonical-integer decoding
+→ Rue LIR optimization → static pair code generation. Off retains the original lowering
 and skips these optional stages. The extracted source IR and its wire version
 stay unchanged; every owned IR rewrite is validated before lowering.
 
@@ -116,6 +117,27 @@ that explicitly rejects contributes no successful continuation. Calls have no
 inferred termination or return summaries, and each function starts a fresh
 analysis scope. Rustc still checks ordinary source types; these refinements
 belong to the owned optimizer over validated typed IR.
+
+Branch-local integer intervals additionally start from each declared integer
+width and refine immutable values on successful comparisons. The current
+rewrite removes only a discarded compiler-style checked Add/Sub tuple when its
+operands and result are proven total and the same operation remains later.
+The final operation remains checked; calls, SHA and raw projections receive no
+totality summaries. Each function starts fresh. Bounds merge conservatively
+across successful branches, and optional work exhaustion leaves the prior IR.
+For the counter, the surviving guard gives `0..=999`, proving that its repeated
+increment stays within `1..=1000`. The source and complete typed ABI remain
+unchanged.
+
+The optimized integer decoder retains atom shape → length cap → canonicality →
+declared numeric range → body order. Minimal signed bytes are nil or lie in
+the unsigned lexicographic interval `[0080, ff80)`. A lazy nil fast path and
+ordered bounds use two continuation copies instead of five. The separate
+`corpus/integer-canonicality-proof.json` records a Z3 Seq8 encoding-law model;
+its decoder-source hashes establish metadata freshness only. It does not
+translate the source or prove CLVM opcodes, width admission, complete ABI or
+compiler preservation. Actual VM boundary and strictness regressions are
+separate. `--no-optimize` retains the preceding decoder bytes.
 
 Bounded helper inlining removes small, closed, nonrecursive calls and direct
 identity-argument entry wrappers. Arguments become strict left-to-right lexical

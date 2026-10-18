@@ -22,6 +22,14 @@ integers cannot replace those obligations.
 explicit arithmetic operation; neither that name nor a domain wrapper changes
 the checked `u64` semantics.
 
+The optimizer can also use the successful guard: `counter` is then in
+`0..=999`, so its increment fits in `u64`. The current interval pass uses this
+fact to remove one discarded, repeated checked-arithmetic initializer from
+the extracted IR. It keeps the final checked addition, complete decoder and
+policy assertion. Input 1,000 still rejects, and padded input `0x0001` never
+reaches the body. See the [measured interval and decoder changes](/chialisp-oxide/reference/optimization/)
+for actual before/after bytes, VM costs and the distinct model-proof boundary.
+
 The generated corpus sweep exercises values on both sides of the policy
 boundary. This is finite test evidence. The formal companion instead asks a
 solver to find a violation of explicit predicates over the source-derived IR.

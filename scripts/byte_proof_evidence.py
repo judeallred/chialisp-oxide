@@ -179,6 +179,7 @@ def implementation_sources():
         "scripts/check-readable-puzzles.py",
         "scripts/runtime_cost_migration.py",
         "scripts/runtime_inline_migration.py",
+        "scripts/runtime_refinement_migration.py",
         "scripts/runtime_password_migration.py",
         "scripts/password_evidence.py",
         "scripts/password_ledger.py",
@@ -186,6 +187,7 @@ def implementation_sources():
         "scripts/password_vectors.py",
         "corpus/cost-optimization-baseline.json",
         "corpus/helper-inlining-baseline.json",
+        "corpus/runtime-refinement-baseline.json",
         "crates/chialisp-oxide-simulator/rejection-protocol.json",
     })
     paths.update(row["path"] for row in control_authoring()["sources"])

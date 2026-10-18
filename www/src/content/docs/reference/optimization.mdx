@@ -4,6 +4,8 @@ description: Measured Rust CLVM improvements, forward execution facts, strict ev
 ---
 import OptimizationMeasurements from '../../../components/OptimizationMeasurements.astro';
 import CanonicalMeasurements from '../../../components/CanonicalMeasurements.astro';
+import IntegerCanonicalityEvidence from '../../../components/IntegerCanonicalityEvidence.astro';
+import SourceComparison from '../../../components/SourceComparison.astro';
 
 **WIP prototype. These finite optimizations and tests do not establish compiler
 correctness or readiness for real funds.**
@@ -23,10 +25,18 @@ answers on examples alone would not establish it.
 <CanonicalMeasurements />
 
 Recursive and input-dependent puzzles still carry substantial overhead. The
-following table compares signed commit `40579211` with the current optimized compiler
+following table compares signed commit `c87957e2` with the current optimized compiler
 on the same named inputs. It includes unchanged rows so the scope stays visible.
 
 <OptimizationMeasurements />
+
+All 21 unoptimized Rust artifacts remain byte-exact.
+
+These columns measure serialized modules and primary VM execution. A complete
+transaction also pays for its generator encoding and condition processing.
+Compression and shared data can change that byte charge. A smaller VM cost
+alone does not establish a cheaper transaction; exact transaction costs need
+their own simulator or consensus measurement.
 
 ## Successful execution gives useful facts
 
@@ -58,6 +68,54 @@ These are optimizer facts over already validated typed IR. They do not invent
 new Rust source types or bypass rustc. Checked Tree-to-Atom casts retain their
 IR types; exact construction can make a backend guard redundant while the
 constructed payload still executes once.
+
+## Refine checked integer intervals
+
+The counter remains ordinary Rust checked by rustc:
+
+<SourceComparison slug="bounded-counter" />
+
+The ABI gives `counter` its complete `u64` range. After the assertion returns,
+the successful branch narrows that range to `0..=999`, so adding one stays in
+`1..=1000`. The split-payment guard similarly establishes `0..=1000`, making
+`1000 - first_amount` safe on that continuation.
+
+The source-derived IR can contain a discarded checked-arithmetic tuple followed
+by the same arithmetic again. The current interval pass removes only that
+discarded repeated Add/Sub initializer when every operand and the operation
+are proven total. The final operation remains checked. Neither the source's
+integer type nor the input ABI becomes narrower or unchecked.
+
+Bounds belong to immutable argument and local identities, stay local to each
+function, and merge conservatively across successful branches. Calls, SHA and
+raw-tree projections gain no totality summary. An earlier failure cannot move
+past a call that may diverge. Bounded analysis work, type checks and explicit
+overflow tests remain part of the implementation; budget exhaustion skips this
+optional pass.
+
+## Decode canonical integers without repeating the body
+
+Integer decoding still runs in this order: atom shape, byte-length cap,
+canonical signed encoding, declared numeric range, then the function body.
+Optimization replaces repeated substring branches with this encoding law:
+
+```text
+minimal signed atom = nil OR (0080 <= unsigned-byte-lexicographic atom < ff80)
+```
+
+Nil is the canonical zero and has its own lazy fast path. For other atoms,
+`0080` includes the necessary sign byte of positive 128; `ff80` excludes the
+redundant sign byte of negative 128. The lower bound must be inclusive:
+using `atom > 007f` would wrongly admit `007f00`. The numeric range check still
+rejects an otherwise canonical value outside the selected Rust integer type.
+
+The previous decoder placed the continuation in five success branches. The
+new decoder uses two, retaining a cheap nil branch and ordered byte bounds.
+Finite tests execute every zero-, one- and two-byte atom, longer sign-extension
+boundaries, every supported signed/unsigned integer width, malformed argument
+shapes, and failures before a divergent body in both compiler modes.
+
+<IntegerCanonicalityEvidence />
 
 ## Fold constants and avoid unnecessary frames
 
@@ -112,9 +170,11 @@ validated typed IR
   → checked constants
   → forward execution-success facts
   → checked constants again
+  → branch-local integer intervals
   → legacy tree guards (runtime programs unchanged)
   → bounded helper inlining and unreachable-function removal
   → runtime frame elision
+  → lazy canonical-integer decoder
   → Rue LIR optimization
   → static pair code generation
 ```

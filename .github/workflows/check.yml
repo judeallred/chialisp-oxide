@@ -70,6 +70,10 @@ jobs:
           python3 corpus/validate_tutorial_examples.py
           python3 corpus/validate_tutorial_examples.py --self-test
       - run: python3 scripts/check-proofs.py
+      - name: Check canonical integer byte model and counterexamples
+        run: |
+          python3 -m unittest discover -s scripts -p test_integer_canonicality.py
+          python3 scripts/check-integer-canonicality.py --check --self-test
       - name: Derive and check proofs from Rust source
         run: |
           python3 scripts/check-ir-proofs.py --output corpus/proofs.json
@@ -84,9 +88,11 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts -p test_cost_optimization.py
           python3 -m unittest discover -s scripts -p test_helper_inlining.py
+          python3 -m unittest discover -s scripts -p test_runtime_refinement.py
           python3 -m unittest discover -s scripts -p test_hashing_puzzles.py
           python3 scripts/check-cost-optimization.py --self-test --replay
           python3 scripts/check-helper-inlining.py --self-test --replay
+          python3 scripts/check-runtime-refinement.py --self-test --replay
       - name: Check source-derived byte contracts and policy counterexamples
         run: |
           python3 scripts/test_cargo_bundle.py

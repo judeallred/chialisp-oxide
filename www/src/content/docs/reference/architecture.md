@@ -13,9 +13,11 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → typed MIR, supported-feature validation
   → chialisp-oxide-ir: typed expressions + optional closed function table
   → optional checked constants, forward success facts, constants again
+  → optional branch-local integer intervals
   → optional legacy tree-guard pass (runtime programs unchanged)
   → optional bounded helper inlining and unreachable-function removal
   → Rue LIR lowering, with optional runtime frame elision
+  → optional lazy canonical-integer decoder
   → optional Rue LIR optimizer
   → Rue CLVM code generation, with optional static pair quoting
   → serialized CLVM
@@ -170,6 +172,13 @@ keeps a binding when its guard also uses the operand, except for the exact
 `TreeAtomValue(TreeAtom(payload))` shape whose validated construction already
 establishes atom shape. The payload still evaluates once.
 These changes do not infer that calls terminate or remove unused failures.
+Branch-local integer intervals remove only a repeated discarded checked Add/Sub
+initializer proven total on that continuation; the final arithmetic stays
+checked. Canonical decoding uses nil or unsigned byte bounds `[0080, ff80)`
+after atom/length checks, retaining numeric-width admission before the body.
+Its separate Seq8 law has a metadata-only decoder-source binding; the
+[optimization guide](/chialisp-oxide/reference/optimization/) distinguishes that
+model from executed decoder tests and compiler preservation.
 Rue LIR optimization follows. For runtime-free Rust the frame stage has no
 effect. Off skips these optional stages; `--no-optimize` selects that baseline.
 Rue source comparisons use only

@@ -12,6 +12,7 @@ struct Lower<'a> {
     arena: Arena<Lir>,
     program: &'a Program,
     args: Vec<LirId>,
+    optimize_integer_decoder: bool,
 }
 impl Lower<'_> {
     fn alloc(&mut self, lir: Lir) -> LirId {
@@ -71,6 +72,21 @@ impl Lower<'_> {
     // Reject padded or nonminimal signed CLVM integers. This is structural, so
     // algebraic rewrites in the Rue optimizer cannot erase canonicality checks.
     fn canonical_int(&mut self, value: LirId, yes: LirId) -> LirId {
+        if self.optimize_integer_decoder {
+            // A nonempty signed atom is minimal exactly when its lexicographic
+            // bytes lie in [0080, ff80): 00 needs a high second byte, ff needs
+            // a low second byte, and all other leading bytes are minimal.
+            // Scalar and length checks have already succeeded. Keep nil as a
+            // lazy fast path and include the continuation only twice.
+            let minimum = self.bytes(vec![0, 0x80]);
+            let maximum = self.bytes(vec![0xff, 0x80]);
+            let too_low = self.alloc(Lir::GtBytes(minimum, value));
+            let below_maximum = self.alloc(Lir::GtBytes(maximum, value));
+            let nonempty = self.require(below_maximum, yes);
+            let reject = self.reject();
+            let nonempty = self.branch(too_low, reject, nonempty);
+            return self.branch(value, nonempty, yes);
+        }
         let length = self.alloc(Lir::Strlen(value));
         let zero = self.int(0);
         let one = self.int(1);
@@ -326,6 +342,7 @@ fn emit(program: &Program, optimize: bool, runtime_required: bool) -> Result<Vec
         arena: Arena::new(),
         program,
         args: vec![],
+        optimize_integer_decoder: optimize,
     };
     let env = lower.alloc(Lir::Path(1u8.into()));
     if program.environment == crate::Environment::Raw {

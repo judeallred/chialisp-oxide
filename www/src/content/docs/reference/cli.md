@@ -48,8 +48,9 @@ cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --l
 ```
 
 `--no-optimize` skips the optional Rust pipeline: checked constants, forward
-success facts, constants again, legacy tree guards, bounded helper inlining, runtime frame elision, Rue
-LIR and static pair codegen. Frame elision applies only to runtime lowering;
+success facts, constants again, branch-local integer intervals, legacy tree
+guards, bounded helper inlining, runtime frame elision, the lazy canonical-integer
+decoder, Rue LIR and static pair codegen. Frame elision applies only to runtime lowering;
 the legacy backward guard pass stays disabled there. Rust checks,
 ABI validation, and bounded arithmetic remain active in both modes. Existing compiler wrappers are rejected
 rather than silently composed with the extraction wrapper.

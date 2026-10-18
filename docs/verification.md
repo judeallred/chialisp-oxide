@@ -41,6 +41,15 @@ all other recorded fields remain exact. Optional fresh Cargo bundles check all
 This is freshness and finite agreement, not compiler authentication or a
 translation theorem. Existing formal models reject SHA operations.
 
+The next closed cost transition binds signed commit `c87957e2` and the unchanged
+helper-inlining snapshot in `corpus/runtime-refinement-baseline.json`.
+Branch-local integer intervals remove a proven-total repeated checked
+initializer; lazy byte bounds compact the canonical integer decoder. All 21
+raw IR programs, unoptimized artifacts, native outcomes and other-language
+observations stay fixed through the reviewed projection. Current optimized
+measurements are finite size/primary-VM observations, not universal cost
+dominance or complete transaction-generator costs.
+
 The ledger experiment submits seven transactions per language from separately
 initialized simulator states. Intended payments and unsigned retargeting both
 succeed; the wrong-instance reveal passes its own primary VM check before
@@ -53,6 +62,7 @@ are inconclusive and separate from ordinary passing cases.
 ```sh
 python3 scripts/check-password-coin.py --self-test --replay --extract-ir
 python3 scripts/check-cost-optimization.py --self-test --replay
+python3 scripts/check-runtime-refinement.py --self-test --replay
 ```
 
 Run this after Rust builds and tests finish. It replays retained primary-VM
@@ -61,6 +71,35 @@ compiler tools or making new consensus submissions.
 Regenerate the complete report with the actual CLI to repeat ledger validation.
 The [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/password-coin/)
 explains why these successful checks still leave the password policy unsafe.
+
+## Canonical integer encoding law
+
+`proofs/integer-canonicality.smt2` models arbitrary finite unsigned byte
+sequences. A minimal signed integer atom is nil or lies in unsigned
+lexicographic `[0080, ff80)`. The retained report records 14 baseline queries
+and nine queries for three actual model-source mutations, including positive
+and negative-domain witnesses. The negated encoding equivalence is UNSAT;
+changed bounds and a removed nil case have satisfying distinguishing inputs.
+The 19 solver-protocol controls reject missing, extra, unknown or contradictory
+statuses. No unknown or infrastructure failure establishes a proof.
+
+The law's decoder-source binding is metadata freshness only: this model is not
+translated from Rust, IR or LIR. It proves no actual opcode, environment ABI,
+integer-width admission, native/VM bridge, execution cost or compiler-preservation
+theorem. Finite decoder tests separately exercise every zero-, one- and two-byte
+atom, all supported widths, longer padding and ordering against divergence.
+
+```sh
+# Run the actual pinned-version solver and compare retained source/results.
+python3 scripts/check-integer-canonicality.py --check --self-test
+# Offline documentation freshness only; no solver execution or new proof credit.
+python3 scripts/check-integer-canonicality.py --check-recorded
+```
+
+Documentation builds use the second command. The compiler verification job
+executes the first. Both check exact source/query/status metadata; source hashes
+and the installed version-matching solver remain trusted inputs rather than
+authenticated compiler or solver binaries.
 
 ## Solver environment
 

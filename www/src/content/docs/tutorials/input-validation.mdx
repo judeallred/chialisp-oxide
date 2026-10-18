@@ -26,6 +26,13 @@ An attacker must pass both the ABI check and the application policy.
 `(1001)` violates the policy. `(-1)` violates the unsigned type. `(0x0001)`
 violates canonical integer encoding even though its numeric value is one.
 
+Canonical integers have a compact byte-level test: nil represents zero;
+every nonempty minimal signed atom lies in the unsigned lexicographic interval
+`[0080, ff80)`. The optimized decoder uses this law after checking atom shape
+and input length, then still enforces the unsigned 64-bit range. A separate
+[encoding model and executed decoder tests](/chialisp-oxide/reference/optimization/#decode-canonical-integers-without-repeating-the-body)
+cover different obligations; the model is not a proof of the complete ABI.
+
 The longer reference function spells out all those conditions. A short
 Chialisp example containing only `amount <= 1000` would not be an equivalent
 reference: it could accept negatives, pairs, extra arguments, or padded atoms.

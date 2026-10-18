@@ -50,7 +50,13 @@ INLINE_PIPELINE = {
         "typed_ir_tree_guards", "typed_ir_helper_inlining", "runtime_frame_elision", "rue_lir", "static_pair_codegen"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
 }
-KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE, INLINE_PIPELINE)
+REFINEMENT_PIPELINE = {
+    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_constants", "typed_ir_success_facts", "typed_ir_constants",
+        "typed_ir_intervals", "typed_ir_tree_guards", "typed_ir_helper_inlining", "runtime_frame_elision",
+        "lazy_integer_decoder", "rue_lir", "static_pair_codegen"]},
+    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+}
+KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE, INLINE_PIPELINE, REFINEMENT_PIPELINE)
 PREVIOUS_PIPELINE = {
     "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
@@ -167,7 +173,10 @@ def check_sources(report, root, require_rue=False):
     if require_rue:
         require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
         patches = [f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)]
-        if report.get("optimization_pipeline") == INLINE_PIPELINE:
+        if report.get("optimization_pipeline") == REFINEMENT_PIPELINE:
+            from runtime_refinement_migration import expected_patches
+            patches = expected_patches(report)
+        elif report.get("optimization_pipeline") == INLINE_PIPELINE:
             # Select exact reviewed metadata without invoking a historical
             # projection or recursively validating the current report.
             from runtime_inline_migration import expected_patches
