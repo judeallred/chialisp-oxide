@@ -16,6 +16,8 @@ def rejected(action, label):
 def self_test(report, *, projection=project_validated, current_validation=preserve,
               normalize_refinement=True, baseline_ledger=None):
     current_validation(report)
+    from runtime_cost_migration import project_append
+    report = project_append(report)
     from runtime_refinement_migration import is_refinement, project_validated as refinement_projection
     if normalize_refinement and is_refinement(report):
         report = refinement_projection(report)

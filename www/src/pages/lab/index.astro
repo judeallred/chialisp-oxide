@@ -10,7 +10,7 @@ import { puzzles, totals, kindLabel, optimized, acceptedCosts, format, href } fr
   <EvidenceSummary />
   <form class="filters" role="search" aria-label="Filter puzzle examples">
     <label>Find a puzzle<input id="puzzle-query" type="search" placeholder="Try signature, recovery, or amount" autocomplete="off" /></label>
-    <label>Result kind<select id="puzzle-kind"><option value="all">All examples</option><option value="coin_puzzle">Coin puzzles</option><option value="pure_function">Pure functions</option><option value="program_factory">Program factories</option></select></label>
+    <label>Result kind<select id="puzzle-kind"><option value="all">All examples</option><option value="coin_puzzle">Coin puzzles</option><option value="pure_function">Pure functions</option><option value="program_factory">Program factories</option><option value="protocol_component">Protocol components</option></select></label>
   </form>
   <p id="puzzle-count" class="quiet" aria-live="polite">{puzzles.length} examples</p>
   <div class="puzzle-grid">

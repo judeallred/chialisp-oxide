@@ -7,6 +7,7 @@ mod native_hash;
 mod native_owned_tests;
 mod native_owned_tree;
 mod native_tree;
+mod p2_singleton;
 mod password;
 mod spends;
 use anyhow::{Context, Result, ensure};
@@ -42,6 +43,7 @@ pub const PUZZLES: &[&str] = &[
     "sha256tree",
     "singleton-launcher",
     "password-coin",
+    "p2-singleton",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -196,6 +198,8 @@ pub struct PuzzleReport {
     pub module_identity: Option<factories::ModuleIdentity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub curried_instances: Option<password::CurriedInstances>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protocol_validation: Option<serde_json::Value>,
     pub validated: bool,
 }
 fn expectation(slug: &str, solution: &str) -> Result<Outcome> {
@@ -463,6 +467,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         "insertion-sort-by-keys",
         "sha256tree",
         "password-coin",
+        "p2-singleton",
     ]
     .contains(&slug)
     {
@@ -580,7 +585,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         .collect::<Result<_>>()?;
     let simulator = match manifest.kind.as_str() {
         "coin_puzzle" => spends::validate(slug, &programs[1].2)?,
-        "pure_function" | "program_factory" => vec![],
+        "pure_function" | "program_factory" | "protocol_component" => vec![],
         kind => anyhow::bail!("unknown corpus kind {kind}"),
     };
     let mut simulator_comparisons = vec![];
@@ -620,6 +625,15 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     } else {
         None
     };
+    let protocol_validation = if manifest.kind == "protocol_component" {
+        ensure!(
+            slug == "p2-singleton",
+            "protocol component needs a dedicated validated harness"
+        );
+        Some(p2_singleton::validate(&programs)?)
+    } else {
+        None
+    };
     if !native_sources.is_empty() {
         // A changed declared input must not publish observations from an older
         // native binary, even when the change happened during compilation.
@@ -649,6 +663,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         factory_checks,
         module_identity,
         curried_instances,
+        protocol_validation,
         validated: true,
     })
 }

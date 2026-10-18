@@ -9,10 +9,11 @@ import { MAX_SOURCE_DATA_BYTES, sourceDataArtifact, sourceDataArtifacts, readSou
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const report = JSON.parse(await readFile(path.join(root, 'corpus/validation.json'), 'utf8'));
 const artifacts = sourceDataArtifacts(report);
-assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json', 'password-coin-generated-cases.json']);
-assert.equal(artifacts.length, 5);
-assert.deepEqual(artifacts.map(entry => entry.rows), [1183, 2557, 285, 275, 256]);
+assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json', 'p2-singleton-vectors.json', 'p2-singleton-generated-cases.json', 'password-coin-generated-cases.json']);
+assert.equal(artifacts.length, 7);
+assert.deepEqual(artifacts.map(entry => entry.rows), [1183, 2557, 285, 275, 178, 128, 256]);
 assert.equal(report.puzzles.find(puzzle => puzzle.slug === 'password-coin').generated_cases, 256 + 2059);
+assert.equal(report.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').generated_cases, 128 + 2059);
 const actualBytes = new Map();
 for (const entry of artifacts) {
   const bytes = await readSourceDataArtifact(entry);
@@ -20,7 +21,8 @@ for (const entry of artifacts) {
   assert.deepEqual(bytes, await readFile(path.join(root, entry.path)));
   assert.equal(bytes.toString('utf8'), dependency.source);
   assert.equal(bytes.length, entry.bytes);
-  assert.equal(JSON.parse(bytes).length, entry.rows);
+  const parsed = JSON.parse(bytes);
+  assert.equal(Array.isArray(parsed) ? parsed.length : parsed.named.length + parsed.generated.length, entry.rows);
   actualBytes.set(entry.path, bytes);
 }
 assert.equal(sourceDataArtifact('puzzles/other/generated-cases.json'), undefined);
@@ -60,6 +62,11 @@ const mutations = [
   ['changed generated count', value => { owner(value).generated_cases += 1; }],
   ['Boolean generated count', value => { owner(value).generated_cases = true; }],
   ['omitted shared raw suite', value => { value.puzzles.find(puzzle => puzzle.slug === 'sha256tree').generated_cases -= 2059; }],
+  ['P2 named case label differs', value => { value.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').cases[0].label += ' changed'; }],
+  ['P2 named solution differs', value => { value.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').cases[0].solution += ' '; }],
+  ['P2 missing named case', value => { value.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').cases.pop(); }],
+  ['missing P2 owner', value => { value.puzzles = value.puzzles.filter(puzzle => puzzle.slug !== 'p2-singleton'); }],
+  ['omitted P2 inherited suite', value => { value.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').generated_cases = 128; }],
   ['missing password owner', value => { value.puzzles = value.puzzles.filter(puzzle => puzzle.slug !== 'password-coin'); }],
   ['duplicate password owner', value => { value.puzzles.push(structuredClone(passwordOwner(value))); }],
   ['missing password data dependency', value => { passwordOwner(value).source_dependencies = passwordOwner(value).source_dependencies.filter(row => row.path !== 'puzzles/password-coin/generated-cases.json'); }],
@@ -159,4 +166,4 @@ try {
   process.chdir(cwd);
   await rm(temporary, { recursive: true, force: true });
 }
-console.log(`PASS: ${artifacts.length} exact generated-data downloads (${artifacts.reduce((total, entry) => total + entry.bytes, 0)} bytes), inclusive 2 MiB boundary and ${controls} record/path/hash/size/symlink controls`);
+console.log(`PASS: ${artifacts.length} exact source-data downloads (${artifacts.reduce((total, entry) => total + entry.bytes, 0)} bytes), inclusive 2 MiB boundary and ${controls} record/path/hash/size/symlink controls`);

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { failureProtocol, checkCorpusExecutions, checkScalarProofReplays, testFailureProtocol } from './vm-failures.mjs';
 import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
+import { checkProtocolReport, historicalOptimizationReport } from './p2-protocol.mjs';
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));
@@ -32,6 +33,8 @@ const runtimeRefinement = JSON.parse(await read('corpus/runtime-refinement-basel
 assert.equal(report.schema_version, 1);
 checkCorpusExecutions(report);
 checkLedgerReport(report);
+const protocolCounts = checkProtocolReport(report);
+const optimizationReport = historicalOptimizationReport(report);
 console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent corruption controls passed`);
 console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
 assert.equal(createHash('sha256').update(predecessorBytes).digest('hex'), '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308', 'Historical cost evidence must remain byte-exact');
@@ -46,7 +49,14 @@ assert.equal(runtimeRefinement.baseline.commit, 'c87957e2d28c832ec76551aa0c5e16e
 assert.equal(runtimeRefinement.baseline.report_sha256, helperInlining.reviewed_after.report_sha256);
 assert.deepEqual(runtimeRefinement.predecessor, { path: 'corpus/helper-inlining-baseline.json', sha256: createHash('sha256').update(helperBytes).digest('hex') });
 assert.equal(runtimeRefinement.reviewed_after.status, 'reviewed_final', 'Runtime-refinement evidence is still pending');
-assert.equal(runtimeRefinement.reviewed_after.report_sha256, createHash('sha256').update(await read('corpus/validation.json')).digest('hex'), 'Runtime-refinement report is stale');
+const append = JSON.parse(await read('corpus/p2-singleton-append-baseline.json'));
+assert.equal(append.protocol, 'chialisp-oxide-p2-singleton-append/v1');
+assert.equal(append.reviewed_after.status, 'reviewed_final_current22', 'P2 append remains pending');
+assert.equal(append.reviewed_after.report_sha256, createHash('sha256').update(await read('corpus/validation.json')).digest('hex'), 'Current22 append report is stale');
+assert.equal(append.baseline.report_sha256, runtimeRefinement.reviewed_after.report_sha256, 'Append must retain signed cost21');
+assert.deepEqual(optimizationReport.authoring, predecessor.authoring);
+assert.equal(optimizationReport.puzzles.length, 21);
+assert.deepEqual([protocolCounts.groups, protocolCounts.attempts, protocolCounts.accepted, protocolCounts.rejected], [5,110,15,95]);
 const previousPatches = [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`);
 assert.deepEqual(helperInlining.rue_local_patches.before, previousPatches);
 assert.equal(helperInlining.rue_local_patches.status, 'reviewed');
@@ -167,10 +177,54 @@ assert.equal(proof.schema_version, 1);
 assert.equal(proof.vm_failure_protocol, failureProtocol);
 checkScalarProofReplays(proof);
 const executionPaths = [
-  'crates/chialisp-oxide-simulator/Cargo.toml', 'crates/chialisp-oxide-simulator/src/lib.rs',
-  'crates/chialisp-oxide-simulator/rejection-protocol.json', 'scripts/ledger_rejections.py', 'www/scripts/ledger-rejections.mjs',
-  'crates/chialisp-oxide-vm/Cargo.toml', 'crates/chialisp-oxide-vm/failure-protocol.json',
-  'crates/chialisp-oxide-vm/src/lib.rs', 'scripts/vm_failures.py', 'www/scripts/vm-failures.mjs',
+  "corpus/cost-optimization-baseline.json",
+  "corpus/helper-inlining-baseline.json",
+  "corpus/p2-singleton-append-baseline.json",
+  "corpus/runtime-refinement-baseline.json",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp.hex",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp.hex",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_top_layer_v1_1.clsp",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_top_layer_v1_1.clsp.hex",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_truths.clib",
+  "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+  "corpus/validate_published_puzzles.py",
+  "crates/chialisp-oxide-simulator/Cargo.toml",
+  "crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json",
+  "crates/chialisp-oxide-simulator/rejection-protocol.json",
+  "crates/chialisp-oxide-simulator/src/lib.rs",
+  "crates/chialisp-oxide-vm/Cargo.toml",
+  "crates/chialisp-oxide-vm/failure-protocol.json",
+  "crates/chialisp-oxide-vm/src/lib.rs",
+  "puzzles/p2-singleton/generated-cases.json",
+  "puzzles/p2-singleton/vectors.json",
+  "puzzles/p2-singleton/vectors.py",
+  "scripts/cargo_authoring.py",
+  "scripts/cargo_bundle.py",
+  "scripts/check-canonical-factories.py",
+  "scripts/check-hashing-puzzles.py",
+  "scripts/check-p2-singleton.py",
+  "scripts/check-readable-puzzles.py",
+  "scripts/hashing_provenance.py",
+  "scripts/hashing_vectors.py",
+  "scripts/ledger_rejections.py",
+  "scripts/p2_append_migration.py",
+  "scripts/p2_singleton_evidence.py",
+  "scripts/password_evidence.py",
+  "scripts/password_ledger.py",
+  "scripts/password_provenance.py",
+  "scripts/password_vectors.py",
+  "scripts/runtime_cost_migration.py",
+  "scripts/runtime_inline_migration.py",
+  "scripts/runtime_password_migration.py",
+  "scripts/runtime_refinement_migration.py",
+  "scripts/vm_failures.py",
+  "www/scripts/ledger-rejections.mjs",
+  "www/scripts/p2-protocol.mjs",
+  "www/scripts/vm-failures.mjs"
 ];
 assert.deepEqual(proof.execution_sources.map(source => source.path), executionPaths.sort(), 'Scalar proof VM classifier/gate bindings changed');
 for (const source of proof.execution_sources) await checkRecordedHash(source.path, source.sha256);

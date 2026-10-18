@@ -101,16 +101,35 @@ def check_replay(value, label="VM replay", *, expected_code=None):
     return result
 
 
-def execution_sources():
-    """Bind this wire interpretation and its authoritative Rust implementation."""
+def execution_paths():
+    """Closed wire/ledger and current aggregate-reader dependency paths."""
     paths = [PROTOCOL_PATH, "scripts/vm_failures.py", "www/scripts/vm-failures.mjs",
              "crates/chialisp-oxide-simulator/rejection-protocol.json",
              "crates/chialisp-oxide-simulator/Cargo.toml", "crates/chialisp-oxide-simulator/src/lib.rs",
              "scripts/ledger_rejections.py", "www/scripts/ledger-rejections.mjs",
-             "crates/chialisp-oxide-vm/Cargo.toml"]
+             "crates/chialisp-oxide-vm/Cargo.toml",
+             "crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json", "www/scripts/p2-protocol.mjs",
+             "scripts/p2_singleton_evidence.py", "scripts/p2_append_migration.py", "scripts/check-p2-singleton.py",
+             "scripts/password_evidence.py", "scripts/password_ledger.py", "scripts/password_provenance.py",
+             "scripts/password_vectors.py", "scripts/hashing_vectors.py", "scripts/check-canonical-factories.py",
+             "scripts/cargo_authoring.py", "scripts/cargo_bundle.py", "scripts/check-readable-puzzles.py",
+             "scripts/check-hashing-puzzles.py", "scripts/hashing_provenance.py",
+             "corpus/validate_published_puzzles.py",
+             "scripts/runtime_cost_migration.py", "scripts/runtime_inline_migration.py",
+             "scripts/runtime_refinement_migration.py", "scripts/runtime_password_migration.py",
+             "corpus/cost-optimization-baseline.json", "corpus/helper-inlining-baseline.json",
+             "corpus/runtime-refinement-baseline.json", "corpus/p2-singleton-append-baseline.json",
+             "puzzles/p2-singleton/vectors.py", "puzzles/p2-singleton/vectors.json",
+             "puzzles/p2-singleton/generated-cases.json"]
+    from p2_singleton_evidence import RUNTIME_INPUTS
+    paths += list(RUNTIME_INPUTS)
     paths += [str(path.relative_to(ROOT)) for path in (ROOT / "crates/chialisp-oxide-vm/src").rglob("*.rs")]
+    return sorted(set(paths))
+
+
+def execution_sources():
     return [{"path": path, "sha256": hashlib.sha256((ROOT / path).read_bytes()).hexdigest()}
-            for path in sorted(paths)]
+            for path in execution_paths()]
 
 
 class FailureProtocolTests(unittest.TestCase):

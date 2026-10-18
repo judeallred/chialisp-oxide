@@ -1,0 +1,73 @@
+// Independent WIP raw five-field p2_singleton port; not production-ready.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+const APPLY_OPCODE: Bytes = 0x02;
+const QUOTE_OPCODE: Bytes = 0x01;
+const CONS_OPCODE: Bytes = 0x04;
+const ASSERT_PUZZLE_ANNOUNCEMENT: Int = 63;
+const CREATE_COIN_ANNOUNCEMENT: Int = 60;
+const ASSERT_MY_COIN_ID: Int = 70;
+const REWARD_ANNOUNCEMENT: Bytes = 0x24;
+
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let singleton_module_hash = environment.first;
+    let after_module = environment.rest;
+    assert after_module is (Any, Any);
+    let launcher_id = after_module.first;
+    let after_launcher = after_module.rest;
+    assert after_launcher is (Any, Any);
+    let launcher_puzzle_hash = after_launcher.first;
+    let after_launcher_hash = after_launcher.rest;
+    assert after_launcher_hash is (Any, Any);
+    let inner_puzzle_hash = after_launcher_hash.first;
+    let after_inner = after_launcher_hash.rest;
+    assert after_inner is (Any, Any);
+    let my_id = after_inner.first;
+    // Do not inspect after_inner.rest or narrow the two launcher trees.
+    let singleton_struct = (singleton_module_hash, (launcher_id, launcher_puzzle_hash));
+    let struct_hash = tree_hash(singleton_struct);
+    let path_one_hash = atom_hash(QUOTE_OPCODE);
+    assert inner_puzzle_hash is Bytes;
+    let inner_environment = extend_environment(inner_puzzle_hash, path_one_hash);
+    let environment_hash = extend_environment(struct_hash, inner_environment);
+    assert singleton_module_hash is Bytes;
+    let full_puzzle_hash = apply_hash(singleton_module_hash, environment_hash);
+    assert my_id is Bytes;
+    let message = sha256(...[full_puzzle_hash, my_id]);
+    let assertion = (ASSERT_PUZZLE_ANNOUNCEMENT, (message, nil));
+    let announcement = (CREATE_COIN_ANNOUNCEMENT, (REWARD_ANNOUNCEMENT, nil));
+    let coin_id = (ASSERT_MY_COIN_ID, (my_id, nil));
+    (assertion, (announcement, (coin_id, nil)))
+}
+
+fn atom_hash(payload: Bytes) -> Bytes32 {
+    sha256(...[ATOM_DOMAIN, payload])
+}
+
+fn pair_hash(first: Bytes, rest: Bytes) -> Bytes32 {
+    sha256(...[PAIR_DOMAIN, first, rest])
+}
+
+fn extend_environment(parameter_hash: Bytes, environment_hash: Bytes) -> Bytes32 {
+    let quoted_parameter = pair_hash(atom_hash(QUOTE_OPCODE), parameter_hash);
+    let environment_tail = pair_hash(environment_hash, atom_hash(nil));
+    pair_hash(atom_hash(CONS_OPCODE), pair_hash(quoted_parameter, environment_tail))
+}
+
+fn apply_hash(function_hash: Bytes, environment_hash: Bytes) -> Bytes32 {
+    let quoted_function = pair_hash(atom_hash(QUOTE_OPCODE), function_hash);
+    let environment_tail = pair_hash(environment_hash, atom_hash(nil));
+    pair_hash(atom_hash(APPLY_OPCODE), pair_hash(quoted_function, environment_tail))
+}
+
+fn tree_hash(tree: Any) -> Bytes32 {
+    if tree is (Any, Any) {
+        let first_hash = tree_hash(tree.first);
+        let rest_hash = tree_hash(tree.rest);
+        pair_hash(first_hash, rest_hash)
+    } else {
+        assert tree is Bytes;
+        atom_hash(tree)
+    }
+}

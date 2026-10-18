@@ -80,8 +80,11 @@ def check_ledger_report(report, *, require_typed=True):
         require(len(names) == len(set(names)), "Duplicate ledger scenario grouping")
         if require_typed:
             kind = puzzle.get("kind")
-            require(kind in ("coin_puzzle", "pure_function", "program_factory"), "Unknown puzzle kind for ledger contract")
-            if kind == "coin_puzzle":
+            require(kind in ("coin_puzzle", "pure_function", "program_factory", "protocol_component"), "Unknown puzzle kind for ledger contract")
+            if kind == "protocol_component":
+                from p2_singleton_evidence import validate_component
+                validate_component(puzzle)
+            elif kind == "coin_puzzle":
                 require(puzzle["slug"] in PUZZLES, f"{puzzle['slug']}: no reviewed ledger scenario contract")
                 require(names == [row["name"] for row in PUZZLES[puzzle["slug"]]], f"{puzzle['slug']}: missing, extra or reordered required ledger scenarios")
                 comparisons = puzzle.get("simulator_comparisons", [])
@@ -91,6 +94,8 @@ def check_ledger_report(report, *, require_typed=True):
             else:
                 require(not scenarios and not puzzle.get("simulator_comparisons", []),
                         f"{puzzle['slug']}: non-spend function claims ledger observations")
+        if require_typed and puzzle.get("kind") != "protocol_component":
+            require("protocol_validation" not in puzzle, "Only the dedicated protocol component may claim protocol evidence")
         expected_codes = {row["name"]: row["codes"] for row in PUZZLES.get(puzzle["slug"], [])}
         for scenario in scenarios:
             check_scenario(scenario, f"{puzzle['slug']}/Rust", require_typed=require_typed,

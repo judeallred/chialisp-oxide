@@ -115,6 +115,10 @@ def check_rows(actual, old, new=None, *, diagnostic=False, slug=None):
 
 def hash_diagnostic_profile(report):
     """Small closed profile for the direct hash gate; no historical projection."""
+    from p2_append_migration import is_append
+    if is_append(report):
+        from p2_append_migration import hash_diagnostic_profile as selected
+        return selected(report)
     if report.get("optimization_pipeline") == READABLE["REFINEMENT_PIPELINE"]:
         from runtime_refinement_migration import hash_diagnostic_profile as selected
         return selected(report)
@@ -138,7 +142,7 @@ def hash_diagnostic_profile(report):
 
 
 def validate_current(report):
-    READABLE["check_report"](report)
+    counts = READABLE["check_report"](report)
     READABLE["check_sources"](report, ROOT, require_rue=True)
     check_recorded(report.get("authoring"), ROOT, [p["slug"] for p in report["puzzles"]])
     current_native_sources(report)
@@ -146,6 +150,30 @@ def validate_current(report):
     # This source/current-domain gate is independent of the historical digest.
     gate = runpy.run_path(str(ROOT / "scripts/check-hashing-puzzles.py"))
     gate["validate"](report)
+    from p2_append_migration import is_append
+    if is_append(report):
+        component = runpy.run_path(str(ROOT / "scripts/check-p2-singleton.py"))
+        component["validate"](report)
+    return counts
+
+
+def project_append(report):
+    """Pure exact21 view after the caller has validated current evidence."""
+    from p2_append_migration import is_append, project_validated as append_projection
+    return append_projection(report) if is_append(report) else report
+
+
+def check_report_bytes(payload, report):
+    """Select current append identity before its unchanged compiler pipeline."""
+    from p2_append_migration import is_append, reviewed_after
+    if is_append(report):
+        _, after = reviewed_after(report)
+        require(sha(payload) == after["report_sha256"], "Current22 report bytes differ from reviewed append capture")
+    elif is_new(report):
+        from runtime_refinement_migration import is_refinement, load as refinement_profile
+        from runtime_inline_migration import is_inline, load as inline_profile
+        profile = refinement_profile() if is_refinement(report) else inline_profile() if is_inline(report) else load()
+        require(sha(payload) == profile["reviewed_after"]["report_sha256"], "Current report bytes differ from final reviewed cost profile")
 
 
 def restore_rows(actual, previous):

@@ -94,7 +94,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The current [corpus report](corpus/validation.json) records twenty-one
+The current [corpus report](corpus/validation.json) records twenty-two
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -102,10 +102,11 @@ plus three canonical closed expressions from the pinned Chialisp Intro and the
 exact canonical `p2_conditions` program factory, pinned `last_inner`,
 `prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
 module adapters, the singleton launcher module, and the exact password tutorial
-module with separate curried-instance observations. The
+module with separate curried-instance observations, plus canonical pay-to-singleton
+with dedicated counterpart composition evidence. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-389 explicit vectors and 20,796 generated integer/tree/byte cases against five CLVM
+439 explicit vectors and 22,983 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton
@@ -120,11 +121,23 @@ changes; twelve fail with dedicated consensus codes. Three wrong-password
 `GeneratorRuntimeError` observations receive no semantic rejection credit.
 This deliberately insecure tutorial is a lesson in authority boundaries, not a
 password wallet. See the [walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/password-coin/).
+The separate canonical pay-to-singleton port is a `protocol_component`. Its
+raw environment preserves the original arbitrary atom widths, launcher trees
+and ignored tail. Five builds use their own committed module and execute
+110 canonical-counterpart transaction submissions: 15 accepted and 95 exact
+typed consensus rejections with complete Simulator rollback. These do not add
+to the ordinary 40 scenario definitions or 120 language scenario runs. The
+canonical singleton top layer and signed StandardLayer are host counterparts,
+not Rust ports; a real Eve spend and one later lineage transition do not
+establish a complete singleton lifecycle. See the
+[pay-to-singleton walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-singleton/).
+
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
 
-The `sha256tree` helper uses an explicit ten-million VM-cost comparison budget
-in all five builds; other examples retain one million. Its five deep-input
+The `sha256tree` helper and pay-to-singleton component use an explicit ten-million
+VM-cost comparison budget in all five builds; other examples retain one million.
+The hash helper’s five deep-input
 controls also produce 25 separate observations at one million, including typed
 cost exhaustion. The password module adds three inputs across five builds at
 a lower budget, giving 40 separate diagnostic observations in total. These
@@ -140,11 +153,11 @@ removes redundant runtime frames and constructor checks. A compact integer
 decoder retains complete shape, canonicality and numeric-range validation. All
 three closed Intro expressions reproduce the original Chialisp bytes and
 20-unit VM cost. The [optimization guide](https://judeallred.github.io/chialisp-oxide/reference/optimization/)
-shows retained before/after measurements for all 21 puzzles and explains the
+shows retained before/after measurements for the 21-puzzle cost baseline and explains the
 strict-evaluation boundary. Runtime puzzles still have substantial cost gaps.
 
-Local macOS verification passes 502 workspace tests and all-target Clippy with
-warnings denied. The hash evidence gate passes 168 corruption controls and
+The preceding cost milestone passed 502 workspace tests and all-target Clippy
+with warnings denied on macOS. The hash evidence gate passes 168 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,
 error-study, Lean and documentation gates are checked separately; these finite
 checks do not establish compiler preservation or production readiness.

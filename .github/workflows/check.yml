@@ -82,17 +82,50 @@ jobs:
         run: |
           python3 scripts/check-tree-proofs.py --output corpus/tree-proofs.json
           python3 scripts/check-tree-proofs.py --self-test
-      - name: Validate Rust, Chialisp, native execution, and complete spends
-        run: target/debug/chialisp-oxide validate --output corpus/validation.json
+      - name: Validate Rust, Chialisp, native execution, and complete spends reproducibly
+        run: |
+          target/debug/chialisp-oxide validate --output corpus/validation.json
+          target/debug/chialisp-oxide validate --output "$RUNNER_TEMP/validation-repeat.json"
+          cmp corpus/validation.json "$RUNNER_TEMP/validation-repeat.json"
+      - name: Check canonical pay-to-singleton and actual Rust policy mutations
+        run: |
+          python3 -m unittest discover -s scripts -p test_p2_append_migration.py
+          python3 -m unittest discover -s scripts -p test_p2_singleton_evidence.py
+          python3 -m unittest discover -s scripts -p test_p2_outer_integration.py
+          python3 scripts/check-p2-singleton.py --self-test
+          cargo test --manifest-path experiments/p2-singleton-controls/Cargo.toml --locked
+          cargo clippy --manifest-path experiments/p2-singleton-controls/Cargo.toml --all-targets --locked -- -D warnings
+          cargo build -p chialisp-oxide-corpus --examples --locked
+          target/debug/cargo-chialisp-oxide build --locked --manifest-path experiments/p2-singleton-controls/Cargo.toml --output-dir "$RUNNER_TEMP/p2-policy-controls"
+          python3 scripts/check-p2-source-controls.py --bundle "$RUNNER_TEMP/p2-policy-controls" --driver target/debug/chialisp-oxide-driver --self-test
+          target/debug/examples/p2_singleton_controls "$RUNNER_TEMP/p2-policy-controls" "$RUNNER_TEMP/p2-policy-controls.json"
+      - name: Extract fresh complete Cargo bundles in both modes
+        run: |
+          target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --output-dir "$RUNNER_TEMP/puzzles-on"
+          target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --no-optimize --output-dir "$RUNNER_TEMP/puzzles-off"
+      - name: Execute P2 raw-domain and separate resource controls
+        run: |
+          p2_ir=$(python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+          output = Path(os.environ["RUNNER_TEMP"]) / "puzzles-on"
+          manifest = output / json.loads((output / "latest.json").read_text())["manifest"]
+          entries = json.loads(manifest.read_text())["entries"]
+          selected = [row for row in entries if row["entry"] == "chialisp_oxide_puzzles::p2_singleton::puzzle"]
+          assert len(selected) == 1
+          print(manifest.parent / selected[0]["ir"])
+          PYTHON
+          )
+          target/debug/examples/p2_singleton_probe "$p2_ir" "$RUNNER_TEMP/p2-raw-domain"
       - name: Preserve the signed baseline and replay measured cost improvements
         run: |
           python3 -m unittest discover -s scripts -p test_cost_optimization.py
           python3 -m unittest discover -s scripts -p test_helper_inlining.py
           python3 -m unittest discover -s scripts -p test_runtime_refinement.py
           python3 -m unittest discover -s scripts -p test_hashing_puzzles.py
-          python3 scripts/check-cost-optimization.py --self-test --replay
-          python3 scripts/check-helper-inlining.py --self-test --replay
-          python3 scripts/check-runtime-refinement.py --self-test --replay
+          python3 scripts/check-cost-optimization.py --self-test --replay --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver
+          python3 scripts/check-helper-inlining.py --self-test --replay --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver
+          python3 scripts/check-runtime-refinement.py --self-test --replay --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver
       - name: Check source-derived byte contracts and policy counterexamples
         run: |
           python3 scripts/test_cargo_bundle.py
@@ -119,6 +152,15 @@ jobs:
           python3 scripts/check-password-coin.py --self-test --replay --extract-ir
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p2-policy-counterexamples
+          path: |
+            ${{ runner.temp }}/p2-policy-controls.json
+            ${{ runner.temp }}/p2-policy-controls/
+            ${{ runner.temp }}/p2-raw-domain/
+            ${{ runner.temp }}/puzzles-on/
+            ${{ runner.temp }}/puzzles-off/
       - uses: actions/upload-artifact@v4
         with:
           name: native-hash-evidence

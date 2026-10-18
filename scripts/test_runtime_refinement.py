@@ -17,8 +17,9 @@ from refinement_controls import self_test
 class RuntimeRefinementTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        current = json.loads((refinement.ROOT / "corpus/validation.json").read_bytes())
-        cls.old = refinement.project_validated(current)
+        cls.current = json.loads((refinement.ROOT / "corpus/validation.json").read_bytes())
+        cost.validate_current(cls.current)
+        cls.old = refinement.project_validated(cost.project_append(cls.current))
         # The signed serializer is sorted UTF-8 pretty JSON plus one newline.
         # Recover its complete old byte string after projecting current data.
         cls.payload = (json.dumps(cls.old, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode()
@@ -57,28 +58,29 @@ class RuntimeRefinementTests(unittest.TestCase):
     def test_reviewed_synthetic_transition_restores_entire_signed_baseline(self):
         report, profile = self.candidate()
         with patch.object(refinement, "load", return_value=profile):
-            previous = refinement.preserve(report)
+            previous = refinement.project_validated(report)
             self.assertEqual(refinement.canonical(previous), refinement.canonical(self.old))
-            self.assertEqual(inline.sha(inline.canonical(inline.preserve(report))), inline.REPORT_CANONICAL)
-            self.assertEqual(cost.sha(cost.canonical(cost.preserve(report))), cost.load()["baseline"]["canonical_report_sha256"])
+            signed405 = inline.project_validated(previous)
+            self.assertEqual(inline.sha(inline.canonical(signed405)), inline.REPORT_CANONICAL)
+            self.assertEqual(cost.sha(cost.canonical(cost.project_validated(signed405))), cost.load()["baseline"]["canonical_report_sha256"])
 
     def test_direct_new_boundary_has_nonvacuous_corruption_controls(self):
         report, profile = self.candidate()
         with patch.object(refinement, "load", return_value=profile):
-            self.assertGreaterEqual(self_test(report), 42)
+            self.assertGreaterEqual(self_test(report, current_validation=refinement.project_validated), 42)
 
     def test_historical_controls_receive_positive_normalized_objects(self):
         import cost_controls
         import inline_controls
         report, profile = self.candidate()
         with patch.object(refinement, "load", return_value=profile):
-            self.assertGreaterEqual(inline_controls.self_test(report), 42)
-            self.assertGreaterEqual(cost_controls.self_test(report), 35)
+            self.assertGreaterEqual(inline_controls.self_test(report, current_validation=refinement.project_validated), 42)
+            self.assertGreaterEqual(cost_controls.self_test(report, current_validation=refinement.project_validated), 35)
 
     def test_current_source_checks_happen_before_projection(self):
-        report, profile = self.candidate()
+        report = copy.deepcopy(self.current)
         report["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
-        with patch.object(refinement, "load", return_value=profile), patch.object(refinement, "project_validated", side_effect=AssertionError("projected first")), self.assertRaises(ValueError):
+        with patch.object(refinement, "project_validated", side_effect=AssertionError("projected first")), self.assertRaises(ValueError):
             refinement.preserve(report)
 
     def test_dispatch_validates_current_once_without_revalidating_history(self):
@@ -241,7 +243,7 @@ class RuntimeRefinementTests(unittest.TestCase):
     def test_benchmark_checks_actual_off_bytes_even_when_flag_remains_true(self):
         from runtime_cost_checks import benchmark_check as basic_benchmark_check
         def benchmark_check(path, report):
-            return basic_benchmark_check(path, report, project=refinement.preserve,
+            return basic_benchmark_check(path, report, project=refinement.project_validated,
                 baseline_report_sha=refinement.REPORT_SHA, raw_ir=inline.predecessor()["raw_ir"])
         report, profile = self.candidate()
         pins = {r["entry"]: r["sha256"] for r in inline.predecessor()["raw_ir"]}

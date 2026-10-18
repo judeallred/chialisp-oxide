@@ -15,17 +15,19 @@ from inline_controls import self_test
 class HelperInliningTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = json.loads((inline.ROOT / "corpus/validation.json").read_bytes())
+        cls.current = json.loads((inline.ROOT / "corpus/validation.json").read_bytes())
+        cost.validate_current(cls.current)
+        cls.report = cost.project_append(cls.current)
 
     def test_outer_projection_reproduces_signed405_before_older_layers(self):
-        previous = inline.preserve(self.report)
+        previous = inline.preserve(self.current)
         self.assertEqual(inline.sha(inline.canonical(previous)), inline.REPORT_CANONICAL)
         self.assertEqual(len(previous["puzzles"]), 21)
-        historical = cost.preserve(self.report)
+        historical = cost.preserve(self.current)
         self.assertEqual(cost.sha(cost.canonical(historical)), cost.load()["baseline"]["canonical_report_sha256"])
 
     def test_nonvacuous_corruptions_exercise_the_outer_projection(self):
-        self.assertGreaterEqual(self_test(self.report), 42)
+        self.assertGreaterEqual(self_test(self.current), 42)
 
     def test_pending_profile_cannot_promote_a_pipeline_or_an_issue_url(self):
         report = copy.deepcopy(self.report)
@@ -37,7 +39,7 @@ class HelperInliningTests(unittest.TestCase):
             inline.reviewed_new(report)
 
     def test_stale_current_native_inputs_fail_before_any_projection(self):
-        bad = copy.deepcopy(self.report)
+        bad = copy.deepcopy(self.current)
         bad["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
         with patch.object(inline, "project_validated", side_effect=AssertionError("projection ran first")), self.assertRaises(ValueError):
             inline.preserve(bad)
@@ -95,7 +97,7 @@ class HelperInliningTests(unittest.TestCase):
 
     def test_benchmark_off_bytes_are_checked_even_when_flag_stays_true(self):
         checker = runpy.run_path(str(inline.ROOT / "scripts/check-helper-inlining.py"))
-        previous = inline.preserve(self.report)
+        previous = inline.preserve(self.current)
         pins = {r["entry"]: r["sha256"] for r in inline.predecessor()["raw_ir"]}
         measured = {"status": "passed", "baseline_report_sha256": inline.REPORT_SHA, "puzzles": []}
         for old, current in zip(previous["puzzles"], self.report["puzzles"]):
@@ -110,7 +112,7 @@ class HelperInliningTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "benchmark.json"
             path.write_bytes(inline.canonical(measured))
-            self.assertEqual(checker["benchmark_check"](path, self.report)["named_cases"], 389)
+            self.assertEqual(checker["benchmark_check"](path, self.current)["named_cases"], 389)
             for mode, key in [("old_off", "clvm_hex"), ("new_off", "tree_hash"), ("new_off", "bytes")]:
                 bad = copy.deepcopy(measured)
                 row = bad["puzzles"][0][mode]
@@ -119,7 +121,7 @@ class HelperInliningTests(unittest.TestCase):
                 self.assertIs(bad["puzzles"][0]["off_byte_exact"], True)
                 path.write_bytes(inline.canonical(bad))
                 with self.subTest(mode=mode, key=key), self.assertRaisesRegex(ValueError, "OFF bytes/size/hash"):
-                    checker["benchmark_check"](path, self.report)
+                    checker["benchmark_check"](path, self.current)
 
 
 if __name__ == "__main__":

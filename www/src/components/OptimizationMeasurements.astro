@@ -61,6 +61,7 @@ const equal = deltas.filter(delta => delta === 0).length;
 const higher = deltas.filter(delta => delta > 0).length;
 const smaller = rows.filter(row => row.after.bytes < row.before.bytes);
 ---
+<p>The retained 21-puzzle cost milestone is unchanged by the later pay-to-singleton addition. Its separate <a href="/chialisp-oxide/lab/p2-singleton/">P2 measurements</a> do not add a historical before/after row.</p>
 <p data-cost-summary data-accepted={deltas.length} data-lower={lower} data-equal={equal} data-higher={higher}>Across {format(deltas.length)} accepted named inputs, {format(lower)} use less VM cost, {format(equal)} are unchanged, and {format(higher)} cost more. These finite counts cover the complete retained set.</p>
 <p data-cost-changed-artifacts>Smaller modules in this iteration: {smaller.map((row, index) => <>{index > 0 ? '; ' : ''}<a href={`/chialisp-oxide/lab/${row.puzzle.slug}/`}>{row.puzzle.title}</a>{' '}{format(row.before.bytes)} → {format(row.after.bytes)} bytes</>)}.</p>
 <div class="table-wrap">

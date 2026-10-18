@@ -122,7 +122,7 @@ class HashingGateTests(unittest.TestCase):
     def test_replay_routes_the_validated_old_and_refined_resource_profiles(self):
         import copy
         from hashing_vectors import RESOURCE_BUDGET, validation_budget
-        from runtime_cost_migration import preserve
+        from runtime_cost_migration import preserve, project_validated
 
         current = json.loads((ROOT / "corpus/validation.json").read_text())
         historical = preserve(current)
@@ -151,6 +151,9 @@ class HashingGateTests(unittest.TestCase):
 
             with self.subTest(profile=name), patch.dict(GATE["replay"].__globals__, {
                 "run_batch": recorded_batch, "print": lambda *args, **kwargs: None,
+                # Source validators belong to current22. This old object is
+                # independently pinned by its pure historical profile only.
+                "validate": GATE["validate"] if refined else project_validated,
             }):
                 total = GATE["replay"](report, Path("/unused-no-vm"))
                 self.assertEqual(total, sum((len(puzzle["cases"]) + len(generated_for(slug))) * 5

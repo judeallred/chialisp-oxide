@@ -127,4 +127,8 @@ def self_test(report=None):
             target[key] = numeric(target[key])
             require(canonical(bad) != canonical(report), "No-op wire-type mutation")
             count += reject(lambda: validate(bad), "wire/" + field)
-    return count + migration_controls(report)
+    # Source/evidence corruptions above always use the actual current report.
+    # Only the historical migration controls receive the normalized old21 view.
+    from runtime_cost_migration import preserve as cost_preservation
+    historical = cost_preservation(report)
+    return count + migration_controls(historical, current_report=report)

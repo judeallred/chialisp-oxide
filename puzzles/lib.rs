@@ -54,3 +54,6 @@ pub mod singleton_launcher;
 
 #[path = "password-coin/puzzle.rs"]
 pub mod password_coin;
+
+#[path = "p2-singleton/puzzle.rs"]
+pub mod p2_singleton;

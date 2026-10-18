@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { failureProtocol, checkCorpusExecutions, checkExecution, checkNativeOutcome, checkReplay, checkScalarProofReplays, checkTreeProofReplays, testFailureProtocol } from './vm-failures.mjs';
 import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
+import { checkProtocolReport, checkProtocolDisplay, historicalOptimizationReport } from './p2-protocol.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
@@ -71,12 +72,13 @@ const publishedReports = [
   ['helper-inlining-baseline', 'corpus/helper-inlining-baseline.json'],
   ['runtime-refinement-baseline', 'corpus/runtime-refinement-baseline.json'],
   ['integer-canonicality-proof', 'corpus/integer-canonicality-proof.json'],
+  ['p2-singleton-append-baseline', 'corpus/p2-singleton-append-baseline.json'],
 ];
 for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
-  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof'].includes(name)) {
+  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof', 'p2-singleton-append-baseline'].includes(name)) {
     assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
   }
 }
@@ -86,6 +88,8 @@ const treeProofs = JSON.parse(await readFile(path.join(root, 'reports/tree-proof
 const byteProofs = JSON.parse(await readFile(path.join(root, 'reports/byte-proofs.json'), 'utf8'));
 checkCorpusExecutions(validation);
 checkLedgerReport(validation);
+const dedicatedCounts = checkProtocolReport(validation);
+const optimizationValidation = historicalOptimizationReport(validation);
 console.log(`Consensus rejection controls: ${testLedgerProtocol()} passed`);
 checkScalarProofReplays(proofs);
 checkTreeProofReplays(treeProofs);
@@ -224,13 +228,16 @@ assert.deepEqual(validation.rue_local_patches, [...costHelper.rue_local_patches.
 // Pending profiles never substitute scratch measurements for a publication.
 assert.equal(costReview.status, 'reviewed_final', 'Optimization measurements must be final reviewed evidence');
 assert.equal(costReview.report_path, 'corpus/validation.json');
-assert.equal(costReview.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Reviewed optimization report is stale');
+const appendProfile = JSON.parse(await readFile(path.join(root, 'reports/p2-singleton-append-baseline.json'), 'utf8'));
+assert.equal(appendProfile.reviewed_after.status, 'reviewed_final_current22', 'P2 append remains pending');
+assert.equal(appendProfile.reviewed_after.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Current22 append report is stale');
+assert.equal(costReview.report_sha256, appendProfile.baseline.report_sha256, 'Historical optimization report differs from signed append baseline');
 assert.deepEqual(costReview.optimization_pipeline, validation.optimization_pipeline);
 assert.equal(costBefore.length, 21, 'The signed c879 baseline must retain its entire reviewed corpus');
 // The immutable earliest cost snapshot owns the Cargo authoring metadata;
 // helper-inlining and runtime-refinement profiles retain observation slots.
-assert.deepEqual(costPredecessor.authoring, validation.authoring, 'Optimization comparisons changed their Cargo source inputs');
-assert.deepEqual(costBefore.map(row => row.slug), validation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
+assert.deepEqual(costPredecessor.authoring, optimizationValidation.authoring, 'Optimization comparisons changed their Cargo source inputs');
+assert.deepEqual(costBefore.map(row => row.slug), optimizationValidation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
 assert.deepEqual(costReview.puzzles.map(row => row.slug), costBefore.map(row => row.slug), 'Missing/extra/reordered reviewed optimization row');
 const safeMetric = (value, minimum, label) => assert(Number.isSafeInteger(value) && value >= minimum, `${label}: expected a safe integer >= ${minimum}`);
 const costArtifact = (record, label) => {
@@ -244,7 +251,7 @@ const costArtifact = (record, label) => {
 };
 const costRows = [];
 for (const [index, before] of costBefore.entries()) {
-  const puzzle = validation.puzzles[index];
+  const puzzle = optimizationValidation.puzzles[index];
   const reviewed = costReview.puzzles[index];
   const source = costPredecessor.authoring.exports[before.slug]?.source;
   assert.equal(source, `puzzles/${before.slug}/puzzle.rs`, `${before.slug}: unreviewed cost source path`);
@@ -370,9 +377,12 @@ const sourceDataDownloads = [
   { slug: 'atom-not-equal', path: 'puzzles/atom-not-equal/generated-cases.json', basename: 'atom-not-equal-generated-cases.json', rows: 2557 },
   { slug: 'insertion-sort-by-keys', path: 'puzzles/insertion-sort-by-keys/generated-cases.json', basename: 'insertion-sort-by-keys-generated-cases.json', rows: 285 },
   { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', rows: 275 },
+  { slug: 'p2-singleton', path: 'puzzles/p2-singleton/vectors.json', basename: 'p2-singleton-vectors.json', rows: 178, manifest: true },
+  { slug: 'p2-singleton', path: 'puzzles/p2-singleton/generated-cases.json', basename: 'p2-singleton-generated-cases.json', rows: 128 },
   { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', rows: 256 },
 ];
 const sourceDataDirectory = path.join(root, 'reports/source-data');
+const sourceBudgetRoutes = new Set(['homepage']);
 for (const download of sourceDataDownloads) {
   const puzzle = validation.puzzles.find(puzzle => puzzle.slug === download.slug);
   const records = puzzle.source_dependencies.filter(dependency => dependency.path === download.path);
@@ -384,12 +394,19 @@ for (const download of sourceDataDownloads) {
   assert.equal(source.toString('utf8'), dependency.source, 'Source-data report differs from actual source');
   assert.equal(createHash('sha256').update(source).digest('hex'), dependency.sha256, 'Source-data hash differs');
   assert.deepEqual(published, source, 'Published generated vectors differ from the original bytes');
-  assert.equal(JSON.parse(published.toString('utf8')).length, download.rows, 'Generated-vector download lost cases');
-  assert.equal(puzzle.generated_cases, download.rows + (['sha256tree', 'password-coin'].includes(download.slug) ? 2059 : 0), `${download.slug}: inherited raw inputs were dropped or counted in the download`);
+  const parsedSourceData = JSON.parse(published.toString('utf8'));
+  assert.equal(Array.isArray(parsedSourceData) ? parsedSourceData.length : parsedSourceData.named.length + parsedSourceData.generated.length, download.rows, 'Vector download lost recipes');
+  if (download.manifest) {
+    assert.deepEqual(parsedSourceData.named.map(({label,solution}) => ({label,solution})), puzzle.cases.map(({label,solution}) => ({label,solution})), 'Relation manifest changes exact recorded named inputs');
+    assert.equal(parsedSourceData.checks.status, 'expected_relation_codec_and_hash_arithmetic_no_VM_invocation');
+  }
+  else assert.equal(puzzle.generated_cases, download.rows + (['sha256tree', 'password-coin', 'p2-singleton'].includes(download.slug) ? 2059 : 0), `${download.slug}: inherited raw inputs were dropped or counted in the download`);
   for (const route of [`lab/${download.slug}`, `tutorials/${download.slug}`]) {
     const filename = path.join(root, route, 'index.html');
     const page = await html(filename);
-    assert((await readFile(filename)).length <= 512 * 1024, `${route}: generated-data page exceeds its 512KiB HTML budget`);
+    sourceBudgetRoutes.add(route);
+    const pageLimit = route === 'lab/p2-singleton' ? 1024 * 1024 : 512 * 1024;
+    assert((await readFile(filename)).length <= pageLimit, `${route}: source-data page exceeds its reviewed HTML budget`);
     assert(page.includes(`href="${base}reports/source-data/${download.basename}"`), `${route}: missing exact generated-vector download`);
     assert(page.includes(`data-source-download="${download.basename}"`) && page.includes(dependency.sha256), `${route}: source download lacks its provenance marker/hash`);
     const copies = [...page.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
@@ -504,6 +521,32 @@ for (const puzzle of validation.puzzles) {
 }
 // Password modules are reusable raw templates. Fixed commitments and actual
 // spend attempts have their own evidence contract and do not inflate ordinary
+// Dedicated component receipts remain separate from ordinary scenario groups.
+const p2Puzzle = validation.puzzles.find(puzzle => puzzle.slug === 'p2-singleton');
+assert(p2Puzzle, 'Missing actual P2 component');
+const p2Detail = await html(path.join(root, 'lab/p2-singleton/index.html'));
+const p2Lesson = await html(path.join(root, 'tutorials/p2-singleton/index.html'));
+assert.deepEqual(checkProtocolDisplay(p2Detail, p2Puzzle), dedicatedCounts);
+assert.deepEqual(checkProtocolDisplay(p2Lesson, p2Puzzle), dedicatedCounts);
+assert.deepEqual(JSON.parse(await readFile(path.join(root, 'reports/p2-singleton.json'), 'utf8')), p2Puzzle.protocol_validation, 'Derived P2 endpoint must equal the exact embedded field');
+const p2Display = p2Detail.match(/<section\b[^>]*data-protocol-validation[^>]*>[\s\S]*?<\/section>/)[0];
+let protocolDisplayControls = 0;
+for (const mutate of [
+  text => text.replace('data-protocol-attempts="110"', 'data-protocol-attempts="109"'),
+  text => text.replace('data-protocol-accepted="15"', 'data-protocol-accepted="95"'),
+  text => text.replace('data-protocol-rejected="95"', 'data-protocol-rejected="94"'),
+  text => text.replace('data-protocol-mode="rust_mir:false"', 'data-protocol-mode="rust_mir:true"'),
+  text => text.replace('data-protocol-rejection="AssertPuzzleAnnouncementFailed"', 'data-protocol-rejection="CostExceeded"'),
+  text => text.replace('data-protocol-receipt="genesis"', 'data-protocol-receipt="synthetic"'),
+  text => text.replace('host counterparts, not Rust ports', 'Rust ports'),
+]) {
+  checkProtocolDisplay(p2Display, p2Puzzle); // positive normalization first
+  const bad = mutate(p2Display);
+  assert.notEqual(bad, p2Display, 'No-op P2 display corruption');
+  assert.throws(() => checkProtocolDisplay(bad, p2Puzzle));
+  protocolDisplayControls++;
+}
+
 // ledger scenario counts or turn a runtime umbrella into semantic rejection.
 const passwordRows = validation.puzzles.filter(puzzle => puzzle.slug === 'password-coin');
 assert.equal(passwordRows.length, 1, 'Missing/duplicate executed password module');
@@ -987,11 +1030,15 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
     assert(result.url.startsWith(base), `Search result escapes base: ${result.url}`);
+    if (term === 'pay-to-singleton') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/p2-singleton/`), 'P2 tutorial is not discoverable');
+    }
     if (term === 'rightmost') {
       const matches = await Promise.all(search.results.slice(0, 10).map(row => row.data()));
       assert(matches.some(row => row.url === `${base}tutorials/recursive-trees/`), 'Recursive tutorial is not discoverable in search');
@@ -1060,4 +1107,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceDataDownloads.length * 2 + 1} 512KiB page budgets, ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);

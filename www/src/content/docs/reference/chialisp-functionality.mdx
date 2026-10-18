@@ -62,7 +62,7 @@ capabilities of every native Rust crate.
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
 | Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
 | Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` and owned `prefix` adapters; general allocation/loops/closures rejected | Further helpers, broader collections and termination/resource/preservation proofs |
-| Currying and nested/standard puzzles | Explicit program trees | Separately tested host curry instances for the canonical password module; no general public curry/delegated-program API | Broader typed authoring, canonical module/instance hashes and composition validation |
+| Currying and nested/standard puzzles | Explicit program trees | Separately tested host curry instances for the canonical password and pay-to-singleton modules; no general public curry/delegated-program API | Broader typed authoring, canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
 | Costs, identity and consensus | VM plus consensus validator | Measured for current examples | Whole-spend costs, activation rules and interoperability contracts |
 | Host I/O, clocks, randomness, network state | Native Rust facilities | No implicit puzzle capability | Explicit committed inputs or consensus conditions |
@@ -168,6 +168,13 @@ independent Chialisp reproduces its 175-byte identity, while optimized Rust emit
 singleton lifecycle or a CHIP. Known-answer and finite execution evidence do
 not prove cryptographic security or Rust-to-CLVM preservation. See the
 [hash bridge boundary](/chialisp-oxide/reference/hashing/).
+
+The [pay-to-singleton component](/chialisp-oxide/tutorials/p2-singleton/) adds
+one exact canonical module and a dedicated finite composition harness. Each
+language’s own reveal participates in real Eve and subsequent-lineage spends.
+The canonical top layer and signed StandardLayer are host counterparts, not
+Rust ports. Its 110 actual submissions remain separate from ordinary scenario
+groups; this does not complete the singleton protocol or a CHIP migration.
 
 The pinned
 [module-add example](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L21-L23)

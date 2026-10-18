@@ -22,7 +22,7 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from vm_failures import PROTOCOL, check_execution, check_native_outcome
+from vm_failures import PROTOCOL, check_execution, check_native_outcome, execution_sources
 from cargo_authoring import check_recorded, contained_file
 
 CODEC = runpy.run_path(str(ROOT / "scripts/check-canonical-factories.py"))
@@ -152,29 +152,10 @@ def finite_inputs(corpus=None):
               ROOT / "corpus/validate_published_puzzles.py",
               ROOT / "crates/chialisp-oxide-vm/failure-protocol.json",
               HERE / "lean-toolchain", HERE / "lakefile.toml", HERE / "lake-manifest.json"]
-    # Aggregate helper validation executes the hash gate, whose current profile
-    # selection imports readable/password validation and the closed inline/cost
-    # profiles. Bind that explicit code/data closure, including import-time
-    # dependencies, rather than leaving changed validation logic unrecorded.
-    inputs += [ROOT / path for path in (
-        "scripts/check-hashing-puzzles.py",
-        "scripts/hashing_provenance.py",
-        "scripts/hashing_vectors.py",
-        "scripts/ledger_rejections.py",
-        "scripts/check-readable-puzzles.py",
-        "scripts/runtime_cost_migration.py",
-        "scripts/runtime_inline_migration.py",
-        "scripts/runtime_refinement_migration.py",
-        "scripts/runtime_password_migration.py",
-        "scripts/password_evidence.py",
-        "scripts/password_ledger.py",
-        "scripts/password_provenance.py",
-        "scripts/password_vectors.py",
-        "corpus/cost-optimization-baseline.json",
-        "corpus/helper-inlining-baseline.json",
-        "corpus/runtime-refinement-baseline.json",
-        "crates/chialisp-oxide-simulator/rejection-protocol.json",
-    )]
+    # Reuse the current aggregate reader/wire closure rather than preserving a
+    # manually copied pre-append list. These are source freshness bindings, not
+    # additional Lean theorem coverage or proof that the readers are correct.
+    inputs += [contained_file(ROOT, row["path"]) for row in execution_sources()]
     inputs += [contained_file(ROOT, source["path"]) for source in corpus["authoring"]["sources"]]
     cases, replays, artifacts = [], [], []
     for slug, algorithm, count in [("prefix-list", "prefixEntry", 69), ("last-list-element", "lastInner", 16)]:

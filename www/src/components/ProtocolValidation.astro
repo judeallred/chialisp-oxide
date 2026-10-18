@@ -1,0 +1,43 @@
+---
+import { backendLabel, format, href, protocolCounts, type ProtocolValidation } from '../lib/data';
+interface Props { evidence: ProtocolValidation }
+const { evidence } = Astro.props;
+const counts = protocolCounts(evidence);
+---
+<section aria-label="Canonical pay-to-singleton composition" data-protocol-validation data-protocol-groups={counts.groups} data-protocol-attempts={counts.attempts} data-protocol-accepted={counts.accepted} data-protocol-rejected={counts.rejected}>
+  <h2 id="protocol-composition">Validate canonical singleton composition</h2>
+  <p>A pay-to-singleton coin returns conditions connecting its spend to a singleton spend. This dedicated harness uses each language’s own compiled pay-to-singleton module with independently reproduced canonical launcher, singleton top layer and signed StandardLayer counterparts.</p>
+  <p><strong>The top layer and StandardLayer are host counterparts, not Rust ports.</strong> The finite run creates a real Eve coin, combines 1 + 2 mojos into a 3-mojo continuation, and spends that continuation with a subsequent lineage proof. It does not establish a complete singleton lifecycle or any CHIP migration.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong>{counts.groups}</strong><span>independent compiler builds</span></div>
+    <div class="metric"><strong>{format(counts.attempts)}</strong><span>actual transaction submissions</span></div>
+    <div class="metric"><strong>{counts.accepted}</strong><span>accepted submissions</span></div>
+    <div class="metric"><strong>{counts.rejected}</strong><span>typed rejections with rollback</span></div>
+  </div>
+  <p>These submissions are separate from the report’s ordinary ledger scenario-group totals. Every rejection below follows an actual consensus submission and an exact typed error-code check. SDK signer preflight does not count as rejection. The producer also compares the complete in-memory Simulator with its saved clone. The report records that check as a Boolean; checking the record does not prove state equality. It does not serialize SDK state or include Debug payloads.</p>
+  <p class="versions">{evidence.simulator} · {evidence.consensus} · {evidence.ledger_VM} · {evidence.network}. Rejection protocol: <code>{evidence.rejection_protocol}</code>. Raw input comparisons elsewhere use the separate primary <code>clvmr 0.21.0</code> stack.</p>
+  {evidence.observations.map(group => <details class="protocol-group" data-protocol-mode={`${group.backend}:${group.optimize_lir}`}>
+    <summary>{backendLabel(group.backend)} / {group.optimize_lir ? 'on' : 'off'} · {group.negatives.length + group.lifecycle.rejections.length + group.lifecycle.receipts.length} actual submissions</summary>
+    <p>Own pay-to-singleton module hash: <code class="dependency-hash" data-pagefind-ignore>{group.module_tree_hash}</code>. Curried instance: <code class="dependency-hash" data-pagefind-ignore>{group.curried_p2_hash}</code>.</p>
+    <ul>{group.lifecycle.receipts.map(receipt => <li data-protocol-receipt={receipt.name}><strong>{receipt.name}</strong> — accepted actual submission; exact retained bundle: <code>{receipt.bundle_field}</code>.</li>)}</ul>
+    <div class="table-scroll"><table><caption>Exact consensus rejection and rollback observations</caption><thead><tr><th scope="col">Submitted fault</th><th scope="col">Typed consensus code</th><th scope="col">Complete rollback</th></tr></thead><tbody>
+      {[...group.negatives, ...group.lifecycle.rejections].map(attempt => <tr data-protocol-attempt={attempt.name} data-protocol-rejection={attempt.consensus.code}><th scope="row">{attempt.name}</th><td><code>{attempt.consensus.code}</code></td><td>{attempt.full_simulator_equality ? 'checked' : 'failed'}</td></tr>)}
+    </tbody></table></div>
+  </details>)}
+  <details class="protocol-provenance"><summary>Canonical host counterpart provenance</summary>
+    <p><a href={`${evidence.modules.repository}/tree/${evidence.modules.revision}`}>{evidence.modules.repository}</a> · revision <code>{evidence.modules.revision}</code> · exact pinned repository license: Apache-2.0.</p>
+    <ul>{evidence.modules.modules.map(module => <li><code>{module.path}</code> · {module.bytes} bytes · published hash <code class="dependency-hash" data-pagefind-ignore>{module.tree_hash}</code>. Independent compilation matches the retained published artifact.</li>)}</ul>
+  </details>
+  <p><a href={href('reports/p2-singleton.json')}>Download the exact embedded protocol evidence</a> for complete bundles, signatures and typed submission receipts. <a href={href('tutorials/p2-singleton/')}>Follow the announcement and lineage walkthrough.</a> Source freshness and finite tests do not authenticate execution or prove compiler preservation, security, or production readiness.</p>
+</section>
+<style>
+  section { margin-block: 2rem; }
+  .protocol-group, .protocol-provenance { margin-block: 1rem; border: 1px solid var(--oxide-line); border-radius: .35rem; padding: 1rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align: left; vertical-align: top; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  caption { text-align: left; padding-block: .5rem; }
+  .dependency-hash { overflow-wrap: anywhere; font-size: .7rem; }
+  .versions { font-size: .85rem; }
+</style>

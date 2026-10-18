@@ -46,6 +46,7 @@ export default defineConfig({
           { label: 'Hash exact bytes and trees', slug: 'tutorials/sha256tree' },
           { label: 'Bind a password hash to a coin', slug: 'tutorials/password-coin' },
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
+          { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
         ] },
         { label: 'Inspect the evidence', items: [
           { label: 'Puzzle laboratory', link: '/lab/' },

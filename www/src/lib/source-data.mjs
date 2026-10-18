@@ -14,6 +14,8 @@ const definitions = [
   { slug: 'sha256tree', path: 'puzzles/sha256tree/generated-cases.json', basename: 'sha256tree-generated-cases.json', inheritedRows: 2059 },
   // Password-specific byte/hash pairs are downloaded separately from the same
   // 2,059 shared raw-environment inputs executed by the corpus.
+  { slug: 'p2-singleton', path: 'puzzles/p2-singleton/vectors.json', basename: 'p2-singleton-vectors.json', kind: 'manifest' },
+  { slug: 'p2-singleton', path: 'puzzles/p2-singleton/generated-cases.json', basename: 'p2-singleton-generated-cases.json', inheritedRows: 2059 },
   { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', inheritedRows: 2059 },
 ];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -34,7 +36,23 @@ function checked(artifact) {
       || !Number.isSafeInteger(artifact.rows) || artifact.rows < 1) {
     throw new Error('Source-data download requires bounded byte/row counts and SHA-256.');
   }
-  return { ...definition, sha256: artifact.sha256, bytes: artifact.bytes, rows: artifact.rows };
+  return { ...definition, ...(definitions.find(row => row.path === definition.path)?.kind === 'manifest' ? { kind: 'manifest' } : {}), sha256: artifact.sha256, bytes: artifact.bytes, rows: artifact.rows };
+}
+
+function parsedRows(source, definition) {
+  const value = JSON.parse(source);
+  if (definition.kind === 'manifest') {
+    if (!value || typeof value !== 'object' || Array.isArray(value)
+        || Object.keys(value).sort().join(',') !== 'checks,generated,named,scope'
+        || !Array.isArray(value.named) || !Array.isArray(value.generated)
+        || value.checks?.named !== value.named.length || value.checks?.generated !== value.generated.length
+        || value.checks?.status !== 'expected_relation_codec_and_hash_arithmetic_no_VM_invocation') {
+      throw new Error('P2 relation manifest requires explicit finite no-VM scope and exact named/generated recipes.');
+    }
+    return { rows: [...value.named, ...value.generated], named: value.named, generated: value.generated };
+  }
+  if (!Array.isArray(value)) throw new Error('Source-data row count requires a row array.');
+  return { rows: value };
 }
 
 /** Validate the fixed datasets against the recorded dependency strings. */
@@ -56,8 +74,18 @@ export function sourceDataArtifacts(report) {
     if (bytes < 1 || bytes > MAX_SOURCE_DATA_BYTES) throw new Error('Source-data exceeds its byte bound.');
     if (Buffer.from(dependency.source, 'utf8').toString('utf8') !== dependency.source) throw new Error('Source-data must round-trip exact UTF-8.');
     if (digest(dependency.source) !== dependency.sha256) throw new Error('Recorded source-data SHA-256 mismatch.');
-    const rows = JSON.parse(dependency.source);
-    if (!Array.isArray(rows) || rows.length === 0 || owners[0].generated_cases !== rows.length + (definition.inheritedRows ?? 0)) {
+    const parsed = parsedRows(dependency.source, definition);
+    const rows = parsed.rows;
+    if (rows.length === 0) throw new Error('Source-data requires a nonempty row array.');
+    if (definition.kind === 'manifest') {
+      const inputs = list => list.map(({label,solution}) => ({label,solution}));
+      const generated = dependencies.find(row => row.path === 'puzzles/p2-singleton/generated-cases.json');
+      if (!Array.isArray(owners[0].cases) || !generated || parsed.named.length !== 50 || parsed.generated.length !== 128
+          || JSON.stringify(inputs(parsed.named)) !== JSON.stringify(inputs(owners[0].cases))
+          || JSON.stringify(inputs(parsed.generated)) !== JSON.stringify(JSON.parse(generated.source))) {
+        throw new Error('Relation manifest must match exact named and generated inputs; it adds no execution or coverage.');
+      }
+    } else if (owners[0].generated_cases !== rows.length + (definition.inheritedRows ?? 0)) {
       throw new Error('Source-data row count must match the generated-input record.');
     }
     return checked({ ...definition, sha256: dependency.sha256, bytes, rows: rows.length });
@@ -101,8 +129,8 @@ export async function readSourceDataArtifact(artifact) {
     const bytes = buffer.subarray(0, length);
     if (digest(bytes) !== entry.sha256) throw new Error('Source-data file SHA-256 mismatch.');
     const source = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-    const rows = JSON.parse(source);
-    if (!Array.isArray(rows) || rows.length !== entry.rows) throw new Error('Source-data file row count differs from its record.');
+    const rows = parsedRows(source, entry).rows;
+    if (rows.length !== entry.rows) throw new Error('Source-data file row count differs from its record.');
     return bytes;
   } finally {
     await file.close();

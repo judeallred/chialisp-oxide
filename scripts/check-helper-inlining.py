@@ -2,11 +2,13 @@
 """Validate the closed signed405 helper-inlining transition; optionally replay retained VM.
 
 Default is source/record freshness, not proof that a claimed run occurred.
---ir-bundle checks explicitly supplied fresh Cargo output; no Cargo is invoked.
+--fresh-on/--fresh-off checks supplied current22 Cargo output before projection.
+--ir-bundle remains historical21 only. No Cargo is invoked.
 --replay executes finite retained old/new programs, not native Rust or consensus.
 """
 import argparse
 import json
+import p2_cli
 from pathlib import Path
 
 from cargo_authoring import unique_object
@@ -39,17 +41,23 @@ def main():
     parser.add_argument("--cli", type=Path, default=ROOT / "target/debug/chialisp-oxide")
     parser.add_argument("--ir-bundle", type=Path, action="append", default=[])
     parser.add_argument("--benchmark", type=Path)
+    p2_cli.arguments(parser)
     args = parser.parse_args()
     report_bytes = args.report.read_bytes()
     report = json.loads(report_bytes, object_pairs_hook=unique_object)
-    from runtime_refinement_migration import is_refinement, load as refinement_profile
-    if is_refinement(report) or is_new(report):
-        profile = refinement_profile() if is_refinement(report) else load()
-        require(sha(report_bytes) == profile["reviewed_after"]["report_sha256"], "Current report bytes differ from final reviewed optimization profile")
+    from runtime_cost_migration import check_report_bytes
+    check_report_bytes(report_bytes, report)
+    fresh = p2_cli.check(report, args)
+    if fresh is not None:
+        print("PASS: explicit current22 fresh bundles before historical projection", fresh)
     print("PASS: closed helper-inlining evidence", measurements(report))
     for path in args.ir_bundle:
         print("PASS: explicit frozen21 rawIR retention", verify_ir_bundle(path.resolve(), report))
     if args.self_test:
+        from p2_outer_controls import self_test as append_controls
+        count = append_controls(report)
+        if count:
+            print("PASS:", count, "nonvacuous current22 controls before historical21 projection")
         from inline_controls import self_test
         print("PASS:", self_test(report), "nonvacuous helper-inlining/current-source corruption controls")
     if args.replay:

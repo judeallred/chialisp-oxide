@@ -20,6 +20,38 @@ direct ledger admission claims. The validation, scalar, structural-tree and
 byte-policy reports in `corpus/` record their actual inputs and scope. The early
 backend-only experiment below remains a separate baseline.
 
+## Pay-to-singleton component boundary
+
+The canonical `p2_singleton` module is a separate `protocol_component` with
+empty ordinary simulator scenario arrays. Its `protocol_validation` field
+embeds five actual build groups and 110 transaction submissions: 15 accepted
+and 95 exact typed consensus rejections with complete in-memory Simulator
+rollback. These counts remain separate from 40 ordinary scenario definitions
+and 120 language scenario runs, and from the password instance submissions.
+
+The harness independently reproduces canonical launcher, singleton top layer
+and StandardLayer artifacts. Each language uses its own compiled P2 module
+and curried coin commitment. The top layer and StandardLayer are host
+counterparts, not Rust frontend ports. A real Eve proof, a 1 + 2 → 3 funding
+composition and one subsequent lineage proof are executed; this is not a
+complete singleton lifecycle or a completed primitive/tutorial/CHIP migration.
+
+The closed reader binds every runtime include/source/published artifact,
+reconstructs curry trees and coin IDs, and checks exact named receipts and
+consensus codes under `chia-consensus-0.36.1/p2-singleton-v1`. The producer
+submits missing and wrong nonempty signatures to consensus; signer preflight
+cannot supply rejection credit. The producer checks complete Simulator equality
+in memory against its saved clone before recording a Boolean result. The report
+does not serialize SDK state or include Debug payloads; a recorded flag is not
+an independent proof of equality or authenticated execution.
+
+Current22 source/native/typed/protocol evidence and explicit fresh ON/OFF
+bundles are checked before the append projection restores the entire signed
+21-puzzle cost baseline. Existing cost profiles and historical measurements
+remain byte-identical. Read-only evidence validation does not reexecute those
+transactions or authenticate an earlier run. SHA/raw-tree protocol logic
+remains outside the scalar models and compiler-preservation claims.
+
 ## Password module and instance boundary
 
 The canonical password tutorial has a separate finite evidence contract. Its
@@ -36,8 +68,10 @@ Source, native closure and complete current Cargo provenance are checked before
 historical projection. The cost transition first binds all 21 puzzles to the
 signed before report and reviewed new optimized artifacts. Only reviewed Rust
 optimized slots and independently derived instance/coin identities may change;
-all other recorded fields remain exact. Optional fresh Cargo bundles check all
-21 raw IR byte strings and both modes against the current reviewed artifacts.
+all other recorded fields remain exact. Fresh Cargo bundles check all
+22 current raw IR programs and both modes against their reviewed artifacts
+before historical projection. The append gate retains the signed 21-program
+cost baseline.
 This is freshness and finite agreement, not compiler authentication or a
 translation theorem. Existing formal models reject SHA operations.
 

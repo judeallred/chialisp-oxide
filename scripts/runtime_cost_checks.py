@@ -16,6 +16,10 @@ from vm_failures import check_execution
 
 def measurements(report, *, project):
     previous = project(report)
+    from runtime_cost_migration import project_append
+    report = project_append(report)
+    require([p["slug"] for p in previous["puzzles"]] == [p["slug"] for p in report["puzzles"]],
+            "Changed historical21 comparison coverage/order")
     rows = []
     for old, current in zip(previous["puzzles"], report["puzzles"]):
         deltas = [rust_on(c["runs"])["execution"]["cost"] - rust_on(a["runs"])["execution"]["cost"]
@@ -25,7 +29,7 @@ def measurements(report, *, project):
             "accepted_costs_lower": sum(x < 0 for x in deltas), "accepted_costs_equal": sum(x == 0 for x in deltas),
             "accepted_costs_higher": sum(x > 0 for x in deltas)})
     return {"puzzles": rows, "named_cases": sum(len(p["cases"]) for p in report["puzzles"]),
-        "scope": "Finite recorded named measurements; no universal cost dominance or preservation proof",
+        "scope": "Finite retained historical21 named measurements; appended P2 is excluded; no universal cost dominance or preservation proof",
         "diagnostic_resource_improvements": sum(
             rust_on(a["runs"])["execution"]["outcome"]["status"] == "inconclusive"
             and rust_on(b["runs"])["execution"]["outcome"]["status"] == "accepted"
@@ -57,6 +61,10 @@ def batch(cli, artifact, rows, budget, *, conclusive):
 
 def replay(report, cli, *, project):
     old = project(report)
+    from runtime_cost_migration import project_append
+    report = project_append(report)
+    require([p["slug"] for p in old["puzzles"]] == [p["slug"] for p in report["puzzles"]],
+            "Changed historical21 replay coverage/order")
     counts = {"named_vm_executions": 0, "diagnostic_vm_executions": 0, "fixed_instance_vm_executions": 0,
               "varying_instance_vm_executions": 0, "dedicated_primary_vm_executions": 0}
     for previous, current in zip(old["puzzles"], report["puzzles"]):
@@ -87,12 +95,16 @@ def replay(report, cli, *, project):
                 require(same(result, attempt["vm_021"]), "Retained dedicated primary-VM envelope differs")
                 counts["dedicated_primary_vm_executions"] += 1
     require(counts["named_vm_executions"] == 778, "Changed frozen named replay coverage")
-    return {**counts, "total": sum(counts.values()), "scope": "Finite retained primary VM only; no consensus resubmission, native execution or compilation"}
+    return {**counts, "total": sum(counts.values()), "scope": "Finite retained historical21 primary VM only; appended P2 is excluded; no consensus resubmission, native execution or compilation"}
 
 
 def benchmark_check(path, report, *, project, baseline_report_sha, raw_ir):
     measured = json.loads(path.read_bytes(), object_pairs_hook=unique_object)
     old = project(report)
+    from runtime_cost_migration import project_append
+    report = project_append(report)
+    require([p["slug"] for p in old["puzzles"]] == [p["slug"] for p in report["puzzles"]],
+            "Changed historical21 benchmark coverage/order")
     require(measured["status"] == "passed" and measured["baseline_report_sha256"] == baseline_report_sha
             and [r["slug"] for r in measured["puzzles"]] == [r["slug"] for r in report["puzzles"]], "Wrong/incomplete external benchmark baseline")
     hashes = {r["entry"]: r["sha256"] for r in raw_ir}
@@ -114,4 +126,4 @@ def benchmark_check(path, report, *, project, baseline_report_sha, raw_ir):
                     and same(row["old_on"], rust_on(before["runs"])["execution"])
                     and same(row["new_on"], rust_on(after["runs"])["execution"]), "Benchmark named envelope differs from frozen/profile data")
     return {"sha256": sha(path.read_bytes()), "named_cases": 389,
-            "scope": "Cross-check of retained external benchmark data, not authentication that its processes ran"}
+            "scope": "Cross-check of retained historical21 external benchmark data; appended P2 is excluded; not authentication that its processes ran"}

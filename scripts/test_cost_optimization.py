@@ -11,15 +11,17 @@ from cost_controls import self_test
 class CostMigrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = json.loads((cost.ROOT / "corpus/validation.json").read_bytes())
+        cls.current = json.loads((cost.ROOT / "corpus/validation.json").read_bytes())
+        cost.validate_current(cls.current)
+        cls.report = cost.project_append(cls.current)
 
     def test_current_profile_restores_the_signed21_report_exactly(self):
-        previous = cost.preserve(self.report)
+        previous = cost.preserve(self.current)
         self.assertEqual(cost.sha(cost.canonical(previous)), cost.load()["baseline"]["canonical_report_sha256"])
         self.assertEqual(len(previous["puzzles"]), 21)
 
     def test_corruption_controls_are_nonvacuous(self):
-        self.assertGreaterEqual(self_test(self.report), 35)
+        self.assertGreaterEqual(self_test(self.current), 35)
 
     def test_historical_pipeline_bytes_remain_the_old_normalization_target(self):
         self.assertEqual(cost.OLD_PIPELINE["rust_mir"]["optimized"], ["typed_ir_tree_guards", "runtime_frame_elision", "rue_lir"])
@@ -31,7 +33,7 @@ class CostMigrationTests(unittest.TestCase):
             cost.is_new(unknown)
 
     def test_stale_current_native_sources_fail_before_projection(self):
-        bad = copy.deepcopy(self.report)
+        bad = copy.deepcopy(self.current)
         bad["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
         with patch.object(cost, "project_validated", side_effect=AssertionError("projection ran first")), self.assertRaises(ValueError):
             cost.preserve(bad)

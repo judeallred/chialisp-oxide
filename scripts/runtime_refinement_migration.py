@@ -114,7 +114,7 @@ def project_validated(report):
 def preserve(report):
     # Current source/typed/ledger checks execute exactly once, never on history.
     cost.validate_current(report)
-    return project_validated(report)
+    return project_validated(cost.project_append(report))
 
 
 def capture_after(report):

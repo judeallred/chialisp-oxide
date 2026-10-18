@@ -89,6 +89,38 @@ export interface CurriedInstanceEvidence {
     attempts: InstanceAttempt[];
   }[];
 }
+export interface ProtocolCoin {
+  amount: number; id: string; parent_id: string; puzzle_hash: string;
+}
+export interface ProtocolBundle {
+  signature_hex: string;
+  spends: { coin: ProtocolCoin; reveal_hex: string; solution_hex: string }[];
+}
+export interface ProtocolRejection {
+  name: string; expected: string; observed: string;
+  stage: 'actual_consensus_submission'; full_simulator_equality: boolean;
+  transaction: ProtocolBundle;
+  consensus: { stage: 'consensus'; protocol: string; code: string; status: 'rejected'; semantic_rejection_credit: boolean };
+}
+export interface ProtocolValidation {
+  schema_version: number; protocol: string; status: string; scope: string;
+  simulator: string; consensus: string; ledger_VM: string; network: string; rejection_protocol: string;
+  modules: { repository: string; revision: string; root_tree_sha1: string; scope: string;
+    modules: { path: string; bytes: number; source_sha256: string; published_hex_sha256: string; tree_hash: string; independent_compilation_matches_published: boolean }[] };
+  observations: { backend: string; optimize_lir: boolean; module_tree_hash: string; curried_p2_reveal_hex: string;
+    curried_p2_hash: string; canonical_singleton_reveal_hex: string; inner_hash: string; negatives: ProtocolRejection[];
+    lifecycle: { name: string; scope: string; funding: ProtocolCoin; launcher: ProtocolCoin; eve: ProtocolCoin;
+      p2: ProtocolCoin; continuation: ProtocolCoin; next_singleton: ProtocolCoin;
+      genesis: ProtocolBundle; joint: ProtocolBundle; lineage: ProtocolBundle; rejections: ProtocolRejection[];
+      receipts: { name: string; stage: 'actual_consensus_submission'; status: 'accepted'; bundle_field: string }[];
+    };
+  }[];
+}
+export function protocolCounts(evidence: ProtocolValidation) {
+  const accepted = evidence.observations.reduce((sum, group) => sum + group.lifecycle.receipts.length, 0);
+  const rejected = evidence.observations.reduce((sum, group) => sum + group.negatives.length + group.lifecycle.rejections.length, 0);
+  return { groups: evidence.observations.length, attempts: accepted + rejected, accepted, rejected };
+}
 export interface PuzzleReport {
   slug: string;
   title: string;
@@ -113,6 +145,7 @@ export interface PuzzleReport {
   factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   curried_instances?: CurriedInstanceEvidence;
+  protocol_validation?: ProtocolValidation;
   validated: boolean;
 }
 export interface Authoring {
@@ -183,13 +216,19 @@ export function helperContract(puzzle: PuzzleReport) {
   if (!contract) throw new Error(`Missing helper adapter contract: ${puzzle.slug}`);
   return contract;
 }
-export const kindLabel = (kind: string) => kind === 'program_factory' ? 'program factory' : kind === 'pure_function' ? 'pure function' : kind === 'coin_puzzle' ? 'coin puzzle' : kind.replaceAll('_', ' ');
+export const kindLabel = (kind: string) => kind === 'program_factory' ? 'program factory' : kind === 'pure_function' ? 'pure function' : kind === 'coin_puzzle' ? 'coin puzzle' : kind === 'protocol_component' ? 'protocol component' : kind.replaceAll('_', ' ');
 export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const href = (path: string) => `${base}/${path.replace(/^\//, '')}`;
 export const format = (value: number) => new Intl.NumberFormat('en-US').format(value);
 export const backendLabel = (backend: string) => ({ rust_mir: 'Rust', chialisp: 'Chialisp', rue_source: 'Rue' })[backend] ?? backend;
 export const optimized = (puzzle: PuzzleReport) => puzzle.artifacts.find(a => a.backend === 'rust_mir' && a.optimize_lir)!;
 export const acceptedCosts = (puzzle: PuzzleReport) => puzzle.cases.flatMap(c => c.runs.filter(r => r.backend === 'rust_mir' && r.optimize_lir && r.execution.outcome.status === 'accepted' && r.execution.cost !== null).map(r => r.execution.cost!));
+const protocolEvidence = puzzles.flatMap(puzzle => puzzle.protocol_validation ? [puzzle.protocol_validation] : []);
+export const protocolTotals = protocolEvidence.reduce((totals, evidence) => {
+  const count = protocolCounts(evidence);
+  return { groups: totals.groups + count.groups, attempts: totals.attempts + count.attempts,
+    accepted: totals.accepted + count.accepted, rejected: totals.rejected + count.rejected };
+}, { groups: 0, attempts: 0, accepted: 0, rejected: 0 });
 export const totals = {
   puzzles: puzzles.length,
   vectors: puzzles.reduce((sum, p) => sum + p.cases.length, 0),
@@ -202,6 +241,7 @@ export const totals = {
       + run.scenarios.reduce((observations, scenario) => observations + scenario.rejections.length, 0), 0), 0),
   coinPuzzles: puzzles.filter(puzzle => puzzle.kind === 'coin_puzzle').length,
   pureFunctions: puzzles.filter(puzzle => puzzle.kind === 'pure_function').length,
+  protocolComponents: puzzles.filter(puzzle => puzzle.kind === 'protocol_component').length,
   programFactories: puzzles.filter(puzzle => puzzle.kind === 'program_factory').length,
   canonicalPorts: puzzles.filter(puzzle => canonicalExample(puzzle)).length,
   canonicalExpressionPorts: puzzles.filter(puzzle => canonicalExample(puzzle) && puzzle.reference_mode === 'expression').length,

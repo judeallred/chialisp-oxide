@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import runpy
 import tempfile
+import shutil
+import sys
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -105,7 +107,7 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
 
             def command(arguments, timeout):
                 events.append(("command", arguments, timeout))
-                return compiler if arguments == ["rustc", "-vV"] else ""
+                return compiler if arguments == ["rustup", "run", "nightly-2026-07-14", "rustc", "-vV"] else ""
 
             def load(output, **identity):
                 events.append(("load", identity["optimize"]))
@@ -126,15 +128,16 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
                 return {"optimize_lir": manifest.parent.parent.name == "on", "old_ir_exports": 20}
 
             with patch.object(password_cargo, "ROOT", root), \
+                    patch.object(password_cargo, "validate_current", side_effect=lambda value: events.append(("current", value))), \
                     patch.object(password_cargo, "snapshot", side_effect=lambda actual: copy.deepcopy(declared)), \
                     patch.object(password_cargo, "command", side_effect=command), \
                     patch.object(password_cargo, "load_declared_export", side_effect=load), \
                     patch.object(password_cargo, "verify_ir_bundle", side_effect=verify):
                 summaries = password_cargo.extract(report, cargo=cargo, driver=driver)
 
-        self.assertEqual([event[0] for event in events], ["command", "command", "load", "verify", "command", "load", "verify"])
-        self.assertEqual(events[0], ("command", ["rustc", "-vV"], 30))
-        builds = [event for event in events[1:] if event[0] == "command"]
+        self.assertEqual([event[0] for event in events], ["current", "command", "command", "load", "verify", "command", "load", "verify"])
+        self.assertEqual(events[1], ("command", ["rustup", "run", "nightly-2026-07-14", "rustc", "-vV"], 30))
+        builds = [event for event in events[2:] if event[0] == "command"]
         for event, mode in zip(builds, ("on", "off")):
             arguments = event[1]
             self.assertEqual(arguments[:6], [cargo, "build", "--manifest-path", "puzzles/Cargo.toml", "--locked", "--offline"])
@@ -165,6 +168,7 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
                     return {"optimize_lir": False if mutation == "mode" else True}
 
                 with patch.object(password_cargo, "ROOT", root), \
+                        patch.object(password_cargo, "validate_current", return_value=None), \
                         patch.object(password_cargo, "snapshot", side_effect=lambda actual: copy.deepcopy(current)), \
                         patch.object(password_cargo, "command", return_value="rustc test\nhost: test-host\n") as command, \
                         patch.object(password_cargo, "load_declared_export", return_value=SimpleNamespace(manifest_path=root / "manifest.json")), \
@@ -175,11 +179,15 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
 
     def test_current_native_corruptions_fail_before_any_historical_projection(self):
         from password_provenance import ROOT
-        from runtime_password_migration import current_native_sources, load
+        import p2_append_migration as append
+        import runtime_cost_migration as cost
         runtime = runpy.run_path(str(ROOT / "scripts/check-runtime-frames.py"))
         report = json.loads((ROOT / "corpus/validation.json").read_bytes())
-        allowed = {row["path"] for row in load()["authoring_inputs"]["after"]}
-        native_globals = current_native_sources.__globals__
+        self.assertTrue(append.is_append(report))
+        profile = copy.deepcopy(append.load())
+        allowed = {row["path"] for row in report["authoring"]["sources"]}
+        allowed.update(f"puzzles/{puzzle['slug']}/puzzle.json" for puzzle in report["puzzles"])
+        native_globals = append.current_native_sources.__globals__
         real_contained = native_globals["contained_file"]
 
         def confined(root, path):
@@ -196,9 +204,13 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
             elif mutation == "missing": rows.pop()
             elif mutation == "duplicate": rows.append(copy.deepcopy(rows[0]))
             else: rows[0]["path"] = "../../outside-native.rs"
-            with self.subTest(mutation=mutation), patch.dict(native_globals, {"contained_file": confined}), \
+            # Constructed authorization around a corrupted record: bypass only
+            # its outer digest so the real current native closure is tested.
+            profile["reviewed_after"]["canonical_report_sha256"] = cost.sha(cost.canonical(bad))
+            with self.subTest(mutation=mutation), patch.object(append,"load",return_value=profile), \
+                    patch.dict(native_globals, {"contained_file": confined}), \
                     patch.dict(runtime["check"].__globals__, {"password_preservation": no_projection, "hashing_preservation": no_projection}), \
-                    self.assertRaisesRegex(ValueError, "Current native"):
+                    self.assertRaisesRegex(ValueError, "Current22.*native"):
                 runtime["check"](bad, {})
 
     def test_replay_invokes_only_retained_bytes_with_the_exact_budget(self):
@@ -228,6 +240,128 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
             result = SimpleNamespace(returncode=0, stdout=json.dumps([observation]), stderr="")
             with self.subTest(kind=kind, code=code), patch.object(gate["subprocess"], "run", return_value=result), self.assertRaises(ValueError):
                 gate["run_batch"](Path("/task/cli"), b"\x01", ["()"], 1_000_000)
+
+
+class PasswordCurrent22Tests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import runtime_cost_migration as cost
+        import p2_append_migration as append
+        cls.root = cost.ROOT
+        cls.report = json.loads((cls.root / "corpus/validation.json").read_bytes())
+        if not append.is_append(cls.report):
+            raise ValueError("Actual current22 fixture required; no silent skip")
+        cost.validate_current(cls.report)
+        cls.historical = cost.preserve(cls.report)
+
+    def test_password_controls_validate_current_before_pure_history_and_real_native_checks(self):
+        import password_controls
+        import runtime_password_migration as migration
+        real = migration.current_native_sources
+        native_calls = []
+        def current(value):
+            self.assertEqual(len(value["puzzles"]), 22, "Historical object reached source freshness")
+            native_calls.append(value)
+            return real(value)
+        with patch.object(migration, "current_native_sources", side_effect=current):
+            self.assertGreater(password_controls.self_test(self.report), 80)
+        self.assertEqual(len(native_calls), 11)  # initial + five positive/negative pairs
+        self.assertEqual(sum(value is self.report for value in native_calls), 6)
+        # A historical-only default must fail its positive freshness basis,
+        # rather than claiming five vacuous native rejections.
+        with self.assertRaises(ValueError): migration.controls(self.historical)
+
+    def test_both_callers_pass_actual_current_report_to_native_migration_controls(self):
+        import password_controls
+        import runtime_password_migration as migration
+        real = migration.controls
+        calls = []
+        def capture(history, *, current_report):
+            self.assertEqual(len(history["puzzles"]), 21)
+            self.assertIs(current_report, self.report)
+            calls.append((history, current_report))
+            return real(history, current_report=current_report)
+        with patch.object(password_controls, "migration_controls", side_effect=capture):
+            password_controls.self_test(self.report)
+        runtime = runpy.run_path(str(self.root / "scripts/check-runtime-frames.py"))
+        baseline = runtime["load_baseline"](runtime["BASELINE_PATH"].read_bytes())
+        with patch.dict(runtime["self_test"].__globals__, {"password_controls": capture}):
+            runtime["self_test"](self.report, baseline)
+        self.assertEqual(len(calls), 2)
+
+    def test_cli_extract_and_supplied_fresh_checks_precede_any_historical_check(self):
+        import password_cargo
+        import password_controls
+        gate = runpy.run_path(str(self.root / "scripts/check-password-coin.py"))
+        for mode in ("extract", "supplied"):
+            events = []
+            def current(value):
+                self.assertEqual(len(value["puzzles"]), 22); events.append("check22"); return {}
+            def extract(value, **kwargs):
+                self.assertEqual(len(value["puzzles"]), 22); events.append("fresh22"); return []
+            def self_test(value):
+                self.assertEqual(len(value["puzzles"]), 22); events.append("selftest22"); return 1
+            def supplied(value, args):
+                if mode == "supplied": events.append("fresh22"); return []
+                return None
+            args = ["password-check", "--self-test"] + (["--extract-ir"] if mode == "extract" else ["--fresh-on", "/on", "--fresh-off", "/off"])
+            with patch.object(sys, "argv", args), patch.dict(gate["main"].__globals__, {"check": current, "print": lambda *a, **k: None}), patch.object(password_cargo, "extract", side_effect=extract), patch.object(password_controls, "self_test", side_effect=self_test), patch.object(gate["p2_cli"], "check", side_effect=supplied):
+                gate["main"]()
+            self.assertEqual(events, ["fresh22", "check22", "selftest22"])
+
+    def test_constructed22_pair_checks_actual_sources_metadata_IR_and_artifacts(self):
+        """Unit IR/headers plus recorded artifacts; NOT fresh policy executions."""
+        import password_cargo
+        import p2_append_migration as append
+        from cargo_authoring import snapshot
+        # In-memory rawIR bindings authorize only constructed loader controls.
+        # Real source bytes and recorded CLVM are used without a preservation claim.
+        with tempfile.TemporaryDirectory(prefix="password-current22-loader-control-") as directory:
+            root = Path(directory) / "source"; root.mkdir()
+            for row in self.report["authoring"]["sources"]:
+                target = root / row["path"]; target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(self.root / row["path"], target)
+            cargo, driver = root / "cargo-chialisp-oxide", root / "chialisp-oxide-driver"
+            cargo.write_bytes(b"constructed cargo identity"); driver.write_bytes(b"constructed driver identity")
+            compiler = "rustc constructed-current22-loader\nhost: test-host\n"
+            profile = copy.deepcopy(append.load())
+            expected_ir = {}
+            def command(arguments, timeout):
+                if arguments[0] == "rustup": return compiler
+                output = Path(arguments[arguments.index("--output-dir") + 1]); folder = output / "capture"; folder.mkdir(parents=True)
+                optimize = "--no-optimize" not in arguments
+                entries = []
+                for slug, export in self.report["authoring"]["exports"].items():
+                    entry = export["entry"]; stem = hashlib.sha256(entry.encode()).hexdigest()
+                    # Constructed identity fixture, not admitted policy semantics.
+                    ir = {"name": entry, "parameters": [], "result": {"kind":"unit"}, "body":{"op":"unit"}}
+                    payload = json.dumps(ir, sort_keys=True).encode(); (folder / f"{stem}.ir.json").write_bytes(payload); expected_ir[entry] = hashlib.sha256(payload).hexdigest()
+                    artifact = copy.deepcopy(next(a for p in self.report["puzzles"] if p["slug"] == slug for a in p["artifacts"] if a["backend"] == "rust_mir" and a["optimize_lir"] is optimize))
+                    (folder / f"{stem}.clvm.hex").write_text(artifact["clvm_hex"] + "\n")
+                    entries.append({"entry":entry,"ir":f"{stem}.ir.json","clvm":f"{stem}.clvm.hex","artifact":artifact})
+                profile["raw_ir_before"] = [{"entry":r["entry"],"sha256":expected_ir[r["entry"]]} for r in profile["raw_ir_before"]]
+                profile["reviewed_after"]["raw_ir_added_sha256"] = expected_ir["chialisp_oxide_puzzles::p2_singleton::puzzle"]
+                manifest = {"schema_version":1,"status":"wip_prototype_not_ready_for_use","package":self.report["authoring"]["package"],"manifest_path":str(root / "puzzles/Cargo.toml"),"workspace_root":str(root),"compiler":compiler,"driver_sha256":hashlib.sha256(driver.read_bytes()).hexdigest(),"analysis_target":"test-host","toolchain":"nightly-2026-07-14","cargo_options":["--manifest-path","puzzles/Cargo.toml","--locked","--offline"],"rue_revision":self.report["rue_revision"],"entries":entries}
+                if mutation[0] == "mode": manifest["entries"][0]["artifact"]["optimize_lir"] = not optimize
+                elif mutation[0] == "driver": manifest["driver_sha256"] = "0" * 64
+                elif mutation[0] == "options": manifest["cargo_options"].append("--release")
+                elif mutation[0] == "IR" and not optimize:
+                    path = folder / manifest["entries"][0]["ir"]; path.write_bytes(path.read_bytes()+b"\n")
+                elif mutation[0] == "artifact" and not optimize: manifest["entries"][0]["artifact"]["disassembly"] += " changed"
+                (folder / "manifest.json").write_text(json.dumps(manifest)); (output / "latest.json").write_text(json.dumps({"bundle":"capture","manifest":"capture/manifest.json"}))
+                return ""
+            mutation = [None]
+            def validate(value):
+                self.assertIs(value, self.report)
+                self.assertEqual(snapshot(root), value["authoring"])
+            with patch.object(password_cargo,"ROOT",root), patch.object(append,"ROOT",root), patch.object(append,"load",return_value=profile), patch.object(append,"project_validated",side_effect=AssertionError("history before fresh22 pair")), patch.object(password_cargo,"validate_current",side_effect=validate), patch.object(password_cargo,"command",side_effect=command), patch.object(password_cargo,"verify_ir_bundle",side_effect=AssertionError("legacy21 validator received current22")):
+                for kind in ("mode","driver","options","IR","artifact"):
+                    mutation[0] = None
+                    summaries = password_cargo.extract(self.report,cargo=cargo,driver=driver)
+                    self.assertEqual([r["optimize_lir"] for r in summaries],[True,False])
+                    self.assertTrue(all(r["checked_current_exports"] == 22 for r in summaries))
+                    mutation[0] = kind
+                    with self.subTest(mutation=kind), self.assertRaises(ValueError): password_cargo.extract(self.report,cargo=cargo,driver=driver)
 
 
 if __name__ == "__main__":

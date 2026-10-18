@@ -85,6 +85,10 @@ def current_native_sources(report):
     Paths come from reviewed constants and the pinned source table, never from
     an unchecked report-supplied filename.
     """
+    from p2_append_migration import is_append
+    if is_append(report):
+        from p2_append_migration import current_native_sources as appended_native_sources
+        return appended_native_sources(report)
     migration = load()
     require([p["slug"] for p in report["puzzles"]] == migration["preserved_slugs"] + ["password-coin"],
             "Password transition permits only its exact appended21st fixture")
@@ -191,7 +195,13 @@ def verify_ir_bundle(manifest_path, report):
     return {"compared_old_ir": 20, "checked_current_exports": 21, "optimize_lir": mode}
 
 
-def controls(report):
+def controls(report, *, current_report=None):
+    """Historical retention controls plus separately checked current freshness.
+
+    Historical objects must never be compared with today's source bytes. The
+    default supports an actual old21 checkout only when its positive native
+    freshness check still passes; an appended checkout supplies current_report.
+    """
     preserve(report)
     count = 0
     for mutation in ("old_source", "old_artifact", "old_cost", "old_output", "old_ledger", "old_order",
@@ -220,16 +230,32 @@ def controls(report):
             count += 1
         else:
             raise ValueError("Password preservation corruption passed: " + mutation)
+    actual = report if current_report is None else current_report
+    current_native_sources(actual)  # Fail loudly before any negative can count.
     for mutation in ("stale", "missing", "duplicate", "unknown", "authoring"):
-        bad = copy.deepcopy(report)
+        current_native_sources(actual)  # Positive before each native corruption.
+        bad = copy.deepcopy(actual)
         puzzle = next(p for p in bad["puzzles"] if p["slug"] == "sha256tree")
         if mutation == "stale": puzzle["native_sources"][2]["sha256"] = "0" * 64
         elif mutation == "missing": puzzle["native_sources"].pop()
         elif mutation == "duplicate": puzzle["native_sources"].append(copy.deepcopy(puzzle["native_sources"][0]))
         elif mutation == "unknown": puzzle["native_sources"][0]["path"] = "unknown/native.rs"
         else: bad["authoring"]["sources"][0]["sha256"] = "0" * 64
+        require(canonical(bad) != canonical(actual), "No-op current native corruption")
         try:
-            current_native_sources(bad)
+            from p2_append_migration import is_append
+            if is_append(actual):
+                # Explicit constructed checker control: rebind ONLY the outer
+                # digest in memory so real native path/hash checks must run.
+                # Immutable profile files/status/source contracts stay intact.
+                from unittest.mock import patch
+                import p2_append_migration as append
+                profile = copy.deepcopy(append.load())
+                profile["reviewed_after"]["canonical_report_sha256"] = digest(canonical(bad))
+                with patch.object(append, "load", return_value=profile):
+                    current_native_sources(bad)
+            else:
+                current_native_sources(bad)
         except (ValueError, KeyError):
             count += 1
         else:

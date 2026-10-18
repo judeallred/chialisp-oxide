@@ -2,12 +2,14 @@
 """Validate the closed signed c879 runtime-refinement transition.
 
 Default checks current source/record freshness, not authenticated execution.
-Explicit --ir-bundle reads caller-supplied fresh Cargo output without extracting.
+Explicit --fresh-on/--fresh-off reads supplied current22 output before projection;
+--ir-bundle remains historical21 only. Neither option extracts Cargo output.
 Explicit --replay executes retained finite old/new VM artifacts, without native
 Rust or consensus resubmission. Resource failures never earn rejection credit.
 """
 import argparse
 import json
+import p2_cli
 from pathlib import Path
 
 from cargo_authoring import unique_object
@@ -42,7 +44,8 @@ def benchmark_check(path, report):
             and all(claims[key] is False for key in ("raw_ir_reextraction", "universal_equivalence_proof",
                 "universal_cost_improvement", "consensus_resubmitted", "generated_cases_executed", "native_executed")),
             "External benchmark scope or OFF preservation credit changed")
-    return {**result, **benchmark_extra(measured, preserve(report), report)}
+    from runtime_cost_migration import project_append
+    return {**result, **benchmark_extra(measured, preserve(report), project_append(report))}
 
 
 def main():
@@ -53,16 +56,23 @@ def main():
     parser.add_argument("--cli", type=Path, default=ROOT / "target/debug/chialisp-oxide")
     parser.add_argument("--ir-bundle", type=Path, action="append", default=[])
     parser.add_argument("--benchmark", type=Path)
+    p2_cli.arguments(parser)
     args = parser.parse_args()
     payload = args.report.read_bytes()
     report = json.loads(payload, object_pairs_hook=unique_object)
-    if is_refinement(report):
-        require(sha(payload) == load()["reviewed_after"]["report_sha256"],
-                "Current report bytes differ from final reviewed runtime-refinement profile")
+    from runtime_cost_migration import check_report_bytes
+    check_report_bytes(payload, report)
+    fresh = p2_cli.check(report, args)
+    if fresh is not None:
+        print("PASS: explicit current22 fresh bundles before historical projection", fresh)
     print("PASS: closed runtime-refinement evidence", measurements(report))
     for path in args.ir_bundle:
         print("PASS: explicit frozen21 rawIR retention", verify_ir_bundle(path.resolve(), report))
     if args.self_test:
+        from p2_outer_controls import self_test as append_controls
+        count = append_controls(report)
+        if count:
+            print("PASS:", count, "nonvacuous current22 controls before historical21 projection")
         from refinement_controls import self_test
         print("PASS:", self_test(report), "nonvacuous runtime-refinement/current-source controls")
     if args.replay:

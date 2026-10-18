@@ -131,8 +131,8 @@ resource behavior between native Rust, the IR model and CLVM.
 
 The report contains {format(totals.coinPuzzles)} condition-producing examples
 and {format(totals.pureFunctions)} pure-function examples, plus
-{format(totals.programFactories)} program factory. Only coin puzzles
-have ledger scenarios. The same scenarios run separately with Rust, Chialisp, and Rue reveals;
+{format(totals.programFactories)} program factory and
+{format(totals.protocolComponents)} protocol component. Ordinary ledger scenarios belong to coin puzzles. The same scenarios run separately with Rust, Chialisp, and Rue reveals;
 {format(totals.ledger)} scenario definitions produce {format(totals.ledgerRuns)} ledger scenario runs. A group can submit several bundles, so this is not a transaction count. They verify
 coin-state transitions, exact recipients/totals, signatures, input amount
 assertions, locks, repeated spends, and rollback where relevant.
@@ -158,6 +158,15 @@ mojos succeeds, creates the same child of 1,000 mojos and leaves 1 mojo as an
 implicit fee. These are separately named
 scenarios; the amount-asserting fixtures instead require
 `AssertMyAmountFailed` when their exact input amount differs.
+
+The [pay-to-singleton component](/chialisp-oxide/tutorials/p2-singleton/)
+embeds its dedicated canonical-counterpart observations separately: five
+compiler builds, 110 actual submissions, 15 accepted and 95 exact typed
+consensus rejections with complete rollback. They use the scoped
+`chia-consensus-0.36.1/p2-singleton-v1` protocol and do not increase the ordinary
+scenario-group totals above. The canonical singleton top layer and signed
+StandardLayer are host counterparts, not Rust ports. A real Eve spend and
+one subsequent lineage transition do not establish a full singleton lifecycle.
 
 Separate simulator infrastructure regressions exercise overspending,
 announcements, and message binding. Do not infer that every puzzle report

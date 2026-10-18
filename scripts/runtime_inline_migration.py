@@ -191,7 +191,7 @@ def project_slots(report, old_rows, after_rows):
 def preserve(report):
     # No source/freshness validator runs on the projected historical object.
     cost.validate_current(report)
-    return project_validated(report)
+    return project_validated(cost.project_append(report))
 
 
 def capture_after(report):

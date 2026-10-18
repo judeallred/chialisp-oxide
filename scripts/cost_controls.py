@@ -14,8 +14,10 @@ def rejected(action, label):
     raise ValueError("Cost-profile corruption passed: " + label)
 
 
-def self_test(report):
-    preserve(report)
+def self_test(report, *, current_validation=preserve):
+    current_validation(report)
+    from runtime_cost_migration import project_append
+    report = project_append(report)
     from runtime_inline_migration import is_inline, project_validated as inline_projection
     from runtime_refinement_migration import is_refinement
     if is_inline(report) or is_refinement(report):

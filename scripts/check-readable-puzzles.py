@@ -157,7 +157,7 @@ def check_report(report, *, require_typed_failures=True):
             ledger += 1
         if "rue" in puzzle:
             comparisons = puzzle["simulator_comparisons"]
-            if puzzle["kind"] in ("pure_function", "program_factory"):
+            if puzzle["kind"] in ("pure_function", "program_factory", "protocol_component"):
                 require(not comparisons and not puzzle["simulator"], f"{slug}: non-spend function claims ledger evidence")
             else:
                 require(modes(comparisons, f"{slug} ledger comparisons").keys()
@@ -173,7 +173,11 @@ def check_sources(report, root, require_rue=False):
     if require_rue:
         require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
         patches = [f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)]
-        if report.get("optimization_pipeline") == REFINEMENT_PIPELINE:
+        from p2_append_migration import is_append
+        if is_append(report):
+            from p2_append_migration import expected_patches
+            patches = expected_patches(report)
+        elif report.get("optimization_pipeline") == REFINEMENT_PIPELINE:
             from runtime_refinement_migration import expected_patches
             patches = expected_patches(report)
         elif report.get("optimization_pipeline") == INLINE_PIPELINE:
@@ -793,9 +797,16 @@ def main():
     changes = []
     try:
         current = load_report(args.current)
-        counts = check_report(current)
-        check_sources(current, args.source_root, require_rue=True)
-        check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
+        from p2_append_migration import is_append
+        if is_append(current):
+            from runtime_cost_migration import check_report_bytes, validate_current
+            require(args.source_root.resolve() == ROOT.resolve(), "Current22 native/source checks require this executing repository as --source-root")
+            check_report_bytes(args.current.read_bytes(), current)
+            counts = validate_current(current)
+        else:
+            counts = check_report(current)
+            check_sources(current, args.source_root, require_rue=True)
+            check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
         if args.baseline:
             baseline = load_report(args.baseline)
             check_report(baseline, require_typed_failures=False)

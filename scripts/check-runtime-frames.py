@@ -688,7 +688,7 @@ def self_test(report, baseline):
         raise ValueError(f"Altered byte-equality migration passed: {mutation}")
     return (controls + ordering_controls(hashing_previous, baseline)
             + bitwise_patch_controls(hashing_previous) + hashing_controls(password_previous)
-            + password_controls(cost_previous) + cost_controls(report))
+            + password_controls(cost_previous, current_report=report) + cost_controls(report))
 
 
 def main():

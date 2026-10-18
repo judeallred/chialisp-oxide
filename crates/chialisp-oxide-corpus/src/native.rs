@@ -228,6 +228,18 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             Err(_) => Ok(None),
         };
     }
+    if slug == "p2-singleton" {
+        let arena = bumpalo::Bump::new();
+        // Complete input preflight precedes the policy catch, including ignored tails.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::p2_singleton::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "singleton-launcher" {
         let arena = bumpalo::Bump::new();
         // Include the ignored tail in the host budget, while preserving the

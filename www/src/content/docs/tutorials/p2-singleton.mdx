@@ -1,0 +1,185 @@
+---
+title: Compose pay-to-singleton spends
+description: Follow reciprocal announcements, coin identity and real Eve/lineage spends through canonical Chialisp, Rust and Rue.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ProtocolValidation from '../../../components/ProtocolValidation.astro';
+import { puzzles } from '../../../lib/data';
+
+export const p2 = puzzles.find(puzzle => puzzle.slug === 'p2-singleton');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+A pay-to-singleton coin lets an identified singleton collect value. Its puzzle
+returns three conditions; the singleton’s separate spend must supply the
+reciprocal announcement. Neither participant’s successful raw VM execution is
+a complete transaction by itself.
+
+Start with the [singleton launcher lesson](/chialisp-oxide/tutorials/singleton-launcher/)
+if coin identity and announcements are new. This lesson ports the exact pinned
+[`p2_singleton.clsp`](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_singleton.clsp)
+module. It does not port the singleton top layer or complete the singleton protocol.
+
+## Read the three actual sources
+
+<SourceComparison slug="p2-singleton" supporting="reference_includes" />
+
+The supporting drawers here show the two exact P2 includes. The
+[laboratory page](/chialisp-oxide/lab/p2-singleton/) retains every canonical
+counterpart, SDK and validation dependency separately; those host counterparts
+are not additional on-chain Rust ports.
+
+The Rust policy is an annotated export in the normal `chialisp-oxide-puzzles`
+Cargo library. Its native oracle links that same library; the compiler lowers
+its checked Rust MIR. The facade and companion crates remain unpublished, so
+local consumers use reviewed path dependencies. Follow the
+[compiler quickstart](/chialisp-oxide/start/quickstart/) before these repository
+commands. Ordinary `cargo check` checks
+Rust; the additional Cargo subcommand checks the supported CLVM subset.
+
+```sh
+cargo check --manifest-path puzzles/Cargo.toml --locked
+cargo test -p chialisp-oxide-puzzles --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+The Rust source names the condition codes and hash domains. Its raw constructors
+preserve the original wire values. SHA calls and tree traversal are ordinary
+reviewed source operations, not behavior granted by helper names. Rue is
+compiled from its own source, independently of Rust’s use of Rue LIR.
+
+## Understand the input before adding types
+
+The complete uncurried environment has five selected fields:
+
+```text
+(singleton_module_hash launcher_id launcher_puzzle_hash inner_puzzle_hash my_id . ignored_tail)
+```
+
+A normal coin instance curries the first three commitments into its program.
+The spend supplies the current inner-puzzle hash and this pay-to-singleton
+coin’s ID. That currying is host construction; it is separate from a general
+on-chain curry API.
+
+The unchanged canonical module accepts a wider raw domain than those names
+suggest. The module hash, inner hash and coin ID must be atoms, but their
+payloads need not be 32 bytes. The launcher fields may be arbitrary trees. The
+singleton struct is the **dotted tree** `(module_hash . (launcher_id . launcher_hash))`.
+The tail after the fifth field is ignored. Missing fields and pair-valued atom
+inputs reject; padding, nonempty zero atoms and arbitrary ignored tails retain
+their original bytes.
+
+Replacing these inputs with strict `Bytes32` arguments would narrow the
+canonical program’s accepted environment. Such an interface would be a
+separately documented adapter. The raw export deliberately keeps this contract.
+
+## Follow the reciprocal announcements
+
+Suppose the pay-to-singleton coin has ID `P`, and the expected singleton’s full
+puzzle hash is `S`. The pay-to-singleton conditions are:
+
+- `ASSERT_PUZZLE_ANNOUNCEMENT(sha256(S || P))`: require an announcement from the
+  singleton puzzle, carrying `P`.
+- `CREATE_COIN_ANNOUNCEMENT("$")`: create the reciprocal acknowledgement from
+  this input coin. Its announcement ID binds `P` and the exact dollar byte.
+- `ASSERT_MY_COIN_ID(P)`: require the supplied identity to match the actual
+  input coin being spent.
+
+The singleton spend creates the puzzle announcement carrying `P` and asserts
+the coin announcement `sha256(P || "$" )`. Its signed inner StandardLayer
+also commits to the selected outputs. The ledger harness submits wrong issuer,
+wrong message, missing participant, wrong coin ID and invalid-signature bundles
+to exercise these separate bindings.
+
+The original curry-hash helper consumes **reversed parameter hashes**. The
+inner-puzzle hash is extended first, then the dotted singleton-struct hash.
+These are exact supplied prehash bytes; adding another atom hash or replacing
+the dotted struct with a proper list changes the result. Retained source
+mutation controls exercise these mistakes separately from Rust type checking.
+
+## Catch policy mistakes that still compile
+
+The separate `experiments/p2-singleton-controls` Cargo package contains three
+deliberately wrong versions of this Rust policy:
+
+- `proper_struct` replaces the dotted launcher pair with a nil-terminated list.
+- `reversed_parameters` swaps the required inner-first curry-hash order.
+- `wrong_dollar` changes the announcement byte from `b"$"` to `b"!"`.
+
+All three compile as ordinary Rust and pass the CLVM subset checks. Their
+native tests deliberately assert that the results differ from the intended
+protocol. Rust checks the program’s types; it cannot infer these policy choices.
+The exact source substitutions are recorded in the package’s `mutations.json`.
+
+After the quickstart’s workspace build, run these commands from the repository
+root. Build the host replay example before extraction, and use a fresh directory
+for the control bundle:
+
+```sh
+cargo test --manifest-path experiments/p2-singleton-controls/Cargo.toml --locked -- --nocapture
+cargo build -p chialisp-oxide-corpus --examples --locked
+p2_controls_dir="$(mktemp -d)"
+target/debug/cargo-chialisp-oxide build --locked \
+  --manifest-path experiments/p2-singleton-controls/Cargo.toml \
+  --output-dir "$p2_controls_dir"
+python3 scripts/check-p2-source-controls.py --bundle "$p2_controls_dir" \
+  --driver target/debug/chialisp-oxide-driver --self-test \
+  > "$p2_controls_dir/identity.json"
+target/debug/examples/p2_singleton_controls \
+  "$p2_controls_dir" "$p2_controls_dir/source-controls.json"
+```
+
+The Python gate checks the exact source recipes, current compiler/driver and
+source identities, and every IR export’s name before replay. It does not execute
+the policies. The Rust example then compares each compiled mutation with the
+independent expected condition list for `ordinary five32-byte fields`, with
+optimization off and on. In the retained run, all six VM executions accepted
+but returned different output bytes, exposing these concrete mistakes.
+
+Inspect `source-controls.json` in the temporary directory for that witness and
+the actual outputs. These finite comparisons do not prove universal error
+detection, compiler preservation or puzzle security.
+
+## Inspect actual composition evidence
+
+<ProtocolValidation evidence={p2.protocol_validation} />
+
+Each of the five builds uses its own compiled pay-to-singleton reveal and
+curried commitment. A different-language reveal cannot silently replace the
+coin’s committed puzzle hash. Independently compiled canonical Chialisp matches
+the published 403-byte module and its hash; matching finite Rust and Rue
+behavior does not make their module hashes interchangeable.
+
+The module comparison adds {p2.generated_cases.toLocaleString('en-US')} generated
+raw inputs and {p2.cases.length} named vectors, each compared with native Rust
+and all five compiled builds. Download the [50-named/128-generated expected-relation manifest](/chialisp-oxide/reports/source-data/p2-singleton-vectors.json)
+and the [128 generated recipes](/chialisp-oxide/reports/source-data/p2-singleton-generated-cases.json).
+The latter file is separate from 2,059 inherited raw-environment inputs, giving
+2,187 generated comparisons in total. These comparisons include malformed shapes and
+exact byte preservation. They are separate from the dedicated consensus
+submissions above.
+
+## Reproduce and interpret the boundary
+
+After building the workspace, run the normal corpus validator. It executes the
+raw comparisons and the same dedicated canonical-counterpart harness embedded
+in the published report:
+
+```sh
+./scripts/chialisp-oxide validate --output corpus/validation.json
+python3 scripts/check-p2-singleton.py --self-test
+```
+
+The independent reader reconstructs standard curry trees and coin IDs, checks
+all runtime source/include/artifact pins, and requires the exact typed receipt
+and rollback sequences. The read-only evidence check does not resubmit bundles
+or authenticate an earlier run. Full revalidation is an executed test, not a
+compiler-preservation theorem.
+
+SHA operations and raw-tree protocol logic are outside the scalar SMT models.
+No solver or Rust type check proves that this policy is secure. The current
+finite protocol scenario covers a real Eve spend and one subsequent lineage
+transition. Melting, changing singleton policy, complete lifecycle coverage,
+other pay-to-singleton variants, and the singleton top-layer Rust port remain
+separate work.

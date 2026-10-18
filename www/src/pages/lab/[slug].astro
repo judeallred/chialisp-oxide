@@ -6,6 +6,7 @@ import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
 import SolutionPreview from '../../components/SolutionPreview.astro';
 import CurriedInstances from '../../components/CurriedInstances.astro';
+import ProtocolValidation from '../../components/ProtocolValidation.astro';
 import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
@@ -27,11 +28,12 @@ const applicationPassed = (check: NonNullable<PuzzleReport['factory_checks']>[nu
 const headings = [{depth:2,slug:'sources',text:'Compare the sources'}, {depth:2,slug:'artifacts',text:'Compiled artifacts'}, {depth:2,slug:'vectors',text:'Adversarial input vectors'}, {depth:2,slug:'ledger',text:'Ledger validation'}, {depth:2,slug:'provenance',text:'Provenance and versions'}];
 if (puzzle.resource_controls) headings.splice(3,0,{depth:2,slug:'resource-controls',text:'What happens with a smaller budget?'});
 if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factory',text:'Apply the produced programs'});
+if (puzzle.protocol_validation) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'protocol-composition',text:'Validate canonical singleton composition'});
 if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'),0,{depth:2,slug:'curried-instances',text:'Spend a fixed-hash instance'});
 ---
 <StarlightPage frontmatter={{ title: puzzle.title, description: puzzle.security_scope }} headings={headings}>
   <p class="eyebrow"><a href={href('lab/')}>Puzzle laboratory</a> / {puzzle.slug}</p>
-  <p><span class="badge success">validated report</span> <span class="badge">{kindLabel(puzzle.kind)}{puzzle.kind === 'program_factory' ? ' · returns a program' : puzzle.kind === 'pure_function' ? ' · not a coin puzzle' : ' · returns conditions'}</span></p>
+  <p><span class="badge success">validated report</span> <span class="badge">{kindLabel(puzzle.kind)}{puzzle.kind === 'program_factory' ? ' · returns a program' : puzzle.kind === 'pure_function' ? ' · not a coin puzzle' : puzzle.kind === 'protocol_component' ? ' · requires counterpart spends' : ' · returns conditions'}</span></p>
   {canonical && <p><span class="badge">canonical tutorial {puzzle.reference_mode === 'expression' ? 'expression' : 'module'}</span> <a href={canonical.source.url}>{canonical.title}</a> · differential evidence; parent tutorial remains partial</p>}
   {canonicalModule && <p><span class="badge">canonical puzzle/module port</span> One exact pinned upstream module; source, published artifact identity, and recorded behavior are checked separately.</p>}
   {helperAdapter && <p><span class="badge">published helper adapter</span> An exact pinned helper is invoked by an explicit module wrapper. This is separate from porting the complete upstream source file or preserving a published module hash.</p>}
@@ -86,7 +88,8 @@ if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => head
     <p><a href={href('tutorials/p2-conditions/')}>Follow the raw-tree factory walkthrough.</a> Full replay inputs, outputs, costs, and diagnostics remain in the JSON report.</p>
   </section>}
   {puzzle.curried_instances && <CurriedInstances evidence={puzzle.curried_instances} />}
-  <h2 id="ledger">Ledger validation</h2>
+  {puzzle.protocol_validation && <ProtocolValidation evidence={puzzle.protocol_validation} />}
+  <h2 id="ledger">Ordinary ledger scenario groups</h2>
   {puzzle.simulator.length ? <div>
     <p>The same {puzzle.simulator.length} complete-spend scenario groups run separately against each language’s compiled program. A scenario can submit several bundles; these are scenario runs, not transaction counts. Equal VM outputs alone do not establish valid coin spends.</p>
     <p>Negative observations below come from actual consensus validation under <code>{report.simulator.rejection_protocol}</code>. SDK signing or preflight errors do not count as ledger rejection.</p>
@@ -97,7 +100,7 @@ if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => head
         {scenario.rejections.length ? <ul class="rejections" aria-label="Actual consensus rejection observations">{scenario.rejections.map(rejection => <li><code data-ledger-rejection={rejection.code}>{rejection.stage}/{rejection.code}</code></li>)}</ul> : <small class="accepted-spend">Accepted spend; no rejection expected.</small>}
       </li>)}</ul>
     </details>)}
-  </div> : <div class="callout-note">{puzzle.curried_instances ? 'The ordinary comparisons cover the reusable raw module. The separate fixed-hash instance section above contains its actual spend observations; the raw module alone receives no password-locked spend credit.' : puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
+  </div> : <div class="callout-note">{puzzle.protocol_validation ? 'This component uses the separate canonical-counterpart composition evidence above. Its actual transaction submissions do not add to the ordinary ledger scenario-group totals. A successful raw module execution alone is not a complete spend.' : puzzle.curried_instances ? 'The ordinary comparisons cover the reusable raw module. The separate fixed-hash instance section above contains its actual spend observations; the raw module alone receives no password-locked spend credit.' : puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
   <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? `This ports one exact tutorial ${puzzle.reference_mode === 'expression' ? 'expression' : 'module'}. It does not complete its parent page, a canonical protocol module, or a CHIP migration.` : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : helperAdapter ? 'This ports one published helper through an explicit module adapter. It does not complete the source library, its macros, a protocol, or a CHIP. It makes no published module-hash compatibility claim.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
   {helper && <p><a href={href(`tutorials/${puzzle.slug}/`)}>Read the helper’s source span, license, input contract and reproduction steps.</a></p>}

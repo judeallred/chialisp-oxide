@@ -11,6 +11,7 @@ from pathlib import Path
 import runpy
 import subprocess
 import tempfile
+import p2_cli
 
 from cargo_authoring import check_recorded, unique_object
 from password_evidence import (artifact_bytes, execution, instances, resource_cases,
@@ -111,26 +112,35 @@ def main():
     parser.add_argument("--cli", type=Path, default=ROOT / "target/debug/chialisp-oxide")
     parser.add_argument("--ir-bundle", type=Path, action="append", default=[], help="compare old20 exact IR/artifacts in an externally freshly extracted21-export manifest")
     parser.add_argument("--extract-ir", action="store_true", help="sequentially extract/check fresh on/off Cargo bundles using prebuilt tools; run only after Rust builds/tests finish")
+    p2_cli.arguments(parser)
     args = parser.parse_args()
-    require(not (args.source_only and (args.replay or args.ir_bundle or args.extract_ir)), "Source-only checks cannot claim execution/extraction")
+    fresh = args.fresh_on is not None or args.fresh_off is not None
+    require(not (args.source_only and (args.replay or args.ir_bundle or args.extract_ir or fresh)), "Source-only checks cannot claim execution/extraction")
+    require(not (args.extract_ir and fresh), "Select extraction or supplied fresh bundles, not both")
     report = None
     if args.source_only:
         source_contract()
         print("PASS: pinned source/span/license and independent raw/fixed-H input recipes; no execution claim")
     else:
-        report = json.loads(args.report.read_bytes(), object_pairs_hook=unique_object)
+        payload = args.report.read_bytes()
+        report = json.loads(payload, object_pairs_hook=unique_object)
+        from runtime_cost_migration import check_report_bytes
+        check_report_bytes(payload, report)
+        supplied = p2_cli.check(report, args)
+        if supplied is not None:
+            print("PASS: fresh current22 ON/OFF identities before historical projection", supplied)
+        if args.extract_ir:
+            from password_cargo import extract
+            print("PASS: paired fresh Cargo identities/rawIR/artifacts before historical projection",
+                  extract(report, driver=args.driver))
         print("PASS: recorded finite password evidence", check(report))
         for bundle in args.ir_bundle:
             print("PASS: exact committed20 rawIR/artifact comparisons", verify_ir_bundle(bundle, report))
     if args.self_test:
         from password_controls import self_test
-        previous = cost_preservation(report) if report is not None else None
-        print("PASS:", self_test(previous), "password oracle/provenance/evidence corruption controls")
+        print("PASS:", self_test(report), "password oracle/provenance/evidence corruption controls")
     if args.replay:
         print("PASS:", replay(report, args.cli.resolve()), "actual retained primary-VM executions; no consensus resubmission")
-    if args.extract_ir:
-        from password_cargo import extract
-        print("PASS: fresh Cargo identity/old20 rawIR retention checks", extract(report))
 
 
 if __name__ == "__main__":
