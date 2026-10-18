@@ -1,0 +1,173 @@
+{
+  "guarded": {
+    "acceptance": {
+      "obligation": {
+        "obligation": "acceptance_iff",
+        "predicate": {
+          "predicate": "compare",
+          "relation": "lt",
+          "left": {
+            "term": "input",
+            "argument": 0,
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "100"
+          }
+        }
+      }
+    },
+    "output": {
+      "obligation": {
+        "obligation": "on_success",
+        "property": {
+          "predicate": "compare",
+          "relation": "eq",
+          "left": {
+            "term": "output",
+            "fields": []
+          },
+          "right": {
+            "term": "add",
+            "left": {
+              "term": "input",
+              "argument": 0,
+              "fields": []
+            },
+            "right": {
+              "term": "int",
+              "value": "1"
+            }
+          }
+        }
+      }
+    }
+  },
+  "unused_argument": {
+    "acceptance": {
+      "obligation": {
+        "obligation": "acceptance_iff",
+        "predicate": {
+          "predicate": "compare",
+          "relation": "lt",
+          "left": {
+            "term": "input",
+            "argument": 0,
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "100"
+          }
+        }
+      }
+    },
+    "output": {
+      "obligation": {
+        "obligation": "on_success",
+        "property": {
+          "predicate": "compare",
+          "relation": "eq",
+          "left": {
+            "term": "output",
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "7"
+          }
+        }
+      }
+    }
+  },
+  "unused_initializer": {
+    "acceptance": {
+      "obligation": {
+        "obligation": "acceptance_iff",
+        "predicate": {
+          "predicate": "compare",
+          "relation": "lt",
+          "left": {
+            "term": "input",
+            "argument": 0,
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "100"
+          }
+        }
+      }
+    },
+    "output": {
+      "obligation": {
+        "obligation": "on_success",
+        "property": {
+          "predicate": "compare",
+          "relation": "eq",
+          "left": {
+            "term": "output",
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "7"
+          }
+        }
+      }
+    }
+  },
+  "copied_result": {
+    "acceptance": {
+      "obligation": {
+        "obligation": "acceptance_iff",
+        "predicate": {
+          "predicate": "compare",
+          "relation": "lt",
+          "left": {
+            "term": "input",
+            "argument": 0,
+            "fields": []
+          },
+          "right": {
+            "term": "int",
+            "value": "100"
+          }
+        }
+      }
+    },
+    "output": {
+      "obligation": {
+        "obligation": "on_success",
+        "property": {
+          "predicate": "compare",
+          "relation": "eq",
+          "left": {
+            "term": "output",
+            "fields": []
+          },
+          "right": {
+            "term": "mul",
+            "left": {
+              "term": "add",
+              "left": {
+                "term": "input",
+                "argument": 0,
+                "fields": []
+              },
+              "right": {
+                "term": "int",
+                "value": "1"
+              }
+            },
+            "right": {
+              "term": "int",
+              "value": "2"
+            }
+          }
+        }
+      }
+    }
+  }
+}

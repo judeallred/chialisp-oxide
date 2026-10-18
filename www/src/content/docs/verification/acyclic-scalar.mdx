@@ -1,0 +1,84 @@
+---
+title: Check scalar helpers from real Rust
+description: Follow actual Cargo exports into a bounded acyclic scalar model, then inspect real source mutations and finite native/CLVM counterexamples.
+---
+
+import AcyclicProofEvidence from '../../../components/AcyclicProofEvidence.astro';
+
+**WIP prototype. This experiment is not ready for use with funds.**
+
+Rust checks types and borrowing. A valid Rust program can still implement the
+wrong spending policy. This lesson adds an independent specification to four
+small scalar policies, then deliberately changes their real Rust source to
+show what the model and execution checks catch.
+
+## Keep the two compiler decisions separate
+
+The frontend normally inlines acyclic helpers. When that route reaches a typed
+expansion, work, local-substitution or helper-depth limit, it can retry with a
+closed function table. A fresh lowerer rechecks the complete call graph under
+existing limits. Unsupported Rust and compile-time constant failures cannot
+use that retry to gain admission. Successful legacy exports keep their route.
+
+The verifier makes a separate decision. `--acyclic-scalar` explicitly selects
+the bounded nonrecursive scalar model. Default scalar, tree and byte proof
+APIs keep rejecting runtime IR. This model supports integers, Booleans, unit
+and tuples, with at most 16 functions and additional resource bounds. It
+rejects recursive graphs, SHA, bytes, atoms and raw trees, including unused
+functions or dead branches.
+
+## Preserve unused work
+
+`seven(checked(value))` must evaluate `checked` even though `seven` ignores
+its argument. So must `let _checked = checked(value);`. Both can reject.
+An immutable copy reads the value already captured by a binding; it does not
+mean “call its initializer again.” Callees start fresh local scopes, arguments
+remain strict, and branches stay lazy. The model checks success and output;
+it does not establish failure order or execution costs.
+
+<AcyclicProofEvidence />
+
+## Reproduce the experiment
+
+Finish workspace builds and tests before extracting with those compiler tools.
+With the pinned nightly, built tools and Z3 available, use new output and target
+directories:
+
+```sh
+python3 scripts/check-acyclic-source.py --acyclic-scalar --execute \
+  --tools target/debug --output /tmp/oxide-acyclic-evidence \
+  --target-dir /tmp/oxide-acyclic-target --self-test
+```
+
+The command builds the ordinary Cargo package natively, extracts all declared
+exports in both modes, solves independent specifications, executes retained
+program bytes and replays source counterexamples. The experiment uses an
+intentionally repeated helper graph to trigger the fallback; that graph is a
+regression test, not a policy design recommendation.
+
+Check an existing record without rerunning those tools:
+
+```sh
+python3 scripts/check-acyclic-source.py --acyclic-scalar \
+  --check-recorded /tmp/oxide-acyclic-evidence/result.json
+```
+
+This second command checks recorded consistency and current declared source
+hashes. It grants no new execution or proof credit. A site build uses that
+recorded lane; compiler verification runs the actual experiment separately.
+
+## Know the proof boundary
+
+The specifications quantify over the typed input domain **after ABI decoding**.
+The u8 native/CLVM comparison covers every value of those experiment signatures;
+the malformed-environment checks remain finite samples. Neither layer proves
+the actual decoder, source extraction, SMT translation, Rue optimization or
+CLVM lowering preserves semantics. Solver or resource failures provide no
+proof and cannot confirm policy rejection.
+
+This adds no published Chialisp or Rue port, coin puzzle, spend-bundle check or
+cryptographic theorem. The [whole-environment byte model](/chialisp-oxide/verification/byte-proofs/),
+[structural and other formal checks](/chialisp-oxide/verification/formal/), and
+[recursive Rust execution](/chialisp-oxide/tutorials/recursive-trees/) keep
+their own domains and evidence. General recursive termination and compiler
+preservation remain open work.

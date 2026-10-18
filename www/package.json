@@ -12,7 +12,7 @@
     "check": "node scripts/check-evidence.mjs && astro check",
     "build": "node scripts/check-evidence.mjs && astro build",
     "preview": "astro preview",
-    "test:site": "node scripts/test-p2-protocol.mjs && node scripts/test-artifact-diff.mjs && node scripts/test-published-catalog.mjs && node scripts/test-search-index.mjs && node scripts/test-byte-proof-artifacts.mjs && node scripts/test-source-data.mjs && node scripts/check-site.mjs"
+    "test:site": "node scripts/test-acyclic-proof-artifacts.mjs && node scripts/test-p2-protocol.mjs && node scripts/test-artifact-diff.mjs && node scripts/test-published-catalog.mjs && node scripts/test-search-index.mjs && node scripts/test-byte-proof-artifacts.mjs && node scripts/test-source-data.mjs && node scripts/check-site.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.6",

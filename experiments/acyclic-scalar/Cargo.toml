@@ -1,0 +1,16 @@
+[package]
+name = "chialisp-oxide-acyclic-scalar-source"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide" }
+
+[profile.dev]
+overflow-checks = true
+
+[profile.test]
+overflow-checks = true

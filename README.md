@@ -210,6 +210,24 @@ Eight models have nonvacuity checks and retained optimization-off/on programs;
 selected witnesses also run through the original five language builds and
 actual native exports. These finite replays do not prove the compiler bridge.
 
+An explicit [acyclic scalar experiment](https://judeallred.github.io/chialisp-oxide/verification/acyclic-scalar/)
+checks actual Cargo helper graphs against independent acceptance/output
+specifications. Four baseline exports use nonrecursive function tables; three
+source mutations demonstrate guard, output and unused-work policy errors that
+ordinary Rust accepts. The additional model refutes four obligations and replays
+their witnesses. Native Rust and both retained CLVM modes also run every `u8`
+input for all sixteen export variants. This is a typed model after ABI decoding,
+with separate finite malformed-input checks and no compiler-preservation theorem.
+The default proof APIs still reject runtime tables. To execute the opt-in check
+with the workspace tools built and Z3 installed:
+
+```sh
+acyclic_work=$(mktemp -d)
+python3 scripts/check-acyclic-source.py --acyclic-scalar --execute --self-test \
+  --tools target/debug --target-dir "$acyclic_work/target" \
+  --output "$acyclic_work/evidence"
+```
+
 Optimized Rust now reproduces the published **nine-byte `p2_conditions` module
 and its exact tree hash**, alongside independently compiled Chialisp and Rue.
 A conservative typed-IR pass removes a pair guard only when a required checked
@@ -257,7 +275,11 @@ and strict lexical bindings in version-4 IR. Tests distinguish rejection from
 divergence and check argument order, unused calls, scopes and resource limits.
 The paired [rightmost-tree lesson](https://judeallred.github.io/chialisp-oxide/tutorials/recursive-trees/)
 compares native Rust with independent Chialisp and Rue. These are finite execution
-checks; the model checkers deliberately reject runtime IR.
+checks. The default model checkers reject runtime IR; the separately selected
+acyclic scalar model admits bounded nonrecursive scalar tables. It does not
+admit these recursive tree helpers. Large acyclic source graphs can retry a
+typed legacy expansion limit with a fresh checked table-lowering pass;
+successful legacy exports retain their existing route and artifacts.
 The [published list-helper port](https://judeallred.github.io/chialisp-oxide/tutorials/last-list-element/)
 adds ordinary Rust `Tree::Atom([])` matching and ports Chia gaming's pinned
 `last_inner` through an explicit Chialisp module adapter. Nil and nonempty

@@ -67,6 +67,46 @@ const MAX_EXPRESSION_NODES: usize = 8_192;
 const MAX_EXPRESSION_DEPTH: usize = 64;
 const MAX_EXPRESSION_WORK: usize = 500_000;
 
+/// Only these legacy substitution limits may request a fresh table attempt.
+/// Constants and other String-returning helpers erase this classification.
+pub enum LegacyError {
+    ExpressionExpansion(String),
+    ExpressionWork(String),
+    LocalSubstitution(String),
+    HelperDepth(String),
+    Other(String),
+}
+
+impl LegacyError {
+    pub fn is_inlining_limit(&self) -> bool {
+        matches!(
+            self,
+            Self::ExpressionExpansion(_)
+                | Self::ExpressionWork(_)
+                | Self::LocalSubstitution(_)
+                | Self::HelperDepth(_)
+        )
+    }
+}
+
+impl From<String> for LegacyError {
+    fn from(message: String) -> Self {
+        Self::Other(message)
+    }
+}
+
+impl From<LegacyError> for String {
+    fn from(error: LegacyError) -> Self {
+        match error {
+            LegacyError::ExpressionExpansion(message)
+            | LegacyError::ExpressionWork(message)
+            | LegacyError::LocalSubstitution(message)
+            | LegacyError::HelperDepth(message)
+            | LegacyError::Other(message) => message,
+        }
+    }
+}
+
 struct BlockDepth<'a>(&'a Cell<usize>);
 impl Drop for BlockDepth<'_> {
     fn drop(&mut self) {
@@ -113,16 +153,16 @@ impl<'tcx> Lowerer<'tcx> {
         }
     }
 
-    fn expression_size(&self, expression: &Expr, span: Span) -> Result<usize, String> {
+    fn expression_size(&self, expression: &Expr, span: Span) -> Result<usize, LegacyError> {
         let mut pending = vec![(expression, 0)];
         let mut count = 0;
         while let Some((expression, depth)) = pending.pop() {
             count += 1;
             if count > MAX_EXPRESSION_NODES || depth >= MAX_EXPRESSION_DEPTH {
-                return Err(self.error(
+                return Err(LegacyError::ExpressionExpansion(self.error(
                     span,
                     "expression expansion limit exceeded (8,192 nodes or depth 64)",
-                ));
+                )));
             }
             let mut push = |expr| pending.push((expr, depth + 1));
             match expression {
@@ -176,26 +216,28 @@ impl<'tcx> Lowerer<'tcx> {
         Ok(count)
     }
 
-    fn check_expression(&self, expression: &Expr, span: Span) -> Result<(), String> {
+    fn check_expression(&self, expression: &Expr, span: Span) -> Result<(), LegacyError> {
         let count = self.expression_size(expression, span)?;
         self.expression_work
             .set(self.expression_work.get().saturating_add(count));
         if self.expression_work.get() > MAX_EXPRESSION_WORK {
-            return Err(self.error(
+            return Err(LegacyError::ExpressionWork(self.error(
                 span,
                 "cumulative expression work limit exceeded (500,000 nodes)",
-            ));
+            )));
         }
         Ok(())
     }
 
-    fn clone_locals(&self, locals: &Environment, span: Span) -> Result<Environment, String> {
+    fn clone_locals(&self, locals: &Environment, span: Span) -> Result<Environment, LegacyError> {
         let mut count = 0;
         for value in locals.iter().flatten() {
             count += self.expression_size(value, span)?;
             self.check_expression(value, span)?;
             if count > MAX_EXPRESSION_NODES * 4 {
-                return Err(self.error(span, "local substitution environment limit exceeded"));
+                return Err(LegacyError::LocalSubstitution(
+                    self.error(span, "local substitution environment limit exceeded"),
+                ));
             }
         }
         for value in locals.boxes.values() {
@@ -209,6 +251,10 @@ impl<'tcx> Lowerer<'tcx> {
             "{}: {message}",
             self.tcx.sess.source_map().span_to_diagnostic_string(span)
         )
+    }
+
+    fn legacy_error(&self, span: Span, message: impl std::fmt::Display) -> LegacyError {
+        LegacyError::Other(self.error(span, message))
     }
 
     pub fn ty(&self, ty: Ty<'tcx>, span: Span) -> Result<Type, String> {
@@ -283,11 +329,14 @@ impl<'tcx> Lowerer<'tcx> {
         id: DefId,
         arguments: Vec<Expr>,
         stack: &mut Vec<DefId>,
-    ) -> Result<Expr, String> {
+    ) -> Result<Expr, LegacyError> {
         let span = self.tcx.def_span(id);
         let body = self.function_body(id)?;
-        if stack.contains(&id) || stack.len() >= 32 {
-            return Err(self.error(span, "recursion and call depths beyond 32 are unsupported in compile-time constant/helper inlining"));
+        if stack.contains(&id) {
+            return Err(self.error(span, "recursion and call depths beyond 32 are unsupported in compile-time constant/helper inlining").into());
+        }
+        if stack.len() >= 32 {
+            return Err(LegacyError::HelperDepth(self.error(span, "recursion and call depths beyond 32 are unsupported in compile-time constant/helper inlining")));
         }
         stack.push(id);
         let result = self.lower_body(body, arguments, stack);
@@ -332,13 +381,17 @@ impl<'tcx> Lowerer<'tcx> {
         body: &Body<'tcx>,
         arguments: Vec<Expr>,
         stack: &mut Vec<DefId>,
-    ) -> Result<Expr, String> {
+    ) -> Result<Expr, LegacyError> {
         let span = body.span;
         if body.arg_count > 64 || body.local_decls.len() > 2_048 {
-            return Err(self.error(span, "function exceeds 64 parameters or 2,048 MIR locals"));
+            return Err(self
+                .error(span, "function exceeds 64 parameters or 2,048 MIR locals")
+                .into());
         }
         if arguments.len() != body.arg_count {
-            return Err(self.error(span, "internal helper argument count mismatch"));
+            return Err(self
+                .error(span, "internal helper argument count mismatch")
+                .into());
         }
         self.ty(body.return_ty(), span)?;
         let mut locals = Environment::new(body.local_decls.len());
@@ -366,20 +419,22 @@ impl<'tcx> Lowerer<'tcx> {
         path: &mut Vec<BasicBlock>,
         stack: &mut Vec<DefId>,
         mut patterns: empty_atoms::State<'_, 'tcx>,
-    ) -> Result<Expr, String> {
+    ) -> Result<Expr, LegacyError> {
         let data = &body.basic_blocks[block];
         let span = data.terminator().source_info.span;
         if self.active_blocks.get() >= MAX_EXPRESSION_DEPTH {
-            return Err(self.error(span, "active control-flow depth limit exceeded (64 blocks)"));
+            return Err(
+                self.legacy_error(span, "active control-flow depth limit exceeded (64 blocks)")
+            );
         }
         self.active_blocks.set(self.active_blocks.get() + 1);
         let _depth = BlockDepth(&self.active_blocks);
         self.blocks.set(self.blocks.get() + 1);
         if self.blocks.get() > 10_000 {
-            return Err(self.error(span, "MIR expansion exceeded 10,000 blocks"));
+            return Err(self.legacy_error(span, "MIR expansion exceeded 10,000 blocks"));
         }
         if path.contains(&block) {
-            return Err(self.error(
+            return Err(self.legacy_error(
                 span,
                 "loops are unsupported; the puzzle control flow must be acyclic",
             ));
@@ -432,7 +487,7 @@ impl<'tcx> Lowerer<'tcx> {
                 | StatementKind::ConstEvalCounter
                 | StatementKind::PlaceMention(_) => {}
                 other => {
-                    return Err(self.error(
+                    return Err(self.legacy_error(
                         statement_span,
                         format!("unsupported MIR statement: {other:?}"),
                     ));
@@ -535,7 +590,9 @@ impl<'tcx> Lowerer<'tcx> {
                 } => {
                     let fn_ty = func.ty(&body.local_decls, self.tcx);
                     let ty::FnDef(id, generic_args) = fn_ty.kind() else {
-                        return Err(self.error(span, "indirect function calls are unsupported"));
+                        return Err(
+                            self.legacy_error(span, "indirect function calls are unsupported")
+                        );
                     };
                     let name = self.tcx.def_path_str(*id);
                     if self.panic_function(*id) {
@@ -545,13 +602,14 @@ impl<'tcx> Lowerer<'tcx> {
                     } else if self.hash_primitive(body, func, args, *destination, span)? {
                         // Runtime graph selection handles every source hash. The
                         // acyclic constant path must never duplicate or drop it.
-                        return Err(self.error(span, "native SHA256 calls require strict runtime bindings; compile-time constant hashing is unsupported"));
+                        return Err(self.legacy_error(span, "native SHA256 calls require strict runtime bindings; compile-time constant hashing is unsupported"));
                     } else if self.box_constructor(body, func, args, *destination, span)? {
                         let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
                         self.assign(body, *destination, value, &mut locals, span)?;
                         self.block(
                             body,
-                            target.ok_or_else(|| self.error(span, "Box::new must return"))?,
+                            target
+                                .ok_or_else(|| self.legacy_error(span, "Box::new must return"))?,
                             locals,
                             path,
                             stack,
@@ -567,8 +625,9 @@ impl<'tcx> Lowerer<'tcx> {
                         self.assign(body, *destination, value, &mut locals, span)?;
                         self.block(
                             body,
-                            target
-                                .ok_or_else(|| self.error(span, "byte comparison must return"))?,
+                            target.ok_or_else(|| {
+                                self.legacy_error(span, "byte comparison must return")
+                            })?,
                             locals,
                             path,
                             stack,
@@ -580,12 +639,13 @@ impl<'tcx> Lowerer<'tcx> {
                             .iter()
                             .any(|argument| argument.as_region().is_none())
                         {
-                            return Err(
-                                self.error(span, format!("generic call `{name}` is unsupported"))
-                            );
+                            return Err(self.legacy_error(
+                                span,
+                                format!("generic call `{name}` is unsupported"),
+                            ));
                         }
                         if !id.is_local() && !self.allowed_external(*id) {
-                            return Err(self.error(
+                            return Err(self.legacy_error(
                                 span,
                                 format!(
                                     "external call `{name}` is unsupported; use local pure helpers"
@@ -593,7 +653,9 @@ impl<'tcx> Lowerer<'tcx> {
                             ));
                         }
                         if args.len() > 64 {
-                            return Err(self.error(span, "calls are limited to 64 arguments"));
+                            return Err(
+                                self.legacy_error(span, "calls are limited to 64 arguments")
+                            );
                         }
                         let mut values = Vec::new();
                         let mut nodes = 0;
@@ -601,9 +663,10 @@ impl<'tcx> Lowerer<'tcx> {
                             let value = self.operand(body, &arg.node, &locals, arg.span)?;
                             nodes += self.expression_size(&value, arg.span)?;
                             if nodes > MAX_EXPRESSION_NODES * 4 {
-                                return Err(
-                                    self.error(span, "helper argument expansion limit exceeded")
-                                );
+                                return Err(self.legacy_error(
+                                    span,
+                                    "helper argument expansion limit exceeded",
+                                ));
                             }
                             values.push(value);
                         }
@@ -615,7 +678,7 @@ impl<'tcx> Lowerer<'tcx> {
                         }
                         self.assign(body, *destination, value, &mut locals, span)?;
                         let target = target.ok_or_else(|| {
-                            self.error(span, "diverging helper calls are unsupported")
+                            self.legacy_error(span, "diverging helper calls are unsupported")
                         })?;
                         self.block(body, target, locals, path, stack, patterns)?
                     }
@@ -624,7 +687,9 @@ impl<'tcx> Lowerer<'tcx> {
                     message: self.error(span, "unreachable Rust path"),
                 },
                 other => {
-                    return Err(self.error(span, format!("unsupported MIR terminator: {other:?}")));
+                    return Err(
+                        self.legacy_error(span, format!("unsupported MIR terminator: {other:?}"))
+                    );
                 }
             }
         };

@@ -54,6 +54,7 @@ export default defineConfig({
           { label: 'Errors that Rust makes impossible', slug: 'verification/error-study' },
           { label: 'Proofs & model checking', slug: 'verification/formal' },
           { label: 'Prove a byte policy in its IR model', slug: 'verification/byte-proofs' },
+          { label: 'Check nonrecursive scalar helpers', slug: 'verification/acyclic-scalar' },
           { label: 'Tutorial & CHIP inventory', link: '/coverage/' },
           { label: 'Published puzzle sources', link: '/published/' },
         ] },

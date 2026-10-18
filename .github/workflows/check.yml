@@ -150,8 +150,20 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts -p test_password_coin.py
           python3 scripts/check-password-coin.py --self-test --replay --extract-ir
+      - name: Check actual Rust sources with the explicit acyclic scalar model
+        run: |
+          cargo fmt --manifest-path experiments/acyclic-scalar/Cargo.toml --all --check
+          cargo clippy --manifest-path experiments/acyclic-scalar/Cargo.toml --all-targets --locked --offline --target-dir "$RUNNER_TEMP/acyclic-scalar-checks" -- -D warnings
+          python3 scripts/check-acyclic-source.py --acyclic-scalar --execute --self-test \
+            --tools target/debug \
+            --target-dir "$RUNNER_TEMP/acyclic-scalar-target" \
+            --output "$RUNNER_TEMP/acyclic-scalar-source"
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acyclic-scalar-source-evidence
+          path: ${{ runner.temp }}/acyclic-scalar-source/
       - uses: actions/upload-artifact@v4
         with:
           name: p2-policy-counterexamples

@@ -244,7 +244,7 @@ impl<'tcx> Lowerer<'tcx> {
         };
         let result = self.lower_body(body, vec![], &mut Vec::new());
         self.constants.borrow_mut().pop();
-        result
+        result.map_err(Into::into)
     }
 
     pub(super) fn tree_discriminant_value(

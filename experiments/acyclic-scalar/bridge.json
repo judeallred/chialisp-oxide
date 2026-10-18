@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-acyclic-source/v1",
+  "status": "wip_experiment_not_ready_for_use",
+  "package": "chialisp-oxide-acyclic-scalar-source",
+  "modules": [
+    "base",
+    "guard_mutant",
+    "output_mutant",
+    "strict_mutant"
+  ],
+  "policies": [
+    "guarded",
+    "unused_argument",
+    "unused_initializer",
+    "copied_result"
+  ],
+  "mutations": [
+    {
+      "module": "guard_mutant",
+      "classification": "real_source_guard_weakening",
+      "substitutions": [
+        {
+          "old": "assert!(value < 100);",
+          "new": "assert!(value < 120);"
+        }
+      ]
+    },
+    {
+      "module": "output_mutant",
+      "classification": "real_source_output_change",
+      "substitutions": [
+        {
+          "old": "value + 1",
+          "new": "value + 2"
+        }
+      ]
+    },
+    {
+      "module": "strict_mutant",
+      "classification": "real_source_removed_strict_work",
+      "substitutions": [
+        {
+          "old": "seven(dag7(value))",
+          "new": "seven(value)"
+        },
+        {
+          "old": "let _checked = dag7(value);",
+          "new": "let _checked = value;"
+        }
+      ]
+    }
+  ],
+  "obligations": [
+    {
+      "module": "base",
+      "policy": "guarded",
+      "kind": "acceptance",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "guarded",
+      "kind": "output",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "unused_argument",
+      "kind": "acceptance",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "unused_argument",
+      "kind": "output",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "unused_initializer",
+      "kind": "acceptance",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "unused_initializer",
+      "kind": "output",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "copied_result",
+      "kind": "acceptance",
+      "expected": "proven"
+    },
+    {
+      "module": "base",
+      "policy": "copied_result",
+      "kind": "output",
+      "expected": "proven"
+    },
+    {
+      "module": "guard_mutant",
+      "policy": "guarded",
+      "kind": "acceptance",
+      "expected": "refuted"
+    },
+    {
+      "module": "output_mutant",
+      "policy": "guarded",
+      "kind": "output",
+      "expected": "refuted"
+    },
+    {
+      "module": "strict_mutant",
+      "policy": "unused_argument",
+      "kind": "acceptance",
+      "expected": "refuted"
+    },
+    {
+      "module": "strict_mutant",
+      "policy": "unused_initializer",
+      "kind": "acceptance",
+      "expected": "refuted"
+    }
+  ],
+  "scope": "Actual Cargo source and same-package native finite witnesses; explicit typed post-ABI acyclic scalar model only. No ABI, failure-order/resource/cost or compiler-preservation/security theorem."
+}

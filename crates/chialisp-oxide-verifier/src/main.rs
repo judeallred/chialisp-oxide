@@ -1,19 +1,48 @@
 use anyhow::{Context, Result, bail};
 use chialisp_oxide_verifier::{
     SolverConfig, Specification, StructuralBooleanVerification, TreeBooleanSpecification,
-    TreeSpecification, TreeVerification, Verification, emit, emit_structural_boolean, emit_tree,
-    emit_tree_equivalence, replay, replay_structural_boolean, replay_tree, verify,
-    verify_structural_boolean, verify_tree, verify_tree_equivalence,
+    TreeSpecification, TreeVerification, Verification, emit, emit_acyclic_scalar,
+    emit_structural_boolean, emit_tree, emit_tree_equivalence, replay, replay_structural_boolean,
+    replay_tree, verify, verify_acyclic_scalar, verify_structural_boolean, verify_tree,
+    verify_tree_equivalence,
 };
 
 fn main() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     let [program_path, specification_path, options @ ..] = args.as_slice() else {
         bail!(
-            "usage: chialisp-oxide-verifier PROGRAM.json SPECIFICATION.json [--emit]\n       chialisp-oxide-verifier PROGRAM.json --replay WITNESS.json\n       chialisp-oxide-verifier PROGRAM.json --optimize-ir\n       chialisp-oxide-verifier PROGRAM.json --tree-equivalent OTHER.json [--emit-json]\n       chialisp-oxide-verifier PROGRAM.json --structural-boolean SPECIFICATION.json [--emit-json]\n       chialisp-oxide-verifier PROGRAM.json --structural-boolean-replay WITNESS.json\n       chialisp-oxide-verifier PROGRAM.json --artifacts"
+            "usage: chialisp-oxide-verifier PROGRAM.json SPECIFICATION.json [--emit]\n       chialisp-oxide-verifier PROGRAM.json --acyclic-scalar SPECIFICATION.json [--emit]\n       chialisp-oxide-verifier PROGRAM.json --replay WITNESS.json\n       chialisp-oxide-verifier PROGRAM.json --optimize-ir\n       chialisp-oxide-verifier PROGRAM.json --tree-equivalent OTHER.json [--emit-json]\n       chialisp-oxide-verifier PROGRAM.json --structural-boolean SPECIFICATION.json [--emit-json]\n       chialisp-oxide-verifier PROGRAM.json --structural-boolean-replay WITNESS.json\n       chialisp-oxide-verifier PROGRAM.json --artifacts"
         )
     };
     let program = serde_json::from_slice(&std::fs::read(program_path).context("read IR program")?)?;
+    if specification_path == "--acyclic-scalar" {
+        let [path, mode @ ..] = options else {
+            bail!("--acyclic-scalar requires an independent scalar specification JSON file")
+        };
+        let specification: Specification = serde_json::from_slice(
+            &std::fs::read(path).context("read acyclic scalar specification")?,
+        )?;
+        if mode == ["--emit"] {
+            let queries = emit_acyclic_scalar(&program, &specification)?;
+            println!(
+                "; Nonvacuity\n{}\n(reset)\n; Counterexample\n{}",
+                queries.nonvacuity, queries.counterexample
+            );
+        } else {
+            anyhow::ensure!(mode.is_empty(), "unknown acyclic scalar option");
+            let result = verify_acyclic_scalar(&program, &specification, &SolverConfig::default())?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(
+                    &serde_json::json!({"model": "acyclic_scalar_calls/v1", "scope": "typed scalar/tuple acceptance and output after ABI; no failure-order, cost/resource, or compiler-preservation theorem", "verification": result})
+                )?
+            );
+            if !matches!(result, Verification::Proven { .. }) {
+                std::process::exit(1)
+            }
+        }
+        return Ok(());
+    }
     if specification_path == "--structural-boolean-replay" {
         let [path] = options else {
             bail!("--structural-boolean-replay requires exactly one witness JSON file")

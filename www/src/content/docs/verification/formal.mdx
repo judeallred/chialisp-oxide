@@ -87,13 +87,55 @@ source-derived IR, independent specification, SMT queries, and replay evidence.
 This is an IR-model proof, not a theorem about all compiled Rust. Recursive
 data in this model is separate from the frontend's
 [recursive Rust call support](/chialisp-oxide/tutorials/recursive-trees/).
-All current SMT model APIs reject all version-4 runtime programs, including unused
-functions and runtime nodes in dead branches. Finite VM replay does not prove
+Default SMT model APIs reject all version-4 runtime programs, including unused
+functions and runtime nodes in dead branches. The separate acyclic scalar
+mode below admits bounded nonrecursive scalar tables; it does not admit these
+recursive tree helpers. Finite VM replay does not prove
 termination; resource failures abort replay rather than count as rejection.
 Restricted owned pair construction is available in the frontend, while general
 allocation and program evaluation remain unsupported. The scalar verifier rejects
 tree expressions, including expressions in unchosen branches, instead of
 silently interpreting them under integer semantics.
+
+## Check nonrecursive scalar helpers explicitly
+
+The opt-in `--acyclic-scalar` mode models integers, Booleans, unit and tuples
+with a closed, nonrecursive function table. Its Rust APIs are
+`emit_acyclic_scalar` and `verify_acyclic_scalar`. Default proof APIs retain
+their runtime rejection boundary. Whole-IR checks include dead branches and
+unused functions; separate model limits include at most 16 functions.
+
+Calls use fresh local scopes. Arguments and unused initializers remain strict;
+copying a bound result does not rerun its initializer. The model retains checked
+integer overflow and lazy branches while asking whether execution succeeds
+and what it returns. It does not predict failure order or VM costs.
+
+With the workspace built and Z3 installed, try the existing retained counter:
+
+```sh
+target/debug/chialisp-oxide-verifier proofs/bounded-counter/program.ir.json \
+  --acyclic-scalar proofs/bounded-counter/acceptance.spec.json
+target/debug/chialisp-oxide-verifier proofs/bounded-counter/program.ir.json \
+  --acyclic-scalar proofs/bounded-counter/acceptance.spec.json --emit
+```
+
+The first command checks nonvacuity and the independent acceptance property;
+the second prints the SMT queries. This counter has no runtime table, so it
+demonstrates the CLI rather than proving a new source-to-table translation.
+Use the exact IR from a fresh Cargo export and its independent specification
+when checking another policy.
+
+Inputs are already decoded typed values. This model does not cover malformed
+whole environments or prove the ABI decoder. Recursion, SHA, bytes, atoms and
+raw trees remain unsupported, even in unused functions. Model/solver limits
+produce no proof. This mode provides no compiler-preservation, resource,
+cryptographic or ledger theorem. See the
+[repository scope notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/verification.md#explicit-acyclic-scalar-model).
+
+The [actual-source scalar helper experiment](/chialisp-oxide/verification/acyclic-scalar/)
+retains Cargo exports, independent specifications, solver queries and compiled
+programs. It also shows valid Rust policy mutations that the additional model
+check refutes, with native and retained-program witnesses.
 
 ## Prove one actual optimization step
 

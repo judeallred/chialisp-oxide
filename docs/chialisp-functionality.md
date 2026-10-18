@@ -146,7 +146,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
-| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, one launcher port and separately validated host-curried password instances; no general public curry or nested-puzzle API | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust launcher module identity still differs |
+| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, and separately validated host-curried password instances; no general public curry or nested-puzzle API | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Runtime costs and selected ledger scenarios measured | Whole-spend costs, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
@@ -267,19 +267,21 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The [fresh corpus report](../corpus/validation.json) records twenty-one actual Cargo
+The [fresh corpus report](../corpus/validation.json) records twenty-two actual Cargo
 exports, including the full raw-domain `sha256tree` helper adapter and singleton
-launcher and original password tutorial module through the [reviewed SHA bridge](hashing.md).
-Native Rust and five separately compiled CLVM builds agree on 389 named and 20,796 generated cases.
+launcher, original password tutorial module and canonical pay-to-singleton component
+through the [reviewed SHA bridge](hashing.md).
+Native Rust and five separately compiled CLVM builds agree on 439 named and 22,983 generated cases.
 Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
 language-specific scenario runs. Local macOS verification additionally passes
-502 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
+518 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
 corruption controls and 22,285 retained hash-artifact VM replays. The
 source-derived proof, error-study, Lean and documentation gates also pass.
 These are finite observations, not a parity or compiler-preservation theorem.
 
-The hash helper uses a fixed ten-million cost budget for ordinary comparisons;
-the other twenty examples retain one million. Its five deep-input controls
+The hash helper and pay-to-singleton use a fixed ten-million cost budget for
+ordinary comparisons; the other twenty examples retain one million. The hash
+helper's five deep-input controls
 also run at one million in all five builds, adding 25 separate typed resource
 observations. Cost exhaustion stays inconclusive and does not count as policy
 rejection or additional passing coverage. The preservation gate passes 149
@@ -295,7 +297,7 @@ runtime failures are recorded without semantic rejection credit. These tests
 do not complete the tutorial's funding, RPC or support workflow, and do not
 establish the safety of the password design or a general public curry API.
 
-Both new ports record pinned source, license and Git commit/tree provenance;
+These ports record pinned source, license and Git commit/tree provenance;
 the launcher also binds its exact include. The `sha256tree` source span is a
 helper with a visible raw module adapter, without an upstream module-identity
 claim. The launcher retains its
@@ -304,6 +306,20 @@ reproduces that artifact and tree hash; optimized Rust emits 671 bytes with a
 different hash. The successful output and consensus scenarios do not establish
 canonical Rust module identity, curried-instance compatibility or a complete
 singleton lifecycle.
+
+Pay-to-singleton is a protocol component whose standalone condition output needs
+another spend to assert its announcement. Its five-build dedicated harness uses
+independently reproduced canonical launcher, singleton top-layer and StandardLayer
+counterparts. Across 110 actual submissions, 15 are accepted and 95 match exact
+typed consensus errors with complete in-memory simulator equality after rejection.
+The accepted sequence covers Eve, a joint pay-to-singleton spend and one subsequent
+lineage spend. The top-layer and StandardLayer counterparts are not Rust source
+ports, and the sequence does not complete the singleton lifecycle. These submissions
+are additional to the forty generic ledger scenario groups and the password lane.
+Three actual source mutations expose proper-list narrowing, reversed curry
+parameters and the wrong announcement prefix despite ordinary Rust acceptance.
+Rust's 1,972-byte optimized module has a different hash from the canonical
+403-byte Chialisp module. Composition tests do not make those identities interchangeable.
 
 The admitted native kernel's primitive arrays and loops remain inside its
 reviewed fingerprint boundary. General user loops, mutable buffers, arbitrary
@@ -347,8 +363,11 @@ The pinned Chia gaming `last_inner` helper is also ported through an explicit
 module adapter, preserving improper-tail rejection and empty versus nonempty
 zero-byte atoms. Its six-line source span and license are checked separately;
 this does not complete the source library or establish canonical module identity.
-The current proof models reject runtime IR, including unused runtime functions;
-termination and compiler-preservation proofs remain additional work. Dynamic
+The default proof models reject runtime IR, including unused runtime functions.
+An explicit `--acyclic-scalar` model handles bounded nonrecursive scalar/tuple
+tables after ABI decoding; it does not prove the whole-environment ABI, failure
+order, resource cost, termination of recursive calls or compiler preservation.
+Dynamic
 delegated-program execution still needs a source API and explicit semantics.
 
 In parallel, conservative constant folding and sharing can reduce large closed

@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { failureProtocol, checkCorpusExecutions, checkExecution, checkNativeOutcome, checkReplay, checkScalarProofReplays, checkTreeProofReplays, testFailureProtocol } from './vm-failures.mjs';
 import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
 import { checkProtocolReport, checkProtocolDisplay, historicalOptimizationReport } from './p2-protocol.mjs';
+import { loadAcyclicProofEvidence, checkAcyclicDisplay } from '../src/lib/acyclic-proof-artifacts.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
@@ -73,12 +74,13 @@ const publishedReports = [
   ['runtime-refinement-baseline', 'corpus/runtime-refinement-baseline.json'],
   ['integer-canonicality-proof', 'corpus/integer-canonicality-proof.json'],
   ['p2-singleton-append-baseline', 'corpus/p2-singleton-append-baseline.json'],
+  ['acyclic-scalar', 'proofs/acyclic-scalar-source/result.json'],
 ];
 for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
-  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof', 'p2-singleton-append-baseline'].includes(name)) {
+  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof', 'p2-singleton-append-baseline', 'acyclic-scalar'].includes(name)) {
     assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
   }
 }
@@ -95,6 +97,16 @@ checkScalarProofReplays(proofs);
 checkTreeProofReplays(treeProofs);
 console.log(`Typed failure controls: ${testFailureProtocol()} passed`);
 const formal = await html(path.join(root, 'verification/formal/index.html'));
+const acyclic = await loadAcyclicProofEvidence();
+const acyclicGuide = await html(path.join(root, 'verification/acyclic-scalar/index.html'));
+const acyclicDisplay = checkAcyclicDisplay(acyclicGuide, acyclic.report, acyclic.artifacts, acyclic.sources);
+for (const artifact of acyclic.artifacts) {
+  assert.deepEqual(await readFile(path.join(root, 'reports/acyclic-scalar', artifact.basename)), artifact.bytes,
+    `${artifact.basename}: acyclic download differs from the checked retained artifact`);
+}
+assert.deepEqual((await readdir(path.join(root, 'reports/acyclic-scalar'))).sort(),
+  acyclic.artifacts.map(artifact => artifact.basename).sort(), 'Unexpected/missing acyclic downloads');
+assert(formal.includes(`href="${base}verification/acyclic-scalar/"`), 'Formal guide misses actual-source scalar lesson');
 const algorithmEvidence = JSON.parse(await readFile(path.join(root, 'reports/tree-theorems.json'), 'utf8'));
 assert.equal(algorithmEvidence.expected_theorem_types, 21);
 assert.equal(algorithmEvidence.finite_bridge.cases, 85);
@@ -1030,7 +1042,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -1100,6 +1112,11 @@ try {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}reference/optimization/`), `Measured optimization and execution-success facts are not discoverable for ${term}`);
     }
+    if (term === 'acyclic scalar' || term === 'unused initializer') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}verification/acyclic-scalar/`),
+        `Actual-source scalar helper experiment is not discoverable for ${term}`);
+    }
     console.log(`Search ${JSON.stringify(term)}: ${search.results.length} results; first ${result.url}`);
   }
   await pagefind.destroy();
@@ -1107,4 +1124,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${acyclicDisplay.downloads} exact acyclic downloads with ${acyclicDisplay.sourceCopies} source/spec copies, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);

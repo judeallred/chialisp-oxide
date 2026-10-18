@@ -177,15 +177,33 @@ impl Driver {
                 tcx.sess.source_map().span_to_diagnostic_string(body.span)
             ));
         }
-        let functions = lowerer.runtime_functions(id)?;
+        let mut functions = lowerer.runtime_functions(id, false)?;
         let lowered_body = if functions.is_empty() {
-            lowerer.function(
+            match lowerer.function(
                 id,
                 (0..parameters.len())
                     .map(|index| Expr::Arg { index })
                     .collect(),
                 &mut Vec::new(),
-            )?
+            ) {
+                Ok(body) => body,
+                Err(error) if error.is_inlining_limit() => {
+                    // The complete source graph was already discovered. Retry
+                    // only a typed legacy substitution limit with fresh state.
+                    let retry = lower::Lowerer::new(tcx);
+                    functions = retry.runtime_functions(id, true)?;
+                    if functions.is_empty() {
+                        return Err(error.into());
+                    }
+                    Expr::Call {
+                        function_id: 0,
+                        arguments: (0..parameters.len())
+                            .map(|index| Expr::Arg { index })
+                            .collect(),
+                    }
+                }
+                Err(error) => return Err(error.into()),
+            }
         } else {
             Expr::Call {
                 function_id: 0,

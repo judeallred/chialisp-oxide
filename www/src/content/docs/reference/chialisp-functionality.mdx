@@ -60,7 +60,7 @@ capabilities of every native Rust crate.
 | BLS and secp operations | Reviewed crypto libraries | No on-chain crypto-op lowering | Encodings, invalid points/signatures, subgroup/DST rules and cost |
 | Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
 | Softfork/extensions | Pinned interpreter rules | No explicit source support | Extension activation and exact cost semantics |
-| Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset | Broader constants/calls with reproducible inputs and checked semantics |
+| Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset; large acyclic helper graphs can retry as closed function tables at selected inlining limits; constants remain bounded and acyclic | Broader constants/calls with reproducible inputs and checked semantics |
 | Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` and owned `prefix` adapters; general allocation/loops/closures rejected | Further helpers, broader collections and termination/resource/preservation proofs |
 | Currying and nested/standard puzzles | Explicit program trees | Separately tested host curry instances for the canonical password and pay-to-singleton modules; no general public curry/delegated-program API | Broader typed authoring, canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Four named constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
@@ -205,8 +205,18 @@ The [recursive-tree walkthrough](/chialisp-oxide/tutorials/recursive-trees/)
 compares an actual Cargo Rust recursive export with independently compiled
 Chialisp and Rue. Runtime function tables are finite and compiler-owned;
 strict bindings preserve argument order and unused computations. This is finite
-execution evidence. The current scalar/structural models reject runtime IR,
-and no general termination or compiler-preservation proof is claimed.
+execution evidence. Default scalar/structural models reject runtime IR.
+A separate [acyclic scalar mode](/chialisp-oxide/verification/formal/#check-nonrecursive-scalar-helpers-explicitly)
+accepts bounded nonrecursive scalar tables, not recursive tree helpers, SHA or
+byte/raw-tree programs. Its typed acceptance/output domain begins after ABI
+decoding; it provides no general termination or compiler-preservation proof.
+Larger acyclic helper graphs can automatically use a closed table when legacy
+inlining reaches a typed expansion, work, local-substitution or helper-depth
+limit. A fresh lowering pass checks the complete graph under existing bounds;
+unsupported Rust and constant-lowering failures do not gain admission through
+that retry. Existing successful legacy exports retain their route. Fresh checks
+of all 22 current exports in both Rust modes preserved their exact artifacts;
+this observation is finite evidence, not universal preservation.
 The [published list-helper lesson](/chialisp-oxide/tutorials/last-list-element/)
 adds a pinned `last_inner` source span through an explicit module adapter.
 Its Rust empty-slice pattern preserves the difference between nil and nonempty

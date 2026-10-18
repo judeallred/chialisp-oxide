@@ -3,17 +3,21 @@
 //! The scalar API models well-typed scalar/tuple inputs after ABI decoding and
 //! rejects byte values, including in unreachable code. Separate structural APIs
 //! model complete trees, byte sequences and explicit strict-ABI Boolean results.
-//! Runtime calls, function tables and local bindings are outside these models;
-//! the execution-only replay APIs do not extend these proof semantics.
+//! The default scalar/tree models reject runtime calls and local bindings.
+//! Separate, explicitly named acyclic scalar APIs model bounded nonrecursive
+//! call tables and lexical frames. Execution-only replay does not extend either
+//! model's semantics or establish compiler preservation.
 //! Rejection and checked arithmetic are modeled explicitly; `If` is lazy while
 //! tuples, binary operands, projections, and `Sequence` evaluate strictly.
 
+mod acyclic;
 mod model_bindings;
 mod replay;
 mod scalar_bitwise;
 mod structural_boolean;
 mod tree;
 mod tree_witness;
+pub use acyclic::{emit_acyclic_scalar, verify_acyclic_scalar};
 pub use replay::{Replay, ReplayFailure, ReplayOutcome, classify_replay_failure, replay};
 pub use structural_boolean::{
     StructuralBooleanQueries, StructuralBooleanVerification, TreeBooleanSpecification,
@@ -204,6 +208,11 @@ struct Evaluated {
     value: Option<Value>,
 }
 
+struct Definition {
+    name: String,
+    expression: String,
+}
+
 #[derive(Default)]
 struct Translation {
     text: String,
@@ -212,6 +221,9 @@ struct Translation {
     symbols: Vec<String>,
     bitvectors: bool,
     integer_bitvectors: BTreeMap<(String, u16, bool), String>,
+    // Explicit acyclic models capture these definitions into lexical SMT lets.
+    // Existing expression-only APIs retain their exact default route.
+    definitions: Option<Vec<Definition>>,
 }
 
 fn numeral(value: &str) -> Result<String> {
@@ -257,6 +269,12 @@ impl Translation {
         self.serial += 1;
         self.text
             .push_str(&format!("(define-fun {symbol} () {sort} {expression})\n"));
+        if let Some(definitions) = &mut self.definitions {
+            definitions.push(Definition {
+                name: symbol.clone(),
+                expression: expression.to_owned(),
+            });
+        }
         symbol
     }
     fn input(&mut self, ty: &Type, name: &str) -> Result<Value> {
@@ -411,61 +429,73 @@ impl Translation {
             } => {
                 let a = self.expression(left)?;
                 let b = self.expression(right)?;
-                // A typed bottom has no observable value. Use only a
-                // sort-correct placeholder; success still requires both strict
-                // children. Unsupported sibling expressions already translated
-                // above and unsupported types still fail in default_value.
-                let av = match a.value {
-                    Some(value) => value,
-                    None => default_value(ty)?,
-                };
-                let bv = match b.value {
-                    Some(value) => value,
-                    None => default_value(ty)?,
-                };
-                let (l, lb) = av.scalar()?;
-                let (r, rb) = bv.scalar()?;
-                ensure!(lb == rb, "binary operand sort mismatch");
-                if matches!(kind, BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor) {
-                    let value = self.bitwise(*kind, l, r, ty)?;
-                    let success = format!("(and {} {})", a.success, b.success);
-                    return Ok(Evaluated {
-                        success: self.define("Bool", &success),
-                        value: Some(value),
-                    });
-                }
-                let op = match kind {
-                    BinaryOp::Eq | BinaryOp::Ne => "=",
-                    BinaryOp::Lt => "<",
-                    BinaryOp::Le => "<=",
-                    BinaryOp::Gt => ">",
-                    BinaryOp::Ge => ">=",
-                    BinaryOp::Add => "+",
-                    BinaryOp::Sub => "-",
-                    BinaryOp::Mul => "*",
-                    _ => bail!("unsupported SMT binary operation {kind:?}"),
-                };
-                let mut term = format!("({op} {l} {r})");
-                if *kind == BinaryOp::Ne {
-                    term = format!("(not {term})");
-                }
-                let arithmetic = matches!(kind, BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul);
-                let mut success = format!("(and {} {})", a.success, b.success);
-                let value = if arithmetic {
-                    ensure!(!lb, "arithmetic requires integers");
-                    let symbol = self.define("Int", &term);
-                    let (min, max) = bounds(ty)?;
-                    success = format!("(and {success} (<= {min} {symbol}) (<= {symbol} {max}))");
-                    Value::Int(symbol)
-                } else {
-                    Value::Bool(self.define("Bool", &term))
-                };
-                (success, Some(value))
+                return self.binary_values(*kind, ty, a, b);
             }
         };
         Ok(Evaluated {
             success: self.define("Bool", &success),
             value,
+        })
+    }
+    fn binary_values(
+        &mut self,
+        kind: BinaryOp,
+        ty: &Type,
+        a: Evaluated,
+        b: Evaluated,
+    ) -> Result<Evaluated> {
+        // A typed bottom has no observable value. Use only a
+        // sort-correct placeholder; success still requires both strict
+        // children. Unsupported sibling expressions already translated
+        // above and unsupported types still fail in default_value.
+        let av = match a.value {
+            Some(value) => value,
+            None => default_value(ty)?,
+        };
+        let bv = match b.value {
+            Some(value) => value,
+            None => default_value(ty)?,
+        };
+        let (l, lb) = av.scalar()?;
+        let (r, rb) = bv.scalar()?;
+        ensure!(lb == rb, "binary operand sort mismatch");
+        if matches!(kind, BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor) {
+            let value = self.bitwise(kind, l, r, ty)?;
+            let success = format!("(and {} {})", a.success, b.success);
+            return Ok(Evaluated {
+                success: self.define("Bool", &success),
+                value: Some(value),
+            });
+        }
+        let op = match kind {
+            BinaryOp::Eq | BinaryOp::Ne => "=",
+            BinaryOp::Lt => "<",
+            BinaryOp::Le => "<=",
+            BinaryOp::Gt => ">",
+            BinaryOp::Ge => ">=",
+            BinaryOp::Add => "+",
+            BinaryOp::Sub => "-",
+            BinaryOp::Mul => "*",
+            _ => bail!("unsupported SMT binary operation {kind:?}"),
+        };
+        let mut term = format!("({op} {l} {r})");
+        if kind == BinaryOp::Ne {
+            term = format!("(not {term})");
+        }
+        let arithmetic = matches!(kind, BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul);
+        let mut success = format!("(and {} {})", a.success, b.success);
+        let value = if arithmetic {
+            ensure!(!lb, "arithmetic requires integers");
+            let symbol = self.define("Int", &term);
+            let (min, max) = bounds(ty)?;
+            success = format!("(and {success} (<= {min} {symbol}) (<= {symbol} {max}))");
+            Value::Int(symbol)
+        } else {
+            Value::Bool(self.define("Bool", &term))
+        };
+        Ok(Evaluated {
+            success: self.define("Bool", &success),
+            value: Some(value),
         })
     }
     fn term(&mut self, term: &Term, output: Option<&Value>) -> Result<Value> {

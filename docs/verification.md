@@ -223,7 +223,8 @@ mathematical and converts exactly at subsequent bitwise uses.
 Boolean operations retain the success conditions of both operands. Independent
 identity specifications, deliberately incorrect masks and replayed
 counterexamples check the model. Current byte/tree models still reject integer
-operations, and runtime IR stays outside all SMT proof domains. These checks
+operations. Default scalar APIs reject runtime IR; the separately selected
+acyclic scalar model below admits bounded nonrecursive scalar tables. These checks
 are not a proof that Rust extraction or CLVM code generation preserves the
 model, and they establish no cryptographic property.
 
@@ -253,8 +254,10 @@ result read twice from two deliberate recursive evaluations. These are finite
 execution witnesses, not universal termination, resource-equivalence or
 compiler-preservation proofs.
 
-All current SMT model APIs reject every runtime program, including unused
-function tables and runtime nodes in dead branches. They cannot map divergence
+Default scalar, structural-tree and byte/Boolean SMT APIs reject every runtime
+program, including unused function tables and runtime nodes in dead branches.
+The explicit acyclic scalar model below is a separate, narrower admission path;
+it also rejects recursive graphs. These models do not map divergence
 into their value/rejection domain. Execution-only replay is still possible but
 aborts on resource or infrastructure errors. The typed-IR pair-guard pass also
 preserves runtime programs unchanged: a later projection cannot justify moving
@@ -266,6 +269,47 @@ Before recursive operand lowering, frame, pending-operand, direct-depth and work
 budgets prevent shallow wide IR from causing unbounded continuation stacks or
 cloned type storage. See
 [runtime calls](runtime-calls.md) for implementation and durable test paths.
+
+## Explicit acyclic scalar model
+
+`--acyclic-scalar` selects a separate model for checked integers, Booleans,
+unit and tuples with nonrecursive function tables. The Rust APIs are
+`emit_acyclic_scalar` and `verify_acyclic_scalar`; the existing default APIs
+retain their runtime rejection boundary. Whole-IR validation precedes model
+admission, including unused functions and dead branches. The model bounds
+tables to 16 functions and also limits nodes, depth, types, work and emitted
+text. A compiler-admitted program can exceed those narrower model limits.
+
+Each function is summarized once in callee-first order. Arguments evaluate
+strictly in source order, unused initializers still contribute their success
+condition, and each callee starts a fresh argument/local scope. A copy reads
+the captured value rather than evaluating its initializer again. Lazy branches
+and checked integer width/overflow remain explicit. This models acceptance
+and successful output, not the order or code of failures.
+
+With the workspace tools built and Z3 installed, the retained counter provides
+a small CLI example:
+
+```sh
+target/debug/chialisp-oxide-verifier proofs/bounded-counter/program.ir.json \
+  --acyclic-scalar proofs/bounded-counter/acceptance.spec.json
+target/debug/chialisp-oxide-verifier proofs/bounded-counter/program.ir.json \
+  --acyclic-scalar proofs/bounded-counter/acceptance.spec.json --emit
+```
+
+The first command solves the nonvacuity and counterexample obligations. The
+second prints their SMT queries for inspection. This particular retained
+counter has no runtime table; it is a CLI compatibility example, not evidence
+that a new source-to-table translation is proved. To inspect a newly extracted
+Cargo export, supply its exact IR and an independent specification instead.
+
+The domain starts **after typed ABI decoding**. It does not establish acceptance
+of arbitrary malformed environments or prove the decoder. Recursive calls,
+SHA, byte/atom/raw-tree values and dynamic application remain unsupported,
+including in unused functions. Solver failure or model-budget exhaustion
+provides no proof. Model regression tests and finite native/VM comparisons
+remain distinct from Rust/MIR/IR/CLVM preservation, termination, resource-cost,
+cryptographic or ledger proofs.
 
 ## VM failures are typed evidence
 

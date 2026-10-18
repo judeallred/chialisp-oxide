@@ -29,10 +29,19 @@ This follows each right child and preserves every byte of the final atom. It
 accepts proper and improper trees under the explicit raw-environment contract.
 The driver discovers actual reachable function identities and signatures. If
 that graph contains a cycle, it lowers each function once and makes the entry
-call function zero. Acyclic source graphs retain the existing expression-inlining
-route and legacy wire formats. SDK helper bodies remain real inspected MIR;
+call function zero. Acyclic source graphs first use the existing expression-inlining
+route. Successful legacy exports retain their artifacts and wire formats. If
+that route reaches a typed expression-expansion, cumulative-work,
+local-substitution or helper-depth limit, extraction can automatically retry
+with a closed version-4 function table. No additional annotation is needed.
+The retry starts a fresh lowerer, rediscovers the complete function graph and
+checks every table body under the existing limits. It does not broaden the
+supported Rust subset or external-call policy, or relax compiler budgets.
+SDK helper bodies remain real inspected MIR;
 their names do not select opaque implementations. Supported borrowed/promoted
 constants still use the separate, bounded acyclic constant-lowering path.
+A limit inside that path remains a constant-lowering error; it cannot trigger
+an outer runtime-table retry.
 
 The frontend preserves the existing restrictions on SDK dependencies,
 lifetime-only generics, immutable references, unsafe code, destructors, and MIR
@@ -235,6 +244,14 @@ runs only inside the cost-bound VM.
 
 ## Durable evidence and remaining work
 
+The acyclic fallback regressions extract actual Cargo exports, compare native
+and both VM modes, and reject unsupported graph members. A borrowed-constant
+control distinguishes a constant's helper-depth error from an outer graph's
+eligible retry. Across the existing 22 corpus exports, fresh extraction in both
+Rust modes retained identical raw IR, complete artifacts and serialized CLVM;
+the full validator reproduced the existing report. That is finite regression
+evidence for these inputs, not a theorem for every acyclic Rust program.
+
 The compact [`runtime-frame-baseline.json`](../corpus/runtime-frame-baseline.json)
 pins commit `6f1e197ef6647683f4c3d7dd171c5e7e4317b01c`, its full report's
 SHA-256/Git blob, and both Rust builds for the two recursive corpus helpers.
@@ -275,13 +292,15 @@ comparison scope rather than weakening this baseline silently.
   injected into old envelopes. Resource cases also cover nested wide operands,
   effectful operands that still require frames, and optimized direct-unary depth.
 - [`verifier/tests/runtime_boundaries.rs`](../crates/chialisp-oxide-verifier/tests/runtime_boundaries.rs)
-  requires every current scalar/tree model API to reject runtime IR, including
+  requires the default scalar/tree model APIs to reject runtime IR, including
   dead calls and unused tables. Finite witness replay is allowed as execution
   evidence; it does not make that IR a supported proof input.
 
 These are executed regressions over their specified inputs, not universal
-termination or source-to-CLVM preservation proofs. A separate acyclic call model,
-then explicit recursive termination/induction obligations, remain future work.
+termination or source-to-CLVM preservation proofs. A separate, explicit
+[acyclic scalar model](verification.md#explicit-acyclic-scalar-model) admits
+bounded nonrecursive scalar tables. It does not admit these recursive tree
+helpers. Recursive termination and induction obligations remain future work.
 The first published helper adaptation is Chia gaming's
 [`last_inner` helper](https://github.com/Chia-Network/chia-gaming/blob/11e1c80ecd83d9a343fcd83fa2e7314c968c0ba4/clsp/std/last.clinc#L8-L13).
 The `last-list-element` fixture embeds that exact helper span in a visible

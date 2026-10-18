@@ -16,31 +16,40 @@
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - An explicit SHA-256 bridge admits one reviewed safe native implementation by
   actual signature and complete typed-MIR closure/profile fingerprint. Cargo
-  extraction and the fresh corpus report cover all twenty-one annotated exports,
-  including the raw-domain `sha256tree` helper adapter, singleton launcher and
-  original password tutorial module.
+  extraction and the fresh corpus report cover all twenty-two annotated exports,
+  including the raw-domain `sha256tree` helper adapter, singleton launcher,
+  original password tutorial module and canonical pay-to-singleton component.
   Immutable fixed-byte-array references coerce to slices for lengths up to 256;
   this does not admit general casts, mutable slices or arbitrary hash libraries.
 - Ten original teaching examples, three exact canonical Intro expressions, and
   the canonical `p2_conditions` program factory, five pinned published helpers
-  through explicit module adapters, the singleton launcher and original password
-  module, with
+  through explicit module adapters, the singleton launcher, original password
+  module and canonical pay-to-singleton component, with
   side-by-side Chialisp/Rust/Rue sources and separately compiled Rue/Chialisp, the actual Rust functions as native
-  oracles, 389 explicit and 20,796 generated integer/tree/byte vectors. Canonical closed
+  oracles, 439 named and 22,983 generated integer/tree/byte vectors. Canonical closed
   expressions explicitly ignore environments; default typed ABIs remain strict.
 - Forty complete-spend scenario groups run separately for Rust, Chialisp, and Rue
   (120 ledger scenario runs) through chia-wallet-sdk's simulator, plus
   standalone regressions for signatures/replay/messages/conservation/rollback.
-- Hash-helper comparisons use a recorded ten-million cost ceiling; all other
-  examples retain one million. Five deep inputs additionally run in all five
+- Hash-helper and pay-to-singleton comparisons use a recorded ten-million cost
+  ceiling; the other twenty examples retain one million. Five deep hash inputs additionally run in all five
   builds at one million as 25 separate typed resource observations, outside
   passing coverage totals. The compatibility gate preserves all eighteen prior
   ports' artifacts and observations and passes 149 migration controls.
 - The singleton launcher retains exact source/include/license/commit/tree
   provenance and its published 175-byte artifact. Independent Chialisp reproduces
   that identity; optimized Rust is 671 bytes with a different hash. Executed
-  output and spend agreement is separate from module identity and the unported
-  remainder of the singleton lifecycle.
+  output and spend agreement is separate from module identity.
+- Canonical pay-to-singleton preserves its raw environment and ignored tail.
+  Its dedicated five-build composition submits 110 actual SDK transactions:
+  15 are accepted and 95 match exact typed consensus rejections with complete
+  in-memory simulator rollback. Independently reproduced canonical launcher,
+  singleton top-layer and StandardLayer counterparts exercise Eve, the joint
+  pay-to-singleton spend and one subsequent lineage spend. Only pay-to-singleton
+  and the launcher are Rust source ports; this finite composition is not the
+  entire singleton protocol. Three actual Rust policy mutations compile and
+  have native/VM counterexamples. These transaction counts are separate from
+  the forty generic ledger scenario groups.
 - The exact password tutorial module preserves its raw environment and returns
   arbitrary condition trees. Separate fixed-hash curry instances record 48
   case groups in five builds, three varying-hash controls and 21 actual ledger
@@ -54,7 +63,11 @@
 - Checked Rust self/mutual and non-tail recursive calls lower once per function
   into version-4 typed tables and strict lexical bindings. Ordered failure and
   divergence controls, fresh callee scopes and pre-lowering resource bounds are
-  tested; existing proof models explicitly reject runtime IR.
+  tested. Large acyclic helper graphs can use the same checked tables after a
+  typed legacy expansion limit. Compile-time constants remain acyclic and
+  cannot trigger this runtime fallback. Existing default proof models reject
+  runtime IR; an explicit acyclic scalar model admits bounded nonrecursive
+  scalar/tuple tables after ABI decoding.
 - Ordinary Rust empty-slice patterns distinguish nil from nonempty zero-byte
   atoms. The published `last_inner` helper has pinned source/license/span and
   wrapper checks, proper/improper-list vectors and arbitrary returned trees.
@@ -118,8 +131,8 @@ a prerequisite for broader algorithms, not general RustCrypto support. The
 implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and returns
 32 bytes through strict version-4 runtime bindings. Installed rustc/std and
 native-object consistency remain trusted; all proof models reject hash nodes.
-The fresh twenty-one-port report records native, five-build differential and ledger
-agreement. Local macOS verification passes 502 workspace tests and all-target
+The fresh twenty-two-port report records native, five-build differential and ledger
+agreement. Local macOS verification passes 518 workspace tests and all-target
 Clippy with warnings denied. The hash gate passes 168 corruption controls and
 22,285 retained-artifact VM replays. Historical migration gates retain the
 earlier reports; a separate closed transition reviews the optimized Rust
@@ -135,7 +148,7 @@ The independent password checker checks exact source extraction, the complete
 raw-tree relation, quoted curry trees, instance hashes, typed outcomes, state
 rollback and finite evidence corruption controls. Retained-byte replay does not
 resubmit consensus transactions or prove preservation. Fresh extraction retains
-all twenty-one ports' raw IR and compares both modes with the reviewed report.
+all twenty-two ports' raw IR and compares both modes with the reviewed report.
 
 The cost iteration adds checked constant folding, forward execution-success
 facts, total alias frame elision and exact constructor checks. All three closed
@@ -185,7 +198,7 @@ changed 22 → 47 module bytes while reducing primary VM cost from 699 → 151.
 The isolated `p2_singleton` prototype grew 1,972 → 2,158 bytes while its 136
 accepted inputs each saved 5,454 VM units. Complete transaction/generator costs
 were not measured for that variant. A conservative size-aware version folding
-only payloads of at least 32 bytes changed none of the current 21 ports or the
+only payloads of at least 32 bytes changed none of the then-published 21 ports or the
 prototype. Its accounting for repeated traversal of shared LIR also needs work.
 These external experiments add no published corpus or consensus coverage and
 introduce no public compiler feature. Future optimization should compare both
@@ -214,11 +227,12 @@ serialized programs and actual transaction costs rather than VM cost alone.
    that escaping borrow. An owned atom representation needs explicit native
    and CLVM semantics before porting `p2_delegated_conditions`; replacing its
    cons structure with a proper tuple would change the original contract.
-   The pinned `p2_singleton` module is a nearer protocol candidate because its
-   fixed three-condition result can own digest arrays. It still needs actual
-   Cargo admission, raw-domain differential cases, instance hashes and real
-   announcement composition tests. A synthetic announcement counterpart alone
-   would not complete the singleton lifecycle.
+   The pinned `p2_singleton` module now has actual Cargo admission, raw-domain
+   differential cases, instance hashes and real announcement composition tests.
+   Its fixed three-condition result owns digest arrays. Optimized Rust is
+   1,972 bytes versus canonical Chialisp's 403, so shared hash construction and
+   runtime overhead remain cost priorities. Judge changes by actual serialized
+   generator bytes and full conditions costs as well as standalone VM cost.
    The legacy totality cache still treats slice-pattern metadata conservatively,
    so an inlined atom helper can retain a redundant evaluation sequence. Any
    refinement must consult the validated pattern plan rather than declaring
@@ -234,8 +248,8 @@ serialized programs and actual transaction costs rather than VM cost alone.
    workflows remain unrun. Next ports need explicit semantic contracts before
    expanding parameter, list, recursion, cryptographic, or evaluation support.
    The singleton launcher source port does not complete the singleton protocol;
-   continuation/lineage, curried-instance compatibility and wallet integration
-   require their own witnesses and adversarial complete-spend tests.
+   broader continuation/lineage, curried-instance compatibility and wallet
+   integration require their own witnesses and adversarial complete-spend tests.
 4. Extend the implemented source-derived strict byte-argument/Boolean model
    beyond the current exact-inequality contract to broader byte operations,
    cryptographic assumptions, state transitions and compiler preservation.

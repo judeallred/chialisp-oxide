@@ -1,0 +1,93 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { loadAcyclicProofEvidence, acyclicProofSummary, acyclicOutcomeLabel } from '../lib/acyclic-proof-artifacts.mjs';
+import { href, format } from '../lib/data';
+
+const { report, artifacts, sources } = await loadAcyclicProofEvidence();
+const counts = acyclicProofSummary(report);
+const contract = JSON.parse(sources.get('bridge.json')!);
+const download = (basename: string) => href(`reports/acyclic-scalar/${basename}`);
+const key = (row: any) => `${row.module}::${row.policy}/${row.kind}`;
+const metrics = [
+  ['actual_exports', 'experiment exports'], ['baseline_actual_tables', 'baseline source tables'],
+  ['nonvacuous_proven_obligations', 'nonvacuous IR-model proofs'], ['actual_source_refutations', 'actual-source refutations'],
+] as const;
+const runs = [
+  ['native_finite_cases', 'native finite cases'], ['retained_canonical_VM_cases', 'retained canonical CLVM runs'],
+  ['retained_malformed_VM_cases', 'retained malformed-ABI runs'], ['recompiled_witness_VM_cases', 'recompiled witness CLVM runs'],
+] as const;
+---
+
+<section class="acyclic-evidence" data-acyclic-proof-evidence aria-label="Actual-source acyclic scalar experiment">
+  <p><strong>WIP prototype — not ready for use with funds.</strong></p>
+  <p><strong>Typed u8 inputs after ABI decoding.</strong> These are scalar regression experiments. No Rust/MIR/IR/CLVM preservation theorem. No Chialisp/Rue port or ledger-validity credit.</p>
+  <div class="metric-grid">
+    {metrics.map(([name, label]) => <div class="metric"><strong data-acyclic-count={name}>{format(counts[name])}</strong><span>{label}</span></div>)}
+  </div>
+  <ul>{runs.map(([name, label]) => <li><strong data-acyclic-count={name}>{format(counts[name])}</strong> {label}</li>)}</ul>
+  <p>Each native export covers all 256 typed u8 values. The retained CLVM runs execute both optimization modes independently of the verifier's recompiled witness runs. Malformed cases are finite ABI checks, not a whole-environment proof. Resource and infrastructure failures are inconclusive.</p>
+
+  <h3>Start with real Rust and an independent specification</h3>
+  <p>The native oracle calls the same Cargo library that the driver extracts. The repeated helper graph deliberately triggers the acyclic fallback. It is a compiler regression fixture; keep normal policy helpers simple. The four baseline exports check a guard, an unused argument, an unused initializer and a copied result.</p>
+  <details data-pagefind-ignore>
+    <summary>Read the actual baseline Cargo source</summary>
+    <Code code={sources.get('src/base.rs')!} lang="rust" />
+  </details>
+  <p>The specification requires acceptance exactly below 100. Successful guarded results equal input + 1; the unused-work policies return 7; the copied result equals 2 × (input + 1). These obligations have no assumption that the source body already succeeds.</p>
+  <details data-pagefind-ignore>
+    <summary>Read all independent acceptance and output specifications</summary>
+    <Code code={sources.get('specifications.json')!} lang="json" />
+  </details>
+
+  <h3>Inspect each model obligation</h3>
+  <p><strong data-acyclic-count="retained_query_scripts">{format(counts.retained_query_scripts)}</strong> retained query scripts contain <strong data-acyclic-count="retained_query_status_checks">{format(counts.retained_query_status_checks)}</strong> solver-status checks. Every success witness must also be accepted by the recorded native source and both retained CLVM modes. Default proof APIs still reject the baseline runtime tables.</p>
+  <div class="scroll" tabindex="0" role="region" aria-label="Acyclic scalar model results">
+    <table>
+      <thead><tr><th scope="col">Source and obligation</th><th scope="col">IR-model result</th><th scope="col">Nonvacuity input</th></tr></thead>
+      <tbody>{report.obligations.map((row: any) => <tr data-acyclic-obligation={key(row)} data-acyclic-status={row.expected}>
+        <th scope="row"><code>{row.module}::{row.policy}</code><br />{row.kind}</th>
+        <td>{row.expected}</td><td><code>{row.verdict.verification.nonvacuity.arguments[0].value}</code></td>
+      </tr>)}</tbody>
+    </table>
+  </div>
+
+  <h3>Change the source and replay the counterexample</h3>
+  <p>These ordinary Rust mutations compile. Weakening the guard, changing the result, and removing unused strict work violate the independent policy. Each row binds a solver counterexample to native source outcomes and both retained CLVM modes; the verifier additionally recompiles and replays that witness.</p>
+  <div class="scroll" tabindex="0" role="region" aria-label="Real Rust mutation counterexamples">
+    <table>
+      <thead><tr><th scope="col">Actual source control</th><th scope="col">Input</th><th scope="col">Baseline source</th><th scope="col">Changed source</th></tr></thead>
+      <tbody>{report.obligations.filter((row: any) => row.expected === 'refuted').map((row: any) => <tr data-acyclic-mutation={key(row)} data-acyclic-input={String(row.witness.input)}>
+        <th scope="row"><code>{row.module}::{row.policy}</code><br />{row.kind}</th><td><code>{row.witness.input}</code></td>
+        <td data-acyclic-outcome="original">{acyclicOutcomeLabel(row.witness.replays[0].native)}</td>
+        <td data-acyclic-outcome="mutant">{acyclicOutcomeLabel(row.witness.replays[1].native)}</td>
+      </tr>)}</tbody>
+    </table>
+  </div>
+  {contract.mutations.map((mutation: any) => <details data-pagefind-ignore>
+    <summary>Read {mutation.module}: {mutation.classification.replaceAll('_', ' ')}</summary>
+    <p>Exact substitutions: {mutation.substitutions.map((change: any) => <span><code>{change.old}</code> → <code>{change.new}</code>; </span>)}</p>
+    <Code code={sources.get(`src/${mutation.module}.rs`)!} lang="rust" />
+  </details>)}
+  <p>Strict work still matters when its value is unused. Reading the copied result tests its output relation; these outputs alone do not prove that a deterministic helper executes only once. Separate compiler strictness and cost regressions exercise that boundary.</p>
+
+  <h3>Download exact model inputs and artifacts</h3>
+  <p>All {artifacts.length} direct IR, CLVM, specification, query and witness files are checked before this page or its routes are generated. Witness bytes are reconstructed from the bounded typed counterexample in the verdict and compared exactly. Captured Cargo bundles remain in the complete retained record rather than becoming arbitrary download paths.</p>
+  <details data-pagefind-ignore>
+    <summary>Inspect every direct download and its SHA-256</summary>
+    <ul>{artifacts.map(artifact => <li><a data-acyclic-download={artifact.basename} href={download(artifact.basename)} download={artifact.basename}><span>{artifact.basename}</span> · <code>{artifact.sha256}</code></a></li>)}</ul>
+  </details>
+  <p><a href={href('reports/acyclic-scalar.json')}>Download the complete recorded result</a></p>
+  <p class="quiet">Recorded consistency checks add no solver, native or VM execution credit. Source and tool identities establish declared freshness, not authenticated execution. The installed pinned compiler, standard library, translator and solver remain trusted.</p>
+</section>
+
+<style>
+  .acyclic-evidence { border: 1px solid var(--oxide-line); border-radius: 6px; padding: 1.2rem; margin-block: 1.5rem; }
+  .scroll { overflow-x: auto; margin-block: 1rem; }
+  table { width: 100%; margin: 0; }
+  th, td { vertical-align: top; }
+  td, th { min-width: 8rem; }
+  code { overflow-wrap: anywhere; }
+  summary { cursor: pointer; }
+  li { margin-block: .4rem; }
+  @media (max-width: 40rem) { .acyclic-evidence { padding: .8rem; } }
+</style>

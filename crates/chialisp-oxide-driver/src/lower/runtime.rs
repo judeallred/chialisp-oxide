@@ -1,4 +1,4 @@
-//! Closed runtime functions, selected only for reachable recursive call graphs.
+//! Closed runtime functions, selected for required graphs or a typed legacy inlining fallback.
 //!
 //! This does not change compile-time constant lowering: borrowed/promoted MIR
 //! still uses the legacy acyclic substitution path and cannot capture a Local.
@@ -36,9 +36,13 @@ struct Binding {
 }
 
 impl<'tcx> Lowerer<'tcx> {
-    /// Discover actual DefIds and their finite source graph. Acyclic exports
-    /// deliberately return an empty table and retain their old exact artifacts.
-    pub fn runtime_functions(&self, entry: DefId) -> Result<Vec<Function>, String> {
+    /// Discover actual DefIds and their finite source graph. Successful legacy
+    /// exports keep their exact artifacts; a typed limit may request a table.
+    pub fn runtime_functions(
+        &self,
+        entry: DefId,
+        acyclic_fallback: bool,
+    ) -> Result<Vec<Function>, String> {
         let mut functions = vec![entry];
         let mut ids = HashMap::from([(entry, 0)]);
         let mut edges: Vec<Vec<usize>> = vec![vec![]];
@@ -191,7 +195,10 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
         }
-        if removed == functions.len() && !has_native_hash {
+        if removed == functions.len()
+            && !has_native_hash
+            && (!acyclic_fallback || functions.len() == 1)
+        {
             return Ok(vec![]);
         }
         if functions.len() > MAX_RUNTIME_FUNCTIONS {
