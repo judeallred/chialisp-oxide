@@ -135,13 +135,14 @@ changes while keeping source IR, unoptimized artifacts, other languages and
 semantic observations fixed. Resource controls remain separate from coverage.
 
 The optimizer now folds checked constants, propagates facts after successful
-execution, and removes redundant runtime frames and constructor checks. All
+execution, inlines bounded helpers, and removes redundant runtime frames and
+constructor checks. All
 three closed Intro expressions reproduce the original Chialisp bytes and
 20-unit VM cost. The [optimization guide](https://judeallred.github.io/chialisp-oxide/reference/optimization/)
 shows retained before/after measurements for all 21 puzzles and explains the
 strict-evaluation boundary. Runtime puzzles still have substantial cost gaps.
 
-Local macOS verification passes 459 workspace tests and all-target Clippy with
+Local macOS verification passes 482 workspace tests and all-target Clippy with
 warnings denied. The hash evidence gate passes 168 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,
 error-study, Lean and documentation gates are checked separately; these finite
@@ -149,7 +150,7 @@ checks do not establish compiler preservation or production readiness.
 
 The launcher's pinned source, include, license, commit/tree membership and
 published artifact are recorded separately. Independent Chialisp reproduces
-the canonical 175-byte module and its tree hash; optimized Rust emits 755 bytes
+the canonical 175-byte module and its tree hash; optimized Rust emits 671 bytes
 with a different hash. Matching outputs and ledger results do not establish
 module identity or a completed singleton lifecycle.
 
@@ -171,6 +172,7 @@ python3 scripts/check-runtime-frames.py --replay --self-test
 python3 scripts/check-hashing-puzzles.py --self-test --replay
 python3 scripts/check-password-coin.py --self-test --replay --extract-ir
 python3 scripts/check-cost-optimization.py --self-test --replay
+python3 scripts/check-helper-inlining.py --self-test --replay
 ```
 
 The verifier generates SMT from actual source-derived IR, checks independently
@@ -311,11 +313,12 @@ other programs, the naming variant, and supporting workflows remain unrun.
 The parent Intro page remains partial, and no CHIP migration is complete.
 See the [canonical Intro walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/canonical-intro/)
 for exact sources, environment contracts, and measured compiler gaps. No production security audit has been
-completed. Six vendored Rue fixes have upstream reports with reproductions,
+completed. Seven vendored Rue fixes have upstream reports with reproductions,
 regression tests and standalone patches: [identity products #108](https://github.com/xch-dev/rue/issues/108),
 [strict truthiness #109](https://github.com/xch-dev/rue/issues/109),
 [pair reconstruction #110](https://github.com/xch-dev/rue/issues/110),
 [quoted nil environments #111](https://github.com/xch-dev/rue/issues/111),
-[nested bitwise failure order #112](https://github.com/xch-dev/rue/issues/112), and
-[canonical Boolean values #113](https://github.com/xch-dev/rue/issues/113).
+[nested bitwise failure order #112](https://github.com/xch-dev/rue/issues/112),
+[canonical Boolean values #113](https://github.com/xch-dev/rue/issues/113), and
+[codegen stack exhaustion #114](https://github.com/xch-dev/rue/issues/114).
 See [vendor provenance](vendor/rue-lir/UPSTREAM.md) before upgrading Rue.

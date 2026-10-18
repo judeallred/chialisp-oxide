@@ -38,7 +38,7 @@
   ports' artifacts and observations and passes 149 migration controls.
 - The singleton launcher retains exact source/include/license/commit/tree
   provenance and its published 175-byte artifact. Independent Chialisp reproduces
-  that identity; optimized Rust is 755 bytes with a different hash. Executed
+  that identity; optimized Rust is 671 bytes with a different hash. Executed
   output and spend agreement is separate from module identity and the unported
   remainder of the singleton lifecycle.
 - The exact password tutorial module preserves its raw environment and returns
@@ -92,13 +92,14 @@
   language/diagnostic owners, including aliases and dependency metadata.
   Native-valid relocation and response-routing controls preserve the separate
   trusted-installation assumption; these are not binary authentication.
-- Six Rue optimizer regressions/fixes with pinned source provenance and upstream
+- Seven Rue compiler regressions/fixes with pinned source provenance and upstream
   issues [108](https://github.com/xch-dev/rue/issues/108),
   [109](https://github.com/xch-dev/rue/issues/109),
   [110](https://github.com/xch-dev/rue/issues/110),
   [111](https://github.com/xch-dev/rue/issues/111),
-  [112](https://github.com/xch-dev/rue/issues/112), and
-  [113](https://github.com/xch-dev/rue/issues/113).
+  [112](https://github.com/xch-dev/rue/issues/112),
+  [113](https://github.com/xch-dev/rue/issues/113), and
+  [114](https://github.com/xch-dev/rue/issues/114).
 - Searchable Astro/Starlight documentation in www, generated from source/evidence.
 - Executable error studies: intentionally limited Chialisp tests miss concrete
   bugs rejected by native Rust type/name checking; a missing-cap negative
@@ -118,7 +119,7 @@ implemented [reviewed SHA bridge](hashing.md) hashes exact atom bytes and return
 32 bytes through strict version-4 runtime bindings. Installed rustc/std and
 native-object consistency remain trusted; all proof models reject hash nodes.
 The fresh twenty-one-port report records native, five-build differential and ledger
-agreement. Local macOS verification passes 459 workspace tests and all-target
+agreement. Local macOS verification passes 482 workspace tests and all-target
 Clippy with warnings denied. The hash gate passes 168 corruption controls and
 22,285 retained-artifact VM replays. Historical migration gates retain the
 earlier reports; a separate closed transition reviews the optimized Rust
@@ -143,12 +144,31 @@ The signed 21-puzzle baseline and reviewed optimized outputs remain available
 in `corpus/cost-optimization-baseline.json`; source IR and unoptimized artifacts
 stay exact. This is finite regression evidence, not compiler preservation.
 
+A second closed transition retains that signed report at commit `40579211` and
+adds bounded helper inlining, entry-wrapper removal and unreachable-function
+pruning. Strict argument bindings, alpha-renamed locals, recursive SCCs and the
+runtime serialization boundary stay explicit. An optional candidate that hits
+an existing compiler budget retries the preceding optimized IR through a typed
+limit; other errors remain errors. The before/after rows live in
+`corpus/helper-inlining-baseline.json` and its unchanged predecessor snapshot.
+Rue codegen now uses worklists; the reproduced codegen cases pass on a 2 MiB
+native thread stack, with a separate upstream regression and fix. This is not
+a stack guarantee for every compiler phase.
+
 The password experiment still exposes runtime overhead: optimized Rust is
-459 bytes versus Chialisp's 31 and optimized Rue's 213. Its named valid curried
-spend costs 8,132 VM units versus 1,321 and 3,937 respectively. Those finite
+407 bytes versus Chialisp's 31 and optimized Rue's 213. Its named valid curried
+spend costs 7,208 VM units versus 1,321 and 3,937 respectively. Those finite
 measurements include the instance wrapper but exclude bundle/condition costs.
 Any optimization must retain exact raw input domains and strict failure behavior;
 narrowing the original ABI or discarding required work would change the program.
+
+The next numeric experiment is branch-aware integer intervals over immutable
+arguments and locals. A successful `counter < 1000` or `amount <= 1000` can prove
+an unused repeated addition/subtraction total. First remove only that duplicate
+initializer, keep the final checked operation and full decoder, and compare
+off/on artifacts with boundary, padding, overflow and divergence controls.
+Factoring repeated decoder continuations is a separate size experiment; larger
+recursive helper bodies and post-inlining facts need separate cost measurements.
 
 1. Extend the implemented runtime-call IR and checked Rust recursion to further
    published list helpers. `last_inner` now has empty-atom matching and an

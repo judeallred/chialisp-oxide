@@ -166,6 +166,28 @@ def implementation_sources():
     paths.update({"scripts/check-byte-proofs.py", "scripts/byte_proof_evidence.py", "scripts/cargo_bundle.py", "scripts/check-canonical-factories.py", "scripts/check-canonical-helpers.py",
                   SPECIFICATION, LINEAGE, "corpus/validation.json", "puzzles/atom-not-equal/puzzle.json",
                   "puzzles/atom-not-equal/reference.clsp", "puzzles/atom-not-equal/puzzle.rue"})
+    # checked_corpus executes aggregate helper validation, including the hash
+    # gate and its readable/password imports and closed inline/cost profiles.
+    # Bind that validation code/data closure as well as the proof translator.
+    paths.update({
+        "scripts/check-insertion-sort.py",
+        "corpus/validate_published_puzzles.py",
+        "scripts/check-hashing-puzzles.py",
+        "scripts/hashing_provenance.py",
+        "scripts/hashing_vectors.py",
+        "scripts/ledger_rejections.py",
+        "scripts/check-readable-puzzles.py",
+        "scripts/runtime_cost_migration.py",
+        "scripts/runtime_inline_migration.py",
+        "scripts/runtime_password_migration.py",
+        "scripts/password_evidence.py",
+        "scripts/password_ledger.py",
+        "scripts/password_provenance.py",
+        "scripts/password_vectors.py",
+        "corpus/cost-optimization-baseline.json",
+        "corpus/helper-inlining-baseline.json",
+        "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    })
     paths.update(row["path"] for row in control_authoring()["sources"])
     return [{"path": path, "sha256": sha(contained_file(ROOT, path))} for path in sorted(paths)]
 

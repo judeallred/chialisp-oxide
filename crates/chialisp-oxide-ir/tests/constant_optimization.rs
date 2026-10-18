@@ -348,7 +348,7 @@ fn boolean_and_byte_folds_preserve_canonical_boolean_and_exact_lexical_bytes() {
 }
 
 #[test]
-fn lexical_constants_do_not_capture_callee_or_sibling_scopes_and_calls_are_not_assumed_total() {
+fn lexical_constants_do_not_capture_callee_or_sibling_scopes() {
     let p = program(
         Environment::Ignored,
         vec![],
@@ -370,14 +370,19 @@ fn lexical_constants_do_not_capture_callee_or_sibling_scopes_and_calls_are_not_a
         ],
     );
     let folded = optimize(&p).unwrap();
-    assert_ir_eq!(folded.body, call(0, vec![int(5)]));
-    assert_ir_eq!(folded.functions[0].body, add(int(7), arg(0)));
-    assert_ir_eq!(folded.functions[1].body, int(9));
-    assert_eq!(
-        folded.functions.len(),
-        2,
-        "never prune callable identities/table metadata"
-    );
+    assert!(folded.functions.is_empty());
+    let Expr::Let {
+        local_id,
+        ty,
+        value,
+        body,
+    } = &folded.body
+    else {
+        panic!("the inlined argument must retain its lexical binding");
+    };
+    assert_eq!(*ty, u8_type());
+    assert_ir_eq!(**value, int(5));
+    assert_ir_eq!(**body, add(int(7), local(*local_id)));
     for (_, code) in modes(&p) {
         accepted(run(&code, &atom(&[]), LIMIT), &uint(12));
     }

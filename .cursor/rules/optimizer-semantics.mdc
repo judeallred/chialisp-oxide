@@ -1,0 +1,30 @@
+---
+description: Preserve strict Rust semantics and closed cost evidence while optimizing CLVM
+alwaysApply: true
+---
+
+# Optimizer boundaries
+
+- Validate all IR before scans, rewriting or unreachable-function removal.
+- Inline only bounded, structurally eligible closed bodies. Keep recursive SCCs
+  as calls; alpha-rename callee locals and bind every argument once in order,
+  including unused arguments with rejection, overflow, SHA or divergence.
+- Charge optional expansion before copying. Retry the preceding optimized IR
+  only for private typed lowering limits; never mask validation, Rue or internal
+  errors. Keep existing limits and the unoptimized route.
+- Preserve evaluation mode through public optimize/serialize/recompile. Without
+  an independent wire-mode field, retain original runtime IR when mode removal
+  leaves a possibly failing result. The closed total-result whitelist runs only
+  after validation; check every constructor/branch child. Private compilation
+  separately pins the original runtime mode.
+- A legacy comparison can schedule operands differently from runtime lowering.
+  Use executed typed failures to test this: Eq(Raise, AtomValue(First(input)))
+  distinguishes source-left-first Raise from legacy InvalidOpArg on nil input.
+- Keep Rue codegen iterative, including static-data traversal and staged Closure
+  emission. Preserve child/allocator order and repeated DAG allocation. Exercise
+  default-sized thread stacks; raising a test's stack is not a robustness fix.
+- Keep signed snapshots immutable. Validate current source/native/typed evidence
+  before projecting reviewed optimized slots through older baselines. Run
+  check-helper-inlining.py and check-cost-optimization.py with corruption controls
+  and retained VM replay. Resource failures remain inconclusive; finite savings
+  are not universal cost dominance or compiler preservation.

@@ -5,6 +5,7 @@ use id_arena::Arena;
 use num_bigint::BigInt;
 use rue_lir::{CodegenOptions, Lir, LirId};
 
+mod limits;
 mod runtime;
 
 struct Lower<'a> {
@@ -300,12 +301,26 @@ impl Lower<'_> {
     }
 }
 pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
-    let optimized = if optimize {
-        Some(crate::optimize(program)?)
-    } else {
-        None
-    };
-    let program = optimized.as_ref().unwrap_or(program);
+    // Bound even structural scans before observing the original runtime mode.
+    program.validate()?;
+    // Optional inlining may remove the last table, call or binding. The
+    // original program still selects strict runtime operand evaluation; table
+    // pruning must not silently choose the legacy lowering convention.
+    let runtime_required = program.uses_runtime();
+    if !optimize {
+        return emit(program, false, runtime_required);
+    }
+    let plan = crate::optimize::plan(program)?;
+    let result = emit(&plan.program, true, runtime_required);
+    match (result, plan.before_inlining) {
+        (Err(error), Some(previous)) if error.is::<limits::Limit>() => {
+            emit(&previous, true, runtime_required)
+        }
+        (result, _) => result,
+    }
+}
+
+fn emit(program: &Program, optimize: bool, runtime_required: bool) -> Result<Vec<u8>> {
     program.validate()?;
     let mut lower = Lower {
         arena: Arena::new(),
@@ -323,7 +338,7 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
             tail = lower.alloc(Lir::Rest(tail));
         }
     }
-    let body = if program.uses_runtime() {
+    let body = if runtime_required || program.uses_runtime() {
         runtime::bootstrap(&mut lower, optimize)?
     } else {
         lower.expression(&program.body)?
@@ -355,8 +370,8 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
     Ok(node_to_bytes(&allocator, ptr)?)
 }
 
-// Rue codegen recursively expands arena references into a serialized tree. Bound
-// that expansion before allocating it; limiting arena nodes alone is insufficient.
+// Rue codegen expands arena references into a serialized tree. Bound that
+// expansion before allocating it; limiting arena nodes alone is insufficient.
 fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
     use anyhow::{bail, ensure};
     use std::collections::HashMap;
@@ -366,7 +381,7 @@ fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
         depth: usize,
         memo: &mut HashMap<LirId, u64>,
     ) -> Result<u64> {
-        ensure!(depth < 96, "CLVM expansion nesting limit");
+        ensure!(depth < 96, limits::Limit::ExpansionDepth);
         if let Some(size) = memo.get(&id) {
             return Ok(*size);
         }
@@ -405,10 +420,7 @@ fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
         let mut total = base;
         for child in children {
             total = total.saturating_add(size(arena, child, depth + 1, memo)?);
-            ensure!(
-                total <= 4_000_000,
-                "CLVM expansion exceeds compiler size budget"
-            );
+            ensure!(total <= 4_000_000, limits::Limit::ExpansionSize);
         }
         memo.insert(id, total);
         Ok(total)

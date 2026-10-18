@@ -4,6 +4,12 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("Cyclic LIR in code generation")]
+    CodegenCycle,
+
+    #[error("Code generation child count mismatch")]
+    CodegenChildren,
+
     #[error("CLVM error: {0}")]
     Clvm(#[from] EvalErr),
 

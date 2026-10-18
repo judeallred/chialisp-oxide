@@ -117,9 +117,9 @@ produces 13 bytes without Rue optimization and 9 with it. Optimized Rust,
 independently compiled Chialisp, and optimized Rue therefore reproduce the
 published bytes and tree hash. This identity is measured from compiled artifacts;
 it is not inferred from the SMT result. Rust optimization enables checked
-constants, forward success facts, constants again, legacy tree guards, runtime
-frame elision, Rue LIR and static pair codegen. The frame stage has no effect on
-this runtime-free factory; unoptimized mode skips these optional stages. This
+constants, forward success facts, constants again, legacy tree guards, bounded
+helper inlining, runtime frame elision, Rue LIR and static pair codegen. The frame
+stage has no effect on this runtime-free factory; unoptimized mode skips these optional stages. This
 model proof concerns the stated guard rewrite; it does not prove every new pass.
 
 The negative control is deliberately unsafe: a pair-only guard around a

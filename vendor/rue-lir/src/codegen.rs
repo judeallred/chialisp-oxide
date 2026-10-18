@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use clvm_traits::{ToClvm, clvm_list, clvm_quote, clvm_tuple};
 use clvmr::{Allocator, NodePtr};
 use id_arena::Arena;
@@ -19,17 +21,405 @@ pub fn codegen(
     codegen_impl(arena, allocator, lir, options)
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+enum Mode {
+    Program,
+    Static,
+}
+#[derive(Clone, Copy)]
+enum Finish {
+    Program,
+    Static,
+    QuotedPair,
+    StaticApply,
+}
+enum Work {
+    Visit(LirId, Mode),
+    Finish {
+        lir: LirId,
+        mode: Mode,
+        kind: Finish,
+        start: usize,
+    },
+    ClosureStart {
+        lir: LirId,
+        start: usize,
+    },
+    ClosureNext {
+        lir: LirId,
+        start: usize,
+        function: NodePtr,
+        args: NodePtr,
+        remaining: usize,
+    },
+    ClosureWrap {
+        lir: LirId,
+        start: usize,
+        function: NodePtr,
+        args: NodePtr,
+        remaining: usize,
+    },
+}
+
 fn codegen_impl(
     arena: &Arena<Lir>,
     allocator: &mut Allocator,
     lir: LirId,
     options: CodegenOptions,
 ) -> Result<NodePtr> {
-    let codegen = |arena: &Arena<Lir>, allocator: &mut Allocator, lir: LirId| {
-        codegen_impl(arena, allocator, lir, options)
-    };
+    let mut work = vec![Work::Visit(lir, Mode::Program)];
+    let mut values = Vec::new();
+    let mut active = HashSet::new();
+    let mut static_values = HashMap::new();
+    while let Some(task) = work.pop() {
+        match task {
+            Work::Visit(lir, mode) => {
+                if !active.insert((lir, mode)) {
+                    return Err(crate::Error::CodegenCycle);
+                }
+                if mode == Mode::Program
+                    && let Lir::Closure(function, _, _) = &arena[lir]
+                {
+                    // Closures interleave allocations with child emission.
+                    // q1 precedes every capture, and each wrapper precedes the
+                    // next capture, matching allocator failure precedence.
+                    work.push(Work::ClosureStart {
+                        lir,
+                        start: values.len(),
+                    });
+                    work.push(Work::Visit(*function, Mode::Program));
+                    continue;
+                }
+                let kind = if mode == Mode::Static {
+                    Finish::Static
+                } else if options.optimize_static_pairs {
+                    match &arena[lir] {
+                        Lir::Cons(first, rest)
+                            if is_static_value(arena, *first, &mut static_values)?
+                                && is_static_value(arena, *rest, &mut static_values)? =>
+                        {
+                            Finish::QuotedPair
+                        }
+                        Lir::Run(callee, env)
+                            if matches!(&arena[*env], Lir::Path(path) if path == &BigUint::from(1_u8))
+                                && is_static_value(arena, *callee, &mut static_values)? =>
+                        {
+                            Finish::StaticApply
+                        }
+                        _ => Finish::Program,
+                    }
+                } else {
+                    Finish::Program
+                };
+                work.push(Work::Finish {
+                    lir,
+                    mode,
+                    kind,
+                    start: values.len(),
+                });
+                match kind {
+                    Finish::Static => match &arena[lir] {
+                        Lir::Atom(_) => (),
+                        Lir::Cons(first, rest) => {
+                            work.push(Work::Visit(*rest, Mode::Static));
+                            work.push(Work::Visit(*first, Mode::Static));
+                        }
+                        _ => return Err(crate::Error::CodegenChildren),
+                    },
+                    Finish::QuotedPair => {
+                        let Lir::Cons(first, rest) = &arena[lir] else {
+                            unreachable!()
+                        };
+                        work.push(Work::Visit(*rest, Mode::Static));
+                        work.push(Work::Visit(*first, Mode::Static));
+                    }
+                    Finish::StaticApply => {
+                        let Lir::Run(callee, _) = &arena[lir] else {
+                            unreachable!()
+                        };
+                        work.push(Work::Visit(*callee, Mode::Static));
+                    }
+                    Finish::Program => push_program_children(arena, lir, &mut work)?,
+                }
+            }
+            Work::Finish {
+                lir,
+                mode,
+                kind,
+                start,
+            } => {
+                let children = &values[start..];
+                let value = match kind {
+                    Finish::Program => emit_program(arena, allocator, lir, children)?,
+                    Finish::Static => match &arena[lir] {
+                        Lir::Atom(atom) if atom.is_empty() => NodePtr::NIL,
+                        Lir::Atom(atom) => allocator.new_atom(atom)?,
+                        Lir::Cons(_, _) if children.len() == 2 => {
+                            allocator.new_pair(children[0], children[1])?
+                        }
+                        _ => return Err(crate::Error::CodegenChildren),
+                    },
+                    Finish::QuotedPair if children.len() == 2 => {
+                        let pair = allocator.new_pair(children[0], children[1])?;
+                        clvm_quote!(pair).to_clvm(allocator)?
+                    }
+                    Finish::StaticApply if children.len() == 1 => children[0],
+                    Finish::QuotedPair | Finish::StaticApply => {
+                        return Err(crate::Error::CodegenChildren);
+                    }
+                };
+                values.truncate(start);
+                values.push(value);
+                active.remove(&(lir, mode));
+            }
+            Work::ClosureStart { lir, start } => {
+                if values.len() != start + 1 {
+                    return Err(crate::Error::CodegenChildren);
+                }
+                let function = values.pop().ok_or(crate::Error::CodegenChildren)?;
+                let Lir::Closure(_, captures, has_parameters) = &arena[lir] else {
+                    return Err(crate::Error::CodegenChildren);
+                };
+                let args = if *has_parameters {
+                    clvm_quote!(1).to_clvm(allocator)?
+                } else {
+                    NodePtr::NIL
+                };
+                work.push(Work::ClosureNext {
+                    lir,
+                    start,
+                    function,
+                    args,
+                    remaining: captures.len(),
+                });
+            }
+            Work::ClosureNext {
+                lir,
+                start,
+                function,
+                args,
+                remaining,
+            } => {
+                if values.len() != start {
+                    return Err(crate::Error::CodegenChildren);
+                }
+                if remaining == 0 {
+                    values.push(emit_closure_function(allocator, function, args)?);
+                    active.remove(&(lir, Mode::Program));
+                } else {
+                    let Lir::Closure(_, captures, _) = &arena[lir] else {
+                        return Err(crate::Error::CodegenChildren);
+                    };
+                    let next = remaining - 1;
+                    let capture = *captures.get(next).ok_or(crate::Error::CodegenChildren)?;
+                    work.push(Work::ClosureWrap {
+                        lir,
+                        start,
+                        function,
+                        args,
+                        remaining: next,
+                    });
+                    work.push(Work::Visit(capture, Mode::Program));
+                }
+            }
+            Work::ClosureWrap {
+                lir,
+                start,
+                function,
+                args,
+                remaining,
+            } => {
+                if values.len() != start + 1 {
+                    return Err(crate::Error::CodegenChildren);
+                }
+                let capture = values.pop().ok_or(crate::Error::CodegenChildren)?;
+                let args = emit_closure_capture(allocator, capture, args)?;
+                work.push(Work::ClosureNext {
+                    lir,
+                    start,
+                    function,
+                    args,
+                    remaining,
+                });
+            }
+        }
+    }
+    values.pop().ok_or(crate::Error::CodegenChildren)
+}
 
+/// Postorder scheduling preserves the former recursive allocation order. Do
+/// not memoize emitted nodes: repeated DAG edges historically allocate again.
+fn push_program_children(arena: &Arena<Lir>, lir: LirId, work: &mut Vec<Work>) -> Result<()> {
+    let mut push = |id| work.push(Work::Visit(id, Mode::Program));
     match &arena[lir] {
+        Lir::Atom(_) | Lir::Path(_) => (),
+        Lir::Quote(id)
+        | Lir::First(id)
+        | Lir::Rest(id)
+        | Lir::Listp(id, _)
+        | Lir::Not(id)
+        | Lir::Strlen(id)
+        | Lir::Lognot(id)
+        | Lir::PubkeyForExp(id)
+        | Lir::G1Negate(id)
+        | Lir::G2Negate(id)
+        | Lir::Op(_, id)
+        | Lir::DebugPrint(_, id) => push(*id),
+        Lir::Run(a, b)
+        | Lir::Cons(a, b)
+        | Lir::Div(a, b)
+        | Lir::Divmod(a, b)
+        | Lir::Mod(a, b)
+        | Lir::Eq(a, b)
+        | Lir::Gt(a, b)
+        | Lir::GtBytes(a, b)
+        | Lir::Ash(a, b)
+        | Lir::Lsh(a, b)
+        | Lir::G1Multiply(a, b)
+        | Lir::G2Multiply(a, b) => {
+            push(*b);
+            push(*a);
+        }
+        Lir::Modpow(a, b, c)
+        | Lir::CoinId(a, b, c)
+        | Lir::K1Verify(a, b, c)
+        | Lir::R1Verify(a, b, c)
+        | Lir::If(a, b, c, _) => {
+            push(*c);
+            push(*b);
+            push(*a);
+        }
+        Lir::Add(args)
+        | Lir::Sub(args)
+        | Lir::Mul(args)
+        | Lir::All(args)
+        | Lir::Any(args)
+        | Lir::Raise(args)
+        | Lir::Concat(args)
+        | Lir::Logand(args)
+        | Lir::Logior(args)
+        | Lir::Logxor(args)
+        | Lir::G1Add(args)
+        | Lir::G1Subtract(args)
+        | Lir::G2Add(args)
+        | Lir::G2Subtract(args)
+        | Lir::BlsPairingIdentity(args)
+        | Lir::Sha256(args)
+        | Lir::Sha256Inline(args)
+        | Lir::Keccak256(args)
+        | Lir::Keccak256Inline(args) => {
+            for id in args.iter().rev() {
+                push(*id);
+            }
+        }
+        Lir::Closure(..) => return Err(crate::Error::CodegenChildren),
+        Lir::BlsVerify(first, args) => {
+            for id in args.iter().rev() {
+                push(*id);
+            }
+            push(*first);
+        }
+        Lir::Substr(first, start, end) => {
+            if let Some(end) = end {
+                push(*end);
+            }
+            push(*start);
+            push(*first);
+        }
+        Lir::G1Map(first, dst) | Lir::G2Map(first, dst) => {
+            if let Some(dst) = dst {
+                push(*dst);
+            }
+            push(*first);
+        }
+    }
+    Ok(())
+}
+
+/// Static-data recognition also uses an explicit stack. Cache only this pure
+/// classification, never allocated CLVM nodes or their allocation effects.
+fn is_static_value(
+    arena: &Arena<Lir>,
+    lir: LirId,
+    cache: &mut HashMap<LirId, bool>,
+) -> Result<bool> {
+    let mut work = vec![(lir, false)];
+    let mut active = HashSet::new();
+    while let Some((id, finish)) = work.pop() {
+        if cache.contains_key(&id) {
+            continue;
+        }
+        match &arena[id] {
+            Lir::Atom(_) => {
+                cache.insert(id, true);
+            }
+            Lir::Cons(first, rest) => {
+                if finish {
+                    let value = cache[first] && cache[rest];
+                    cache.insert(id, value);
+                    active.remove(&id);
+                } else {
+                    if !active.insert(id) {
+                        return Err(crate::Error::CodegenCycle);
+                    }
+                    work.push((id, true));
+                    work.push((*rest, false));
+                    work.push((*first, false));
+                }
+            }
+            _ => {
+                cache.insert(id, false);
+            }
+        }
+    }
+    Ok(cache[&lir])
+}
+
+fn emit_closure_capture(
+    allocator: &mut Allocator,
+    capture: NodePtr,
+    args: NodePtr,
+) -> Result<NodePtr> {
+    Ok(clvm_list!(
+        ClvmOp::Cons,
+        clvm_quote!(ClvmOp::Cons),
+        clvm_list!(
+            ClvmOp::Cons,
+            clvm_list!(ClvmOp::Cons, clvm_quote!(ClvmOp::Quote), capture),
+            clvm_list!(ClvmOp::Cons, args, ())
+        )
+    )
+    .to_clvm(allocator)?)
+}
+
+fn emit_closure_function(
+    allocator: &mut Allocator,
+    function: NodePtr,
+    args: NodePtr,
+) -> Result<NodePtr> {
+    Ok(clvm_list!(
+        ClvmOp::Cons,
+        clvm_quote!(ClvmOp::Apply),
+        clvm_list!(
+            ClvmOp::Cons,
+            clvm_list!(ClvmOp::Cons, clvm_quote!(ClvmOp::Quote), function),
+            clvm_list!(ClvmOp::Cons, args, ())
+        )
+    )
+    .to_clvm(allocator)?)
+}
+
+fn emit_program(
+    arena: &Arena<Lir>,
+    allocator: &mut Allocator,
+    lir: LirId,
+    emitted: &[NodePtr],
+) -> Result<NodePtr> {
+    let mut children = emitted.iter().copied();
+    let mut codegen = |_arena: &Arena<Lir>, _allocator: &mut Allocator, _lir: LirId| {
+        children.next().ok_or(crate::Error::CodegenChildren)
+    };
+    let result = match &arena[lir] {
         Lir::Atom(atom) => {
             if atom.is_empty() {
                 return Ok(NodePtr::NIL);
@@ -46,51 +436,11 @@ fn codegen_impl(
             Ok(allocator.new_atom(&atom)?)
         }
         Lir::Run(callee, env) => {
-            if options.optimize_static_pairs
-                && matches!(&arena[*env], Lir::Path(path) if path == &BigUint::from(1u8))
-                && is_static_value(arena, *callee)
-            {
-                return codegen_static_value(arena, allocator, *callee);
-            }
-
             let callee = codegen(arena, allocator, *callee)?;
             let env = codegen(arena, allocator, *env)?;
             Ok(clvm_list!(ClvmOp::Apply, callee, env).to_clvm(allocator)?)
         }
-        Lir::Closure(function, captures, has_parameters) => {
-            let function = codegen(arena, allocator, *function)?;
-
-            let mut args = if *has_parameters {
-                clvm_quote!(1).to_clvm(allocator)?
-            } else {
-                NodePtr::NIL
-            };
-
-            for capture in captures.iter().rev() {
-                let capture = codegen(arena, allocator, *capture)?;
-                args = clvm_list!(
-                    ClvmOp::Cons,
-                    clvm_quote!(ClvmOp::Cons),
-                    clvm_list!(
-                        ClvmOp::Cons,
-                        clvm_list!(ClvmOp::Cons, clvm_quote!(ClvmOp::Quote), capture),
-                        clvm_list!(ClvmOp::Cons, args, ())
-                    )
-                )
-                .to_clvm(allocator)?;
-            }
-
-            Ok(clvm_list!(
-                ClvmOp::Cons,
-                clvm_quote!(ClvmOp::Apply),
-                clvm_list!(
-                    ClvmOp::Cons,
-                    clvm_list!(ClvmOp::Cons, clvm_quote!(ClvmOp::Quote), function),
-                    clvm_list!(ClvmOp::Cons, args, ())
-                )
-            )
-            .to_clvm(allocator)?)
-        }
+        Lir::Closure(..) => Err(crate::Error::CodegenChildren),
         Lir::First(arg) => {
             let arg = codegen(arena, allocator, *arg)?;
             Ok(clvm_list!(ClvmOp::First, arg).to_clvm(allocator)?)
@@ -100,16 +450,6 @@ fn codegen_impl(
             Ok(clvm_list!(ClvmOp::Rest, arg).to_clvm(allocator)?)
         }
         Lir::Cons(first, rest) => {
-            if options.optimize_static_pairs
-                && is_static_value(arena, *first)
-                && is_static_value(arena, *rest)
-            {
-                let first = codegen_static_value(arena, allocator, *first)?;
-                let rest = codegen_static_value(arena, allocator, *rest)?;
-                let pair = allocator.new_pair(first, rest)?;
-                return Ok(clvm_quote!(pair).to_clvm(allocator)?);
-            }
-
             let first = codegen(arena, allocator, *first)?;
             let rest = codegen(arena, allocator, *rest)?;
             Ok(clvm_list!(ClvmOp::Cons, first, rest).to_clvm(allocator)?)
@@ -415,37 +755,11 @@ fn codegen_impl(
             let value = codegen(arena, allocator, *value)?;
             Ok(clvm_list!(ClvmOp::DebugPrint, clvm_quote!(srcloc), value).to_clvm(allocator)?)
         }
+    };
+    if children.next().is_some() {
+        return Err(crate::Error::CodegenChildren);
     }
-}
-
-fn is_static_value(arena: &Arena<Lir>, lir: LirId) -> bool {
-    match &arena[lir] {
-        Lir::Atom(_) => true,
-        Lir::Cons(first, rest) => is_static_value(arena, *first) && is_static_value(arena, *rest),
-        _ => false,
-    }
-}
-
-fn codegen_static_value(
-    arena: &Arena<Lir>,
-    allocator: &mut Allocator,
-    lir: LirId,
-) -> Result<NodePtr> {
-    match &arena[lir] {
-        Lir::Atom(atom) => {
-            if atom.is_empty() {
-                Ok(NodePtr::NIL)
-            } else {
-                Ok(allocator.new_atom(atom)?)
-            }
-        }
-        Lir::Cons(first, rest) => {
-            let first = codegen_static_value(arena, allocator, *first)?;
-            let rest = codegen_static_value(arena, allocator, *rest)?;
-            Ok(allocator.new_pair(first, rest)?)
-        }
-        _ => unreachable!("static LIR value contained a dynamic expression"),
-    }
+    result
 }
 
 #[cfg(test)]

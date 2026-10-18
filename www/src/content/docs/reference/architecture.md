@@ -14,6 +14,7 @@ Cargo library + chialisp-oxide + #[chialisp_oxide::puzzle]
   → chialisp-oxide-ir: typed expressions + optional closed function table
   → optional checked constants, forward success facts, constants again
   → optional legacy tree-guard pass (runtime programs unchanged)
+  → optional bounded helper inlining and unreachable-function removal
   → Rue LIR lowering, with optional runtime frame elision
   → optional Rue LIR optimizer
   → Rue CLVM code generation, with optional static pair quoting

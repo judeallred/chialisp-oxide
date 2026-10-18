@@ -67,8 +67,8 @@ optimization off/on. The scalar examples also
 have generated sweeps around their bounds.
 
 Rust's enabled pipeline runs checked constants, forward success facts, constants
-again, legacy tree guards, runtime frame elision, Rue LIR and static pair codegen;
-its disabled pipeline skips these optional stages.
+again, legacy tree guards, bounded helper inlining, runtime frame elision, Rue
+LIR and static pair codegen; its disabled pipeline skips these optional stages.
 Frame elision applies only to runtime lowering. Rue source off/on controls
 only its LIR optimizer. The report records this distinction in
 `optimization_pipeline`, alongside the historical `optimize_lir` build flag.

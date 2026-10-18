@@ -98,8 +98,8 @@ silently downgraded to the legacy evaluator or admitted to a model as legacy IR.
 ## Optimization and resource boundaries
 
 The optimized pipeline is checked constant folding → forward success facts →
-constant folding again → legacy tree guards → runtime frame elision → Rue LIR
-optimization → static pair code generation. Off retains the original lowering
+constant folding again → legacy tree guards → bounded helper inlining → runtime
+frame elision → Rue LIR optimization → static pair code generation. Off retains the original lowering
 and skips these optional stages. The extracted source IR and its wire version
 stay unchanged; every owned IR rewrite is validated before lowering.
 
@@ -116,6 +116,31 @@ that explicitly rejects contributes no successful continuation. Calls have no
 inferred termination or return summaries, and each function starts a fresh
 analysis scope. Rustc still checks ordinary source types; these refinements
 belong to the owned optimizer over validated typed IR.
+
+Bounded helper inlining removes small, closed, nonrecursive calls and direct
+identity-argument entry wrappers. Arguments become strict left-to-right lexical
+bindings even when the callee does not use them. Fresh local identities prevent
+capture; recursive SCCs remain calls. All function bodies are validated before
+unreachable entries are removed and remaining call IDs are densely remapped.
+Work, copied text, type/node counts, depth and runtime frame growth are bounded
+before expansion. Removing the final runtime construct is skipped because the
+current public IR wire format has no independent evaluation-order field.
+
+The public optimizer also checks the complete refinement result at this wire
+boundary. A possibly failing result retains the original runtime program if
+optimization would otherwise remove its last mode marker. A closed, iterative
+total-result whitelist permits constants, decoded arguments and total typed
+constructors/comparisons to keep their reductions. It checks every child,
+including discarded tuple fields; checked raw-tree projections/casts, checked
+arithmetic, calls and hashing are excluded. Validated tuple/byte field lookup is
+total when its entire operand is total. Private compilation carries its original
+mode separately.
+
+Compilation validates before scanning for runtime nodes. If inlining exceeds an
+existing lowering or expansion budget, a private typed limit triggers one retry
+of the preceding optimized IR. Other errors propagate. This fallback preserves
+admission through the previous lowering route without changing optional-pass
+limits or treating resource exhaustion as policy rejection.
 
 In runtime operand lists, `Arg`, `Local`, and literals can pass directly to the
 consumer without a temporary frame. Argument/local descriptors retain their

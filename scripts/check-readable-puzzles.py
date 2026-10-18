@@ -45,7 +45,12 @@ COST_PIPELINE = {
         "typed_ir_tree_guards", "runtime_frame_elision", "rue_lir", "static_pair_codegen"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
 }
-KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE)
+INLINE_PIPELINE = {
+    "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_constants", "typed_ir_success_facts", "typed_ir_constants",
+        "typed_ir_tree_guards", "typed_ir_helper_inlining", "runtime_frame_elision", "rue_lir", "static_pair_codegen"]},
+    "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
+}
+KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE, INLINE_PIPELINE)
 PREVIOUS_PIPELINE = {
     "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
@@ -161,9 +166,13 @@ def check_sources(report, root, require_rue=False):
     root = root.resolve()
     if require_rue:
         require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
-        require(report.get("rue_local_patches") == [
-            f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)
-        ], "Incomplete Rue local patch provenance")
+        patches = [f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)]
+        if report.get("optimization_pipeline") == INLINE_PIPELINE:
+            # Select exact reviewed metadata without invoking a historical
+            # projection or recursively validating the current report.
+            from runtime_inline_migration import expected_patches
+            patches = expected_patches(report)
+        require(report.get("rue_local_patches") == patches, "Incomplete Rue local patch provenance")
     for puzzle in report["puzzles"]:
         source = contained_file(root, f"puzzles/{puzzle['slug']}/puzzle.rs")
         require(source.read_bytes().decode() == puzzle["source"],

@@ -122,7 +122,9 @@ def main():
     report_bytes = args.report.read_bytes()
     report = json.loads(report_bytes, object_pairs_hook=unique_object)
     if is_new(report):
-        require(sha(report_bytes) == load()["reviewed_after"]["report_sha256"], "Current report bytes differ from final reviewed cost profile")
+        from runtime_inline_migration import is_inline, load as inline_profile
+        profile = inline_profile() if is_inline(report) else load()
+        require(sha(report_bytes) == profile["reviewed_after"]["report_sha256"], "Current report bytes differ from final reviewed cost profile")
     print("PASS: closed cost evidence", measurements(report))
     for path in args.ir_bundle:
         print("PASS: explicit frozen21 rawIR retention", verify_ir_bundle(path.resolve(), report))

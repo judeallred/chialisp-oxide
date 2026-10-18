@@ -23,11 +23,11 @@
     },
     {
       "path": "check-model.py",
-      "sha256": "1ed8755919de23202ef075509279aaae91d667f1be9337c7cdd4e8ab5f83427a"
+      "sha256": "aa29b7fa26ce04950ef0cc8fdfed4a2a544bd6c1057bfc216757fd8794333972"
     },
     {
       "path": "corpus/validation.json",
-      "sha256": "edaeebaebe368b72bb471c37b0fd608d1000f5a83b1f8defc9c8ec6eb04b468d"
+      "sha256": "c3448703f6912d94900b2d012aabb610f1f2efc174f19699094fd43229f4e1ac"
     },
     {
       "path": "scripts/check-canonical-helpers.py",
@@ -68,6 +68,66 @@
     {
       "path": "experiments/tree-theorems/lake-manifest.json",
       "sha256": "a4b58bc8c5079ab2ed590843d86a380c6af169a7d065668f7a005a67527bfb0f"
+    },
+    {
+      "path": "scripts/check-hashing-puzzles.py",
+      "sha256": "15cb5fbe3bb211b784a623d12bf37aea2f49163d2acc02c6bacdd414caff8a55"
+    },
+    {
+      "path": "scripts/hashing_provenance.py",
+      "sha256": "5eceb6265fe921d4eb3b8c2797cc27818b1efe586053dbd6fd628c3beb0aabfc"
+    },
+    {
+      "path": "scripts/hashing_vectors.py",
+      "sha256": "c61853c9d16d2f20952e4f6a37195ef3ee7197170ca181ca6fff53e05ded1a04"
+    },
+    {
+      "path": "scripts/ledger_rejections.py",
+      "sha256": "4e87d79b01db2251f5480ed629efa988a281c1954b802e568e761b86c0aaa79d"
+    },
+    {
+      "path": "scripts/check-readable-puzzles.py",
+      "sha256": "106aac8bb4b9f306a6e7ece792efc4cdbc41680a532e5e68adf2fac42ac9fc08"
+    },
+    {
+      "path": "scripts/runtime_cost_migration.py",
+      "sha256": "b195140087ca6461f6d48f9dcfe4ddab0c8247922c162812f59f297014bba65e"
+    },
+    {
+      "path": "scripts/runtime_inline_migration.py",
+      "sha256": "8bfa2b71f421e9dad6ededd61c50be39fe6b7df9fb734dc38ef440262bed2aea"
+    },
+    {
+      "path": "scripts/runtime_password_migration.py",
+      "sha256": "a6c15359a5814dcda7c34feff1f0fa6663f1a9c030dc7fe63575627d0c481233"
+    },
+    {
+      "path": "scripts/password_evidence.py",
+      "sha256": "e805c862100c40a0a3f59b04a8611711747579672e1bc7006f40b3c4ea549ed1"
+    },
+    {
+      "path": "scripts/password_ledger.py",
+      "sha256": "45339db90d7fa07ce3baddb062948a1b20b159e096c51292546cc6d2ca611843"
+    },
+    {
+      "path": "scripts/password_provenance.py",
+      "sha256": "f4788057e02693a1d7845697963c9325798920d1c9b797997e204e895afa649f"
+    },
+    {
+      "path": "scripts/password_vectors.py",
+      "sha256": "788a4ef8eb8780a9869fe11ca80266d20c5f9a59a15ee1da69b1fabd32958202"
+    },
+    {
+      "path": "corpus/cost-optimization-baseline.json",
+      "sha256": "484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308"
+    },
+    {
+      "path": "corpus/helper-inlining-baseline.json",
+      "sha256": "0b7326f83065ab1bc186a1e9b0d3b5c581fa7cc3110845cc4b6db70a39b5da52"
+    },
+    {
+      "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
+      "sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5"
     },
     {
       "path": ".cargo/config.toml",
@@ -140,10 +200,6 @@
     {
       "path": "crates/chialisp-oxide-simulator/Cargo.toml",
       "sha256": "705fae227c37bdacf97fc08bec2ef7b80a3b045b4167be42d60e1174ea8cebf7"
-    },
-    {
-      "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-      "sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5"
     },
     {
       "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -480,9 +536,9 @@
       },
       {
         "label": "prefix-list/rust_mir/True",
-        "sha256": "3cc9f04691a7b970f7c9615f7d84ac311f4879a047bf192975814a879fe86acd",
-        "bytes": 361,
-        "tree_hash": "a6580cdf4ad88e558b3421f18f656af71680213711d9b8530d6962c34a89cb4b"
+        "sha256": "ba40bee0a9f414e4d54a884cad56aadbdd6625994a3140abbd8c3d7c56c23584",
+        "bytes": 329,
+        "tree_hash": "eae4996ad4e770e80cf4d10f7403622f0039088009a53999489c655c6318d71c"
       },
       {
         "label": "prefix-list/chialisp/True",
@@ -533,7 +589,7 @@
         "tree_hash": "f8247e8f0b5b004c3096c881ba7bfcbdf4ae8e97281bf69620e392884d3d2955"
       }
     ],
-    "replay_cli_sha256": "51eb50ad756c021a02c319927737c4401a610d3dfbf798679130fbbd9a9d129f"
+    "replay_cli_sha256": "1adc43c6910d8a5aedf3106e85380235627929cdb0c551b8102278a71704d82e"
   },
   "mutation_controls": 38,
   "limitations": [

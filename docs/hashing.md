@@ -25,7 +25,7 @@ The paired corpus executes a published `sha256tree` helper adapter and the
 canonical singleton launcher and original password tutorial module through actual
 Cargo exports, native Rust, Chialisp and both Rust/Rue optimization modes.
 The complete twenty-one-port report records 389 named and 20,796 generated comparisons plus 40 ledger scenario
-groups in three languages. Local macOS verification passes 459 workspace tests,
+groups in three languages. Local macOS verification passes 482 workspace tests,
 all-target Clippy with warnings denied, 168 hash-evidence corruption controls and
 22,285 retained hash-artifact VM replays. The source-derived proof, error-study,
 Lean and site gates also pass. These checks do not establish general external

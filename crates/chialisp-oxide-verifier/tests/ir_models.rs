@@ -1,7 +1,8 @@
 use chialisp_oxide_ir::{BinaryOp, Expr, Parameter, Program, Type};
 use chialisp_oxide_verifier::{
     Comparison as C, Obligation, Predicate as P, ReplayFailure, ReplayOutcome, SolverConfig,
-    Specification, Term as T, Verification, Witness, WitnessValue as W, emit, replay, verify,
+    Specification, Term as T, Verification, Witness, WitnessValue as W, emit, replay,
+    verify as verify_with_solver,
 };
 use chialisp_oxide_vm::{FailureCode, FailureKind, classify_failure};
 use clvmr::{
@@ -12,6 +13,21 @@ use clvmr::{
     serde::{node_from_bytes, node_to_bytes},
 };
 use num_bigint::BigInt;
+use std::sync::Mutex;
+
+// Serialize solver calls within this test binary so concurrent test scheduling
+// does not consume their wall-clock deadlines through contention. This changes
+// test scheduling only; solver deadlines and fail-closed errors are unchanged.
+static SOLVER: Mutex<()> = Mutex::new(());
+
+fn verify(
+    program: &Program,
+    specification: &Specification,
+    config: &SolverConfig,
+) -> anyhow::Result<Verification> {
+    let _guard = SOLVER.lock().expect("IR-model solver lock poisoned");
+    verify_with_solver(program, specification, config)
+}
 
 fn i8_type() -> Type {
     Type::Int {

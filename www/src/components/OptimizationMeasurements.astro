@@ -1,14 +1,42 @@
 ---
-import baseline from '../../../corpus/cost-optimization-baseline.json';
+import predecessor from '../../../corpus/cost-optimization-baseline.json';
+import baseline from '../../../corpus/helper-inlining-baseline.json';
+import { createHash } from 'node:crypto';
 import { puzzles, format } from '../lib/data';
 
-const rows = baseline.puzzles.map(before => {
+type ReviewedPuzzle = {
+  slug: string;
+  artifact: { backend: string; optimize_lir: boolean; bytes: number; clvm_hex: string; tree_hash: string };
+  cases: { label: string; solution_sha256: string; execution: { outcome: { status: string; output_hex?: string }; cost: number | null } }[];
+};
+const reviewedPuzzles: readonly ReviewedPuzzle[] = baseline.reviewed_after.puzzles;
+if (baseline.protocol !== 'chialisp-oxide-helper-inlining/v1'
+    || baseline.baseline.commit !== '405792113242aed8d94d3dc4805ed68fc667b3d1'
+    || baseline.baseline.report_sha256 !== predecessor.reviewed_after.report_sha256
+    || baseline.predecessor.path !== 'corpus/cost-optimization-baseline.json'
+    || baseline.predecessor.sha256 !== '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308'
+    || baseline.reviewed_after.status !== 'reviewed_final'
+    || predecessor.reviewed_after.puzzles.length !== 21
+    || reviewedPuzzles.length !== 21) {
+  throw new Error('Missing final reviewed helper-inlining comparison');
+}
+const rows = predecessor.reviewed_after.puzzles.map((before, index) => {
   const puzzle = puzzles.find(puzzle => puzzle.slug === before.slug);
   if (!puzzle) throw new Error(`Missing optimization comparison: ${before.slug}`);
+  const reviewed = reviewedPuzzles[index];
   const after = puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir === true);
   const sample = before.cases.find(sample => sample.execution.outcome.status === 'accepted');
-  const current = puzzle.cases.find(row => row.label === sample?.label)?.runs.find(run => run.backend === 'rust_mir' && run.optimize_lir === true)?.execution;
-  if (!after || !sample || !current || current.outcome.status !== 'accepted'
+  const named = puzzle.cases.find(row => row.label === sample?.label);
+  const current = named?.runs.find(run => run.backend === 'rust_mir' && run.optimize_lir === true)?.execution;
+  const reviewedSample = reviewed?.cases.find(row => row.label === sample?.label);
+  if (!reviewed || reviewed.slug !== before.slug || !after || !sample || !named || !current || !reviewedSample || current.outcome.status !== 'accepted'
+      || reviewed.artifact.backend !== 'rust_mir' || reviewed.artifact.optimize_lir !== true
+      || reviewed.artifact.bytes !== after.bytes || reviewed.artifact.clvm_hex !== after.clvm_hex
+      || reviewed.artifact.tree_hash !== after.tree_hash
+      || createHash('sha256').update(named.solution).digest('hex') !== sample.solution_sha256
+      || reviewedSample.solution_sha256 !== sample.solution_sha256
+      || reviewedSample.execution.cost !== current.cost || reviewedSample.execution.outcome.status !== 'accepted'
+      || reviewedSample.execution.outcome.output_hex !== current.outcome.output_hex
       || sample.execution.cost === null || current.cost === null
       || !Number.isSafeInteger(sample.execution.cost) || sample.execution.cost < 0
       || !Number.isSafeInteger(current.cost) || current.cost < 0
@@ -22,7 +50,7 @@ const rows = baseline.puzzles.map(before => {
 ---
 <div class="table-wrap">
   <table>
-    <caption>Optimized Rust before and after this iteration: first accepted named input per puzzle</caption>
+    <caption>Optimized Rust before and after helper inlining: first accepted named input per puzzle</caption>
     <thead><tr><th scope="col">Puzzle / input</th><th scope="col">Before bytes</th><th scope="col">Now bytes</th><th scope="col">Before VM cost</th><th scope="col">Now VM cost</th></tr></thead>
     <tbody>{rows.map(row => <tr data-cost-puzzle={row.puzzle.slug}>
       <th scope="row"><a href={`/chialisp-oxide/lab/${row.puzzle.slug}/`}>{row.puzzle.title}</a><small>{row.label}</small></th>
@@ -31,7 +59,7 @@ const rows = baseline.puzzles.map(before => {
     </tr>)}</tbody>
   </table>
 </div>
-<p class="quiet">The before measurements come from signed commit <a href={`${baseline.baseline.repository}/commit/${baseline.baseline.commit}`}><code>{baseline.baseline.commit.slice(0, 8)}</code></a>. Both columns enable optimization. Inputs and accepted output bytes agree; each row links to the complete Chialisp, Rust and Rue comparison. These are individual executed inputs, not averages or a universal performance bound. The <a href="/chialisp-oxide/reports/cost-optimization-baseline.json">retained baseline and reviewed transition</a> and <a href="/chialisp-oxide/reports/validation.json">current validation report</a> contain the full finite observations.</p>
+<p class="quiet">The before measurements come from signed commit <a href={`${baseline.baseline.repository}/commit/${baseline.baseline.commit}`}><code>{baseline.baseline.commit.slice(0, 8)}</code></a>. Both columns enable optimization. Inputs and accepted output bytes agree; each row links to the complete Chialisp, Rust and Rue comparison. These are individual executed inputs, not averages or a universal performance bound. The <a href="/chialisp-oxide/reports/helper-inlining-baseline.json">reviewed helper-inlining transition</a>, its <a href="/chialisp-oxide/reports/cost-optimization-baseline.json">unchanged predecessor measurements</a> and the <a href="/chialisp-oxide/reports/validation.json">current validation report</a> retain the finite observations.</p>
 <style>
   .table-wrap { overflow-x: auto; }
   table { width: 100%; font-size: .8rem; }

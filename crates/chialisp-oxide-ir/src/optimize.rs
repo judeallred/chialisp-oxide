@@ -4,6 +4,27 @@ use anyhow::Result;
 mod budget;
 mod constants;
 mod facts;
+mod inline;
+
+pub(crate) struct Plan {
+    pub program: Program,
+    pub before_inlining: Option<Program>,
+}
+
+pub(crate) fn plan(program: &Program) -> Result<Plan> {
+    let previous = before_inlining(program)?;
+    Ok(if let Some(inlined) = inline::optimize(&previous)? {
+        Plan {
+            program: inlined,
+            before_inlining: Some(previous),
+        }
+    } else {
+        Plan {
+            program: previous,
+            before_inlining: None,
+        }
+    })
+}
 
 fn refine(program: &Program) -> Result<Option<Program>> {
     // These optional visitors have larger native frames than the original
@@ -25,22 +46,87 @@ fn refine(program: &Program) -> Result<Option<Program>> {
 }
 
 /// Simplify checked constants and forward execution-success facts, then remove
-/// eligible legacy pair guards. Preserve values, rejection and strict effects;
-/// VM costs, resource thresholds and diagnostic strings are not preserved.
+/// eligible legacy pair guards and inline bounded closed helpers. Preserve
+/// values, rejection and strict effects; VM costs, resource thresholds and
+/// diagnostic strings are not preserved.
 ///
 /// A guard is redundant only when its successful branch must perform a checked
 /// first/rest projection of the same tree argument. The projection retains the
 /// rejection of atom inputs. No checks are removed from the environment ABI.
 /// The source program is unchanged; the returned program is validated again.
 pub fn optimize(program: &Program) -> Result<Program> {
+    let result = plan(program)?.program;
+    // A standalone Program carries its evaluation convention only through
+    // runtime nodes/the function table. Serialization must not erase strict
+    // ordering when refinement removes the last such node. A total result has
+    // no failure/divergence ordering to preserve after the unchanged complete
+    // ABI decoder. Private compilation pins the original mode separately and
+    // can still use its fully reduced plan.
+    if program.uses_runtime() && !result.uses_runtime() && !total_result(&result.body) {
+        return Ok(program.clone());
+    }
+    Ok(result)
+}
+
+/// A closed whitelist for evaluation-mode removal, after full validation.
+/// Children must also be total: projecting a tuple does not discard a failing
+/// sibling. Integer comparisons are total on decoded fixed-width values;
+/// checked arithmetic, tree projections, casts and effects stay outside this
+/// whitelist even when some of their inputs might make them safe.
+fn total_result(body: &Expr) -> bool {
+    // Validation bounds the entire result to 20,000 nodes before this borrowed
+    // iterative scan. No recursive visitor or copied literal payloads are used.
+    let mut pending = vec![body];
+    while let Some(expr) = pending.pop() {
+        match expr {
+            Expr::Arg { .. }
+            | Expr::Unit
+            | Expr::Bool { .. }
+            | Expr::Int { .. }
+            | Expr::Atom { .. }
+            | Expr::Bytes { .. } => (),
+            Expr::Tuple { items } => pending.extend(items),
+            Expr::TreePair { first, rest } => pending.extend([first.as_ref(), rest.as_ref()]),
+            Expr::If {
+                condition,
+                then_value,
+                else_value,
+            } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
+            Expr::Not { value }
+            | Expr::AtomIsEmpty { value }
+            | Expr::TreeIsPair { value }
+            | Expr::TreeAtom { value }
+            | Expr::Field { value, .. } => pending.push(value),
+            Expr::Binary {
+                kind:
+                    crate::BinaryOp::Eq
+                    | crate::BinaryOp::Ne
+                    | crate::BinaryOp::Lt
+                    | crate::BinaryOp::Le
+                    | crate::BinaryOp::Gt
+                    | crate::BinaryOp::Ge,
+                left,
+                right,
+                ..
+            } => {
+                pending.extend([left.as_ref(), right.as_ref()]);
+            }
+            _ => return false,
+        }
+    }
+    true
+}
+
+fn before_inlining(program: &Program) -> Result<Program> {
     program.validate()?;
+    let runtime_required = program.uses_runtime();
     // Refinement can make match-discriminant bindings unused. Recheck their
     // totality before deleting them; an unused call/hash/projection still runs.
     let refined = refine(program)?;
     let program = refined.as_ref().unwrap_or(program);
     // Successful-evaluation pair facts do not establish that a projection is
     // reached before a call diverges. Preserve all guards in runtime programs.
-    if program.uses_runtime() {
+    if runtime_required || program.uses_runtime() {
         return Ok(program.clone());
     }
     let tree_arguments =

@@ -16,6 +16,14 @@ def rejected(action, label):
 
 def self_test(report):
     preserve(report)
+    from runtime_inline_migration import is_inline, project_validated as inline_projection
+    if is_inline(report):
+        # Public preserve above validates current evidence before this pure
+        # historical boundary. The outer layer has its own direct mutants.
+        report = inline_projection(report)
+    # The historical projector must accept this positive object before any
+    # mutant is challenged, so a new pipeline cannot make all mutants vacuous.
+    project_validated(report)
     controls = 0
     for mutation in ("source", "reference", "rue", "dependency", "native", "authoring", "abi", "input", "native_output",
                      "off_artifact", "off_cost", "reference_artifact", "rue_cost", "on_artifact", "on_cost", "on_failure",

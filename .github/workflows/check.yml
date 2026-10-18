@@ -83,8 +83,10 @@ jobs:
       - name: Preserve the signed baseline and replay measured cost improvements
         run: |
           python3 -m unittest discover -s scripts -p test_cost_optimization.py
+          python3 -m unittest discover -s scripts -p test_helper_inlining.py
           python3 -m unittest discover -s scripts -p test_hashing_puzzles.py
           python3 scripts/check-cost-optimization.py --self-test --replay
+          python3 scripts/check-helper-inlining.py --self-test --replay
       - name: Check source-derived byte contracts and policy counterexamples
         run: |
           python3 scripts/test_cargo_bundle.py

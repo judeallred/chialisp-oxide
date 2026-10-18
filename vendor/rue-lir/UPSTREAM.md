@@ -71,3 +71,16 @@ This is not a general proof of arbitrary-LIR or other truthiness rewrites.
 Upstream issue: https://github.com/xch-dev/rue/issues/113
 Patch: ../../patches/rue-canonical-boolean-values.patch
 Scope and reproduction: ../../patches/rue-canonical-boolean-values.md
+
+Seventh local fix: src/codegen.rs emits programs and static pair values through
+explicit worklists. The original debug emitter overflows a 2 MiB native thread
+stack for 80 nested Not nodes (depth 81, only 321 output bytes). The fix preserves
+operand order, repeated DAG emission and Closure allocation interleaving; cycles
+return a controlled codegen error. It does not impose a general heap or expansion
+bound. Our IR lowering retains its separate expansion limits. Child-process
+regressions cover default-sized stacks, deep programs/static data, shared nodes,
+cycles and tight-allocator Closure order. This changes compiler robustness,
+not CLVM execution cost by itself.
+Upstream issue: https://github.com/xch-dev/rue/issues/114
+Patch: ../../patches/rue-codegen-stack.patch
+Scope and reproduction: ../../patches/rue-codegen-stack.md

@@ -24,16 +24,37 @@ async function checkRecordedHash(filename, expected) {
 }
 const report = JSON.parse(await read('corpus/validation.json'));
 const tutorialExamples = JSON.parse(await read('corpus/tutorial-examples.json'));
+const predecessorBytes = await read('corpus/cost-optimization-baseline.json');
+const predecessor = JSON.parse(predecessorBytes);
+const helperInlining = JSON.parse(await read('corpus/helper-inlining-baseline.json'));
 assert.equal(report.schema_version, 1);
 checkCorpusExecutions(report);
 checkLedgerReport(report);
 console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent corruption controls passed`);
 console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
-assert.deepEqual(report.rue_local_patches, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`), 'Rue patch provenance is incomplete');
+assert.equal(createHash('sha256').update(predecessorBytes).digest('hex'), '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308', 'Historical cost evidence must remain byte-exact');
+assert.equal(helperInlining.protocol, 'chialisp-oxide-helper-inlining/v1');
+assert.equal(helperInlining.baseline.commit, '405792113242aed8d94d3dc4805ed68fc667b3d1');
+assert.equal(helperInlining.baseline.report_sha256, 'edaeebaebe368b72bb471c37b0fd608d1000f5a83b1f8defc9c8ec6eb04b468d');
+assert.deepEqual(helperInlining.predecessor, { path: 'corpus/cost-optimization-baseline.json', sha256: createHash('sha256').update(predecessorBytes).digest('hex') });
+assert.equal(helperInlining.reviewed_after.status, 'reviewed_final', 'Helper-inlining evidence is still pending');
+assert.equal(helperInlining.reviewed_after.report_sha256, createHash('sha256').update(await read('corpus/validation.json')).digest('hex'), 'Helper-inlining report is stale');
+const previousPatches = [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`);
+assert.deepEqual(helperInlining.rue_local_patches.before, previousPatches);
+assert.equal(helperInlining.rue_local_patches.status, 'reviewed');
+assert.equal(helperInlining.rue_local_patches.added.length, 1, 'Expected exactly one separately reviewed codegen patch');
+assert.match(helperInlining.rue_local_patches.added[0], /^https:\/\/github\.com\/xch-dev\/rue\/issues\/[1-9][0-9]*$/);
+assert(!previousPatches.includes(helperInlining.rue_local_patches.added[0]), 'A historical patch is not a new codegen patch');
+// The Python helper-inlining gate below enforces the reviewed profile's exact
+// byte pin, including this single added URL; arbitrary patch metadata fails.
+assert.deepEqual(report.rue_local_patches, [...previousPatches, ...helperInlining.rue_local_patches.added], 'Rue patch provenance is incomplete');
 assert.deepEqual(report.optimization_pipeline, {
-  rust_mir: { unoptimized: [], optimized: ['typed_ir_constants', 'typed_ir_success_facts', 'typed_ir_constants', 'typed_ir_tree_guards', 'runtime_frame_elision', 'rue_lir', 'static_pair_codegen'] },
+  rust_mir: { unoptimized: [], optimized: ['typed_ir_constants', 'typed_ir_success_facts', 'typed_ir_constants', 'typed_ir_tree_guards', 'typed_ir_helper_inlining', 'runtime_frame_elision', 'rue_lir', 'static_pair_codegen'] },
   rue_source: { unoptimized: [], optimized: ['rue_lir'] },
 }, 'The recorded optimization pipeline is missing or unsupported');
+assert.deepEqual(helperInlining.optimization_pipeline.before, predecessor.reviewed_after.optimization_pipeline);
+assert.deepEqual(helperInlining.optimization_pipeline.after, report.optimization_pipeline);
+assert.deepEqual(helperInlining.reviewed_after.optimization_pipeline, report.optimization_pipeline);
 assert(report.puzzles.length > 0, 'A successful validation report is required');
 const configuration = JSON.parse(await read('puzzles/authoring.json'));
 assert.equal(configuration.schema_version, 1, 'Missing Cargo authoring schema');
@@ -242,6 +263,6 @@ console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, m
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 
 // Discovery and negative studies have independent offline freshness/claim gates.
-for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-cost-optimization.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['scripts/check-password-coin.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
+for (const args of [['corpus/validate_published_puzzles.py'], ['scripts/check-error-study.py', '--check'], ['scripts/check-tree-proofs.py', '--check'], ['scripts/check-byte-proofs.py', '--check'], ['scripts/check-canonical-factories.py'], ['scripts/check-canonical-helpers.py'], ['scripts/check-helper-inlining.py'], ['scripts/check-cost-optimization.py'], ['scripts/check-runtime-frames.py'], ['scripts/check-hashing-puzzles.py'], ['scripts/check-password-coin.py'], ['experiments/tree-theorems/check-model.py', '--check-recorded', '--self-test']]) {
   process.stdout.write(execFileSync('python3', args, { cwd: rootPath, encoding: 'utf8' }));
 }

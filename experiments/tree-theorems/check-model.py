@@ -152,6 +152,27 @@ def finite_inputs(corpus=None):
               ROOT / "corpus/validate_published_puzzles.py",
               ROOT / "crates/chialisp-oxide-vm/failure-protocol.json",
               HERE / "lean-toolchain", HERE / "lakefile.toml", HERE / "lake-manifest.json"]
+    # Aggregate helper validation executes the hash gate, whose current profile
+    # selection imports readable/password validation and the closed inline/cost
+    # profiles. Bind that explicit code/data closure, including import-time
+    # dependencies, rather than leaving changed validation logic unrecorded.
+    inputs += [ROOT / path for path in (
+        "scripts/check-hashing-puzzles.py",
+        "scripts/hashing_provenance.py",
+        "scripts/hashing_vectors.py",
+        "scripts/ledger_rejections.py",
+        "scripts/check-readable-puzzles.py",
+        "scripts/runtime_cost_migration.py",
+        "scripts/runtime_inline_migration.py",
+        "scripts/runtime_password_migration.py",
+        "scripts/password_evidence.py",
+        "scripts/password_ledger.py",
+        "scripts/password_provenance.py",
+        "scripts/password_vectors.py",
+        "corpus/cost-optimization-baseline.json",
+        "corpus/helper-inlining-baseline.json",
+        "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    )]
     inputs += [contained_file(ROOT, source["path"]) for source in corpus["authoring"]["sources"]]
     cases, replays, artifacts = [], [], []
     for slug, algorithm, count in [("prefix-list", "prefixEntry", 69), ("last-list-element", "lastInner", 16)]:

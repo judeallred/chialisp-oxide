@@ -68,12 +68,13 @@ const publishedReports = [
   ...['validation', 'proofs', 'tree-proofs', 'byte-proofs', 'inventory', 'tutorial-examples', 'published-puzzles', 'error-study'].map(name => [name, `corpus/${name}.json`]),
   ['tree-theorems', 'experiments/tree-theorems/results.json'],
   ['cost-optimization-baseline', 'corpus/cost-optimization-baseline.json'],
+  ['helper-inlining-baseline', 'corpus/helper-inlining-baseline.json'],
 ];
 for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
-  if (name === 'validation' || name === 'cost-optimization-baseline') {
+  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline'].includes(name)) {
     assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
   }
 }
@@ -185,23 +186,38 @@ for (const [name, bad] of [
 // Expressive Code normalizes surrounding/trailing whitespace, but wrapping
 // must not add newlines or otherwise rewrite the copied program text.
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
-const costBaseline = JSON.parse(await readFile(path.join(root, 'reports/cost-optimization-baseline.json'), 'utf8'));
+const costPredecessorBytes = await readFile(path.join(root, 'reports/cost-optimization-baseline.json'));
+assert.equal(createHash('sha256').update(costPredecessorBytes).digest('hex'), '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308', 'Historical cost baseline bytes changed');
+const costPredecessor = JSON.parse(costPredecessorBytes.toString('utf8'));
+const costBaseline = JSON.parse(await readFile(path.join(root, 'reports/helper-inlining-baseline.json'), 'utf8'));
+const costBefore = costPredecessor.reviewed_after.puzzles;
 const costReview = costBaseline.reviewed_after;
-assert.equal(costBaseline.protocol, 'chialisp-oxide-cost-migration/v1');
+assert.equal(costPredecessor.protocol, 'chialisp-oxide-cost-migration/v1');
+assert.equal(costPredecessor.reviewed_after.status, 'reviewed_final');
+assert.equal(costBaseline.protocol, 'chialisp-oxide-helper-inlining/v1');
 assert.equal(costBaseline.baseline.repository, 'https://github.com/judeallred/chialisp-oxide');
-assert.match(costBaseline.baseline.commit, /^[0-9a-f]{40}$/);
-assert.match(costBaseline.baseline.report_sha256, /^[0-9a-f]{64}$/);
-assert.match(costBaseline.baseline.report_git_blob_sha1, /^[0-9a-f]{40}$/);
+assert.equal(costBaseline.baseline.commit, '405792113242aed8d94d3dc4805ed68fc667b3d1');
+assert.equal(costBaseline.baseline.report_sha256, 'edaeebaebe368b72bb471c37b0fd608d1000f5a83b1f8defc9c8ec6eb04b468d');
+assert.equal(costBaseline.baseline.report_git_blob_sha1, '41283c25de4beb2ce31aa33a2bfd0aa8262302d8');
+assert.deepEqual(costBaseline.predecessor, { path: 'corpus/cost-optimization-baseline.json', sha256: createHash('sha256').update(costPredecessorBytes).digest('hex') });
+assert.equal(costPredecessor.reviewed_after.report_sha256, costBaseline.baseline.report_sha256);
+assert.deepEqual(costBaseline.optimization_pipeline.before, costPredecessor.reviewed_after.optimization_pipeline);
+assert.deepEqual(costBaseline.optimization_pipeline.after, validation.optimization_pipeline);
+assert.deepEqual(costBaseline.rue_local_patches.before, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`));
+assert.equal(costBaseline.rue_local_patches.status, 'reviewed');
+assert.deepEqual(costBaseline.rue_local_patches.added, ['https://github.com/xch-dev/rue/issues/114']);
+assert(!costBaseline.rue_local_patches.before.includes(costBaseline.rue_local_patches.added[0]));
+assert.deepEqual(validation.rue_local_patches, [...costBaseline.rue_local_patches.before, ...costBaseline.rue_local_patches.added]);
 // This intentionally fails while the reviewed transition still names a scratch
 // benchmark. Only the final freshly generated report can supply release pins.
 assert.equal(costReview.status, 'reviewed_final', 'Optimization measurements must be final reviewed evidence');
 assert.equal(costReview.report_path, 'corpus/validation.json');
 assert.equal(costReview.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Reviewed optimization report is stale');
 assert.deepEqual(costReview.optimization_pipeline, validation.optimization_pipeline);
-assert.equal(costBaseline.puzzles.length, 21, 'The cost baseline must retain its entire reviewed corpus');
-assert.deepEqual(costBaseline.authoring, validation.authoring, 'Optimization comparisons changed their Cargo source inputs');
-assert.deepEqual(costBaseline.puzzles.map(row => row.slug), validation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
-assert.deepEqual(costReview.puzzles.map(row => row.slug), costBaseline.puzzles.map(row => row.slug), 'Missing/extra/reordered reviewed optimization row');
+assert.equal(costBefore.length, 21, 'The signed405 baseline must retain its entire reviewed corpus');
+assert.deepEqual(costPredecessor.authoring, validation.authoring, 'Optimization comparisons changed their Cargo source inputs');
+assert.deepEqual(costBefore.map(row => row.slug), validation.puzzles.map(row => row.slug), 'Missing/extra/reordered optimization puzzle');
+assert.deepEqual(costReview.puzzles.map(row => row.slug), costBefore.map(row => row.slug), 'Missing/extra/reordered reviewed optimization row');
 const safeMetric = (value, minimum, label) => assert(Number.isSafeInteger(value) && value >= minimum, `${label}: expected a safe integer >= ${minimum}`);
 const costArtifact = (record, label) => {
   assert.equal(record.backend, 'rust_mir', `${label}: expected actual Rust artifact`);
@@ -213,15 +229,15 @@ const costArtifact = (record, label) => {
   return { backend: record.backend, optimize_lir: record.optimize_lir, bytes: record.bytes, clvm_hex: record.clvm_hex, tree_hash: record.tree_hash };
 };
 const costRows = [];
-for (const [index, before] of costBaseline.puzzles.entries()) {
+for (const [index, before] of costBefore.entries()) {
   const puzzle = validation.puzzles[index];
   const reviewed = costReview.puzzles[index];
-  const source = costBaseline.authoring.exports[before.slug]?.source;
+  const source = costPredecessor.authoring.exports[before.slug]?.source;
   assert.equal(source, `puzzles/${before.slug}/puzzle.rs`, `${before.slug}: unreviewed cost source path`);
   const sourceBytes = await readFile(new URL(`../../${source}`, import.meta.url));
   const sourceHash = createHash('sha256').update(sourceBytes).digest('hex');
   assert.equal(puzzle.source, sourceBytes.toString('utf8'), `${before.slug}: cost row uses stale or different source`);
-  assert.equal(costBaseline.authoring.sources.find(row => row.path === source)?.sha256, sourceHash, `${before.slug}: cost input hash changed`);
+  assert.equal(costPredecessor.authoring.sources.find(row => row.path === source)?.sha256, sourceHash, `${before.slug}: cost input hash changed`);
   const afterArtifacts = puzzle.artifacts.filter(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir === true);
   assert.equal(afterArtifacts.length, 1, `${before.slug}: missing/duplicate optimized Rust artifact`);
   const after = afterArtifacts[0];
@@ -254,11 +270,12 @@ const optimizationGuide = await html(optimizationFilename);
 assert((await readFile(optimizationFilename)).length <= 512 * 1024, 'Optimization guide exceeds its 512KiB HTML budget');
 const optimizationText = plainText(optimizationGuide);
 for (const label of ['Successful execution gives useful facts', 'only facts valid on every successful incoming branch', 'A rejecting branch has no successful continuation', 'A callee starts a fresh scope', 'removing the earlier guard', 'an unused call, SHA computation or checked projection still runs', 'not averages or a universal performance bound', 'no general compiler-preservation proof']) assert(optimizationText.includes(label), `Optimization guide loses its claim boundary: ${label}`);
-for (const route of ['reports/cost-optimization-baseline.json', 'reports/validation.json']) assert(optimizationGuide.includes(`href="${base}${route}"`), `Optimization guide misses evidence download: ${route}`);
+for (const label of ['Recursive functions keep their calls', 'Every argument becomes an ordered lexical binding', 'an unused argument that rejects, overflows, hashes or diverges', 'Callee locals receive fresh identities', 'Only typed compiler-limit failures', 'compilation retries the previous optimized program', 'Type errors and other compiler errors remain errors', 'Public optimize() results', 'serialized and compiled again']) assert(optimizationText.includes(label), `Helper-inlining guide loses its strictness or serialization boundary: ${label}`);
+for (const route of ['reports/helper-inlining-baseline.json', 'reports/cost-optimization-baseline.json', 'reports/validation.json']) assert(optimizationGuide.includes(`href="${base}${route}"`), `Optimization guide misses evidence download: ${route}`);
 assert(optimizationGuide.includes(`href="${costBaseline.baseline.repository}/commit/${costBaseline.baseline.commit}"`), 'Optimization guide lost its exact signed baseline source link');
 function checkCostRows(markup, rows) {
   const table = [...markup.matchAll(/<table\b[^>]*>([\s\S]*?)<\/table>/g)]
-    .filter(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Optimized Rust before and after this iteration: first accepted named input per puzzle');
+    .filter(match => plainText(match[1].match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/)?.[1] ?? '') === 'Optimized Rust before and after helper inlining: first accepted named input per puzzle');
   assert.equal(table.length, 1, 'Missing/duplicate optimization measurement table');
   const headers = [...table[0][1].matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map(match => plainText(match[1]));
   assert.deepEqual(headers, ['Puzzle / input', 'Before bytes', 'Now bytes', 'Before VM cost', 'Now VM cost'], 'Optimization table columns changed');
@@ -923,7 +940,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -985,7 +1002,7 @@ try {
       const matches = await Promise.all(search.results.map(row => row.data()));
       for (const route of ['tutorials/password-coin/', 'lab/password-coin/']) assert(matches.some(row => row.url === `${base}${route}`), `Password module/instance documentation is not discoverable for ${term}: ${route}`);
     }
-    if (term === 'cost' || term === 'facts') {
+    if (term === 'cost' || term === 'facts' || term === 'helper inlining') {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}reference/optimization/`), `Measured optimization and execution-success facts are not discoverable for ${term}`);
     }

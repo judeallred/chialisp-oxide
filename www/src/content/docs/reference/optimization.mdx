@@ -23,7 +23,7 @@ answers on examples alone would not establish it.
 <CanonicalMeasurements />
 
 Recursive and input-dependent puzzles still carry substantial overhead. The
-following table compares the previous optimized compiler with the current one
+following table compares signed commit `40579211` with the current optimized compiler
 on the same named inputs. It includes unchanged rows so the scope stays visible.
 
 <OptimizationMeasurements />
@@ -72,6 +72,39 @@ final consumer's scope is known, accounting for intervening physical frames.
 Other operands keep ordered, once-only bindings. Static pair code generation
 can quote constructed data; it cannot quote away executable children.
 
+## Remove small helper calls safely
+
+Calling a helper has a real cost: its arguments and function table become a new
+CLVM environment. The optimizer now inlines small helpers with no further calls,
+and can replace an entry that only forwards its arguments with the callee's
+body. It then removes unreachable function-table entries and renumbers the
+remaining calls. Recursive functions keep their calls.
+
+Inlining preserves Rust's strict evaluation. Every argument becomes an ordered
+lexical binding, including an unused argument that rejects, overflows, hashes
+or diverges. Callee locals receive fresh identities so they cannot capture a
+caller binding. Neither helper names nor SDK names grant special behavior.
+
+Expansion is optional and bounded. The pass checks copy work, literal bytes,
+expression depth and continuation-frame growth before accepting a rewrite.
+If the candidate hits an existing lowering budget, compilation retries the
+previous optimized program. Only typed compiler-limit failures trigger this
+retry. Type errors and other compiler errors remain errors. Serialization also
+retains the runtime evaluation-order boundary.
+
+Public `optimize()` results can be serialized and compiled again. If deleting the
+last runtime binding would expose a possibly failing expression to the legacy
+evaluation order, it keeps the original runtime program. A closed whitelist of
+total typed results still permits safe reductions. Every constructor and branch
+child must qualify; a discarded tuple field can still fail. Ordinary compilation
+pins the original evaluation mode separately and keeps its optimized plan.
+
+These limits also exercise the compiler itself. Rue code generation now uses
+explicit worklists so small output programs do not overflow a default-sized
+native thread stack. The regression and fix are reported in
+[Rue issue #114](https://github.com/xch-dev/rue/issues/114). This robustness fix
+preserves emitted CLVM bytes; the VM savings above come from the optimizer.
+
 The enabled pipeline is:
 
 ```text
@@ -80,6 +113,7 @@ validated typed IR
   → forward execution-success facts
   → checked constants again
   → legacy tree guards (runtime programs unchanged)
+  → bounded helper inlining and unreachable-function removal
   → runtime frame elision
   → Rue LIR optimization
   → static pair code generation

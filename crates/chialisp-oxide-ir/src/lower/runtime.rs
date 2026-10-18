@@ -5,7 +5,7 @@
 //! new slot; slot identities, rather than cached paths, survive that extension.
 //! Calls create fresh slots containing only their arguments. No input tree can
 //! select a callee or supply executable code through this calling convention.
-use super::Lower;
+use super::{Lower, limits::Limit};
 use crate::{Expr, Parameter, Type};
 use anyhow::{Result, anyhow, ensure};
 use num_bigint::BigUint;
@@ -65,10 +65,7 @@ type Continuation<'a, 'p, 'c> =
 impl<'a, 'p> Runtime<'a, 'p> {
     fn charge(&mut self, amount: usize) -> Result<()> {
         self.work = self.work.saturating_add(amount);
-        ensure!(
-            self.work <= 500_000,
-            "runtime lowering work budget exceeded"
-        );
+        ensure!(self.work <= 500_000, Limit::RuntimeWork);
         Ok(())
     }
 
@@ -90,7 +87,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
         // through nested, wide tuples before the serialized-size check runs.
         ensure!(
             scope.slots.len().saturating_sub(scope.parameters.len()) + scope.aliases.len() < 128,
-            "runtime frame binding budget exceeded"
+            Limit::FrameBindings
         );
         self.charge(1 + scope.slots.len() + scope.aliases.len())?;
         for (_, ty) in &scope.locals {
@@ -173,10 +170,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
             // Forwarded values do not extend physical frames. Bound pending
             // descriptors independently, before growing their vectors, so wide
             // nested total operands cannot evade the old compilation bound.
-            ensure!(
-                self.pending_operands < 128,
-                "runtime frame operand budget exceeded"
-            );
+            ensure!(self.pending_operands < 128, Limit::PendingOperands);
             self.pending_operands += 1;
             self.charge(1)?;
         }
@@ -251,10 +245,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
         if self.optimize {
             // Direct unary lowering must not trade frame bounds for an
             // unbounded native compiler stack. Check before descending.
-            ensure!(
-                self.expression_depth < 192,
-                "runtime expression depth budget exceeded"
-            );
+            ensure!(self.expression_depth < 192, Limit::RuntimeDepth);
             self.expression_depth += 1;
         }
         let result = self.expression_inner(expression, scope);
