@@ -249,3 +249,71 @@ The standalone driver selects the free function named `puzzle` by default and
 accepts `--entry NAME`. That option is not a `chialisp-oxide build` flag; Cargo mode
 instead discovers annotated exports. Keep compiler-private APIs isolated in
 the driver when investigating diagnostics or extending the subset.
+
+
+## Recorded runtime composition and fresh identity
+
+After the workspace tools are built, inspect the reviewed current record:
+
+```sh
+python3 scripts/check-runtime-composition.py
+python3 scripts/check-runtime-composition.py --self-test
+```
+
+These commands check source/native/typed records, metric/control bindings and
+exact historical restoration; they do not rerun the compiler, VM or ledger.
+The source-only intermediate is an **unsigned reviewed content-addressed
+checkpoint**, linked by the unchanged source-cost transition to the real signed
+E20 anchor. It is not presented as a signed source-cost commit.
+
+To check newly extracted bundles, supply both requested modes and the actual
+driver. This queries the pinned installed compiler and validates every export
+before historical projection:
+
+```sh
+target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml \
+  --package chialisp-oxide-puzzles --locked --output-dir target/puzzles-on
+target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml \
+  --package chialisp-oxide-puzzles --locked --no-optimize --output-dir target/puzzles-off
+python3 scripts/check-runtime-composition.py \
+  --fresh-on target/puzzles-on --fresh-off target/puzzles-off \
+  --driver target/debug/chialisp-oxide-driver
+```
+
+The directories must come from the annotated `puzzles` Cargo library with the
+recorded package/manifest/locked options. The checker does not extract them.
+Current source validation is separate from pure restoration; current checkers
+never receive restored historical objects. Recorded consistency and fresh
+bundle identities do not authenticate execution or prove compiler preservation.
+
+## Active corpus and retained compiler checkpoints
+
+The delegated-conditions append has its own current admission gate. Once its
+actual capture and profile have been reviewed, run:
+
+```sh
+python3 scripts/check-p2dc-append.py --self-test
+python3 scripts/check-p2dc-append.py \
+  --fresh-on target/puzzles-on --fresh-off target/puzzles-off \
+  --driver target/debug/chialisp-oxide-driver
+```
+
+The same normal Cargo extraction commands above produce the two directories.
+The checker independently queries the pinned compiler and checks every export,
+mode, source and artifact before restoring the retained composed checkpoint.
+It does not extract or execute the puzzles. A pending append profile rejects;
+an older checkpoint cannot substitute for current validation.
+
+If extraction used extra Cargo arguments, repeat `--fresh-cargo-option=VALUE`
+with the **complete expected vector**, in its actual order, including
+`--manifest-path`, its path, `--package`, its name and `--locked`. An explicit
+`--offline` is part of that vector; it is not silently discarded. This override
+is for paired current bundle checks, and is rejected with historical
+`--checkpoint-only` mode.
+
+The [composed compiler lesson](/chialisp-oxide/tutorials/guarded-projections/)
+reads the immutable 22-puzzle checkpoint. The active corpus adds a separate
+component while retaining that P2 policy and measurements. The intermediate
+reports remain unsigned reviewed content; the real signed E20 anchor is a
+different historical identity. None of these metadata checks authenticates a
+binary or proves compiler preservation.

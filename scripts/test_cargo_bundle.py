@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+import cargo_authoring
 import cargo_bundle
 from cargo_bundle import load_declared_export
 
@@ -93,25 +94,97 @@ class CargoBundleTests(unittest.TestCase):
         self.assertEqual(fixture.load().program, changed)
 
     def test_supported_envelope_identities_are_checked_for_every_export(self):
-        fixture = self.fixture()
-        base = {**fixture.program, "name": "controls::two"}
-        variants = [
-            {"ir_version": 2, "environment": "ignored", "program": base},
-            {"ir_version": 3, "environment": "raw", "program": {
-                "name": "controls::two", "parameters": [{"name": "tree", "ty": {"kind": "tree"}}],
-                "result": {"kind": "tree"}, "body": {"op": "arg", "index": 0}}},
-            {"ir_version": 4, "environment": "strict", "program": base | {"functions": [],
-                "body": {"op": "let", "local_id": 0, "ty": {"kind": "bool"},
-                         "value": {"op": "bool", "value": True}, "body": {"op": "local", "local_id": 0}}}},
-        ]
-        for program in variants:
-            with self.subTest(version=program["ir_version"]):
-                fixture.write(fixture.bundle / "two.ir.json", program)
-                fixture.load()
-                program["program"]["name"] = "controls::not_the_declared_export"
-                fixture.write(fixture.bundle / "two.ir.json", program)
-                with self.assertRaisesRegex(ValueError, "identity"):
+        # This remains an identity reader: Rust validates capability and all IR.
+        for name in ["one", "two"]:
+            for version, environment in [(2, "ignored"), (3, "raw"),
+                    (4, "strict"), (4, "ignored"), (4, "raw"),
+                    (5, "strict"), (5, "ignored"), (5, "raw")]:
+                with self.subTest(export=name, version=version, environment=environment):
+                    fixture = self.fixture()
+                    body = {**fixture.program, "name": f"controls::{name}"}
+                    if version in (4, 5):
+                        body["functions"] = []
+                    if version == 5:
+                        body["result"] = {"kind": "pair", "first": {"kind": "bool"},
+                                          "rest": {"kind": "bool"}}
+                        body["body"] = {"op": "pair", "first": {"op": "bool", "value": True},
+                                        "rest": {"op": "bool", "value": False}}
+                    program = {"ir_version": version, "environment": environment, "program": body}
+                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
+                    loaded = fixture.load()
+                    if name == "one":
+                        self.assertEqual(loaded.program, program)
+                    body["name"] = "controls::not_the_declared_export"
+                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
+                    with self.assertRaisesRegex(ValueError, "identity"):
+                        fixture.load()
+
+    def test_v5_envelope_fields_and_environment_are_closed(self):
+        valid = {"ir_version": 5, "environment": "strict", "program": {
+            "name": "controls::one", "parameters": [], "result": {"kind": "bool"},
+            "body": {"op": "bool", "value": True}, "functions": []}}
+        mutations = {
+            "unknown version": lambda p: p.update(ir_version=9),
+            "boolean version": lambda p: p.update(ir_version=True),
+            "float version": lambda p: p.update(ir_version=5.0),
+            "string version": lambda p: p.update(ir_version="5"),
+            "unknown environment": lambda p: p.update(environment="pair"),
+            "boolean environment": lambda p: p.update(environment=True),
+            "missing environment": lambda p: p.pop("environment"),
+            "extra envelope field": lambda p: p.update(extra=True),
+            "missing functions": lambda p: p["program"].pop("functions"),
+            "extra program field": lambda p: p["program"].update(extra=True),
+            "missing body": lambda p: p["program"].pop("body"),
+            "nonobject program": lambda p: p.update(program=[]),
+        }
+        for name in ["one", "two"]:
+            for label, mutate in mutations.items():
+                with self.subTest(export=name, mutation=label):
+                    fixture = self.fixture()
+                    program = copy.deepcopy(valid)
+                    program["program"]["name"] = f"controls::{name}"
+                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
                     fixture.load()
+                    mutate(program)
+                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
+                    with self.assertRaises(ValueError):
+                        fixture.load()
+
+    def test_cons_source_is_required_and_fingerprinted_in_main_authoring(self):
+        source_root = Path(__file__).resolve().parent.parent
+        current = cargo_authoring.snapshot(source_root)
+        cons = "crates/chialisp-oxide/src/cons.rs"
+        self.assertEqual(len(current["exports"]), 23)
+        self.assertIn("p2-delegated-conditions", current["exports"])
+        self.assertIn(cons, {item["path"] for item in current["sources"]})
+        directory = tempfile.TemporaryDirectory(prefix="chialisp-oxide-main-authoring-controls-")
+        self.addCleanup(directory.cleanup)
+        root = Path(directory.name)
+        # Copy exactly declared files; ignored Cargo outputs are not traversed.
+        for item in current["sources"]:
+            path = root / item["path"]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((source_root / item["path"]).read_bytes())
+        self.assertEqual(cargo_authoring.snapshot(root), current)
+        metadata_path = root / cargo_authoring.AUTHORING
+        metadata = json.loads(metadata_path.read_text())
+        omitted = copy.deepcopy(metadata)
+        omitted["inputs"].remove(cons)
+        Fixture.write(metadata_path, omitted)
+        with self.assertRaisesRegex(ValueError, "omit required"):
+            cargo_authoring.snapshot(root)
+        metadata_path.write_bytes((source_root / cargo_authoring.AUTHORING).read_bytes())
+        cons_path = root / cons
+        original = cons_path.read_bytes()
+        cons_path.unlink()
+        with self.assertRaisesRegex(ValueError, "Missing file"):
+            cargo_authoring.snapshot(root)
+        cons_path.write_bytes(original + b"\n// declared-input mutation control\n")
+        mutated = cargo_authoring.snapshot(root)
+        expected = copy.deepcopy(current)
+        next(item for item in expected["sources"] if item["path"] == cons)["sha256"] = hashlib.sha256(cons_path.read_bytes()).hexdigest()
+        self.assertEqual(mutated, expected)
+        self.assertNotEqual(mutated, current)
 
     def test_manifest_identity_and_publication_corruptions_fail_closed(self):
         mutations = {

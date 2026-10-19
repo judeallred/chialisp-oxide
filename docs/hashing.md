@@ -24,11 +24,15 @@ including a leading zero. An atom containing zero bytes differs from nil.
 The paired corpus executes a published `sha256tree` helper adapter and the
 canonical singleton launcher and original password tutorial module through actual
 Cargo exports, native Rust, Chialisp and both Rust/Rue optimization modes.
-The complete twenty-one-port report records 389 named and 20,796 generated comparisons plus 40 ledger scenario
-groups in three languages. Local macOS verification passes 502 workspace tests,
-all-target Clippy with warnings denied, 168 hash-evidence corruption controls and
-22,285 retained hash-artifact VM replays. The source-derived proof, error-study,
-Lean and site gates also pass. These checks do not establish general external
+The earlier twenty-one-port checkpoint records 389 named and 20,796 generated
+comparisons plus 40 ledger scenario groups in three languages. That checkpoint
+passed 502 workspace tests, all-target Clippy with warnings denied, 168
+hash-evidence corruption controls and 22,285 retained hash-artifact VM replays.
+The later 22-puzzle guarded-projection capture records 439 named and 22,983
+generated comparisons, with 532 Rust tests. Its source IR and independent
+Chialisp/Rue artifacts stay exact while seven optimized Rust modules shrink,
+including the tree-hash helper. The historical hash-specific measurements below
+retain their original checkpoint scope. These checks do not establish general external
 library support, cryptographic security or compiler preservation.
 
 The password module hashes arbitrary atom bytes through the same reviewed

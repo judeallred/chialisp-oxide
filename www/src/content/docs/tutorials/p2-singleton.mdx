@@ -5,9 +5,12 @@ description: Follow reciprocal announcements, coin identity and real Eve/lineage
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 import ProtocolValidation from '../../../components/ProtocolValidation.astro';
-import { puzzles } from '../../../lib/data';
+import TransactionCosts from '../../../components/TransactionCosts.astro';
+import CompositionCosts from '../../../components/CompositionCosts.astro';
+import { puzzles, singletonProtocol } from '../../../lib/data';
 
 export const p2 = puzzles.find(puzzle => puzzle.slug === 'p2-singleton');
+export const singleton = p2 && singletonProtocol(p2);
 
 **WIP prototype. Not ready for use with funds or production puzzles.**
 
@@ -143,7 +146,7 @@ detection, compiler preservation or puzzle security.
 
 ## Inspect actual composition evidence
 
-<ProtocolValidation evidence={p2.protocol_validation} />
+<ProtocolValidation evidence={singleton} />
 
 Each of the five builds uses its own compiled pay-to-singleton reveal and
 curried commitment. A different-language reveal cannot silently replace the
@@ -159,6 +162,13 @@ The latter file is separate from 2,059 inherited raw-environment inputs, giving
 2,187 generated comparisons in total. These comparisons include malformed shapes and
 exact byte preservation. They are separate from the dedicated consensus
 submissions above.
+
+<CompositionCosts compact />
+
+<details>
+<summary>Earlier source-only cost tradeoff</summary>
+<TransactionCosts compact />
+</details>
 
 ## Reproduce and interpret the boundary
 

@@ -223,3 +223,54 @@ protocol migration, economic invariants, target-independent Rust expansion,
 and production key management all require further work. Canonical protocols
 also commit to module hashes: behavioral agreement does not make different
 bytecode a compatible replacement.
+
+
+## Signed anchors and unsigned reviewed intermediates
+
+The current runtime-composition profile distinguishes two kinds of provenance.
+E20 is an actual signed historical Git checkpoint. The source-only report
+`1a19…` is an **unsigned reviewed content-addressed intermediate**, retained as
+whole exact bytes. The unchanged source-cost profile binds that intermediate
+to E20; no invented commit, null Git identity or signature claim is attached
+to it. The [transaction-cost lesson](/chialisp-oxide/tutorials/transaction-costs/)
+and [composed compiler lesson](/chialisp-oxide/tutorials/guarded-projections/)
+show these contexts explicitly.
+
+Current typed/source/native, control and metric checks precede any restoration.
+When fresh Cargo bundles are requested, both modes and every export are checked
+before historical projection too. A restored object is used only in the pure
+historical comparison; current-source validators never receive it. Profile
+hashes and source freshness provide consistency, not execution authentication.
+Final publication still requires the normal signed commit and successful
+verification/deployment gates for that exact commit.
+
+Explicit `Cons`/typed Pair capability is tested through Rust, version-5 IR and
+finite VM comparisons. Current scalar, structural and acyclic SMT models reject
+it, even if a Pair-bearing function is unused. The new atom-fact and unary-frame
+lowering also remains disabled for Pair-capable programs. No universal security,
+compiler-preservation or termination claim follows from these boundaries.
+
+## A raw delegated template is not an owner policy
+
+The [delegated-conditions source lesson](/chialisp-oxide/tutorials/delegated-conditions/)
+keeps three boundaries explicit. Its ordinary raw comparisons preserve arbitrary
+key and conditions trees, its additional retained replay records the independent
+input suite again, and its dedicated SDK lane tests separately funded owner-key
+instances. Repeated raw evaluations do not add unique input coverage or ledger
+submissions. Existing singleton composition, password instances and ordinary
+ledger scenario groups retain their own counts.
+
+The raw module deliberately permits a caller-selected key. Funding it without
+first committing the owner key is an unsafe policy that compiles in Rust. The
+instance harness retains both unsafe competing spends in cloned states, while
+also testing the signature, coin, reveal and exact typed rollback boundaries.
+The omitted signature uses the compressed BLS identity, rather than an all-zero
+byte string. Reading those fields is not a BLS verification or a state proof.
+
+`Cons<Head, Tail>` changes the explicit result shape, not Rust borrowing rules:
+the computed digest is owned and the original arbitrary conditions tail remains
+borrowed. Pair-bearing programs use the v5 envelope and conservative lowering;
+current scalar, structural and acyclic proof APIs reject typed pairs. The
+current23 outer reader must validate actual source, native and typed component
+records plus current sidecars and requested fresh bundles before restoring
+historical22. A retained checkpoint never acquires current-source freshness.

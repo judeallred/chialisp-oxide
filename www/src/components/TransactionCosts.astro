@@ -1,0 +1,73 @@
+---
+import { loadP2CostEvidence } from '../lib/p2-costs.mjs';
+import { format, href } from '../lib/data';
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const evidence = await loadP2CostEvidence();
+const { rows, summary } = evidence;
+const pair = (before: number, current: number) => `${format(before)} → ${format(current)}`;
+const breakdown = [
+  ['execution', 'Execution'], ['conditions', 'Conditions'], ['chargedBytes', 'Charged bytes'],
+  ['byteCost', 'Byte charge'], ['total', 'Total'],
+] as const;
+---
+<section data-transaction-costs data-cost-view={compact ? 'compact' : 'full'} aria-label="Measured complete bundle costs">
+  <h2 id="whole-transaction-costs">Historical source-only cost checkpoint</h2>
+  <p data-cost-checkpoint>Unsigned reviewed source-only checkpoint · validation SHA-256 <code data-pagefind-ignore>{evidence.context.reportSHA}</code> · signed historical E20 anchor <a href={`https://github.com/judeallred/chialisp-oxide/commit/${evidence.context.anchor.commit}`}><code>{evidence.context.anchor.commit}</code></a>. This retained comparison records the source refactor before the composed compiler optimizations.</p>
+  <p>A smaller program can cost slightly more to execute and still reduce the complete bundle’s measured cost. This retained Rust source refactor shares one hash helper; the input contract and condition outputs stay the same.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong data-cost-summary="module-bytes" data-before={summary.beforeBytes} data-current={summary.bytes}>{pair(summary.beforeBytes, summary.bytes)}</strong><span>optimized Rust module bytes</span></div>
+    <div class="metric"><strong data-cost-summary="raw-vm" data-before={summary.beforeRawVM} data-current={summary.rawVM}>{pair(summary.beforeRawVM, summary.rawVM)}</strong><span>ordinary input · primary VM cost increases</span></div>
+    <div class="metric"><strong data-cost-summary="joint-total" data-before={summary.beforeTotal} data-current={summary.total}>{pair(summary.beforeTotal, summary.total)}</strong><span>joint bundle · total conditions cost decreases</span></div>
+  </div>
+  <p data-cost-delta={summary.delta}>The optimized joint bundle uses <strong>{format(-summary.delta)} fewer cost units ({summary.percent}%)</strong>. Its execution component increases by {format(summary.executionDelta)}; its charged generator shrinks by {format(-summary.byteDelta)} bytes. These are measurements of this exact bundle, not a universal performance bound.</p>
+  <p data-cost-boundary>Primary raw VM: <code>clvmr 0.21.0</code>. Complete bundle measurement: <code>{evidence.header.consensus}</code> with <code>{evidence.header.VM}</code> on {evidence.header.network}. These are different execution contexts; do not add the raw VM table to the bundle table.</p>
+  {compact ? <p><a href={href('tutorials/transaction-costs/')}>Learn how bytes, execution and conditions produce the whole transaction cost.</a> The lesson compares all five builds and three accepted phases, with exact downloadable measurements.</p> : <>
+    <div class="table-scroll"><table data-cost-matrix>
+      <caption>Before → source-only checkpoint total conditions cost: all five builds and three accepted phases</caption>
+      <thead><tr><th scope="col">Build</th><th scope="col">Genesis</th><th scope="col">Joint collection</th><th scope="col">Lineage</th></tr></thead>
+      <tbody>{rows.map(row => <tr data-cost-build={`${row.backend}:${row.optimize}`}>
+        <th scope="row">{row.label}</th>
+        {row.phases.map(phase => <td data-cost-phase={phase.phase} data-before={phase.before.total} data-current={phase.current.total}>{pair(phase.before.total, phase.current.total)}</td>)}
+      </tr>)}</tbody>
+    </table></div>
+    <p>Genesis spends the launcher and creates the Eve coin. Joint collection spends the pay-to-singleton coin alongside the singleton. Lineage spends the resulting singleton continuation. This refactor changes the P2 reveal used in the joint bundle; genesis and lineage remain unchanged. The canonical top layer and signed StandardLayer remain host counterparts, not new Rust ports.</p>
+    <div class="table-scroll"><table data-cost-joint>
+      <caption>Source-only checkpoint joint collection: the three cost components and their sum</caption>
+      <thead><tr><th scope="col">Build</th>{breakdown.map(([, title]) => <th scope="col">{title}</th>)}</tr></thead>
+      <tbody>{rows.map(row => <tr data-cost-breakdown={`${row.backend}:${row.optimize}`}>
+        <th scope="row">{row.label}</th>
+        {breakdown.map(([key]) => <td data-cost-metric={key} data-value={row.phases[1].current[key]}>{format(row.phases[1].current[key])}</td>)}
+      </tr>)}</tbody>
+    </table></div>
+    <div class="table-scroll"><table data-cost-raw>
+      <caption>Separate module and primary-VM comparison: before → source-only checkpoint for “{evidence.witness}”</caption>
+      <thead><tr><th scope="col">Build</th><th scope="col">Serialized module bytes</th><th scope="col">Raw VM execution cost</th></tr></thead>
+      <tbody>{rows.map(row => <tr data-cost-raw-build={`${row.backend}:${row.optimize}`}>
+        <th scope="row">{row.label}</th><td data-cost-module data-before={row.beforeBytes} data-current={row.bytes}>{pair(row.beforeBytes, row.bytes)}</td>
+        <td data-cost-execution data-before={row.beforeRawVM} data-current={row.rawVM}>{pair(row.beforeRawVM, row.rawVM)}</td>
+      </tr>)}</tbody>
+    </table></div>
+    <p data-cost-charge-rule>This pinned TESTNET11 snapshot charges <strong>12,000 cost units per charged generator byte</strong>. The measured helper excludes the <strong>two-byte quote wrapper</strong> from its uncompressed generator length. Backreference serialization is measured separately; no compressed-generator cost is claimed.</p>
+    <p data-cost-admission>The conditions API skips signature verification. The exact bundles were separately admitted by the SDK Simulator with signature verification: {evidence.receipts.attempts} submissions, including {evidence.receipts.accepted} accepted and {evidence.receipts.rejected} typed rejections with recorded rollback. The fifteen cost measurements are not additional admissions. Source freshness and recorded consistency do not authenticate execution or prove compiler preservation, security, or production readiness.</p>
+    <details class="cost-downloads"><summary>Download exact inputs, measurements and source controls</summary>
+      <p>The before-refactor snapshot is the complete P2 record retained from <a href={`https://github.com/judeallred/chialisp-oxide/commit/${evidence.baseline.commit}`}>signed commit <code>{evidence.baseline.commit.slice(0, 8)}</code></a>. The <a href={href('lab/p2-singleton/')}>laboratory compares the latest Rust, Chialisp and Rue sources</a> and their separate artifacts. The <a href={href('reports/p2-source-cost/validation.json')}>source-only checkpoint validation report</a> contains the exact accepted bundles and source provenance.</p>
+      <ul>{evidence.downloads.map(artifact => <li><a data-cost-download={artifact.basename} href={href(`reports/p2-source-cost/${artifact.basename}`)}>{artifact.label}</a> · {format(artifact.bytes)} bytes · SHA-256 <code data-pagefind-ignore>{artifact.sha256}</code></li>)}</ul>
+      <p>These downloads preserve exact committed file bytes. The old cost/refinement/append profiles remain separate historical snapshots; this source-only change does not add a historical compiler-optimization row.</p>
+    </details>
+  </>}
+</section>
+<style>
+  section { margin-block: 2rem; }
+  .metric-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+  .metric { min-width: 0; padding: 1rem; }
+  .metric strong { font-size: 1.35rem; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .table-scroll { overflow-x: auto; margin-block: 1.4rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align: left; vertical-align: top; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  td { white-space: nowrap; }
+  caption { text-align: left; padding-bottom: .7rem; color: var(--sl-color-gray-2); }
+  .cost-downloads { margin-block: 1rem; }
+  .cost-downloads code { overflow-wrap: anywhere; }
+  summary { cursor: pointer; font-weight: 600; }
+</style>

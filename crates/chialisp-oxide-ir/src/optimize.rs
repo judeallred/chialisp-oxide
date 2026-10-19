@@ -13,6 +13,16 @@ pub(crate) struct Plan {
 }
 
 pub(crate) fn plan(program: &Program) -> Result<Plan> {
+    program.validate()?;
+    // Initial pair admission deliberately has no frontend rewrite semantics.
+    // Keep strict runtime mode; Rue LIR/codegen and runtime frame forwarding
+    // are independently controlled by the compiler's optimization setting.
+    if program.uses_pairs() {
+        return Ok(Plan {
+            program: pair_copy(program)?,
+            before_inlining: None,
+        });
+    }
     let previous = before_inlining(program)?;
     Ok(if let Some(inlined) = inline::optimize(&previous)? {
         Plan {
@@ -25,6 +35,50 @@ pub(crate) fn plan(program: &Program) -> Result<Plan> {
             before_inlining: None,
         }
     })
+}
+
+#[derive(Debug)]
+struct PairCopyLimit;
+impl std::fmt::Display for PairCopyLimit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("typed pair optimization copy budget exceeded (4 MiB)")
+    }
+}
+impl std::error::Error for PairCopyLimit {}
+
+/// Whole validation bounds all expression/type nodes and depths. Charge every
+/// owned string before cloning the unchanged pair-capable program as an
+/// optimization result; bypassing unsupported rewrites must not bypass their
+/// literal-copy budget. This scan allocates only bounded borrowed descriptors.
+fn pair_copy(program: &Program) -> Result<Program> {
+    let mut bytes = 0usize;
+    let mut charge = |text: &str| -> Result<()> {
+        bytes = bytes.saturating_add(text.len());
+        anyhow::ensure!(bytes <= 4 * 1024 * 1024, PairCopyLimit);
+        Ok(())
+    };
+    charge(&program.name)?;
+    for parameter in &program.parameters {
+        charge(&parameter.name)?;
+    }
+    let mut pending = vec![&program.body];
+    for function in &program.functions {
+        charge(&function.name)?;
+        for parameter in &function.parameters {
+            charge(&parameter.name)?;
+        }
+        pending.push(&function.body);
+    }
+    while let Some(expression) = pending.pop() {
+        match expression {
+            Expr::Atom { hex } | Expr::Bytes { hex } => charge(hex)?,
+            Expr::Int { value, .. } => charge(value)?,
+            Expr::Reject { message } => charge(message)?,
+            _ => (),
+        }
+        crate::validate::children(expression, &mut pending);
+    }
+    Ok(program.clone())
 }
 
 fn refine(program: &Program) -> Result<Option<Program>> {
@@ -289,6 +343,9 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
             (Expr::AtomIsEmpty { value }, facts)
         }
         expr @ (Expr::Atom { .. }
+        | Expr::Pair { .. }
+        | Expr::PairFirst { .. }
+        | Expr::PairRest { .. }
         | Expr::Bytes { .. }
         | Expr::Int { .. }
         | Expr::Bool { .. }

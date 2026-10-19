@@ -34,7 +34,7 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
                 pending.push(first);
                 pending.push(then_value);
             }
-            Expr::TreePair { first, rest } => {
+            Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 pending.push(first);
                 pending.push(rest);
             }
@@ -53,6 +53,8 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
             | Expr::TreeAtomValue { value }
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
+            | Expr::PairFirst { value }
+            | Expr::PairRest { value }
             | Expr::TreeRest { value }
             | Expr::AtomIsEmpty { value } => pending.push(value),
             Expr::Local { .. }

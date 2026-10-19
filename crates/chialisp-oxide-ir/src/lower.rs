@@ -146,6 +146,14 @@ impl Lower<'_> {
                 self.scalar(value, yes)
             }
             Type::Tuple { items } => self.decode_list(value, items, yes)?,
+            Type::Pair { first, rest } => {
+                let head = self.alloc(Lir::First(value));
+                let tail = self.alloc(Lir::Rest(value));
+                let body = self.decode(tail, rest, yes)?;
+                let body = self.decode(head, first, body)?;
+                let pair = self.alloc(Lir::Listp(value, true));
+                self.require(pair, body)
+            }
         })
     }
     fn decode_list(&mut self, value: LirId, items: &[Type], yes: LirId) -> Result<LirId> {
@@ -241,10 +249,13 @@ impl Lower<'_> {
                 self.alloc(Lir::Eq(value, nil))
             }
             Expr::TreeAtom { value } => self.expression(value)?,
-            Expr::TreePair { first, rest } => {
+            Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 let first = self.expression(first)?;
                 let rest = self.expression(rest)?;
                 self.alloc(Lir::Cons(first, rest))
+            }
+            Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+                anyhow::bail!("typed pairs require strict version-5 lowering")
             }
             Expr::TreeIsPair { value } => {
                 let value = self.expression(value)?;
@@ -330,13 +341,95 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
     let result = emit(&plan.program, true, runtime_required);
     match (result, plan.before_inlining) {
         (Err(error), Some(previous)) if error.is::<limits::Limit>() => {
-            emit(&previous, true, runtime_required)
+            emit_preceding(&previous, true, runtime_required)
         }
         (result, _) => result,
     }
 }
 
 fn emit(program: &Program, optimize: bool, runtime_required: bool) -> Result<Vec<u8>> {
+    if optimize {
+        let result = emit_layout_attempt(program, true, runtime_required, true, true, true);
+        if !result.as_ref().is_err_and(|error| {
+            error.is::<runtime::AtomBudget>()
+                || error.is::<runtime::ProjectionBudget>()
+                || error.is::<limits::Limit>()
+        }) {
+            return result;
+        }
+        // Frame compaction is optional. Any typed analysis/emission limit
+        // retries the complete preceding emitter with its original layout.
+    }
+    emit_preceding(program, optimize, runtime_required)
+}
+
+fn emit_preceding(program: &Program, optimize: bool, runtime_required: bool) -> Result<Vec<u8>> {
+    if optimize {
+        let result = emit_atom_attempt(program, optimize, runtime_required, true, true);
+        if !result.as_ref().is_err_and(|error| {
+            error.is::<runtime::AtomBudget>()
+                || error.is::<runtime::ProjectionBudget>()
+                || error.is::<limits::Limit>()
+        }) {
+            return result;
+        }
+        // Atom-side facts have their own optional attempt. Its limits must
+        // retain the current pair-only guarded emitter in a fresh arena.
+    }
+    let result = emit_attempt(program, optimize, runtime_required, optimize);
+    if optimize
+        && result.as_ref().is_err_and(|error| {
+            error.is::<runtime::ProjectionBudget>() || error.is::<limits::Limit>()
+        })
+    {
+        // Optional projection analysis may spend work or change the expansion
+        // shape. Retry the preceding ON lowering in a fresh arena before the
+        // existing inlining fallback, keeping the original evaluation mode.
+        return emit_attempt(program, optimize, runtime_required, false);
+    }
+    result
+}
+
+fn emit_attempt(
+    program: &Program,
+    optimize: bool,
+    runtime_required: bool,
+    guarded_projections: bool,
+) -> Result<Vec<u8>> {
+    emit_atom_attempt(
+        program,
+        optimize,
+        runtime_required,
+        guarded_projections,
+        false,
+    )
+}
+
+fn emit_atom_attempt(
+    program: &Program,
+    optimize: bool,
+    runtime_required: bool,
+    guarded_projections: bool,
+    atom_facts: bool,
+) -> Result<Vec<u8>> {
+    emit_layout_attempt(
+        program,
+        optimize,
+        runtime_required,
+        guarded_projections,
+        atom_facts,
+        false,
+    )
+}
+
+fn emit_layout_attempt(
+    program: &Program,
+    optimize: bool,
+    runtime_required: bool,
+    guarded_projections: bool,
+    atom_facts: bool,
+    compact_unary: bool,
+) -> Result<Vec<u8>> {
     program.validate()?;
     let mut lower = Lower {
         arena: Arena::new(),
@@ -356,7 +449,13 @@ fn emit(program: &Program, optimize: bool, runtime_required: bool) -> Result<Vec
         }
     }
     let body = if runtime_required || program.uses_runtime() {
-        runtime::bootstrap(&mut lower, optimize)?
+        runtime::bootstrap(
+            &mut lower,
+            optimize,
+            guarded_projections,
+            atom_facts,
+            compact_unary,
+        )?
     } else {
         lower.expression(&program.body)?
     };

@@ -1,0 +1,37 @@
+---
+description: Admit current corpus evidence before inspecting immutable historical checkpoints
+alwaysApply: true
+---
+
+# Current evidence and historical checkpoints
+
+- Validate the complete active corpus, native source identities, typed outcomes,
+  protocol records, raw IR and requested fresh Cargo bundles before projecting
+  any historical report. Find puzzles by unique slug, never by last-row position.
+- Historical projectors are pure data transformations. Never submit their output
+  to a current-source validator or use it as fresh execution evidence.
+- Keep signed and unsigned checkpoints explicit. The source-cost M1 checkpoint
+  is reviewed but unsigned; E20 is a signed anchor. The old pending guarded
+  profile remains pending. Do not manufacture a commit or rewrite its status.
+- The active append has 23 puzzles; the composition checkpoint has 22. Keep the
+  whole recorded checkpoints immutable and bind each transition with its own
+  reviewed profile. For example, `current22_migration` is a compatibility name,
+  not permission to validate a restored 22-puzzle report as current.
+- Run current checks with the actual current compiler and driver identities,
+  complete bundles in both modes, and the exact requested Cargo options.
+  Repeated corpus reports must be byte-identical. Hash consistency does not
+  authenticate binaries or prove compiler preservation.
+- Keep the delegated-conditions source-control lane distinct: one native test
+  group contains three paired observations; its 12 VM runs add no SDK spends.
+  The 200 native raw cases, 1,000 cross-language VM runs and 60 dedicated SDK
+  attempts are separately scoped evidence, not interchangeable coverage counts.
+- Finish native policy checks, then the LAST host build, before fresh extraction
+  and VM capture. Keep source and tool files quiet throughout each capture.
+  Preserve failed runs and use new output directories for corrected attempts.
+- Freeze `scripts/vm_failures.py` before capturing public source controls: the
+  packet hashes that source. Its proof closure may read packet file identities
+  but must not embed the packet hash into its own source or call a producer.
+- Follow scripts/check-p2dc-append.py,
+  scripts/check-runtime-composition.py and scripts/check-p2dc-source-controls.py.
+  Recorded readers, constructed corruption controls and actual execution are
+  separate claims. Preserve the WIP and not-ready-for-use notices.

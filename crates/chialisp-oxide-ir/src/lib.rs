@@ -25,6 +25,11 @@ pub enum Type {
     Tuple {
         items: Vec<Type>,
     },
+    /// Exactly one wire pair; its tail need not terminate in nil.
+    Pair {
+        first: Box<Type>,
+        rest: Box<Type>,
+    },
     Unit,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,9 +93,20 @@ pub enum BinaryOp {
     Shl,
     Shr,
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    /// Typed pairs require strict version-5 lowering.
+    Pair {
+        first: Box<Expr>,
+        rest: Box<Expr>,
+    },
+    PairFirst {
+        value: Box<Expr>,
+    },
+    PairRest {
+        value: Box<Expr>,
+    },
     /// SHA256 of ordered atom payloads. Strict operand binding requires v4.
     Sha256 {
         parts: Vec<Expr>,

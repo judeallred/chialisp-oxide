@@ -1,0 +1,49 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { type Execution, type PuzzleReport } from '../lib/data';
+import { readDelegatedSourceControls, sourceControlOutcomeText } from '../lib/p2dc-source-controls.mjs';
+interface Props { puzzle?: PuzzleReport }
+interface ControlMode { mode: 'off' | 'on'; baseline: Execution; mutant: Execution }
+const { puzzle } = Astro.props;
+const evidence = await readDelegatedSourceControls(puzzle);
+---
+{evidence ? <section aria-label="Actual Rust source-policy counterexamples" data-p2dc-source-controls
+  data-p2dc-controls-groups={evidence.counts.groups} data-p2dc-controls-observations={evidence.counts.observations}
+  data-p2dc-controls-exports={evidence.counts.exports} data-p2dc-controls-modes={evidence.counts.modes}
+  data-p2dc-controls-export-modes={evidence.counts.exportModes} data-p2dc-controls-vm={evidence.counts.vm}>
+  <h2 id="delegated-source-controls">Policy mistakes that still compile</h2>
+  <p>These are actual source mutations of valid Rust. The separate control package contains 4 annotated Cargo exports: an explicit baseline copy and three mutations. Ordinary Rust format, check, test and Clippy gates pass; passing those gates does not establish the intended coin policy.</p>
+  <p>1 native test group records 3 paired policy observations. The four exports are extracted in both optimization modes (8 export/mode combinations); each mutation’s one witness runs against its baseline and matched mutation in each mode, giving 12 primary VM observations. Reusing witnesses does not increase unique input coverage.</p>
+  <p>These raw policy counterexamples are not SDK admissions, not compiler preservation and not exhaustive security. They are separate from the component’s 200 additional native and 1,000 additional VM evaluations, and its 60 SDK submissions. The two accepted wrong outputs below are not valid-spend claims. The strict-tail fault is a conclusive program rejection; a resource failure would be inconclusive.</p>
+  <p>Native rejection means the source policy panicked; it is not a VM failure code. Raw CLVM uses a 1,000,000 cost ceiling. Recorded packet consistency is not execution authentication or production readiness.</p>
+  {evidence.rows.map(row => <article data-p2dc-mutation={row.name}>
+    <h3>{row.title}</h3>
+    <p>{row.explanation}</p>
+    <p>Witness <code>{row.witness}</code>. Exact solution: <code data-p2dc-solution>{row.solution}</code>.</p>
+    <details><summary>Serialized environment</summary><code data-p2dc-environment>{row.environment_hex}</code></details>
+    <div class="mutation-recipes">
+      <div data-p2dc-recipe="before"><p>Baseline source</p><Code code={row.before} lang="rust" wrap preserveIndent /></div>
+      <div data-p2dc-recipe="after"><p>Mutated source · formatted as compiled</p><Code code={row.after} lang="rust" wrap preserveIndent /></div>
+    </div>
+    <div class="table-scroll"><table><caption>Same witness, exact accepted output bytes or actual rejection boundary</caption><thead><tr><th scope="col">Execution</th><th scope="col">Baseline</th><th scope="col">Matched mutation</th></tr></thead><tbody>
+      <tr><th scope="row">Native Rust</th><td data-p2dc-outcome="native-baseline">{sourceControlOutcomeText(row.native.baseline)}</td><td data-p2dc-outcome="native-mutant">{sourceControlOutcomeText(row.native.actual)}</td></tr>
+      {row.modes.map((mode: ControlMode) => <tr><th scope="row">CLVM / {mode.mode}</th><td data-p2dc-outcome={`${mode.mode}-baseline`}>{sourceControlOutcomeText(mode.baseline,{vm:true})}</td><td data-p2dc-outcome={`${mode.mode}-mutant`}>{sourceControlOutcomeText(mode.mutant,{vm:true})}</td></tr>)}
+    </tbody></table></div>
+  </article>)}
+  <p>Reproduce the separate prepare, native and capture phases with <code>scripts/run-p2dc-source-controls.py</code>, then check the retained packet with <code>python3 scripts/check-p2dc-source-controls.py</code>. The default reader performs no native, compiler or VM execution.</p>
+  <p class="packet-identity" data-pagefind-ignore>Protocol <code>{evidence.protocol}</code> · retained report SHA-256 <code>{evidence.reportSHA}</code>. Sources, exact recipe bytes, compiler identities, both complete control bundles and raw command results are retained under <code>corpus/p2dc-source-controls/</code>.</p>
+</section> : <section aria-label="Source-policy counterexamples pending" data-p2dc-source-controls-pending>
+  <h2 id="delegated-source-controls">Policy mistakes that still compile</h2>
+  <p><strong>Actual source-control packet pending.</strong> The three source recipes describe policy mistakes that valid Rust can express. This page adds no source-mutation execution claim until the current23 component and the admitted native/CLVM packet are available.</p>
+</section>}
+<style>
+  section { margin-block: 2rem; }
+  article { margin-block: 1.5rem; padding-block: 1rem; border-top: 1px solid var(--oxide-line); }
+  .mutation-recipes { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,22rem),1fr)); gap: 1rem; }
+  .mutation-recipes > div { min-width: 0; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  th, td { text-align: left; vertical-align: top; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  td, .packet-identity code, details code { overflow-wrap: anywhere; }
+  caption { text-align: left; padding-block: .5rem; }
+</style>

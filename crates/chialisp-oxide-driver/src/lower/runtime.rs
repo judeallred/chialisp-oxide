@@ -49,9 +49,18 @@ impl<'tcx> Lowerer<'tcx> {
         let mut graph_blocks = 0usize;
         let mut current = 0;
         let mut has_native_hash = false;
+        let mut has_pairs = false;
+        let mut pair_local_work = 0usize;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
             self.runtime_signature(body)?;
+            for declaration in &body.local_decls {
+                pair_local_work += 1;
+                if pair_local_work > 500_000 {
+                    return Err(self.error(body.span, "pair local discovery work limit exceeded"));
+                }
+                has_pairs |= self.contains_cons(declaration.ty, body.span)?;
+            }
             let mut pending = vec![START_BLOCK];
             let mut visited = HashSet::new();
             while let Some(block) = pending.pop() {
@@ -197,6 +206,7 @@ impl<'tcx> Lowerer<'tcx> {
         }
         if removed == functions.len()
             && !has_native_hash
+            && !has_pairs
             && (!acyclic_fallback || functions.len() == 1)
         {
             return Ok(vec![]);

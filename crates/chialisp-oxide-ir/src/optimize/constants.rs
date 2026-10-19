@@ -269,6 +269,9 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
     // bodies. This separate work/copy budget also charges scans/substitution.
     budget.work(1 + bindings.len())?;
     let (expr, known, total) = match expr {
+        Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+            anyhow::bail!("typed pair frontend rewrites are not admitted")
+        }
         Expr::Unit => (Expr::Unit, Some(Rc::new(Known::Unit)), true),
         Expr::Bool { value } => (
             Expr::Bool { value: *value },
@@ -635,7 +638,9 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
                 then_value,
                 else_value,
             } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
-            Expr::TreePair { first, rest } => pending.extend([first.as_ref(), rest.as_ref()]),
+            Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
+                pending.extend([first.as_ref(), rest.as_ref()])
+            }
             Expr::Not { value }
             | Expr::AtomIsEmpty { value }
             | Expr::Field { value, .. }
@@ -643,6 +648,8 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
             | Expr::TreeAtomValue { value }
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
+            | Expr::PairFirst { value }
+            | Expr::PairRest { value }
             | Expr::TreeRest { value } => pending.push(value),
             Expr::Unit
             | Expr::Bool { .. }

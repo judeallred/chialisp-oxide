@@ -123,8 +123,8 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
-| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree` and opt-in `OwnedTree` pair construction/matching; checked projections and direct recursion; bounded native codecs | Dynamic atom storage, broader byte/number operations and per-operator preservation proofs |
-| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit raw whole-tree export in v3 or runtime v4 | More argument patterns and deliberate typed adapters without weakening defaults |
+| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree`, opt-in `OwnedTree`, and explicit `Cons<First, Rest>` struct construction/projection; checked projections, direct recursion and bounded native codecs. `Cons` uses v5 explicit pairs; tuples retain their proper-list ABI | Dynamic atom storage, broader byte/number operations and per-operator preservation proofs |
+| Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit raw whole-tree export in v3, runtime v4 or explicit-pair v5 | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | No user-facing dynamic apply; internal backend applications are not a source API | A reviewed program/environment SDK and IR, dialect rules, failures, and cost bounds |
 | Signed arbitrary-precision numeric atoms | A big-integer implementation with explicit atom codec | Fixed widths 8–128 only; canonical encodings required | Unbounded numeric SDK/IR semantics, padded/negative atoms, result encoding, and resource bounds |
@@ -148,8 +148,14 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, and separately validated host-curried password instances; no general public curry or nested-puzzle API | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
-| Costs and consensus acceptance | Pinned VM plus consensus validator | Runtime costs and selected ledger scenarios measured | Whole-spend costs, activation rules, resource-equivalence criteria, and realistic maximum inputs |
+| Costs and consensus acceptance | Pinned VM plus consensus validator | Primary VM costs, selected ledger scenarios and 15 selected whole-bundle conditions measurements; signature verification belongs to separate SDK admissions | Broader whole-spend cost coverage, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
+
+Explicit-pair support is a wire representation, not a general algebraic-data-type
+feature. It admits the reviewed facade `Cons` layout and preserves arbitrary
+raw tails without changing tuple encoding. The scalar, tree and byte proof
+models reject explicit pairs, including unused signatures and discarded nodes;
+finite native/VM tests do not remove that proof boundary.
 
 ## Explicit pinned VM operator audit
 
@@ -267,20 +273,40 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The [fresh corpus report](../corpus/validation.json) records twenty-two actual Cargo
-exports, including the full raw-domain `sha256tree` helper adapter and singleton
-launcher, original password tutorial module and canonical pay-to-singleton component
-through the [reviewed SHA bridge](hashing.md).
-Native Rust and five separately compiled CLVM builds agree on 439 named and 22,983 generated cases.
-Forty ledger scenario groups execute in Rust, Chialisp and Rue, giving 120
-language-specific scenario runs. Local macOS verification additionally passes
-518 workspace tests, all-target Clippy with warnings denied, 168 hash-evidence
-corruption controls and 22,285 retained hash-artifact VM replays. The
-source-derived proof, error-study, Lean and documentation gates also pass.
-These are finite observations, not a parity or compiler-preservation theorem.
+The latest locally validated capture covers 23 annotated exports. It includes
+the full raw-domain `sha256tree` helper
+adapter, singleton launcher, original password tutorial module and canonical
+pay-to-singleton and delegated-conditions components through the
+[reviewed SHA bridge](hashing.md). Native Rust and five separately compiled CLVM
+builds agree on 459 named and 25,222 generated cases. Forty ledger scenario groups
+execute in Rust, Chialisp and Rue, giving 120 language-specific scenario runs.
+The earlier 22-puzzle composition remains the
+[retained report](../corpus/checkpoints/runtime-composition-validation.json),
+`227ce911…`, with its own 564-test workspace and Clippy results. The earlier
+168 hash-evidence corruption controls and 22,285 retained hash-artifact VM
+replays remain results of their recorded source basis.
+
+The 23-export capture was repeated byte-for-byte. Fresh Cargo bundles cover every
+export in both modes, and all 23 retained IR programs recompile to the recorded
+artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
+remain exact after the closed metadata transition. The actual 578-test workspace
+and Clippy run is carried for the same 327 Rust/Cargo/config inputs; the added
+non-workspace native-control template has separate native tests. Final integration
+also reran the two Rue corpus tests on current data before its host build. This
+is not a new full workspace run in that checkout. Proof and site gates require
+separate current-source verification. These finite observations do not establish
+universal functionality parity or compiler preservation.
+
+The reviewed composition authority is `corpus/runtime-composition-baseline.json`
+(`8024f743…`). Its source-only predecessor `1a19cca4…` is an unsigned reviewed
+content-addressed checkpoint, linked through the unchanged source-cost transition
+to the actual signed `e20f6d12…` checkpoint. The old guarded profile `66dc316c…`
+remains historical pending metadata. Current 23-export checks must pass before
+pure restoration of these checkpoints; current source validators never check
+restored history.
 
 The hash helper and pay-to-singleton use a fixed ten-million cost budget for
-ordinary comparisons; the other twenty examples retain one million. The hash
+ordinary comparisons; the other twenty-one examples retain one million. The hash
 helper's five deep-input controls
 also run at one million in all five builds, adding 25 separate typed resource
 observations. Cost exhaustion stays inconclusive and does not count as policy
@@ -302,10 +328,10 @@ the launcher also binds its exact include. The `sha256tree` source span is a
 helper with a visible raw module adapter, without an upstream module-identity
 claim. The launcher retains its
 whole original module and published 175-byte artifact. Independent Chialisp
-reproduces that artifact and tree hash; optimized Rust emits 671 bytes with a
-different hash. The successful output and consensus scenarios do not establish
-canonical Rust module identity, curried-instance compatibility or a complete
-singleton lifecycle.
+reproduces that artifact and tree hash; the completed composition emits a
+478-byte Rust module with a different hash. The successful output and consensus
+scenarios do not establish canonical Rust module identity, curried-instance
+compatibility or a complete singleton lifecycle.
 
 Pay-to-singleton is a protocol component whose standalone condition output needs
 another spend to assert its announcement. Its five-build dedicated harness uses
@@ -318,8 +344,35 @@ ports, and the sequence does not complete the singleton lifecycle. These submiss
 are additional to the forty generic ledger scenario groups and the password lane.
 Three actual source mutations expose proper-list narrowing, reversed curry
 parameters and the wrong announcement prefix despite ordinary Rust acceptance.
-Rust's 1,972-byte optimized module has a different hash from the canonical
-403-byte Chialisp module. Composition tests do not make those identities interchangeable.
+The completed composition's 1,334-byte optimized Rust module has a different hash
+from the canonical 403-byte Chialisp module. Composition tests do not make those
+identities interchangeable.
+Sharing the source hash kernel reduced the Rust module by 287 bytes to 1,685.
+In that historical source-only checkpoint, the recorded
+accepted joint bundle's total conditions cost fell from 48,752,720 to 45,309,974,
+while ordinary VM execution increased from 63,896 to 65,150. The completed
+guarded/Atom/unary composition subsequently records 57,925 ordinary VM cost and
+41,090,749 joint conditions cost for the same policy source. These finite
+byte/VM tradeoffs are not universal performance or compiler-preservation theorems.
+
+The delegated-conditions port adds an unchanged raw contract: two projections,
+arbitrary key and conditions trees, and an ignored outer tail. An explicit
+`Cons` result prepends a proper signature-condition tuple to the unchanged
+conditions tree. The dedicated suite checks 200 native inputs and 1,000 VM
+evaluations across five builds; another 1,000 retained-byte evaluations repeat
+those inputs. Its ownership harness submits 60 actual transactions: 20 accepted
+and 40 exact typed rejections with full simulator rollback. Some accepted
+controls deliberately leave the key uncurried, demonstrating the resulting
+authorization gap. A signature does not replace a coin's committed puzzle hash.
+One native test group with three observations and 12 VM runs distinguishes three
+ordinary-Rust policy mutations. These observations are separate from the
+110 singleton submissions, 21 password submissions and 120 generic scenario runs.
+Rust emits 1,534 bytes off and 629 on; Rue emits 293 off and 251 on. Independent
+Chialisp reproduces the published 137-byte module. Rust and Rue have different
+hashes, so successful output comparisons do not make their reveals interchangeable.
+The narrow optimizer reuses facts only inside eligible helpers without the
+explicit `Cons` wire type; borrowed `Tree::Pair` matching remains supported. It does
+not admit general Pair-aware optimization, dynamic apply or a preservation proof.
 
 The admitted native kernel's primitive arrays and loops remain inside its
 reviewed fingerprint boundary. General user loops, mutable buffers, arbitrary

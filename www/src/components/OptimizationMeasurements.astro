@@ -2,7 +2,12 @@
 import predecessor from '../../../corpus/helper-inlining-baseline.json';
 import baseline from '../../../corpus/runtime-refinement-baseline.json';
 import { createHash } from 'node:crypto';
-import { puzzles, format } from '../lib/data';
+import { report, format, type PuzzleReport } from '../lib/data';
+import { historicalOptimizationReport } from '../lib/p2-costs.mjs';
+
+// Validate the actual current report before restoring the complete immutable
+// cost checkpoint. Later compiler output must not replace these historical rows.
+const puzzles = historicalOptimizationReport(report).puzzles as PuzzleReport[];
 
 type ReviewedPuzzle = {
   slug: string;

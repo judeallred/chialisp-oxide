@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {checkDelegatedComponent,checkDelegatedDisplay,delegatedModes,delegatedScenarios,delegatedRawSpecs,delegatedNamedInputs,identitySignature} from './p2dc-protocol.mjs';
+const args=new Set(process.argv.slice(2));assert([...args].every(arg=>['--constructed','--built'].includes(arg))&&!(args.has('--constructed')&&args.has('--built')));
+const constructed=args.has('--constructed'),built=args.has('--built');
+function raw(spec){return{...spec,canonical_failure_code:spec.expected.status==='rejected'?'path_into_atom':null,native:spec.expected,runs:delegatedModes.map(([backend,optimize_lir])=>({backend,optimize_lir,execution:spec.expected.status==='accepted'?{outcome:spec.expected,cost:1,error:null}:{outcome:{status:'rejected'},cost:null,error:'Constructed shape-failure fixture',failure:{kind:'program',code:backend==='chialisp'?'path_into_atom':'raise'}}}))};}
+function fixture(){
+ // Direct checker unit data only: no compiler/native/SDK outputs, no corpus
+ // write, no production profile binding or actualcurrent23 admission.
+ const artifacts=delegatedModes.map(([backend,optimize_lir],i)=>({backend,optimize_lir,bytes:1,tree_hash:String(i+1).repeat(64),clvm_hex:'80',disassembly:'()'}));
+ const sig='ab'.repeat(96),wrong='cd'.repeat(96);
+ const coin=id=>({id:id.repeat(64),parent_id:'a'.repeat(64),puzzle_hash:'b'.repeat(64),amount:1000});
+ const tx=i=>({signature_hex:i===0?identitySignature:[1,5].includes(i)?wrong:sig,spends:[{coin:coin([9,10].includes(i)?'8':'9'),reveal_hex:'80',solution_hex:'80'}]});
+ const builds=artifacts.map(a=>{
+  const observations=delegatedScenarios.map(([label,code],i)=>({label,status:code===null?'accepted':'consensus_rejected',transaction:tx(i),...(code===null?{scope:'Constructed accepted fixture',spent_input_observed:true,child:coin('7')}:{code,full_simulator_equality:true})}));
+  observations[1].signature_source=structuredClone(observations[1].transaction);observations[1].signature_source_scope='Signer-only; not a separately admitted transaction.';
+  const alternate=artifacts.find(row=>row.backend===(a.backend==='chialisp'?'rue_source':'chialisp')&&row.optimize_lir);
+  Object.assign(observations[11],{alternate_build:{backend:alternate.backend,optimize_lir:true,module_tree_hash:alternate.tree_hash,owner_curried_reveal_hex:'80',owner_instance_hash:'f'.repeat(64)},signature_matches_selected_reveal:true,selected_reveal_signature_source:structuredClone(observations[7].transaction)});
+  return{backend:a.backend,optimize_lir:a.optimize_lir,status:'validated',module_tree_hash:a.tree_hash,module_hex:a.clvm_hex,owner_public_key:'ab'.repeat(48),attacker_public_key:'cd'.repeat(48),owner_curried_reveal_hex:'80',owner_instance_hash:'6'.repeat(64),transaction_attempts:12,accepted:4,typed_rejected_with_full_rollback:8,observations,scope:'Constructed metadata only'};
+ });
+ const specs=new Map(delegatedRawSpecs.map(spec=>[spec.label,spec]));
+ return{slug:'p2-delegated-conditions',kind:'protocol_component',environment:'raw',validated:true,simulator:[],simulator_comparisons:[],generated_cases:2239,artifacts,cases:delegatedNamedInputs.map(({label})=>{const {environment_hex,expected,canonical_failure_code,...row}=raw(specs.get(label));return row;}),protocol_validation:{schema_version:1,protocol:'chia-consensus-0.36.1/p2-delegated-conditions-v1',status:'validated',simulator:'chia-sdk-test 0.36.0',consensus:'chia-consensus 0.36.1',vm:'clvmr 0.16.2',network:'TESTNET11',transaction_attempts:60,accepted:20,typed_rejected_with_full_rollback:40,builds,raw_validation:{max_cost:1_000_000,execution_vm:'clvmr 0.21.0 MEMPOOL_MODE',accepted:195,rejected:5,native_evaluations:200,VM_evaluations:1000,cases:delegatedRawSpecs.map(raw),scope:'Constructed metadata only'},scope:'Unsafe uncurried key selection is intentionally admitted; constructed metadata only.'}};
+}
+const report=JSON.parse(await readFile(new URL('../../corpus/validation.json',import.meta.url)));
+const puzzle=constructed?fixture():report.puzzles.find(row=>row.slug==='p2-delegated-conditions');assert(puzzle,'Actual current23 capture pending; --constructed is isolated unit data only');
+const expected=checkDelegatedComponent(puzzle);assert.deepEqual(expected,{groups:5,attempts:60,accepted:20,rejected:40,native:200,vm:1000,named:20,generated:2239});
+const mutations=[
+ p=>{p.kind='pure_function';},p=>{p.generated_cases=200+2059;},p=>{p.cases[0].solution+=' ';},p=>{p.protocol_validation.schema_version=true;},
+ p=>{p.protocol_validation.transaction_attempts=61;},p=>{p.protocol_validation.builds.pop();},p=>{p.protocol_validation.builds[0].optimize_lir=0;},
+ p=>{p.protocol_validation.builds[0].module_tree_hash='0'.repeat(64);},p=>{p.protocol_validation.builds[0].owner_instance_hash=p.protocol_validation.builds[0].module_tree_hash;},
+ p=>{p.protocol_validation.builds[0].observations[0].transaction.signature_hex='00'.repeat(96);},p=>{p.protocol_validation.builds[0].observations[0].transaction.signature_hex='ab'.repeat(96);},
+ p=>{p.protocol_validation.builds[0].observations[1].code='GeneratorRuntimeError';},p=>{p.protocol_validation.builds[0].observations[1].full_simulator_equality=1;},p=>{p.protocol_validation.builds[0].observations[1].before_debug='diagnostic text';},
+ p=>{p.protocol_validation.builds[0].observations[2].transaction.signature_hex='ef'.repeat(96);},p=>{p.protocol_validation.builds[0].observations[9].status='consensus_rejected';},p=>{p.protocol_validation.builds[0].observations[10].transaction.spends[0].coin.id='a'.repeat(64);},
+ p=>{p.protocol_validation.builds[0].observations[11].signature_matches_selected_reveal=false;},p=>{p.protocol_validation.builds[0].observations[11].alternate_build.module_tree_hash='0'.repeat(64);},
+ p=>{p.protocol_validation.raw_validation.native_evaluations=180;},p=>{p.protocol_validation.raw_validation.VM_evaluations=999;},p=>{p.protocol_validation.raw_validation.cases.pop();},p=>{p.protocol_validation.raw_validation.cases[0].native.output_hex='80';},
+ p=>{p.protocol_validation.raw_validation.cases.at(-1).runs[2].execution.failure.code='raise';},p=>{p.protocol_validation.raw_validation.cases.at(-1).runs[0].execution={outcome:{status:'inconclusive'},cost:null,error:'cost ceiling',failure:{kind:'resource',code:'cost_exceeded'}};},
+];
+let controls=0;
+for(const mutate of mutations){checkDelegatedComponent(puzzle);const bad=structuredClone(puzzle);mutate(bad);assert.notDeepEqual(bad,puzzle);assert.throws(()=>checkDelegatedComponent(bad));controls++;}
+function render(){return`<section data-delegated-validation ${Object.entries(expected).map(([k,v])=>`data-delegated-${k}="${v}"`).join(' ')}><p>60 actual submissions;20 accepted;40 typed consensus rejections;200 additional native evaluations;1,000 additional VM evaluations;20 named;180 disjoint generated;2,059 generic raw;not ordinary ledger scenario groups;unsafe uncurried key selection;same raw coin in cloned states;compressed BLS identity;all-zero bytes;not a BLS proof;not execution authentication;clvmr 0.21.0;clvmr 0.16.2</p>${puzzle.protocol_validation.builds.map(b=>`<details data-delegated-mode="${b.backend}:${b.optimize_lir}"><p>${b.module_tree_hash} ${b.owner_instance_hash}</p><table>${b.observations.map(row=>`<tr data-delegated-attempt="${row.label}"><td>${row.code??'accepted'}</td><td>${row.code?'checked in memory':''}</td></tr>`).join('')}</table></details>`).join('')}<a href="/chialisp-oxide/reports/p2-delegated-conditions.json">exact evidence</a></section>`;}
+function display(page){checkDelegatedDisplay(page,puzzle);const section=page.match(/<section\b[^>]*data-delegated-validation[^>]*>[\s\S]*?<\/section>/)?.[0];assert(section);for(const [a,b]of [['60 actual submissions','61 actual submissions'],['BadAggregateSignature','CostExceeded'],['checked in memory','unverified'],['unsafe uncurried key selection','compiler prevented all attacks'],['compressed BLS identity','zero bytes'],['data-delegated-attempt="missing_signature"','data-delegated-attempt="missing"'],[puzzle.protocol_validation.builds[0].owner_instance_hash,'0'.repeat(64)]]){assert(section.includes(a),a);const bad=page.replace(section,section.replace(a,b));assert.notEqual(bad,page);assert.throws(()=>checkDelegatedDisplay(bad,puzzle));controls++;}}
+display(render());
+if(built){for(const route of ['tutorials/delegated-conditions','lab/p2-delegated-conditions'])display(await readFile(new URL(`../dist/${route}/index.html`,import.meta.url),'utf8'));assert.deepEqual(JSON.parse(await readFile(new URL('../dist/reports/p2-delegated-conditions.json',import.meta.url))),puzzle.protocol_validation);}
+console.log(`PASS ${controls} delegated protocol/display controls; ${constructed?'explicit constructed metadata only, no actual23 positive':built?'actual recorded corpus and two built views/derived endpoint':'actual recorded corpus only'}. No VM/SDK/BLS or compiler-preservation credit.`);

@@ -7,6 +7,7 @@ mod native_hash;
 mod native_owned_tests;
 mod native_owned_tree;
 mod native_tree;
+mod p2_delegated_conditions;
 mod p2_singleton;
 mod password;
 mod spends;
@@ -44,6 +45,7 @@ pub const PUZZLES: &[&str] = &[
     "singleton-launcher",
     "password-coin",
     "p2-singleton",
+    "p2-delegated-conditions",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -486,6 +488,12 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             generated_cases += 1;
         }
     }
+    if slug == "p2-delegated-conditions" {
+        for case in p2_delegated_conditions::generated_cases()? {
+            compare(slug, &case.solution, &programs, max_cost)?;
+            generated_cases += 1;
+        }
+    }
     if manifest.environment == Environment::Ignored {
         for index in 0..256 {
             compare(slug, &tree_environment(index, 0), &programs, max_cost)?;
@@ -626,11 +634,11 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         None
     };
     let protocol_validation = if manifest.kind == "protocol_component" {
-        ensure!(
-            slug == "p2-singleton",
-            "protocol component needs a dedicated validated harness"
-        );
-        Some(p2_singleton::validate(&programs)?)
+        Some(match slug {
+            "p2-singleton" => p2_singleton::validate(&programs)?,
+            "p2-delegated-conditions" => p2_delegated_conditions::validate(&programs)?,
+            _ => anyhow::bail!("protocol component needs a dedicated validated harness"),
+        })
     } else {
         None
     };

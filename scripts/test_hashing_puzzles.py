@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Offline controls for hash-port artifacts, input budgets and replay routing."""
+from contextlib import ExitStack
 import hashlib
 import json
 from pathlib import Path
@@ -119,14 +120,16 @@ class HashingGateTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], [str(cli), "run-batch", str(artifact), "--solutions", str(solutions), "--max-cost", "1000000"])
         self.assertNotIn("build", run.call_args.args[0])
 
-    def test_replay_routes_the_validated_old_and_refined_resource_profiles(self):
+    def test_mocked_replay_routes_explicit_historical21_and_actualcurrent23_profiles(self):
         import copy
         from hashing_vectors import RESOURCE_BUDGET, validation_budget
-        from runtime_cost_migration import preserve, project_validated
+        import runtime_cost_migration as cost
+        import p2dc_append_migration as selected
 
         current = json.loads((ROOT / "corpus/validation.json").read_text())
-        historical = preserve(current)
-        for name, report, refined in (("old", historical, False), ("refined", current, True)):
+        historical = cost.preserve(current)
+        for name, report, refined in (("explicit_historical21_unit_boundary", historical, False),
+                                      ("actualcurrent23", current, True)):
             by_slug = {puzzle["slug"]: puzzle for puzzle in report["puzzles"] if puzzle["slug"] in SLUGS}
             diagnostic_modes = []
 
@@ -149,13 +152,35 @@ class HashingGateTests(unittest.TestCase):
                 return [copy.deepcopy(case["runs"][mode]["execution"]) if "runs" in case
                         else {"outcome": expected(slug, case["solution"])} for case in cases]
 
-            with self.subTest(profile=name), patch.dict(GATE["replay"].__globals__, {
-                "run_batch": recorded_batch, "print": lambda *args, **kwargs: None,
-                # Source validators belong to current22. This old object is
-                # independently pinned by its pure historical profile only.
-                "validate": GATE["validate"] if refined else project_validated,
-            }):
+            def historical_profile(value):
+                self.assertIs(value, historical)
+                self.assertEqual(cost.sha(cost.canonical(value)),
+                                 cost.load()["baseline"]["canonical_report_sha256"])
+                # Explicit pinned historical-only unit profile, not current
+                # admission or a production selector fallback. It predates
+                # the measured low-budget Rust improvements.
+                cost.project_validated(value)
+                return False
+
+            with self.subTest(profile=name), ExitStack() as stack:
+                stack.enter_context(patch.dict(GATE["replay"].__globals__, {
+                    "run_batch": recorded_batch, "print": lambda *args, **kwargs: None,
+                    "validate": GATE["validate"] if refined else cost.project_validated,
+                }))
+                if refined:
+                    # Both real validate() and replay() select actual FINAL23.
+                    route = stack.enter_context(patch.object(selected, "hash_diagnostic_profile",
+                        wraps=selected.hash_diagnostic_profile))
+                else:
+                    # replay imports this function locally. Patch its explicit
+                    # test dependency, not the detached runpy return mapping.
+                    route = stack.enter_context(patch.object(cost, "hash_diagnostic_profile",
+                        side_effect=historical_profile))
+                    stack.enter_context(patch.object(selected, "hash_diagnostic_profile",
+                        side_effect=AssertionError("historical unit invoked current23 selector")))
                 total = GATE["replay"](report, Path("/unused-no-vm"))
+                self.assertEqual(route.call_count, 2 if refined else 1)
+                self.assertTrue(all(call.args[0] is report for call in route.call_args_list))
                 self.assertEqual(total, sum((len(puzzle["cases"]) + len(generated_for(slug))) * 5
                                             for slug, puzzle in by_slug.items()) + 25)
                 self.assertEqual(diagnostic_modes, list(range(5)))

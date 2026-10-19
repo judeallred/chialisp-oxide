@@ -59,6 +59,10 @@ impl Budget {
                     self.validate_type(item, depth + 1)?;
                 }
             }
+            Type::Pair { first, rest } => {
+                self.validate_type(first, depth + 1)?;
+                self.validate_type(rest, depth + 1)?;
+            }
             Type::Atom | Type::Tree | Type::Bool | Type::Unit => (),
         }
         Ok(())
@@ -71,6 +75,8 @@ impl Budget {
             self.work(1)?;
             if let Type::Tuple { items } = ty {
                 pending.extend(items);
+            } else if let Type::Pair { first, rest } = ty {
+                pending.extend([first.as_ref(), rest.as_ref()]);
             }
         }
         Ok(ty.clone())
@@ -86,7 +92,7 @@ impl Budget {
     }
 }
 
-fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
+pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
     match expr {
         Expr::Tuple { items }
         | Expr::Sha256 { parts: items }
@@ -104,8 +110,10 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
         | Expr::TreeAtomValue { value }
         | Expr::TreeIsPair { value }
         | Expr::TreeFirst { value }
+        | Expr::PairFirst { value }
+        | Expr::PairRest { value }
         | Expr::TreeRest { value } => pending.push(value),
-        Expr::TreePair { first, rest } => {
+        Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
             pending.push(first);
             pending.push(rest);
         }
@@ -138,10 +146,65 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
 }
 
 impl Program {
+    /// A bounded conservative capability scan, also safe before validation.
+    /// Invalid oversized inputs report capability rather than hiding new nodes;
+    /// full validation must still succeed before compiling or optimizing them.
+    pub fn uses_pairs(&self) -> bool {
+        if self.functions.len() > MAX_FUNCTIONS || self.parameters.len() > MAX_PARAMETERS {
+            return true;
+        }
+        let mut types = vec![&self.result];
+        types.extend(self.parameters.iter().map(|p| &p.ty));
+        let mut expressions = vec![&self.body];
+        for function in &self.functions {
+            if function.parameters.len() > MAX_PARAMETERS {
+                return true;
+            }
+            types.extend(function.parameters.iter().map(|p| &p.ty));
+            types.push(&function.result);
+            expressions.push(&function.body);
+        }
+        let mut visited = 0usize;
+        while let Some(expression) = expressions.pop() {
+            visited += 1;
+            if visited > MAX_EXPRESSION_NODES {
+                return true;
+            }
+            match expression {
+                Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => return true,
+                Expr::Let { ty, .. } | Expr::Binary { ty, .. } | Expr::Int { ty, .. } => {
+                    types.push(ty)
+                }
+                Expr::Tuple { items } if items.len() > 256 => return true,
+                Expr::Sha256 { parts } if parts.len() > 64 => return true,
+                Expr::Call { arguments, .. } if arguments.len() > MAX_PARAMETERS => return true,
+                _ => (),
+            }
+            children(expression, &mut expressions);
+        }
+        visited = 0;
+        while let Some(ty) = types.pop() {
+            visited += 1;
+            if visited > MAX_TYPE_NODES {
+                return true;
+            }
+            match ty {
+                Type::Pair { .. } => return true,
+                Type::Tuple { items } => {
+                    if items.len() > 256 {
+                        return true;
+                    }
+                    types.extend(items);
+                }
+                _ => (),
+            }
+        }
+        false
+    }
     /// Runtime constructs and strict multipart hashes require version 4,
     /// regardless of entry policy. This traversal never follows calls.
     pub fn uses_runtime(&self) -> bool {
-        if !self.functions.is_empty() {
+        if !self.functions.is_empty() || self.uses_pairs() {
             return true;
         }
         let mut pending = vec![&self.body];
@@ -270,7 +333,33 @@ impl Validator<'_> {
             "IR expression node budget exceeded"
         );
         self.budget.work(1 + locals.len())?;
+        // Pair-only chains must not retain the larger legacy inference frame.
+        // Every node still pays the same depth/node/work checks above exactly
+        // once, and every child re-enters this dispatcher in its own scope.
+        match expr {
+            Expr::Pair { first, rest } => self.infer_pair(first, rest, parameters, locals, depth),
+            Expr::PairFirst { value } | Expr::PairRest { value } => self.infer_pair_projection(
+                value,
+                matches!(expr, Expr::PairFirst { .. }),
+                parameters,
+                locals,
+                depth,
+            ),
+            _ => self.infer_non_pair(expr, parameters, locals, depth),
+        }
+    }
+
+    fn infer_non_pair(
+        &mut self,
+        expr: &Expr,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
         let ty = match expr {
+            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+                unreachable!("pair nodes enter their dedicated inference helpers")
+            }
             Expr::Sha256 { parts } => {
                 ensure!(parts.len() <= 64, "too many SHA256 parts");
                 for part in parts {
@@ -529,5 +618,45 @@ impl Validator<'_> {
             }
         };
         Ok(Some(ty))
+    }
+
+    // Keep pair result temporaries outside the general recursive inference
+    // frame. Existing deep input must reach the same typed nesting error on
+    // the default native stack after adding new expression variants.
+    fn infer_pair(
+        &mut self,
+        first: &Expr,
+        rest: &Expr,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        let first = self.infer(first, parameters, locals, depth + 1)?;
+        let rest = self.infer(rest, parameters, locals, depth + 1)?;
+        // Even a bottom first child never exempts the rest from checking.
+        let (Some(first), Some(rest)) = (first, rest) else {
+            return Ok(None);
+        };
+        Ok(Some(Type::Pair {
+            first: Box::new(first),
+            rest: Box::new(rest),
+        }))
+    }
+
+    fn infer_pair_projection(
+        &mut self,
+        value: &Expr,
+        first: bool,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        let Some(ty) = self.infer(value, parameters, locals, depth + 1)? else {
+            return Ok(None);
+        };
+        let Type::Pair { first: head, rest } = ty else {
+            bail!("typed pair projection requires a pair");
+        };
+        Ok(Some(if first { *head } else { *rest }))
     }
 }

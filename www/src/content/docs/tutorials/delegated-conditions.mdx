@@ -1,0 +1,245 @@
+---
+title: Delegate conditions with an explicit tail
+description: Read a Cons result, commit an owner key, and distinguish signatures from the coin's puzzle identity.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import DelegatedConditionsValidation from '../../../components/DelegatedConditionsValidation.astro';
+import DelegatedSourceControls from '../../../components/DelegatedSourceControls.astro';
+import { puzzles, delegatedProtocol } from '../../../lib/data';
+
+export const delegated = puzzles.find(puzzle => puzzle.slug === 'p2-delegated-conditions');
+export const actualProtocol = delegated && delegatedProtocol(delegated);
+export const independentVectors = delegated?.source_dependencies.find(source => source.path === 'puzzles/p2-delegated-conditions/independent-vectors.json');
+import rustSource from '../../../../../puzzles/p2-delegated-conditions/puzzle.rs?raw';
+import chialispSource from '../../../../../puzzles/p2-delegated-conditions/reference.clsp?raw';
+import rueSource from '../../../../../puzzles/p2-delegated-conditions/puzzle.rue?raw';
+
+:::danger[WIP prototype — not ready for use]
+Do not use for real funds or production puzzles. This example has local native,
+CLVM and simulator validation, but finite tests do not establish production
+safety, exhaustive authorization or compiler preservation.
+:::
+
+A delegated-conditions puzzle lets a signer choose the conditions for a spend.
+The puzzle adds a signature requirement that commits to those exact conditions.
+The canonical raw module also takes its public key from the environment, so a
+coin policy must separately commit to the intended owner key.
+
+Start with [signature conditions](/chialisp-oxide/tutorials/signatures/) and the
+[raw-tree ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
+This example translates the unchanged
+[`p2_delegated_conditions.clsp`](https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp)
+module. Its accepted raw input is wider than a validated public key and list of
+conditions.
+
+## Choose a tuple or an explicit pair
+
+A Rust tuple has a fixed number of fields. This project's ABI encodes those
+fields as a **proper list**: `(first, rest)` becomes `(first rest)`, with an
+implicit nil terminator. That existing tuple encoding stays unchanged.
+
+`Cons<Head, Tail>` instead describes the CLVM pair `(first . rest)`. Its `first`
+and `rest` fields are ordinary Rust values, and the tail keeps its own encoding.
+A numeric tail stays an atom; a borrowed `&Tree` tail keeps its complete tree,
+including an improper tail. `Cons` does not add a nil terminator.
+
+For delegated conditions, the head is one signature condition. That condition
+is a tuple and therefore a proper list. The tail is the original conditions tree:
+
+```text
+signature_condition = (AGG_SIG_ME public_key tree_hash(conditions))
+result              = (signature_condition . conditions)
+```
+
+If `conditions` is a proper list, this prepends one condition to that list.
+Returning the tuple `(signature_condition, conditions)` would instead place the
+entire conditions tree inside a second list element. Those are different trees.
+
+The Rust return alias names both responsibilities:
+`Cons<(u64, &Tree, [u8; 32]), &Tree>` owns the computed digest in its head while
+borrowing the key and original tail. Returning `Tree::Atom(&digest)` would borrow
+a local array after its function returns; ordinary Rust rejects that lifetime.
+The explicit pair avoids that borrow without requiring an owned heap tree.
+This prototype supports the reviewed SDK type's struct literals and fields;
+it does not make arbitrary generic structs or heap APIs compilable to CLVM.
+
+## Read the three source implementations
+
+<div class="source-comparison">
+  <div class="split-source">
+    <section class="source-column" aria-label="Chialisp source">
+      <p class="source-label">Original Chialisp module · unchanged upstream source</p>
+      <Code code={chialispSource} lang="lisp" title="puzzles/p2-delegated-conditions/reference.clsp" wrap preserveIndent />
+    </section>
+    <section class="source-column" aria-label="Rust source">
+      <p class="source-label">Rust · annotated Cargo library export</p>
+      <Code code={rustSource} lang="rust" title="puzzles/p2-delegated-conditions/puzzle.rs" wrap preserveIndent />
+    </section>
+    <section class="source-column" aria-label="Rue source">
+      <p class="source-label">Rue · separately compiled source translation</p>
+      <Code code={rueSource} lang="rust" title="puzzles/p2-delegated-conditions/puzzle.rue" wrap preserveIndent />
+    </section>
+  </div>
+</div>
+
+The Rust code belongs to the normal `chialisp-oxide-puzzles` Cargo library. It
+imports the unpublished `chialisp-oxide` facade and uses its re-exported puzzle
+annotation. Native execution links that same library; CLVM extraction consumes
+Rust checked by rustc. See the [Cargo quickstart](/chialisp-oxide/start/quickstart/)
+for the pinned toolchain and path dependency setup.
+
+Native checks and the additional CLVM subset check are separate steps. To
+reproduce them from a checkout with the pinned tools built:
+
+```sh
+cargo check --manifest-path puzzles/Cargo.toml --locked
+cargo test -p chialisp-oxide-corpus --lib --locked p2_delegated_conditions::tests
+cargo chialisp-oxide check --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+Select `chialisp_oxide_puzzles::p2_delegated_conditions::puzzle` from the generated
+bundle manifest. Do not infer an artifact filename or create a separate rustc
+CLVM target. Independent Rue source compilation remains separate from the
+Rust compiler's use of Rue's backend.
+
+## Preserve the raw contract
+
+The complete module environment is:
+
+```text
+(public_key . (conditions . ignored_tail))
+```
+
+The two required pairs must exist. The selected key and conditions can each be
+an atom or a pair, and the remaining outer tail is ignored. Nil, nonempty zero
+atoms and padded bytes remain distinct data. Hashing conditions preserves those
+bytes and the order of every pair's children.
+
+Using the SDK's nominal `PublicKey` here would require a fixed-size atom and
+reject some environments accepted by the canonical raw module. Likewise, a
+proper-list decoder would reject an arbitrary conditions tail. Those narrower
+interfaces could be useful adapters, but they would be different contracts.
+Raw output is not evidence of a valid condition list or BLS public key: the
+consensus layer has additional rules.
+
+Read these examples as trees before treating them as spends:
+
+- `(() . (0xff . ()))` has both required pairs. Its empty key and atom-valued
+  conditions reach the raw policy; that does not make them valid spend data.
+- `(() . ())` lacks the second required pair and rejects.
+- Replacing only the ignored tail with `(7 . 8)` leaves the selected key and
+  conditions unchanged, so it does not change the signature message.
+
+## Commit the owner before funding the coin
+
+Funding the raw module leaves key selection to the spender. An attacker can
+supply their own key, choose conditions paying themselves, and satisfy the
+resulting signature requirement. The compiler cannot infer a missing ownership
+policy from otherwise valid Rust.
+
+An owner instance fixes the key by currying it into the module **before** the
+coin is created:
+
+```text
+owner_reveal  = curry(module, OWNER_PUBLIC_KEY)
+coin policy   = tree_hash(owner_reveal)
+spend solution = (conditions . ignored_tail)
+```
+
+Currying here is host-side program construction, not a promised public on-chain
+curry API. The coin commits to the complete curried reveal's tree hash. The
+spend supplies conditions and may carry an arbitrary ignored tail; it cannot
+replace the committed owner key by supplying a different curried reveal.
+Fixture keys have public secret seeds and must never control real funds.
+
+## Separate the signature and reveal checks
+
+The `AGG_SIG_ME` message commits to the exact conditions tree hash. Consensus
+also binds it to this spent coin's ID and the network signature domain.
+Changing a recipient, amount, atom padding or pair structure changes that
+conditions commitment. Reusing the signature on another coin fails even if the
+other coin has the same puzzle and amount.
+
+Two alternative solutions for the **same** owner coin are competing spends.
+Tests can evaluate each from a clone of the same initial ledger state. They
+are not two sequential accepted spends: after one succeeds, replaying that
+spent coin must fail.
+
+A signature also does not let a different compiled module replace the reveal.
+For the same coin, owner and conditions, another reveal can request the same
+signature message. Consensus still checks whether that reveal hashes to the
+coin's committed puzzle hash. Matching finite Rust, Chialisp and Rue outputs
+does not make their module or owner-instance hashes interchangeable.
+
+## Read a failure at the correct boundary
+
+For a missing required pair, the original Chialisp module's path traversal
+fails with `PathIntoAtom`. The Rust source rejects its failed pattern with a
+panic; native execution records a policy rejection, not a VM fault code. In the
+five malformed raw cases, Rust and Rue, in both modes, report typed `Raise`
+(`program/raise`); Chialisp reports `PathIntoAtom` (`program/path_into_atom`).
+Preserve those actual codes instead of treating a shared word in an error
+message as equivalent rejection evidence.
+
+Native input preflight bounds the whole environment, including ignored tails,
+before calling the source. Output preflight and encoding also sit outside its
+policy-panic adapter. A host codec/resource error is a failed oracle run, not
+proof that the puzzle rejected the input. A VM `CostExceeded` outcome is likewise
+inconclusive, even when a genuine shape rejection was expected.
+
+The spend checks submit actual missing and wrong-key signatures,
+changed-conditions and other-coin replays, overspends and substituted reveals.
+A signer reporting a missing key is not a consensus rejection. Ledger negatives
+must reach consensus, return the intended typed code, and leave the complete
+simulator state unchanged. Raw VM comparisons, those spend attempts, and
+recorded-reader consistency checks remain separate evidence.
+
+:::note[What the local evidence establishes]
+The dedicated raw suite checks 200 native inputs and 1,000 VM evaluations across
+five builds: 195 inputs are accepted and five reject. A separate retained-byte
+replay repeats those same 1,000 evaluations without adding unique inputs.
+The ownership harness submits 60 actual transactions: 20 accepted and 40 typed
+consensus rejections with complete simulator rollback. Accepted controls include
+the deliberately unsafe uncurried key-selection examples described above.
+These counts are separate from the generic corpus scenarios and singleton or
+password experiments. Current proof models reject this program's SHA and typed
+`Cons` operations; these executions do not prove the compiler or the policy.
+:::
+
+## Understand the measured size gap
+
+The optimized Rust module is 629 bytes, compared with 1,534 without optimization.
+Independent Chialisp reproduces the published 137-byte module; Rue emits 293 bytes
+off and 251 on. The Rust helper optimization reuses earlier successful tree checks
+only in helpers without explicit `Cons` values, with calls restricted to self-calls.
+The recursive hash helper can still match ordinary borrowed `Tree::Pair` values.
+The optimization preserves strict field evaluation and the complete raw ABI;
+the Pair-producing entry retains its preceding lowering.
+There is still a substantial size gap. These module sizes do not measure full
+transaction costs or make the different program hashes interchangeable.
+
+## Inspect the recorded instance evidence
+
+{independentVectors && <p data-source-data-card>Download the <a href="/chialisp-oxide/reports/source-data/p2-delegated-conditions-independent-vectors.json" download="p2-delegated-conditions-independent-vectors.json" data-source-download="p2-delegated-conditions-independent-vectors.json">200 independent raw input vectors and expected outcomes</a>. These exact JSON bytes have SHA-256 <code>{independentVectors.sha256}</code>.</p>}
+
+{actualProtocol ? <DelegatedConditionsValidation puzzle={delegated} /> : <p><strong>Current delegated-conditions evidence is missing.</strong> Documentation publication requires the complete current 23-puzzle validation and source-control packet.</p>}
+
+## Inspect actual source-policy counterexamples
+
+Rust catches many representation and lifetime errors, but the policy still needs
+independent counterexamples. A hash prefix and a different borrowed tail can both
+have valid Rust types. An added assertion can also be a policy error when the
+canonical contract deliberately ignores that tail. These controls belong beside
+the raw comparison; they do not add spend admissions or unique input coverage.
+
+One native test group records three policy observations. The retained CLVM
+witnesses run in both Rust modes, giving ten accepted outputs and two `Raise`
+rejections across 12 runs. They expose a wrong hash-domain byte, the wrong
+conditions tail, and an assertion that rejects a deliberately ignored tail.
+All three changes pass ordinary Rust checking. The compiler prevents the invalid
+borrow discussed earlier; an independent specification is still needed to catch
+these policy mistakes.
+
+<DelegatedSourceControls puzzle={actualProtocol ? delegated : undefined} />

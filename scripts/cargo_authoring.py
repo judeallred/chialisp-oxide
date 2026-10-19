@@ -51,7 +51,8 @@ def snapshot(root):
             and len(inputs) == len(set(inputs)), "Invalid or duplicate Cargo input paths")
     required = {AUTHORING, metadata["manifest"], metadata["library"], "puzzles/fixture_keys.rs", "Cargo.toml", "Cargo.lock",
                 "rust-toolchain.toml", ".cargo/config.toml", "crates/chialisp-oxide/Cargo.toml",
-                "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
+                "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/cons.rs",
+                "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
                 "crates/chialisp-oxide/src/owned_tree.rs", "crates/chialisp-oxide/src/hashing.rs",
                 "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"}
     entries = set()

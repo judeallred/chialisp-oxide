@@ -47,7 +47,7 @@ def main():
     check_report_bytes(report_bytes, report)
     fresh = p2_cli.check(report, args)
     if fresh is not None:
-        print("PASS: explicit current22 fresh bundles before historical projection", fresh)
+        print("PASS: explicit current corpus fresh bundles before historical projection", fresh)
     print("PASS: closed cost evidence", measurements(report))
     for path in args.ir_bundle:
         print("PASS: explicit frozen21 rawIR retention", verify_ir_bundle(path.resolve(), report))

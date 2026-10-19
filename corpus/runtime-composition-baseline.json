@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-runtime-composition/v1",
+  "status": "reviewed_final_runtime_composition",
+  "scope": "Reviewed complete runtime composition with the actual signed E20 historical anchor and complete UNSIGNED reviewed content-addressed M1 intermediate; M1 is never a signed Git identity. Current source/native/typed/fresh/control/metric consistency precedes pure closed Cons metadata and compiler comparison, then unchanged source-cost and older history. Recorded hashes are not execution authentication, compiler preservation, universal performance/security or production readiness.",
+  "signed_anchor": {
+    "kind": "signed_git_checkpoint",
+    "repository": "https://github.com/judeallred/chialisp-oxide",
+    "commit": "e20f6d126aedbf76a8c179701af654ca96550074",
+    "tree_sha1": "6f795121c9998515bb0e38c16cf6d00924254492",
+    "report_path": "corpus/validation.json",
+    "report_git_blob_sha1": "4e739b7cd0f55130742ae44e8d0a91aac2cecf11",
+    "report_sha256": "104e4e706e1183cff556ee0a559b8410ff6a5cb6b76bc8a512c04eb3a00d31da",
+    "canonical_report_sha256": "b95dfeb63fb1df2cc980135644b35c41cd50f04bad508dd71af5519c5b82c89b"
+  },
+  "reviewed_intermediate": {
+    "kind": "unsigned_reviewed_content_addressed_checkpoint",
+    "checkpoint_path": "corpus/checkpoints/p2-source-cost-validation.json",
+    "report_sha256": "1a19cca4b2f1d840bf49c3119305f8872ff03e4ea91c5f74e93ad57ef4ad8b03",
+    "canonical_report_sha256": "1f8819d8c2ddab219b1277e2550381378c3e7b2a9e5933830b1bbdfe96370943",
+    "authorizing_transition_path": "corpus/p2-source-cost-baseline.json",
+    "authorizing_transition_sha256": "ee2689f1bdf3a1fd275f3d2374068b38b12d0f52c3135fe8ee5de455a5c8bb5a"
+  },
+  "immutable_profiles": {
+    "corpus/cost-optimization-baseline.json": "484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308",
+    "corpus/helper-inlining-baseline.json": "0b7326f83065ab1bc186a1e9b0d3b5c581fa7cc3110845cc4b6db70a39b5da52",
+    "corpus/runtime-refinement-baseline.json": "11f14c3af4b400bf1569a8a7e3991c381e584a1415057610aedb0d0a26a88d41",
+    "corpus/p2-singleton-append-baseline.json": "39665eb448e5b7ed9cb2eb0e987b597a4b811a68fb3f37f0e4e151e6ab9374a8",
+    "corpus/p2-source-cost-baseline.json": "ee2689f1bdf3a1fd275f3d2374068b38b12d0f52c3135fe8ee5de455a5c8bb5a",
+    "corpus/guarded-projection-baseline.json": "66dc316cf447bd123b11bb33c3a4568a7be28f64d31b7947ebedf9ed3e614b54"
+  },
+  "implementation_transition": {
+    "source_metadata": {
+      "added": {
+        "crates/chialisp-oxide/src/cons.rs": "8e624e3d9f888b2de8d713bbe4ddfaa19bc9d08747ddd3e6c8cc2fda05cc99a2"
+      },
+      "changed": {
+        "crates/chialisp-oxide/src/lib.rs": {
+          "before": "91ef20602b10762149ed4af95b516a77aaf99bf13f959d27830ecfbac769f314",
+          "current": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64"
+        },
+        "puzzles/authoring.json": {
+          "before": "c451f3e0362a019b1cd5362073ed9f531b8a02375c4dbcf7d562a3c2c9732f51",
+          "current": "03aeab62d690eba4b99af2c108a7312675fd6606b9afe2ea17c049b9478c57f0"
+        }
+      },
+      "embedded_sdk_copy_slugs": [
+        "boolean-gate",
+        "capped-payment",
+        "fixed-payment",
+        "insertion-sort-by-keys",
+        "last-list-element",
+        "p2-conditions",
+        "p2-singleton",
+        "password-coin",
+        "prefix-list",
+        "recovery-payment",
+        "rightmost-tree",
+        "sha256tree",
+        "signature-payment",
+        "singleton-launcher",
+        "split-payment",
+        "timelocked-payment",
+        "two-signature-payment"
+      ]
+    },
+    "compiler_sources": [
+      {
+        "path": "crates/chialisp-oxide-ir/src/lower.rs",
+        "sha256": "5e99f6f629a0d0f9a707d1f83acdb182620c32ff5c2c0fd3c77a4863b8be13df"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
+        "sha256": "2de3e3f79620b03feda7e09ed96ab39718b000e4ac5bddb67da1ecd8d008f8c4"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/runtime_atom_facts.rs",
+        "sha256": "ac1c4f5ef4fe91f580eb6eeeb84d56bf7ef0c1d1686e885136102b568ba196b7"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/runtime_unary_frames.rs",
+        "sha256": "b1582b64e365b389480ded1a8047601f73b792a4693ed7086e6c7ee1f1eff765"
+      }
+    ],
+    "pipeline_scope": "Recorded eleven-stage metadata overlaps preceding guarded/Atom/unary variants; exact reviewed source and capture identities, not that label, select this composition."
+  },
+  "optimization_pipeline": {
+    "before": {
+      "rue_source": {
+        "optimized": [
+          "rue_lir"
+        ],
+        "unoptimized": []
+      },
+      "rust_mir": {
+        "optimized": [
+          "typed_ir_constants",
+          "typed_ir_success_facts",
+          "typed_ir_constants",
+          "typed_ir_intervals",
+          "typed_ir_tree_guards",
+          "typed_ir_helper_inlining",
+          "runtime_frame_elision",
+          "lazy_integer_decoder",
+          "rue_lir",
+          "static_pair_codegen"
+        ],
+        "unoptimized": []
+      }
+    },
+    "after": {
+      "rue_source": {
+        "optimized": [
+          "rue_lir"
+        ],
+        "unoptimized": []
+      },
+      "rust_mir": {
+        "optimized": [
+          "typed_ir_constants",
+          "typed_ir_success_facts",
+          "typed_ir_constants",
+          "typed_ir_intervals",
+          "typed_ir_tree_guards",
+          "typed_ir_helper_inlining",
+          "runtime_frame_elision",
+          "runtime_guarded_projection_forwarding",
+          "lazy_integer_decoder",
+          "rue_lir",
+          "static_pair_codegen"
+        ],
+        "unoptimized": []
+      }
+    }
+  },
+  "reviewed_after": {
+    "report_sha256": "227ce91137f786919ce47cf0b0e09038efa84ee2f9c0df6a4e3fc0894084dc64",
+    "canonical_report_sha256": "a58ea5e73d51cd9207913b29cfb122323e96a84bff670a0af3c5af52c63a3905",
+    "p2_sha256": "8812d2244d414398a2165bab50148a1bae53f69556e4f64a1c1380447908fdd0",
+    "protocol_sha256": "cc2aea629a40488d95564952491da0815f29fae8bf08b975418f68c90669eafd",
+    "raw_ir_sha256": "189618cb5db51f0473b4e5057c0668f968f62a0fa859f64b6e6c305d37a352b2",
+    "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
+    "controls_sha256": "e0f9037680232411430df6ea633c6dced764df40ffa158e06b90e75898a39f99",
+    "bundles": {
+      "on": {
+        "manifest_sha256": "7ea8e6aafe99172d43349388ba9d7ab58be7b24e6a174ee12fb528065412c2dd",
+        "optimize_lir": true
+      },
+      "off": {
+        "manifest_sha256": "bf7615388cf00480e6e81882c1adf1b1c8f17e2c2d549ed817be419e71d43c6d",
+        "optimize_lir": false
+      }
+    },
+    "delta": {
+      "leaf_count": 460,
+      "inventory_sha256": "2192a8a07098dbb3cbd107f0ae12dde49b5ef3d621ee57a3f6b3e3cd0ad8901f"
+    }
+  }
+}

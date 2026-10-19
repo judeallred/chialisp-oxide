@@ -15,6 +15,7 @@ use rustc_middle::{
 use rustc_span::Span;
 
 mod byte_comparison;
+mod cons;
 mod constants;
 mod empty_atoms;
 mod hashing;
@@ -181,7 +182,7 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::TreeAtom { value }
                 | Expr::TreeAtomValue { value }
                 | Expr::AtomIsEmpty { value } => push(value),
-                Expr::TreePair { first, rest } => {
+                Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                     push(first);
                     push(rest);
                 }
@@ -203,6 +204,7 @@ impl<'tcx> Lowerer<'tcx> {
                     push(value);
                     push(body);
                 }
+                Expr::PairFirst { value } | Expr::PairRest { value } => push(value),
                 Expr::Atom { .. }
                 | Expr::Bytes { .. }
                 | Expr::Bool { .. }
@@ -310,6 +312,14 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
             ty::Adt(..) => {
+                if let Some([first, rest]) = self.cons_fields(ty, span)? {
+                    let components = [first, rest];
+                    let (first, a) = self.lower_type(first, span, depth + 1)?;
+                    let (rest, b) = self.lower_type(rest, span, depth + 1)?;
+                    self.check_cons_components(components, span)?;
+                    if a + b + 1 > 4_096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
+                    return Ok((Type::Pair { first: Box::new(first), rest: Box::new(rest) }, a + b + 1));
+                }
                 if let Some(inner) = self.owned_tree_box(ty,span)? { return self.lower_type(inner, span, depth + 1); }
                 if self.tree_shape(ty, span)?.is_some() { return Ok((Type::Tree, 1)); }
                 let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
@@ -836,6 +846,16 @@ impl<'tcx> Lowerer<'tcx> {
                         } else {
                             return Err(self.error(span, "invalid tree variant field"));
                         };
+                    } else if self.cons_fields(current_ty, span)?.is_some() {
+                        value = match index.index() {
+                            0 => Expr::PairFirst {
+                                value: Box::new(value),
+                            },
+                            1 => Expr::PairRest {
+                                value: Box::new(value),
+                            },
+                            _ => return Err(self.error(span, "wire pairs have exactly two fields")),
+                        };
                     } else if self.transparent_inner(current_ty, span)?.is_some() {
                         if index.index() != 0 {
                             return Err(self.error(span, "transparent newtypes have only field 0"));
@@ -1098,6 +1118,16 @@ impl<'tcx> Lowerer<'tcx> {
                     AggregateKind::Array(_) => Ok(Expr::Tuple { items }),
                     AggregateKind::Adt(id, variant, args, _, _) => {
                         let rust_ty = Ty::new_adt(self.tcx, self.tcx.adt_def(*id), args);
+                        if self.cons_fields(rust_ty, span)?.is_some() {
+                            self.ty(rust_ty, span)?;
+                            let [first, rest]: [Expr; 2] = items.try_into().map_err(|_| {
+                                self.error(span, "wire pair construction requires two fields")
+                            })?;
+                            return Ok(Expr::Pair {
+                                first: Box::new(first),
+                                rest: Box::new(rest),
+                            });
+                        }
                         if let Some(shape) = self.tree_shape(rust_ty, span)? {
                             return if *variant == shape.atom {
                                 let [value]: [Expr; 1] = items.try_into().map_err(|_| {

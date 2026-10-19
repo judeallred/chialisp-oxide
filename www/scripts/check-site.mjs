@@ -7,10 +7,28 @@ import { failureProtocol, checkCorpusExecutions, checkExecution, checkNativeOutc
 import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
 import { checkProtocolReport, checkProtocolDisplay, historicalOptimizationReport } from './p2-protocol.mjs';
 import { loadAcyclicProofEvidence, checkAcyclicDisplay } from '../src/lib/acyclic-proof-artifacts.mjs';
+import { loadP2CostEvidence } from '../src/lib/p2-costs.mjs';
+import { loadCompositionCostEvidence } from '../src/lib/composition-costs.mjs';
+import { checkDelegatedReport, checkDelegatedDisplay } from './p2dc-protocol.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
 const origin = 'https://judeallred.github.io';
+const compositionCosts = await loadCompositionCostEvidence();
+const historicalCosts = await loadP2CostEvidence();
+const sourceCheckpointBytes = await readFile(path.join(root, 'reports/p2-source-cost/validation.json'));
+assert.equal(createHash('sha256').update(sourceCheckpointBytes).digest('hex'), historicalCosts.context.reportSHA);
+const sourceCheckpoint = JSON.parse(sourceCheckpointBytes.toString('utf8'));
+const compositionRaw = [
+  ['profile.json','corpus/runtime-composition-baseline.json'],
+  ['costs.json','corpus/runtime-composition-costs.json'],
+  ['controls.json','corpus/runtime-composition-controls.json'],
+];
+for (const [name, source] of compositionRaw) assert.deepEqual(await readFile(path.join(root, 'reports/runtime-composition', name)), await readFile(new URL(`../../${source}`, import.meta.url)), 'Composed compiler raw download must equal the current reviewed source bytes');
+const historicalGuardedPins = { 'profile.json':'66dc316cf447bd123b11bb33c3a4568a7be28f64d31b7947ebedf9ed3e614b54', 'costs.json':'878307b1082c5e6ae95ae8ffb5c5d31a1efb3c985dea50b378206a6c215934d4', 'controls.json':'c73b3cbde014d8ff6caf05a37bfacc939af5820c86ca58fb4944e3387828ba93' };
+for (const [name, pin] of Object.entries(historicalGuardedPins)) assert.equal(createHash('sha256').update(await readFile(path.join(root,'reports/guarded-projection',name))).digest('hex'), pin, 'Historical guarded candidate bytes changed');
+assert.equal(JSON.parse(await readFile(path.join(root,'reports/guarded-projection/profile.json'),'utf8')).status, 'pending_signed_checkpoint_and_capture_review', 'Historical guarded v1 was never promoted');
+
 
 async function files(directory) {
   const contents = await readdir(directory, { withFileTypes: true });
@@ -91,6 +109,7 @@ const byteProofs = JSON.parse(await readFile(path.join(root, 'reports/byte-proof
 checkCorpusExecutions(validation);
 checkLedgerReport(validation);
 const dedicatedCounts = checkProtocolReport(validation);
+const delegatedCounts = checkDelegatedReport(validation);
 const optimizationValidation = historicalOptimizationReport(validation);
 console.log(`Consensus rejection controls: ${testLedgerProtocol()} passed`);
 checkScalarProofReplays(proofs);
@@ -231,7 +250,7 @@ assert.equal(costBaseline.baseline.report_git_blob_sha1, '38c14f911eb6462044fd8b
 assert.deepEqual(costBaseline.predecessor, { path: 'corpus/helper-inlining-baseline.json', sha256: createHash('sha256').update(costHelperBytes).digest('hex') });
 assert.equal(costHelper.reviewed_after.report_sha256, costBaseline.baseline.report_sha256);
 assert.deepEqual(costBaseline.optimization_pipeline.before, costHelper.reviewed_after.optimization_pipeline);
-assert.deepEqual(costBaseline.optimization_pipeline.after, validation.optimization_pipeline);
+assert.deepEqual(costBaseline.optimization_pipeline.after, sourceCheckpoint.optimization_pipeline);
 assert.deepEqual(costHelper.rue_local_patches.before, [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`));
 assert.equal(costHelper.rue_local_patches.status, 'reviewed');
 assert.deepEqual(costHelper.rue_local_patches.added, ['https://github.com/xch-dev/rue/issues/114']);
@@ -242,9 +261,15 @@ assert.equal(costReview.status, 'reviewed_final', 'Optimization measurements mus
 assert.equal(costReview.report_path, 'corpus/validation.json');
 const appendProfile = JSON.parse(await readFile(path.join(root, 'reports/p2-singleton-append-baseline.json'), 'utf8'));
 assert.equal(appendProfile.reviewed_after.status, 'reviewed_final_current22', 'P2 append remains pending');
-assert.equal(appendProfile.reviewed_after.report_sha256, createHash('sha256').update(await readFile(new URL('../../corpus/validation.json', import.meta.url))).digest('hex'), 'Current22 append report is stale');
+const sourceCostProfile = JSON.parse(await readFile(path.join(root, 'reports/p2-source-cost/profile.json'), 'utf8'));
+assert.equal(sourceCostProfile.status, 'reviewed_final_source_cost', 'P2 source-cost capture remains pending');
+assert.equal(sourceCostProfile.baseline.report_sha256, appendProfile.reviewed_after.report_sha256, 'Source-cost must retain the signed current22 append report');
+assert.equal(sourceCostProfile.reviewed_after.report_sha256, createHash('sha256').update(sourceCheckpointBytes).digest('hex'), 'Historical source-only checkpoint report is stale');
+assert.equal(compositionCosts.context.reportSHA, sourceCostProfile.reviewed_after.report_sha256);
+assert.equal(compositionCosts.currentReportSHA, createHash('sha256').update(await readFile(path.join(root, 'reports/p2dc-append/before-validation.json'))).digest('hex'));
+assert.equal(compositionCosts.activeReportSHA, createHash('sha256').update(await readFile(path.join(root, 'reports/validation.json'))).digest('hex'));
 assert.equal(costReview.report_sha256, appendProfile.baseline.report_sha256, 'Historical optimization report differs from signed append baseline');
-assert.deepEqual(costReview.optimization_pipeline, validation.optimization_pipeline);
+assert.deepEqual(costReview.optimization_pipeline, sourceCheckpoint.optimization_pipeline);
 assert.equal(costBefore.length, 21, 'The signed c879 baseline must retain its entire reviewed corpus');
 // The immutable earliest cost snapshot owns the Cargo authoring metadata;
 // helper-inlining and runtime-refinement profiles retain observation slots.
@@ -392,6 +417,7 @@ const sourceDataDownloads = [
   { slug: 'p2-singleton', path: 'puzzles/p2-singleton/vectors.json', basename: 'p2-singleton-vectors.json', rows: 178, manifest: true },
   { slug: 'p2-singleton', path: 'puzzles/p2-singleton/generated-cases.json', basename: 'p2-singleton-generated-cases.json', rows: 128 },
   { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', rows: 256 },
+  { slug: 'p2-delegated-conditions', tutorial: 'delegated-conditions', path: 'puzzles/p2-delegated-conditions/independent-vectors.json', basename: 'p2-delegated-conditions-independent-vectors.json', rows: 200, independent: true },
 ];
 const sourceDataDirectory = path.join(root, 'reports/source-data');
 const sourceBudgetRoutes = new Set(['homepage']);
@@ -407,13 +433,14 @@ for (const download of sourceDataDownloads) {
   assert.equal(createHash('sha256').update(source).digest('hex'), dependency.sha256, 'Source-data hash differs');
   assert.deepEqual(published, source, 'Published generated vectors differ from the original bytes');
   const parsedSourceData = JSON.parse(published.toString('utf8'));
-  assert.equal(Array.isArray(parsedSourceData) ? parsedSourceData.length : parsedSourceData.named.length + parsedSourceData.generated.length, download.rows, 'Vector download lost recipes');
+  assert.equal(Array.isArray(parsedSourceData) ? parsedSourceData.length : download.independent ? parsedSourceData.accepted.length + parsedSourceData.rejected.length : parsedSourceData.named.length + parsedSourceData.generated.length, download.rows, 'Vector download lost recipes');
   if (download.manifest) {
     assert.deepEqual(parsedSourceData.named.map(({label,solution}) => ({label,solution})), puzzle.cases.map(({label,solution}) => ({label,solution})), 'Relation manifest changes exact recorded named inputs');
     assert.equal(parsedSourceData.checks.status, 'expected_relation_codec_and_hash_arithmetic_no_VM_invocation');
   }
+  else if(download.independent) assert.equal(puzzle.generated_cases, download.rows - puzzle.cases.length + 2059, 'Independent vector replays must not double-count the named inputs');
   else assert.equal(puzzle.generated_cases, download.rows + (['sha256tree', 'password-coin', 'p2-singleton'].includes(download.slug) ? 2059 : 0), `${download.slug}: inherited raw inputs were dropped or counted in the download`);
-  for (const route of [`lab/${download.slug}`, `tutorials/${download.slug}`]) {
+  for (const route of [`lab/${download.slug}`, `tutorials/${download.tutorial ?? download.slug}`]) {
     const filename = path.join(root, route, 'index.html');
     const page = await html(filename);
     sourceBudgetRoutes.add(route);
@@ -541,6 +568,14 @@ const p2Lesson = await html(path.join(root, 'tutorials/p2-singleton/index.html')
 assert.deepEqual(checkProtocolDisplay(p2Detail, p2Puzzle), dedicatedCounts);
 assert.deepEqual(checkProtocolDisplay(p2Lesson, p2Puzzle), dedicatedCounts);
 assert.deepEqual(JSON.parse(await readFile(path.join(root, 'reports/p2-singleton.json'), 'utf8')), p2Puzzle.protocol_validation, 'Derived P2 endpoint must equal the exact embedded field');
+const delegatedPuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'p2-delegated-conditions');
+assert(delegatedPuzzle,'Missing actual current delegated-conditions component');
+assert.deepEqual(JSON.parse(await readFile(path.join(root,'reports/p2-delegated-conditions.json'),'utf8')),delegatedPuzzle.protocol_validation,'Derived delegated endpoint must equal the exact embedded field');
+for(const route of ['tutorials/delegated-conditions','lab/p2-delegated-conditions'])checkDelegatedDisplay(await html(path.join(root,route,'index.html')),delegatedPuzzle);
+const outerDownloads=[['profile.json','corpus/p2-delegated-conditions-append-baseline.json'],['before-validation.json','corpus/checkpoints/runtime-composition-validation.json'],['p2-costs.json','corpus/p2dc-append-existing-p2-costs.json'],['p2-controls.json','corpus/p2dc-append-existing-p2-controls.json']];
+for(const [basename,source]of outerDownloads)assert.deepEqual(await readFile(path.join(root,'reports/p2dc-append',basename)),await readFile(new URL(`../../${source}`,import.meta.url)),'Outer raw download bytes changed');
+assert.deepEqual((await readdir(path.join(root,'reports/p2dc-append'))).sort(),outerDownloads.map(([name])=>name).sort());
+
 const p2Display = p2Detail.match(/<section\b[^>]*data-protocol-validation[^>]*>[\s\S]*?<\/section>/)[0];
 let protocolDisplayControls = 0;
 for (const mutate of [
@@ -714,12 +749,18 @@ assert(passwordSample, 'Missing actual fixed-instance cost example');
 const reviewedPassword = costReview.puzzles.find(row => row.slug === 'password-coin');
 const reviewedFixed = reviewedPassword?.curried_instances;
 assert(reviewedFixed, 'Final cost transition misses fixed-password measurements');
-const reviewedFixedArtifact = instance.artifacts.find(row => row.artifact.backend === 'rust_mir' && row.artifact.optimize_lir === true);
+// The cost review owns the historical21 instance, not the current23 compiler output.
+const historicalPassword = optimizationValidation.puzzles.find(row => row.slug === 'password-coin');
+const historicalFixed = historicalPassword?.curried_instances;
+assert(historicalFixed, 'Historical cost checkpoint misses fixed-password evidence');
+const reviewedFixedArtifacts = historicalFixed.artifacts.filter(row => row.artifact.backend === 'rust_mir' && row.artifact.optimize_lir === true);
+assert.equal(reviewedFixedArtifacts.length, 1, 'Missing/duplicate historical optimized fixed instance');
+const reviewedFixedArtifact = reviewedFixedArtifacts[0];
 assert.equal(reviewedFixed.artifact.module_tree_hash, reviewedPassword.artifact.tree_hash, 'Reviewed instance uses another module');
-assert.deepEqual(costArtifact(reviewedFixed.artifact.artifact, 'reviewed password instance'), costArtifact(reviewedFixedArtifact.artifact, 'current password instance'), 'Reviewed fixed instance differs from its actual artifact');
-assert.deepEqual(reviewedFixed.cases.map(row => row.label), instance.cases.map(row => row.label), 'Missing/extra/reordered final fixed-instance measurement');
+assert.deepEqual(costArtifact(reviewedFixed.artifact.artifact, 'reviewed password instance'), costArtifact(reviewedFixedArtifact.artifact, 'historical password instance'), 'Reviewed fixed instance differs from its actual artifact');
+assert.deepEqual(reviewedFixed.cases.map(row => row.label), historicalFixed.cases.map(row => row.label), 'Missing/extra/reordered final fixed-instance measurement');
 for (const [index, sample] of reviewedFixed.cases.entries()) {
-  const actual = instance.cases[index];
+  const actual = historicalFixed.cases[index];
   assert.equal(sample.solution_sha256, createHash('sha256').update(actual.solution).digest('hex'), 'Reviewed fixed-instance input changed');
   const executions = actual.runs.filter(row => row.backend === 'rust_mir' && row.optimize_lir === true);
   assert.equal(executions.length, 1, 'Missing/duplicate fixed-instance measurement');
@@ -729,8 +770,17 @@ for (const [index, sample] of reviewedFixed.cases.entries()) {
 const reviewedPasswordSample = reviewedFixed.cases.filter(test => test.label === 'derived tail: valid_spend');
 assert.equal(reviewedPasswordSample.length, 1, 'Missing/duplicate final fixed-instance sample pin');
 safeMetric(reviewedPasswordSample[0].execution.cost, 1, 'Final password fixed-instance cost');
+// The lesson separately displays the current module and its actual curried sample.
+const currentPasswordArtifacts = passwordPuzzle.artifacts.filter(row => row.backend === 'rust_mir' && row.optimize_lir === true);
+const currentPasswordRuns = passwordSample.runs.filter(row => row.backend === 'rust_mir' && row.optimize_lir === true);
+assert.equal(currentPasswordArtifacts.length, 1, 'Missing/duplicate current password module');
+assert.equal(currentPasswordRuns.length, 1, 'Missing/duplicate current password sample');
+const currentPasswordArtifact = costArtifact(currentPasswordArtifacts[0], 'current password module');
+const currentPasswordExecution = currentPasswordRuns[0].execution;
+assert.equal(checkExecution(currentPasswordExecution).status, 'accepted', 'Current password sample must succeed');
+safeMetric(currentPasswordExecution.cost, 1, 'Current password fixed-instance cost');
 const measured = [
-  ['rust_mir', reviewedPassword.artifact.bytes, reviewedPasswordSample[0].execution.cost],
+  ['rust_mir', currentPasswordArtifact.bytes, currentPasswordExecution.cost],
   ['chialisp', 31, 1321],
   ['rue_source', 213, 3937],
 ].map(([backend, bytes, cost]) => {
@@ -1042,7 +1092,7 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -1112,6 +1162,30 @@ try {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}reference/optimization/`), `Measured optimization and execution-success facts are not discoverable for ${term}`);
     }
+    if (term === 'transaction costs' || term === 'charged generator') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/transaction-costs/`),
+        `${term}: missing transaction-cost lesson from actual built search results`);
+    }
+    if (term === 'wire pairs' || term === 'unary frames') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      if (term === 'wire pairs') assert(matches.some(row => row.url === `${base}reference/abi/` || row.url === `${base}reference/supported-rust/`), 'Wire-pair scope is missing from actual built search results');
+      if (term === 'unary frames') assert(matches.some(row => row.url === `${base}tutorials/guarded-projections/`), 'Composed runtime-frame guide is missing from actual built search results');
+    }
+    if (term === 'guarded projections') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/guarded-projections/`), 'Guarded projection lesson is missing from actual built search results');
+    }
+    if (['delegated conditions','owner key commitment','arbitrary tail'].includes(term)) {
+      const matches=await Promise.all(search.results.map(row=>row.data()));
+      assert(matches.some(row=>row.url===`${base}tutorials/delegated-conditions/`),`${term}: missing delegated-conditions lesson from actual index`);
+    }
+    if (['policy mistakes', 'atom hash prefix', 'proper outer tail'].includes(term)) {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      for (const route of ['tutorials/delegated-conditions/', 'lab/p2-delegated-conditions/']) {
+        assert(matches.some(row => row.url === `${base}${route}`), `${term}: missing actual source-policy counterexamples in ${route}`);
+      }
+    }
     if (term === 'acyclic scalar' || term === 'unused initializer') {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}verification/acyclic-scalar/`),
@@ -1124,4 +1198,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${acyclicDisplay.downloads} exact acyclic downloads with ${acyclicDisplay.sourceCopies} source/spec copies, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);
+console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${acyclicDisplay.downloads} exact acyclic downloads with ${acyclicDisplay.sourceCopies} source/spec copies, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 singleton and ${delegatedCounts.attempts} delegated-conditions actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);

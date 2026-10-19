@@ -16,6 +16,12 @@ that overhead before Rue LIR optimization. The source puzzles and default input
 ABI keep their existing contracts. Unoptimized artifacts remain a separate
 regression control.
 
+The later [guarded projection lesson](/chialisp-oxide/tutorials/guarded-projections/)
+compares the separate source-only checkpoint with the composed compiler using the
+same Rust policy. Pair forwarding, known-atom facts and compact unary frames are
+measured together, rather than attributing their combined savings to one pass. It includes the latest P2 raw VM and complete bundle measurements.
+The historical tables below retain their original compiler checkpoints and source contracts.
+
 ## Measure real outputs
 
 The three closed Intro expressions now reproduce the original Chialisp bytes
@@ -25,7 +31,7 @@ answers on examples alone would not establish it.
 <CanonicalMeasurements />
 
 Recursive and input-dependent puzzles still carry substantial overhead. The
-following table compares signed commit `c87957e2` with the current optimized compiler
+following table compares signed commit `c87957e2` with the retained interval/decoder optimized compiler checkpoint
 on the same named inputs. It includes unchanged rows so the scope stays visible.
 
 <OptimizationMeasurements />
@@ -37,6 +43,11 @@ transaction also pays for its generator encoding and condition processing.
 Compression and shared data can change that byte charge. A smaller VM cost
 alone does not establish a cheaper transaction; exact transaction costs need
 their own simulator or consensus measurement.
+
+The separate [whole transaction cost lesson](/chialisp-oxide/tutorials/transaction-costs/)
+measures all five pay-to-singleton builds through three accepted bundle phases.
+Its Rust source refactor reduces generator bytes while increasing raw VM cost;
+the historical 21-row compiler comparison above remains unchanged.
 
 ## Successful execution gives useful facts
 
@@ -174,10 +185,18 @@ validated typed IR
   → legacy tree guards (runtime programs unchanged)
   → bounded helper inlining and unreachable-function removal
   → runtime frame elision
+  → guarded immutable projection forwarding
   → lazy canonical-integer decoder
   → Rue LIR optimization
   → static pair code generation
 ```
+
+The recorded eleven-stage metadata retains the forwarding stage name; the
+reviewed runtime-composition profile binds the exact combined implementation.
+Known-atom facts and compact unary layouts are lowering details within that
+implementation, not new Rust source types. These optional facts/layouts stay
+disabled for programs with typed `Cons`/Pair capability, including an unused
+Pair-bearing function signature.
 
 `--no-optimize` skips these optional stages. ABI decoding and fixed-width checked
 semantics remain active. Every rewritten IR program is validated. An iterative

@@ -1,5 +1,7 @@
 """Offline boundary controls; no compiler, solver, VM or consensus calls."""
 import copy
+from contextlib import ExitStack
+import subprocess
 import json
 from pathlib import Path
 import runpy
@@ -69,7 +71,41 @@ class HelperInliningTests(unittest.TestCase):
         synthetic["optimization_pipeline"] = copy.deepcopy(inline.NEW_PIPELINE)
         measured = {"puzzles": inline.capture_after(self.report)}
         with patch.object(inline, "reviewed_new", return_value=measured), patch.object(inline, "preserve", side_effect=AssertionError("recursive validation")):
-            self.assertIs(cost.hash_diagnostic_profile(synthetic), True)
+            self.assertIs(inline.hash_diagnostic_profile(synthetic), True)
+
+    def test_current23_hash_selection_never_falls_back_to_historical_selectors(self):
+        import p2_append_migration as append
+        import p2_source_cost_migration as source
+        import p2dc_append_migration as selected
+        import runtime_composition_migration as composition
+        import runtime_guarded_projection_migration as guarded
+        import runtime_refinement_migration as refinement
+
+        # Real FINAL23 positive first. Historical21 and unknown pipeline are
+        # malformed CURRENT requests; they cannot choose older authority.
+        older = (inline, refinement, guarded, composition, source, append)
+        with ExitStack() as stack:
+            for module in (cost, *older):
+                for name in ("preserve", "project_validated"):
+                    if hasattr(module, name):
+                        stack.enter_context(patch.object(module, name,
+                            side_effect=AssertionError("hash selection projected/preserved history")))
+            for module in older:
+                if hasattr(module, "hash_diagnostic_profile"):
+                    stack.enter_context(patch.object(module, "hash_diagnostic_profile",
+                        side_effect=AssertionError("current hash selection fell back to history")))
+            stack.enter_context(patch.object(subprocess, "run", side_effect=AssertionError("metadata only")))
+            stack.enter_context(patch.object(subprocess, "Popen", side_effect=AssertionError("metadata only")))
+            route = stack.enter_context(patch.object(selected, "hash_diagnostic_profile",
+                wraps=selected.hash_diagnostic_profile))
+            self.assertIs(cost.hash_diagnostic_profile(self.current), True)
+            unknown = copy.deepcopy(self.current)
+            unknown["optimization_pipeline"]["rust_mir"]["optimized"].append("unreviewed_optimizer")
+            self.assertNotEqual(unknown, self.current)
+            for label, value in (("historical21", self.report), ("unreviewed_pipeline", unknown)):
+                with self.subTest(label=label), self.assertRaises(ValueError):
+                    cost.hash_diagnostic_profile(value)
+            self.assertEqual(route.call_count, 3)
 
     def test_wire_numeric_modes_cannot_alias_boolean_modes(self):
         for field, value in [("on", 1), ("on", 1.0), ("off", 0), ("off", 0.0)]:

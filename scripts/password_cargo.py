@@ -14,7 +14,7 @@ from cargo_authoring import snapshot
 from cargo_bundle import load_declared_export
 from password_provenance import ROOT
 from password_vectors import require
-from runtime_cost_migration import validate_current, verify_ir_bundle
+from runtime_cost_migration import validate_current, verify_ir_bundle, verify_current22_bundles
 import p2_append_migration as append
 
 
@@ -43,7 +43,7 @@ def extract(report, *, cargo=None, driver=None):
     compiler = command(["rustup", "run", toolchain, "rustc", "-vV"], 30)
     options = ["--manifest-path", declared["manifest"], "--locked", "--offline"]
     summaries = []
-    current22 = append.is_append(report)
+    current_append = append.is_append(report)
     with tempfile.TemporaryDirectory(prefix="chialisp-oxide-password-cargo-") as directory:
         for optimize in (True, False):
             output = Path(directory) / ("on" if optimize else "off")
@@ -59,20 +59,20 @@ def extract(report, *, cargo=None, driver=None):
                 compiler=compiler, driver_sha256=identities[driver], toolchain=toolchain,
                 current_authoring=lambda: snapshot(ROOT), optimize=optimize,
                 rue_revision=report["rue_revision"], cargo_options=options)
-            if not current22:
+            if not current_append:
                 summary = verify_ir_bundle(export.manifest_path, report)
                 require(summary["optimize_lir"] is optimize, "Fresh bundle mode differs from requested extraction")
                 summaries.append({**summary, "compiler_driver_source_identity_checked": True})
             require(snapshot(ROOT) == declared, "Cargo inputs changed during extraction")
             require(all(file_hash(path) == value for path, value in identities.items()),
                     "Prebuilt Cargo/driver changed during extraction; coordinate build phases")
-        if current22:
-            checked = append.verify_fresh_bundles(report, Path(directory) / "on", Path(directory) / "off",
+        if current_append:
+            checked = verify_current22_bundles(report, Path(directory) / "on", Path(directory) / "off",
                 compiler=compiler, driver_sha256=identities[driver], toolchain=toolchain,
                 cargo_options=options)
             require([row["mode"] for row in checked] == [True, False]
                     and all(type(row["mode"]) is bool for row in checked),
-                    "Fresh current22 pair differs from requested modes")
+                    "Fresh current append pair differs from requested modes")
             summaries = [{**row, "optimize_lir":row["mode"], "checked_current_exports":row["exports"],
                           "compiler_driver_source_identity_checked":True} for row in checked]
         require(snapshot(ROOT) == declared, "Cargo inputs changed after paired extraction checks")

@@ -77,7 +77,9 @@ fn contains(expr: &Expr, predicate: impl Fn(&Expr) -> bool) -> bool {
                 then_value,
                 else_value,
             } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
-            Expr::TreePair { first, rest } => pending.extend([first.as_ref(), rest.as_ref()]),
+            Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
+                pending.extend([first.as_ref(), rest.as_ref()])
+            }
             Expr::Not { value }
             | Expr::AtomIsEmpty { value }
             | Expr::Field { value, .. }
@@ -85,6 +87,8 @@ fn contains(expr: &Expr, predicate: impl Fn(&Expr) -> bool) -> bool {
             | Expr::TreeAtomValue { value }
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
+            | Expr::PairFirst { value }
+            | Expr::PairRest { value }
             | Expr::TreeRest { value } => pending.push(value),
             Expr::Unit
             | Expr::Bool { .. }

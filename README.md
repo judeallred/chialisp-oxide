@@ -94,7 +94,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The current [corpus report](corpus/validation.json) records twenty-two
+The locally validated [corpus report](corpus/validation.json) records twenty-three
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -103,10 +103,11 @@ exact canonical `p2_conditions` program factory, pinned `last_inner`,
 `prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
 module adapters, the singleton launcher module, and the exact password tutorial
 module with separate curried-instance observations, plus canonical pay-to-singleton
-with dedicated counterpart composition evidence. The
+with dedicated counterpart composition evidence, and canonical delegated
+conditions with owner-key and signature/reveal checks. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The corpus checks native execution,
-439 explicit vectors and 22,983 generated integer/tree/byte cases against five CLVM
+459 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton
@@ -131,6 +132,43 @@ canonical singleton top layer and signed StandardLayer are host counterparts,
 not Rust ports; a real Eve spend and one later lineage transition do not
 establish a complete singleton lifecycle. See the
 [pay-to-singleton walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/p2-singleton/).
+
+Canonical delegated conditions is a second `protocol_component`. Its explicit
+`Cons<Head, Tail>` result owns a computed digest while preserving an arbitrary
+borrowed conditions tail; ordinary Rust tuples keep their proper-list ABI.
+The dedicated raw suite checks 200 native inputs and 1,000 VM evaluations across
+five builds. A separate retained-artifact replay repeats those 1,000 evaluations
+without adding unique inputs. The ownership harness submits 60 actual SDK
+transactions: 20 accepted and 40 exact typed rejections with full simulator
+rollback. Accepted controls also demonstrate why an uncurried caller-selected
+key is unsafe. These counts are separate from singleton, password and generic
+scenario counts. Optimized Rust is 629 bytes, versus 137 for canonical Chialisp
+and 251 for optimized Rue; their hashes differ. One native test group with
+three policy observations and 12 VM source-control runs exposes mistakes that
+still compile. See the
+[delegated-conditions lesson](https://judeallred.github.io/chialisp-oxide/tutorials/delegated-conditions/).
+
+The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
+to 1,685 bytes. In the recorded accepted joint transaction, total conditions
+cost falls from 48,752,720 to 45,309,974 (7.06%). Ordinary VM execution increases
+from 63,896 to 65,150; the saving comes from 287 fewer charged generator bytes,
+not faster execution. The other 21 puzzles and independent Chialisp/Rue builds
+remain unchanged. See the [transaction-cost lesson](https://judeallred.github.io/chialisp-oxide/tutorials/transaction-costs/)
+for all five builds, three accepted phases and exact retained captures.
+
+The completed compiler composition combines guarded projection forwarding,
+exact atom facts and unary runtime-frame lowering. It reduces that same source
+from 1,685 to 1,334 bytes, ordinary VM cost from 65,150 to 57,925, and the measured
+joint transaction cost from 45,309,974 to 41,090,749. Across its 22-puzzle capture,
+seven optimized modules shrink and fifteen stay exact. Compared with the earlier
+guarded-only experiment, 194 accepted named observations cost less and 93 stay
+equal; none costs more. Successful-operation facts reuse immutable values only
+where earlier execution establishes the required shape. The passes retain
+strict failures, fresh callee scopes, bounded analysis and a fallback to the
+preceding emitter. These are finite measurements, not a general cost or
+compiler-correctness theorem. See the earlier
+[guarded-projection lesson](https://judeallred.github.io/chialisp-oxide/tutorials/guarded-projections/).
+
 
 Some examples are deliberately permissionless. The boolean gate is not
 identity/authentication. See each puzzle's security scope before using it.
@@ -162,9 +200,17 @@ with warnings denied on macOS. The hash evidence gate passes 168 corruption cont
 error-study, Lean and documentation gates are checked separately; these finite
 checks do not establish compiler preservation or production readiness.
 
+A 578-test workspace run and all-target Clippy cover the carried compiler
+sources. Final integration carries that run for unchanged Rust/Cargo inputs,
+with a separately tested native-control template added outside the
+workspace. The two Rue corpus tests were rerun on the current 23-puzzle data
+before a fresh final host build. This is not a new full test run in the final
+checkout. Source-derived proof, Lean and site gates require their own current
+source checks; execution results do not supply those proofs.
+
 The launcher's pinned source, include, license, commit/tree membership and
 published artifact are recorded separately. Independent Chialisp reproduces
-the canonical 175-byte module and its tree hash; optimized Rust emits 671 bytes
+the canonical 175-byte module and its tree hash; optimized Rust emits 478 bytes
 with a different hash. Matching outputs and ledger results do not establish
 module identity or a completed singleton lifecycle.
 
@@ -188,6 +234,9 @@ python3 scripts/check-password-coin.py --self-test --replay --extract-ir
 python3 scripts/check-cost-optimization.py --self-test --replay
 python3 scripts/check-helper-inlining.py --self-test --replay
 python3 scripts/check-runtime-refinement.py --self-test --replay
+python3 scripts/check-p2dc-append.py --self-test
+python3 scripts/check-runtime-composition.py --self-test
+python3 scripts/check-p2dc-source-controls.py --self-test
 python3 scripts/check-integer-canonicality.py --check --self-test
 ```
 
@@ -261,6 +310,9 @@ direct calls, explicit whole-environment exports, and reviewed SHA-256
 calls are implemented. Arbitrary-precision integers, other cryptographic
 operators, currying, and runtime program evaluation remain compiler work; primitive Rust
 integers must keep their checked finite semantics.
+The reviewed `Cons<First, Rest>` SDK type adds an explicit typed wire pair in
+version-5 IR. It preserves arbitrary tails without changing tuple encoding;
+general Rust struct, heap and generic-call support remain separate work.
 The [hashing guide](docs/hashing.md) explains exact byte concatenation, tree-hash
 domain tags, strict once-only operands, profile restrictions and native identity
 checks. Immutable `&[u8; N]` to `&[u8]` coercions are supported for `N <= 256`,

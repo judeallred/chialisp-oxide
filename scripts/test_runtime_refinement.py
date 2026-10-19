@@ -97,7 +97,7 @@ class RuntimeRefinementTests(unittest.TestCase):
     def test_direct_hash_selection_does_not_recurse_into_preservation(self):
         report, profile = self.candidate()
         with patch.object(refinement, "load", return_value=profile), patch.object(refinement, "preserve", side_effect=AssertionError("recursive")):
-            self.assertIs(cost.hash_diagnostic_profile(report), True)
+            self.assertIs(refinement.hash_diagnostic_profile(report), True)
 
     def test_capture_does_not_write_or_authorize_profile(self):
         before = refinement.PATH.read_bytes()

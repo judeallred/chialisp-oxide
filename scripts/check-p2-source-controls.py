@@ -26,8 +26,8 @@ NAMES = ("proper_struct", "reversed_parameters", "wrong_dollar")
 PACKAGE = "chialisp-oxide-p2-singleton-controls"
 RUE = "245c107a8e795229ea08097142f005a4c0d91075"
 BASELINE = "puzzles/p2-singleton/puzzle.rs"
-BASELINE_SHA = "1ef0b592106b0d497d21b2f28c8c675e5a714a647142a4bc9c377be5f586d7f9"
-RECIPE_SHA = "531223d0ed304ec044df9b3017321244c14c1d30d2c2b06ff97b8358318bb5f7"
+BASELINE_SHA = "72140f55999d8bdfe431372b4f380973e91be19ef6364a546255ddcba9b6f281"
+RECIPE_SHA = "afecd98c0d156188520789f322c053df1328302ae0b71246d6f6429ac4b14c02"
 PRIVATE_FILES = ("Cargo.toml", "Cargo.lock", "mutations.json", "src/lib.rs",
                  *(f"src/{name}.rs" for name in NAMES))
 CARGO_OPTIONS = ["--locked", "--manifest-path", f"{CONTROL}/Cargo.toml"]

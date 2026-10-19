@@ -1,7 +1,7 @@
 //! Reference execution calls the actual Rust sources also supplied to rustc-driver.
 #![allow(clippy::type_complexity)] // Heterogeneous condition tuples are the current teaching ABI.
 use anyhow::{Result, bail, ensure};
-use chialisp_oxide::{Amount, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
+use chialisp_oxide::{Amount, Cons, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
 use chialisp_oxide_puzzles::{
     boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
     fixed_payment as fixed, intro_add, intro_conditional, intro_list, recovery_payment as recovery,
@@ -37,6 +37,13 @@ impl Encode for u64 {
 impl<const N: usize> Encode for [u8; N] {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
         Ok(a.new_atom(self)?)
+    }
+}
+impl<First: Encode, Rest: Encode> Encode for Cons<First, Rest> {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        let first = self.first.encode(a)?;
+        let rest = self.rest.encode(a)?;
+        Ok(a.new_pair(first, rest)?)
     }
 }
 fn list(a: &mut Allocator, items: &[NodePtr]) -> Result<NodePtr> {
@@ -214,6 +221,22 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
         return Ok(Some(output(chialisp_oxide_puzzles::sha256tree::puzzle(
             tree,
         ))?));
+    }
+    if slug == "p2-delegated-conditions" {
+        let arena = bumpalo::Bump::new();
+        // Decode and preflight the complete environment before the policy
+        // panic adapter, including arbitrary key trees and ignored tails.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::p2_delegated_conditions::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => {
+                super::p2_delegated_conditions::output_preflight(&value)?;
+                Ok(Some(output(value)?))
+            }
+            Err(_) => Ok(None),
+        };
     }
     if slug == "password-coin" {
         let arena = bumpalo::Bump::new();

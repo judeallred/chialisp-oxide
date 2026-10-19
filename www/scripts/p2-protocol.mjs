@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { checkDelegatedComponent, delegatedSlug } from './p2dc-protocol.mjs';
 
 const tableBytes = readFileSync(new URL('../../crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json', import.meta.url));
 assert.equal(createHash('sha256').update(tableBytes).digest('hex'), '174c6321e5e8fc3c246fb65a12e596decb545ec9d5aba74c13a0347f71297192', 'Scoped P2 protocol table changed');
@@ -18,6 +19,7 @@ const fields = (value, names, label) => {
 };
 
 export function checkProtocolComponent(puzzle) {
+  if (puzzle.slug === delegatedSlug) return checkDelegatedComponent(puzzle);
   assert.equal(puzzle.slug, 'p2-singleton', 'Unknown protocol component');
   assert.equal(puzzle.kind, 'protocol_component');
   assert.deepEqual(puzzle.simulator, [], 'Dedicated composition does not add generic scenario groups');
@@ -74,16 +76,22 @@ export function checkProtocolComponent(puzzle) {
 }
 
 export function checkProtocolReport(report) {
-  const selected = report.puzzles.filter(puzzle => puzzle.slug === 'p2-singleton' || puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation'));
+  const selected = report.puzzles.filter(puzzle => puzzle.slug === 'p2-singleton');
+  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
+  assert.deepEqual(otherComponents, [], 'Unknown dedicated protocol evidence requires its own reviewed reader.');
+  const delegated = report.puzzles.filter(puzzle => puzzle.slug === delegatedSlug);
+  assert(delegated.length <= 1, 'Duplicate delegated-conditions component');
+  if (delegated.length) checkDelegatedComponent(delegated[0]);
   assert(selected.length <= 1, 'Duplicate/unknown dedicated component evidence');
   return selected.length ? checkProtocolComponent(selected[0]) : { groups: 0, attempts: 0, accepted: 0, rejected: 0, codes: {} };
 }
 
 export function historicalOptimizationReport(report) {
   if (!report.puzzles.some(puzzle => puzzle.slug === 'p2-singleton')) return report;
-  // Current22 validation MUST precede historical projection. This subprocess
+  // Actual current22 source/native/typed/sidecars MUST precede composition
+  // and historical projection; no restored object is validated as current. This subprocess
   // only reads/checks recorded evidence and sources: no extraction or replay.
-  const source = `import json,sys\nsys.path.insert(0,'scripts')\nimport runtime_cost_migration as cost\nimport p2_append_migration as append\nreport=json.load(sys.stdin)\ncost.validate_current(report)\nsys.stdout.buffer.write(cost.canonical(append.project_validated(report)))\n`;
+  const source = `import json,sys\nsys.path.insert(0,'scripts')\nimport runtime_cost_migration as cost\nreport=json.load(sys.stdin)\ncost.validate_current(report)\ncheckpoint=cost.composition_checkpoint(report)\nsys.stdout.buffer.write(cost.canonical(cost.project_append(checkpoint)))\n`;
   const output = execFileSync('python3', ['-c', source], {
     cwd: fileURLToPath(new URL('../../', import.meta.url)), input: JSON.stringify(report), encoding: 'utf8',
     env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' }, timeout: 120_000, maxBuffer: 16 * 1024 * 1024,

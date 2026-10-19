@@ -87,8 +87,10 @@ def current_native_sources(report):
     """
     from p2_append_migration import is_append
     if is_append(report):
-        from p2_append_migration import current_native_sources as appended_native_sources
-        return appended_native_sources(report)
+        # Select this root's explicit active append (currently23). The older
+        # exact22 native reader must never receive a newer complete report.
+        from runtime_cost_migration import current22_migration
+        return current22_migration(report).current_native_sources(report)
     migration = load()
     require([p["slug"] for p in report["puzzles"]] == migration["preserved_slugs"] + ["password-coin"],
             "Password transition permits only its exact appended21st fixture")
@@ -243,19 +245,7 @@ def controls(report, *, current_report=None):
         else: bad["authoring"]["sources"][0]["sha256"] = "0" * 64
         require(canonical(bad) != canonical(actual), "No-op current native corruption")
         try:
-            from p2_append_migration import is_append
-            if is_append(actual):
-                # Explicit constructed checker control: rebind ONLY the outer
-                # digest in memory so real native path/hash checks must run.
-                # Immutable profile files/status/source contracts stay intact.
-                from unittest.mock import patch
-                import p2_append_migration as append
-                profile = copy.deepcopy(append.load())
-                profile["reviewed_after"]["canonical_report_sha256"] = digest(canonical(bad))
-                with patch.object(append, "load", return_value=profile):
-                    current_native_sources(bad)
-            else:
-                current_native_sources(bad)
+            current_native_sources(bad)
         except (ValueError, KeyError):
             count += 1
         else:

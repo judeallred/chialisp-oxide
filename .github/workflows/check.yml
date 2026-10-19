@@ -50,6 +50,75 @@ jobs:
       - name: Test patched upstream optimizer
         run: cargo test --locked -p rue-lir@0.11.0
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Check retained delegated policy source controls
+        run: python3 scripts/check-p2dc-source-controls.py corpus/p2dc-source-controls/report.json --self-test
+      - name: Prepare and natively check fresh delegated policy mutations
+        run: |
+          python3 scripts/run-p2dc-source-controls.py prepare \
+            --package "$RUNNER_TEMP/p2dc-source-package" \
+            --receipt "$RUNNER_TEMP/p2dc-source-prepare.json"
+          python3 scripts/run-p2dc-source-controls.py native \
+            --package "$RUNNER_TEMP/p2dc-source-package" \
+            --prepared "$RUNNER_TEMP/p2dc-source-prepare.json" \
+            --target "$RUNNER_TEMP/p2dc-source-native-target" \
+            --output "$RUNNER_TEMP/p2dc-source-native"
+      - name: Finish host tools before delegated source-control extraction
+        run: |
+          cargo build --workspace --bins --examples --locked --target-dir "$GITHUB_WORKSPACE/target"
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tomllib
+
+          sys.path.insert(0, "scripts")
+          import p2dc_source_controls as controls
+
+          root = Path.cwd().resolve()
+          temporary = Path(os.environ["RUNNER_TEMP"]).resolve()
+          package = temporary / "p2dc-source-package"
+          native_path = temporary / "p2dc-source-native/native-receipt.json"
+          destination = temporary / "p2dc-source-last-host.json"
+          controls.require(controls.ROOT == root and not destination.exists(), "NEW CI quiet receipt required")
+          toolchain = tomllib.loads(controls.read(root / "rust-toolchain.toml").decode())["toolchain"]["channel"]
+          source_window = controls.source_window()
+          native = controls.load(native_path)
+          controls.require(native["status"] == "native_phase_passed_before_LAST_host_build"
+              and native["source_root"] == str(root) and native["package_root"] == str(package)
+              and native["toolchain"] == toolchain and native["source_window"] == source_window,
+              "Native phase and terminal host build must share exact source inputs")
+          compiler = subprocess.run(["rustup", "run", toolchain, "rustc", "-vV"],
+              cwd=root, capture_output=True, text=True, timeout=30)
+          controls.require(type(compiler.returncode) is int and compiler.returncode == 0
+              and not compiler.stderr, "Cannot independently query pinned CI compiler")
+          controls.compiler_host(compiler.stdout)
+          names = ("cargo-chialisp-oxide", "chialisp-oxide-driver", "chialisp-oxide", "chialisp-oxide-verifier")
+          controls.require(controls.TOOLS == names, "Closed four-tool capture required")
+          tools = {name: {"path": str(root / "target/debug" / name),
+              "sha256": controls.sha(root / "target/debug" / name, 2 * 1024 * 1024 * 1024)} for name in names}
+          controls.require(controls.source_window() == source_window
+              and all(controls.sha(Path(row["path"]), 2 * 1024 * 1024 * 1024) == row["sha256"] for row in tools.values()),
+              "Source/tool inputs changed after terminal host build")
+          receipt = {"schema_version": 1, "protocol": "chialisp-oxide-p2dc-controls-quiet-window/v1",
+              "status": "LAST_host_build_terminal_tools_quiet", "source_root": str(root),
+              "package_root": str(package), "compiler": compiler.stdout, "toolchain": toolchain,
+              "source_window": source_window, "tools": tools,
+              "native_receipt_sha256": controls.sha(native_path),
+              "scope": "Sequential CI coordination after the successful workspace --bins --examples host build and before fresh capture. No concurrent builds are started in this interval. This receipt does not authenticate execution or prove compiler preservation."}
+          destination.write_text(json.dumps(receipt, indent=2) + "\n")
+          PYTHON
+      - name: Capture and check fresh Linux delegated source controls
+        run: |
+          # Fresh Linux host metadata remains separate from the retained macOS packet.
+          python3 scripts/run-p2dc-source-controls.py capture \
+            --package "$RUNNER_TEMP/p2dc-source-package" \
+            --native-receipt "$RUNNER_TEMP/p2dc-source-native/native-receipt.json" \
+            --last-host-window "$RUNNER_TEMP/p2dc-source-last-host.json" \
+            --target "$GITHUB_WORKSPACE/target" \
+            --output "$RUNNER_TEMP/p2dc-source-capture"
+          python3 scripts/check-p2dc-source-controls.py "$RUNNER_TEMP/p2dc-source-capture/report.json" --self-test
       - name: Execute actual SDK SHA against native known answers and OpenSSL
         run: |
           python3 experiments/hash-native/check-native.py --work-dir "$RUNNER_TEMP/hash-native-work" --output "$RUNNER_TEMP/hash-native.json" --self-test
@@ -117,6 +186,23 @@ jobs:
           PYTHON
           )
           target/debug/examples/p2_singleton_probe "$p2_ir" "$RUNNER_TEMP/p2-raw-domain"
+      - name: Check the historical source-only P2 checkpoint
+        run: |
+          python3 -m unittest discover -s scripts -p test_p2_source_controls.py
+          python3 -m unittest discover -s scripts -p test_p2_source_cost.py
+          python3 scripts/check-p2-source-cost.py --self-test
+          python3 -m unittest discover -s scripts -p test_source_cost_cli_options.py
+      - name: Check historical guarded and composed compiler checkpoints
+        run: |
+          python3 -m unittest discover -s scripts -p test_runtime_guarded_projection.py
+          python3 -m unittest discover -s scripts -p test_runtime_composition.py
+      - name: Check current delegated append before complete compiler history
+        run: |
+          python3 scripts/check-p2-delegated-conditions.py --self-test
+          python3 scripts/check-p2dc-append.py --self-test --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver
+          python3 scripts/check-runtime-composition.py --self-test --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver
+          cargo build -p chialisp-oxide-simulator --example p2_singleton_cost --locked
+          python3 scripts/check-p2-source-cost.py --fresh-on "$RUNNER_TEMP/puzzles-on" --fresh-off "$RUNNER_TEMP/puzzles-off" --driver target/debug/chialisp-oxide-driver --execute-costs --cost-runner target/debug/examples/p2_singleton_cost --execution-output "$RUNNER_TEMP/current-p2-cost-execution"
       - name: Preserve the signed baseline and replay measured cost improvements
         run: |
           python3 -m unittest discover -s scripts -p test_cost_optimization.py
@@ -136,6 +222,7 @@ jobs:
       - name: Check readable-source evidence and comparison controls
         run: |
           python3 scripts/check-readable-puzzles.py --self-test
+          python3 -m unittest discover -s scripts -p test_ledger_components.py
           python3 scripts/check-readable-puzzles.py
           python3 scripts/check-runtime-frames.py --replay
           python3 scripts/check-runtime-frames.py --self-test
@@ -161,6 +248,16 @@ jobs:
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p2dc-source-controls-linux
+          path: |
+            ${{ runner.temp }}/p2dc-source-package/
+            ${{ runner.temp }}/p2dc-source-prepare.json
+            ${{ runner.temp }}/p2dc-source-native/
+            ${{ runner.temp }}/p2dc-source-last-host.json
+            ${{ runner.temp }}/p2dc-source-capture/
+      - uses: actions/upload-artifact@v4
         with:
           name: acyclic-scalar-source-evidence
           path: ${{ runner.temp }}/acyclic-scalar-source/
@@ -168,6 +265,7 @@ jobs:
         with:
           name: p2-policy-counterexamples
           path: |
+            ${{ runner.temp }}/current-p2-cost-execution/
             ${{ runner.temp }}/p2-policy-controls.json
             ${{ runner.temp }}/p2-policy-controls/
             ${{ runner.temp }}/p2-raw-domain/

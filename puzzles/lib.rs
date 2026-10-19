@@ -30,6 +30,8 @@ pub mod intro_list;
 
 #[path = "p2-conditions/puzzle.rs"]
 pub mod p2_conditions;
+#[path = "p2-delegated-conditions/puzzle.rs"]
+pub mod p2_delegated_conditions;
 
 #[path = "rightmost-tree/puzzle.rs"]
 pub mod rightmost_tree;

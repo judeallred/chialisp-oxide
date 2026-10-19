@@ -5,7 +5,7 @@
     {
       "name": "proper_struct",
       "source": "experiments/p2-singleton-controls/src/proper_struct.rs",
-      "original_sha256": "1ef0b592106b0d497d21b2f28c8c675e5a714a647142a4bc9c377be5f586d7f9",
+      "original_sha256": "72140f55999d8bdfe431372b4f380973e91be19ef6364a546255ddcba9b6f281",
       "old": "    let launcher = Tree::Pair(launcher_id, launcher_puzzle_hash);\n    let singleton_struct = Tree::Pair(singleton_module_hash, &launcher);",
       "new": "    let nil = Tree::Atom(&[]);\n    let launcher_hash_tail = Tree::Pair(launcher_puzzle_hash, &nil);\n    let launcher = Tree::Pair(launcher_id, &launcher_hash_tail);\n    let singleton_struct = Tree::Pair(singleton_module_hash, &launcher);",
       "classification": "actual Rust source policy mutation; ordinary Rust and CLVM subset checks are expected to accept it"
@@ -13,15 +13,15 @@
     {
       "name": "reversed_parameters",
       "source": "experiments/p2-singleton-controls/src/reversed_parameters.rs",
-      "original_sha256": "1ef0b592106b0d497d21b2f28c8c675e5a714a647142a4bc9c377be5f586d7f9",
-      "old": "    let after_inner = extend_environment(atom_bytes(inner_puzzle_hash), &path_one_hash);\n    let after_struct = extend_environment(&struct_hash, &after_inner);\n    let full_puzzle_hash = apply_hash(atom_bytes(singleton_module_hash), &after_struct);",
-      "new": "    let after_struct = extend_environment(&struct_hash, &path_one_hash);\n    let after_inner = extend_environment(atom_bytes(inner_puzzle_hash), &after_struct);\n    let full_puzzle_hash = apply_hash(atom_bytes(singleton_module_hash), &after_inner);",
+      "original_sha256": "72140f55999d8bdfe431372b4f380973e91be19ef6364a546255ddcba9b6f281",
+      "old": "    let after_inner = quoted_call_hash(&CONS_OPCODE, atom_bytes(inner_puzzle_hash), &path_one_hash);\n    let after_struct = quoted_call_hash(&CONS_OPCODE, &struct_hash, &after_inner);\n    let full_puzzle_hash = quoted_call_hash(\n        &APPLY_OPCODE,\n        atom_bytes(singleton_module_hash),\n        &after_struct,\n    );\n",
+      "new": "    let after_struct = quoted_call_hash(&CONS_OPCODE, &struct_hash, &path_one_hash);\n    let after_inner = quoted_call_hash(&CONS_OPCODE, atom_bytes(inner_puzzle_hash), &after_struct);\n    let full_puzzle_hash = quoted_call_hash(\n        &APPLY_OPCODE,\n        atom_bytes(singleton_module_hash),\n        &after_inner,\n    );\n",
       "classification": "actual Rust source policy mutation; ordinary Rust and CLVM subset checks are expected to accept it"
     },
     {
       "name": "wrong_dollar",
       "source": "experiments/p2-singleton-controls/src/wrong_dollar.rs",
-      "original_sha256": "1ef0b592106b0d497d21b2f28c8c675e5a714a647142a4bc9c377be5f586d7f9",
+      "original_sha256": "72140f55999d8bdfe431372b4f380973e91be19ef6364a546255ddcba9b6f281",
       "old": "const REWARD_ANNOUNCEMENT: [u8; 1] = *b\"$\";",
       "new": "const REWARD_ANNOUNCEMENT: [u8; 1] = *b\"!\";",
       "classification": "actual Rust source policy mutation; ordinary Rust and CLVM subset checks are expected to accept it"

@@ -1,4 +1,4 @@
-"""Nonvacuous current22 controls before exact historical21 normalization."""
+"""Nonvacuous whole-current controls before exact historical21 normalization."""
 import copy
 
 import p2_append_migration as append
@@ -9,11 +9,20 @@ def self_test(report):
     if not append.is_append(report):
         return 0
     cost.validate_current(report)
-    append.project_validated(report)
+    selected = [index for index, puzzle in enumerate(report["puzzles"])
+                if puzzle["slug"] == append.ADDED]
+    cost.require(len(selected) == 1, "Unique current pay-to-singleton component required")
+    p2_index = selected[0]
+    cost.project_append(report)
+    # Keep the positively selected current transition while corrupting its input.
+    # The generic pure dispatcher also accepts historical21 as an intentional
+    # no-op; it is not a standalone current-source completeness validator.
+    current_projector = cost.current22_migration(report).project_validated
+    current_projector(report)
     controls = 0
-    for name in ("source", "native", "resource", "preflight", "rollback", "receipt", "debug_rejection", "debug_lifecycle", "artifact", "generated", "missing", "duplicate", "order", "unknown"):
+    for name in ("source", "native", "resource", "preflight", "rollback", "receipt", "debug_rejection", "debug_lifecycle", "artifact", "generated", "missing", "duplicate", "order", "pipeline", "unknown"):
         bad = copy.deepcopy(report)
-        p2 = bad["puzzles"][-1]
+        p2 = bad["puzzles"][p2_index]
         first = p2["protocol_validation"]["observations"][0]
         if name == "source": p2["source"] += "\n"
         elif name == "native": p2["native_sources"][0]["sha256"] = "0"*64
@@ -25,17 +34,18 @@ def self_test(report):
         elif name == "debug_lifecycle": first["lifecycle"]["joint_after_debug"] = "private SDK Debug"
         elif name == "artifact": p2["artifacts"][0]["tree_hash"] = "0"*64
         elif name == "generated": p2["generated_cases"] += 1
-        elif name == "missing": bad["puzzles"].pop()
+        elif name == "missing": bad["puzzles"].pop(p2_index)
         elif name == "duplicate": bad["puzzles"].append(copy.deepcopy(p2))
         elif name == "order": bad["puzzles"].reverse()
+        elif name == "pipeline": bad["optimization_pipeline"]["rust_mir"]["optimized"].reverse()
         else: bad["unknown_append_allowance"] = True
-        cost.require(cost.canonical(bad) != cost.canonical(report), "No-op current22 corruption: "+name)
-        for action in (cost.validate_current, append.project_validated):
+        cost.require(cost.canonical(bad) != cost.canonical(report), "No-op whole-current corruption: "+name)
+        for action in (cost.validate_current, current_projector):
             try:
                 action(bad)
             except (ValueError,KeyError,TypeError,IndexError):
                 pass
             else:
-                raise ValueError("Current22 corruption passed: "+name)
+                raise ValueError("Whole-current corruption passed: "+name)
         controls += 1
     return controls

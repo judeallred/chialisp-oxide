@@ -56,7 +56,9 @@ REFINEMENT_PIPELINE = {
         "lazy_integer_decoder", "rue_lir", "static_pair_codegen"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
 }
-KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE, INLINE_PIPELINE, REFINEMENT_PIPELINE)
+GUARDED_PIPELINE = copy.deepcopy(REFINEMENT_PIPELINE)
+GUARDED_PIPELINE["rust_mir"]["optimized"].insert(7, "runtime_guarded_projection_forwarding")
+KNOWN_PIPELINES = (PIPELINE, COST_PIPELINE, INLINE_PIPELINE, REFINEMENT_PIPELINE, GUARDED_PIPELINE)
 PREVIOUS_PIPELINE = {
     "rust_mir": {"unoptimized": [], "optimized": ["typed_ir_tree_guards", "rue_lir"]},
     "rue_source": {"unoptimized": [], "optimized": ["rue_lir"]},
@@ -175,7 +177,10 @@ def check_sources(report, root, require_rue=False):
         patches = [f"https://github.com/xch-dev/rue/issues/{number}" for number in (108, 109, 110, 111, 112, 113)]
         from p2_append_migration import is_append
         if is_append(report):
-            from p2_append_migration import expected_patches
+            if report.get("optimization_pipeline") == GUARDED_PIPELINE:
+                from runtime_guarded_projection_migration import expected_patches
+            else:
+                from p2_append_migration import expected_patches
             patches = expected_patches(report)
         elif report.get("optimization_pipeline") == REFINEMENT_PIPELINE:
             from runtime_refinement_migration import expected_patches
@@ -662,7 +667,7 @@ class ComparisonTests(unittest.TestCase):
             paths = [".cargo/config.toml", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml",
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
                      "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
-                     "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
+                     "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/cons.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
                      "crates/chialisp-oxide/src/owned_tree.rs", "crates/chialisp-oxide/src/hashing.rs",
                      "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:

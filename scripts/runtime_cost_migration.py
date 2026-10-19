@@ -71,7 +71,7 @@ def rust_on(rows):
 
 def is_new(report):
     pipeline = report.get("optimization_pipeline")
-    if pipeline in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"]):
+    if pipeline in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"], READABLE["GUARDED_PIPELINE"]):
         return True  # New relative to the original pre-cost pipeline as well.
     require(pipeline in (OLD_PIPELINE, NEW_PIPELINE), "Unknown optimization pipeline")
     return pipeline == NEW_PIPELINE
@@ -114,60 +114,72 @@ def check_rows(actual, old, new=None, *, diagnostic=False, slug=None):
 
 
 def hash_diagnostic_profile(report):
-    """Small closed profile for the direct hash gate; no historical projection."""
-    from p2_append_migration import is_append
-    if is_append(report):
-        from p2_append_migration import hash_diagnostic_profile as selected
-        return selected(report)
-    if report.get("optimization_pipeline") == READABLE["REFINEMENT_PIPELINE"]:
-        from runtime_refinement_migration import hash_diagnostic_profile as selected
-        return selected(report)
-    if report.get("optimization_pipeline") == READABLE["INLINE_PIPELINE"]:
-        from runtime_inline_migration import hash_diagnostic_profile as selected
-        return selected(report)
-    if not is_new(report):
-        return False
-    profile = reviewed_new(report)
-    old = {p["slug"]: p for p in load()["puzzles"]}
-    after = {p["slug"]: p for p in profile["puzzles"]}
-    for slug in ("sha256tree", "singleton-launcher"):
-        selected = [p for p in report["puzzles"] if p["slug"] == slug]
-        require(len(selected) == 1, "Missing/duplicate cost hash fixture")
-        puzzle = selected[0]
-        require(same(rust_on(puzzle["artifacts"]), after[slug]["artifact"]), "Unreviewed optimized hash artifact")
-        if slug == "sha256tree":
-            check_rows(puzzle["resource_controls"]["cases"], old[slug]["resource_cases"],
-                       after[slug]["resource_cases"], diagnostic=True, slug=slug)
-    return True
+    """This root's actualcurrent hash profile is the explicit23 append."""
+    import p2dc_append_migration as selected
+    return selected.hash_diagnostic_profile(report)
+
+
+def current22_migration(report):
+    """Compatibility API name; this root explicitly selects current23.
+
+    Missing/pending/malformed23 never falls back to older22 authority. Older22
+    historical readers remain available through runtime_composition_migration.
+    """
+    import p2dc_append_migration as selected
+    return selected
+
+
+def reviewed_current22(report):
+    return current22_migration(report).reviewed_after(report)
+
+
+def verify_current22_bundles(report, on, off, **identities):
+    return current22_migration(report).verify_fresh_bundles(report, on, off, **identities)
 
 
 def validate_current(report):
-    counts = READABLE["check_report"](report)
-    READABLE["check_sources"](report, ROOT, require_rue=True)
-    check_recorded(report.get("authoring"), ROOT, [p["slug"] for p in report["puzzles"]])
-    current_native_sources(report)
-    password_evidence(report)
-    # This source/current-domain gate is independent of the historical digest.
-    gate = runpy.run_path(str(ROOT / "scripts/check-hashing-puzzles.py"))
-    gate["validate"](report)
-    from p2_append_migration import is_append
-    if is_append(report):
-        component = runpy.run_path(str(ROOT / "scripts/check-p2-singleton.py"))
-        component["validate"](report)
-    return counts
+    """Validate this root's complete actual23, never restored/sliced history."""
+    import p2dc_append_migration as selected
+    return selected.validate_current(report)
+
+
+def composition_checkpoint(report):
+    """PURE actual23→reviewed227, or explicit exact227 identity.
+
+    Actual current/raw/fresh validation belongs to the caller. This function
+    never validates current source/native/control state on historical values.
+    """
+    import p2dc_append_migration as outer
+    import runtime_composition_migration as composition
+    if outer.is_append(report):
+        return outer.project_validated(report)
+    composition.reviewed_after(report)
+    require(sha(canonical(report)) == outer.BEFORE_CANONICAL,
+        "Expected the exact reviewed unsigned22 composition checkpoint")
+    return report
+
+
+def source_checkpoint(report):
+    """PURE current23/explicit227 to unsigned source-only M1."""
+    import runtime_composition_migration as composition
+    return composition.project_validated(composition_checkpoint(report))
 
 
 def project_append(report):
-    """Pure exact21 view after the caller has validated current evidence."""
-    from p2_append_migration import is_append, project_validated as append_projection
-    return append_projection(report) if is_append(report) else report
+    """Pure exact21 view after the caller validated actual current evidence."""
+    import p2_append_migration as append
+    if not append.is_append(report):
+        return report
+    import p2_source_cost_migration as source_cost
+    previous = source_cost.project_validated(source_checkpoint(report))
+    return append.project_validated(previous)
 
 
 def check_report_bytes(payload, report):
     """Select current append identity before its unchanged compiler pipeline."""
-    from p2_append_migration import is_append, reviewed_after
+    from p2_append_migration import is_append
     if is_append(report):
-        _, after = reviewed_after(report)
+        _, after = reviewed_current22(report)
         require(sha(payload) == after["report_sha256"], "Current22 report bytes differ from reviewed append capture")
     elif is_new(report):
         from runtime_refinement_migration import is_refinement, load as refinement_profile
@@ -250,7 +262,7 @@ def project_validated(report):
 
 
 def preserve(report):
-    if report.get("optimization_pipeline") in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"]):
+    if report.get("optimization_pipeline") in (READABLE["INLINE_PIPELINE"], READABLE["REFINEMENT_PIPELINE"], READABLE["GUARDED_PIPELINE"]):
         from runtime_inline_migration import preserve as outer_preservation
         # The outer layer checks actual current evidence first. Never run
         # current-source checks again on its historical signed405 projection.

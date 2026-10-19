@@ -1,0 +1,147 @@
+---
+title: Measure the whole transaction cost
+description: Compare Chialisp, Rust and Rue bundle costs, and learn why smaller programs can beat lower VM execution costs.
+---
+
+import TransactionCosts from '../../../components/TransactionCosts.astro';
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+A puzzle’s successful VM execution returns conditions. A transaction must also
+carry its programs and solutions, process those conditions, satisfy their
+relationships, and verify authorization. The smallest number in a raw VM table
+does not tell you the complete bundle cost.
+
+Start with [pay-to-singleton composition](/chialisp-oxide/tutorials/p2-singleton/)
+for the coin and announcement relationships used here. Its
+[three-language laboratory](/chialisp-oxide/lab/p2-singleton/) compares actual
+Chialisp, Rust and Rue source, independently compiled artifacts, and raw inputs.
+This historical lesson measures the exact accepted composition bundles at the **source-only checkpoint**, before guarded compiler forwarding. Its downloaded validation report is the retained whole checkpoint, not the moving latest report.
+It does not change their raw-tree ABI or claim interchangeable module hashes.
+
+## Count three different components
+
+For this pinned conditions API, the measured resource cost is:
+
+```text
+total conditions cost = execution cost + condition cost + byte charge
+byte charge = charged generator bytes × 12,000
+charged generator bytes = uncompressed generator length − 2
+```
+
+The last subtraction excludes the quote wrapper in this exact
+`chia-consensus 0.36.1` helper. The multiplier comes from the pinned TESTNET11
+constants used by the measurement. Treat both as part of this recorded
+configuration, not a universal rule for other APIs, networks, versions or block
+encodings. These numbers are resource cost units, not a fee quote.
+
+- **Execution cost** is the measured computation for the complete supplied
+  bundle. It includes the participating programs, rather than just the P2
+  puzzle’s raw test invocation.
+- **Condition cost** is the measured charge for the returned conditions.
+- **Byte charge** uses the helper’s calculated uncompressed generator length.
+  It includes the encoded reveals and solutions with their transaction framing;
+  it is not the standalone module’s byte length.
+
+The helper also serializes a backreference generator for inspection. Those
+bytes do not replace the uncompressed length in this measurement, and the data
+does not claim a compressed-generator cost.
+
+## Compare complete, accepted bundles
+
+<TransactionCosts />
+
+The genesis and lineage rows stay visible even though the shared P2 helper does
+not affect them. The joint rows expose the remaining language gap: this Rust
+refactor improves its previous result, while the checkpoint’s Chialisp and Rue
+programs still have lower measured joint costs.
+
+## Follow the source tradeoff
+
+The Rust change factors two repeated curry-hash constructions into one
+`quoted_call_hash` helper. Its callers supply the same operation atoms and
+arguments in the same order. The nested policy, dotted singleton struct,
+reversed parameter-hash order and arbitrary supplied prehash bytes are retained.
+Follow the [latest source comparison](/chialisp-oxide/lab/p2-singleton/#sources)
+and download the previous P2 record above to inspect the exact source change.
+
+Sharing this code reduces the optimized module from 1,972 to 1,685 bytes. For the
+ordinary raw input, primary VM execution increases from 63,896 to 65,150 cost
+units. In the separately measured joint bundle, execution increases by 1,254,
+but the charged generator loses 287 bytes:
+
+```text
+287 × 12,000 = 3,444,000 fewer byte-cost units
+3,444,000 − 1,254 = 3,442,746 fewer total cost units
+```
+
+The condition charge stays unchanged. This is a 7.06% reduction from that
+bundle’s previous total, despite the higher execution cost. It is evidence for
+this concrete refactor and these complete bundles; it is not a guarantee that
+every shared helper saves cost or that every input has the same delta.
+
+## Reproduce the conditions measurement
+
+Use the [Cargo quickstart](/chialisp-oxide/start/quickstart/) first. From the
+repository root, build the host measurement example before running it:
+
+```sh
+cargo build -p chialisp-oxide-simulator --example p2_singleton_cost --locked
+cost_dir="$(mktemp -d)"
+python3 - "$cost_dir/protocol.json" <<'PY'
+import json, sys
+from pathlib import Path
+report = json.loads(Path('corpus/checkpoints/p2-source-cost-validation.json').read_bytes())
+puzzle = next(row for row in report['puzzles'] if row['slug'] == 'p2-singleton')
+Path(sys.argv[1]).write_text(json.dumps(puzzle['protocol_validation'], indent=2) + '\n')
+PY
+target/debug/examples/p2_singleton_cost \
+  "$cost_dir/protocol.json" "$cost_dir/costs.json"
+python3 - "$cost_dir/costs.json" <<'PY'
+import json, sys
+from pathlib import Path
+assert json.loads(Path(sys.argv[1]).read_bytes()) == json.loads(
+    Path('corpus/p2-singleton-costs.json').read_bytes())
+print('Retained source-only checkpoint metrics reproduced')
+PY
+```
+
+This explicitly replays the **historical** successful bundles and compares all
+fifteen results with the unchanged source-only measurements. It does not compile
+the latest Rust policy or validate historical compiler-input fingerprints against
+the latest checkout. The [guarded compiler lesson](/chialisp-oxide/tutorials/guarded-projections/)
+uses a separate composition profile and measurements for the later compiler
+changes. The recorded checks validate the current append before inspecting
+those historical checkpoints:
+
+```sh
+python3 scripts/check-p2dc-append.py
+python3 scripts/check-runtime-composition.py
+```
+
+These readers check recorded consistency and source freshness; they do not rerun
+the compiler, VM, native policies or ledger unless explicitly requested.
+The measurement implementation is retained in
+[`p2_singleton_cost.rs`](https://github.com/judeallred/chialisp-oxide/blob/e20f6d126aedbf76a8c179701af654ca96550074/crates/chialisp-oxide-simulator/examples/p2_singleton_cost.rs).
+
+## Keep measurement separate from admission
+
+`get_conditions_from_spendbundle` skips signature verification. Running the
+cost helper is therefore **not another accepted transaction**. The normal
+corpus validator separately submits the exact bundles with signatures to the
+SDK Simulator. The [composition evidence](/chialisp-oxide/tutorials/p2-singleton/#protocol-composition)
+records its 110 actual submissions and typed rollback checks. The cost snapshots
+measure fifteen successful bundles from that finite run: five builds times
+genesis, joint collection and lineage.
+
+To rerun that broader native, VM and simulator validation after building the
+workspace, use:
+
+```sh
+./scripts/chialisp-oxide validate --output "$cost_dir/validation.json"
+```
+
+The conditions measurements use `clvmr 0.16.2`; the laboratory’s raw VM
+comparisons use `clvmr 0.21.0`. Neither finite execution nor source freshness
+authenticates an earlier run or proves compiler preservation, complete singleton
+lifecycle coverage, puzzle security, or production readiness.

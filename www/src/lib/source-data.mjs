@@ -17,6 +17,7 @@ const definitions = [
   { slug: 'p2-singleton', path: 'puzzles/p2-singleton/vectors.json', basename: 'p2-singleton-vectors.json', kind: 'manifest' },
   { slug: 'p2-singleton', path: 'puzzles/p2-singleton/generated-cases.json', basename: 'p2-singleton-generated-cases.json', inheritedRows: 2059 },
   { slug: 'password-coin', path: 'puzzles/password-coin/generated-cases.json', basename: 'password-coin-generated-cases.json', inheritedRows: 2059 },
+  { slug: 'p2-delegated-conditions', path: 'puzzles/p2-delegated-conditions/independent-vectors.json', basename: 'p2-delegated-conditions-independent-vectors.json', kind: 'independent', inheritedRows: 2059, namedRows: 20 },
 ];
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -36,11 +37,25 @@ function checked(artifact) {
       || !Number.isSafeInteger(artifact.rows) || artifact.rows < 1) {
     throw new Error('Source-data download requires bounded byte/row counts and SHA-256.');
   }
-  return { ...definition, ...(definitions.find(row => row.path === definition.path)?.kind === 'manifest' ? { kind: 'manifest' } : {}), sha256: artifact.sha256, bytes: artifact.bytes, rows: artifact.rows };
+  const kind = definitions.find(row => row.path === definition.path)?.kind;
+  return { ...definition, ...(kind ? { kind } : {}), sha256: artifact.sha256, bytes: artifact.bytes, rows: artifact.rows };
 }
 
 function parsedRows(source, definition) {
   const value = JSON.parse(source);
+  if (definition.kind === 'independent') {
+    if (!value || typeof value !== 'object' || Array.isArray(value)
+        || Object.keys(value).sort().join(',') !== 'accepted,rejected,schema_version,scope,status'
+        || value.schema_version !== 1 || value.status !== 'independent_canonical_reference_preflight_not_Rust_port'
+        || !Array.isArray(value.accepted) || value.accepted.length !== 195
+        || !Array.isArray(value.rejected) || value.rejected.length !== 5) {
+      throw new Error('Independent raw recipes require the closed 195/5 source-preflight schema; no Rust execution claim.');
+    }
+    const rows = [...value.accepted, ...value.rejected];
+    if (rows.some(row => typeof row.label !== 'string' || typeof row.solution !== 'string')
+        || new Set(rows.map(row => row.label)).size !== rows.length) throw new Error('Independent raw labels must be unique.');
+    return { rows };
+  }
   if (definition.kind === 'manifest') {
     if (!value || typeof value !== 'object' || Array.isArray(value)
         || Object.keys(value).sort().join(',') !== 'checks,generated,named,scope'
@@ -84,6 +99,14 @@ export function sourceDataArtifacts(report) {
           || JSON.stringify(inputs(parsed.named)) !== JSON.stringify(inputs(owners[0].cases))
           || JSON.stringify(inputs(parsed.generated)) !== JSON.stringify(JSON.parse(generated.source))) {
         throw new Error('Relation manifest must match exact named and generated inputs; it adds no execution or coverage.');
+      }
+    } else if (definition.kind === 'independent') {
+      const named = owners[0].cases;
+      if (!Array.isArray(named) || named.length !== definition.namedRows
+          || named.some(row => !rows.some(spec => spec.label === row.label && spec.solution === row.solution))
+          || new Set(named.map(row => row.label)).size !== named.length
+          || owners[0].generated_cases !== rows.length - named.length + definition.inheritedRows) {
+        throw new Error('Independent raw recipes must preserve 20 named, 180 disjoint generated and 2059 generic inputs.');
       }
     } else if (owners[0].generated_cases !== rows.length + (definition.inheritedRows ?? 0)) {
       throw new Error('Source-data row count must match the generated-input record.');

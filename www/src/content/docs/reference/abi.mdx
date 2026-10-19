@@ -141,6 +141,45 @@ Tuples are proper lists whose fields are recursively validated. Unit is the
 empty list. These are explicit logical layouts, independent of Rust memory
 layout, alignment, or endianness.
 
+## Explicit pairs with `Cons<Head, Tail>`
+
+Tuples keep their proper-list encoding. The vetted facade also provides
+`chialisp_oxide::Cons<Head, Tail>` for an explicit CLVM pair `(head . tail)`.
+Both fields have supported concrete types; the tail need not be a list. This
+is a wire declaration, independent of Rust memory layout.
+
+The actual Cargo frontend tests include this ordinary Rust export:
+
+```rust
+use chialisp_oxide::Cons;
+
+#[chialisp_oxide::puzzle]
+pub fn head(value: Cons<u8, u8>) -> u8 {
+    value.first
+}
+```
+
+Its default solution is `((99 . 8))`: one argument whose value is a pair.
+`((99 8))` rejects because its tail is a list, not a `u8` atom. An out-of-range
+or padded tail still rejects even though the body only reads the first field.
+A `Cons` constructor evaluates both fields once in source order, including a
+strict initializer that is later unused.
+
+A tail typed as `Tree` retains exact atom bytes and improper pairs. A raw export
+still takes the whole environment as one logical `Tree`; returning `Cons` does
+not add an argument-list wrapper or validate ignored input tails. The frontend
+checks the actual SDK declaration and concrete types. A similarly named local
+struct, arbitrary generic function, custom layout or unrelated external type
+does not receive this encoding.
+
+Typed Pair capability uses the explicit **version-5 IR envelope**, with the same
+`strict`, `raw` and ignored-environment contracts. Older wire versions reject
+Pair types and expressions, including in an unused function signature. This is
+separate from `Tree::Pair`, which represents an arbitrary borrowed input tree.
+Current scalar, structural and acyclic SMT models reject typed wire Pair
+capability; successful frontend/native/VM tests are not a model theorem or a
+compiler-preservation proof. These tests are not extra corpus puzzles or spends.
+
 ## Nominal wrappers erase to the inner encoding
 
 A supported local or vetted SDK single-field `#[repr(transparent)]` wrapper preserves Rust's
@@ -173,8 +212,9 @@ The real `chialisp-oxide` crate provides nominal `Amount`, `PuzzleHash`, `CoinId
 `PublicKey`, `Message32`, and `Timestamp` wrappers with named condition helpers.
 The consumer and `chialisp-oxide-puzzles` corpus both depend on that crate. Standalone
 frontend regression fixtures can still use the compatibility module, but it is
-not the corpus route. Result aliases remain tuples even though the examples use
-named constructors. `Amount::from_mojos` and `Timestamp::from_unix_seconds`
+not the corpus route. These payment aliases remain tuples even though the examples use
+named constructors. The explicit `Cons<Head, Tail>` exception instead preserves a pair
+and its independent tail, as the [delegated-conditions lesson](/chialisp-oxide/tutorials/delegated-conditions/) shows. `Amount::from_mojos` and `Timestamp::from_unix_seconds`
 make units explicit without changing these wire representations.
 There is no closed nominal `Condition` enum: an incorrect manually constructed
 opcode can still compile. The [condition reference](/chialisp-oxide/reference/conditions/)

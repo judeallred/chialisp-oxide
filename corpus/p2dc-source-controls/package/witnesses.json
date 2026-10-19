@@ -1,0 +1,43 @@
+[
+  {
+    "name": "wrong_atom_domain",
+    "witness": "named-key0-conditions0",
+    "environment_hex": "ff80ff8080",
+    "solution": "(() . (() . ()))",
+    "baseline": {
+      "status": "accepted",
+      "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+    },
+    "mutant": {
+      "status": "accepted",
+      "output_hex": "ffff32ff80ffa0dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d9868080"
+    }
+  },
+  {
+    "name": "wrong_conditions_tail",
+    "witness": "named-key0-conditions0",
+    "environment_hex": "ff80ff8080",
+    "solution": "(() . (() . ()))",
+    "baseline": {
+      "status": "accepted",
+      "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+    },
+    "mutant": {
+      "status": "accepted",
+      "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a80ff80ff8080"
+    }
+  },
+  {
+    "name": "reject_ignored_improper_tail",
+    "witness": "ignored-outer-tail3",
+    "environment_hex": "ffb0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ffffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080ff09ff0880",
+    "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . (0x09 . (0x08 . ()))))",
+    "baseline": {
+      "status": "accepted",
+      "output_hex": "ffff32ffb0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ffa02b216dd0a27b913062ad71d6e7e081b20bedf306af8c06bd339f9c8734512ab080ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080"
+    },
+    "mutant": {
+      "status": "rejected"
+    }
+  }
+]

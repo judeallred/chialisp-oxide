@@ -1,0 +1,26 @@
+// Independent raw Any translation of the pinned canonical module.
+// No public-key size, numeric atom or condition-list restriction is added.
+const AGG_SIG_ME: Int = 50;
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let public_key = environment.first;
+    let rest = environment.rest;
+    assert rest is (Any, Any);
+    let conditions = rest.first;
+    let signature = (AGG_SIG_ME, (public_key, (hash_tree(conditions), nil)));
+    (signature, conditions)
+}
+
+fn hash_tree(value: Any) -> Bytes32 {
+    if value is (Any, Any) {
+        let first_hash = hash_tree(value.first);
+        let rest_hash = hash_tree(value.rest);
+        sha256(...[PAIR_DOMAIN, first_hash, rest_hash])
+    } else {
+        assert value is Bytes;
+        sha256(...[ATOM_DOMAIN, value])
+    }
+}

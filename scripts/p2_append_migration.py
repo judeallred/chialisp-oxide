@@ -113,13 +113,16 @@ def authoring_transition(profile, after):
 
 def expected_patches(report):
     """Current append selection before unchanged optimizer pipeline dispatch."""
-    reviewed_after(report)
+    require(report.get("optimization_pipeline") == refinement.NEW_PIPELINE,
+            "Changed current22 optimizer pipeline")
     return refinement.PATCHES
 
 
 def current_native_sources(report):
     """Check actual current22 native declarations/bytes, never projected history."""
-    profile, _ = reviewed_after(report)
+    profile = load()
+    require([p["slug"] for p in report["puzzles"]] == profile["preserved_slugs"] + [ADDED],
+            "Current22 native checker requires exact fixture order")
     check_recorded(report["authoring"], ROOT, profile["preserved_slugs"] + [ADDED])
     inputs = {row["path"]:row["sha256"] for row in report["authoring"]["sources"]}
     for puzzle in report["puzzles"]:
@@ -139,7 +142,8 @@ def current_native_sources(report):
 
 def hash_diagnostic_profile(report):
     """Current appended hash slots; no current validation runs on history."""
-    reviewed_after(report)
+    require(report.get("optimization_pipeline") == refinement.NEW_PIPELINE,
+            "Changed current22 optimizer pipeline")
     return refinement.hash_diagnostic_profile(report)
 
 
@@ -186,10 +190,29 @@ def verify_fresh_bundles(report, on, off, *, compiler, driver_sha256, toolchain,
     manifest self-description cannot supply these expected values.
     """
     profile, after = reviewed_after(report)
-    check_recorded(report["authoring"], ROOT, profile["preserved_slugs"] + [ADDED])
     expected_ir = {r["entry"]:r["sha256"] for r in profile["raw_ir_before"]}
     expected_ir["chialisp_oxide_puzzles::p2_singleton::puzzle"] = after["raw_ir_added_sha256"]
-    require(type(after["bundles"]) is dict and set(after["bundles"]) == {"on", "off"}, "Missing fresh22 modes")
+    return check_fresh_bundles(report, on, off, expected_ir=expected_ir,
+        bundle_pins=after["bundles"], compiler=compiler, driver_sha256=driver_sha256,
+        toolchain=toolchain, cargo_options=cargo_options)
+
+
+def check_fresh_bundles(report, on, off, *, expected_ir, bundle_pins, compiler,
+                        driver_sha256, toolchain, cargo_options):
+    """Profile-independent actual22 loader; caller supplies reviewed IR pins.
+
+    This never projects history or queries/builds tools. Its caller independently
+    supplies expected compiler/driver/options and selects the current profile.
+    """
+    profile = load()
+    require([p["slug"] for p in report["puzzles"]] == profile["preserved_slugs"] + [ADDED],
+            "Fresh checker requires exact current22 fixtures")
+    check_recorded(report["authoring"], ROOT, profile["preserved_slugs"] + [ADDED])
+    require(type(expected_ir) is dict and len(expected_ir) == 22
+            and set(expected_ir) == {v["entry"] for v in report["authoring"]["exports"].values()}
+            and all(type(v) is str and re.fullmatch(r"[0-9a-f]{64}", v) for v in expected_ir.values()),
+            "Missing/unknown reviewed current22 rawIR pins")
+    require(type(bundle_pins) is dict and set(bundle_pins) == {"on", "off"}, "Missing fresh22 modes")
     puzzles = {e["entry"]:p for slug,e in report["authoring"]["exports"].items()
                for p in report["puzzles"] if p["slug"] == slug}
     results = []
@@ -199,7 +222,7 @@ def verify_fresh_bundles(report, on, off, *, compiler, driver_sha256, toolchain,
             driver_sha256=driver_sha256, toolchain=toolchain,
             current_authoring=lambda: __import__("cargo_authoring").snapshot(ROOT), optimize=optimize,
             rue_revision=report["rue_revision"], cargo_options=cargo_options)
-        pin = after["bundles"]["on" if optimize else "off"]
+        pin = bundle_pins["on" if optimize else "off"]
         require(type(pin) is dict and set(pin) == {"manifest_sha256", "optimize_lir"}
                 and isinstance(pin["manifest_sha256"], str) and re.fullmatch(r"[0-9a-f]{64}", pin["manifest_sha256"])
                 and type(pin["optimize_lir"]) is bool and pin["optimize_lir"] is optimize,

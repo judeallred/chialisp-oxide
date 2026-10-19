@@ -47,6 +47,8 @@ export default defineConfig({
           { label: 'Bind a password hash to a coin', slug: 'tutorials/password-coin' },
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
+          { label: 'Delegate conditions with an explicit tail', slug: 'tutorials/delegated-conditions' },
+          { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
         ] },
         { label: 'Inspect the evidence', items: [
           { label: 'Puzzle laboratory', link: '/lab/' },
@@ -60,6 +62,7 @@ export default defineConfig({
         ] },
         { label: 'Understand the compiler', items: [
           { label: 'Architecture & Rue', slug: 'reference/architecture' },
+          { label: 'Cheaper guards and runtime frames', slug: 'tutorials/guarded-projections' },
           { label: 'Optimization & measured costs', slug: 'reference/optimization' },
           { label: 'Compiler trust & standard libraries', slug: 'reference/compiler-trust' },
           { label: 'Hashing and the compiler bridge', slug: 'reference/hashing' },

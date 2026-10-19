@@ -1,0 +1,50 @@
+---
+import { backendLabel, format, href, delegatedProtocol, type PuzzleReport } from '../lib/data';
+interface Props { puzzle: PuzzleReport }
+const { puzzle } = Astro.props;
+const evidence = delegatedProtocol(puzzle);
+if (!evidence) throw new Error('Missing actual recorded delegated-conditions protocol');
+const raw = evidence.raw_validation;
+const counts = { groups: evidence.builds.length, attempts: evidence.transaction_attempts, accepted: evidence.accepted,
+  rejected: evidence.typed_rejected_with_full_rollback, native: raw.native_evaluations, vm: raw.VM_evaluations,
+  named: puzzle.cases.length, generated: puzzle.generated_cases };
+---
+<section aria-label="Delegated conditions: raw policy and owner instances" data-delegated-validation
+  data-delegated-groups={counts.groups} data-delegated-attempts={counts.attempts}
+  data-delegated-accepted={counts.accepted} data-delegated-rejected={counts.rejected}
+  data-delegated-native={counts.native} data-delegated-vm={counts.vm}
+  data-delegated-named={counts.named} data-delegated-generated={counts.generated}>
+  <h2 id="delegated-owner-instances">Fund an owner instance, then validate its spend</h2>
+  <p>The raw module takes a public key and conditions from its caller. The owner instance first curries a fixed key into each build’s actual module. Its coin commits to that resulting reveal. These are separate policies: unsafe uncurried key selection is intentionally admitted as a counterexample to an omitted ownership commitment.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong>{format(counts.attempts)}</strong><span>actual SDK submissions</span></div>
+    <div class="metric"><strong>{format(counts.accepted)}</strong><span>accepted</span></div>
+    <div class="metric"><strong>{format(counts.rejected)}</strong><span>typed consensus rejections</span></div>
+  </div>
+  <p>{format(counts.attempts)} actual submissions: {format(counts.accepted)} accepted and {format(counts.rejected)} typed consensus rejections across {counts.groups} builds. These are not ordinary ledger scenario groups, and do not add to the existing singleton component’s 110 submissions or password-instance observations. The producer checks full Simulator equality in memory after each rejection. The retained Boolean is not a serialized state proof.</p>
+  <p>The omitted signature is the compressed BLS identity (<code>c0</code> followed by 95 zero bytes), not all-zero bytes. Invalid signatures are submitted to consensus; signer-only preparation does not count as a rejection. The two uncurried successes spend the same raw coin in cloned states, rather than spending one coin twice in a single ledger. Fixture secret keys are public and must never control real funds.</p>
+  <p>{evidence.simulator} · {evidence.consensus} · {evidence.vm} · {evidence.network}. Protocol: <code>{evidence.protocol}</code>. This is not a BLS proof or exhaustive authorization proof, and recorded consistency is not execution authentication or compiler preservation.</p>
+  {evidence.builds.map(build => <details class="delegated-build" data-delegated-mode={`${build.backend}:${build.optimize_lir}`}>
+    <summary>{backendLabel(build.backend)} / {build.optimize_lir ? 'on' : 'off'} · {build.transaction_attempts} actual submissions</summary>
+    <p>Own module hash: <code class="hash" data-pagefind-ignore>{build.module_tree_hash}</code>. Owner-instance hash: <code class="hash" data-pagefind-ignore>{build.owner_instance_hash}</code>.</p>
+    <div class="table-scroll"><table><caption>Actual owner-instance and intentionally unsafe raw-coin submissions</caption><thead><tr><th scope="col">Witness</th><th scope="col">Observed status / code</th><th scope="col">Rollback boundary</th></tr></thead><tbody>
+      {build.observations.map(row => <tr data-delegated-attempt={row.label}>
+        <th scope="row">{row.label}</th><td><code>{row.code ?? row.status}</code></td><td>{row.status === 'consensus_rejected' ? (row.full_simulator_equality ? 'checked in memory' : 'failed') : row.scope}</td>
+      </tr>)}
+    </tbody></table></div>
+  </details>)}
+  <h3>Keep the raw comparison separate</h3>
+  <p>The ordinary corpus has {counts.named} named inputs plus {raw.cases.length - counts.named} disjoint generated inputs from the independent recipes, and {format(counts.generated - raw.cases.length + counts.named)} generic raw trees. A separately retained pass records {format(raw.native_evaluations)} additional native evaluations and {format(raw.VM_evaluations)} additional VM evaluations over all {raw.cases.length} independent rows ({raw.accepted} accepted and {raw.rejected} rejected). Replaying those rows does not increase unique input coverage or add SDK submissions.</p>
+  <p>Primary raw execution: <code>{raw.execution_vm}</code>, with a {format(raw.max_cost)} cost ceiling. Thus <code>clvmr 0.21.0</code> raw comparisons remain separate from <code>clvmr 0.16.2</code> consensus observations. Canonical missing-pair faults retain <code>path_into_atom</code>; Rust/Rue faults keep their actual typed codes. Resource failures are inconclusive.</p>
+  <p><a href={href('reports/p2-delegated-conditions.json')}>Download the exact embedded raw and SDK evidence</a> · <a href={href('tutorials/delegated-conditions/')}>Follow the explicit pair and owner-key lesson</a>. Finite tests do not establish production readiness.</p>
+</section>
+<style>
+  section { margin-block: 2rem; }
+  .delegated-build { margin-block: 1rem; border: 1px solid var(--oxide-line); border-radius: .35rem; padding: 1rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  th, td { text-align: left; vertical-align: top; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  caption { text-align: left; padding-block: .5rem; }
+  .hash { overflow-wrap: anywhere; font-size: .7rem; }
+</style>

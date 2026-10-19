@@ -16,6 +16,9 @@ pub use domain::*;
 mod tree;
 pub use tree::*;
 
+mod cons;
+pub use cons::Cons;
+
 #[cfg(feature = "alloc")]
 mod owned_tree;
 #[cfg(feature = "alloc")]

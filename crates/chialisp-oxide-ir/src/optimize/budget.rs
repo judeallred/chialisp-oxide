@@ -35,6 +35,7 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             Expr::Let { .. }
             | Expr::Sequence { .. }
             | Expr::TreePair { .. }
+            | Expr::Pair { .. }
             | Expr::Binary { .. } => 2,
             Expr::If { .. } => 3,
             Expr::AtomIsEmpty { .. }
@@ -42,6 +43,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::TreeAtomValue { .. }
             | Expr::TreeIsPair { .. }
             | Expr::TreeFirst { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. }
             | Expr::TreeRest { .. }
             | Expr::Not { .. }
             | Expr::Field { .. } => 1,
@@ -73,7 +76,7 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
                 first: value,
                 then_value: body,
             } => pending.extend([(value.as_ref(), depth), (body.as_ref(), depth)]),
-            Expr::TreePair { first, rest } => {
+            Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 pending.extend([(first.as_ref(), depth), (rest.as_ref(), depth)]);
             }
             Expr::Binary { left, right, .. } => {
@@ -93,6 +96,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::TreeAtomValue { value }
             | Expr::TreeIsPair { value }
             | Expr::TreeFirst { value }
+            | Expr::PairFirst { value }
+            | Expr::PairRest { value }
             | Expr::TreeRest { value }
             | Expr::Not { value }
             | Expr::Field { value, .. } => pending.push((value.as_ref(), depth)),

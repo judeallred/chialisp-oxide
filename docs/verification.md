@@ -45,12 +45,163 @@ in memory against its saved clone before recording a Boolean result. The report
 does not serialize SDK state or include Debug payloads; a recorded flag is not
 an independent proof of equality or authenticated execution.
 
-Current22 source/native/typed/protocol evidence and explicit fresh ON/OFF
-bundles are checked before the append projection restores the entire signed
-21-puzzle cost baseline. Existing cost profiles and historical measurements
-remain byte-identical. Read-only evidence validation does not reexecute those
+The active append reader checks all 23 current source/native/typed/protocol
+records, raw report bytes, sidecars and requested fresh ON/OFF bundles before
+historical projection. The local capture records 459 named and 25,222 generated
+inputs, with exact repeated 23-puzzle reports. The preceding 22-puzzle capture is the
+immutable `runtime-composition-validation.json` checkpoint, reviewed by
+`runtime-composition-baseline.json`.
+
+The historical route is pure data restoration: current 23 → that whole
+22-puzzle checkpoint → the reviewed composition → the **unsigned** M1
+source-cost checkpoint → the unchanged source-cost transition → actual signed
+E20 (`e20f6d126aedbf76a8c179701af654ca96550074`) → the older append/cost history.
+No M1 Git signature is claimed. The old guarded profile remains pending and
+cannot serve as a fallback authority. Current source validators never receive
+restored history. Read-only evidence validation does not reexecute those
 transactions or authenticate an earlier run. SHA/raw-tree protocol logic
 remains outside the scalar models and compiler-preservation claims.
+
+## Delegated conditions and explicit pairs
+
+Canonical `p2_delegated_conditions` is a second protocol component. Its raw ABI
+preserves two required projections, arbitrary public-key and conditions trees,
+and the ignored outer tail. The reviewed `Cons<First, Rest>` type encodes an
+explicit pair in version-5 IR; tuples keep their existing proper-list encoding.
+Its digest is an owned fixed array, while the original key and conditions remain
+borrowed trees. General heap storage and arbitrary generic structs are not admitted.
+
+The dedicated raw suite checks 200 native inputs and 1,000 primary-VM executions
+across five separately compiled builds. Of those inputs, 195 are accepted and
+five reject: Rust and Rue report typed `Raise`, while the canonical Chialisp
+path reports `PathIntoAtom`. A separate retained-artifact replay repeats the
+same 1,000 evaluations, checking exact outputs, costs and typed failures; it
+does not add unique inputs. Native whole-input/output codec limits remain host
+errors outside the policy-panic adapter. VM resource outcomes stay inconclusive.
+
+The ownership harness submits 60 actual SDK transactions across the five builds:
+20 accepted and 40 exact typed rejections with complete simulator rollback.
+Missing/wrong-key signatures, changed conditions and another coin's reused
+signature must reach `BadAggregateSignature`. A valid signature cannot permit
+minting, change the owner-curried reveal or replace its committed puzzle hash.
+Accepted controls deliberately demonstrate the unsafe uncurried key-selection
+policy as well as valid owner spends. Different solutions for one coin are
+tested from cloned initial states; a spent coin cannot be spent again.
+
+One native test group checks three independently specified source-mutation
+observations. Fresh annotated baseline/mutant exports then execute 12 retained
+VM witnesses: ten accepted outputs and two `Raise` rejections. This exposes
+compiling policy errors without attributing new ledger admissions or unique
+raw inputs to those controls. The public source-control packet and the SDK
+transaction lane have separate receipts.
+
+Rust emits 1,534 bytes off and 629 on, Rue 293 off and 251 on, and independently
+compiled Chialisp reproduces the published 137-byte module. Their module and
+owner-instance hashes differ. These are module-size observations, not complete
+transaction-cost comparisons. Pair-capable programs retain proper runtime
+frames and strict Pair construction/projection; only checked helpers without
+typed `Cons`/IR `Pair` values, whose calls are all self-calls, may reuse the
+existing shape/atom facts. Ordinary borrowed `Tree::Pair` matching is still
+supported. Whole-IR validation, fresh lexical scopes, analysis budgets and
+fresh-emitter fallback
+remain required. The entry body gains no such facts from that helper exception.
+
+Fresh extraction covered all 23 exports in both modes twice, followed by ordinary
+IR validation/recompilation of every retained program in both modes. The complete
+22-puzzle predecessor and its 44 raw IR/artifact combinations remain exact after
+the closed source/native metadata transition. The actual 578-test workspace,
+formatting and all-target Clippy results are carried for 327 unchanged
+Rust/Cargo/config inputs. The only added Rust file is the separate native-control
+template, bound to its executed native package. Final integration reran the two
+Rue corpus tests on the current 23-puzzle data before its own host build; this
+does not claim another complete workspace test run.
+
+These executions do not prove the Rust/MIR/IR/CLVM bridge, cryptography or complete
+authorization. Current models reject this program's SHA and typed Pair operations.
+The manual algorithm theorems, source-derived proof reports and documentation
+publication gates retain their own scopes and must check their actual source
+snapshot separately. **The prototype remains unsuitable for real funds.**
+
+## Composed compiler checkpoint
+
+The completed 22-puzzle composition combines guarded projections, exact atom
+facts and unary runtime-frame lowering. Its repeated report contains 439 named
+and 22,983 generated inputs, with complete fresh 44-export/mode extraction,
+native/VM comparisons and separately scoped simulator records. Its optimized
+pay-to-singleton module is 1,334 bytes; the ordinary primary VM observation costs
+57,925, and the measured joint transaction costs 41,090,749. The launcher and
+password modules are 478 and 271 bytes. These are measurements of that retained
+checkpoint, not universal cost bounds.
+
+`scripts/check-runtime-composition.py` checks the active report before its pure
+historical comparison. `scripts/check-p2dc-append.py` additionally checks the
+whole current 23-puzzle append. Both reject unreviewed captures. The dedicated
+source-policy controls use `scripts/check-p2dc-source-controls.py`; one native
+test group with three paired observations and 12 VM runs adds no SDK spends.
+
+## Historical source-only transaction-cost checkpoint
+
+`corpus/p2-source-cost-baseline.json` binds the signed E20 predecessor and
+its exact report. A direct shared quoted-call hash kernel changes only the P2
+Rust source and its three explicit policy mutations. All other 21 raw IR programs,
+artifacts and observations remain exact in both modes. That checkpoint verified
+source/native/typed evidence, a complete fresh pair of 22-export Cargo bundles,
+actual mutation capture metadata and accepted-bundle metrics before its pure
+historical restoration. Its exact report is now retained separately as
+`corpus/checkpoints/p2-source-cost-validation.json`; it is not the moving current
+compiler report. Recorded consistency checks add no execution credit.
+
+The optimized module shrinks 1,972 → 1,685 bytes, but ordinary VM cost increases
+63,896 → 65,150. The joint transaction's charged generator size shrinks 3,800 →
+3,513 bytes; at the recorded 12,000 cost per byte, the byte-cost saving exceeds
+the execution increase. Its total conditions cost falls 48,752,720 → 45,309,974.
+The two serialized quoting bytes excluded by the consensus helper explain why
+charged size differs from the 3,802 → 3,515 serialized-byte measurement. Genesis
+and subsequent lineage phases remain unchanged. These fifteen cost-helper runs
+(five builds × three phases) measure exact bundles already admitted separately;
+they do not add BLS verification or SDK transaction submissions.
+
+```sh
+python3 scripts/check-p2-source-cost.py --self-test \
+  --report corpus/validation.json
+python3 scripts/check-p2-source-cost.py --checkpoint-only
+```
+
+The default check validates current evidence before checking the immutable
+checkpoint. The explicit checkpoint-only command checks retained data without
+claiming current source freshness or rerunning the old compiler. Its six raw
+downloads and source-control sidecar remain exact historical bytes.
+
+## Historical guarded projection experiment
+
+The immutable pending `corpus/guarded-projection-baseline.json` describes a
+separate eleven-stage experiment; it was never admitted as the current
+compiler authority. Its captured Rust puzzle source, authoring
+inputs and all 44 extracted IR programs remain exact. Seven optimized Rust
+modules shrink; fifteen stay exact. All 22 unoptimized Rust and 66 independent
+Chialisp/Rue artifacts stay exact. Accepted named Rust comparisons are cheaper
+in 153 cases and equal in 134; all named typed outcomes and diagnostics agree.
+
+For pay-to-singleton, optimized Rust shrinks 1,685 → 1,462 bytes and ordinary
+VM cost falls 65,150 → 60,409. The actual joint transaction's total conditions
+cost falls 45,309,974 → 42,629,233: execution saves 4,741, condition charges stay
+at 3,000,000, and 223 fewer charged generator bytes save 2,676,000. The serialized
+generator is 3,292 bytes, with 3,290 charged under the pinned two-byte quote rule.
+Genesis numerical costs and lineage measurements stay equal. The two genesis
+generator encodings change only through one occurrence of the independently
+derived new curried P2 hash in each encoding; unchanged numerical costs do not
+imply identical generator bytes. Backreference encodings remain measurements,
+with no compressed-generator admission or cost claim.
+
+`scripts/test_runtime_guarded_projection.py` checks this retained historical
+checkpoint without passing it to current-source validators. The old direct
+guarded CLI intentionally rejects the pending profile. Use the active append
+and composition readers for current evidence; their separate conditions-helper
+execution checks the 15 selected measurements. Older sidecars are never
+validated as fresh compiler inputs. Conditions-helper calls skip signatures and are separate
+from the 110 SDK submissions. Finite savings, recorded identity checks and
+source freshness establish neither universal dominance nor cryptographic safety
+or compiler preservation.
 
 ## Password module and instance boundary
 
@@ -69,13 +220,13 @@ historical projection. The cost transition first binds all 21 puzzles to the
 signed before report and reviewed new optimized artifacts. Only reviewed Rust
 optimized slots and independently derived instance/coin identities may change;
 all other recorded fields remain exact. Fresh Cargo bundles check all
-22 current raw IR programs and both modes against their reviewed artifacts
+23 current raw IR programs and both modes against their reviewed artifacts
 before historical projection. The append gate retains the signed 21-program
 cost baseline.
 This is freshness and finite agreement, not compiler authentication or a
 translation theorem. Existing formal models reject SHA operations.
 
-The next closed cost transition binds signed commit `c87957e2` and the unchanged
+An earlier closed cost transition binds signed commit `c87957e2` and the unchanged
 helper-inlining snapshot in `corpus/runtime-refinement-baseline.json`.
 Branch-local integer intervals remove a proven-total repeated checked
 initializer; lazy byte bounds compact the canonical integer decoder. All 21

@@ -8,10 +8,23 @@ import { MAX_SOURCE_DATA_BYTES, sourceDataArtifact, sourceDataArtifacts, readSou
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const report = JSON.parse(await readFile(path.join(root, 'corpus/validation.json'), 'utf8'));
+const args = new Set(process.argv.slice(2));
+assert([...args].every(arg => arg === '--constructed'));
+const constructed = args.has('--constructed');
+if (constructed) {
+  // A source-data-only metadata fixture, not a fabricated VM/SDK report. It is
+  // never written to corpus or passed to the current23 admission readers.
+  assert(!report.puzzles.some(row => row.slug === 'p2-delegated-conditions'));
+  const relative = 'puzzles/p2-delegated-conditions/independent-vectors.json';
+  const source = await readFile(path.join(root,relative),'utf8');
+  const manifest = JSON.parse(await readFile(path.join(root,'puzzles/p2-delegated-conditions/puzzle.json'),'utf8'));
+  report.puzzles.push({slug:'p2-delegated-conditions',generated_cases:180+2059,cases:manifest.cases,
+    source_dependencies:[{path:relative,source,sha256:createHash('sha256').update(source).digest('hex')}],rue:{dependencies:[]}});
+}
 const artifacts = sourceDataArtifacts(report);
-assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json', 'p2-singleton-vectors.json', 'p2-singleton-generated-cases.json', 'password-coin-generated-cases.json']);
-assert.equal(artifacts.length, 7);
-assert.deepEqual(artifacts.map(entry => entry.rows), [1183, 2557, 285, 275, 178, 128, 256]);
+assert.deepEqual(artifacts.map(entry => entry.basename), ['prefix-list-generated-cases.json', 'atom-not-equal-generated-cases.json', 'insertion-sort-by-keys-generated-cases.json', 'sha256tree-generated-cases.json', 'p2-singleton-vectors.json', 'p2-singleton-generated-cases.json', 'password-coin-generated-cases.json', 'p2-delegated-conditions-independent-vectors.json']);
+assert.equal(artifacts.length, 8);
+assert.deepEqual(artifacts.map(entry => entry.rows), [1183, 2557, 285, 275, 178, 128, 256, 200]);
 assert.equal(report.puzzles.find(puzzle => puzzle.slug === 'password-coin').generated_cases, 256 + 2059);
 assert.equal(report.puzzles.find(puzzle => puzzle.slug === 'p2-singleton').generated_cases, 128 + 2059);
 const actualBytes = new Map();
@@ -22,7 +35,7 @@ for (const entry of artifacts) {
   assert.equal(bytes.toString('utf8'), dependency.source);
   assert.equal(bytes.length, entry.bytes);
   const parsed = JSON.parse(bytes);
-  assert.equal(Array.isArray(parsed) ? parsed.length : parsed.named.length + parsed.generated.length, entry.rows);
+  assert.equal(Array.isArray(parsed) ? parsed.length : entry.kind === 'independent' ? parsed.accepted.length + parsed.rejected.length : parsed.named.length + parsed.generated.length, entry.rows);
   actualBytes.set(entry.path, bytes);
 }
 assert.equal(sourceDataArtifact('puzzles/other/generated-cases.json'), undefined);
@@ -77,6 +90,12 @@ const mutations = [
   ['omitted password inherited suite', value => { passwordOwner(value).generated_cases = 256; }],
   ['password inherits another count', value => { passwordOwner(value).generated_cases = 256 + 2048; }],
   ['Boolean password generated count', value => { passwordOwner(value).generated_cases = true; }],
+  ['independent missing owner', value => { value.puzzles=value.puzzles.filter(p=>p.slug!=='p2-delegated-conditions'); }],
+  ['independent double counts named', value => { value.puzzles.find(p=>p.slug==='p2-delegated-conditions').generated_cases=200+2059; }],
+  ['independent altered named solution', value => { value.puzzles.find(p=>p.slug==='p2-delegated-conditions').cases[0].solution+=' '; }],
+  ['independent duplicate named row', value => { const p=value.puzzles.find(p=>p.slug==='p2-delegated-conditions');p.cases[1]=structuredClone(p.cases[0]); }],
+  ['independent missing projection recipe', value => { const d=value.puzzles.find(p=>p.slug==='p2-delegated-conditions').source_dependencies.find(d=>d.path.endsWith('/independent-vectors.json'));const data=JSON.parse(d.source);data.rejected.pop();d.source=JSON.stringify(data);d.sha256=hash(d.source); }],
+
 ];
 for (const [label, mutate] of mutations) {
   const bad = structuredClone(report);
@@ -166,4 +185,4 @@ try {
   process.chdir(cwd);
   await rm(temporary, { recursive: true, force: true });
 }
-console.log(`PASS: ${artifacts.length} exact source-data downloads (${artifacts.reduce((total, entry) => total + entry.bytes, 0)} bytes), inclusive 2 MiB boundary and ${controls} record/path/hash/size/symlink controls`);
+console.log(`PASS (${constructed?'constructed source-data metadata only; no actual23 execution':'actual recorded source-data metadata'}): ${artifacts.length} exact source-data downloads (${artifacts.reduce((total, entry) => total + entry.bytes, 0)} bytes), inclusive 2 MiB boundary and ${controls} record/path/hash/size/symlink controls`);

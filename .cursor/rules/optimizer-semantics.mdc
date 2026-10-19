@@ -26,14 +26,23 @@ alwaysApply: true
 - Propagate integer bounds only on immutable lexical values after successful
   guards. Join successful paths and start fresh callee scopes; never borrow
   sibling/future facts. Discard checked arithmetic only when proven total.
+- Forward runtime first/rest aliases only under the corresponding branch-local
+  pair fact. Track physical binding generations, resolve paths at the final
+  consumer and start fresh callee scopes. Retain strict captures otherwise.
+  Preflight all bodies and bound analysis, descriptors, reuse and path distance;
+  retry a fresh preceding emitter on private typed optional limits. Do not
+  generalize this to the disabled backward runtime guard-removal pass.
 - Preserve scalar/length/canonicality/range/body decoder order. Nil is canonical
   zero; nonempty canonical integers lie in unsigned byte interval [0080,ff80).
   The independent Seq8 law does not prove opcode/ABI/compiler preservation.
 - Measure serialized bytes together with VM work. Full bundle cost needs actual
   consensus measurements; tiny constant hashes can increase generator byte cost.
-- Keep signed snapshots immutable. Validate current source/native/typed evidence
-  before projecting reviewed optimized slots through older baselines. Run
-  check-helper-inlining.py, check-runtime-refinement.py and check-cost-optimization.py
-  with corruption controls
-  and retained VM replay. Resource failures remain inconclusive; finite savings
-  are not universal cost dominance or compiler preservation.
+- Keep historical snapshots immutable and signed/unsigned status explicit.
+  Validate the active append/composition source, native and typed evidence plus
+  complete fresh Cargo bundles before pure historical projection. Never validate
+  restored history as current source. Preserve historical source-only labels and
+  six downloads. Follow current-evidence.mdc and the active append/composition
+  gates; the old guarded profile remains pending. Run the existing
+  helper/refinement/cost gates with retained VM replay. Conditions-helper
+  runs skip BLS verification and do not add SDK admissions. Resource failures remain
+  inconclusive; finite savings are not universal dominance or compiler preservation.

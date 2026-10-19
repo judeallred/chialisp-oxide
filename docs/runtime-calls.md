@@ -104,11 +104,47 @@ A v4 envelope is accepted only if it contains a runtime node or a nonempty
 function table. A legacy-only body with `functions: []` is rejected, rather than
 silently downgraded to the legacy evaluator or admitted to a model as legacy IR.
 
+## Explicit wire pairs and version 5
+
+Ordinary Rust tuples keep their proper-list ABI. `Cons<Head, Tail>` instead
+encodes one CLVM pair: its `first` is the head and its `rest` preserves the tail's
+own encoding. For example, `Cons { first: 1_u64, rest: 2_u64 }` encodes `(1 . 2)`;
+the tuple `(1_u64, 2_u64)` encodes `(1 2)`. A borrowed `&Tree` tail keeps arbitrary
+atoms and improper tails. The head can own a computed digest while the tail
+borrows input, without returning a reference to a local digest array.
+
+The frontend recognizes the reviewed immutable SDK representation, checks its
+layout and types, and lowers actual field operations. This exception does not
+admit arbitrary generic structs, references, allocators or external libraries.
+The typed IR uses `Type::Pair`, `Pair`, `PairFirst` and `PairRest` in version 5.
+Older wire versions reject these nodes instead of interpreting them as tuples.
+Validation covers every body, including unused functions, before compilation.
+The scalar proof APIs reject this wire shape; a successfully compiled program
+has not thereby acquired a pair-model or compiler-preservation proof.
+
+Version 5 keeps proper runtime argument frames, including unary helpers. A
+conservative per-helper scan can enable the existing tree-projection and atom
+facts for a helper whose signature, nested types and body contain no explicit
+wire-pair operations and whose calls are only to itself. Raw `Tree` matching
+and construction remain eligible: their tree pairs are distinct from the new
+`Cons` transport type. A helper that calls another function is conservatively
+ineligible. The entry and ineligible helpers reset these options explicitly.
+No caller fact enters a callee, and no compact unary layout is enabled for v5.
+
+The scan charges types, nodes and queued children against the shared optional
+analysis budget. Iterative whole-program preflight still comes first; budget
+or depth exhaustion retries the preceding lowering with fresh state. A helper
+selection rule does not supply a termination summary, authorize a v5 pair
+rewrite, or allow a discarded fallible call to disappear. Regression tests
+cover fresh recursive facts, strict field operands, alias rebasing, ignored
+improper tails, earlier rejection versus divergence, and malformed unused IR.
+
 ## Optimization and resource boundaries
 
 The optimized pipeline is checked constant folding → forward success facts →
 constant folding again → branch-local integer intervals → legacy tree guards →
-bounded helper inlining → runtime frame elision → lazy canonical-integer decoding
+bounded helper inlining → runtime frame elision → guarded projection forwarding
+→ lazy canonical-integer decoding
 → Rue LIR optimization → static pair code generation. Off retains the original lowering
 and skips these optional stages. The extracted source IR and its wire version
 stay unchanged; every owned IR rewrite is validated before lowering.
@@ -126,6 +162,34 @@ that explicitly rejects contributes no successful continuation. Calls have no
 inferred termination or return summaries, and each function starts a fresh
 analysis scope. Rustc still checks ordinary source types; these refinements
 belong to the owned optimizer over validated typed IR.
+
+Guarded projection forwarding also uses a successful pair branch when lowering
+strict runtime bindings. If `IsPair(value)` selected the current branch, a later
+`First(value)` or `Rest(value)` reads already captured immutable data and can
+use a rebased environment path instead of another continuation frame. Negated
+conditions carry the corresponding false-branch fact. This does not remove the
+pair test or move a fallible operation across an earlier call. A projection
+without the required fact retains its strict binding.
+
+Aliases retain physical argument/local generations, rather than lexical names
+or previously computed VM paths. The emitter resolves the final path after
+intervening frame extensions; calls start fresh. Analysis preflights every body,
+including unused functions, at depth 64 and 20,000 nodes. It bounds analysis work
+at 50,000, projection descriptors at 4,096, emitted uses per descriptor at four,
+and root distance plus projection depth at eight. Exceeding an optional bound
+retries the preceding emitter with a fresh lowerer. These conservative limits
+avoid the measured high-reuse and distant-root regressions; they do not prove
+universal cost improvement.
+
+The retained guarded-projection 22-puzzle capture keeps all 44 extracted IR programs, all
+22 unoptimized Rust artifacts and all 66 independent Chialisp/Rue artifacts
+exact. Seven optimized modules shrink and fifteen stay exact. Of the accepted
+named Rust comparisons, 153 cost less and 134 stay equal; typed outcomes and
+failure diagnostics stay exact. Pay-to-singleton shrinks 1,685 → 1,462 bytes,
+with ordinary VM cost 65,150 → 60,409 and measured joint conditions cost
+45,309,974 → 42,629,233. See the retained compiler profile and
+[verification boundaries](verification.md); finite comparisons are separate
+from a compiler-preservation or general performance theorem.
 
 Branch-local integer intervals additionally start from each declared integer
 width and refine immutable values on successful comparisons. The current

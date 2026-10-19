@@ -1,0 +1,153 @@
+---
+title: Cheaper guards and runtime frames
+description: Follow successful pair and atom facts, immutable aliases and unary frames through separately measured compiler costs.
+---
+
+import CompositionCosts from '../../../components/CompositionCosts.astro';
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Rust pattern matching gives a name to each part of a tree after checking its
+shape. The compiler can use that successful check when it lowers later reads.
+The source-only checkpoint already shares the P2 hash kernel; this comparison
+keeps that Rust policy source exactly the same and measures the composed
+compiler: guarded projections, known-atom facts and compact unary frames.
+The SDK metadata also gains explicit `Cons` support; that is recorded separately
+from policy-source and artifact comparisons. The source-only checkpoint is
+unsigned reviewed content, linked to the signed E20 historical anchor.
+
+<CompositionCosts />
+
+## A successful match tells us something precise
+
+The [P2 laboratory](/chialisp-oxide/lab/p2-singleton/#sources) shows the complete
+Rust, Chialisp and Rue programs. Its Rust tree-hash helper contains this code:
+
+```rust
+fn tree_hash<'a>(tree: &'a Tree<'a>) -> [u8; 32] {
+    match tree {
+        Tree::Atom(payload) => atom_hash(payload),
+        Tree::Pair(first, rest) => {
+            let first_hash = tree_hash(first);
+            let rest_hash = tree_hash(rest);
+            pair_hash(&first_hash, &rest_hash)
+        }
+    }
+}
+```
+
+Inside the pair branch, the match has already established that this particular
+`tree` is a pair. That makes the first and rest projections defined for this value. They still
+consume execution cost and remain subject to the VM’s resource budget. This fact says nothing about either child’s own shape: each
+recursive call still inspects its child. The atom branch and its arbitrary byte
+payload retain their behavior.
+
+The P2 entry point also matches five successive pairs in the whole environment.
+Its named bindings can refer directly to the checked input paths instead of
+building temporary frames and then projecting those same values back out.
+The uninspected tail stays uninspected, including an improper tail. This is
+important for the canonical program’s raw-tree input contract.
+
+## Track values, not variable names
+
+A useful fact is attached to a captured immutable value and its physical lexical
+binding. Two locals called `rest` in different scopes do not become one value.
+A later assignment does not change what an earlier captured alias means.
+Callees start with fresh local scopes.
+
+The lowering follows only supported immutable paths and rebases a resolved path
+where it is finally consumed. It does not replace every occurrence of the same
+source spelling or transfer a branch fact to an unrelated function. At a join,
+only facts supported on the successful incoming paths may remain.
+
+These checks are compiler bookkeeping. Puzzle authors still use ordinary Rust
+matches, named helpers and native Cargo tests; no new annotation asks an author
+to promise that an attacker-controlled input has the right shape.
+
+## Atom facts and a smaller internal call frame
+
+On an atom branch, the compiler knows that the captured physical tree value is
+an atom. An immediate `TreeAtomValue` cast can reuse that fact and avoid its
+repeated internal guard. It does not erase a surrounding non-leaf initializer,
+introduce a fact about another value, or make a SHA call total. These branch-local
+facts are not inferred through unknown calls or shared with callees.
+
+For an eligible one-argument runtime function, the internal frame can keep its
+sole argument directly instead of building another singleton list around it.
+The public solution shape stays unchanged. New locals still capture values in
+order; a callee still has fresh lexical bindings. Zero-argument and multi-argument
+calls, mutual recursion and improper raw tails retain their own layouts and
+checks. This is an internal representation choice, not a new authoring target
+or an unchecked ABI.
+
+The composed implementation conservatively disables these new facts and unary
+layouts for **any typed Cons/Pair-capable program**, including an unused
+Pair-bearing signature. Borrowed `Tree::Pair` matching is distinct from the
+explicit [wire-pair ABI](/chialisp-oxide/reference/abi/#explicit-pairs-with-conshead-tail).
+No Pair optimization extension or model theorem is implied by these savings.
+
+## A later success cannot excuse an earlier failure
+
+The pair check must happen before a projection that relies on it. An atom where
+a pair is required must still fail. A branch that is not selected must stay
+lazy. The compiler cannot move the check past an earlier operation that may
+fail, overflow, consume resources or diverge.
+
+Similarly, an unused initializer or call argument still evaluates once in
+source order. A SHA call does not become free or total because its result is
+unused. Guarded forwarding preserves that strict work; it forwards a proven
+value rather than erasing a potentially failing computation. Integer widths,
+canonical integer decoding, atom checks and the exact ABI remain separate.
+
+## Fall back when a path becomes expensive
+
+A shorter representation is not automatically cheaper to execute. Repeating a
+long environment path can cost more than keeping a local frame. This prototype
+therefore limits forwarding to at most four rendered reads and a short combined
+slot-distance/path-depth budget of eight. Separate preflight, work and record
+budgets bound the analysis before it copies or recursively lowers data.
+
+When the optional analysis exceeds its private budget, compilation starts the
+previous optimized lowering again with fresh state. It does not emit a partly
+rewritten program, weaken the old compiler limits or turn an unsupported source
+construct into an accepted one. These thresholds are conservative engineering
+choices, not a theorem that every possible input becomes cheaper.
+
+## Read the evidence at its actual scope
+
+The retained composed checkpoint validates 22 puzzles, 439 named cases and 22,983
+generated cases, then repeats the complete report byte for byte. All 44 raw IR
+exports, 22 unoptimized Rust artifacts and 66 Chialisp/Rue artifacts retain
+their reviewed identities.
+
+The table above compares the unsigned source-only checkpoint with this composed
+compiler checkpoint. The active corpus and its separate delegated-conditions
+append have their own whole-report identity; the append must preserve these P2
+artifacts and measurements. The separate retained-program replay uses the earlier guarded and
+Atom-only compiler artifacts: against the guarded checkpoint, 194 accepted
+named VM costs fall and 93 stay equal; none grows. Seven optimized modules
+shrink and fifteen stay equal. The 1,317 actual retained executions are 439
+inputs for each of those two earlier compilers and the final compiler; the
+final runs are shared by the two comparisons, not counted twice.
+
+Those are finite execution results. The Rust suite separately checks alias
+identity, strictness, deep/repeated paths, distant roots and fresh fallback.
+Existing model checks retain their own supported domains; none of this is a
+universal compiler-preservation, cryptographic security or termination proof.
+The full singleton and all of its policies are not newly ported by this P2
+component.
+
+After the normal [Cargo quickstart](/chialisp-oxide/start/quickstart/), inspect
+the active corpus before reading retained compiler evidence with:
+
+```sh
+python3 scripts/check-runtime-composition.py
+```
+
+The build gate validates the actual source/native/protocol and metric/control
+bindings, plus requested fresh bundles, before pure historical projection.
+That closed chain restores the exact unsigned source-only checkpoint and then
+uses the unchanged source-cost transition to the real signed E20 anchor. Reading the record does not
+execute its tests or authenticate a previous run. The shared source-only
+checkpoint and its six earlier downloads remain exact historical inputs, with
+no current-source checker applied to restored history.

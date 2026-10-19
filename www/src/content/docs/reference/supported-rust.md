@@ -213,6 +213,22 @@ against list specifications. It does not prove Rust ownership erasure or
 Rust/MIR/IR/CLVM preservation. Recursive owned exports still use version-4 IR,
 which the current SMT model APIs reject.
 
+## Explicit wire pairs
+
+`chialisp_oxide::Cons<Head, Tail>` is the narrow vetted SDK struct exception.
+Struct literals, field reads, nested concrete supported types, moves and
+snapshot-preserving complete reassignment are checked through actual MIR.
+Its two fields encode one CLVM pair, while tuples retain their proper-list ABI.
+A `Tree` tail may be an atom or an improper pair. Field construction and unused
+initializers stay strict; the default input ABI validates both fields.
+
+This does not admit general structs, generic helper functions or custom Drop.
+The frontend validates the real SDK ADT identity and shape rather than its
+spelling. Pair-capable programs use IR v5 and conservatively keep the preceding
+facts/frame lowering; the new known-atom/unary optimizations are not extended
+to them. Current SMT models reject this capability explicitly. See the
+[wire-pair ABI](/chialisp-oxide/reference/abi/#explicit-pairs-with-conshead-tail).
+
 ## Rejected features
 
 The narrow borrowed-tree exception supports the SDK's immutable `Tree<'a>`
@@ -293,3 +309,9 @@ compatible with the on-chain subset.
 Compile-fail fixtures exercise unsupported features, Rust type/borrow failures,
 and unsafe code. They are useful regression evidence; they are not an argument
 that a general Rust-to-CLVM translation has been proved correct.
+
+The [delegated-conditions lesson](/chialisp-oxide/tutorials/delegated-conditions/)
+uses `Cons<(u64, &Tree, [u8; 32]), &Tree>`: a proper-list signature condition
+followed by the original arbitrary conditions tail. The owned digest and
+borrowed tree fields keep their ordinary Rust lifetimes. This does not grant
+arbitrary generic structs, on-chain BLS operations or proof-model support.

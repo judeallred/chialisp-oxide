@@ -69,6 +69,8 @@ def check_ledger_report(report, *, require_typed=True):
     header = report.get("simulator", {})
     if require_typed or "rejection_protocol" in header:
         require(header.get("rejection_protocol") == PROTOCOL, "Missing/unsupported ledger rejection protocol")
+    components = set()
+    component_slugs = {"p2-singleton", "p2-delegated-conditions"}
     for puzzle in report["puzzles"]:
         comparisons = puzzle.get("simulator_comparisons", [])
         require(isinstance(comparisons, list) and all(isinstance(row, dict)
@@ -81,8 +83,18 @@ def check_ledger_report(report, *, require_typed=True):
         if require_typed:
             kind = puzzle.get("kind")
             require(kind in ("coin_puzzle", "pure_function", "program_factory", "protocol_component"), "Unknown puzzle kind for ledger contract")
+            require(puzzle["slug"] not in component_slugs or kind == "protocol_component",
+                    f"{puzzle['slug']}: dedicated component requires its protocol_component contract")
             if kind == "protocol_component":
-                from p2_singleton_evidence import validate_component
+                require(puzzle["slug"] in component_slugs,
+                        f"{puzzle['slug']}: unknown protocol component")
+                require(puzzle["slug"] not in components,
+                        f"{puzzle['slug']}: duplicate protocol component")
+                components.add(puzzle["slug"])
+                if puzzle["slug"] == "p2-singleton":
+                    from p2_singleton_evidence import validate_component
+                else:
+                    from p2_delegated_conditions_evidence import validate_component
                 validate_component(puzzle)
             elif kind == "coin_puzzle":
                 require(puzzle["slug"] in PUZZLES, f"{puzzle['slug']}: no reviewed ledger scenario contract")

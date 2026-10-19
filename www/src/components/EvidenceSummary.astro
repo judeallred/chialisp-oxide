@@ -1,5 +1,5 @@
 ---
-import { totals, protocolTotals, format, href } from '../lib/data';
+import { totals, protocolTotals, delegatedTotals, format, href } from '../lib/data';
 ---
 <div class="metric-grid" aria-label="Generated validation report totals">
   <div class="metric"><strong>{format(totals.puzzles)}</strong><span>executable examples</span></div>
@@ -9,3 +9,4 @@ import { totals, protocolTotals, format, href } from '../lib/data';
 <p class="quiet" style="font-size:.78rem;margin-top:.75rem">Derived from the checked-in validation report, including {format(totals.consensusRejections)} exact consensus rejection checks. Scenario runs are grouped tests, not transaction counts. <a href={href('lab/')}>Inspect sources, cases, costs, and assumptions →</a></p>
 
 {protocolTotals.attempts > 0 && <p class="quiet" data-protocol-summary data-protocol-attempts={protocolTotals.attempts} data-protocol-accepted={protocolTotals.accepted} data-protocol-rejected={protocolTotals.rejected}>Separate canonical pay-to-singleton composition records {format(protocolTotals.attempts)} actual transaction submissions: {format(protocolTotals.accepted)} accepted and {format(protocolTotals.rejected)} typed consensus rejections with complete rollback, across {protocolTotals.groups} builds. These do not increase the ordinary scenario-group count. <a href={href('tutorials/p2-singleton/')}>Read its scope and counterpart assumptions.</a></p>}
+{delegatedTotals.attempts > 0 && <p class="quiet" data-delegated-summary data-delegated-attempts={delegatedTotals.attempts} data-delegated-accepted={delegatedTotals.accepted} data-delegated-rejected={delegatedTotals.rejected}>Separate delegated-conditions owner instances record {format(delegatedTotals.attempts)} actual SDK submissions: {format(delegatedTotals.accepted)} accepted and {format(delegatedTotals.rejected)} typed consensus rejections with rollback across {delegatedTotals.groups} builds. Its intentionally unsafe uncurried successes illustrate an ownership policy the compiler cannot infer. <a href={href('tutorials/delegated-conditions/')}>Read the raw template and owner-commitment lesson.</a></p>}

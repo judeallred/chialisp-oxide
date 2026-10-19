@@ -1,4 +1,8 @@
-"""Projection controls only; no actual public22 frontend/native execution credit."""
+"""Historical22 projection controls after actualcurrent23 validation.
+
+The native file controls construct an explicit22 authoring view; no new frontend,
+policy, VM, simulator or historical source-execution credit is claimed.
+"""
 import copy
 import json
 import shutil
@@ -11,6 +15,7 @@ import p2_append_migration as append
 import runtime_cost_migration as cost
 import runtime_inline_migration as inline
 import runtime_refinement_migration as refinement
+import p2dc_append_migration as outer
 
 
 class AppendProjection(unittest.TestCase):
@@ -18,7 +23,10 @@ class AppendProjection(unittest.TestCase):
     def setUpClass(cls):
         current = json.loads((append.ROOT / "corpus/validation.json").read_bytes())
         cls.profile = append.load()
-        cls.baseline = append.project_validated(current) if append.is_append(current) else current
+        from test_p2_source_cost import constructed_authorization
+        with constructed_authorization(current):
+            cost.validate_current(current)
+            cls.baseline = cost.project_append(current)
         assert cost.sha(cost.canonical(cls.baseline)) == append.REPORT_CANONICAL
 
     def candidate(self):
@@ -81,6 +89,11 @@ class AppendProjection(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="p2-append-native-") as directory:
             root = Path(directory)
             metadata = json.loads((append.ROOT / "puzzles/authoring.json").read_bytes())
+            # This exercises the retained historical22 native loader with real
+            # copied source bytes and constructed declarations, independently
+            # of the active23 checker tested by test_p2_outer_integration.
+            metadata["exports"].pop(outer.SLUG)
+            metadata["inputs"] = [path for path in metadata["inputs"] if path not in outer.ADDED]
             metadata["exports"][append.ADDED] = {"entry":"chialisp_oxide_puzzles::p2_singleton::puzzle", "source":"puzzles/p2-singleton/puzzle.rs"}
             metadata["inputs"] = sorted(set(metadata["inputs"]) | set(self.profile["authoring"]["prototype_added_inputs"] + self.profile["authoring"]["reviewed_integration_added_inputs"]))
             for relative in metadata["inputs"]:

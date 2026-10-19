@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-p2dc-append/v1",
+  "status": "reviewed_final_p2dc_append",
+  "scope": "Reviewed current23 append after actual repeated whole corpus, complete paired Cargo captures, current source/native/typed component checks, unchanged whole22 predecessor and IR/artifacts, retained VM replays, public source-policy mutations, and current23 existing-P2 sidecars. Before227 is an UNSIGNED reviewed content checkpoint linked through exact8024 composition and source-cost history to actual signedE20. Native578 workspace tests are carried only for identical prior Rust/Cargo inputs, with the sole new nonworkspace native template separately tested; root current23 Rue tests and LAST build are separate. Raw template and separately funded/signature-checked finite owner instances remain distinct. Current23 source/native/typed/components/sidecars and requested fresh checks precede pure whole22 restoration. Recorded consistency is not execution authentication, state/BLS/preservation proof or production readiness. Source-derived proof and documentation builds are separate gates.",
+  "baseline": {
+    "kind": "unsigned_reviewed_content_addressed_checkpoint",
+    "checkpoint_path": "corpus/checkpoints/runtime-composition-validation.json",
+    "report_sha256": "227ce91137f786919ce47cf0b0e09038efa84ee2f9c0df6a4e3fc0894084dc64",
+    "canonical_report_sha256": "a58ea5e73d51cd9207913b29cfb122323e96a84bff670a0af3c5af52c63a3905",
+    "authorizing_transition_path": "corpus/runtime-composition-baseline.json",
+    "authorizing_transition_sha256": "8024f7430fb8378031f0864336267b9584a458d25e89c54f2405385e37f3c01b",
+    "signed_anchor": {
+      "kind": "signed_git_checkpoint",
+      "repository": "https://github.com/judeallred/chialisp-oxide",
+      "commit": "e20f6d126aedbf76a8c179701af654ca96550074",
+      "tree_sha1": "6f795121c9998515bb0e38c16cf6d00924254492",
+      "report_path": "corpus/validation.json",
+      "report_git_blob_sha1": "4e739b7cd0f55130742ae44e8d0a91aac2cecf11",
+      "report_sha256": "104e4e706e1183cff556ee0a559b8410ff6a5cb6b76bc8a512c04eb3a00d31da",
+      "canonical_report_sha256": "b95dfeb63fb1df2cc980135644b35c41cd50f04bad508dd71af5519c5b82c89b"
+    }
+  },
+  "preserved_slugs": [
+    "fixed-payment",
+    "capped-payment",
+    "split-payment",
+    "timelocked-payment",
+    "signature-payment",
+    "two-signature-payment",
+    "recovery-payment",
+    "bounded-counter",
+    "boolean-gate",
+    "intro-list",
+    "intro-add",
+    "intro-conditional",
+    "p2-conditions",
+    "rightmost-tree",
+    "last-list-element",
+    "prefix-list",
+    "atom-not-equal",
+    "insertion-sort-by-keys",
+    "sha256tree",
+    "singleton-launcher",
+    "password-coin",
+    "p2-singleton"
+  ],
+  "added_slug": "p2-delegated-conditions",
+  "source_transition": {
+    "added": [
+      {
+        "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
+        "sha256": "a73671d6fe8f33bfc5e10b44b4ce96a30d2d4089a9c9f4df4350d7b18925d907"
+      },
+      {
+        "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+        "sha256": "cc06953dcac90df9455d02105e5003df615cd73c78f116fffd47a68fb80a983c"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
+        "sha256": "2fee506e189beb0d9fb2433109a9910e22456bf6c5a93937113ed4b90de4f6bd"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/p2_delegated_conditions/ledger.rs",
+        "sha256": "59c86fba3858c0c96ee811ffb6067107a62853ae9a5eebf4fc10ec3704d6530c"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/independent-vectors.json",
+        "sha256": "3b55d630d95dfd3b4527a55b49dc6d0c3b7370fc79a4d17f12dcfd58f000887b"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/mutation-recipes.json",
+        "sha256": "598fbdcde6503f7cf9a0cfb9a708762ae831a9737f1b8e6430f22425d65db54c"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/puzzle.json",
+        "sha256": "a9bf9a36e797d10fd31d5c627569887512da38d74bd09823955259e64de7c65d"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/puzzle.rs",
+        "sha256": "8503a4c04ab10f3273b771e1fd378082b8b3b5230c5b708931818486046b89aa"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/puzzle.rue",
+        "sha256": "e42563791addf1a77bd0ed2d923a90e3d0eb8dc4da380e7d1622da58cf250d20"
+      },
+      {
+        "path": "puzzles/p2-delegated-conditions/reference.clsp",
+        "sha256": "a73671d6fe8f33bfc5e10b44b4ce96a30d2d4089a9c9f4df4350d7b18925d907"
+      }
+    ],
+    "changed": [
+      {
+        "path": "puzzles/lib.rs",
+        "before_sha256": "6ddaf8e57b43ee0d196913068a52b567611afb05bf6fa07e847241ebace5ef61",
+        "after_sha256": "6c83b23757ed8ed34c7a1ec62a92f9e821f5b36c0e96e7b4d27a332ad005fec1"
+      },
+      {
+        "path": "puzzles/authoring.json",
+        "before_sha256": "03aeab62d690eba4b99af2c108a7312675fd6606b9afe2ea17c049b9478c57f0",
+        "after_sha256": "a2bd0f0da6a5cebb91647f46371c0332b9d749d91708f1473d84771d0081a6a5"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/lib.rs",
+        "before_sha256": "9a3717742de96ecc54c560c68a2360ad00d09ac6713a1e412f7a644f92da97b6",
+        "after_sha256": "f92debb74c44befc9235a63e85cf9a7006ce715dd7a08a42003493a5e7a76814"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/native.rs",
+        "before_sha256": "00ecea42a98a22c506d4eb2fd55e80b3f23123320cdf2efc8ae3f790959e6bfc",
+        "after_sha256": "0f913a4eeda2d462de237baff8bc811f9d99b2062292c0b79d5ffd69fc23c448"
+      }
+    ],
+    "embedded_native_paths": [
+      "crates/chialisp-oxide-corpus/src/lib.rs",
+      "crates/chialisp-oxide-corpus/src/native.rs"
+    ]
+  },
+  "reviewed_after": {
+    "report_sha256": "3344aaedfa5f23d32c2e05e6c0767343af7ebc791ddab9a985d8678590f08afe",
+    "canonical_report_sha256": "929b2a0c33721b29764edb862145fa76235d677915a47c520d6a50689ba73069",
+    "added_puzzle_sha256": "05176da160a705d4fd44631bb37df6ce25f523e053499ed906b907ef3309e1e6",
+    "protocol_sha256": "efe7f0219298be6d2996d59c238e6f43a1716fab40427bc8b07adad68881017c",
+    "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
+    "controls_sha256": "ad00392798ea6a7df961d378235c50818c8a90fe200dee12ac6127a462825d0f",
+    "raw_ir": [
+      {
+        "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
+        "sha256": "be536fff2f614aab6dc5a85d1b023e27e86eb74f026fef32c3800bffa7c8ef48"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
+        "sha256": "e85fe82f2f05769a6d255b2c5e3fc100706408c4f27609f2eb409cda2b149f4c"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+        "sha256": "b71cde38c3fc15793d00bdfab89ae4b188061c6123ba7c5b5866aedb8d27fded"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::singleton_launcher::puzzle",
+        "sha256": "11da29ca44abfabbe9d0e642524d06eb19478633e6628c34112b1198d09d0547"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::p2_delegated_conditions::puzzle",
+        "sha256": "4ddfe8bd8568096a90d8899fd747205901f18eda4b686862319921e6d3968563"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
+        "sha256": "894b47372eb150ac72a9b0b66327ca27f7784577de0d4ae1a6ce722e411f33df"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
+        "sha256": "122e1e6a1d98e5c7855b3aaf21c166d1e30be12ac1a72303d080fa9fb1a69ea9"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::p2_singleton::puzzle",
+        "sha256": "189618cb5db51f0473b4e5057c0668f968f62a0fa859f64b6e6c305d37a352b2"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::sha256tree::puzzle",
+        "sha256": "321e8e5e754a99489108120f4cdac987f51dcecc7b19ca9833c8dfc69cbe1452"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
+        "sha256": "07f17845a80f9d79e4a23960e0c1f9d54c1f1d696bab95ee6ee4cf4cf393321e"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::password_coin::puzzle",
+        "sha256": "ee7c8c07846ae6e5b3e7750aa04da32f5d2baee7cac1522aed5d575055b08bdb"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
+        "sha256": "add8c8ee16e0f6fdce810eb5bae9dcd5868c6caa9d524a4aa9fde329594367ed"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+        "sha256": "48d5d88fc8b537ed880e011066ceab6ca94b6f862285fb2e94ae7e270d3f8cd9"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
+        "sha256": "817108454f1bf067f6efce555b70617e3672aedf30dd0e7cda7d098384314e49"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle",
+        "sha256": "41991b33e588d00a22fc9227530477bb3460a027b50d4f84c6a1000f9c67448f"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
+        "sha256": "167a4ed55234a632ad17a85716589182b684b03a79f07c2139ac0676f657357d"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
+        "sha256": "db061894d1883c55cef36ad6a9d17dd6377eeb3ac2e4bda90ffc09ad8f3360a3"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
+        "sha256": "5847c067fb389413e5426eeb1494d9827b7e28a7653bd936a843f93668272c8d"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
+        "sha256": "d38305dcb6f26c6037743dab949225353d484c6352bf063231631d86a6696c67"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
+        "sha256": "0f9900dd0ec84e8407331a18926e197d7ec1670796f42ca5d2ad02ad5f09a0ef"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
+        "sha256": "02762d1a2bc0555b75a97ed42691faf7aa07c369e868eb1a3ce73760c9565269"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
+        "sha256": "3428e929f8189c7a182c2a439cf1d06d84d32e4aa2d67538611c8841fe775514"
+      },
+      {
+        "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
+        "sha256": "bdee5fa8aaafa8c26da6052c7edbe241fb7c16485b2c8afd2b73111bc88064ef"
+      }
+    ],
+    "bundles": {
+      "on": {
+        "manifest_sha256": "07419b8b3e79de6d7d7f2c86fcce45b82afb088175c6013d148ca99c9521dca6",
+        "optimize_lir": true,
+        "cargo_options": [
+          "--manifest-path",
+          "puzzles/Cargo.toml",
+          "--package",
+          "chialisp-oxide-puzzles",
+          "--locked"
+        ]
+      },
+      "off": {
+        "manifest_sha256": "cf314a17076af1237922e2d8ad2ace1c04c4a070ad1221abec518e1d3d2d4907",
+        "optimize_lir": false,
+        "cargo_options": [
+          "--manifest-path",
+          "puzzles/Cargo.toml",
+          "--package",
+          "chialisp-oxide-puzzles",
+          "--locked"
+        ]
+      }
+    }
+  }
+}

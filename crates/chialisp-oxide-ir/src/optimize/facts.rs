@@ -179,6 +179,9 @@ impl Analysis {
         self.charge(1)?;
         let mut value = Value::default();
         let result = match expression {
+            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+                anyhow::bail!("typed pair frontend rewrites are not admitted")
+            }
             Expr::Arg { index } => {
                 return Ok((expression.clone(), context.arguments[*index].clone()));
             }

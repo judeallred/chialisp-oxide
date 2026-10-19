@@ -1,0 +1,616 @@
+{
+  "ir_version": 5,
+  "environment": "raw",
+  "program": {
+    "name": "chialisp_oxide_p2dc_controls::wrong_atom_domain::puzzle",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "pair",
+      "first": {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "tree"
+          },
+          {
+            "kind": "bytes",
+            "len": 32
+          }
+        ]
+      },
+      "rest": {
+        "kind": "tree"
+      }
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_p2dc_controls::wrong_atom_domain::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "pair",
+          "first": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "tree"
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "rest": {
+            "kind": "tree"
+          }
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "reject",
+              "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "let",
+                "local_id": 1,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_first",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_rest",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "int",
+                      "bits": 8,
+                      "signed": false
+                    },
+                    "value": {
+                      "op": "if",
+                      "condition": {
+                        "op": "tree_is_pair",
+                        "value": {
+                          "op": "local",
+                          "local_id": 2
+                        }
+                      },
+                      "then_value": {
+                        "op": "int",
+                        "value": "1",
+                        "ty": {
+                          "kind": "int",
+                          "bits": 8,
+                          "signed": false
+                        }
+                      },
+                      "else_value": {
+                        "op": "int",
+                        "value": "0",
+                        "ty": {
+                          "kind": "int",
+                          "bits": 8,
+                          "signed": false
+                        }
+                      }
+                    },
+                    "body": {
+                      "op": "if",
+                      "condition": {
+                        "op": "not",
+                        "value": {
+                          "op": "tree_is_pair",
+                          "value": {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        }
+                      },
+                      "then_value": {
+                        "op": "reject",
+                        "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+                      },
+                      "else_value": {
+                        "op": "if",
+                        "condition": {
+                          "op": "tree_is_pair",
+                          "value": {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        },
+                        "then_value": {
+                          "op": "let",
+                          "local_id": 4,
+                          "ty": {
+                            "kind": "tree"
+                          },
+                          "value": {
+                            "op": "tree_first",
+                            "value": {
+                              "op": "local",
+                              "local_id": 2
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 5,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 1,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 4
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 6,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "tree"
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "tuple",
+                                "items": [
+                                  {
+                                    "op": "int",
+                                    "value": "50",
+                                    "ty": {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  },
+                                  {
+                                    "op": "local",
+                                    "local_id": 1
+                                  },
+                                  {
+                                    "op": "local",
+                                    "local_id": 5
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 7,
+                                "ty": {
+                                  "kind": "pair",
+                                  "first": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "tree"
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      }
+                                    ]
+                                  },
+                                  "rest": {
+                                    "kind": "tree"
+                                  }
+                                },
+                                "value": {
+                                  "op": "pair",
+                                  "first": {
+                                    "op": "local",
+                                    "local_id": 6
+                                  },
+                                  "rest": {
+                                    "op": "local",
+                                    "local_id": 4
+                                  }
+                                },
+                                "body": {
+                                  "op": "local",
+                                  "local_id": 7
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "else_value": {
+                          "op": "reject",
+                          "message": "no-location: unreachable Rust path"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "no-location: unreachable Rust path"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide_p2dc_controls::wrong_atom_domain::tree_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "let",
+              "local_id": 8,
+              "ty": {
+                "kind": "atom"
+              },
+              "value": {
+                "op": "tree_atom_value",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 9,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "sha256",
+                  "parts": [
+                    {
+                      "op": "atom",
+                      "hex": "02"
+                    },
+                    {
+                      "op": "local",
+                      "local_id": 8
+                    },
+                    {
+                      "op": "atom",
+                      "hex": ""
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "local",
+                  "local_id": 9
+                }
+              }
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "let",
+                "local_id": 1,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_first",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_rest",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 1,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 1
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 4,
+                      "ty": {
+                        "kind": "bytes",
+                        "len": 32
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 1,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 5,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 3
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 6,
+                          "ty": {
+                            "kind": "atom"
+                          },
+                          "value": {
+                            "op": "tree_atom_value",
+                            "value": {
+                              "op": "tree_atom",
+                              "value": {
+                                "op": "local",
+                                "local_id": 4
+                              }
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 7,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "sha256",
+                              "parts": [
+                                {
+                                  "op": "atom",
+                                  "hex": "02"
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 5
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 6
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "local",
+                              "local_id": 7
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "src/wrong_atom_domain.rs:28:11: 28:15: unreachable Rust path"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

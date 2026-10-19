@@ -4,7 +4,7 @@ import { checkProtocolComponent, checkProtocolReport } from './p2-protocol.mjs';
 import { checkLedgerReport } from './ledger-rejections.mjs';
 const report = JSON.parse(readFileSync(new URL('../../corpus/validation.json', import.meta.url), 'utf8'));
 const puzzle = report.puzzles.find(row => row.slug === 'p2-singleton');
-assert(puzzle, 'Current22 report required; no silent skip');
+assert(puzzle, 'Retained singleton component required; no silent skip');
 const expected = checkProtocolComponent(puzzle);
 assert.deepEqual([expected.groups, expected.attempts, expected.accepted, expected.rejected], [5,110,15,95]);
 assert.deepEqual(checkProtocolReport(report), expected);

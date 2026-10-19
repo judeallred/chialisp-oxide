@@ -278,6 +278,10 @@ fn preflight(program: &Program, budget: &mut Budget) -> Result<Vec<usize>> {
     // Validation of the WHOLE IR precedes graph construction or model admission.
     program.validate().context("invalid IR")?;
     ensure!(
+        !program.uses_pairs(),
+        "acyclic scalar does not model typed wire pairs"
+    );
+    ensure!(
         program.environment != chialisp_oxide_ir::Environment::Raw,
         "acyclic scalar model does not model whole raw environments"
     );

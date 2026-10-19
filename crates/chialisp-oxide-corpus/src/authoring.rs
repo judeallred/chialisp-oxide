@@ -102,6 +102,7 @@ pub fn authoring() -> Result<Authoring> {
         "puzzles/fixture_keys.rs",
         "crates/chialisp-oxide/Cargo.toml",
         "crates/chialisp-oxide/src/lib.rs",
+        "crates/chialisp-oxide/src/cons.rs",
         "crates/chialisp-oxide/src/domain.rs",
         "crates/chialisp-oxide/src/tree.rs",
         "crates/chialisp-oxide/src/owned_tree.rs",

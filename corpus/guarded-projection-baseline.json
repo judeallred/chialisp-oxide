@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-runtime-guarded-projection/v1",
+  "status": "pending_signed_checkpoint_and_capture_review",
+  "scope": "Finite recorded compiler-cost transition with current source/native/typed/control/conditions checks before exact historical projection. Pending until a signed source-only checkpoint and actual combined compiler capture are reviewed. Neither freshness nor this comparison authenticates execution or proves compiler preservation, universal cost/security or production readiness.",
+  "baseline": {
+    "repository": "https://github.com/judeallred/chialisp-oxide",
+    "commit": null,
+    "tree_sha1": null,
+    "report_git_blob_sha1": null,
+    "report_path": "corpus/validation.json",
+    "checkpoint_path": "corpus/checkpoints/p2-source-cost-validation.json",
+    "report_sha256": "1a19cca4b2f1d840bf49c3119305f8872ff03e4ea91c5f74e93ad57ef4ad8b03",
+    "canonical_report_sha256": "1f8819d8c2ddab219b1277e2550381378c3e7b2a9e5933830b1bbdfe96370943"
+  },
+  "immutable_profiles": {
+    "corpus/cost-optimization-baseline.json": "484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308",
+    "corpus/helper-inlining-baseline.json": "0b7326f83065ab1bc186a1e9b0d3b5c581fa7cc3110845cc4b6db70a39b5da52",
+    "corpus/runtime-refinement-baseline.json": "11f14c3af4b400bf1569a8a7e3991c381e584a1415057610aedb0d0a26a88d41",
+    "corpus/p2-singleton-append-baseline.json": "39665eb448e5b7ed9cb2eb0e987b597a4b811a68fb3f37f0e4e151e6ab9374a8",
+    "corpus/p2-source-cost-baseline.json": "ee2689f1bdf3a1fd275f3d2374068b38b12d0f52c3135fe8ee5de455a5c8bb5a"
+  },
+  "optimization_pipeline": {
+    "before": {
+      "rue_source": {
+        "optimized": [
+          "rue_lir"
+        ],
+        "unoptimized": []
+      },
+      "rust_mir": {
+        "optimized": [
+          "typed_ir_constants",
+          "typed_ir_success_facts",
+          "typed_ir_constants",
+          "typed_ir_intervals",
+          "typed_ir_tree_guards",
+          "typed_ir_helper_inlining",
+          "runtime_frame_elision",
+          "lazy_integer_decoder",
+          "rue_lir",
+          "static_pair_codegen"
+        ],
+        "unoptimized": []
+      }
+    },
+    "after": {
+      "rue_source": {
+        "optimized": [
+          "rue_lir"
+        ],
+        "unoptimized": []
+      },
+      "rust_mir": {
+        "optimized": [
+          "typed_ir_constants",
+          "typed_ir_success_facts",
+          "typed_ir_constants",
+          "typed_ir_intervals",
+          "typed_ir_tree_guards",
+          "typed_ir_helper_inlining",
+          "runtime_frame_elision",
+          "runtime_guarded_projection_forwarding",
+          "lazy_integer_decoder",
+          "rue_lir",
+          "static_pair_codegen"
+        ],
+        "unoptimized": []
+      }
+    }
+  },
+  "reviewed_after": null
+}

@@ -59,9 +59,13 @@ fn claim_rewards<'a>(
 
     // The legacy helper consumes REVERSED parameter hashes: inner first,
     // singleton_struct second. These supplied "hash" atoms need not be 32 bytes.
-    let after_inner = extend_environment(atom_bytes(inner_puzzle_hash), &path_one_hash);
-    let after_struct = extend_environment(&struct_hash, &after_inner);
-    let full_puzzle_hash = apply_hash(atom_bytes(singleton_module_hash), &after_struct);
+    let after_inner = quoted_call_hash(&CONS_OPCODE, atom_bytes(inner_puzzle_hash), &path_one_hash);
+    let after_struct = quoted_call_hash(&CONS_OPCODE, &struct_hash, &after_inner);
+    let full_puzzle_hash = quoted_call_hash(
+        &APPLY_OPCODE,
+        atom_bytes(singleton_module_hash),
+        &after_struct,
+    );
     let message = sha256_parts(&full_puzzle_hash, atom_bytes(my_id), &[]);
     (
         assert_puzzle_announcement(message),
@@ -86,24 +90,20 @@ fn pair_hash(first: &[u8], rest: &[u8]) -> [u8; 32] {
     sha256_parts(&PAIR_DOMAIN, first, rest)
 }
 
-fn extend_environment(parameter_hash: &[u8], environment_hash: &[u8]) -> [u8; 32] {
-    let cons_hash = atom_hash(&CONS_OPCODE);
+// Both operations hash (operation (quote . first_argument) environment).
+// The named CONS/APPLY operation atoms select the two constructions above.
+fn quoted_call_hash(
+    operation: &[u8],
+    first_argument_hash: &[u8],
+    environment_hash: &[u8],
+) -> [u8; 32] {
+    let operation_hash = atom_hash(operation);
     let quote_hash = atom_hash(&QUOTE_OPCODE);
     let nil_hash = atom_hash(&[]);
-    let quoted_parameter = pair_hash(&quote_hash, parameter_hash);
+    let quoted_first = pair_hash(&quote_hash, first_argument_hash);
     let environment_tail = pair_hash(environment_hash, &nil_hash);
-    let arguments = pair_hash(&quoted_parameter, &environment_tail);
-    pair_hash(&cons_hash, &arguments)
-}
-
-fn apply_hash(function_hash: &[u8], environment_hash: &[u8]) -> [u8; 32] {
-    let apply_hash = atom_hash(&APPLY_OPCODE);
-    let quote_hash = atom_hash(&QUOTE_OPCODE);
-    let nil_hash = atom_hash(&[]);
-    let quoted_function = pair_hash(&quote_hash, function_hash);
-    let environment_tail = pair_hash(environment_hash, &nil_hash);
-    let arguments = pair_hash(&quoted_function, &environment_tail);
-    pair_hash(&apply_hash, &arguments)
+    let arguments = pair_hash(&quoted_first, &environment_tail);
+    pair_hash(&operation_hash, &arguments)
 }
 
 fn tree_hash<'a>(tree: &'a Tree<'a>) -> [u8; 32] {

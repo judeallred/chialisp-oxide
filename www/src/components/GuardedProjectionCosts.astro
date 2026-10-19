@@ -1,0 +1,49 @@
+---
+import { loadGuardedCostEvidence } from '../lib/guarded-costs.mjs';
+import { format, href } from '../lib/data';
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const evidence = await loadGuardedCostEvidence();
+const { rows, summary, context } = evidence;
+const pair = (before: number, current: number) => `${format(before)} → ${format(current)}`;
+---
+<section data-guarded-costs data-guarded-view={compact ? 'compact' : 'full'} aria-label="Measured guarded compiler costs">
+  <h2 id="guarded-compiler-costs">Source-only checkpoint → guarded compiler checkpoint</h2>
+  <p data-guarded-context>Baseline: signed source-only commit <a href={`https://github.com/judeallred/chialisp-oxide/commit/${context.commit}`}><code>{context.commit}</code></a> · source-only validation SHA-256 <code data-pagefind-ignore>{context.reportSHA}</code> · guarded compiler validation SHA-256 <code data-pagefind-ignore>{evidence.currentReportSHA}</code>.</p>
+  <p>The Rust policy source is identical. This compiler change forwards immutable projections after a successful pair guard. All three languages retain separately compiled artifacts.</p>
+  <div class="metric-grid">
+    <div class="metric"><strong data-guarded-summary="module" data-before={summary.beforeBytes} data-current={summary.bytes}>{pair(summary.beforeBytes, summary.bytes)}</strong><span>optimized Rust module bytes</span></div>
+    <div class="metric"><strong data-guarded-summary="vm" data-before={summary.beforeRawVM} data-current={summary.rawVM}>{pair(summary.beforeRawVM, summary.rawVM)}</strong><span>ordinary input · primary VM cost</span></div>
+    <div class="metric"><strong data-guarded-summary="joint" data-before={summary.beforeTotal} data-current={summary.total}>{pair(summary.beforeTotal, summary.total)}</strong><span>joint bundle · total conditions cost</span></div>
+  </div>
+  <p>The joint bundle uses <strong>{format(-summary.delta)} fewer cost units ({summary.percent}%)</strong>: {format(-summary.executionDelta)} fewer execution units and {format(-summary.byteDelta)} fewer charged bytes. This is not a universal cost bound.</p>
+  <p>Primary VM: <code>clvmr 0.21.0</code>. Bundle metrics: <code>chia-consensus 0.36.1</code> with <code>clvmr 0.16.2</code>, TESTNET11. This pinned snapshot charges 12,000 units per generator byte, excluding the two-byte quote wrapper. Keep these contexts separate. Metric calls are not additional admissions.</p>
+  <p><a href={href('tutorials/transaction-costs/')}>The historical source-only lesson explains the earlier bytes-versus-execution tradeoff.</a>{compact && <> <a href={href('tutorials/guarded-projections/')}>Learn how successful guards make later projections cheaper.</a></>}</p>
+  {compact ? null : <>
+    <div class="table-scroll"><table data-guarded-matrix>
+      <caption>Source-only checkpoint → guarded compiler checkpoint: total conditions costs</caption>
+      <thead><tr><th scope="col">Build</th><th scope="col">Genesis</th><th scope="col">Joint collection</th><th scope="col">Lineage</th></tr></thead>
+      <tbody>{rows.map(row => <tr data-guarded-build={`${row.backend}:${row.optimize}`}>
+        <th scope="row">{row.label}</th>{row.phases.map(phase => <td data-guarded-phase={phase.phase} data-before={phase.before.total} data-current={phase.current.total}>{pair(phase.before.total, phase.current.total)}</td>)}
+      </tr>)}</tbody>
+    </table></div>
+    <p>Genesis and lineage numeric metrics stay equal. The Rust genesis generator changes its created P2 puzzle hash to match the new compiled module; those serialized bytes are not an unchanged program. The joint cost includes the reveal, execution and conditions, rather than just the puzzle’s raw VM cost. Canonical top-layer and StandardLayer counterparts remain host integrations.</p>
+    <p>The conditions API skips signature verification. The exact bundles were separately tested by the SDK Simulator: {evidence.receipts.attempts} submissions, {evidence.receipts.accepted} accepted and {evidence.receipts.rejected} typed rejections with recorded rollback. These fifteen metric calls are not additional admissions. Recorded consistency and source freshness are not authentication, a compiler-preservation proof, or production readiness.</p>
+    <details><summary>Download the exact compiler comparison</summary>
+      <ul>{evidence.downloads.map(artifact => <li><a data-guarded-download={artifact.basename} href={href(`reports/guarded-projection/${artifact.basename}`)}>{artifact.label}</a> · {format(artifact.bytes)} bytes · SHA-256 <code data-pagefind-ignore>{artifact.sha256}</code></li>)}</ul>
+      <p><a href={href('reports/validation.json')}>Guarded compiler validation</a> · <a href={href('reports/p2-source-cost/validation.json')}>Whole source-only checkpoint</a> · <a href={href('lab/p2-singleton/#sources')}>Rust, Chialisp and Rue source comparison</a>.</p>
+    </details>
+  </>}
+</section>
+<style>
+  section { margin-block: 2rem; }
+  .metric-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+  .metric { min-width: 0; padding: 1rem; }
+  .metric strong { font-size: 1.35rem; overflow-wrap: anywhere; }
+  code { overflow-wrap: anywhere; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align: left; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  td { white-space: nowrap; }
+  caption { text-align: left; padding-bottom: .7rem; }
+</style>
