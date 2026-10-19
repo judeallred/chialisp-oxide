@@ -1,0 +1,11 @@
+// Authored Rue translation of the pinned "raise by one order of magnitude" module.
+// Rue Int is unbounded like the original; the environment is read by position.
+fn main(value: Int) -> Int {
+    raise_magnitude(value)
+}
+
+const ORDER_OF_MAGNITUDE: Int = 10;
+
+fn raise_magnitude(value: Int) -> Int {
+    value * ORDER_OF_MAGNITUDE
+}

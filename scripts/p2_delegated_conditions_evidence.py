@@ -282,10 +282,12 @@ def validate_component(puzzle, *, root=ROOT):
 
 
 def validate_current(report, *, root=ROOT):
+    import corpus_append  # Lazy: the generic root owns the complete current coverage.
     require(type(report) is dict and type(report.get('schema_version')) is int and report['schema_version'] == 1, 'current report schema')
-    require(type(report.get('puzzles')) is list and [row.get('slug') for row in report['puzzles']] == OLD_SLUGS + [SLUG], 'current exact23 puzzle order required')
+    slugs = [row.get('slug') for row in report['puzzles']] if type(report.get('puzzles')) is list else None
+    require(slugs == corpus_append.current_slugs(), 'current exact corpus puzzle order required')
     require(report.get('authoring') == snapshot(Path(root)), 'current declared native/Cargo source snapshot differs')
-    # This new component gate is deliberately not an aggregate cost migration.
+    # This component gate is deliberately not an aggregate cost migration.
     # Historical whole22 projection and all prior-component validation belong
-    # to the separately reviewed outer append transition, after this gate.
-    return validate_component(report['puzzles'][-1], root=root)
+    # to the separately reviewed append transitions, after this gate.
+    return validate_component(report['puzzles'][len(OLD_SLUGS)], root=root)

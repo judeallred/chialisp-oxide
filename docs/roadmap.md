@@ -4,10 +4,15 @@
 
 **WIP prototype — not ready for real funds or production use.**
 
-The latest local capture covers 23 annotated exports, including canonical
-`p2-delegated-conditions` and a narrow optimization for helpers without explicit
-`Cons` values. These helpers can still match borrowed `Tree::Pair` values.
-Its repeated report records 459 named and 25,222 generated inputs. The earlier
+The latest local capture covers 26 annotated exports: the retained 23-export
+delegated-conditions corpus plus the three pinned Using Modules programs through
+declared signed 64-bit typed adapters. The generic corpus append root
+(`scripts/corpus_append.py`, profile `corpus/corpus-append.json`) admits the
+current report, restores the retained
+[23-export checkpoint](../corpus/checkpoints/p2dc-append-validation.json)
+byte-for-byte and then projects the older history; new exports extend the
+profile data instead of adding migration modules.
+Its repeated report records 509 named and 25,222 generated inputs. The earlier
 [22-export composition report](../corpus/checkpoints/runtime-composition-validation.json),
 `227ce911…`, remains an immutable checkpoint. Current proof, documentation and
 publication gates have separate source and execution requirements; the local
@@ -27,13 +32,15 @@ capture does not establish production readiness or full Chialisp parity.
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - An explicit SHA-256 bridge admits one reviewed safe native implementation by
   actual signature and complete typed-MIR closure/profile fingerprint. Cargo
-  extraction and the local corpus capture cover twenty-three annotated exports,
+  extraction and the local corpus capture cover twenty-six annotated exports,
   including the raw-domain `sha256tree` helper adapter, singleton launcher,
-  original password tutorial module and canonical pay-to-singleton and
-  delegated-conditions components.
+  original password tutorial module, canonical pay-to-singleton and
+  delegated-conditions components, and the three Using Modules programs.
   Immutable fixed-byte-array references coerce to slices for lengths up to 256;
   this does not admit general casts, mutable slices or arbitrary hash libraries.
-- Ten original teaching examples, three exact canonical Intro expressions, and
+- Ten original teaching examples, three exact canonical Intro expressions,
+  three exact Using Modules programs compiled unchanged with every typed-adapter
+  difference declared per case, and
   the canonical `p2_conditions` program factory, five pinned published helpers
   through explicit module adapters, the singleton launcher, original password
   module and canonical pay-to-singleton and delegated-conditions components, with
@@ -166,10 +173,13 @@ historical pending metadata and is not an admission fallback.
 
 The earlier hash gate's 168 corruption controls and 22,285 retained-artifact VM
 replays remain historical results. Source-derived proof, error-study, Lean and
-site results must retain their own source basis. The current 23-export capture
+site results must retain their own source basis. The retained 23-export capture
 was executed twice with exact reports, fresh ON/OFF extraction in both repeats,
 all 23 retained IR programs recompiled in both modes, and a separate five-build
-replay of 1,000 VM evaluations over the same 200 inputs. The complete earlier
+replay of 1,000 VM evaluations over the same 200 inputs. The current 26-export
+append re-extracts all exports in both modes, recaptures the pay-to-singleton
+policy-control sidecar for the current source window through
+`scripts/capture-p2-controls.py`, and restores every retained row exactly. The complete earlier
 22-puzzle report and 44 IR/artifact combinations remain exact after the closed
 source/native metadata transition.
 Compiler verification carries the actual 578-test workspace and all-target
@@ -189,8 +199,8 @@ raw-tree relation, quoted curry trees, instance hashes, typed outcomes, state
 rollback and finite evidence corruption controls. Retained-byte replay does not
 resubmit consensus transactions or prove preservation. The completed checkpoint's
 fresh extraction retains all twenty-two ports' raw IR in both modes. The current
-append requires all twenty-three exports before any pure historical projection;
-it never admits the old report as current evidence.
+generic append requires every current export (now twenty-six) before any pure
+historical projection; it never admits an older report as current evidence.
 
 The cost iteration adds checked constant folding, forward execution-success
 facts, total alias frame elision and exact constructor checks. All three closed
@@ -307,8 +317,13 @@ serialized programs and actual transaction costs rather than VM cost alone.
    count as completed CHIP ports; the page/CHIP inventory has 98 source entries.
    The separate example inventory records exact pinned primer/concept snippets
    and workflow gaps. Three closed Intro expressions have finite differential
-   validation with their original environment behavior preserved. Their parent
-   page remains partial; the other nine programs, variant, and supporting
+   validation with their original environment behavior preserved, and the three
+   Using Modules programs compile unchanged beside signed 64-bit typed Rust
+   adapters whose every difference (padding, zero bytes, extra or improper
+   arguments, overflow, range) is declared per case and checked against an
+   independently specified result; the Rust decoder makes those artifacts far
+   larger than the originals. Both parent
+   pages remain partial; the other five programs, variant, and supporting
    workflows remain unrun. Next ports need explicit semantic contracts before
    expanding parameter, list, recursion, cryptographic, or evaluation support.
    The singleton launcher source port does not complete the singleton protocol;

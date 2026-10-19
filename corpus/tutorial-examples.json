@@ -15,7 +15,7 @@
     "spdx": "Apache-2.0"
   },
   "scope": {
-    "description": "Source-level program inventory of eight pinned Chialisp primer/concept tutorials. Three closed Intro expressions have executed Cargo/native/original-reference/CLVM evidence; the other nine programs, one naming variant and supporting host workflows remain unimplemented or unrun. The ten original teaching fixtures are a separate corpus.",
+    "description": "Source-level program inventory of eight pinned Chialisp primer/concept tutorials. Three closed Intro expressions, the password module and the three Using Modules programs have executed Cargo/native/original-reference/CLVM evidence; the module programs run through declared signed 64-bit typed adapters with every original difference recorded per case. The other five programs, one naming variant and supporting host workflows remain unimplemented or unrun. The ten original teaching fixtures are a separate corpus.",
     "program_count": 12,
     "variant_count": 1,
     "coverage": "Eight tutorial pages only; reference pages, primitives, CHIP implementations, linked include libraries and host workflows are not claimed complete.",
@@ -195,7 +195,7 @@
         "manifest": "puzzles/intro-list/puzzle.json",
         "manifest_sha256": "c59e21c8eeff1b08ee017b2b39fcb246eece44529305e3c3a8e3c934e16a9a32",
         "report": "corpus/validation.json",
-        "report_sha256": "3344aaedfa5f23d32c2e05e6c0767343af7ebc791ddab9a985d8678590f08afe",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
         "slug": "intro-list"
       },
       "validation_contract": {
@@ -264,7 +264,7 @@
         "manifest": "puzzles/intro-add/puzzle.json",
         "manifest_sha256": "4251fbf582ab86e70887ca872fee9a006958431beb58fa8981d1988666662164",
         "report": "corpus/validation.json",
-        "report_sha256": "3344aaedfa5f23d32c2e05e6c0767343af7ebc791ddab9a985d8678590f08afe",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
         "slug": "intro-add"
       },
       "validation_contract": {
@@ -333,7 +333,7 @@
         "manifest": "puzzles/intro-conditional/puzzle.json",
         "manifest_sha256": "4eda90304bceb9ede7ee525cc37ba9fbbff04fb6ebdcdcf7d435ef74a9aa8741",
         "report": "corpus/validation.json",
-        "report_sha256": "3344aaedfa5f23d32c2e05e6c0767343af7ebc791ddab9a985d8678590f08afe",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
         "slug": "intro-conditional"
       },
       "validation_contract": {
@@ -363,19 +363,64 @@
         "representation": "chialisp_source",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L21-L23"
       },
-      "feasibility": "Small bounded experiment after specifying the integer and environment observation contract.",
+      "feasibility": "Implemented as a real Cargo export with two signed 64-bit parameters through the default strict typed ABI; every original/adapter difference is declared per case.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
         "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately."
       ],
-      "notes": [],
+      "notes": [
+        "The complete fenced module span is compiled unchanged by the independent Chialisp compiler; no wrapper or argument guard is added.",
+        "Rust reads canonical signed 64-bit atoms through the strict typed ABI. Padded atoms, 0x00 for zero, extra list elements, improper tails, out-of-range values and checked-arithmetic overflow reject in Rust; each such case declares the original's independently specified result and the authored Rue translation shares it.",
+        "Named cases are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, independently compiled original Chialisp and Rue in both modes. These finite observations are not a compiler-preservation or universal equivalence proof."
+      ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/module-add/puzzle.rs",
+        "puzzles/module-add/reference.clsp",
+        "puzzles/module-add/puzzle.rue"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
-      "proposed_observations": []
+      "proposed_observations": [
+        {
+          "solution": "(2 3)",
+          "expected_output": "5",
+          "basis": "Independently specified page result, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
+        }
+      ],
+      "source_adaptation": {
+        "operation": "extract_complete_chialisp_module",
+        "source_span_sha256": "16a7c865de03ff50be99024d45708fa0c315674d65ed86f59100ef67a138d36a",
+        "report": "corpus/validation.json",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
+        "slug": "module-add",
+        "rust_source": "puzzles/module-add/puzzle.rs",
+        "rust_source_sha256": "d45f13c968f70606d30191530cc99f41ef01fa0fb732c5335ecd3ee45cdf26ae",
+        "reference": "puzzles/module-add/reference.clsp",
+        "reference_sha256": "16a7c865de03ff50be99024d45708fa0c315674d65ed86f59100ef67a138d36a",
+        "rue_source": "puzzles/module-add/puzzle.rue",
+        "rue_source_sha256": "3205058cef5ac817626a2ca074d682dc403571ac759b61113544bf5ee1359cb7",
+        "manifest": "puzzles/module-add/puzzle.json",
+        "manifest_sha256": "6f92c3b9716bb99386afee1e15d3b1f12294e79566de759aa08273d3fd754e3e"
+      },
+      "validation_contract": {
+        "abi": "strict_typed_i64_list",
+        "environment": "strict",
+        "reference_mode": "module",
+        "expected_solution": "(2 3)",
+        "expected_output": "5",
+        "expected_output_hex": "05",
+        "integer_domain": "signed_64_bit_checked_adapter_of_unbounded_original",
+        "declared_divergences": 7,
+        "claim_scope": "executed_differential_cases_with_declared_original_divergences_only",
+        "ledger": "not_applicable_pure_function",
+        "compiler_preservation": "not_claimed"
+      }
     },
     {
       "id": "chialisp-example:module-times-ten",
@@ -394,19 +439,64 @@
         "representation": "chialisp_source",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L29-L42"
       },
-      "feasibility": "Small bounded experiment after specifying the integer and environment observation contract.",
+      "feasibility": "Implemented as a real Cargo export keeping the named constant and helper function with signed 64-bit checked multiplication; every original/adapter difference is declared per case.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
         "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately."
       ],
-      "notes": [],
+      "notes": [
+        "The complete fenced module span is compiled unchanged by the independent Chialisp compiler; no wrapper or argument guard is added.",
+        "Rust reads canonical signed 64-bit atoms through the strict typed ABI. Padded atoms, 0x00 for zero, extra list elements, improper tails, out-of-range values and checked-arithmetic overflow reject in Rust; each such case declares the original's independently specified result and the authored Rue translation shares it.",
+        "Named cases are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, independently compiled original Chialisp and Rue in both modes. These finite observations are not a compiler-preservation or universal equivalence proof."
+      ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/module-times-ten/puzzle.rs",
+        "puzzles/module-times-ten/reference.clsp",
+        "puzzles/module-times-ten/puzzle.rue"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
-      "proposed_observations": []
+      "proposed_observations": [
+        {
+          "solution": "(5)",
+          "expected_output": "50",
+          "basis": "Independently specified page result, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
+        }
+      ],
+      "source_adaptation": {
+        "operation": "extract_complete_chialisp_module",
+        "source_span_sha256": "aa1a10d0fe81990e3b5c8a8fd153255df2be40ad5e5fb71e19ffb75a257174ce",
+        "report": "corpus/validation.json",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
+        "slug": "module-times-ten",
+        "rust_source": "puzzles/module-times-ten/puzzle.rs",
+        "rust_source_sha256": "9034321d4d35bca1ef52bd2add7d23a400b345f2c8f8b283a7c465c29f28d1f1",
+        "reference": "puzzles/module-times-ten/reference.clsp",
+        "reference_sha256": "aa1a10d0fe81990e3b5c8a8fd153255df2be40ad5e5fb71e19ffb75a257174ce",
+        "rue_source": "puzzles/module-times-ten/puzzle.rue",
+        "rue_source_sha256": "72b8ec9e1f52676f264f1979cd607b250866f46847a89cee0848d20427d81b88",
+        "manifest": "puzzles/module-times-ten/puzzle.json",
+        "manifest_sha256": "3bb7d822cfb768bd8f707b701e92df907005e24b38b5d8910a8e1cb351b6129a"
+      },
+      "validation_contract": {
+        "abi": "strict_typed_i64_list",
+        "environment": "strict",
+        "reference_mode": "module",
+        "expected_solution": "(5)",
+        "expected_output": "50",
+        "expected_output_hex": "32",
+        "integer_domain": "signed_64_bit_checked_adapter_of_unbounded_original",
+        "declared_divergences": 6,
+        "claim_scope": "executed_differential_cases_with_declared_original_divergences_only",
+        "ledger": "not_applicable_pure_function",
+        "compiler_preservation": "not_claimed"
+      }
     },
     {
       "id": "chialisp-example:module-factorial",
@@ -425,22 +515,65 @@
         "representation": "chialisp_source",
         "url": "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L58-L73"
       },
-      "feasibility": "Direct recursive calls are supported. An exact factorial port still needs the original unbounded integer/ABI semantics and explicit execution-cost bounds.",
+      "feasibility": "Implemented as a real Cargo export with checked signed 64-bit recursion through the closed runtime function table; 21 and above reject where the original grows, and every difference is declared per case.",
       "semantic_gaps": [
         "Original arithmetic interprets atoms as signed, unbounded CLVM integers, including byte encodings outside a bounded canonical Rust integer ABI. Width, overflow, negative and padded-atom domains require an explicit comparison contract.",
         "The original module argument pattern is not an exact canonical Rust decoder; extra environment fields, malformed shapes and raw atom/tree behavior must be observed separately.",
         "Canonical unbounded factorial has not been ported. A fixed-width Rust version would be a bounded adapter; preserve the original negative-input and growth/cost contract."
       ],
       "notes": [
-        "The source code returns 1 when number <= 1; the surrounding prose/comments describe different base-case thresholds. Preserve the pinned code and investigate that discrepancy rather than silently repairing the lesson."
+        "The complete fenced module span is compiled unchanged by the independent Chialisp compiler; no wrapper or argument guard is added.",
+        "Rust reads canonical signed 64-bit atoms through the strict typed ABI. Padded atoms, 0x00 for zero, extra list elements, improper tails, out-of-range values and checked-arithmetic overflow reject in Rust; each such case declares the original's independently specified result and the authored Rue translation shares it.",
+        "Named cases are compared through native Cargo Rust, optimized/unoptimized Rust CLVM, independently compiled original Chialisp and Rue in both modes. These finite observations are not a compiler-preservation or universal equivalence proof."
       ],
       "external_includes": [],
-      "implementation_status": "not_started",
-      "validation_status": "not_run",
-      "local_examples": [],
-      "evidence": [],
+      "implementation_status": "implemented",
+      "validation_status": "differential_only",
+      "local_examples": [
+        "puzzles/module-factorial/puzzle.rs",
+        "puzzles/module-factorial/reference.clsp",
+        "puzzles/module-factorial/puzzle.rue"
+      ],
+      "evidence": [
+        "corpus/validation.json"
+      ],
       "variants": [],
-      "proposed_observations": []
+      "proposed_observations": [
+        {
+          "solution": "(5)",
+          "expected_output": "120",
+          "basis": "Independently specified page result, checked against the linked executed differential cases.",
+          "validation_status": "differential_only"
+        }
+      ],
+      "source_adaptation": {
+        "operation": "extract_complete_chialisp_module",
+        "source_span_sha256": "589655c7aeab28091a80bbb52022bf3b956ae9668c35324d7bcc9689ec8c0a62",
+        "report": "corpus/validation.json",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
+        "slug": "module-factorial",
+        "rust_source": "puzzles/module-factorial/puzzle.rs",
+        "rust_source_sha256": "aaef1244c4d4b32d9da59c45df45b3510bb80ae7fdd350fee6cb0b898179a7ef",
+        "reference": "puzzles/module-factorial/reference.clsp",
+        "reference_sha256": "589655c7aeab28091a80bbb52022bf3b956ae9668c35324d7bcc9689ec8c0a62",
+        "rue_source": "puzzles/module-factorial/puzzle.rue",
+        "rue_source_sha256": "580f06ac6668658c141d71d77227ed6db427b046d7d026ccec2e87e8ec5a29dd",
+        "manifest": "puzzles/module-factorial/puzzle.json",
+        "manifest_sha256": "4e749489efe953752217f39b87faf3aa51b20afbe75bbd96b695c0bcae12ffaf"
+      },
+      "validation_contract": {
+        "abi": "strict_typed_i64_list",
+        "environment": "strict",
+        "reference_mode": "module",
+        "expected_solution": "(5)",
+        "expected_output": "120",
+        "expected_output_hex": "78",
+        "integer_domain": "signed_64_bit_checked_adapter_of_unbounded_original",
+        "declared_divergences": 7,
+        "claim_scope": "executed_differential_cases_with_declared_original_divergences_only",
+        "ledger": "not_applicable_pure_function",
+        "compiler_preservation": "not_claimed"
+      }
     },
     {
       "id": "chialisp-example:password-coin",
@@ -494,7 +627,7 @@
         "manifest": "puzzles/password-coin/puzzle.json",
         "manifest_sha256": "24bbdca0bba54fbb5d6fda83ae1d70597211a74d7dd0a3e212a4c31039eac3e2",
         "report": "corpus/validation.json",
-        "report_sha256": "3344aaedfa5f23d32c2e05e6c0767343af7ebc791ddab9a985d8678590f08afe",
+        "report_sha256": "bbdae2e42543ada0f28b257e3e0d6e2f8d005b481c1cff9818d7bcea87d14a33",
         "slug": "password-coin"
       },
       "validation_contract": {

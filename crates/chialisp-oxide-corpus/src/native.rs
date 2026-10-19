@@ -4,9 +4,9 @@ use anyhow::{Result, bail, ensure};
 use chialisp_oxide::{Amount, Cons, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
 use chialisp_oxide_puzzles::{
     boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
-    fixed_payment as fixed, intro_add, intro_conditional, intro_list, recovery_payment as recovery,
-    signature_payment as signature, split_payment as split, timelocked_payment as timelock,
-    two_signature_payment as multisig,
+    fixed_payment as fixed, intro_add, intro_conditional, intro_list, module_add, module_factorial,
+    module_times_ten, recovery_payment as recovery, signature_payment as signature,
+    split_payment as split, timelocked_payment as timelock, two_signature_payment as multisig,
 };
 use clvmr::{Allocator, NodePtr, allocator::SExp, serde::node_to_bytes};
 use num_bigint::{BigInt, Sign};
@@ -30,6 +30,17 @@ impl Encode for u64 {
             vec![]
         } else {
             n.to_signed_bytes_be()
+        };
+        Ok(a.new_atom(&bytes)?)
+    }
+}
+impl Encode for i64 {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        // Minimal two's complement bytes; zero is the empty atom.
+        let bytes = if *self == 0 {
+            vec![]
+        } else {
+            BigInt::from(*self).to_signed_bytes_be()
         };
         Ok(a.new_atom(&bytes)?)
     }
@@ -165,6 +176,20 @@ fn uint(a: &Allocator, n: NodePtr) -> Result<u64> {
     let integer = BigInt::from_signed_bytes_be(&bytes);
     ensure!(integer.sign() != Sign::Minus, "negative u64");
     let value: u64 = integer.clone().try_into()?;
+    let canonical = if value == 0 {
+        vec![]
+    } else {
+        integer.to_signed_bytes_be()
+    };
+    ensure!(bytes == canonical, "noncanonical integer");
+    Ok(value)
+}
+fn int64(a: &Allocator, n: NodePtr) -> Result<i64> {
+    // Canonical signed CLVM integer: minimal two's complement, nil for zero,
+    // and the value must fit the declared Rust width.
+    let bytes = atom(a, n)?;
+    let integer = BigInt::from_signed_bytes_be(&bytes);
+    let value: i64 = integer.clone().try_into()?;
     let canonical = if value == 0 {
         vec![]
     } else {
@@ -423,6 +448,18 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                     boolean(&a, args[0])?,
                     Message32(bytes32(&a, args[1])?),
                 ))
+            }
+            "module-add" => {
+                ensure!(args.len() == 2, "arity");
+                output(module_add::puzzle(int64(&a, args[0])?, int64(&a, args[1])?))
+            }
+            "module-times-ten" => {
+                ensure!(args.len() == 1, "arity");
+                output(module_times_ten::puzzle(int64(&a, args[0])?))
+            }
+            "module-factorial" => {
+                ensure!(args.len() == 1, "arity");
+                output(module_factorial::puzzle(int64(&a, args[0])?))
             }
             _ => bail!("unknown native fixture {slug}"),
         }

@@ -1,0 +1,13 @@
+// Authored Rue translation of the pinned factorial module.
+// Rue Int is unbounded like the original; the environment is read by position.
+fn main(number: Int) -> Int {
+    factorial(number)
+}
+
+fn factorial(number: Int) -> Int {
+    if number > 1 {
+        number * factorial(number - 1)
+    } else {
+        1
+    }
+}

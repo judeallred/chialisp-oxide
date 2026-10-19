@@ -102,6 +102,32 @@ def check_outcome(outcome, label):
                 and HEX.fullmatch(outcome["output_hex"]), f"{label}: malformed output bytes")
 
 
+DIVERGENCE_BACKENDS = ("chialisp", "rue_source")
+
+
+def check_divergence(divergence, native, label):
+    """A declared divergence binds only independently compiled languages to an
+    independently specified outcome; Rust CLVM must always match native Rust."""
+    require(isinstance(divergence, dict) and set(divergence) == {"backends", "outcome", "reason"},
+            f"{label}: malformed declared divergence")
+    backends = divergence["backends"]
+    require(isinstance(backends, list) and 0 < len(backends) <= len(DIVERGENCE_BACKENDS)
+            and len(set(backends)) == len(backends) and all(b in DIVERGENCE_BACKENDS for b in backends),
+            f"{label}: declared divergence may only cover Chialisp or Rue")
+    reason = divergence["reason"]
+    require(isinstance(reason, str) and reason.strip() and len(reason) <= 1024, f"{label}: declared divergence needs a bounded reason")
+    outcome = divergence["outcome"]
+    require(isinstance(outcome, dict), f"{label}: malformed declared outcome")
+    if outcome.get("status") == "accepted":
+        require(set(outcome) == {"status", "output_hex"} and isinstance(outcome["output_hex"], str)
+                and outcome["output_hex"] and HEX.fullmatch(outcome["output_hex"]),
+                f"{label}: declared accepted divergence needs lowercase hex output")
+    else:
+        require(outcome == {"status": "rejected"}, f"{label}: declared divergence must be accepted or rejected")
+    require(outcome != native, f"{label}: declared divergence must differ from the native expectation")
+    return outcome
+
+
 def check_report(report, *, require_typed_failures=True):
     require(type(report.get("schema_version")) is int and report["schema_version"] == 1,
             "Expected corpus schema_version 1")
@@ -139,12 +165,17 @@ def check_report(report, *, require_typed_failures=True):
         for case in puzzle["cases"]:
             label = f"{slug}/{case['label']}"
             check_native_outcome(case["native"], label)
+            divergence = case.get("declared_divergence")
+            declared = check_divergence(divergence, case["native"], label) if divergence is not None else None
             runs = modes(case["runs"], label)
             require(runs.keys() == artifacts.keys(), f"{label}: execution modes differ from artifacts")
             for mode, run in runs.items():
                 execution = run["execution"]
                 check_execution(execution, f"{label} {mode}", require_typed=require_typed_failures)
-                require(execution["outcome"] == case["native"], f"{label} {mode}: native/VM mismatch")
+                if declared is not None and mode[0] in divergence["backends"]:
+                    require(execution["outcome"] == declared, f"{label} {mode}: declared divergence/VM mismatch")
+                else:
+                    require(execution["outcome"] == case["native"], f"{label} {mode}: native/VM mismatch")
             cases += 1
         for control in puzzle.get("resource_controls", {}).get("cases", []):
             modes(control["runs"], f"{slug} resource control")

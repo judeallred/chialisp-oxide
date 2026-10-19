@@ -1,9 +1,12 @@
 ---
 import { puzzles, canonicalExample, format, href, type Artifact } from '../lib/data';
-const examples = puzzles.filter(puzzle => canonicalExample(puzzle) && puzzle.reference_mode === 'expression');
+interface Props { mode?: 'expression' | 'module'; }
+const mode = Astro.props.mode ?? 'expression';
+// Expression ports measure the original empty environment; module ports measure the page's own tutorial input.
+const examples = puzzles.filter(puzzle => canonicalExample(puzzle) && (mode === 'expression' ? puzzle.reference_mode === 'expression' : (puzzle.reference_mode ?? 'module') === 'module' && (puzzle.environment ?? 'strict') === 'strict'));
 const rows = examples.map(puzzle => {
-  const empty = puzzle.cases.find(test => test.solution === '()');
-  if (!empty) throw new Error(`${puzzle.slug}: missing original empty-environment observation`);
+  const empty = mode === 'expression' ? puzzle.cases.find(test => test.solution === '()') : puzzle.cases.find(test => test.label.startsWith('tutorial'));
+  if (!empty) throw new Error(`${puzzle.slug}: missing original ${mode === 'expression' ? 'empty-environment' : 'tutorial-input'} observation`);
   const metric = (backend: string, optimize: boolean) => {
     const artifact = puzzle.artifacts.find(artifact => artifact.backend === backend && artifact.optimize_lir === optimize)!;
     const execution = empty.runs.find(run => run.backend === backend && run.optimize_lir === optimize)!.execution;
@@ -19,8 +22,8 @@ const exact = rows.filter(row => row.on.artifact.clvm_hex === row.original.artif
 ---
 <div class="measurements-scroll">
   <table>
-    <caption>Recorded program size and VM cost for the empty environment; transaction costs are not applicable</caption>
-    <thead><tr><th scope="col">Expression</th><th scope="col">Original Chialisp</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th><th scope="col">Rust-on / Rue-on vs original hash</th></tr></thead>
+    <caption>{mode === 'expression' ? 'Recorded program size and VM cost for the empty environment; transaction costs are not applicable' : 'Recorded program size and VM cost for the tutorial input; transaction costs are not applicable'}</caption>
+    <thead><tr><th scope="col">{mode === 'expression' ? 'Expression' : 'Module'}</th><th scope="col">Original Chialisp</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th><th scope="col">Rust-on / Rue-on vs original hash</th></tr></thead>
     <tbody>{rows.map(({ puzzle, original, off, on, rueOff, rueOn }) => <tr>
       <th scope="row"><a href={href(`lab/${puzzle.slug}/`)}>{puzzle.title}</a></th>
       <td>{metricLabel(original)}</td><td>{metricLabel(off)}</td><td>{metricLabel(on)}</td><td>{metricLabel(rueOff)}</td><td>{metricLabel(rueOn)}</td>

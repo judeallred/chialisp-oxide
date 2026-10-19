@@ -248,7 +248,8 @@ def validate_recorded(report,base,root=ROOT):
     source=absolute(context['source_root']);package=absolute(context['package_root']);capture=absolute(context['capture_root']);host=compiler_host(context['compiler'])
     require(context['toolchain']==tomllib.loads(vectors.read(root,'rust-toolchain.toml').decode())['toolchain']['channel']=='nightly-2026-07-14','toolchain identity')
     require(same(context['source_window'],source_window(root)),'stale current compiler/native/SDK/reader inputs')
-    require(len(context['source_window']['authoring']['exports'])==23,'full current23 authoring required')
+    import corpus_append  # Lazy: the generic root owns the complete current export set.
+    require(set(context['source_window']['authoring']['exports'])==set(corpus_append.current_slugs()),'full current corpus authoring required')
     closed(context['tools'],TOOLS,'tool capture')
     for row in context['tools'].values():
         closed(row,['path','sha256'],'tool receipt');absolute(row['path']);require(re.fullmatch('[0-9a-f]{64}',row['sha256']) is not None,'tool digest')

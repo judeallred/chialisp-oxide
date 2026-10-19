@@ -24,6 +24,7 @@ import p2_source_cost_migration as source_cost
 import runtime_guarded_projection_migration as guarded
 import runtime_composition_migration as composition
 import p2dc_append_migration as outer
+import corpus_append as current
 from test_p2_source_cost import constructed_profile, bind_review, existing_p2
 
 
@@ -129,10 +130,14 @@ class OuterAppendTests(unittest.TestCase):
         cost.validate_current(self.report)
         old = next(p for p in self.report["puzzles"] if p["slug"] == append.ADDED)
         new = next(p for p in self.report["puzzles"] if p["slug"] == outer.SLUG)
-        self.assertIs(self.report["puzzles"][-1], new)
+        self.assertIs(self.report["puzzles"][len(outer.component.OLD_SLUGS)], new)
+        total = len(self.report["puzzles"])
         others = {p["slug"]: cost.canonical(p) for p in self.report["puzzles"] if p["slug"] != append.ADDED}
         seen = {"current": [], "project": []}
-        real_current, real_project = cost.validate_current, outer.project_validated
+        # The first projection away from the whole current input is now the
+        # generic corpus append; the delegated projector receives history.
+        import corpus_append as generic  # `current` is reused as a loop name below.
+        real_current, real_project = cost.validate_current, generic.project_validated
 
         def observe(kind, action, value):
             if value is not self.report:
@@ -147,7 +152,7 @@ class OuterAppendTests(unittest.TestCase):
             return action(value)
 
         with patch.object(cost, "validate_current", side_effect=lambda value: observe("current", real_current, value)), \
-                patch.object(outer, "project_validated", side_effect=lambda value: observe("project", real_project, value)):
+                patch.object(generic, "project_validated", side_effect=lambda value: observe("project", real_project, value)):
             self.assertEqual(p2_outer_controls.self_test(self.report), 15)
         names = ("source", "native", "resource", "preflight", "rollback", "receipt", "debug_rejection",
                  "debug_lifecycle", "artifact", "generated", "missing", "duplicate", "order", "pipeline", "unknown")
@@ -159,10 +164,10 @@ class OuterAppendTests(unittest.TestCase):
                 selected = [p for p in current["puzzles"] if p["slug"] == append.ADDED]
                 if name == "missing":
                     self.assertEqual(selected, [])
-                    self.assertEqual(len(current["puzzles"]), 22)
+                    self.assertEqual(len(current["puzzles"]), total - 1)
                 elif name == "duplicate":
                     self.assertEqual(selected, [old, old])
-                    self.assertEqual(len(current["puzzles"]), 24)
+                    self.assertEqual(len(current["puzzles"]), total + 1)
                 else:
                     self.assertEqual(len(selected), 1)
                     if name in ("order", "pipeline", "unknown"):
@@ -172,7 +177,8 @@ class OuterAppendTests(unittest.TestCase):
 
     def test_pending_and_exact_report_bytes_fail_closed(self):
         pending=copy.deepcopy(self.profile)
-        if pending["protocol"] == outer.PROTOCOL:pending["status"]=outer.PENDING;pending["reviewed_after"]=None
+        if pending["protocol"] == current.PROTOCOL:pending["status"]=current.PENDING;pending["reviewed_after"]=None
+        elif pending["protocol"] == outer.PROTOCOL:pending["status"]=outer.PENDING;pending["reviewed_after"]=None
         elif pending["protocol"] == composition.PROTOCOL:pending["status"]=composition.PENDING;pending["reviewed_after"]=None
         elif pending["protocol"] == "chialisp-oxide-runtime-guarded-projection/v1":pending["status"]=guarded.PENDING;pending["reviewed_after"]=None
         elif pending["protocol"] == "chialisp-oxide-p2-source-cost/v1":pending["status"]="pending_root_final_capture"
@@ -272,10 +278,11 @@ class OuterAppendTests(unittest.TestCase):
                     artifact=next(a for a in artifacts[slug] if a["backend"]=="rust_mir" and a["optimize_lir"] is optimize);(folder/(stem+".clvm.hex")).write_text(artifact["clvm_hex"]+"\n");entries.append({"entry":name,"ir":stem+".ir.json","clvm":stem+".clvm.hex","artifact":copy.deepcopy(artifact)})
                 manifest={"schema_version":1,"status":"wip_prototype_not_ready_for_use","package":self.report["authoring"]["package"],"manifest_path":str(root/self.report["authoring"]["manifest"]),"workspace_root":str(root),"compiler":compiler,"driver_sha256":driver,"analysis_target":"test-host","toolchain":"nightly-2026-07-14","cargo_options":["--locked"],"rue_revision":self.report["rue_revision"],"entries":entries};(folder/"manifest.json").write_bytes(cost.canonical(manifest));(output/"latest.json").write_bytes(cost.canonical({"bundle":"capture","manifest":"capture/manifest.json"}));bundles[optimize]=(output,folder,manifest)
             profile["reviewed_after"]["raw_ir"]=[{"entry":entry,"sha256":pin} for entry,pin in sorted(expected_ir.items())]
+            active = current if current.is_append(self.report) else outer
             def verify(expected_compiler=compiler,expected_driver=driver):
-                return outer.verify_fresh_bundles(self.report,bundles[True][0],bundles[False][0],
+                return active.verify_fresh_bundles(self.report,bundles[True][0],bundles[False][0],
                     compiler=expected_compiler,driver_sha256=expected_driver,toolchain="nightly-2026-07-14",cargo_options=["--locked"])
-            with patch.object(outer,"ROOT",root),patch.object(outer,"load",return_value=profile):
+            with patch.object(active,"ROOT",root),patch.object(active,"load",return_value=profile):
                 first=verify();self.assertNotEqual(first[0]["fresh_manifest_sha256"],first[0]["recorded_manifest_sha256"])
                 second_compiler=compiler+"release: second-controlled-capture\n";second_driver="b"*64
                 for _,folder,manifest in bundles.values():manifest.update(compiler=second_compiler,driver_sha256=second_driver);(folder/"manifest.json").write_bytes(cost.canonical(manifest))

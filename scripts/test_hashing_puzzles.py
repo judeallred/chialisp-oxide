@@ -124,7 +124,7 @@ class HashingGateTests(unittest.TestCase):
         import copy
         from hashing_vectors import RESOURCE_BUDGET, validation_budget
         import runtime_cost_migration as cost
-        import p2dc_append_migration as selected
+        import corpus_append as selected
 
         current = json.loads((ROOT / "corpus/validation.json").read_text())
         historical = cost.preserve(current)

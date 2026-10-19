@@ -28,6 +28,13 @@ pub mod intro_conditional;
 #[path = "intro-list/puzzle.rs"]
 pub mod intro_list;
 
+#[path = "module-add/puzzle.rs"]
+pub mod module_add;
+#[path = "module-factorial/puzzle.rs"]
+pub mod module_factorial;
+#[path = "module-times-ten/puzzle.rs"]
+pub mod module_times_ten;
+
 #[path = "p2-conditions/puzzle.rs"]
 pub mod p2_conditions;
 #[path = "p2-delegated-conditions/puzzle.rs"]

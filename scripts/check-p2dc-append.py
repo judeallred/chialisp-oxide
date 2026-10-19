@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Current23 recorded/fresh checks before pure reviewed22 history.
+"""Retained23 delegated-conditions checks before pure reviewed22 history.
 
+The current corpus root (``check-corpus-append.py``) validates the actual
+report and projects it to the retained 23-export checkpoint; this reader then
+checks that checkpoint's recorded capture, sidecars and pure reviewed22 history.
 No compiler/native/VM/SDK/solver execution by default. Explicit fresh bundle
 checks query installed rustc and hash the supplied driver, without extraction.
-The pending profile cannot authorize a report or restored historical source.
+A pending profile cannot authorize a report or restored historical source.
 """
 import argparse
 import json
@@ -18,12 +21,14 @@ import runtime_cost_migration as cost
 
 def validate(report,payload,*,fresh_args=None):
     cost.validate_current(report)
-    migration.check_report_bytes(payload,report)
+    cost.check_report_bytes(payload,report)
     fresh=p2_cli._check_after_current_validation(report,fresh_args) if fresh_args is not None else None
-    before=migration.project_validated(report)
+    retained=cost.current_checkpoint(report)
+    migration.reviewed_after(retained)
+    before=migration.project_validated(retained)
     intermediate=cost.source_checkpoint(before)
     anchor=migration.composition.anchor_checkpoint(intermediate)
-    result=dict(current23_report_sha256=cost.sha(payload),unsigned22_report_sha256=migration.BEFORE_RAW,
+    result=dict(current_report_sha256=cost.sha(payload),retained23_canonical_sha256=cost.sha(cost.canonical(retained)),unsigned22_report_sha256=migration.BEFORE_RAW,
         unsigned22_canonical_sha256=cost.sha(cost.canonical(before)),
         unsigned_source_checkpoint_sha256=cost.sha(cost.canonical(intermediate)),
         signed_anchor_commit=migration.composition.ANCHOR['commit'],signed_anchor_canonical_sha256=cost.sha(cost.canonical(anchor)),

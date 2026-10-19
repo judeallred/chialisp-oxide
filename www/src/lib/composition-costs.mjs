@@ -21,8 +21,8 @@ const canonical = value => {
 const fields = (value, keys) => assert.deepEqual(Object.keys(value).sort(), [...keys].sort(), 'Missing/unknown composition presentation fields');
 
 export function compositionCostEvidence(inputs) {
-  fields(inputs, ['validation', 'active-validation', 'append-profile', 'checkpoint', 'source-profile', 'before-costs', ...compositionArtifacts.map(row => row.basename)]);
-  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (['validation','active-validation','checkpoint'].includes(key) ? 16 : 4) * 1024 * 1024);
+  fields(inputs, ['validation', 'active-validation', 'retained-validation', 'corpus-profile', 'append-profile', 'checkpoint', 'source-profile', 'before-costs', ...compositionArtifacts.map(row => row.basename)]);
+  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (['validation','active-validation','retained-validation','checkpoint'].includes(key) ? 16 : 4) * 1024 * 1024);
   const data = Object.fromEntries(Object.entries(inputs).map(([key, bytes]) => [key, parse(bytes)]));
   const profile = data['profile.json'], context = compositionCheckpoint(profile, inputs.checkpoint), after = profile.reviewed_after;
   fields(after, ['report_sha256','canonical_report_sha256','p2_sha256','protocol_sha256','raw_ir_sha256','metrics_sha256','controls_sha256','bundles','delta']);
@@ -41,10 +41,30 @@ export function compositionCostEvidence(inputs) {
   assert.equal(append.baseline.report_sha256, sha(inputs.validation));
   assert.equal(append.baseline.authorizing_transition_path, 'corpus/runtime-composition-baseline.json');
   assert.equal(append.baseline.authorizing_transition_sha256, sha(inputs['profile.json']));
-  assert.equal(sha(inputs['active-validation']), append.reviewed_after.report_sha256);
-  assert.equal(sha(canonical(data['active-validation'])), append.reviewed_after.canonical_report_sha256);
-  assert.deepEqual(data['active-validation'].puzzles.map(row => row.slug), [...append.preserved_slugs, append.added_slug]);
+  // The delegated-conditions append binds the retained 23-export checkpoint; the
+  // generic corpus append binds the active report over that checkpoint.
+  assert.equal(sha(inputs['retained-validation']), append.reviewed_after.report_sha256, 'Retained delegated-conditions checkpoint bytes changed');
+  assert.equal(sha(canonical(data['retained-validation'])), append.reviewed_after.canonical_report_sha256);
+  assert.deepEqual(data['retained-validation'].puzzles.map(row => row.slug), [...append.preserved_slugs, append.added_slug]);
   assert.equal(append.added_slug, 'p2-delegated-conditions');
+  const corpus = data['corpus-profile'];
+  fields(corpus, ['schema_version','protocol','status','scope','baseline','preserved_slugs','added','source_transition','reviewed_after']);
+  assert.equal(corpus.schema_version, 1);
+  assert.equal(corpus.protocol, 'chialisp-oxide-corpus-append/v1');
+  assert.equal(corpus.status, 'reviewed_final', 'Current corpus append remains pending; historical captures cannot publish an active corpus');
+  assert.equal(corpus.baseline.kind, 'unsigned_reviewed_content_addressed_checkpoint');
+  assert.equal(corpus.baseline.checkpoint_path, 'corpus/checkpoints/p2dc-append-validation.json');
+  assert.equal(corpus.baseline.report_sha256, sha(inputs['retained-validation']));
+  assert.equal(corpus.baseline.authorizing_transition_path, 'corpus/p2-delegated-conditions-append-baseline.json');
+  assert.equal(corpus.baseline.authorizing_transition_sha256, sha(inputs['append-profile']));
+  assert.deepEqual(corpus.preserved_slugs, [...append.preserved_slugs, append.added_slug]);
+  assert(Array.isArray(corpus.added) && corpus.added.length > 0, 'Generic append needs at least one added export');
+  assert.equal(sha(inputs['active-validation']), corpus.reviewed_after.report_sha256, 'Active corpus validation bytes changed');
+  assert.equal(sha(canonical(data['active-validation'])), corpus.reviewed_after.canonical_report_sha256);
+  assert.deepEqual(data['active-validation'].puzzles.map(row => row.slug), [...corpus.preserved_slugs, ...corpus.added.map(row => row.slug)]);
+  for (const [row, pin] of corpus.added.map((row, index) => [data['active-validation'].puzzles[corpus.preserved_slugs.length + index], corpus.reviewed_after.added_puzzles[index]])) {
+    assert.equal(row.slug, pin.slug); assert.equal(sha(canonical(row)), pin.sha256, `${row.slug}: added row differs from the reviewed capture`);
+  }
   assert.equal(sha(inputs['costs.json']), after.metrics_sha256);
   assert.equal(sha(inputs['controls.json']), after.controls_sha256);
   assert.equal(sha(inputs['source-profile']), profile.immutable_profiles['corpus/p2-source-cost-baseline.json']);
@@ -81,13 +101,15 @@ export function compositionCostEvidence(inputs) {
   assert(summary.bytes < summary.beforeBytes && summary.rawVM < summary.beforeRawVM && summary.delta < 0, 'Composition measurements changed their recorded directions');
   const downloads = compositionArtifacts.map(row => ({ ...row, sha256: sha(inputs[row.basename]), bytes: inputs[row.basename].length, content: inputs[row.basename] }));
   return { ...comparison, summary, context, currentReportSHA: after.report_sha256,
-    activeReportSHA: append.reviewed_after.report_sha256, downloads };
+    activeReportSHA: corpus.reviewed_after.report_sha256, downloads };
 }
 export async function readCompositionCostInputs(candidate) {
   return readCostInputs(candidate, [
     ['validation', 'corpus/checkpoints/runtime-composition-validation.json', 16 * 1024 * 1024],
     ['active-validation', 'corpus/validation.json', 16 * 1024 * 1024],
     ['append-profile', 'corpus/p2-delegated-conditions-append-baseline.json', 4 * 1024 * 1024],
+    ['retained-validation', 'corpus/checkpoints/p2dc-append-validation.json', 16 * 1024 * 1024],
+    ['corpus-profile', 'corpus/corpus-append.json', 4 * 1024 * 1024],
     ['checkpoint', checkpointArtifact.path, 16 * 1024 * 1024],
     ['source-profile', 'corpus/p2-source-cost-baseline.json', 4 * 1024 * 1024],
     ['before-costs', 'corpus/p2-singleton-costs.json', 4 * 1024 * 1024],

@@ -22,6 +22,7 @@ import runtime_refinement_migration as refinement
 import runtime_guarded_projection_migration as guarded
 import runtime_composition_migration as composition
 import p2dc_append_migration as outer
+import corpus_append as current
 
 
 def existing_p2(report):
@@ -31,6 +32,18 @@ def existing_p2(report):
 
 
 def constructed_profile(report, profile=None):
+    if current.is_append(report):
+        # The generic corpus append is the actual current root. Mutations may
+        # rebind only the tip digests in memory so deep validators stay reachable.
+        value = copy.deepcopy(current.load() if profile is None else profile)
+        cost.require(value["status"] == current.FINAL, "Actual reviewed current corpus fixture required")
+        payload = (cost.ROOT / "corpus/validation.json").read_bytes()
+        if not cost.same(json.loads(payload), report):
+            payload = cost.canonical(report)
+        value["reviewed_after"].update(report_sha256=cost.sha(payload),
+            canonical_report_sha256=cost.sha(cost.canonical(report)),
+            added_puzzles=[dict(slug=row["slug"], sha256=cost.sha(cost.canonical(row))) for row in report["puzzles"][len(current.PRESERVED):]])
+        return value
     if outer.is_append(report):
         # A real reviewed actual23 capture is mandatory. Mutations may rebind
         # only the tip digest in memory so deep validators remain reachable.
@@ -77,7 +90,7 @@ def constructed_authorization(report):
 
 
 def bind_review(profile):
-    module = outer if profile["protocol"] == outer.PROTOCOL else composition if profile["protocol"] == composition.PROTOCOL else migration if profile["protocol"] == "chialisp-oxide-p2-source-cost/v1" else append
+    module = current if profile["protocol"] == current.PROTOCOL else outer if profile["protocol"] == outer.PROTOCOL else composition if profile["protocol"] == composition.PROTOCOL else migration if profile["protocol"] == "chialisp-oxide-p2-source-cost/v1" else append
     return patch.object(module,"load",return_value=profile)
 
 
@@ -266,7 +279,7 @@ class CurrentBeforeHistory(unittest.TestCase):
                 source_transition(bad)
 
     def test_paired_fresh_routing_selects_all23_and_preserves_requested_options(self):
-        with bind_review(self.profile), patch.object(outer, "verify_fresh_bundles", return_value=[{"mode": True}, {"mode": False}]) as checker:
+        with bind_review(self.profile), patch.object(current, "verify_fresh_bundles", return_value=[{"mode": True}, {"mode": False}]) as checker:
             result = cost.verify_current22_bundles(self.report, Path("on"), Path("off"),
                 compiler="independent", driver_sha256="a"*64, toolchain="dated", cargo_options=["--locked", "--offline"])
         self.assertEqual(result, [{"mode": True}, {"mode": False}])
@@ -274,10 +287,11 @@ class CurrentBeforeHistory(unittest.TestCase):
         self.assertEqual(checker.call_args.kwargs["compiler"], "independent")
         self.assertEqual(checker.call_args.kwargs["cargo_options"], ["--locked", "--offline"])
         actual = {row["entry"]: row["sha256"] for row in self.profile["reviewed_after"]["raw_ir"]}
-        self.assertEqual(len(actual), 23)
+        added = {row["entry"] for row in current.load()["added"]}
+        self.assertEqual(len(actual), len(current.current_slugs()))
         self.assertIn(outer.ENTRY, actual)
         self.assertEqual(actual[migration.ENTRY], migration.load()["reviewed_after"]["raw_ir_sha256"])
-        self.assertEqual({entry: pin for entry, pin in actual.items() if entry not in (migration.ENTRY, outer.ENTRY)},
+        self.assertEqual({entry: pin for entry, pin in actual.items() if entry not in (migration.ENTRY, outer.ENTRY) and entry not in added},
             {row["entry"]: row["sha256"] for row in append.load()["raw_ir_before"]})
 
 
@@ -285,10 +299,10 @@ class SidecarBindings(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.report=json.loads((cost.ROOT/"corpus/validation.json").read_bytes())
-        cls.outer = outer if outer.is_append(cls.report) else composition if guarded.is_transition(cls.report) else migration
-        cls.controls_path = cls.outer.CONTROLS if cls.outer in (outer, composition) else migration.CONTROLS_PATH
+        cls.outer = current if current.is_append(cls.report) else outer if outer.is_append(cls.report) else composition if guarded.is_transition(cls.report) else migration
+        cls.controls_path = cls.outer.CONTROLS if cls.outer in (current, outer, composition) else migration.CONTROLS_PATH
         cls.value=json.loads(cls.outer.read(cls.controls_path))
-        migration.validate_controls(outer.p2_component_view(cls.report),cls.value)
+        migration.validate_controls(cls.outer.p2_component_view(cls.report),cls.value)
 
     def rehash_manifest(self,value,mutate):
         manifest=json.loads(value["manifest"]);mutate(manifest)
@@ -355,26 +369,26 @@ class SidecarBindings(unittest.TestCase):
             for row in self.value["window"]["sources"]:
                 target=root/row["path"];target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(cost.ROOT/row["path"],target)
             with patch.object(migration,"ROOT",root):
-                migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
                 for path in ("crates/chialisp-oxide-driver/build.rs","experiments/p2-singleton-controls/Cargo.lock",
                              "crates/chialisp-oxide/src/hashing.rs","scripts/cargo_bundle.py"):
-                    migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                    migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
                     target=root/path;old=target.read_bytes();target.write_bytes(old+b"\n")
                     try:
-                        with self.subTest(path=path),self.assertRaises(ValueError):migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                        with self.subTest(path=path),self.assertRaises(ValueError):migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
                     finally:target.write_bytes(old)
                 # Known compiler source directories do not include an unused Cargo cache.
                 cache=root/"crates/chialisp-oxide-ir/target/release/build/control/out/generated.rs"
                 cache.parent.mkdir(parents=True);cache.write_text("ignored unused build output")
-                migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
                 manifest=root/"crates/chialisp-oxide-ir/Cargo.toml";old=manifest.read_text();self.assertNotIn("[lib]",old)
                 manifest.write_text(old+'\n[lib]\npath = "target/lib.rs"\n')
                 (manifest.parent/"target/lib.rs").write_text("pub fn actual_custom_entry() {}")
                 try:
                     with self.assertRaisesRegex(ValueError,"source entry outside reviewed src layout"):
-                        migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                        migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
                 finally:manifest.write_text(old)
-                migration.validate_controls(outer.p2_component_view(self.report),self.value)
+                migration.validate_controls(self.outer.p2_component_view(self.report),self.value)
 
 
 if __name__=="__main__":unittest.main()

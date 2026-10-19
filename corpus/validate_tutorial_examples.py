@@ -98,12 +98,110 @@ def checked_report(root):
     return report
 
 
+MODULE_PROMOTIONS = {
+    # Typed signed 64-bit adapters of the pinned Using Modules programs. The
+    # tutorial case is the page's own example input; divergences are declared
+    # per case and may only cover the independently compiled languages.
+    "module-add": {"solution": "(2 3)", "expected_output": "5", "expected_output_hex": "05"},
+    "module-times-ten": {"solution": "(5)", "expected_output": "50", "expected_output_hex": "32"},
+    "module-factorial": {"solution": "(5)", "expected_output": "120", "expected_output_hex": "78"},
+}
+MODULE_ABI = "strict_typed_i64_list"
+MODULE_CLAIM = "executed_differential_cases_with_declared_original_divergences_only"
+MODULE_DOMAIN = "signed_64_bit_checked_adapter_of_unbounded_original"
+DIVERGENCE_BACKENDS = {"chialisp", "rue_source"}
+ALL_MODES = {("rust_mir", False), ("rust_mir", True), ("chialisp", True), ("rue_source", False), ("rue_source", True)}
+
+
+def check_module_promotion(row, excerpt, report, root):
+    """Promote one exact complete module span through a declared typed adapter."""
+    slug = row["id"].split(":", 1)[1]
+    contract = MODULE_PROMOTIONS[slug]
+    require(row["kind"] == "module" and row["implementation_status"] == "implemented"
+            and row["validation_status"] == "differential_only", f"{slug}: unsupported promotion status")
+    require(not any(key in row for key in ("validated", "passed", "executed")), f"{slug}: unsupported execution claim")
+    paths = {"rust_source": f"puzzles/{slug}/puzzle.rs", "reference": f"puzzles/{slug}/reference.clsp",
+             "rue_source": f"puzzles/{slug}/puzzle.rue", "manifest": f"puzzles/{slug}/puzzle.json"}
+    require(row["local_examples"] == [paths["rust_source"], paths["reference"], paths["rue_source"]]
+            and row["evidence"] == ["corpus/validation.json"], f"{slug}: missing exact local source/evidence bindings")
+    payloads = {key: confined_file(root, path).read_bytes() for key, path in paths.items()}
+    require(payloads["reference"] == excerpt.encode(), f"{slug}: reference must be the complete fenced module span, without a wrapper")
+    manifest = load(root / paths["manifest"])
+    selected = [item for item in report["puzzles"] if item["slug"] == slug]
+    require(len(selected) == 1, f"{slug}: no unique executed corpus row")
+    puzzle = selected[0]
+    require(puzzle["validated"] is True and puzzle["kind"] == "pure_function" and puzzle["simulator"] == []
+            and puzzle["generated_cases"] == 0, f"{slug}: expected pure-function evidence without ledger or generated-sweep claims")
+    require(manifest["slug"] == slug and manifest["kind"] == puzzle["kind"]
+            and manifest["environment"] == puzzle.get("environment", "strict") == "strict"
+            and manifest["reference_mode"] == puzzle.get("reference_mode", "module") == "module",
+            f"{slug}: promotion requires the default strict typed ABI and original-module compilation")
+    provenance = puzzle["provenance"]
+    require(provenance == manifest["provenance"] and provenance["classification"] == "canonical_tutorial_port"
+            and provenance["example_id"] == row["id"], f"{slug}: canonical example identity mismatch")
+    require(provenance["references"] == [row["url"], row["source"]["url"]], f"{slug}: canonical page and pinned span references mismatch")
+    require(provenance["upstream"] == {
+        "repository": REPOSITORY, "revision": REVISION, "source_path": row["source"]["path"],
+        "start_line": row["source"]["start_line"], "end_line": row["source"]["end_line"],
+    }, f"{slug}: upstream source identity/span mismatch")
+    require(provenance["source_adaptation"] == {
+        "kind": "extract_complete_chialisp_module", "source_span_sha256": row["source"]["sha256"],
+        "reference_sha256": sha256(payloads["reference"]),
+        "description": "Copy the complete fenced module source lines exactly, including their comments and original LF endings.",
+    }, f"{slug}: manifest does not bind the exact complete-module extraction")
+    require(isinstance(provenance["limitations"], list) and len(provenance["limitations"]) >= 4
+            and all(isinstance(item, str) and item for item in provenance["limitations"]), f"{slug}: missing explicit adapter limitations")
+    require(puzzle["source"].encode() == payloads["rust_source"] and puzzle["reference"].encode() == payloads["reference"]
+            and puzzle["rue"]["path"] == paths["rue_source"] and puzzle["rue"]["source"].encode() == payloads["rue_source"],
+            f"{slug}: execution report sources are stale")
+    recorded = [{key: case[key] for key in ("label", "solution", "declared_divergence") if key in case} for case in puzzle["cases"]]
+    require(manifest["cases"] == recorded, f"{slug}: execution cases differ from the current manifest")
+    expected = {"status": "accepted", "output_hex": contract["expected_output_hex"]}
+    tutorial = divergent = rejected_everywhere = 0
+    for case in puzzle["cases"]:
+        require({(run["backend"], run["optimize_lir"]) for run in case["runs"]} == ALL_MODES,
+                f"{slug}: missing independent reference or optimization setting")
+        divergence = case.get("declared_divergence")
+        if divergence is not None:
+            require(set(divergence) == {"backends", "outcome", "reason"} and set(divergence["backends"]) <= DIVERGENCE_BACKENDS
+                    and divergence["backends"] and divergence["outcome"] != case["native"] and divergence["reason"],
+                    f"{slug}: declared divergence may only bind the independently compiled languages")
+            divergent += 1
+        for run in case["runs"]:
+            bound = divergence["outcome"] if divergence is not None and run["backend"] in divergence["backends"] else case["native"]
+            require(run["execution"]["outcome"] == bound, f"{slug}: compiled result differs from its bound expectation")
+        if case["solution"] == contract["solution"]:
+            require(case["label"].startswith("tutorial") and case["native"] == expected and divergence is None,
+                    f"{slug}: the tutorial input must produce the independently specified page result everywhere")
+            tutorial += 1
+        if divergence is None and case["native"] == {"status": "rejected"}:
+            rejected_everywhere += 1
+    require(tutorial == 1 and divergent >= 1 and rejected_everywhere >= 1,
+            f"{slug}: promotion needs the page input, at least one declared divergence and one shared rejection")
+    adaptation = {"operation": "extract_complete_chialisp_module", "source_span_sha256": row["source"]["sha256"],
+                  "report": "corpus/validation.json", "report_sha256": sha256((root / "corpus/validation.json").read_bytes()),
+                  "slug": slug}
+    for key, path in paths.items():
+        adaptation[key] = path
+        adaptation[key + "_sha256"] = sha256(payloads[key])
+    require(row["source_adaptation"] == adaptation, f"{slug}: stale or changed complete-module extraction/source/evidence binding")
+    require(row["validation_contract"] == {
+        "abi": MODULE_ABI, "environment": "strict", "reference_mode": "module",
+        "expected_solution": contract["solution"], "expected_output": contract["expected_output"],
+        "expected_output_hex": contract["expected_output_hex"], "integer_domain": MODULE_DOMAIN,
+        "declared_divergences": divergent, "claim_scope": MODULE_CLAIM,
+        "ledger": "not_applicable_pure_function", "compiler_preservation": "not_claimed",
+    }, f"{slug}: changed ABI/result/proof-scope claim")
+
+
 def check_promotion(row, excerpt, report, root):
     """Bind only explicitly reviewed examples to actual source/report bytes."""
     if row["id"] == "chialisp-example:password-coin":
         return check_password_promotion(row, excerpt, report, root)
     slug = row["id"].split(":", 1)[1]
-    require(slug in EXPECTATIONS, "Only the three closed Intro expressions have a reviewed promotion contract")
+    if slug in MODULE_PROMOTIONS:
+        return check_module_promotion(row, excerpt, report, root)
+    require(slug in EXPECTATIONS, "Only the three closed Intro expressions and the three Using Modules programs have a reviewed promotion contract")
     require(row["kind"] == "closed_expression" and row["implementation_status"] == "implemented"
             and row["validation_status"] == "differential_only", f"{slug}: unsupported promotion status")
     require(not any(key in row for key in ("validated", "passed", "executed")), f"{slug}: unsupported execution claim")
@@ -318,6 +416,13 @@ def validate(inventory, root=ROOT, upstream_tree=None):
                     and observations[0]["validation_status"] == ("differential_only" if promoted else "not_run")
                     and ("linked executed differential cases" if promoted else "not an executed result") in observations[0]["basis"],
                     "Intro expectations must distinguish source expectations and executed differential evidence")
+        elif short_id in MODULE_PROMOTIONS:
+            contract = MODULE_PROMOTIONS[short_id]
+            require(len(observations) == 1 and observations[0]["solution"] == contract["solution"]
+                    and observations[0]["expected_output"] == contract["expected_output"]
+                    and observations[0]["validation_status"] == ("differential_only" if promoted else "not_run")
+                    and ("linked executed differential cases" if promoted else "not an executed result") in observations[0]["basis"],
+                    "Module expectations must distinguish page expectations and executed differential evidence")
         else:
             require(observations == [], "Additional proposed observations need review")
         for variant in row["variants"]:
@@ -358,6 +463,40 @@ def validate(inventory, root=ROOT, upstream_tree=None):
         for path, blob in blobs.items():
             require(upstream[path]["type"] == "blob" and upstream[path]["sha"] == blob,
                     f"Upstream tree/blob identity mismatch: {path}")
+
+
+class ModulePromotionControls(unittest.TestCase):
+    def test_module_promotion_rejects_rust_bound_or_vacuous_divergences_and_stale_bindings(self):
+        inventory = load(ROOT / "corpus/tutorial-examples.json")
+        report = checked_report(ROOT)
+        row = next(item for item in inventory["examples"] if item["id"] == "chialisp-example:module-add")
+        lines = (ROOT / row["source"]["snapshot"]).read_text().splitlines(keepends=True)
+        excerpt = "".join(lines[row["source"]["start_line"] - 1:row["source"]["end_line"]])
+        check_module_promotion(row, excerpt, report, ROOT)
+        for mutation in ("rust_bound", "vacuous", "undeclared_run", "tutorial_moved", "no_divergence", "no_shared_rejection",
+                         "wrapped_reference", "environment", "count", "report_hash", "claim_scope"):
+            changed, evidence = copy.deepcopy(row), copy.deepcopy(report)
+            puzzle = next(item for item in evidence["puzzles"] if item["slug"] == "module-add")
+            divergent = next(case for case in puzzle["cases"] if "declared_divergence" in case)
+            if mutation == "rust_bound": divergent["declared_divergence"]["backends"] = ["rust_mir"]
+            elif mutation == "vacuous": divergent["declared_divergence"]["outcome"] = copy.deepcopy(divergent["native"])
+            elif mutation == "undeclared_run":
+                run = next(run for run in divergent["runs"] if run["backend"] == "rust_mir")
+                run["execution"]["outcome"] = copy.deepcopy(divergent["declared_divergence"]["outcome"])
+            elif mutation == "tutorial_moved": next(case for case in puzzle["cases"] if case["label"].startswith("tutorial"))["solution"] = "(3 4)"
+            elif mutation == "no_divergence":
+                for case in puzzle["cases"]: case.pop("declared_divergence", None)
+            elif mutation == "no_shared_rejection":
+                for case in puzzle["cases"]:
+                    if case["native"] == {"status": "rejected"} and "declared_divergence" not in case:
+                        case["native"] = {"status": "accepted", "output_hex": "80"}
+            elif mutation == "wrapped_reference": puzzle["reference"] = "(mod ENV " + puzzle["reference"] + ")\n"
+            elif mutation == "environment": puzzle["environment"] = "raw"
+            elif mutation == "count": changed["validation_contract"]["declared_divergences"] += 1
+            elif mutation == "report_hash": changed["source_adaptation"]["report_sha256"] = "0" * 64
+            else: changed["validation_contract"]["claim_scope"] = "compiler_preservation_proof"
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError, StopIteration)):
+                check_module_promotion(changed, excerpt, evidence, ROOT)
 
 
 class InventoryControls(unittest.TestCase):
@@ -507,7 +646,9 @@ def main():
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     if args.self_test:
-        result = unittest.TextTestRunner().run(unittest.defaultTestLoader.loadTestsFromTestCase(InventoryControls))
+        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(InventoryControls),
+                                    unittest.defaultTestLoader.loadTestsFromTestCase(ModulePromotionControls)])
+        result = unittest.TextTestRunner().run(suite)
         return 0 if result.wasSuccessful() else 1
     try:
         inventory = load(args.inventory)

@@ -54,7 +54,7 @@ class LedgerComponentDispatch(unittest.TestCase):
                 patch.object(singleton, 'validate_component', side_effect=checked('old', old_validator)) as old, \
                 patch.object(delegated, 'validate_component', side_effect=checked('new', new_validator)) as new:
             counts = self.check(self.actual)
-        self.assertEqual(counts, (23, sum(len(p['cases']) for p in self.actual['puzzles']), 40))
+        self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40))
         self.assertEqual(old.call_count, 1)
         self.assertEqual(new.call_count, 1)
         self.assertIs(old.call_args.args[0], self.by_slug['p2-singleton'])
@@ -76,7 +76,7 @@ class LedgerComponentDispatch(unittest.TestCase):
         for name in ('unknown', 'duplicate-singleton', 'duplicate-delegated'):
             changed = copy.deepcopy(self.actual)
             if name == 'unknown':
-                changed['puzzles'][-1]['slug'] = 'unknown-component'
+                next(p for p in changed['puzzles'] if p['slug'] == 'p2-delegated-conditions')['slug'] = 'unknown-component'
             else:
                 slug = 'p2-singleton' if name == 'duplicate-singleton' else 'p2-delegated-conditions'
                 changed['puzzles'].append(copy.deepcopy(self.by_slug[slug]))

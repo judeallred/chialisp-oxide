@@ -154,7 +154,8 @@ class CargoBundleTests(unittest.TestCase):
         source_root = Path(__file__).resolve().parent.parent
         current = cargo_authoring.snapshot(source_root)
         cons = "crates/chialisp-oxide/src/cons.rs"
-        self.assertEqual(len(current["exports"]), 23)
+        import corpus_append
+        self.assertEqual(sorted(current["exports"]), sorted(corpus_append.current_slugs()))
         self.assertIn("p2-delegated-conditions", current["exports"])
         self.assertIn(cons, {item["path"] for item in current["sources"]})
         directory = tempfile.TemporaryDirectory(prefix="chialisp-oxide-main-authoring-controls-")

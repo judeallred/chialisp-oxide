@@ -67,6 +67,10 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
                     "examples": ["chialisp-example:password-coin"],
                     "scope": "password_module_and_separate_instances_only",
                 },
+                "chialisp:chialisp-primer/using-modules": {
+                    "examples": ["chialisp-example:module-add", "chialisp-example:module-times-ten", "chialisp-example:module-factorial"],
+                    "scope": "individual_typed_module_adapters_only",
+                },
             }
             contract = reviewed.get(identity)
             if contract is None or promoted != contract["examples"]:

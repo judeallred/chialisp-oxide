@@ -228,16 +228,19 @@ class ConstructedOrderControls(unittest.TestCase):
             def spy(*args,**kwargs):calls.append(name);return result
             return spy
         with patch.object(cost,'validate_current',side_effect=add('current')), \
-                patch.object(migration,'check_report_bytes',side_effect=add('raw')), \
+                patch.object(cost,'check_report_bytes',side_effect=add('raw')), \
                 patch.object(cli.p2_cli,'_check_after_current_validation',side_effect=add('fresh',{})), \
+                patch.object(cost,'current_checkpoint',side_effect=lambda value:value), \
+                patch.object(migration,'reviewed_after',return_value=None), \
                 patch.object(migration,'project_validated',side_effect=add('outer',before)), \
                 patch.object(cost,'source_checkpoint',side_effect=add('composition',intermediate)), \
                 patch.object(migration.composition,'anchor_checkpoint',side_effect=add('anchor',anchor)), \
                 patch.object(subprocess,'run',side_effect=AssertionError('no processes')):
             cli.validate(report,b'constructed',fresh_args=object())
         self.assertEqual(calls,['current','raw','fresh','outer','composition','anchor'])
-        with patch.object(cost,'validate_current',return_value=None),patch.object(migration,'check_report_bytes',return_value=None), \
+        with patch.object(cost,'validate_current',return_value=None),patch.object(cost,'check_report_bytes',return_value=None), \
                 patch.object(cli.p2_cli,'_check_after_current_validation',side_effect=ValueError('fresh failed')), \
+                patch.object(cost,'current_checkpoint',side_effect=AssertionError('history after bad fresh')), \
                 patch.object(migration,'project_validated',side_effect=AssertionError('history after bad fresh')),self.assertRaisesRegex(ValueError,'fresh failed'):
             cli.validate(report,b'constructed',fresh_args=object())
 

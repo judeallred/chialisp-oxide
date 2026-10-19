@@ -114,19 +114,29 @@ def check_rows(actual, old, new=None, *, diagnostic=False, slug=None):
 
 
 def hash_diagnostic_profile(report):
-    """This root's actualcurrent hash profile is the explicit23 append."""
-    import p2dc_append_migration as selected
+    """This root's actual current hash profile is the generic corpus append."""
+    import corpus_append as selected
     return selected.hash_diagnostic_profile(report)
 
 
 def current22_migration(report):
-    """Compatibility API name; this root explicitly selects current23.
+    """Compatibility API name; this root explicitly selects the generic corpus append.
 
-    Missing/pending/malformed23 never falls back to older22 authority. Older22
-    historical readers remain available through runtime_composition_migration.
+    Missing/pending/malformed profiles never fall back to the retained
+    delegated-conditions (23) or older authorities. Those historical readers
+    remain available through p2dc_append_migration and
+    runtime_composition_migration on their exact checkpoints.
     """
-    import p2dc_append_migration as selected
+    import corpus_append as selected
     return selected
+
+
+def current_checkpoint(report):
+    """PURE current → retained delegated-conditions checkpoint, or the exact checkpoint itself."""
+    import corpus_append as current
+    if current.is_append(report):
+        return current.project_validated(report)
+    return report
 
 
 def reviewed_current22(report):
@@ -138,19 +148,20 @@ def verify_current22_bundles(report, on, off, **identities):
 
 
 def validate_current(report):
-    """Validate this root's complete actual23, never restored/sliced history."""
-    import p2dc_append_migration as selected
+    """Validate this root's complete actual current corpus, never restored/sliced history."""
+    import corpus_append as selected
     return selected.validate_current(report)
 
 
 def composition_checkpoint(report):
-    """PURE actual23→reviewed227, or explicit exact227 identity.
+    """PURE actual current→retained23→reviewed227, or explicit exact227 identity.
 
     Actual current/raw/fresh validation belongs to the caller. This function
     never validates current source/native/control state on historical values.
     """
     import p2dc_append_migration as outer
     import runtime_composition_migration as composition
+    report = current_checkpoint(report)
     if outer.is_append(report):
         return outer.project_validated(report)
     composition.reviewed_after(report)

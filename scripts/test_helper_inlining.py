@@ -42,7 +42,7 @@ class HelperInliningTests(unittest.TestCase):
 
     def test_stale_current_native_inputs_fail_before_any_projection(self):
         bad = copy.deepcopy(self.current)
-        bad["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
+        next(p for p in bad["puzzles"] if p.get("native_sources"))["native_sources"][0]["sha256"] = "0" * 64
         with patch.object(inline, "project_validated", side_effect=AssertionError("projection ran first")), self.assertRaises(ValueError):
             inline.preserve(bad)
 
@@ -76,14 +76,15 @@ class HelperInliningTests(unittest.TestCase):
     def test_current23_hash_selection_never_falls_back_to_historical_selectors(self):
         import p2_append_migration as append
         import p2_source_cost_migration as source
-        import p2dc_append_migration as selected
+        import corpus_append as selected
+        import p2dc_append_migration as outer
         import runtime_composition_migration as composition
         import runtime_guarded_projection_migration as guarded
         import runtime_refinement_migration as refinement
 
-        # Real FINAL23 positive first. Historical21 and unknown pipeline are
-        # malformed CURRENT requests; they cannot choose older authority.
-        older = (inline, refinement, guarded, composition, source, append)
+        # Real FINAL current positive first. Historical21 and unknown pipeline
+        # are malformed CURRENT requests; they cannot choose older authority.
+        older = (outer, inline, refinement, guarded, composition, source, append)
         with ExitStack() as stack:
             for module in (cost, *older):
                 for name in ("preserve", "project_validated"):

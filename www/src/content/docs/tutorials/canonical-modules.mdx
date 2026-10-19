@@ -1,0 +1,118 @@
+---
+title: Port the Using Modules programs
+description: Compile the three pinned Using Modules programs unchanged, port them to typed Rust, and record every difference the typed adapter introduces.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import CanonicalMeasurements from '../../../components/CanonicalMeasurements.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+The [Using Modules](https://chialisp.com/chialisp-using-modules/) page introduces
+`mod`, named constants, helper functions and recursion with three programs:
+adding two arguments, multiplying by a named constant through a helper, and a
+recursive factorial. All three read their arguments by position and operate on
+unbounded signed CLVM integers.
+
+The originals come from the Apache-2.0 documentation snapshot at
+[`dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8`](https://github.com/Chia-Network/chialisp-web/tree/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8).
+Each local Chialisp source is the complete fenced module span, including its
+comments, compiled unchanged by the independent Chialisp compiler. No `mod`
+wrapper, argument guard or replacement expression is added. The inventory
+records the span, the extracted-source hashes, the license, the Rust and Rue
+sources, and the validation report.
+
+## Choose an explicit integer adapter
+
+These programs take arguments, so unlike the
+[Intro expressions](/chialisp-oxide/tutorials/canonical-intro/) they cannot ignore
+their environment. The Rust ports use the default strict typed ABI with `i64`
+parameters: a canonical signed 64-bit atom per argument, exactly as many
+arguments as declared, and a proper list. Arithmetic is checked, so overflow
+rejects the spend instead of wrapping.
+
+That is a deliberate adapter, not the unchanged original program. The original
+accepts a padded atom such as `0x0001`, reads `0x00` as zero, ignores extra list
+elements and improper tails, and returns arbitrarily large results. Rust rejects
+all of those. Hiding the difference would misrepresent the port, and silently
+restricting the cases to inputs where everything agrees would hide it just as
+well.
+
+## Declare every divergence before execution
+
+Each manifest case may carry a `declared_divergence` that names the independently
+compiled languages it binds (Chialisp and the authored Rue translation, never
+Rust) and an independently specified outcome. The corpus validator checks those
+languages against the declared outcome and checks native Rust, Rust CLVM in both
+optimizer modes and the undeclared languages against the native Rust result.
+A declaration that equals the native result is rejected as vacuous, and a
+declaration that names a Rust backend is rejected outright.
+
+The declared outcomes are computed from the original program's semantics, not
+copied from an execution: for `(9223372036854775807 1)` the declared sum is the
+nine-byte atom `0x008000000000000000`, and for `(21)` the declared factorial is
+`51090942171709440000`. Every lab page lists its declarations with their reasons.
+
+## Add two module arguments
+
+<SourceComparison slug="module-add" />
+
+The page input `(2 3)` returns `5` everywhere. Seven of the nineteen named
+vectors declare a divergence: overflow and underflow, a value above the `i64`
+range, a padded atom, an explicit zero byte, an extra argument and an improper
+tail. Five vectors reject in every language, because `(f ())` on a missing
+argument or `+` on a pair fails in the original as well.
+Inspect [the module-add report](/chialisp-oxide/lab/module-add/).
+
+## Multiply by a named constant
+
+<SourceComparison slug="module-times-ten" />
+
+`ORDER_OF_MAGNITUDE` becomes a Rust `const` and `raise_magnitude` a plain
+function; the compiler may fold or inline both, so the compiled artifact need
+not preserve that structure. The page input `(5)` returns `50` everywhere.
+Inspect [the module-times-ten report](/chialisp-oxide/lab/module-times-ten/).
+
+## Recursive factorial
+
+<SourceComparison slug="module-factorial" />
+
+The pinned source returns `1` for any input of `1` or less; the surrounding
+prose describes a different base case, and the port follows the code. Rust
+recursion compiles through the closed version-4 runtime function table.
+`20!` is the largest factorial that fits an `i64`; `(21)` and `(25)` declare the
+original's larger results while Rust rejects. Large positive inputs are not
+compared at all: the original would recurse until the cost ceiling, which is an
+inconclusive resource result rather than a policy outcome.
+Inspect [the module-factorial report](/chialisp-oxide/lab/module-factorial/).
+
+## Inspect the measured compiler results
+
+<CanonicalMeasurements mode="module" />
+
+The typed signed-integer decoder dominates these artifacts. A seven-byte
+Chialisp program becomes well over a thousand bytes of optimized Rust CLVM, and
+the gap is recorded rather than explained away. Reducing it is tracked as
+compiler work; these measurements are finite observations, not performance
+guarantees.
+
+## Reproduce the comparison
+
+From the checkout, with the pinned toolchain and local tools built as in the
+[quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --only module-add,module-times-ten,module-factorial --output /tmp/modules.json
+```
+
+The `--only` filter validates a subset for local iteration; the resulting report
+is partial and every corpus evidence gate rejects it. The committed report
+validates the whole corpus.
+
+These three ports do not complete the Using Modules page, the primer, or any
+CHIP. They do not add unbounded integers, a raw positional environment reading
+or dynamic lists to the compiler. [Coverage](/chialisp-oxide/coverage/) keeps the
+remaining tutorial programs, currying, inner puzzles and protocol modules
+visible.

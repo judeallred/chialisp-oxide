@@ -171,6 +171,7 @@ pub(super) fn generated_cases() -> Result<Vec<super::Case>> {
         .map(|row| super::Case {
             label: row.label,
             solution: row.solution,
+            declared_divergence: None,
         })
         .collect();
     ensure!(

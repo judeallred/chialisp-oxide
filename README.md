@@ -94,11 +94,13 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records twenty-three
+The locally validated [corpus report](corpus/validation.json) records twenty-six
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
-plus three canonical closed expressions from the pinned Chialisp Intro and the
+plus three canonical closed expressions from the pinned Chialisp Intro, the
+three pinned Using Modules programs (add, multiply by a named constant, and
+recursive factorial) through declared signed 64-bit typed adapters, the
 exact canonical `p2_conditions` program factory, pinned `last_inner`,
 `prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
 module adapters, the singleton launcher module, and the exact password tutorial
@@ -106,8 +108,12 @@ module with separate curried-instance observations, plus canonical pay-to-single
 with dedicated counterpart composition evidence, and canonical delegated
 conditions with owner-key and signature/reveal checks. The
 Intro ports preserve the exact original expressions and ignored environments
-through explicit parameterless annotations. The corpus checks native execution,
-459 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
+through explicit parameterless annotations. The Using Modules ports compile the
+original modules unchanged and declare, per case, every result where the
+original's unbounded positional reading differs from the typed Rust adapter;
+those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
+checks native execution,
+509 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton

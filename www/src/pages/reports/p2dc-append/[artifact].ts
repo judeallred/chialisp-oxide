@@ -12,7 +12,9 @@ const definitions = [
 const sha = (bytes: Uint8Array | string) => createHash('sha256').update(bytes).digest('hex');
 async function artifacts() {
   const inputs = await readCostInputs(undefined,[
-    ['active','corpus/validation.json',16*1024*1024],
+    ['active','corpus/checkpoints/p2dc-append-validation.json',16*1024*1024],
+    ['current','corpus/validation.json',16*1024*1024],
+    ['corpus-profile.json','corpus/corpus-append.json',4*1024*1024],
     ['composition','corpus/runtime-composition-baseline.json',4*1024*1024],
     ...definitions,
   ],48*1024*1024) as Record<string,Uint8Array>;
@@ -27,6 +29,13 @@ async function artifacts() {
   assert.equal(sha(inputs.composition),profile.baseline.authorizing_transition_sha256);
   assert.equal(sha(inputs['p2-costs.json']),profile.reviewed_after.metrics_sha256);
   assert.equal(sha(inputs['p2-controls.json']),profile.reviewed_after.controls_sha256);
+  // The delegated-conditions capture is the retained checkpoint; the generic corpus
+  // append binds the live report over it before these downloads are published.
+  const corpus = JSON.parse(Buffer.from(inputs['corpus-profile.json']).toString('utf8'));
+  assert.equal(corpus.protocol,'chialisp-oxide-corpus-append/v1');
+  assert.equal(corpus.status,'reviewed_final','Pending current corpus evidence cannot publish retained append downloads');
+  assert.equal(corpus.baseline.report_sha256,sha(inputs.active));
+  assert.equal(sha(inputs.current),corpus.reviewed_after.report_sha256);
   return definitions.map(([basename])=>({basename,bytes:inputs[basename]}));
 }
 const retained = artifacts();

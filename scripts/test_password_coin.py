@@ -24,10 +24,14 @@ from password_vectors import (PUBLIC_HASH, PUBLIC_PASSWORD, conditions, curry_tr
 
 
 def append_fixture():
-    """Actual adopted23, or explicitly constructed current-source metadata."""
+    """Actual adopted current corpus, or explicitly constructed current-source metadata."""
+    import corpus_append as current
     import p2dc_append_migration as outer
     import runtime_cost_migration as cost
     actual=json.loads((cost.ROOT/'corpus/validation.json').read_bytes())
+    if current.is_append(actual):
+        current.reviewed_after(actual)  # No override, pending/fake capture fails closed.
+        return actual,False
     if len(actual['puzzles'])==23:
         outer.reviewed_after(actual)  # No override, pending/fake23 fails closed.
         return actual,False
@@ -208,13 +212,15 @@ class PasswordEvidenceBoundaryTests(unittest.TestCase):
 
     def test_current_native_corruptions_fail_before_any_historical_projection(self):
         from password_provenance import ROOT
-        import p2dc_append_migration as append
+        import corpus_append as append
+        import p2dc_append_migration as outer
         import runtime_cost_migration as cost
         import runtime_password_migration as password
         report,_ = append_fixture()
         self.assertTrue(append.is_append(report))
         allowed = {row["path"] for row in report["authoring"]["sources"]}
         allowed.update(f"puzzles/{puzzle['slug']}/puzzle.json" for puzzle in report["puzzles"])
+        allowed.update({append.PATH, outer.PATH})  # Reviewed profile metadata, never report-supplied.
         native_globals = append.current_native_sources.__globals__
         real_contained = native_globals["contained_file"]
 
@@ -290,7 +296,8 @@ class PasswordActiveAppendTests(unittest.TestCase):
         import runtime_password_migration as password
         with patch.object(old22,'current_native_sources',side_effect=AssertionError('old22 source checker received active append')):
             password.current_native_sources(self.report)
-        self.assertIs(cost.current22_migration(self.report),outer)
+        import corpus_append as current
+        self.assertIs(cost.current22_migration(self.report),current)
         if self.constructed:
             self.assertEqual(outer.load()['status'],outer.PENDING)
             with self.assertRaisesRegex(ValueError,'pending'):cost.validate_current(self.report)
@@ -304,7 +311,7 @@ class PasswordActiveAppendTests(unittest.TestCase):
         real = migration.current_native_sources
         native_calls = []
         def current(value):
-            self.assertEqual(len(value["puzzles"]), 23, "Historical object reached source freshness")
+            self.assertEqual(len(value["puzzles"]), len(self.report["puzzles"]), "Historical object reached source freshness")
             native_calls.append(value)
             return real(value)
         # Only the synthetic23 branch substitutes this historical pure boundary.
@@ -358,18 +365,18 @@ class PasswordActiveAppendTests(unittest.TestCase):
         for mode in ("extract", "supplied"):
             events = []
             def current(value):
-                self.assertEqual(len(value["puzzles"]), 23); events.append("check23"); return {}
+                self.assertEqual(len(value["puzzles"]), len(self.report["puzzles"])); events.append("check23"); return {}
             def extract(value, **kwargs):
-                self.assertEqual(len(value["puzzles"]), 23); events.append("fresh23"); return []
+                self.assertEqual(len(value["puzzles"]), len(self.report["puzzles"])); events.append("fresh23"); return []
             def self_test(value):
-                self.assertEqual(len(value["puzzles"]), 23); events.append("selftest23"); return 1
+                self.assertEqual(len(value["puzzles"]), len(self.report["puzzles"])); events.append("selftest23"); return 1
             def supplied(value, args):
                 if mode == "supplied": events.append("fresh23"); return []
                 return None
             with tempfile.TemporaryDirectory(prefix='password-constructed23-cli-order-') as directory:
                 path=Path(directory)/'constructed.json';path.write_text(json.dumps(self.report))
                 args = ["password-check", "--report",str(path),"--self-test"] + (["--extract-ir"] if mode == "extract" else ["--fresh-on", "/on", "--fresh-off", "/off"])
-                def raw(payload,value):self.assertEqual(len(value['puzzles']),23);events.append('raw23')
+                def raw(payload,value):self.assertEqual(len(value['puzzles']),len(self.report["puzzles"]));events.append('raw23')
                 with patch.object(sys, "argv", args), patch.object(cost,'check_report_bytes',side_effect=raw),patch.dict(gate["main"].__globals__, {"check": current, "print": lambda *a, **k: None}), patch.object(password_cargo, "extract", side_effect=extract), patch.object(password_controls, "self_test", side_effect=self_test), patch.object(gate["p2_cli"], "check", side_effect=supplied):
                     gate["main"]()
             self.assertEqual(events, ["raw23","fresh23", "check23", "selftest23"])
@@ -377,7 +384,7 @@ class PasswordActiveAppendTests(unittest.TestCase):
     def test_constructed23_pair_checks_actual_sources_metadata_IR_and_artifacts(self):
         """Unit IR/headers plus recorded artifacts; NOT fresh policy executions."""
         import password_cargo
-        import p2dc_append_migration as append
+        import corpus_append as append
         from cargo_authoring import snapshot
         # In-memory rawIR bindings authorize only constructed loader controls.
         # Current source bytes, retained22 CLVM and the explicitly synthetic new
@@ -427,7 +434,7 @@ class PasswordActiveAppendTests(unittest.TestCase):
                     mutation[0] = None
                     summaries = password_cargo.extract(self.report,cargo=cargo,driver=driver)
                     self.assertEqual([r["optimize_lir"] for r in summaries],[True,False])
-                    self.assertTrue(all(r["checked_current_exports"] == 23 for r in summaries))
+                    self.assertTrue(all(r["checked_current_exports"] == len(self.report["puzzles"]) for r in summaries))
                     mutation[0] = kind
                     with self.subTest(mutation=kind), self.assertRaises(ValueError): password_cargo.extract(self.report,cargo=cargo,driver=driver)
 

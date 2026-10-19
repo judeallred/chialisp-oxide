@@ -161,8 +161,26 @@ fn main() -> Result<()> {
             );
             let authoring = chialisp_oxide_corpus::authoring()?;
             let bundle = extract_corpus(&authoring)?;
+            // `--only a,b` validates a subset for local iteration. The resulting
+            // report is partial and is rejected by every corpus evidence gate.
+            let only = option(&args, "--only")?
+                .map(|list| list.split(',').map(str::to_owned).collect::<Vec<_>>());
+            if let Some(only) = &only {
+                for slug in only {
+                    ensure!(
+                        chialisp_oxide_corpus::PUZZLES.contains(&slug.as_str()),
+                        "unknown corpus puzzle {slug}"
+                    );
+                }
+            }
             let mut reports = vec![];
             for slug in chialisp_oxide_corpus::PUZZLES {
+                if only
+                    .as_ref()
+                    .is_some_and(|only| !only.iter().any(|s| s == slug))
+                {
+                    continue;
+                }
                 eprintln!("Validating {slug}");
                 let export = &authoring.exports[*slug];
                 let program = &bundle.programs[&export.entry];

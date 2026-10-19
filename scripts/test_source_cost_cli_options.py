@@ -54,7 +54,8 @@ class ConstructedExecutionWindow(unittest.TestCase):
         gate = runpy.run_path(str(cost.ROOT / "scripts/check-p2-source-cost.py"))
         report = json.loads((cost.ROOT / "corpus/checkpoints/runtime-composition-validation.json").read_bytes())
         metrics = (cost.ROOT / "corpus/runtime-composition-costs.json").read_bytes()
-        active = Path(outer.__file__)
+        import corpus_append as current
+        active = Path(current.__file__)  # The generic corpus append is the active reader.
         original = active.read_bytes()
         with tempfile.TemporaryDirectory(prefix="constructed-metric-window-") as folder:
             location = Path(folder)

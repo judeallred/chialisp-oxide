@@ -34,7 +34,7 @@ class CostMigrationTests(unittest.TestCase):
 
     def test_stale_current_native_sources_fail_before_projection(self):
         bad = copy.deepcopy(self.current)
-        bad["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
+        next(p for p in bad["puzzles"] if p.get("native_sources"))["native_sources"][0]["sha256"] = "0" * 64
         with patch.object(cost, "project_validated", side_effect=AssertionError("projection ran first")), self.assertRaises(ValueError):
             cost.preserve(bad)
 

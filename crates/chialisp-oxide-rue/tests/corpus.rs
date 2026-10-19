@@ -54,9 +54,20 @@ fn all_authored_rue_sources_match_recorded_native_outputs_and_rejections() {
                 .unwrap_or_else(|error| panic!("{slug} optimize={optimize}: {error:#}"));
             for case in puzzle["cases"].as_array().unwrap() {
                 let solution = case["solution"].as_str().unwrap();
+                // A declared divergence binds the authored Rue translation to an
+                // independently specified original result instead of native Rust.
+                let divergence = &case["declared_divergence"];
+                let bound_to_original = divergence["backends"]
+                    .as_array()
+                    .is_some_and(|backends| backends.iter().any(|b| b == "rue_source"));
+                let expected = if bound_to_original {
+                    &divergence["outcome"]
+                } else {
+                    &case["native"]
+                };
                 assert_eq!(
-                    execute(&program, solution),
-                    case["native"],
+                    &execute(&program, solution),
+                    expected,
                     "{slug} optimize={optimize}, {}: {solution}",
                     case["label"],
                 );

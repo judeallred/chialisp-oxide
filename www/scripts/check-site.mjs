@@ -999,6 +999,7 @@ for (const name of ['cargo-chialisp-oxide', 'chialisp-oxide-driver', 'cargo chia
 const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
 const coverage = await html(path.join(root, 'coverage/index.html'));
 const introIds = new Set(['chialisp-example:intro-list', 'chialisp-example:intro-add', 'chialisp-example:intro-conditional']);
+const moduleIds = new Set(['chialisp-example:module-add', 'chialisp-example:module-times-ten', 'chialisp-example:module-factorial']);
 const implementedExamples = [];
 for (const example of tutorialExamples.examples) {
   assert(coverage.includes(example.title), `Missing canonical example: ${example.id}`);
@@ -1019,6 +1020,26 @@ for (const example of tutorialExamples.examples) {
       assert.equal(example.validation_contract.abi, 'ignored_environment_nullary');
       assert.equal(example.validation_contract.environment, 'ignored');
       assert.equal(example.validation_contract.reference_mode, 'expression');
+    } else if (moduleIds.has(example.id)) {
+      assert.equal(example.source_adaptation.operation, 'extract_complete_chialisp_module');
+      assert(detail.includes('Original Chialisp module'), `${example.id}: original module must be labeled`);
+      assert(detail.includes('Environment contract: strict typed arguments.'), `${example.id}: missing strict typed ABI contract`);
+      assert(detail.includes('Declared divergences from the original'), `${example.id}: declared divergences must be visible`);
+      assert.equal(puzzle.environment ?? 'strict', 'strict');
+      assert.equal(puzzle.reference_mode ?? 'module', 'module');
+      assert.equal(example.validation_contract.abi, 'strict_typed_i64_list');
+      assert.equal(example.validation_contract.claim_scope, 'executed_differential_cases_with_declared_original_divergences_only');
+      assert.equal(example.validation_contract.compiler_preservation, 'not_claimed');
+      const divergent = puzzle.cases.filter(test => test.declared_divergence);
+      assert.equal(example.validation_contract.declared_divergences, divergent.length, `${example.id}: declared divergence count differs from the report`);
+      assert(divergent.length > 0 && divergent.every(test => test.declared_divergence.backends.every(backend => ['chialisp', 'rue_source'].includes(backend))), `${example.id}: declared divergences may only bind Chialisp or Rue`);
+      for (const test of puzzle.cases) {
+        for (const run of test.runs) {
+          const bound = test.declared_divergence && test.declared_divergence.backends.includes(run.backend) ? test.declared_divergence.outcome : test.native;
+          assert.deepEqual(run.execution.outcome, bound, `${example.id}/${test.label}/${run.backend}: run differs from its bound expectation`);
+        }
+      }
+      assert.deepEqual(puzzle.simulator, [], 'Tutorial module has no ledger scenario credit');
     } else {
       assert.equal(example.id, 'chialisp-example:password-coin', 'An unreviewed canonical example was promoted');
       assert.equal(puzzle.slug, 'password-coin');
@@ -1044,8 +1065,13 @@ for (const example of tutorialExamples.examples) {
     assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
   }
 }
-assert.deepEqual(implementedExamples.sort(), [...introIds, 'chialisp-example:password-coin'].sort(), 'Only the three closed Intro expressions and exact password module are promoted');
+assert.deepEqual(implementedExamples.sort(), [...introIds, ...moduleIds, 'chialisp-example:password-coin'].sort(), 'Only the three closed Intro expressions, the three Using Modules programs and the exact password module are promoted');
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
+assert(built.includes(path.join(root, 'tutorials/canonical-modules/index.html')), 'Missing canonical Using Modules tutorial');
+const modulesPage = await html(path.join(root, 'tutorials/canonical-modules/index.html'));
+for (const needle of ['module-add', 'module-times-ten', 'module-factorial', 'declared_divergence', 'i64']) {
+  assert(modulesPage.includes(needle), `Using Modules tutorial missing ${needle}`);
+}
 const homepage = await html(path.join(root, 'index.html'));
 const consensusChecks = validation.puzzles.reduce((sum, puzzle) => sum
   + puzzle.simulator.reduce((n, scenario) => n + scenario.rejections.length, 0)

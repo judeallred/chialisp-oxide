@@ -140,7 +140,8 @@ try {
 
 if (!constructed) {
   const report=parse(await readFile(new URL('corpus/validation.json',root)));
-  assert.equal(report.puzzles.length,23,'Actual current23 capture required; --constructed is unit data only');
+  const corpusProfile=parse(await readFile(new URL('corpus/corpus-append.json',root)));
+  assert.equal(report.puzzles.length,corpusProfile.preserved_slugs.length+corpusProfile.added.length,'Actual current corpus capture required; --constructed is unit data only');
   const puzzle=report.puzzles.find(row=>row.slug==='p2-delegated-conditions');assert(puzzle);
   const evidence=await readDelegatedSourceControls(puzzle);assert(evidence,'Actual source-control packet is pending');
   // Source-only SSR relocation regression: move only the presentation module

@@ -33,7 +33,9 @@ const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'j
   <p class="source-note">Long lines wrap for reading. The copy buttons retain the source’s original line breaks.</p>
   {canonical && <p class="source-note">{puzzle.reference_mode === 'expression'
     ? <>The original expression is extracted from the pinned tutorial’s <code>run</code> command, without a <code>mod</code> wrapper. All three sources explicitly ignore their environment.</>
-    : <>The original module span is retained from the pinned tutorial without an adapter. The ports preserve its raw environment contract; instance commitments and spend observations are recorded separately.</>}
+    : puzzle.environment === 'raw'
+    ? <>The original module span is retained from the pinned tutorial without an adapter. The ports preserve its raw environment contract; instance commitments and spend observations are recorded separately.</>
+    : <>The original module span is retained from the pinned tutorial without an adapter. The Rust port reads its arguments through the strict typed ABI as signed 64-bit integers; every difference from the original’s unbounded, positional environment reading is declared per case and checked against an independently specified result.</>}
     {' '}<a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
   {canonicalModule && <p class="source-note">The original upstream module is retained byte for byte, without an adapter or added argument guard. The raw environment contract and published module identity are recorded separately from finite behavioral comparisons.</p>}
   {Object.keys(puzzle.reference_includes ?? {}).length > 0 && <p class="source-note" data-reference-includes>The independent reference compiler binds each include to its exact recorded supporting file: {Object.entries(puzzle.reference_includes ?? {}).map(([name, filename], index) => <>{index > 0 ? '; ' : ''}<code>{name}</code>{' → '}<code>{filename}</code></>)}. Undeclared includes fail.</p>}

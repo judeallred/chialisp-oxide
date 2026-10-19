@@ -264,7 +264,8 @@ class BoundaryTests(unittest.TestCase):
 
     def test_source_window_and_runner_syntax_order(self):
         window=c.source_window();paths={row['path'] for row in window['sources']}
-        self.assertEqual(len(window['authoring']['exports']),23);self.assertTrue(set(c.CODE)<=paths)
+        import corpus_append
+        self.assertEqual(set(window['authoring']['exports']),set(corpus_append.current_slugs()));self.assertTrue(set(c.CODE)<=paths)
         for name in ['run-p2dc-source-controls.py','check-p2dc-source-controls.py']:
             tree=ast.parse(c.read(c.ROOT/'scripts'/name));self.assertIsInstance(tree,ast.Module)
         text=c.read(c.ROOT/'scripts/run-p2dc-source-controls.py').decode()

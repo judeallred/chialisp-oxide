@@ -304,7 +304,9 @@ class ComponentComposition(unittest.TestCase):
     def test_current_component_reader_binds_own_snapshot_without_claiming_old22_validation(self):
         component=component_fixture()
         marker={'constructed':'snapshot'}
-        report=dict(schema_version=1,authoring=marker,puzzles=[{'slug':p} for p in evidence.OLD_SLUGS]+[component])
+        import corpus_append
+        trailing=[{'slug':p} for p in corpus_append.current_slugs()[len(evidence.OLD_SLUGS)+1:]]
+        report=dict(schema_version=1,authoring=marker,puzzles=[{'slug':p} for p in evidence.OLD_SLUGS]+[component]+trailing)
         with patch.object(evidence,'snapshot',return_value=marker):
             self.assertEqual(evidence.validate_current(report)['component'],vectors.SLUG)
         with patch.object(evidence,'snapshot',return_value={'constructed':'different'}), self.assertRaises(ValueError):

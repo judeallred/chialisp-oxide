@@ -13,10 +13,22 @@ alwaysApply: true
 - Keep signed and unsigned checkpoints explicit. The source-cost M1 checkpoint
   is reviewed but unsigned; E20 is a signed anchor. The old pending guarded
   profile remains pending. Do not manufacture a commit or rewrite its status.
-- The active append has 23 puzzles; the composition checkpoint has 22. Keep the
-  whole recorded checkpoints immutable and bind each transition with its own
-  reviewed profile. For example, `current22_migration` is a compatibility name,
-  not permission to validate a restored 22-puzzle report as current.
+- The active root is the generic corpus append (`scripts/corpus_append.py`,
+  profile `corpus/corpus-append.json`): the retained delegated-conditions
+  checkpoint has 23 puzzles, the composition checkpoint 22, and the current
+  corpus lists every added slug after the preserved order. Keep the whole
+  recorded checkpoints immutable and bind each transition with its own reviewed
+  profile. A new export extends `added` and is re-recorded with
+  `check-corpus-append.py --record` after the final host build; it does not add
+  a migration module, CLI or checkpoint copy. `current22_migration` is a
+  compatibility name, not permission to validate a restored report as current.
+- A manifest case may declare a divergence only for Chialisp and Rue, with an
+  independently specified outcome that differs from native Rust; Rust CLVM is
+  never declared. Readers check declared backends against the declaration and
+  everything else against native Rust.
+- Recapture `corpus/corpus-append-existing-p2-controls.json` with
+  `scripts/capture-p2-controls.py` whenever any workspace source changes; its
+  window hashes the complete reviewed workspace.
 - Run current checks with the actual current compiler and driver identities,
   complete bundles in both modes, and the exact requested Cargo options.
   Repeated corpus reports must be byte-identical. Hash consistency does not
@@ -31,7 +43,7 @@ alwaysApply: true
 - Freeze `scripts/vm_failures.py` before capturing public source controls: the
   packet hashes that source. Its proof closure may read packet file identities
   but must not embed the packet hash into its own source or call a producer.
-- Follow scripts/check-p2dc-append.py,
+- Follow scripts/check-corpus-append.py, scripts/check-p2dc-append.py,
   scripts/check-runtime-composition.py and scripts/check-p2dc-source-controls.py.
   Recorded readers, constructed corruption controls and actual execution are
   separate claims. Preserve the WIP and not-ready-for-use notices.

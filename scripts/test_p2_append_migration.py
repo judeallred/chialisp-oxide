@@ -92,8 +92,13 @@ class AppendProjection(unittest.TestCase):
             # This exercises the retained historical22 native loader with real
             # copied source bytes and constructed declarations, independently
             # of the active23 checker tested by test_p2_outer_integration.
+            import corpus_append as current
+            generic = current.load()
+            for row in generic["added"]:
+                metadata["exports"].pop(row["slug"])
+            generic_added = {row["path"] for row in generic["source_transition"]["added"]}
             metadata["exports"].pop(outer.SLUG)
-            metadata["inputs"] = [path for path in metadata["inputs"] if path not in outer.ADDED]
+            metadata["inputs"] = [path for path in metadata["inputs"] if path not in outer.ADDED and path not in generic_added]
             metadata["exports"][append.ADDED] = {"entry":"chialisp_oxide_puzzles::p2_singleton::puzzle", "source":"puzzles/p2-singleton/puzzle.rs"}
             metadata["inputs"] = sorted(set(metadata["inputs"]) | set(self.profile["authoring"]["prototype_added_inputs"] + self.profile["authoring"]["reviewed_integration_added_inputs"]))
             for relative in metadata["inputs"]:

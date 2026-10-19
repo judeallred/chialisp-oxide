@@ -109,7 +109,14 @@ remain required. The entry body gains no such facts from that helper exception.
 Fresh extraction covered all 23 exports in both modes twice, followed by ordinary
 IR validation/recompilation of every retained program in both modes. The complete
 22-puzzle predecessor and its 44 raw IR/artifact combinations remain exact after
-the closed source/native metadata transition. The actual 578-test workspace,
+the closed source/native metadata transition. That 23-export report is now the
+retained checkpoint of the generic corpus append (`corpus/corpus-append.json`),
+which admits the current 26-export report, re-extracts every export in both
+modes, binds a freshly captured pay-to-singleton policy-control sidecar to the
+current source window, and restores all 23 retained rows byte-for-byte before
+any older projection. The three added Using Modules rows carry their own finite
+native/five-build evidence with declared per-case divergences for the
+independently compiled languages. The actual 578-test workspace,
 formatting and all-target Clippy results are carried for 327 unchanged
 Rust/Cargo/config inputs. The only added Rust file is the separate native-control
 template, bound to its executed native package. Final integration reran the two

@@ -46,6 +46,9 @@ pub const PUZZLES: &[&str] = &[
     "password-coin",
     "p2-singleton",
     "p2-delegated-conditions",
+    "module-add",
+    "module-times-ten",
+    "module-factorial",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -65,10 +68,74 @@ pub fn root() -> PathBuf {
         .canonicalize()
         .expect("workspace root")
 }
+/// An independently specified result for a declared backend set. Only the
+/// original Chialisp and the authored Rue translation may diverge from the
+/// native Rust expectation; Rust CLVM must always match the actual Rust source.
+#[derive(Clone, Deserialize, Serialize)]
+pub struct DeclaredOutcome {
+    pub status: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_hex: Option<String>,
+}
+#[derive(Clone, Deserialize, Serialize)]
+pub struct DeclaredDivergence {
+    pub backends: Vec<String>,
+    pub outcome: DeclaredOutcome,
+    pub reason: String,
+}
+impl DeclaredDivergence {
+    const INDEPENDENT_BACKENDS: [&str; 2] = ["chialisp", "rue_source"];
+    fn outcome(&self, native: &Outcome) -> Result<Outcome> {
+        ensure!(
+            !self.backends.is_empty() && self.backends.len() <= Self::INDEPENDENT_BACKENDS.len(),
+            "declared divergence needs one or two independent backends"
+        );
+        for (index, backend) in self.backends.iter().enumerate() {
+            ensure!(
+                Self::INDEPENDENT_BACKENDS.contains(&backend.as_str()),
+                "declared divergence may only cover independently compiled languages, not Rust: {backend}"
+            );
+            ensure!(
+                !self.backends[..index].contains(backend),
+                "duplicate declared divergence backend {backend}"
+            );
+        }
+        ensure!(
+            !self.reason.trim().is_empty() && self.reason.len() <= 1024,
+            "declared divergence needs a bounded reason"
+        );
+        let outcome = match (self.outcome.status.as_str(), &self.outcome.output_hex) {
+            ("accepted", Some(output_hex)) => {
+                ensure!(
+                    !output_hex.is_empty()
+                        && output_hex.len() % 2 == 0
+                        && output_hex
+                            .bytes()
+                            .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')),
+                    "declared divergence output must be lowercase hex"
+                );
+                Outcome::Accepted {
+                    output_hex: output_hex.clone(),
+                }
+            }
+            ("rejected", None) => Outcome::Rejected,
+            _ => anyhow::bail!(
+                "declared divergence outcome must be accepted with output_hex or rejected"
+            ),
+        };
+        ensure!(
+            outcome != *native,
+            "declared divergence must differ from the native Rust expectation"
+        );
+        Ok(outcome)
+    }
+}
 #[derive(Deserialize, Serialize)]
 pub struct Case {
     pub label: String,
     pub solution: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub declared_divergence: Option<DeclaredDivergence>,
 }
 #[derive(Deserialize, Serialize)]
 pub struct Manifest {
@@ -105,6 +172,8 @@ pub struct CaseReport {
     pub solution: String,
     pub native: Outcome,
     pub runs: Vec<Run>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub declared_divergence: Option<DeclaredDivergence>,
 }
 #[derive(Serialize)]
 pub struct SourceDependency {
@@ -223,7 +292,22 @@ fn compare(
     programs: &[(&str, bool, Vec<u8>)],
     max_cost: u64,
 ) -> Result<(Outcome, Vec<Run>)> {
+    compare_declared(slug, solution, programs, max_cost, None)
+}
+/// Compare every build against the native Rust expectation, except that an
+/// explicitly declared divergence binds the listed independent languages to
+/// their own independently specified outcome instead.
+fn compare_declared(
+    slug: &str,
+    solution: &str,
+    programs: &[(&str, bool, Vec<u8>)],
+    max_cost: u64,
+    divergence: Option<&DeclaredDivergence>,
+) -> Result<(Outcome, Vec<Run>)> {
     let expected = expectation(slug, solution)?;
+    let declared = divergence
+        .map(|divergence| divergence.outcome(&expected))
+        .transpose()?;
     let mut runs = vec![];
     for (backend, optimize, bytes) in programs {
         let execution = execute(bytes, solution, max_cost)?;
@@ -231,8 +315,16 @@ fn compare(
             execution.outcome != Outcome::Inconclusive,
             "inconclusive VM execution {slug} {backend} {solution}: {execution:?}"
         );
+        let expected = match (&declared, divergence) {
+            (Some(declared), Some(divergence))
+                if divergence.backends.iter().any(|b| b == backend) =>
+            {
+                declared
+            }
+            _ => &expected,
+        };
         ensure!(
-            execution.outcome == expected,
+            execution.outcome == *expected,
             "{slug} {backend} optimize={optimize} input={solution}: expected {expected:?}, got {execution:?}"
         );
         runs.push(Run {
@@ -280,6 +372,7 @@ fn hash_resource_controls(
         inputs.push(Case {
             label: case.label.clone(),
             solution: case.solution.clone(),
+            declared_divergence: None,
         });
     }
     // This is the existing shared raw-environment depth input, not a new
@@ -291,6 +384,7 @@ fn hash_resource_controls(
     inputs.push(Case {
         label: "corpus raw left spine depth 129".into(),
         solution: format!("({tree} . 0x0000)"),
+        declared_divergence: None,
     });
     let mut cases = Vec::new();
     for input in inputs {
@@ -322,6 +416,7 @@ fn hash_resource_controls(
             solution: input.solution,
             native,
             runs,
+            declared_divergence: None,
         });
     }
     Ok(Some(ResourceControls {
@@ -454,12 +549,19 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     }
     let mut cases = vec![];
     for case in manifest.cases {
-        let (native, runs) = compare(slug, &case.solution, &programs, max_cost)?;
+        let (native, runs) = compare_declared(
+            slug,
+            &case.solution,
+            &programs,
+            max_cost,
+            case.declared_divergence.as_ref(),
+        )?;
         cases.push(CaseReport {
             label: case.label,
             solution: case.solution,
             native,
             runs,
+            declared_divergence: case.declared_divergence,
         });
     }
     let mut generated_cases = 0;

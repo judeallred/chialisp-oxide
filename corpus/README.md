@@ -78,9 +78,35 @@ results, not ledger spends. Differing tree hashes/costs remain visible.
 Each promoted inventory record binds its original span, extracted reference,
 Rust source, manifest, and report by SHA-256, plus the explicit environment
 contract and observed output. Run `python3 corpus/validate_tutorial_examples.py`
-to check those bindings and `--self-test` to exercise rejection controls. Nine
+to check those bindings and `--self-test` to exercise rejection controls. Five
 other programs, the naming variant, and supporting workflows remain unrun;
-partial Intro progress does not complete its parent page or the primer.
+partial Intro and Using Modules progress does not complete either parent page
+or the primer.
+
+## Using Modules ports with declared divergences
+
+The three Using Modules programs (`module-add`, `module-times-ten`,
+`module-factorial`) are `implemented` / `differential_only`. Each
+`reference.clsp` is the complete fenced module span, comments included, compiled
+unchanged. The Rust ports read signed 64-bit integers through the default strict
+typed ABI with checked arithmetic; the authored Rue translations keep the
+original's unbounded positional reading.
+
+Because that adapter changes the accepted inputs, each manifest case may carry a
+`declared_divergence`: the backends it binds (only `chialisp` and `rue_source`),
+an independently specified outcome that must differ from native Rust, and a
+reason. The corpus validator checks the listed languages against the declaration
+and every other build against native Rust. Rust CLVM is never declared. The
+validation report retains the declaration beside the executed runs; the lab pages
+list them. Declarations record adapter differences; they are not compiler bugs
+and say nothing about inputs that were not run.
+
+The generic corpus append (`scripts/corpus_append.py`, profile
+`corpus/corpus-append.json`) admits these added exports over the retained
+23-export checkpoint. A new export extends the profile's `added` list and is
+re-recorded with `scripts/check-corpus-append.py --record` after the final host
+build; `scripts/capture-p2-controls.py` recaptures the pay-to-singleton
+policy-control sidecar for the current source window.
 
 ## Three-language comparisons and discovery
 

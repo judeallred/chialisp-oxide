@@ -79,7 +79,7 @@ class RuntimeRefinementTests(unittest.TestCase):
 
     def test_current_source_checks_happen_before_projection(self):
         report = copy.deepcopy(self.current)
-        report["puzzles"][-1]["native_sources"][0]["sha256"] = "0" * 64
+        next(p for p in report["puzzles"] if p.get("native_sources"))["native_sources"][0]["sha256"] = "0" * 64
         with patch.object(refinement, "project_validated", side_effect=AssertionError("projected first")), self.assertRaises(ValueError):
             refinement.preserve(report)
 

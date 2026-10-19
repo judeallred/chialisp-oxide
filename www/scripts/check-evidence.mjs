@@ -27,8 +27,10 @@ async function checkRecordedHash(filename, expected) {
   assert.equal(createHash('sha256').update(source).digest('hex'), expected, `${filename}: source changed; regenerate evidence`);
 }
 const report = JSON.parse(await read('corpus/validation.json'));
-// The primary current23 gate includes full component/source/typed validation.
-// A pending append cannot authorize a historical capture as the active report.
+// The primary current gate is the generic corpus append: full component/source/typed
+// validation of every export, then pure projection to the retained 23-export checkpoint.
+// A pending profile cannot authorize a historical capture as the active report.
+execFileSync('python3', ['scripts/check-corpus-append.py'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-append.py'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-source-controls.py', 'corpus/p2dc-source-controls/report.json'], { cwd: rootPath, stdio: 'inherit' });
 await loadCompositionCostEvidence();
@@ -162,7 +164,14 @@ for (const puzzle of report.puzzles) {
     assert.equal(await recordedSource(dependency.path), dependency.source, `${puzzle.slug}: stale Rue dependency`);
     await checkRecordedHash(dependency.path, dependency.sha256);
   }
-  assert.deepEqual(puzzle.cases.map(({ label, solution }) => ({ label, solution })), manifest.cases, `${puzzle.slug}: test vectors changed`);
+  assert.deepEqual(puzzle.cases.map(({ label, solution, declared_divergence }) => declared_divergence === undefined ? { label, solution } : { label, solution, declared_divergence }), manifest.cases, `${puzzle.slug}: test vectors changed`);
+  for (const test of puzzle.cases) {
+    if (test.declared_divergence === undefined) continue;
+    const { backends, outcome } = test.declared_divergence;
+    assert(Array.isArray(backends) && backends.length > 0 && backends.every(backend => ['chialisp', 'rue_source'].includes(backend)), `${puzzle.slug}/${test.label}: declared divergence may only bind Chialisp or Rue`);
+    assert.notDeepEqual(outcome, test.native, `${puzzle.slug}/${test.label}: declared divergence must differ from native Rust`);
+    for (const run of test.runs) assert.deepEqual(run.execution.outcome, backends.includes(run.backend) ? outcome : test.native, `${puzzle.slug}/${test.label}/${run.backend}: run differs from its bound expectation`);
+  }
   assert.equal(puzzle.security_scope, manifest.security_scope, `${puzzle.slug}: policy scope changed`);
   assert.equal(puzzle.title, manifest.title, `${puzzle.slug}: title changed`);
   assert.equal(puzzle.kind, manifest.kind, `${puzzle.slug}: result kind changed`);
@@ -184,7 +193,10 @@ for (const puzzle of report.puzzles) {
   for (const test of puzzle.cases) {
     assert.equal(test.runs.length, 5, `${puzzle.slug}/${test.label}: missing execution`);
     assert.deepEqual(paths(test.runs), expectedPaths, `${puzzle.slug}/${test.label}: incorrect execution paths`);
-    for (const run of test.runs) assert.deepEqual(run.execution.outcome, test.native, `${puzzle.slug}/${test.label}: outcomes disagree`);
+    for (const run of test.runs) {
+      const bound = test.declared_divergence?.backends.includes(run.backend) ? test.declared_divergence.outcome : test.native;
+      assert.deepEqual(run.execution.outcome, bound, `${puzzle.slug}/${test.label}: outcomes disagree`);
+    }
   }
   assert(puzzle.simulator.every(scenario => scenario.passed), `${puzzle.slug}: failed ledger scenario`);
   if (puzzle.kind === 'coin_puzzle') {
@@ -202,7 +214,11 @@ const executionPaths = [
   "Cargo.lock",
   "Cargo.toml",
   "corpus/checkpoints/p2-source-cost-validation.json",
+  "corpus/checkpoints/p2dc-append-validation.json",
   "corpus/checkpoints/runtime-composition-validation.json",
+  "corpus/corpus-append-existing-p2-controls.json",
+  "corpus/corpus-append-existing-p2-costs.json",
+  "corpus/corpus-append.json",
   "corpus/cost-optimization-baseline.json",
   "corpus/guarded-projection-baseline.json",
   "corpus/guarded-projection-controls.json",
@@ -621,12 +637,15 @@ const executionPaths = [
   "scripts/cargo_bundle.py",
   "scripts/check-canonical-factories.py",
   "scripts/check-hashing-puzzles.py",
+  "scripts/capture-p2-controls.py",
+  "scripts/check-corpus-append.py",
   "scripts/check-p2-delegated-conditions.py",
   "scripts/check-p2-singleton.py",
   "scripts/check-p2-source-controls.py",
   "scripts/check-p2-source-cost.py",
   "scripts/check-p2dc-append.py",
   "scripts/check-p2dc-source-controls.py",
+  "scripts/corpus_append.py",
   "scripts/check-readable-puzzles.py",
   "scripts/check-runtime-composition.py",
   "scripts/hashing_provenance.py",
@@ -753,6 +772,26 @@ for (const example of tutorialExamples.examples) {
       whole_page_completed: false, runtime_umbrella_semantic_rejection_credit: false,
     }, 'Password promotion must retain its bounded module/instance contract');
     assert.equal(puzzle.curried_instances?.protocol, contract.instance_protocol);
+    assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
+    await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
+    assert(example.local_examples.includes(adaptation.rue_source));
+  } else if (['module-add', 'module-times-ten', 'module-factorial'].includes(puzzle.slug)) {
+    assert.equal(adaptation.operation, 'extract_complete_chialisp_module');
+    assert.equal(puzzle.environment ?? 'strict', 'strict', `${example.id}: typed module adapter must use the default strict ABI`);
+    assert.equal(puzzle.reference_mode ?? 'module', 'module', `${example.id}: canonical module must use module compilation`);
+    assert.equal(puzzle.reference, span, `${example.id}: the complete module span was rewritten or wrapped`);
+    assert.equal(contract.abi, 'strict_typed_i64_list');
+    assert.equal(contract.environment, 'strict');
+    assert.equal(contract.reference_mode, 'module');
+    assert.equal(contract.claim_scope, 'executed_differential_cases_with_declared_original_divergences_only');
+    assert.equal(contract.integer_domain, 'signed_64_bit_checked_adapter_of_unbounded_original');
+    assert.equal(contract.ledger, 'not_applicable_pure_function');
+    assert.equal(contract.compiler_preservation, 'not_claimed');
+    const tutorial = puzzle.cases.filter(test => test.solution === contract.expected_solution);
+    assert(tutorial.length === 1 && tutorial[0].native.status === 'accepted' && tutorial[0].native.output_hex === contract.expected_output_hex && !tutorial[0].declared_divergence, `${example.id}: page input differs from its contract`);
+    const divergent = puzzle.cases.filter(test => test.declared_divergence);
+    assert.equal(divergent.length, contract.declared_divergences, `${example.id}: declared divergence count differs from the report`);
+    assert(divergent.length > 0 && divergent.every(test => test.declared_divergence.backends.every(backend => ['chialisp', 'rue_source'].includes(backend))), `${example.id}: declared divergences may only bind Chialisp or Rue`);
     assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
     await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
     assert(example.local_examples.includes(adaptation.rue_source));

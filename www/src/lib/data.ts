@@ -23,6 +23,11 @@ export interface Execution {
   error: string | null;
   failure?: { kind: string; code: string };
 }
+export interface DeclaredDivergence {
+  backends: string[];
+  outcome: Outcome;
+  reason: string;
+}
 export interface CaseReport {
   label: string;
   solution: string;
@@ -32,7 +37,11 @@ export interface CaseReport {
     optimize_lir: boolean;
     execution: Execution;
   }[];
+  declared_divergence?: DeclaredDivergence;
 }
+export const boundOutcome = (test: CaseReport, backend: string): Outcome =>
+  test.declared_divergence && test.declared_divergence.backends.includes(backend) ? test.declared_divergence.outcome : test.native;
+export const declaredDivergences = (puzzle: { cases: CaseReport[] }) => puzzle.cases.filter(test => test.declared_divergence);
 export interface InstanceState {
   created_height: number | null;
   spent_height: number | null;

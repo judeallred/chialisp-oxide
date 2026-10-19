@@ -241,11 +241,21 @@
         "license": "Apache-2.0"
       },
       "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
-      "implementation_status": "planned",
+      "implementation_status": "in_progress",
       "validation_status": "not_run",
       "puzzle_references": [],
       "local_examples": [],
-      "evidence": []
+      "evidence": [],
+      "example_coverage": {
+        "inventory": "corpus/tutorial-examples.json",
+        "implemented_examples": [
+          "chialisp-example:module-add",
+          "chialisp-example:module-times-ten",
+          "chialisp-example:module-factorial"
+        ],
+        "scope": "individual_typed_module_adapters_only"
+      },
+      "migration_notes": "The three module programs have differential evidence through signed 64-bit typed adapters with every original/adapter difference declared per case. Unbounded integers, the untyped positional environment reading and the complete tutorial workflow remain unrun; the page itself is not marked validated."
     },
     {
       "id": "chialisp:clvm",

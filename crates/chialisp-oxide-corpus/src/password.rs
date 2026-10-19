@@ -150,6 +150,7 @@ pub(super) fn resource_controls(
             solution: case.solution.clone(),
             native,
             runs,
+            declared_divergence: None,
         });
     }
     Ok(ResourceControls {
@@ -198,6 +199,7 @@ pub(super) fn validate(
             solution,
             native,
             runs,
+            declared_divergence: None,
         });
     }
     let mut varying_arguments = vec![];

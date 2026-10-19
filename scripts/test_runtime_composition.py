@@ -290,12 +290,14 @@ class ConstructedMetadataControls(unittest.TestCase):
                 migration.compare_delta(self.before, bad, current_snapshot=self.snapshot)
 
     def test_historical22_never_becomes_current23_or_falls_back_authority(self):
+        import corpus_append as current
         import p2dc_append_migration as outer
-        self.assertIs(cost.current22_migration(self.current), outer)
-        with patch.object(outer, "reviewed_after", side_effect=ValueError("pending actual23")), \
+        self.assertIs(cost.current22_migration(self.current), current)
+        with patch.object(current, "reviewed_after", side_effect=ValueError("pending actual current")), \
+                patch.object(outer, "reviewed_after", side_effect=AssertionError("fallback to retained23")), \
                 patch.object(migration, "reviewed_after", side_effect=AssertionError("fallback to historical8024")), \
                 patch.object(migration.guarded, "reviewed_after", side_effect=AssertionError("fallback to pending66")), \
-                self.assertRaisesRegex(ValueError, "pending actual23"):
+                self.assertRaisesRegex(ValueError, "pending actual current"):
             cost.reviewed_current22(self.current)
 
     def test_pure_historical_chain_uses_recorded_identity_without_current_spies(self):

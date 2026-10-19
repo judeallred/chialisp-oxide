@@ -1,0 +1,185 @@
+{
+  "slug": "module-factorial",
+  "title": "Recursive factorial",
+  "kind": "pure_function",
+  "security_scope": "Canonical tutorial module returning data, not a coin puzzle or an authorization policy. The original computes an unbounded recursive factorial, returning 1 for any input of 1 or less; this port recurses over canonical signed 64-bit integers with checked multiplication through the strict typed ABI, so 21 and above reject. Declared per-case divergences record where the original's unbounded and untyped environment reading differs. Finite differential tests are not a compiler-correctness proof.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:module-factorial",
+    "references": [
+      "https://chialisp.com/chialisp-using-modules/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-primer/using-modules.md#L58-L73"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-primer/using-modules.md",
+      "start_line": 58,
+      "end_line": 73
+    },
+    "source_adaptation": {
+      "kind": "extract_complete_chialisp_module",
+      "source_span_sha256": "589655c7aeab28091a80bbb52022bf3b956ae9668c35324d7bcc9689ec8c0a62",
+      "reference_sha256": "589655c7aeab28091a80bbb52022bf3b956ae9668c35324d7bcc9689ec8c0a62",
+      "description": "Copy the complete fenced module source lines exactly, including their comments and original LF endings."
+    },
+    "limitations": [
+      "Rust i64 arithmetic is finite and checked; the original CLVM integers are unbounded. Overflow rejects in Rust where the original returns a larger result.",
+      "The default strict Rust ABI rejects padded, noncanonical and out-of-range integer atoms, extra list elements and improper tails that the original module ignores or reads as integers.",
+      "Every such difference is declared per case and checked against independently specified CLVM bytes; declared divergences never cover Rust CLVM, which must match the native Rust source.",
+      "The original module is compiled unchanged; no argument guard or wrapper is added. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+      "The pinned source returns 1 for inputs of 1 or less; the page prose describes a different base case. The port preserves the pinned code, not the prose.",
+      "Large positive inputs are not compared: the original would recurse until the VM cost limit, which is an inconclusive resource result rather than a policy outcome.",
+      "Recursion compiles through the closed version-4 runtime function table; finite executed depths do not prove termination or resource bounds for every input."
+    ]
+  },
+  "cases": [
+    {
+      "label": "tutorial value",
+      "solution": "(5)"
+    },
+    {
+      "label": "zero returns one",
+      "solution": "(0)"
+    },
+    {
+      "label": "one returns one",
+      "solution": "(1)"
+    },
+    {
+      "label": "two",
+      "solution": "(2)"
+    },
+    {
+      "label": "negative returns one",
+      "solution": "(-7)"
+    },
+    {
+      "label": "i64 minimum returns one",
+      "solution": "(-9223372036854775808)"
+    },
+    {
+      "label": "largest factorial within i64",
+      "solution": "(20)"
+    },
+    {
+      "label": "empty environment rejects everywhere",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejects everywhere",
+      "solution": "5"
+    },
+    {
+      "label": "pair operand rejects everywhere",
+      "solution": "((5))"
+    },
+    {
+      "label": "21 overflows in Rust; the original computes it",
+      "solution": "(21)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "8902c5077d36b8c40000"
+        },
+        "reason": "Checked i64 multiplication overflows at 21! and rejects; the original returns the unbounded factorial."
+      }
+    },
+    {
+      "label": "25 overflows in Rust; the original computes it",
+      "solution": "(25)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "8b0cd4a0619fb0907bc00000"
+        },
+        "reason": "Checked i64 multiplication overflows and rejects; the original returns the unbounded factorial."
+      }
+    },
+    {
+      "label": "value below i64 rejects in Rust; the original returns one",
+      "solution": "(-9223372036854775809)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "01"
+        },
+        "reason": "The original accepts unbounded integers; the typed Rust i64 ABI rejects values outside its 64-bit range."
+      }
+    },
+    {
+      "label": "padded atom rejects in Rust; the original reads it as five",
+      "solution": "(0x0005)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "78"
+        },
+        "reason": "The original reads any atom as a signed integer, so a padded encoding is accepted; the typed Rust ABI rejects noncanonical integer atoms."
+      }
+    },
+    {
+      "label": "explicit zero byte rejects in Rust; the original reads it as zero",
+      "solution": "(0x00)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "01"
+        },
+        "reason": "The original reads 0x00 as the integer 0; the typed Rust ABI only accepts the empty atom for zero."
+      }
+    },
+    {
+      "label": "extra argument ignored by the original",
+      "solution": "(5 6)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "78"
+        },
+        "reason": "The original reads arguments by position and ignores trailing environment values; the typed Rust ABI rejects extra list elements."
+      }
+    },
+    {
+      "label": "improper tail ignored by the original",
+      "solution": "(5 . 6)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "78"
+        },
+        "reason": "The original reads arguments by position and ignores an improper tail; the typed Rust ABI requires a proper argument list."
+      }
+    }
+  ]
+}

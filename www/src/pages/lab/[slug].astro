@@ -10,7 +10,7 @@ import ProtocolValidation from '../../components/ProtocolValidation.astro';
 import CompositionCosts from '../../components/CompositionCosts.astro';
 import DelegatedConditionsValidation from '../../components/DelegatedConditionsValidation.astro';
 import DelegatedSourceControls from '../../components/DelegatedSourceControls.astro';
-import { puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, singletonProtocol, delegatedProtocol, type PuzzleReport } from '../../lib/data';
+import { declaredDivergences, puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, singletonProtocol, delegatedProtocol, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
@@ -79,9 +79,16 @@ if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => head
   <p>Every build uses a ceiling of {format(puzzle.validation_max_cost ?? 1_000_000)} cost units per input in this comparison. Exhaustion is inconclusive and fails ordinary validation. This is a finite test budget, not a policy restriction or a guarantee that every possible input completes.</p>
   <p class="quiet">Long inputs use a bounded preview. The <a href={href('reports/validation.json')}>validation JSON</a> retains every exact input, output and execution envelope.</p>
   <div class="table-scroll"><table><caption>Named input outcomes and successful VM execution costs</caption><thead><tr><th scope="col">Case / solution</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th></tr></thead><tbody>
-    {puzzle.cases.map(test => <tr><th scope="row">{test.label}<SolutionPreview value={test.solution} /></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span></td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}
+    {puzzle.cases.map(test => <tr class:list={{ divergent: Boolean(test.declared_divergence) }}><th scope="row">{test.label}{test.declared_divergence && <span class="badge-divergence" title={test.declared_divergence.reason}>declared divergence</span>}<SolutionPreview value={test.solution} /></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span></td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted', bound: test.declared_divergence?.backends.includes(run.backend) }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}
   </tbody></table></div>
   <p class="quiet">Execution cost excludes consensus condition costs and overall spend-bundle admission overhead. Accepted outputs and exact rejection diagnostics are available in the <a href={href('reports/validation.json')}>downloadable report</a>.</p>
+  {declaredDivergences(puzzle).length > 0 && <div class="divergences" data-declared-divergences>
+    <h3 id="divergences">Declared divergences from the original</h3>
+    <p>{declaredDivergences(puzzle).length} of {puzzle.cases.length} named vectors declare, before execution, that the independently compiled original and the Rue translation produce a different result from the native Rust adapter. Each declared outcome is an independently specified CLVM result and the report checks the listed languages against it instead of against native Rust. Rust CLVM is never covered by a declaration: it must always match the native Rust source. These are recorded adapter differences, not compiler bugs and not evidence about inputs that were not run.</p>
+    <div class="table-scroll"><table><caption>Declared outcomes for the independently compiled languages</caption><thead><tr><th scope="col">Case</th><th scope="col">Native Rust</th><th scope="col">Declared for</th><th scope="col">Declared outcome</th><th scope="col">Reason</th></tr></thead><tbody>
+      {declaredDivergences(puzzle).map(test => <tr><th scope="row">{test.label}<br /><code class="divergence-solution">{test.solution}</code></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span>{test.native.output_hex && <small><code>{test.native.output_hex}</code></small>}</td><td>{test.declared_divergence!.backends.map(backendLabel).join(', ')}</td><td><span class:list={['outcome', { accepted: test.declared_divergence!.outcome.status === 'accepted' }]}>{test.declared_divergence!.outcome.status}</span>{test.declared_divergence!.outcome.output_hex && <small><code>{test.declared_divergence!.outcome.output_hex}</code></small>}</td><td>{test.declared_divergence!.reason}</td></tr>)}
+    </tbody></table></div>
+  </div>}
   {puzzle.resource_controls && <section aria-label="Lower-budget resource controls">
     <h2 id="resource-controls">What happens with a smaller budget?</h2>
     <p>These {puzzle.resource_controls.cases.length} inputs also run in every build with a {format(puzzle.resource_controls.max_cost)} cost ceiling. The {puzzle.resource_controls.cases.reduce((count, test) => count + test.runs.length, 0)} observations below are separate controls, excluded from the named and generated coverage totals. A typed <code>inconclusive / cost_exceeded</code> result records resource exhaustion; it does not establish policy rejection or ledger validity.</p>
@@ -131,6 +138,10 @@ if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => head
   th { min-width: 7rem; } td { min-width: 5rem; }
   .hash { min-width: 12rem; max-width: 19rem; overflow-wrap: anywhere; font-size: .66rem; }
   .outcome { font-size: .73rem; color: var(--sl-color-gray-2); } .outcome.accepted { color: var(--oxide-green); }
+  .outcome.bound { text-decoration: underline dotted; }
+  .badge-divergence { display: inline-block; margin-inline-start: .4rem; padding: .05rem .4rem; border-radius: .6rem; font-size: .62rem; font-weight: 600; background: var(--sl-color-bg-sidebar); color: var(--sl-color-gray-2); border: 1px solid var(--oxide-line); vertical-align: middle; }
+  .divergences { margin-block: 1.4rem; } .divergences td, .divergences th { font-size: .78rem; }
+  .divergence-solution { font-size: .7rem; color: var(--sl-color-gray-3); word-break: break-all; }
   td small { display: block; color: var(--sl-color-gray-3); font: .6rem var(--sl-font-mono); margin-top: .3rem; white-space: nowrap; }
   .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
   .dependency-hash { overflow-wrap: anywhere; }

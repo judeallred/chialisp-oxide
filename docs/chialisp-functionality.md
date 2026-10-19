@@ -273,12 +273,16 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The latest locally validated capture covers 23 annotated exports. It includes
+The latest locally validated capture covers 26 annotated exports. It includes
 the full raw-domain `sha256tree` helper
 adapter, singleton launcher, original password tutorial module and canonical
 pay-to-singleton and delegated-conditions components through the
-[reviewed SHA bridge](hashing.md). Native Rust and five separately compiled CLVM
-builds agree on 459 named and 25,222 generated cases. Forty ledger scenario groups
+[reviewed SHA bridge](hashing.md), plus the three pinned Using Modules programs
+compiled unchanged beside signed 64-bit typed Rust adapters. Native Rust and five
+separately compiled CLVM builds agree on 509 named and 25,222 generated cases,
+where a named case may declare, before execution, an independently specified
+original result that binds only Chialisp and Rue; Rust CLVM always matches the
+native Rust source. Forty ledger scenario groups
 execute in Rust, Chialisp and Rue, giving 120 language-specific scenario runs.
 The earlier 22-puzzle composition remains the
 [retained report](../corpus/checkpoints/runtime-composition-validation.json),
@@ -286,9 +290,10 @@ The earlier 22-puzzle composition remains the
 168 hash-evidence corruption controls and 22,285 retained hash-artifact VM
 replays remain results of their recorded source basis.
 
-The 23-export capture was repeated byte-for-byte. Fresh Cargo bundles cover every
-export in both modes, and all 23 retained IR programs recompile to the recorded
-artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
+The retained 23-export capture was repeated byte-for-byte and is now the
+[retained checkpoint](../corpus/checkpoints/p2dc-append-validation.json) of the
+generic corpus append. Fresh Cargo bundles cover every current export in both
+modes, and all 26 retained IR programs recompile to the recorded artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
 remain exact after the closed metadata transition. The actual 578-test workspace
 and Clippy run is carried for the same 327 Rust/Cargo/config inputs; the added
 non-workspace native-control template has separate native tests. Final integration
@@ -301,9 +306,9 @@ The reviewed composition authority is `corpus/runtime-composition-baseline.json`
 (`8024f743…`). Its source-only predecessor `1a19cca4…` is an unsigned reviewed
 content-addressed checkpoint, linked through the unchanged source-cost transition
 to the actual signed `e20f6d12…` checkpoint. The old guarded profile `66dc316c…`
-remains historical pending metadata. Current 23-export checks must pass before
-pure restoration of these checkpoints; current source validators never check
-restored history.
+remains historical pending metadata. Current complete-corpus checks must pass
+before pure restoration of these checkpoints; current source validators never
+check restored history.
 
 The hash helper and pay-to-singleton use a fixed ten-million cost budget for
 ordinary comparisons; the other twenty-one examples retain one million. The hash
