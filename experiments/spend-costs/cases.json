@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "ports": [
+    {
+      "slug": "p2-delegated-conditions",
+      "builds_pointer": "/protocol_validation/builds",
+      "cases": [
+        {"label": "ignored_improper_tail_preserves_signature", "transaction_pointer": "/observations/6/transaction", "receipt_pointer": "/observations/6/status", "receipt_status": "accepted", "previous_transaction_height": 0},
+        {"label": "owner_signature_exact_payout", "transaction_pointer": "/observations/7/transaction", "receipt_pointer": "/observations/7/status", "receipt_status": "accepted", "previous_transaction_height": 0},
+        {"label": "unsafe_uncurried_caller_selects_attacker_key", "transaction_pointer": "/observations/9/transaction", "receipt_pointer": "/observations/9/status", "receipt_status": "accepted", "previous_transaction_height": 0},
+        {"label": "unsafe_uncurried_alternative_owner_key", "transaction_pointer": "/observations/10/transaction", "receipt_pointer": "/observations/10/status", "receipt_status": "accepted", "previous_transaction_height": 0}
+      ]
+    },
+    {
+      "slug": "p2-singleton",
+      "builds_pointer": "/protocol_validation/observations",
+      "cases": [
+        {"label": "genesis", "transaction_pointer": "/lifecycle/genesis", "receipt_pointer": "/lifecycle/receipts/0/status", "receipt_status": "accepted", "previous_transaction_height": 0},
+        {"label": "joint", "transaction_pointer": "/lifecycle/joint", "receipt_pointer": "/lifecycle/receipts/1/status", "receipt_status": "accepted", "previous_transaction_height": 1},
+        {"label": "lineage", "transaction_pointer": "/lifecycle/lineage", "receipt_pointer": "/lifecycle/receipts/2/status", "receipt_status": "accepted", "previous_transaction_height": 2}
+      ]
+    }
+  ]
+}

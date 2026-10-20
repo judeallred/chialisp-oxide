@@ -75,7 +75,10 @@ compiler preservation or production readiness.
    (delegated conditions 629 → 365 bytes against 137 for Chialisp), but call
    and constructor frames remain, pair bodies are never inlined, and optimized
    Rust is still well above canonical Chialisp; judge by serialized bytes and full
-   spend-bundle cost.
+   spend-bundle cost. The reusable `experiments/spend-costs` benchmark now
+   executes both generator encodings with signatures: the ordinary delegated
+   owner spend costs 9,025,107 units in optimized Rust versus 6,530,606 for
+   Chialisp with backreferences, predominantly a 500-versus-293-byte gap.
 2. Migrate further canonical tutorial and CHIP implementations with explicit
    semantic contracts, module-identity records and complete-spend tests; the
    inventory has 98 source entries and both parent tutorial pages remain

@@ -140,5 +140,8 @@ python3 scripts/check-p2-source-cost.py $FRESH --execute-costs --cost-runner tar
 python3 scripts/check-cost-optimization.py --self-test --replay $FRESH > "$WORK/gate-cost.log"
 python3 scripts/check-helper-inlining.py --self-test --replay $FRESH > "$WORK/gate-inline.log"
 python3 scripts/check-runtime-refinement.py --self-test --replay $FRESH > "$WORK/gate-refinement.log"
+step "complete generator costs (isolated Cargo package; no host-driver rebuild)"
+cargo build --manifest-path experiments/spend-costs/Cargo.toml --locked --target-dir "$WORK/spend-costs-target"
+python3 experiments/spend-costs/check.py --self-test --record --execute "$WORK/spend-costs-target/debug/chialisp-oxide-spend-costs" --output "$WORK/generator-cost-execution" > "$WORK/gate-generator-costs.log"
 echo
 echo "Capture complete. Review the diff, then run the remaining CI gates and the site pipeline (pnpm --dir www check && build && test:site) before committing."

@@ -53,6 +53,7 @@ export default defineConfig({
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
           { label: 'Delegate conditions with an explicit tail', slug: 'tutorials/delegated-conditions' },
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
+          { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },
         ] },
         { label: 'Inspect the evidence', items: [
           { label: 'Puzzle laboratory', link: '/lab/' },

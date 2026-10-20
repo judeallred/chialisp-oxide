@@ -93,12 +93,13 @@ const publishedReports = [
   ['integer-canonicality-proof', 'corpus/integer-canonicality-proof.json'],
   ['p2-singleton-append-baseline', 'corpus/p2-singleton-append-baseline.json'],
   ['acyclic-scalar', 'proofs/acyclic-scalar-source/result.json'],
+  ['spend-costs', 'experiments/spend-costs/results.json'],
 ];
 for (const [name, source] of publishedReports) {
   const report = JSON.parse(await readFile(path.join(root, `reports/${name}.json`), 'utf8'));
   assert.equal(report.schema_version, 1, `${name}: report schema`);
   assert.deepEqual(report, JSON.parse(await readFile(new URL(`../../${source}`, import.meta.url), 'utf8')), `${name}: published report differs from current repository evidence`);
-  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof', 'p2-singleton-append-baseline', 'acyclic-scalar'].includes(name)) {
+  if (['validation', 'cost-optimization-baseline', 'helper-inlining-baseline', 'runtime-refinement-baseline', 'integer-canonicality-proof', 'p2-singleton-append-baseline', 'acyclic-scalar', 'spend-costs'].includes(name)) {
     assert.deepEqual(await readFile(path.join(root, `reports/${name}.json`)), await readFile(new URL(`../../${source}`, import.meta.url)), `${name}: download must preserve exact source bytes for its recorded SHA-256`);
   }
 }
@@ -1156,11 +1157,15 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail', 'compressed generators']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
     assert(result.url.startsWith(base), `Search result escapes base: ${result.url}`);
+    if (term === 'compressed generators') {
+      const matches = await Promise.all(search.results.map(row => row.data()));
+      assert(matches.some(row => row.url === `${base}tutorials/generator-costs/`), 'Generator-cost tutorial is not discoverable');
+    }
     if (term === 'pay-to-singleton') {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}tutorials/p2-singleton/`), 'P2 tutorial is not discoverable');

@@ -1,0 +1,39 @@
+---
+import evidence from '../../../experiments/spend-costs/results.json';
+import { format, href } from '../lib/data';
+const examples = [
+  { slug: 'p2-delegated-conditions', label: 'owner_signature_exact_payout', title: 'Owner-signed delegated conditions' },
+  { slug: 'p2-singleton', label: 'joint', title: 'Pay-to-singleton joint collection' },
+];
+const buildName = (backend: string, optimize: boolean) => `${({rust_mir:'Rust', chialisp:'Chialisp', rue_source:'Rue'} as Record<string,string>)[backend]} / ${optimize ? 'on' : 'off'}`;
+---
+<section data-generator-costs aria-label="Executed complete generator costs">
+  <p data-generator-context>Current corpus SHA-256 <code data-pagefind-ignore>{evidence.validation_report_sha256}</code>. Measurements use <code>chia-consensus 0.36.1</code>, <code>clvmr 0.16.2</code> and pinned TESTNET11 constants, with no block references.</p>
+  {examples.map(example => <div class="table-scroll">
+    <table data-generator-port={example.slug}>
+      <caption>{example.title}: the same accepted bundle in three measurement contexts</caption>
+      <thead><tr><th scope="col">Build</th><th scope="col">Conditions helper total</th><th scope="col">Uncompressed generator total</th><th scope="col">Backreference generator total</th><th scope="col">Backreference bytes</th><th scope="col">Generator VM cost</th></tr></thead>
+      <tbody>{evidence.measurement.cases.filter(row => row.slug === example.slug && row.label === example.label).map(row => {
+        const plain = row.costs.generators[0], compressed = row.costs.generators[1];
+        const cells = [
+          ['helper', row.costs.helper.total_cost], ['uncompressed', plain.metrics.total_cost],
+          ['backrefs', compressed.metrics.total_cost], ['bytes', compressed.generator_bytes],
+          ['execution', compressed.metrics.execution_cost],
+        ] as const;
+        return <tr data-generator-build={`${row.backend}:${row.optimize_lir}`}>
+          <th scope="row">{buildName(row.backend, row.optimize_lir)}</th>
+          {cells.map(([key, value]) => <td data-generator-metric={key} data-value={value}>{format(value)}</td>)}
+        </tr>;
+      })}</tbody>
+    </table>
+  </div>)}
+  <p data-generator-boundary>The conditions helper skips signature verification and excludes the two-byte quote wrapper. Both generator columns execute the actual serialization with signature verification enabled and charge every serialized byte. These are resource costs, not fee quotes or complete ledger admissions.</p>
+  <p><a href={href('reports/spend-costs.json')} data-generator-download>Download exact measurements, generators, source fingerprints and control results</a>. The <a href={href('reports/validation.json')}>current validation report</a> contains all selected signed transactions and their separate simulator admissions.</p>
+</section>
+<style>
+  .table-scroll { overflow-x: auto; margin-block: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align: left; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  td { white-space: nowrap; }
+  caption { text-align: left; padding-bottom: .7rem; font-weight: 600; }
+</style>

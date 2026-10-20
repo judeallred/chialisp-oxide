@@ -207,6 +207,16 @@ three closed Intro expressions reproduce the original Chialisp bytes and
 shows retained before/after measurements for the 21-puzzle cost baseline and explains the
 strict-evaluation boundary. Runtime puzzles still have substantial cost gaps.
 
+The [complete generator benchmark](experiments/spend-costs) executes 35 accepted
+bundles in five builds using both uncompressed and backreference encodings,
+with real signature verification, 140 typed signature controls and 70 exact
+cost-budget pairs. The ordinary delegated owner spend costs 9,025,107 units in
+optimized Rust versus 6,530,606 in Chialisp with backreferences; almost all of
+that gap is the 500-versus-293-byte generator size. The
+[generator lesson](https://judeallred.github.io/chialisp-oxide/tutorials/generator-costs/)
+distinguishes these measurements from the signature-skipping conditions helper,
+raw VM costs, fee quotes and full ledger admission.
+
 The preceding cost milestone passed 502 workspace tests and all-target Clippy
 with warnings denied on macOS. The hash evidence gate passes 168 corruption controls and
 22,285 executions of the retained hash-port artifacts. The source-derived proof,

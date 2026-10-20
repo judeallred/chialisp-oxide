@@ -194,9 +194,11 @@ validated typed IR
 The recorded eleven-stage metadata retains the forwarding stage name; the
 reviewed runtime-composition profile binds the exact combined implementation.
 Known-atom facts and compact unary layouts are lowering details within that
-implementation, not new Rust source types. These optional facts/layouts stay
-disabled for programs with typed `Cons`/Pair capability, including an unused
-Pair-bearing function signature.
+implementation, not new Rust source types. Branch-local projection and atom
+facts apply to every preflighted table body, including typed `Cons`/Pair bodies.
+Compact unary layouts remain disabled for programs with Pair capability,
+including an unused Pair-bearing function signature; their call frames stay
+proper lists.
 
 `--no-optimize` skips these optional stages. ABI decoding and fixed-width checked
 semantics remain active. Every rewritten IR program is validated. An iterative
@@ -225,3 +227,7 @@ compiler-preservation proof here.
 See the [validation method](/chialisp-oxide/verification/method/) and
 [runtime design](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md)
 for the implementation and trust boundaries.
+
+The [generator-cost experiment](/chialisp-oxide/tutorials/generator-costs/)
+compares current accepted bundles under uncompressed and backreference
+serialization, including signature checks and exact resource-budget controls.
