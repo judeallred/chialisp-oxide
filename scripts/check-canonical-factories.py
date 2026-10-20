@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 
+import port_evidence
 from vm_failures import PROTOCOL, check_execution, check_native_outcome
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -167,7 +168,7 @@ def expected_curry(environment):
     return {"status": "rejected"}
 
 
-def validate_curry_factory(puzzle, reader):
+def validate_curry_factory(report, puzzle, reader):
     """An original standard-curry factory: exact produced programs from this
     independent raw-tree construction, and recorded second-stage applications
     that must equal their recorded independent expectation. No VM is rerun and
@@ -186,26 +187,11 @@ def validate_curry_factory(puzzle, reader):
     require(reader(f"puzzles/{slug}/reference.clsp").decode() == puzzle["reference"], f"{slug}: Chialisp comparison source changed")
     rue = puzzle["rue"]
     require(reader(rue["path"]).decode() == rue["source"] and hashlib.sha256(reader(rue["path"])).hexdigest() == rue["sha256"], f"{slug}: Rue comparison source changed")
-    boolean_modes(puzzle["artifacts"], f"{slug} artifacts")
-    artifacts = {(item["backend"], item["optimize_lir"]): item for item in puzzle["artifacts"]}
-    require(len(puzzle["artifacts"]) == len(artifacts) == 5 and set(artifacts) == BUILDS, f"{slug}: five compiler artifacts are required")
-    for item in artifacts.values():
-        program = bytes.fromhex(item["clvm_hex"])
-        require(len(program) == item["bytes"] and tree_hash(deserialize(program)).hex() == item["tree_hash"], f"{slug}: artifact size or tree hash disagrees with its program")
-    require([(case["label"], case["solution"]) for case in puzzle["cases"]] == [(case["label"], case["solution"]) for case in manifest["cases"]], f"{slug}: named factory vectors changed")
-    accepted = {}
-    for case in puzzle["cases"]:
-        outcome = expected_curry(case["solution"])
-        check_native_outcome(case["native"], case["label"])
-        require(case["native"] == outcome, f"{slug}: native curried program differs from the independent standard form: {case['label']}")
-        boolean_modes(case["runs"], f"{slug} factory executions")
-        runs = {(run["backend"], run["optimize_lir"]): run for run in case["runs"]}
-        require(len(case["runs"]) == len(runs) == 5 and set(runs) == BUILDS, f"{slug}: incomplete factory executions")
-        for run in runs.values():
-            check_execution(run["execution"], f"{slug}/{case['label']}")
-        require(all(run["execution"]["outcome"] == outcome for run in runs.values()), f"{slug}: recorded VM result differs: {case['label']}")
-        if outcome["status"] == "accepted":
-            accepted[case["solution"]] = outcome["output_hex"]
+    # Shared manifest-driven checks: claims, sources, pins, builds, dependencies,
+    # budget, named vectors against the independent standard form, no ledger.
+    generic = port_evidence.validate_port(report, slug, expected=expected_curry, reader=reader, generated=0)
+    require(not generic["module_identity"] and generic["ledger_groups"] == 0, f"{slug}: curry factory claims no identity or ledger evidence")
+    accepted = {case["solution"]: case["native"]["output_hex"] for case in puzzle["cases"] if case["native"]["status"] == "accepted"}
     checks = puzzle["factory_checks"]
     boolean_modes(checks, f"{slug} produced-program checks")
     keys = {(row["environment"], row["backend"], row["optimize_lir"]) for row in checks}
@@ -272,36 +258,21 @@ def validate(report, reader=read_source):
     require(not puzzle["simulator"] and not puzzle["simulator_comparisons"], "Factory must not claim direct condition-spend ledger admission")
     rue = puzzle["rue"]
     require(reader(rue["path"]).decode() == rue["source"] and hashlib.sha256(reader(rue["path"])).hexdigest() == rue["sha256"], "Rue comparison source changed")
-    boolean_modes(puzzle["artifacts"], "Factory artifacts")
-    artifacts = {(item["backend"], item["optimize_lir"]): item for item in puzzle["artifacts"]}
-    require(len(puzzle["artifacts"]) == len(artifacts) == 5 and set(artifacts) == BUILDS, "Five compiler artifacts are required")
-    for item in artifacts.values():
-        program = bytes.fromhex(item["clvm_hex"])
-        require(len(program) == item["bytes"] and tree_hash(deserialize(program)).hex() == item["tree_hash"], "Artifact size or tree hash disagrees with its program")
+    # Shared manifest-driven checks: claims, sources, pins, builds, module
+    # identity against the pinned published artifact, dependencies, budget and
+    # named vectors against the independent raw-tree quote relation.
+    import hashing_vectors
+    generic = port_evidence.validate_port(report, "p2-conditions", expected=lambda solution: expected(solution)[0], reader=reader,
+                                          generated=len(hashing_vectors.raw_generated()))
+    require(generic["module_identity"] and generic["ledger_groups"] == 0, "Canonical factory must record its published module identity without ledger claims")
     identity = puzzle["module_identity"]
     require(identity["upstream_hex"] == CANONICAL_HEX and identity["upstream_tree_hash"] == CANONICAL_HASH, "Module identity target changed")
-    boolean_modes(identity["comparisons"], "Factory identity comparisons")
-    comparisons = {(row["backend"], row["optimize_lir"]): row for row in identity["comparisons"]}
-    require(len(identity["comparisons"]) == len(comparisons) == 5 and set(comparisons) == BUILDS, "Incomplete identity comparisons")
-    for key, comparison in comparisons.items():
-        require(type(comparison["serialized_bytes_equal"]) is bool and type(comparison["tree_hash_equal"]) is bool, "Identity flags must be booleans")
-        require(comparison["serialized_bytes_equal"] == (artifacts[key]["clvm_hex"] == CANONICAL_HEX), "Incorrect serialized identity claim")
-        require(comparison["tree_hash_equal"] == (artifacts[key]["tree_hash"] == CANONICAL_HASH), "Incorrect module hash claim")
-    require(comparisons[("chialisp", True)]["serialized_bytes_equal"], "Independent Chialisp compiler must reproduce the published artifact")
+    artifacts = {(item["backend"], item["optimize_lir"]): item for item in puzzle["artifacts"]}
     for backend in ("rust_mir", "rue_source"):
-        require(comparisons[(backend, True)]["serialized_bytes_equal"], f"Optimized {backend} must reproduce the published artifact")
-    require([(case["label"], case["solution"]) for case in puzzle["cases"]] == [(case["label"], case["solution"]) for case in manifest["cases"]], "Named factory vectors changed")
+        require(artifacts[(backend, True)]["clvm_hex"] == CANONICAL_HEX, f"Optimized {backend} must reproduce the published artifact")
     accepted = {}
     for case in puzzle["cases"]:
         outcome, payload = expected(case["solution"])
-        check_native_outcome(case["native"], case["label"])
-        require(case["native"] == outcome, f"Native raw-tree result differs: {case['label']}")
-        boolean_modes(case["runs"], "Factory executions")
-        runs = {(run["backend"], run["optimize_lir"]): run for run in case["runs"]}
-        require(len(case["runs"]) == len(runs) == 5 and set(runs) == BUILDS, "Incomplete factory executions")
-        for run in runs.values():
-            check_execution(run["execution"], f"factory/{case['label']}")
-        require(all(run["execution"]["outcome"] == outcome for run in runs.values()), f"Recorded VM result differs: {case['label']}")
         if payload is not None:
             accepted[case["solution"]] = outcome["output_hex"], payload
     checks = puzzle["factory_checks"]
@@ -320,7 +291,7 @@ def validate(report, reader=read_source):
             check_execution(execution, "factory second-stage application")
             require(execution["outcome"] == {"status": "accepted", "output_hex": payload}, "Second-stage program did not return the expected raw payload")
             require(type(execution["cost"]) is int and execution["cost"] > 0 and execution["error"] is None, "Missing actual successful application execution record")
-    curry_counts = {factory["slug"]: validate_curry_factory(factory, reader) for factory in curry}
+    curry_counts = {factory["slug"]: validate_curry_factory(report, factory, reader) for factory in curry}
     return len(puzzle["cases"]), len(checks), sum(len(row["application_runs"]) for row in checks), curry_counts
 
 

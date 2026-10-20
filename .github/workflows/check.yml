@@ -220,6 +220,7 @@ jobs:
           python3 scripts/check-runtime-frames.py --self-test
           python3 scripts/check-canonical-factories.py
           python3 scripts/check-canonical-factories.py --self-test
+          python3 scripts/check-port-evidence.py --self-test --replay --cli target/debug/chialisp-oxide
           python3 scripts/check-canonical-helpers.py
           python3 scripts/check-canonical-helpers.py --self-test
           python3 scripts/check-insertion-sort.py
@@ -323,9 +324,32 @@ jobs:
   tests:
     # Workspace tests, consumer crates, the patched optimizer and Clippy run in
     # parallel with the evidence gates; Pages deployment waits for every job.
+    # The verifier tests invoke the same pinned Z3 release as the evidence job.
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install checksum-pinned Z3 4.15.4
+        run: |
+          z3_archive="$RUNNER_TEMP/z3-4.15.4-x64-glibc-2.39.zip"
+          z3_directory="$RUNNER_TEMP/z3-4.15.4-x64-glibc-2.39"
+          curl --fail --location --retry 3 --output "$z3_archive" https://github.com/Z3Prover/z3/releases/download/z3-4.15.4/z3-4.15.4-x64-glibc-2.39.zip
+          printf '%s  %s\n' 'a41b690e89c343931471506cdc6d957b6044a200fd2d240cc017432afdff7d3e' "$z3_archive" | sha256sum --check --strict
+          python3 - "$z3_archive" "$RUNNER_TEMP" <<'PYTHON'
+          from pathlib import Path
+          import sys
+          import zipfile
+          destination = Path(sys.argv[2])
+          with zipfile.ZipFile(sys.argv[1]) as archive:
+              archive.extractall(destination)
+          binary = destination / "z3-4.15.4-x64-glibc-2.39/bin/z3"
+          if not binary.is_file():
+              raise RuntimeError("The pinned Z3 archive is missing its CLI binary")
+          binary.chmod(0o755)
+          PYTHON
+          z3_version="$("$z3_directory/bin/z3" --version)"
+          printf '%s\n' "$z3_version"
+          test "$z3_version" = 'Z3 version 4.15.4 - 64 bit'
+          printf '%s\n' "$z3_directory/bin" >> "$GITHUB_PATH"
       - name: Install pinned Rust and compiler components
         run: rustup show active-toolchain
       - uses: actions/cache@v4

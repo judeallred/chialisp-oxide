@@ -12,9 +12,8 @@ import re
 import subprocess
 import tempfile
 
-from cargo_authoring import check_recorded, unique_object
-from hashing_provenance import (ROOT, CANONICAL_HEX, CANONICAL_HASH, DEPENDENCIES,
-                                INCLUDES, NATIVE_SOURCES, digest, read_source, sources)
+from cargo_authoring import unique_object
+from hashing_provenance import (ROOT, CANONICAL_HEX, CANONICAL_HASH, read_source, sources)
 from hashing_vectors import (CODEC, MODES, RESOURCE_BUDGET, SLUGS, expected, generated_for, named, require,
                              resource_cases, should_exhaust, validation_budget)
 from ledger_rejections import check_ledger_report
@@ -63,21 +62,9 @@ def identity(puzzle):
 
 
 def dependencies(puzzle, slug, authoring, reader):
-    declared = puzzle["source_dependencies"]
-    require([row["path"] for row in declared] == DEPENDENCIES[slug], "Missing, extra or reordered source dependencies")
-    for row in declared:
-        payload = reader(row["path"])
-        require(set(row) == {"path", "sha256", "source"} and row["sha256"] == digest(payload)
-                and row["source"] == payload.decode(), "Stale hash/include/SDK dependency snapshot")
-    require(puzzle.get("reference_includes", {}) == INCLUDES[slug], "Changed, missing or unknown reference include mapping")
-    native = puzzle.get("native_sources")
-    require(isinstance(native, list) and [row["path"] for row in native] == NATIVE_SOURCES[slug], "Missing/unknown native oracle source closure")
-    inputs = {row["path"]: row["sha256"] for row in authoring["sources"]}
-    for path in DEPENDENCIES[slug] + NATIVE_SOURCES[slug] + [f"puzzles/{slug}/puzzle.rs"]:
-        require(inputs.get(path) == digest(reader(path)), "Hash port input absent/stale in compiled native Cargo closure: " + path)
-    for row in native:
-        require(set(row) == {"path", "sha256"} and row["sha256"] == digest(reader(row["path"]))
-                and inputs.get(row["path"]) == row["sha256"], "Stale native source/build-time input binding")
+    """Dependency, include and native-closure bindings through the manifest-driven gate."""
+    import port_evidence
+    port_evidence.check_dependencies(puzzle, sources(reader)[slug], authoring, reader)
 
 
 def check_cost(execution, budget):
@@ -117,71 +104,37 @@ def resource_evidence(puzzle, *, refined_cost_profile=False):
 
 
 def validate(report, reader=read_source):
+    """Port-specific contract on top of the manifest-driven generic gate.
+
+    `port_evidence.validate_port` checks claims, sources, pins, builds, module
+    identity, dependencies, budget, named vectors and ledger evidence against the
+    manifest and the independent hashing relation; this function keeps the raw
+    module contract, the published-launcher constants and the low-budget
+    resource controls that only these two ports carry.
+    """
     from runtime_cost_migration import hash_diagnostic_profile
+    import port_evidence
     refined_cost_profile = hash_diagnostic_profile(report)
     manifests = sources(reader)
-    require(report.get("schema_version") == 1 and type(report.get("schema_version")) is int
-            and report.get("vm_failure_protocol") == PROTOCOL, "Missing current typed VM-failure protocol/schema")
-    puzzles = report["puzzles"]
-    slugs = [p["slug"] for p in puzzles]
-    require(len(slugs) == len(set(slugs)), "Duplicate corpus puzzle")
-    check_recorded(report["authoring"], ROOT, slugs)
+    port_evidence.check_header(report)
     summaries = []
     for slug in SLUGS:
-        matches = [p for p in puzzles if p["slug"] == slug]
+        matches = [p for p in report["puzzles"] if p["slug"] == slug]
         require(len(matches) == 1, "Missing/duplicate hash port: " + slug)
         puzzle, manifest = matches[0], manifests[slug]
-        for field in ("title", "kind", "security_scope", "provenance"):
-            require(puzzle[field] == manifest[field], "Stale/changed hash port claim: " + field)
+        generic = port_evidence.validate_port(report, slug, expected=lambda solution, slug=slug: expected(slug, solution),
+                                              reader=reader, generated=len(generated_for(slug)))
         require(puzzle.get("environment") == "raw" and puzzle.get("reference_mode", "module") == "module"
-                and puzzle.get("validated") is True, "Changed/unvalidated raw module contract")
-        base = f"puzzles/{slug}"
-        require(puzzle["source"] == reader(base + "/puzzle.rs").decode()
-                and puzzle["reference"] == reader(base + "/reference.clsp").decode(), "Stale Rust/Chialisp source")
-        rue = puzzle["rue"]
-        payload = reader(base + "/puzzle.rue")
-        require(rue == {"path": base + "/puzzle.rue", "source": payload.decode(), "sha256": digest(payload), "dependencies": []},
-                "Stale/unknown Rue source dependencies")
-        if slug == "sha256tree":
-            require(type(puzzle.get("validation_max_cost")) is int
-                    and puzzle["validation_max_cost"] == validation_budget(slug), "Missing/changed recorded hash comparison budget")
-        else:
-            require("validation_max_cost" not in puzzle, "Launcher report must retain its omitted default comparison budget")
-        resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)
-        dependencies(puzzle, slug, report["authoring"], reader)
+                and manifest["environment"] == "raw", "Changed/unvalidated raw module contract")
+        require(generic["validation_max_cost"] == validation_budget(slug), "Missing/changed recorded hash comparison budget")
+        require(generic["module_identity"] == (slug == "singleton-launcher"), "Module identity may only bind the published launcher")
         require("factory_checks" not in puzzle, "Hash helper/launcher is not a program factory")
-        if slug == "sha256tree":
-            require(puzzle["simulator"] == [] and puzzle["simulator_comparisons"] == []
-                    and "module_identity" not in puzzle, "Extracted hash helper cannot claim ledger/module identity")
-        else:
-            require(bool(puzzle["simulator"]), "Launcher coin requires actual ledger scenarios")
-            check_ledger_report({"simulator": report["simulator"], "puzzles": [puzzle]})
-        modes(puzzle["artifacts"], slug + " artifacts")
-        for artifact in puzzle["artifacts"]:
-            artifact_bytes(artifact)
         if slug == "singleton-launcher":
             identity(puzzle)
-        require(isinstance(puzzle["cases"], list)
-                and [{"label": c["label"], "solution": c["solution"]} for c in puzzle["cases"]] == named(slug),
-                "Missing/extra/reordered exact named input coverage")
-        accepted = rejected = 0
-        for case in puzzle["cases"]:
-            desired = expected(slug, case["solution"])
-            require(check_native_outcome(case["native"], case["label"]) == desired,
-                    "Native output differs from independent hashing relation: " + case["label"])
-            modes(case["runs"], case["label"])
-            for run in case["runs"]:
-                require(check_execution(run["execution"], case["label"]) == desired,
-                        "VM output differs from independent hashing relation: " + case["label"])
-                check_cost(run["execution"], validation_budget(slug))
-            accepted += desired["status"] == "accepted"
-            rejected += desired["status"] == "rejected"
-        generated_count = len(generated_for(slug))
-        require(type(puzzle["generated_cases"]) is int and puzzle["generated_cases"] == generated_count,
-                "Changed generated execution coverage count")
-        summaries.append({"slug": slug, "named": len(puzzle["cases"]), "accepted": accepted,
-                          "rejected": rejected, "generated": generated_count, "builds": len(MODES), "validation_max_cost": validation_budget(slug),
-                          "resource_observations": len(resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)) * len(MODES)})
+        controls = resource_evidence(puzzle, refined_cost_profile=refined_cost_profile)
+        summaries.append({"slug": slug, "named": generic["named"], "accepted": generic["accepted"],
+                          "rejected": generic["rejected"], "generated": generic["generated"], "builds": len(MODES),
+                          "validation_max_cost": validation_budget(slug), "resource_observations": len(controls) * len(MODES)})
     return summaries
 
 

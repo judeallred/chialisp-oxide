@@ -16,6 +16,7 @@ Use docs/compiler-approach.md for architectural context and docs/verification.md
 - Use subagents for independent compiler, corpus, verification, or site tasks; coordinate ownership before editing shared files.
 - Do not commit target, node_modules, build output, secrets, or temporary artifacts. Commit intentional reproducible reports.
 - Before pushing Rust changes: cargo fmt --all --check; cargo test --workspace --locked; cargo clippy --workspace --all-targets --locked -- -D warnings.
+- New ports declare provenance pins, sources, dependencies, vectors and divergences in `puzzles/<slug>/puzzle.json` and get their shared evidence checks from `scripts/check-port-evidence.py` (oracle in `scripts/port_oracles.py` or `expected` declared per case); add a dedicated script only for evidence the manifest cannot express. Run `python3 scripts/check-port-evidence.py --self-test --replay` with the other gates.
 - Run python3 scripts/check-proofs.py for proof/model changes. Run pnpm site checks/build when www changes.
 - Push completed, verified work to origin; inspect CI and fix failures. Record remaining substantive work for continuation.
 - When finding a Rue bug, search upstream issues first, then file or update an xch-dev/rue issue with pinned revision, minimal repro, observed/expected behavior, and a patch containing a failing regression test plus fix. Link local patches to the issue. The user explicitly authorized upstream bug reports; no extra confirmation is needed.

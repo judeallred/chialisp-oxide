@@ -129,6 +129,25 @@ The manual algorithm theorems, source-derived proof reports and documentation
 publication gates retain their own scopes and must check their actual source
 snapshot separately. **The prototype remains unsuitable for real funds.**
 
+### Manifest-driven port evidence
+
+`scripts/check-port-evidence.py` checks a port's recorded evidence from its
+`puzzles/<slug>/puzzle.json` alone: provenance pins (SHA-256 and Git object
+IDs of every pinned snapshot, the published artifact's bytes and tree hash),
+exact Rust/Chialisp/Rue sources and dependencies, the five builds and their
+canonical serialization, the module-identity comparison when a published
+artifact is pinned, the declared cost budget, every named vector against an
+independent expectation with declared divergences bound per language, the
+generated-case count and the ledger contract. The expectation comes from an
+oracle registered in `scripts/port_oracles.py` (Python hashlib and raw-tree
+relations) or from `expected` outcomes declared per case in the manifest, so
+a new port needs data rather than a new script unless it carries extra
+evidence. `--self-test` applies report, manifest and pinned-source corruption
+controls per port and `--replay` re-executes the retained artifacts. The
+hashing and canonical-factory gates now delegate their shared checks to this
+module and keep only their port-specific contracts (resource controls, the
+published launcher constants, factory relations) with their own controls.
+
 ## Composed compiler checkpoint
 
 The completed 22-puzzle composition combines guarded projections, exact atom
