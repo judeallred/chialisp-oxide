@@ -54,6 +54,7 @@ pub const PUZZLES: &[&str] = &[
     "curry-hash",
     "currying-multiply",
     "curry-factory",
+    "inner-puzzle",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

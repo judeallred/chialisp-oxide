@@ -37,6 +37,8 @@ pub mod curry_factory;
 pub mod curry_hash;
 #[path = "currying-multiply/puzzle.rs"]
 pub mod currying_multiply;
+#[path = "inner-puzzle/puzzle.rs"]
+pub mod inner_puzzle;
 
 #[path = "module-add/puzzle.rs"]
 pub mod module_add;

@@ -1,0 +1,147 @@
+{
+  "slug": "inner-puzzle",
+  "title": "Run an inner puzzle that matches a committed hash",
+  "kind": "pure_function",
+  "security_scope": "Original teaching fixture for the inner-puzzle commitment pattern. The committed tree hash is the first argument, intended to be curried in by the parent; the solution supplies the inner puzzle and its solution, and the puzzle applies the inner program only when its tree hash equals the commitment. This binds program identity, not spender identity: nothing here requires a signature, and the inner program may emit any conditions. The applied program's cost is charged to the outer puzzle; the native oracle reports its own ceiling as inconclusive. Finite differential tests are not a termination, cost or compiler-correctness proof.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/chialisp-inner-puzzles/",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+    ],
+    "limitations": [
+      "The Chialisp comparison includes the pinned upstream sha256tree.clib behind an explicit three-argument adapter; the Rue comparison uses its tree_hash builtin. Neither is a canonical published module.",
+      "The commitment is supplied as an argument and curried host-side in the recorded instances; the compiled puzzle does not know whether its caller actually curried it.",
+      "Rust's reserved apply and SHA-256 exports are admitted by exact signature and implementation fingerprint; every proof model rejects programs containing an application or a hash.",
+      "Programs that would loop until the cost ceiling are deliberately excluded from named cases because exhaustion is an inconclusive resource result."
+    ]
+  },
+  "reference_includes": {
+    "sha256tree.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+  },
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "crates/chialisp-oxide/src/apply.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+  ],
+  "cases": [
+    {
+      "label": "committed quoted constant returns it",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e (1 . 7) ())"
+    },
+    {
+      "label": "committed identity program returns its solution",
+      "solution": "(0x9dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2 1 (7 8))"
+    },
+    {
+      "label": "committed multiply program",
+      "solution": "(0x4ecfce04e7660e701196fbd8ef3ae98b9ee5be4a83895982079bf320ecaaaea1 (18 2 5) (3 4))"
+    },
+    {
+      "label": "committed multiply with a missing operand rejects",
+      "solution": "(0x4ecfce04e7660e701196fbd8ef3ae98b9ee5be4a83895982079bf320ecaaaea1 (18 2 5) (3))"
+    },
+    {
+      "label": "committed program that raises rejects",
+      "solution": "(0x044ebff3ad6d351856fd37d38c599ad0e416aa8a22621d8c13c27e24561f7f77 (8) ())"
+    },
+    {
+      "label": "mismatched commitment rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e 1 (7 8))"
+    },
+    {
+      "label": "a different quoted value does not match",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e (1 . 8) ())"
+    },
+    {
+      "label": "nil commitment rejects",
+      "solution": "(() (1 . 7) ())"
+    },
+    {
+      "label": "short commitment rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a (1 . 7) ())"
+    },
+    {
+      "label": "long commitment rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e00 (1 . 7) ())"
+    },
+    {
+      "label": "pair commitment rejects",
+      "solution": "((1 2) (1 . 7) ())"
+    },
+    {
+      "label": "missing inner solution rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e (1 . 7))"
+    },
+    {
+      "label": "extra argument rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e (1 . 7) () 9)"
+    },
+    {
+      "label": "improper argument list rejects",
+      "solution": "(0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e (1 . 7) . 5)"
+    },
+    {
+      "label": "empty environment rejects",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejects",
+      "solution": "1"
+    }
+  ],
+  "curried_examples": [
+    {
+      "label": "parent commits to the quoted constant",
+      "argument": "0x4d3b15f3427f765fb9c0d9d97bb52daf64280e6045f84d3195d50bcfc5d25a7e",
+      "solutions": [
+        {
+          "label": "the committed program runs",
+          "solution": "((1 . 7) ())"
+        },
+        {
+          "label": "a different program is refused",
+          "solution": "((1 . 8) ())"
+        },
+        {
+          "label": "the identity program is refused",
+          "solution": "(1 (7 8))"
+        },
+        {
+          "label": "missing inner solution rejects",
+          "solution": "((1 . 7))"
+        },
+        {
+          "label": "extra element rejects",
+          "solution": "((1 . 7) () 9)"
+        }
+      ]
+    },
+    {
+      "label": "parent commits to the multiply program",
+      "argument": "0x4ecfce04e7660e701196fbd8ef3ae98b9ee5be4a83895982079bf320ecaaaea1",
+      "solutions": [
+        {
+          "label": "three times four",
+          "solution": "((18 2 5) (3 4))"
+        },
+        {
+          "label": "zero product encodes as nil",
+          "solution": "((18 2 5) (0 4))"
+        },
+        {
+          "label": "a raising program is refused by its hash",
+          "solution": "((8) ())"
+        },
+        {
+          "label": "empty solution rejects",
+          "solution": "()"
+        }
+      ]
+    }
+  ]
+}

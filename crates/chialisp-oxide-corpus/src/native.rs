@@ -394,6 +394,33 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             Err(_) => Ok(None),
         };
     }
+    if slug == "inner-puzzle" {
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 3 => arguments,
+            _ => return Ok(None),
+        };
+        let Ok(commitment) = bytes32(&a, arguments[0]) else {
+            return Ok(None);
+        };
+        let arena = bumpalo::Bump::new();
+        let inner_puzzle = super::native_hash::decode(&arena, &a, arguments[1])?;
+        let inner_solution = super::native_tree::decode(&arena, &a, arguments[2])?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::inner_puzzle::puzzle(commitment, inner_puzzle, inner_solution)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(payload) => {
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native apply evaluator exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
     if slug == "delegated-puzzle" {
         let arguments = match args(&a, env) {
             Ok(arguments) if arguments.len() == 2 => arguments,

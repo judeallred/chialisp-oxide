@@ -7,15 +7,16 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 30 annotated exports of the real
+The latest local capture covers 31 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
 for the reviewed `apply` bridge, the `curry-hash` fixture checked against the
 pinned upstream curry include, the canonical Currying page module with its
-page-argument instances cross-checked and executed in five builds, and the
-compiled curry factory with second-stage applications. Its repeated report
-records 571 named and 25,222 generated inputs across native Rust and five
+page-argument instances cross-checked and executed in five builds, the
+compiled curry factory with second-stage applications, and the inner-puzzle
+commitment fixture whose curried instances run only the committed program.
+Its repeated report records 587 named and 25,222 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained

@@ -1,0 +1,19 @@
+; Authored module adapter for the same strict three-argument ABI; the tree hash
+; comes from the pinned upstream sha256tree.clib include.
+(mod solution
+  (include sha256tree.clib)
+  (defun bytes32 (v) (if (l v) (x) (if (= (strlen v) 32) 1 (x))))
+  (if (l solution)
+    (if (l (r solution))
+      (if (l (r (r solution)))
+        (if (= (r (r (r solution))) ())
+          (if (bytes32 (f solution))
+            (if (= (sha256tree (f (r solution))) (f solution))
+              (a (f (r solution)) (f (r (r solution))))
+              (x))
+            (x))
+          (x))
+        (x))
+      (x))
+    (x))
+)

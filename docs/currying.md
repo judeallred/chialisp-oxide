@@ -86,6 +86,11 @@ a compiled program. The pinned `curry-and-treehash.clib` is
 upstream's deprecated reversed-argument API (the newer `curry.clib` is not
 pinned). No curried-instance identity is claimed for any Rust module: Rust
 artifacts still differ from canonical Chialisp bytes, so a curried Rust module
-has a different puzzle hash than its canonical counterpart. Inner-puzzle hash
-commitments, signature wrapping and singleton lineage checks are separate
-work.
+has a different puzzle hash than its canonical counterpart. `puzzles/inner-puzzle` combines the three bridges: its first argument is a
+committed tree hash meant to be curried in by the parent, and the compiled
+puzzle hashes the solution-supplied inner program through the SHA-256 bridge
+and applies it through the `apply` bridge only when the hashes match. Its
+manifest's `curried_examples` curry the commitment host-side for two inner
+programs and show, in all five builds, that only the committed program runs.
+That binds program identity, not spender identity; signature wrapping and
+singleton lineage checks remain separate work.

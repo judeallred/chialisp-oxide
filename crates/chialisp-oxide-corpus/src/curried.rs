@@ -88,7 +88,7 @@ pub(super) fn standard_form(module: &[u8], argument: &[u8]) -> Result<Vec<u8>> {
     Ok(node_to_bytes(&a, result)?)
 }
 
-fn tree_hash(a: &Allocator, node: NodePtr) -> [u8; 32] {
+pub(super) fn tree_hash(a: &Allocator, node: NodePtr) -> [u8; 32] {
     let mut hasher = Sha256::new();
     match a.sexp(node) {
         SExp::Atom => {
@@ -104,7 +104,7 @@ fn tree_hash(a: &Allocator, node: NodePtr) -> [u8; 32] {
     hasher.finalize().into()
 }
 
-fn owned<'b>(arena: &'b Bump, a: &Allocator, node: NodePtr) -> OwnedTree<'b> {
+pub(super) fn owned<'b>(arena: &'b Bump, a: &Allocator, node: NodePtr) -> OwnedTree<'b> {
     match a.sexp(node) {
         SExp::Atom => OwnedTree::Atom(arena.alloc_slice_copy(a.atom(node).as_ref())),
         SExp::Pair(first, rest) => OwnedTree::Pair(
@@ -114,7 +114,7 @@ fn owned<'b>(arena: &'b Bump, a: &Allocator, node: NodePtr) -> OwnedTree<'b> {
     }
 }
 
-fn encode(a: &mut Allocator, tree: &OwnedTree<'_>) -> Result<NodePtr> {
+pub(super) fn encode(a: &mut Allocator, tree: &OwnedTree<'_>) -> Result<NodePtr> {
     Ok(match tree {
         OwnedTree::Atom(bytes) => a.new_atom(bytes)?,
         OwnedTree::Pair(first, rest) => {

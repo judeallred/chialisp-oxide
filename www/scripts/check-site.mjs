@@ -1084,9 +1084,11 @@ assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 
 assert(built.includes(path.join(root, 'tutorials/canonical-modules/index.html')), 'Missing canonical Using Modules tutorial');
 assert(built.includes(path.join(root, 'tutorials/delegated-puzzle/index.html')), 'Missing delegated-puzzle tutorial');
 const delegatedPage = await html(path.join(root, 'tutorials/delegated-puzzle/index.html'));
-for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'authorization']) {
+for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'authorization', 'inner-puzzle', 'sha256tree.clib']) {
   assert(delegatedPage.includes(needle), `delegated-puzzle tutorial missing ${needle}`);
 }
+const innerLab = await html(path.join(root, 'lab/inner-puzzle/index.html'));
+for (const needle of ['data-curried-examples="2"', 'id="curry"', 'committed']) assert(innerLab.includes(needle), `inner-puzzle lab page missing ${needle}`);
 assert(built.includes(path.join(root, 'tutorials/curry-hash/index.html')), 'Missing curry-hash tutorial');
 const curryPage = await html(path.join(root, 'tutorials/curry-hash/index.html'));
 for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils', 'currying-multiply', '(a (q 18 2 5) (c (q . 2) 1))', 'curry-factory', 'second VM execution']) {

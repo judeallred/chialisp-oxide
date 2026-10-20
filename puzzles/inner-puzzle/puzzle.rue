@@ -1,0 +1,8 @@
+// Authored Rue translation of the committed inner puzzle for the same strict ABI.
+// Rue's tree_hash builtin supplies the commitment check before the typed call.
+fn main(inner_puzzle_hash: Bytes, inner_puzzle: fn(...solution: Any) -> Any, ...rest: Any) -> Any {
+    assert rest is (Any, nil);
+    assert inner_puzzle_hash.length == 32;
+    assert tree_hash(inner_puzzle) == inner_puzzle_hash;
+    inner_puzzle(...rest.first)
+}

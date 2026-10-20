@@ -75,7 +75,31 @@ fn curry(module: &[u8], argument: &[u8]) -> Result<Vec<u8>> {
     let quoted_argument = a.new_pair(one, argument)?;
     let environment = list(&mut a, &[four, quoted_argument, one])?;
     let result = list(&mut a, &[two, quoted_module, environment])?;
-    Ok(node_to_bytes(&a, result)?)
+    let bytes = node_to_bytes(&a, result)?;
+    // The SDK's owned constructor and hash arithmetic must reproduce this
+    // private construction exactly; the recorded constructor stays private.
+    let arena = bumpalo::Bump::new();
+    let sdk = {
+        let tree = chialisp_oxide::curry::curry(
+            super::curried::owned(&arena, &a, module),
+            super::curried::owned(&arena, &a, argument),
+        );
+        let mut c = Allocator::new();
+        let node = super::curried::encode(&mut c, &tree)?;
+        node_to_bytes(&c, node)?
+    };
+    ensure!(
+        sdk == bytes,
+        "SDK owned curry differs from the private standard-tree constructor"
+    );
+    ensure!(
+        chialisp_oxide::curry::curried_puzzle_hash(
+            &super::curried::tree_hash(&a, module),
+            &super::curried::tree_hash(&a, argument),
+        ) == super::curried::tree_hash(&a, result),
+        "SDK curried puzzle hash differs from the private instance tree hash"
+    );
+    Ok(bytes)
 }
 
 fn argument(password: &[u8]) -> Result<Vec<u8>> {

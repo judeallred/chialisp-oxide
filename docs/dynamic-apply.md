@@ -92,3 +92,14 @@ wrapping or any canonical delegated-puzzle module. Those need their own
 witnesses, and the three remaining chialisp.com inner-puzzle and
 condition-morphing programs additionally need the still-unpinned include
 libraries or integer and list operations the compiler does not provide.
+
+## Closing the identity gap
+
+`puzzles/inner-puzzle` adds the missing commitment: a 32-byte inner puzzle
+hash as the first (curried) argument, a tree hash of the supplied inner
+program through the SHA-256 bridge, and `apply` only on a match. The Chialisp
+comparison includes the pinned upstream `sha256tree.clib` behind a strict
+adapter and the Rue comparison uses its `tree_hash` builtin. Named cases cover
+matching and mismatched commitments, raising inner programs and every
+malformed shape; the manifest's curried examples run two host-curried
+commitments in all five builds. It still authorizes no spender.

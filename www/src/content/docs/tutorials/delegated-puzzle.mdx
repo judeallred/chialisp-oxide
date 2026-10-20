@@ -46,12 +46,26 @@ a path into an atom, and every malformed argument shape. Inspect
 [the delegated-puzzle report](/chialisp-oxide/lab/delegated-puzzle/) for exact
 outputs, costs and tree hashes.
 
+## Close the identity gap
+
+<SourceComparison slug="inner-puzzle" />
+
+The `inner-puzzle` fixture adds the commitment: its first argument is the
+committed inner puzzle hash, meant to be curried in by the parent, and the
+puzzle hashes the solution-supplied program through the SHA-256 bridge and
+applies it only when the hashes match. The Chialisp comparison includes the
+pinned upstream `sha256tree.clib` behind a strict adapter; the Rue comparison
+uses its `tree_hash` builtin. The lab page records matching and mismatched
+commitments, a raising inner program and every malformed shape, and its
+curried instances show that only the committed program runs in all five
+builds. Inspect [the inner-puzzle report](/chialisp-oxide/lab/inner-puzzle/#curry).
+
 ## What this does not establish
 
-Nothing here checks who supplied the inner puzzle. Any caller can run any
-program, so this fixture authorizes nothing; the inner puzzle hash commitment
-and signature wrapping that make delegation safe are separate work, as is
-currying. Every proof model rejects programs that apply, including dead
+Nothing in the plain delegated puzzle checks who supplied the inner puzzle,
+and the committed variant binds program identity only: neither requires a
+signature, so any caller holding the committed program can run it. Signature
+wrapping is separate work. Every proof model rejects programs that apply, including dead
 branches, so the fixture has finite executed evidence only. A program that
 would loop until the cost ceiling is deliberately absent from the named cases:
 exhaustion is an inconclusive resource result, not a policy outcome.
