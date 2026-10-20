@@ -39,6 +39,23 @@ valid BLS key. Amount and timestamp constructors accept their full `u64` range;
 the puzzle must still express its own bounds. Public fields and tuple result
 aliases permit deliberate unwrap/rewrap and raw construction.
 
+## Optional output lists
+
+Ordinary `core::option::Option<T>` now has a bounded output encoding for admitted
+payloads: `None` becomes nil, and `Some(value)` becomes a one-element list.
+`Cons<First, Option<Last>>` can therefore return a fixed first element with an
+optional last element. A tuple still retains every field; a tuple containing
+`None` does not omit that field. See [optional-lists.md](optional-lists.md) for
+the exact representation and examples bound to the Cargo integration fixture.
+
+This supports output construction and opaque helper passing, with drop-free
+payloads and strict initializer evaluation. It does not admit optional exported
+inputs, Option inspection or methods, general enums, `Vec`, or trait-based
+collection APIs. Optional-capable programs conservatively skip Rust IR
+refinement and inlining, so this feature carries no cost-improvement claim.
+It is a constructor prerequisite for varying condition lists, not a completed
+boomerang puzzle or evidence of a complete spend.
+
 ## Inspiration from Rue and the Rust wallet SDK
 
 Rue's condition library uses named structures with default opcode fields. Its
@@ -62,11 +79,12 @@ The inspected release commit is
 
 That wallet SDK's fluent `Conditions` builder stores `Vec<Condition<T>>` and uses
 generic conversions and iterators. It is a host-side spend-building API; bringing
-that implementation into our current restricted compiler would require
+that implementation into our current restricted compiler would require general
 allocation, enum/list representation, and generic/trait semantics that are not
-implemented. Fixed tuples of named condition results fit today's compiler and
-retain its explicit proper-list ABI. A future collection API needs its own
-semantics and cost experiments.
+implemented. Fixed tuples of named condition results retain their explicit
+proper-list ABI; `Cons` and bounded output Option offer explicit list
+construction without adopting that builder. A general collection API needs its
+own semantics and cost experiments.
 [Conditions builder source](https://github.com/xch-dev/chia-wallet-sdk/blob/4ac2d5d499305a21219cc49f2d2d7692b23f75af/crates/chia-sdk-types/src/condition/list.rs).
 
 ## One domain implementation for both authoring paths

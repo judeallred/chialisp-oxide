@@ -50,6 +50,7 @@ impl<'tcx> Lowerer<'tcx> {
         let mut current = 0;
         let mut has_native_hash = false;
         let mut has_pairs = false;
+        let mut has_optional = false;
         let mut pair_local_work = 0usize;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
@@ -60,6 +61,7 @@ impl<'tcx> Lowerer<'tcx> {
                     return Err(self.error(body.span, "pair local discovery work limit exceeded"));
                 }
                 has_pairs |= self.contains_cons(declaration.ty, body.span)?;
+                has_optional |= self.contains_optional(declaration.ty, body.span)?;
             }
             let mut pending = vec![START_BLOCK];
             let mut visited = HashSet::new();
@@ -103,6 +105,9 @@ impl<'tcx> Lowerer<'tcx> {
                         let name = self.tcx.def_path_str(*id);
                         if self.panic_function(*id) {
                             continue;
+                        }
+                        if self.optional_method(*id) {
+                            return Err(self.error(span, "optional lists do not yet support Option methods; use output construction and opaque helper passing"));
                         }
                         if self.hash_primitive(body, func, args, *destination, span)? {
                             has_native_hash = true;
@@ -217,6 +222,7 @@ impl<'tcx> Lowerer<'tcx> {
         if removed == functions.len()
             && !has_native_hash
             && !has_pairs
+            && !has_optional
             && (!acyclic_fallback || functions.len() == 1)
         {
             return Ok(vec![]);

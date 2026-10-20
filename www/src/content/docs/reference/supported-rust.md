@@ -27,6 +27,13 @@ authenticate installed bytes. See
 ## Implemented values and control flow
 
 - `bool`, `u8`–`u128`, `i8`–`i128`, unit, tuples, and fixed arrays of up to 256 items.
+- Bounded standard `Option<T>` outputs: `None` encodes nil and `Some(value)` a
+  one-element proper list. Construction, whole-value assignment and opaque
+  monomorphic helper passing are supported, including optional `Cons` tails.
+  Exported inputs reject `Option` recursively; matching, methods, references
+  to `Option` and owned/drop payloads remain rejected. This is a closed
+  version-6 capability, not general enum support. See
+  [optional output lists](/chialisp-oxide/reference/optional-lists/).
 - Local values, tuple fields, comparisons, boolean negation, `if`, integer and
   boolean `match`, and acyclic control flow.
 - Checked `+`, `-`, and `*`; overflow rejects the puzzle.
@@ -127,8 +134,10 @@ cargo test --locked -p chialisp-oxide-verifier --test bitwise
 
 A caller can supply any `u8` at this boundary. The assertion rejects unknown
 bits; no Rust type or mask supplies signature authorization, fee policy or
-conservation. SHA256, integer shifts, rotations and wrapping addition remain
-outside the supported subset.
+conservation. Integer shifts, rotations and wrapping addition remain outside
+the supported subset. SHA-256 is available only through the
+[reviewed SDK bridge](/chialisp-oxide/reference/hashing/); it does not admit
+arbitrary cryptographic dependencies or loops.
 
 ## Runtime calls and borrowed recursion
 
@@ -155,10 +164,12 @@ callee starts with fresh locals; branch selection remains lazy.
 
 Runtime functions currently reject assignments through tuple/field projections;
 construct and assign a complete value instead. Constants and promoted shared
-values retain their bounded acyclic lowering path. CFG loops, closure captures,
-and general `apply` remain unsupported. Restricted owned tree construction is
-described below. Runtime
-recursion does not bypass rustc borrow checking or permit escaping local
+values retain their bounded acyclic lowering path. CFG loops and closure
+captures remain unsupported. Dynamic CLVM application is available through the
+[narrow SDK `apply` bridge](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md)
+over admitted borrowed trees; this does not add arbitrary Rust dependency or
+function-pointer calls. Restricted owned tree construction is described below.
+Runtime recursion does not bypass rustc borrow checking or permit escaping local
 references. The input-policy attributes are unchanged; see the
 [version-4 wire contract](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers).
 
@@ -224,9 +235,10 @@ initializers stay strict; the default input ABI validates both fields.
 
 This does not admit general structs, generic helper functions or custom Drop.
 The frontend validates the real SDK ADT identity and shape rather than its
-spelling. Pair-capable programs use IR v5 and conservatively keep the preceding
-facts/frame lowering; the new known-atom/unary optimizations are not extended
-to them. Current SMT models reject this capability explicitly. See the
+spelling. Pair-capable programs use IR v5, or v6 when they also contain optional
+outputs. They retain proper argument frames; optional-capable programs
+conservatively skip Rust IR refinement and inlining. Current SMT models reject
+both capabilities explicitly. See the
 [wire-pair ABI](/chialisp-oxide/reference/abi/#explicit-pairs-with-conshead-tail).
 
 ## Rejected features

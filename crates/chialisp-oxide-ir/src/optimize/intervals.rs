@@ -56,7 +56,8 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::TreePair { .. }
         | Expr::Pair { .. } => 2,
         Expr::If { .. } => 3,
-        Expr::Field { .. }
+        Expr::OptionalSome { .. }
+        | Expr::Field { .. }
         | Expr::Not { .. }
         | Expr::AtomIsEmpty { .. }
         | Expr::TreeAtom { .. }
@@ -99,7 +100,8 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
             then_value,
             else_value,
         } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
-        Expr::Field { value, .. }
+        Expr::OptionalSome { value }
+        | Expr::Field { value, .. }
         | Expr::Not { value }
         | Expr::AtomIsEmpty { value }
         | Expr::TreeAtom { value }

@@ -21,6 +21,7 @@ mod constants;
 mod empty_atoms;
 mod hashing;
 mod newtypes;
+mod optional;
 mod owned;
 mod runtime;
 mod totality;
@@ -190,7 +191,8 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::TreeRest { value }
                 | Expr::TreeAtom { value }
                 | Expr::TreeAtomValue { value }
-                | Expr::AtomIsEmpty { value } => push(value),
+                | Expr::AtomIsEmpty { value }
+                | Expr::OptionalSome { value } => push(value),
                 Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                     push(first);
                     push(rest);
@@ -222,6 +224,7 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::Arg { .. }
                 | Expr::Local { .. }
                 | Expr::Reject { .. } => (),
+                Expr::OptionalNone { .. } => (),
             }
         }
         Ok(count)
@@ -270,6 +273,27 @@ impl<'tcx> Lowerer<'tcx> {
 
     pub fn ty(&self, ty: Ty<'tcx>, span: Span) -> Result<Type, String> {
         self.lower_type(ty, span, 0).map(|(ty, _)| ty)
+    }
+
+    pub fn input_ty(&self, ty: Ty<'tcx>, span: Span) -> Result<Type, String> {
+        let lowered = self.ty(ty, span)?;
+        // lower_type already bounded this owned type graph before allocation.
+        let mut pending = vec![&lowered];
+        while let Some(ty) = pending.pop() {
+            match ty {
+                Type::Optional { .. } => return Err(self.error(
+                    span,
+                    "optional lists are output-only; exported puzzle inputs cannot contain Option",
+                )),
+                Type::Tuple { items } => pending.extend(items),
+                Type::Pair { first, rest } => {
+                    pending.push(first);
+                    pending.push(rest);
+                }
+                _ => (),
+            }
+        }
+        Ok(lowered)
     }
 
     fn lower_type(&self, ty: Ty<'tcx>, span: Span, depth: usize) -> Result<(Type, usize), String> {
@@ -321,6 +345,12 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
             ty::Adt(..) => {
+                if let Some(shape) = self.optional_shape(ty, span)? {
+                    let (item, nodes) = self.lower_type(shape.item, span, depth + 1)?;
+                    self.check_cons_components([shape.item, self.tcx.types.unit], span)?;
+                    if nodes + 1 > 4_096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
+                    return Ok((Type::Optional { item: Box::new(item) }, nodes + 1));
+                }
                 if let Some([first, rest]) = self.cons_fields(ty, span)? {
                     let components = [first, rest];
                     let (first, a) = self.lower_type(first, span, depth + 1)?;
@@ -739,6 +769,9 @@ impl<'tcx> Lowerer<'tcx> {
             Operand::Constant(constant) => {
                 let rust_ty = constant.const_.ty();
                 let ty = self.ty(rust_ty, span)?;
+                if matches!(ty, Type::Optional { .. }) {
+                    return self.optional_constant(constant.const_, span);
+                }
                 if matches!(ty, Type::Tree | Type::Atom) || matches!(rust_ty.kind(), ty::Ref(..)) {
                     return self.borrowed_constant(constant.const_, span);
                 }
@@ -820,6 +853,11 @@ impl<'tcx> Lowerer<'tcx> {
             .skip(usize::from(captured.is_some()))
         {
             match projection {
+                ProjectionElem::Downcast(..) | ProjectionElem::Field(..)
+                    if self.optional_shape(current_ty, span)?.is_some() =>
+                {
+                    return Err(self.error(span, "optional lists support output construction and opaque helper passing, not variant or payload inspection"));
+                }
                 ProjectionElem::Deref
                     if matches!(current_ty.kind(), ty::Ref(_, _, ty::Mutability::Not))
                         && self.shared_tree_or_bytes(current_ty, span)? =>
@@ -1129,6 +1167,26 @@ impl<'tcx> Lowerer<'tcx> {
                     AggregateKind::Array(_) => Ok(Expr::Tuple { items }),
                     AggregateKind::Adt(id, variant, args, _, _) => {
                         let rust_ty = Ty::new_adt(self.tcx, self.tcx.adt_def(*id), args);
+                        if let Some(shape) = self.optional_shape(rust_ty, span)? {
+                            self.ty(rust_ty, span)?;
+                            return if *variant == shape.none && items.is_empty() {
+                                Ok(Expr::OptionalNone {
+                                    item: self.ty(shape.item, span)?,
+                                })
+                            } else if *variant == shape.some {
+                                let [value]: [Expr; 1] = items.try_into().map_err(|_| {
+                                    self.error(
+                                        span,
+                                        "optional Some construction requires one payload",
+                                    )
+                                })?;
+                                Ok(Expr::OptionalSome {
+                                    value: Box::new(value),
+                                })
+                            } else {
+                                Err(self.error(span, "invalid optional constructor"))
+                            };
+                        }
                         if self.cons_fields(rust_ty, span)?.is_some() {
                             self.ty(rust_ty, span)?;
                             let [first, rest]: [Expr; 2] = items.try_into().map_err(|_| {

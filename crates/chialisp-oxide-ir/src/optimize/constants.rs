@@ -269,6 +269,9 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
     // bodies. This separate work/copy budget also charges scans/substitution.
     budget.work(1 + bindings.len())?;
     let (expr, known, total) = match expr {
+        Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+            anyhow::bail!("optional output refinement is not admitted")
+        }
         // Explicit typed pairs never fold to a known value (no Known variant
         // carries their type), but their children fold and their projections
         // are total by typing whenever the operand is total.
@@ -690,7 +693,8 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
             Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 pending.extend([first.as_ref(), rest.as_ref()])
             }
-            Expr::Not { value }
+            Expr::OptionalSome { value }
+            | Expr::Not { value }
             | Expr::AtomIsEmpty { value }
             | Expr::Field { value, .. }
             | Expr::TreeAtom { value }
@@ -700,7 +704,8 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
             | Expr::PairFirst { value }
             | Expr::PairRest { value }
             | Expr::TreeRest { value } => pending.push(value),
-            Expr::Unit
+            Expr::OptionalNone { .. }
+            | Expr::Unit
             | Expr::Bool { .. }
             | Expr::Int { .. }
             | Expr::Bytes { .. }

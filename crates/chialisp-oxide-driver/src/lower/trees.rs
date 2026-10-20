@@ -47,6 +47,11 @@ impl<'tcx> Lowerer<'tcx> {
         let ty::Adt(definition, args) = rust_ty.kind() else {
             return Ok(None);
         };
+        // Standard Option has its own closed output-list representation. It
+        // must never enter structural Atom/Pair enum discovery.
+        if self.optional_shape(rust_ty, span)?.is_some() {
+            return Ok(None);
+        }
         if !definition.is_enum() {
             return Ok(None);
         }
@@ -254,6 +259,12 @@ impl<'tcx> Lowerer<'tcx> {
         locals: &super::Environment,
         span: Span,
     ) -> Result<Expr, String> {
+        if self
+            .optional_shape(place.ty(&body.local_decls, self.tcx).ty, span)?
+            .is_some()
+        {
+            return Err(self.error(span, "optional lists do not yet support discriminants or pattern matching; only output construction and opaque helper passing are supported"));
+        }
         let shape = self
             .tree_shape(place.ty(&body.local_decls, self.tcx).ty, span)?
             .ok_or_else(|| self.error(span, "discriminants require a borrowed tree"))?;

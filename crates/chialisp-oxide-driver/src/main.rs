@@ -165,7 +165,7 @@ impl Driver {
                             _ => None,
                         })
                         .unwrap_or_else(|| format!("arg{index}")),
-                    ty: lowerer.ty(body.local_decls[local].ty, body.span)?,
+                    ty: lowerer.input_ty(body.local_decls[local].ty, body.span)?,
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;

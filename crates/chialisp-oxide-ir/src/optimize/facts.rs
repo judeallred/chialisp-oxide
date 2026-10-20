@@ -95,7 +95,7 @@ impl Analysis {
     fn typed(&mut self, ty: &Type, identity: Identity) -> Result<Rc<Value>> {
         self.charge(1)?;
         let shape = match ty {
-            Type::Tree => None,
+            Type::Tree | Type::Optional { .. } => None,
             Type::Tuple { items } if !items.is_empty() => Some(Shape::Pair),
             _ => Some(Shape::Atom),
         };
@@ -179,6 +179,9 @@ impl Analysis {
         self.charge(1)?;
         let mut value = Value::default();
         let result = match expression {
+            Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+                anyhow::bail!("optional output facts are not admitted")
+            }
             // Explicit typed pairs are constructed and projected like borrowed
             // trees, except that their projections are total by typing and
             // therefore record no shape requirement. Facts of the constructed

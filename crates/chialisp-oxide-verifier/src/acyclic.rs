@@ -278,6 +278,10 @@ fn preflight(program: &Program, budget: &mut Budget) -> Result<Vec<usize>> {
     // Validation of the WHOLE IR precedes graph construction or model admission.
     program.validate().context("invalid IR")?;
     ensure!(
+        !program.uses_optional(),
+        "acyclic scalar does not model optional outputs"
+    );
+    ensure!(
         !program.uses_pairs(),
         "acyclic scalar does not model typed wire pairs"
     );

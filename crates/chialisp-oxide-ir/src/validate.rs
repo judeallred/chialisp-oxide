@@ -63,6 +63,7 @@ impl Budget {
                 self.validate_type(first, depth + 1)?;
                 self.validate_type(rest, depth + 1)?;
             }
+            Type::Optional { item } => self.validate_type(item, depth + 1)?,
             Type::Atom | Type::Tree | Type::Bool | Type::Unit => (),
         }
         Ok(())
@@ -77,6 +78,8 @@ impl Budget {
                 pending.extend(items);
             } else if let Type::Pair { first, rest } = ty {
                 pending.extend([first.as_ref(), rest.as_ref()]);
+            } else if let Type::Optional { item } = ty {
+                pending.push(item);
             }
         }
         Ok(ty.clone())
@@ -107,7 +110,8 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(left);
             pending.push(right);
         }
-        Expr::AtomIsEmpty { value }
+        Expr::OptionalSome { value }
+        | Expr::AtomIsEmpty { value }
         | Expr::Not { value }
         | Expr::Field { value, .. }
         | Expr::TreeAtom { value }
@@ -138,7 +142,8 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(value);
             pending.push(body);
         }
-        Expr::Atom { .. }
+        Expr::OptionalNone { .. }
+        | Expr::Atom { .. }
         | Expr::Bytes { .. }
         | Expr::Int { .. }
         | Expr::Bool { .. }
@@ -147,6 +152,48 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
         | Expr::Unit
         | Expr::Reject { .. } => (),
     }
+}
+
+fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited: usize) -> bool {
+    let count = match expr {
+        Expr::Tuple { items }
+        | Expr::Sha256 { parts: items }
+        | Expr::Call {
+            arguments: items, ..
+        } => items.len(),
+        Expr::Apply { .. }
+        | Expr::Binary { .. }
+        | Expr::TreePair { .. }
+        | Expr::Pair { .. }
+        | Expr::Sequence { .. }
+        | Expr::Let { .. } => 2,
+        Expr::If { .. } => 3,
+        Expr::OptionalSome { .. }
+        | Expr::AtomIsEmpty { .. }
+        | Expr::Not { .. }
+        | Expr::Field { .. }
+        | Expr::TreeAtom { .. }
+        | Expr::TreeAtomValue { .. }
+        | Expr::TreeIsPair { .. }
+        | Expr::TreeFirst { .. }
+        | Expr::PairFirst { .. }
+        | Expr::PairRest { .. }
+        | Expr::TreeRest { .. } => 1,
+        Expr::OptionalNone { .. }
+        | Expr::Atom { .. }
+        | Expr::Bytes { .. }
+        | Expr::Int { .. }
+        | Expr::Bool { .. }
+        | Expr::Arg { .. }
+        | Expr::Local { .. }
+        | Expr::Unit
+        | Expr::Reject { .. } => 0,
+    };
+    if count > MAX_EXPRESSION_NODES.saturating_sub(visited + pending.len()) {
+        return false;
+    }
+    children(expr, pending);
+    true
 }
 
 impl Program {
@@ -177,14 +224,25 @@ impl Program {
             match expression {
                 Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => return true,
                 Expr::Let { ty, .. } | Expr::Binary { ty, .. } | Expr::Int { ty, .. } => {
+                    if types.len() >= MAX_TYPE_NODES {
+                        return true;
+                    }
                     types.push(ty)
+                }
+                Expr::OptionalNone { item } => {
+                    if types.len() >= MAX_TYPE_NODES {
+                        return true;
+                    }
+                    types.push(item);
                 }
                 Expr::Tuple { items } if items.len() > 256 => return true,
                 Expr::Sha256 { parts } if parts.len() > 64 => return true,
                 Expr::Call { arguments, .. } if arguments.len() > MAX_PARAMETERS => return true,
                 _ => (),
             }
-            children(expression, &mut expressions);
+            if !capability_children(expression, &mut expressions, visited) {
+                return true;
+            }
         }
         visited = 0;
         while let Some(ty) = types.pop() {
@@ -195,7 +253,82 @@ impl Program {
             match ty {
                 Type::Pair { .. } => return true,
                 Type::Tuple { items } => {
-                    if items.len() > 256 {
+                    if items.len() > 256
+                        || items.len() > MAX_TYPE_NODES.saturating_sub(visited + types.len())
+                    {
+                        return true;
+                    }
+                    types.extend(items);
+                }
+                Type::Optional { item } => {
+                    if visited + types.len() >= MAX_TYPE_NODES {
+                        return true;
+                    }
+                    types.push(item);
+                }
+                _ => (),
+            }
+        }
+        false
+    }
+    /// Bounded, conservative scan of every body and type, including unused
+    /// signatures. Optional output capability cannot disappear in dead code.
+    pub fn uses_optional(&self) -> bool {
+        if self.functions.len() > MAX_FUNCTIONS || self.parameters.len() > MAX_PARAMETERS {
+            return true;
+        }
+        let mut types = vec![&self.result];
+        types.extend(self.parameters.iter().map(|parameter| &parameter.ty));
+        let mut expressions = vec![&self.body];
+        for function in &self.functions {
+            if function.parameters.len() > MAX_PARAMETERS {
+                return true;
+            }
+            types.extend(function.parameters.iter().map(|parameter| &parameter.ty));
+            types.push(&function.result);
+            expressions.push(&function.body);
+        }
+        let mut visited = 0usize;
+        while let Some(expression) = expressions.pop() {
+            visited += 1;
+            if visited > MAX_EXPRESSION_NODES {
+                return true;
+            }
+            match expression {
+                Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => return true,
+                Expr::Let { ty, .. } | Expr::Binary { ty, .. } | Expr::Int { ty, .. } => {
+                    if types.len() >= MAX_TYPE_NODES {
+                        return true;
+                    }
+                    types.push(ty)
+                }
+                Expr::Tuple { items } if items.len() > 256 => return true,
+                Expr::Sha256 { parts } if parts.len() > 64 => return true,
+                Expr::Call { arguments, .. } if arguments.len() > MAX_PARAMETERS => return true,
+                _ => (),
+            }
+            if !capability_children(expression, &mut expressions, visited) {
+                return true;
+            }
+        }
+        visited = 0;
+        while let Some(ty) = types.pop() {
+            visited += 1;
+            if visited > MAX_TYPE_NODES {
+                return true;
+            }
+            match ty {
+                Type::Optional { .. } => return true,
+                Type::Pair { first, rest } => {
+                    if 2 > MAX_TYPE_NODES.saturating_sub(visited + types.len()) {
+                        return true;
+                    }
+                    types.extend([first.as_ref(), rest.as_ref()]);
+                }
+                Type::Tuple { items } => {
+                    if items.len() > 256
+                        || items.len() > MAX_TYPE_NODES.saturating_sub(visited + types.len())
+                    {
                         return true;
                     }
                     types.extend(items);
@@ -208,7 +341,7 @@ impl Program {
     /// Runtime constructs and strict multipart hashes require version 4,
     /// regardless of entry policy. This traversal never follows calls.
     pub fn uses_runtime(&self) -> bool {
-        if !self.functions.is_empty() || self.uses_pairs() {
+        if !self.functions.is_empty() || self.uses_pairs() || self.uses_optional() {
             return true;
         }
         let mut pending = vec![&self.body];
@@ -253,6 +386,44 @@ impl Program {
         false
     }
     pub(crate) fn validate_environment(&self) -> Result<()> {
+        ensure!(
+            self.parameters.len() <= MAX_PARAMETERS,
+            "too many parameters"
+        );
+        let mut pending = self
+            .parameters
+            .iter()
+            .map(|parameter| &parameter.ty)
+            .collect::<Vec<_>>();
+        let mut visited = 0usize;
+        while let Some(ty) = pending.pop() {
+            visited += 1;
+            ensure!(
+                visited <= MAX_TYPE_NODES,
+                "entry parameter type discovery limit"
+            );
+            match ty {
+                Type::Optional { .. } => bail!(
+                    "optional values are output-only; exported parameters cannot contain Optional"
+                ),
+                Type::Pair { first, rest } => {
+                    ensure!(
+                        2 <= MAX_TYPE_NODES.saturating_sub(visited + pending.len()),
+                        "entry parameter type discovery limit"
+                    );
+                    pending.extend([first.as_ref(), rest.as_ref()]);
+                }
+                Type::Tuple { items } => {
+                    ensure!(items.len() <= 256, "tuple too large");
+                    ensure!(
+                        items.len() <= MAX_TYPE_NODES.saturating_sub(visited + pending.len()),
+                        "entry parameter type discovery limit"
+                    );
+                    pending.extend(items);
+                }
+                _ => (),
+            }
+        }
         ensure!(
             self.environment != Environment::Ignored || self.parameters.is_empty(),
             "ignored environment requires zero parameters"
@@ -353,10 +524,14 @@ impl Validator<'_> {
             "IR expression node budget exceeded"
         );
         self.budget.work(1 + locals.len())?;
-        // Pair-only chains must not retain the larger legacy inference frame.
+        // Constructor chains must not retain the larger inference frames.
         // Every node still pays the same depth/node/work checks above exactly
         // once, and every child re-enters this dispatcher in its own scope.
         match expr {
+            Expr::OptionalNone { item } => self.infer_optional_none(item),
+            Expr::OptionalSome { value } => {
+                self.infer_optional_some(value, parameters, locals, depth)
+            }
             Expr::Pair { first, rest } => self.infer_pair(first, rest, parameters, locals, depth),
             Expr::PairFirst { value } | Expr::PairRest { value } => self.infer_pair_projection(
                 value,
@@ -369,6 +544,35 @@ impl Validator<'_> {
         }
     }
 
+    // Keep optional type/result temporaries out of the dispatcher that every
+    // legacy recursive child retains. These helpers preserve the same budgets
+    // and payload recursion; they do not enlarge unrelated inference frames.
+    fn infer_optional_none(&mut self, item: &Type) -> Result<Option<Type>> {
+        self.budget.validate_type(item, 1)?;
+        let result = Type::Optional {
+            item: Box::new(self.budget.clone_type(item)?),
+        };
+        self.budget.validate_type(&result, 0)?;
+        Ok(Some(result))
+    }
+
+    fn infer_optional_some(
+        &mut self,
+        value: &Expr,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        let Some(item) = self.infer(value, parameters, locals, depth + 1)? else {
+            return Ok(None);
+        };
+        let result = Type::Optional {
+            item: Box::new(item),
+        };
+        self.budget.validate_type(&result, 0)?;
+        Ok(Some(result))
+    }
+
     fn infer_non_pair(
         &mut self,
         expr: &Expr,
@@ -377,7 +581,11 @@ impl Validator<'_> {
         depth: usize,
     ) -> Result<Option<Type>> {
         let ty = match expr {
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::Pair { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. } => {
                 unreachable!("pair nodes enter their dedicated inference helpers")
             }
             Expr::Sha256 { parts } => {

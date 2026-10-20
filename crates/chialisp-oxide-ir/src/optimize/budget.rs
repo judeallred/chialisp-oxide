@@ -39,7 +39,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::Apply { .. }
             | Expr::Binary { .. } => 2,
             Expr::If { .. } => 3,
-            Expr::AtomIsEmpty { .. }
+            Expr::OptionalSome { .. }
+            | Expr::AtomIsEmpty { .. }
             | Expr::TreeAtom { .. }
             | Expr::TreeAtomValue { .. }
             | Expr::TreeIsPair { .. }
@@ -49,7 +50,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::TreeRest { .. }
             | Expr::Not { .. }
             | Expr::Field { .. } => 1,
-            Expr::Atom { .. }
+            Expr::OptionalNone { .. }
+            | Expr::Atom { .. }
             | Expr::Unit
             | Expr::Bool { .. }
             | Expr::Int { .. }
@@ -96,7 +98,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
                 (then_value.as_ref(), depth),
                 (else_value.as_ref(), depth),
             ]),
-            Expr::AtomIsEmpty { value }
+            Expr::OptionalSome { value }
+            | Expr::AtomIsEmpty { value }
             | Expr::TreeAtom { value }
             | Expr::TreeAtomValue { value }
             | Expr::TreeIsPair { value }
@@ -106,7 +109,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::TreeRest { value }
             | Expr::Not { value }
             | Expr::Field { value, .. } => pending.push((value.as_ref(), depth)),
-            Expr::Atom { .. }
+            Expr::OptionalNone { .. }
+            | Expr::Atom { .. }
             | Expr::Unit
             | Expr::Bool { .. }
             | Expr::Int { .. }

@@ -1,24 +1,24 @@
-   Compiling zmij v1.0.23
    Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
    Compiling serde_json v1.0.154
    Compiling chialisp-oxide v0.1.0 (/Users/judeallred/code/clispOx/crates/chialisp-oxide)
    Compiling memchr v2.8.3
    Compiling itoa v1.0.18
-   Compiling chialisp-oxide-p2dc-controls v0.1.0 (/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-package)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.48s
-     Running unittests src/lib.rs (target/capture-pair-facts-2026-10-20-v1/p2dc-native-target/debug/deps/chialisp_oxide_p2dc_controls-99b00a6001eddf9c)
+   Compiling chialisp-oxide-p2dc-controls v0.1.0 (/Users/judeallred/code/clispOx/target/optional-lists-20261020/capture-1/p2dc-package)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.97s
+     Running unittests src/lib.rs (target/optional-lists-20261020/capture-1/p2dc-native-target/debug/deps/chialisp_oxide_p2dc_controls-99b00a6001eddf9c)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/native.rs (target/capture-pair-facts-2026-10-20-v1/p2dc-native-target/debug/deps/native-0f9405b29194e816)
+     Running tests/native.rs (target/optional-lists-20261020/capture-1/p2dc-native-target/debug/deps/native-0f9405b29194e816)
 
 running 1 test
 P2DC_MUTATION_NATIVE {"actual":{"output_hex":"ffff32ff80ffa0dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d9868080","status":"accepted"},"baseline":{"output_hex":"ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080","status":"accepted"},"name":"wrong_atom_domain","witness":"named-key0-conditions0"}
 P2DC_MUTATION_NATIVE {"actual":{"output_hex":"ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a80ff80ff8080","status":"accepted"},"baseline":{"output_hex":"ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080","status":"accepted"},"name":"wrong_conditions_tail","witness":"named-key0-conditions0"}
 
-thread 'actual_same_package_mutants_have_independent_finite_counterexamples' (42279885) panicked at src/reject_ignored_improper_tail.rs:15:5:
+thread 'actual_same_package_mutants_have_independent_finite_counterexamples' (44716488) panicked at src/reject_ignored_improper_tail.rs:15:5:
 assertion failed: matches!(environment, Tree::Pair(_, Tree::Pair(_, Tree::Atom([]))))
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 P2DC_MUTATION_NATIVE {"actual":{"status":"rejected"},"baseline":{"output_hex":"ffff32ffb0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ffa02b216dd0a27b913062ad71d6e7e081b20bedf306af8c06bd339f9c8734512ab080ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080","status":"accepted"},"name":"reject_ignored_improper_tail","witness":"ignored-outer-tail3"}

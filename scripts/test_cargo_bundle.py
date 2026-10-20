@@ -98,11 +98,12 @@ class CargoBundleTests(unittest.TestCase):
         for name in ["one", "two"]:
             for version, environment in [(2, "ignored"), (3, "raw"),
                     (4, "strict"), (4, "ignored"), (4, "raw"),
-                    (5, "strict"), (5, "ignored"), (5, "raw")]:
+                    (5, "strict"), (5, "ignored"), (5, "raw"),
+                    (6, "strict"), (6, "ignored"), (6, "raw")]:
                 with self.subTest(export=name, version=version, environment=environment):
                     fixture = self.fixture()
                     body = {**fixture.program, "name": f"controls::{name}"}
-                    if version in (4, 5):
+                    if version in (4, 5, 6):
                         body["functions"] = []
                     if version == 5:
                         body["result"] = {"kind": "pair", "first": {"kind": "bool"},
@@ -119,15 +120,61 @@ class CargoBundleTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "identity"):
                         fixture.load()
 
-    def test_v5_envelope_fields_and_environment_are_closed(self):
-        valid = {"ir_version": 5, "environment": "strict", "program": {
+    def test_v6_optional_pairs_and_function_tables_are_transported_without_rewriting(self):
+        for name in ["one", "two"]:
+            for environment in ["strict", "ignored", "raw"]:
+                for in_function in [False, True]:
+                    with self.subTest(export=name, environment=environment, in_function=in_function):
+                        fixture = self.fixture()
+                        parameters = [{"name": "tree", "ty": {"kind": "tree"}}] if environment == "raw" else []
+                        result = {"kind": "pair", "first": {"kind": "bool"},
+                                  "rest": {"kind": "optional", "item": {"kind": "bool"}}}
+                        body = {"op": "pair", "first": {"op": "bool", "value": True},
+                                "rest": {"op": "optional_some", "value": {"op": "bool", "value": False}}}
+                        functions = []
+                        if in_function:
+                            functions.append({"id": 0, "name": f"controls::{name}::helper",
+                                "parameters": copy.deepcopy(parameters), "result": copy.deepcopy(result),
+                                "body": copy.deepcopy(body)})
+                            body = {"op": "call", "function_id": 0,
+                                    "arguments": [{"op": "arg", "index": 0}] if environment == "raw" else []}
+                        program = {"ir_version": 6, "environment": environment, "program": {
+                            "name": f"controls::{name}", "parameters": parameters, "result": result,
+                            "body": body, "functions": functions}}
+                        path = fixture.bundle / f"{name}.ir.json"
+                        fixture.write(path, program)
+                        payload = path.read_bytes()
+                        # Both selected and otherwise unselected exports must
+                        # retain the actual v6 body, table and exact file bytes.
+                        loaded = fixture.load(selected_entry=f"controls::{name}")
+                        self.assertEqual(loaded.program, program)
+                        self.assertEqual(loaded.ir_sha256, hashlib.sha256(payload).hexdigest())
+                        self.assertEqual(path.read_bytes(), payload)
+                        fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
+
+    def test_v6_optional_export_body_is_transport_not_program_validation(self):
+        fixture = self.fixture()
+        program = {"ir_version": 6, "environment": "strict", "program": {
             "name": "controls::one", "parameters": [], "result": {"kind": "bool"},
-            "body": {"op": "bool", "value": True}, "functions": []}}
+            "body": {"op": "let", "local_id": 0,
+                     "ty": {"kind": "optional", "item": {"kind": "bool"}},
+                     "value": {"op": "optional_none", "item": {"kind": "bool"}},
+                     "body": {"op": "bool", "value": True}}, "functions": []}}
+        fixture.write(fixture.bundle / "one.ir.json", program)
+        self.assertEqual(fixture.load().program, program)
+        # A correct envelope/identity is insufficient for semantic admission:
+        # Rust's Program reader/verifier must reject this unbound argument.
+        program["program"]["body"]["body"] = {"op": "arg", "index": 99}
+        fixture.write(fixture.bundle / "one.ir.json", program)
+        self.assertEqual(fixture.load().program, program)
+
+    def test_v5_and_v6_envelope_fields_and_environment_are_closed(self):
         mutations = {
             "unknown version": lambda p: p.update(ir_version=9),
+            "future v7": lambda p: p.update(ir_version=7),
             "boolean version": lambda p: p.update(ir_version=True),
-            "float version": lambda p: p.update(ir_version=5.0),
-            "string version": lambda p: p.update(ir_version="5"),
+            "float version": lambda p: p.update(ir_version=float(p["ir_version"])),
+            "string version": lambda p: p.update(ir_version=str(p["ir_version"])),
             "unknown environment": lambda p: p.update(environment="pair"),
             "boolean environment": lambda p: p.update(environment=True),
             "missing environment": lambda p: p.pop("environment"),
@@ -137,18 +184,22 @@ class CargoBundleTests(unittest.TestCase):
             "missing body": lambda p: p["program"].pop("body"),
             "nonobject program": lambda p: p.update(program=[]),
         }
-        for name in ["one", "two"]:
-            for label, mutate in mutations.items():
-                with self.subTest(export=name, mutation=label):
-                    fixture = self.fixture()
-                    program = copy.deepcopy(valid)
-                    program["program"]["name"] = f"controls::{name}"
-                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
-                    fixture.load()
-                    mutate(program)
-                    fixture.write(fixture.bundle / f"{name}.ir.json", program)
-                    with self.assertRaises(ValueError):
+        for version in [5, 6]:
+            valid = {"ir_version": version, "environment": "strict", "program": {
+                "name": "controls::one", "parameters": [], "result": {"kind": "bool"},
+                "body": {"op": "bool", "value": True}, "functions": []}}
+            for name in ["one", "two"]:
+                for label, mutate in mutations.items():
+                    with self.subTest(export=name, version=version, mutation=label):
+                        fixture = self.fixture()
+                        program = copy.deepcopy(valid)
+                        program["program"]["name"] = f"controls::{name}"
+                        fixture.write(fixture.bundle / f"{name}.ir.json", program)
                         fixture.load()
+                        mutate(program)
+                        fixture.write(fixture.bundle / f"{name}.ir.json", program)
+                        with self.assertRaises(ValueError):
+                            fixture.load()
 
     def test_cons_source_is_required_and_fingerprinted_in_main_authoring(self):
         source_root = Path(__file__).resolve().parent.parent

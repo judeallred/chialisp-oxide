@@ -8,8 +8,9 @@ For a complete policy review, read the dedicated
 [review checklist](/chialisp-oxide/validation/review/).
 
 Author puzzle bodies with `create_coin`, `assert_my_amount`, `agg_sig_me`, and
-`assert_seconds_absolute`. Give policy amounts, recipient hashes, signer keys,
-and timestamps names. Use `Amount::from_mojos` and
+the complementary `assert_seconds_absolute` and
+`assert_before_seconds_absolute` helpers. Give policy amounts, recipient hashes,
+signer keys, and timestamps names. Use `Amount::from_mojos` and
 `Timestamp::from_unix_seconds` to make units explicit.
 
 This page describes the serialized consensus conditions those helpers return,
@@ -38,15 +39,33 @@ message to the coin ID and the network's signature domain. Returning the
 condition does not validate a signature during plain CLVM execution; the spend
 bundle must supply a valid aggregate signature.
 
+An output `Option<AggSigMe>` can form the end of a `Cons` condition list: `Some`
+adds the signature condition and `None` adds no condition. This is list
+construction, not authorization inference. The policy must decide when a
+signature is required. See [optional output lists](/chialisp-oxide/reference/optional-lists/)
+for the checked helper example and the output-only compiler boundary.
+
 The signature examples use publicly known test keys derived from fixed seeds.
 Those are reproducible fixtures, not key-management guidance. Never use them to
 control real funds.
 
 ## Require time
 
-`(81 seconds)` is `ASSERT_SECONDS_ABSOLUTE`. The puzzle cannot query the chain's
-clock. It returns an obligation that the consensus engine checks against its
-validation context. Absolute timestamp 100 is a small simulator fixture value,
+`assert_seconds_absolute(deadline)` returns `(81 seconds)`,
+`ASSERT_SECONDS_ABSOLUTE`. Consensus permits a timestamp at or after the
+deadline, including equality.
+
+`assert_before_seconds_absolute(deadline)` returns `(85 seconds)`,
+`ASSERT_BEFORE_SECONDS_ABSOLUTE`. Consensus requires a timestamp strictly
+before the deadline; equality rejects.
+
+The puzzle cannot query the chain's clock. It returns an obligation that the
+consensus engine checks against its validation context. The pinned simulator
+[boundary tests](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-simulator/tests/deadline_boundaries.rs)
+exercise both conditions at deadline minus one, the exact deadline and deadline
+plus one, with exact consensus rejection codes and full simulator equality
+after rejection. These condition tests do not establish a complete reclaimable
+payment policy. Absolute timestamp 100 is a small simulator fixture value,
 not a production recovery delay or a relative lock.
 
 Height and relative-time conditions have different semantics. Do not translate

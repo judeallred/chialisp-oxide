@@ -7,11 +7,12 @@ description: Build annotated Cargo exports, validate the genuine Cargo corpus, s
 
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
-Build the two local binaries with the repository's pinned nightly, then put
-them on `PATH`. Cargo discovers `cargo-chialisp-oxide` as the `cargo chialisp-oxide` subcommand:
+Build the Cargo subcommand, compiler driver and execution CLI with the
+repository's pinned nightly, then put them on `PATH`. Cargo discovers
+`cargo-chialisp-oxide` as the `cargo chialisp-oxide` subcommand:
 
 ```sh
-cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-cli
 export PATH="$PWD/target/debug:$PATH"
 cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
@@ -21,7 +22,9 @@ cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --l
 `PATH` setup. The SDK and binaries are unpublished. Local installation is
 possible with `cargo install --path crates/cargo-chialisp-oxide --locked` and
 `cargo install --path crates/chialisp-oxide-driver --locked`; keep the pinned compiler
-components installed. See the [quickstart](/chialisp-oxide/start/quickstart/).
+components installed. Also install `chialisp-oxide-cli` with
+`cargo install --path crates/chialisp-oxide-cli --locked` for the `chialisp-oxide run`
+and native replay commands below. See the [quickstart](/chialisp-oxide/start/quickstart/).
 
 Ordinary `cargo check` and `cargo test` still check and test the native Rust
 library. `cargo chialisp-oxide check` additionally checks every marked export's reachable

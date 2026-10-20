@@ -56,6 +56,7 @@ let checkedLinks = 0;
 for (const file of pages) {
   const text = await html(file);
   assert.match(text, /<html[^>]*lang="en"/, `${file}: missing document language`);
+  assert.equal([...text.matchAll(/<h1(?:\s|>)/g)].length, 1, `${file}: expected exactly one page h1`);
   assert.match(text, /<site-search(?:\s|>)/, `${file}: missing the rendered search control`);
   assert(text.includes('data-open-modal'), `${file}: missing the stock search modal trigger`);
   assert(text.includes('aria-label="Prototype status"'), `${file}: missing prominent prototype status banner`);
@@ -225,6 +226,20 @@ for (const [name, bad] of [
 // must not add newlines or otherwise rewrite the copied program text.
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
 let checkedSourceCopies = 0;
+for (const [route, source, expectedBlocks] of [
+  ['reference/optional-lists', 'docs/optional-lists.md', 2],
+  ['reference/agent-guide', 'docs/llms.md', 1],
+]) {
+  const page = await html(path.join(root, route, 'index.html'));
+  const guide = await readFile(new URL(`../../${source}`, import.meta.url), 'utf8');
+  const blocks = [...guide.matchAll(/^```rust\n([\s\S]*?)^```/gm)].map(match => normalizedCode(match[1]));
+  assert.equal(blocks.length, expectedBlocks, `${route}: changed shared Rust example count`);
+  const copies = [...page.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
+  for (const block of blocks) {
+    assert(copies.includes(block), `${route}: rendered Rust copy differs from the shared guide`);
+    checkedSourceCopies++;
+  }
+}
 const costPredecessorBytes = await readFile(path.join(root, 'reports/cost-optimization-baseline.json'));
 assert.equal(createHash('sha256').update(costPredecessorBytes).digest('hex'), '484168ef0aad4c53808ff37f5300288bb022dde58748e34db03e61b4f5834308', 'Historical cost baseline bytes changed');
 const costPredecessor = JSON.parse(costPredecessorBytes.toString('utf8'));

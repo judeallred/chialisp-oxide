@@ -146,6 +146,7 @@ impl Lower<'_> {
                 self.scalar(value, yes)
             }
             Type::Tuple { items } => self.decode_list(value, items, yes)?,
+            Type::Optional { .. } => anyhow::bail!("optional values are output-only"),
             Type::Pair { first, rest } => {
                 let head = self.alloc(Lir::First(value));
                 let tail = self.alloc(Lir::Rest(value));
@@ -239,6 +240,9 @@ impl Lower<'_> {
     }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
+            Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+                anyhow::bail!("optional outputs require strict version-6 lowering")
+            }
             Expr::Sha256 { .. } => {
                 anyhow::bail!("SHA256 requires strict version-4 lowering")
             }

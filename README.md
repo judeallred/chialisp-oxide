@@ -28,13 +28,16 @@ From this checkout, with rustup installed:
 
 ```sh
 rustup show
-cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-cli
 export PATH="$PWD/target/debug:$PATH"
 cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
 ```
+
+The setup builds the Cargo subcommand, compiler driver and the `chialisp-oxide`
+execution CLI used to replay selected bundle artifacts.
 
 The [consumer package](examples/cargo-puzzles) has two annotated entries, a real
 SDK path dependency, feature-controlled limits, a host build script generating
@@ -337,12 +340,19 @@ ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
 Borrowed raw-tree construction/matching, opt-in owned pair construction, recursive
 direct calls, explicit whole-environment exports, and reviewed SHA-256
-calls are implemented. Arbitrary-precision integers, other cryptographic
-operators, currying, and runtime program evaluation remain compiler work; primitive Rust
-integers must keep their checked finite semantics.
+calls are implemented. Arbitrary-precision integers and other cryptographic
+operators remain compiler work; primitive Rust integers must keep their checked
+finite semantics. Reviewed [currying](docs/currying.md) and
+[runtime program application](docs/dynamic-apply.md) have separate explicit
+implementation and validation boundaries.
 The reviewed `Cons<First, Rest>` SDK type adds an explicit typed wire pair in
 version-5 IR. It preserves arbitrary tails without changing tuple encoding;
 general Rust struct, heap and generic-call support remain separate work.
+Standard Rust `Option<T>` also supports bounded, output-only nil/singleton lists
+and optional `Cons` tails in version-6 IR. Exported optional inputs, inspection,
+methods and general enums remain unsupported; current proof models reject this
+capability. See [optional output lists](docs/optional-lists.md) for executable
+examples and the conservative optimization boundary.
 The [hashing guide](docs/hashing.md) explains exact byte concatenation, tree-hash
 domain tags, strict once-only operands, profile restrictions and native identity
 checks. Immutable `&[u8; N]` to `&[u8]` coercions are supported for `N <= 256`,
@@ -428,7 +438,7 @@ expandable drawers. See the [readability rationale](docs/readability.md).
 The compiler supports restricted single-field transparent newtypes, allowing
 nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
-and enums outside the restricted `Tree`/`OwnedTree` shapes, general loops,
+and enums outside the restricted `Tree`/`OwnedTree` and standard `Option` output shapes, general loops,
 allocation beyond restricted owned-tree construction, arbitrary external calls,
 general references and casts, division/remainder, and other unsupported MIR
 remain rejected.

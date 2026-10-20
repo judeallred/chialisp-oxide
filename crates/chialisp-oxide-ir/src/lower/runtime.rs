@@ -110,7 +110,8 @@ fn projection_preflight(program: &Program) -> bool {
                     && child(then_value.as_ref())
                     && child(else_value.as_ref())
             }
-            Expr::AtomIsEmpty { value }
+            Expr::OptionalSome { value }
+            | Expr::AtomIsEmpty { value }
             | Expr::Not { value }
             | Expr::Field { value, .. }
             | Expr::TreeAtom { value }
@@ -120,7 +121,8 @@ fn projection_preflight(program: &Program) -> bool {
             | Expr::TreeRest { value }
             | Expr::PairFirst { value }
             | Expr::PairRest { value } => child(value.as_ref()),
-            Expr::Arg { .. }
+            Expr::OptionalNone { .. }
+            | Expr::Arg { .. }
             | Expr::Local { .. }
             | Expr::Atom { .. }
             | Expr::Bytes { .. }
@@ -152,7 +154,7 @@ fn pair_free_type(ty: &Type, work: &mut usize) -> Result<bool> {
     while let Some(ty) = pending.pop() {
         helper_charge(work, 1)?;
         match ty {
-            Type::Pair { .. } => return Ok(false),
+            Type::Pair { .. } | Type::Optional { .. } => return Ok(false),
             Type::Tuple { items } => {
                 helper_charge(work, items.len())?;
                 pending.extend(items);
@@ -177,7 +179,11 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
     while let Some(expression) = pending.pop() {
         helper_charge(work, 1)?;
         match expression {
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::Pair { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. } => {
                 return Ok(false);
             }
             Expr::Call { function_id, .. } if *function_id != function.id => {
@@ -218,7 +224,11 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
             | Expr::Bool { .. }
             | Expr::Int { .. }
             | Expr::Reject { .. } => 0,
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::Pair { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. } => {
                 unreachable!("typed pairs were excluded before helper traversal")
             }
         };
@@ -315,6 +325,9 @@ impl<'a, 'p> Runtime<'a, 'p> {
             } else if let Type::Pair { first, rest } = ty {
                 self.charge(2)?;
                 pending.extend([first.as_ref(), rest.as_ref()]);
+            } else if let Type::Optional { item } = ty {
+                self.charge(1)?;
+                pending.push(item);
             }
         }
         Ok(())
@@ -683,6 +696,17 @@ impl<'a, 'p> Runtime<'a, 'p> {
 
     fn expression_inner(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<LirId> {
         Ok(match expression {
+            Expr::OptionalNone { .. } => self.lower.nil(),
+            Expr::OptionalSome { value } => self.values(
+                &[value.as_ref()],
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let value = this.value(scope, bindings[0])?;
+                    let nil = this.lower.nil();
+                    Ok(this.lower.alloc(Lir::Cons(value, nil)))
+                },
+            )?,
             Expr::Atom { hex } | Expr::Bytes { hex } => self.lower.bytes(hex::decode(hex)?),
             Expr::Unit => self.lower.nil(),
             Expr::Bool { value } => self.lower.int(i64::from(*value)),
@@ -969,7 +993,8 @@ pub(super) fn bootstrap(
     // Every preflighted body can use branch-local Tree facts. Explicit pair
     // operands retain strict captures and every v5 call keeps proper argument
     // frames; these facts do not admit compact unary layouts or Pair rewrites.
-    let preflighted = guarded_projections && projection_preflight(program);
+    let preflighted =
+        !program.uses_optional() && guarded_projections && projection_preflight(program);
     let pair_capability = preflighted && program.uses_pairs();
     let guarded_projections = preflighted;
     let mut runtime = Runtime {

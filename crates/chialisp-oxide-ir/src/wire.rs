@@ -1,4 +1,4 @@
-//! Preserve legacy formats; runtime uses v4 and typed wire pairs require v5.
+//! Preserve legacy formats; runtime uses v4, pairs v5 and optional outputs v6.
 use crate::{Environment, Expr, Function, Parameter, Program, Type};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
@@ -76,7 +76,13 @@ impl Serialize for Program {
         self.validate().map_err(S::Error::custom)?;
         if self.uses_runtime() {
             return RuntimeEnvelopeRef {
-                ir_version: if self.uses_pairs() { 5 } else { 4 },
+                ir_version: if self.uses_optional() {
+                    6
+                } else if self.uses_pairs() {
+                    5
+                } else {
+                    4
+                },
                 environment: self.environment,
                 program: RuntimeFieldsRef {
                     name: &self.name,
@@ -111,70 +117,80 @@ impl Serialize for Program {
 }
 impl<'de> Deserialize<'de> for Program {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let (program, runtime, pair_capability) = match Wire::deserialize(deserializer)? {
-            Wire::Runtime(envelope) => {
-                if !matches!(envelope.ir_version, 4 | 5) {
-                    return Err(D::Error::custom(
-                        "function metadata requires IR version 4 or 5",
-                    ));
+        let (program, runtime, pair_capability, optional_capability) =
+            match Wire::deserialize(deserializer)? {
+                Wire::Runtime(envelope) => {
+                    if !matches!(envelope.ir_version, 4..=6) {
+                        return Err(D::Error::custom(
+                            "function metadata requires IR version 4, 5 or 6",
+                        ));
+                    }
+                    let pair_capability = envelope.ir_version == 5;
+                    let optional_capability = envelope.ir_version == 6;
+                    let fields = envelope.program;
+                    (
+                        Self {
+                            name: fields.name,
+                            parameters: fields.parameters,
+                            result: fields.result,
+                            body: fields.body,
+                            environment: envelope.environment,
+                            functions: fields.functions,
+                        },
+                        true,
+                        pair_capability,
+                        optional_capability,
+                    )
                 }
-                let pair_capability = envelope.ir_version == 5;
-                let fields = envelope.program;
-                (
+                Wire::Strict(fields) => (
                     Self {
                         name: fields.name,
                         parameters: fields.parameters,
                         result: fields.result,
                         body: fields.body,
-                        environment: envelope.environment,
-                        functions: fields.functions,
-                    },
-                    true,
-                    pair_capability,
-                )
-            }
-            Wire::Strict(fields) => (
-                Self {
-                    name: fields.name,
-                    parameters: fields.parameters,
-                    result: fields.result,
-                    body: fields.body,
-                    environment: Environment::Strict,
-                    functions: vec![],
-                },
-                false,
-                false,
-            ),
-            Wire::Versioned(envelope) => {
-                if !matches!(
-                    (envelope.ir_version, envelope.environment),
-                    (2, Environment::Ignored) | (3, Environment::Raw)
-                ) {
-                    return Err(D::Error::custom(
-                        "unsupported IR version or environment policy",
-                    ));
-                }
-                let fields = envelope.program;
-                (
-                    Self {
-                        name: fields.name,
-                        parameters: fields.parameters,
-                        result: fields.result,
-                        body: fields.body,
-                        environment: envelope.environment,
+                        environment: Environment::Strict,
                         functions: vec![],
                     },
                     false,
                     false,
-                )
-            }
-        };
-        if program.uses_pairs() != pair_capability {
+                    false,
+                ),
+                Wire::Versioned(envelope) => {
+                    if !matches!(
+                        (envelope.ir_version, envelope.environment),
+                        (2, Environment::Ignored) | (3, Environment::Raw)
+                    ) {
+                        return Err(D::Error::custom(
+                            "unsupported IR version or environment policy",
+                        ));
+                    }
+                    let fields = envelope.program;
+                    (
+                        Self {
+                            name: fields.name,
+                            parameters: fields.parameters,
+                            result: fields.result,
+                            body: fields.body,
+                            environment: envelope.environment,
+                            functions: vec![],
+                        },
+                        false,
+                        false,
+                        false,
+                    )
+                }
+            };
+        if program.uses_optional() != optional_capability {
+            return Err(D::Error::custom(
+                "optional output capability requires IR version 6, and version 6 requires optional values",
+            ));
+        }
+        if !optional_capability && program.uses_pairs() != pair_capability {
             return Err(D::Error::custom(
                 "typed pair capability requires IR version 5, and version 5 requires typed pairs",
             ));
         }
-        if pair_capability {
+        if pair_capability || optional_capability {
             program.validate().map_err(D::Error::custom)?;
         }
         if !runtime && program.uses_runtime() {
@@ -260,6 +276,8 @@ fn node4<
 impl Serialize for Expr {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
+            Expr::OptionalNone { item } => node1(serializer, "optional_none", ("item", item)),
+            Expr::OptionalSome { value } => node1(serializer, "optional_some", ("value", value)),
             Expr::Pair { first, rest } => {
                 node2(serializer, "pair", ("first", first), ("rest", rest))
             }

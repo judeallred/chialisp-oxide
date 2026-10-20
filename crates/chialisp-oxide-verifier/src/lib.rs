@@ -279,6 +279,7 @@ impl Translation {
     }
     fn input(&mut self, ty: &Type, name: &str) -> Result<Value> {
         Ok(match ty {
+            Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
             Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
             Type::Int { .. } => {
                 if self.bitvectors {
@@ -332,6 +333,9 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+                bail!("optional outputs have no admitted proof model")
+            }
             Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
                 bail!("typed wire pairs have no admitted proof model")
             }
@@ -578,6 +582,7 @@ impl Translation {
 
 fn default_value(ty: &Type) -> Result<Value> {
     Ok(match ty {
+        Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
         Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
         Type::Int { .. } => Value::Int("0".into()),
         Type::Bool => Value::Bool("false".into()),
@@ -595,6 +600,10 @@ fn default_value(ty: &Type) -> Result<Value> {
 /// Expression-model preflight must examine the whole Program, not just the
 /// reachable entry expression: an unused table or dead branch is still v4 IR.
 fn require_expression_model(program: &Program, model: &str) -> Result<()> {
+    ensure!(
+        !program.uses_optional(),
+        "{model} does not model optional outputs"
+    );
     ensure!(
         !program.uses_pairs(),
         "{model} does not model typed wire pairs"
@@ -773,6 +782,7 @@ fn witness_value(
     values: &BTreeMap<String, SExpression>,
 ) -> Result<WitnessValue> {
     Ok(match ty {
+        Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
         Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
         Type::Int { .. } => {
             let value = match values.get(name).context("missing integer witness")? {

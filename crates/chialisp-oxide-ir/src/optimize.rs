@@ -14,6 +14,16 @@ pub(crate) struct Plan {
 
 pub(crate) fn plan(program: &Program) -> Result<Plan> {
     program.validate()?;
+    if program.uses_optional() {
+        // Optional output constructors are executable but have no admitted
+        // refinement/inlining rules yet. Validate and charge before cloning;
+        // retain every strict initializer and every unused table body.
+        pair_copy_budget(program)?;
+        return Ok(Plan {
+            program: program.clone(),
+            before_inlining: None,
+        });
+    }
     // Pair-capable programs charge their literal-copy budget before the same
     // owned passes run over them. Explicit pairs fold and refine like borrowed
     // trees with total projections; helper inlining still declines any body
@@ -341,6 +351,8 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
             (Expr::AtomIsEmpty { value }, facts)
         }
         expr @ (Expr::Atom { .. }
+        | Expr::OptionalNone { .. }
+        | Expr::OptionalSome { .. }
         | Expr::Pair { .. }
         | Expr::PairFirst { .. }
         | Expr::PairRest { .. }

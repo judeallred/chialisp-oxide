@@ -30,6 +30,10 @@ pub enum Type {
         first: Box<Type>,
         rest: Box<Type>,
     },
+    /// An output-only optional value: nil for None, a one-item list for Some.
+    Optional {
+        item: Box<Type>,
+    },
     Unit,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -96,6 +100,13 @@ pub enum BinaryOp {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    /// Explicit optional values require strict version-6 lowering.
+    OptionalNone {
+        item: Type,
+    },
+    OptionalSome {
+        value: Box<Expr>,
+    },
     /// Typed pairs require strict version-5 lowering.
     Pair {
         first: Box<Expr>,

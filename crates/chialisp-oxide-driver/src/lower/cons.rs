@@ -45,7 +45,9 @@ impl<'tcx> Lowerer<'tcx> {
                     if self.owned_box_inner(ty).is_some() {
                         return Err(invalid());
                     }
-                    if let Some(shape) = self.tree_shape(ty, span)? {
+                    if let Some(shape) = self.optional_shape(ty, span)? {
+                        pending.push((shape.item, depth + 1));
+                    } else if let Some(shape) = self.tree_shape(ty, span)? {
                         if shape.ownership == super::trees::Ownership::OwnedBoxes {
                             return Err(invalid());
                         }

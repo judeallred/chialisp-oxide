@@ -48,11 +48,19 @@ compiler preservation or production readiness.
   decoding, fixed-width bounds, byte arrays, tuples, booleans, exact arity,
   checked Rust recursion through version-4 function tables, empty-slice
   patterns, primitive byte equality/ordering and bitwise integer operations.
+- Bounded, output-only standard Rust `Option<T>` with nil/singleton encoding
+  and optional `Cons` tails, described in [optional-lists.md](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/).
+  Version 6 preserves strict construction and helper passing; it does not add
+  optional inputs, general enums, `Vec` or trait APIs. This capability has
+  separate constructor regressions and does not extend the 31-export corpus
+  or its recorded spend counts and metrics.
 - Optimizations on by default, each with retained before/after baselines:
   checked constants, forward success facts, branch-aware intervals, bounded
   helper inlining, runtime frame elision, guarded projection forwarding and
   compact integer decoding. See [optimization notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md) and the
-  history for measured sizes and costs.
+  history for measured sizes and costs. Optional-capable programs currently
+  skip Rust IR refinement and inlining; no cost improvement is claimed for
+  optional outputs.
 - Canonical ports with pinned provenance: three Intro expressions, three Using
   Modules programs, the Currying module, `p2_conditions`, five published
   helpers through explicit adapters, the singleton launcher, the password
@@ -61,7 +69,8 @@ compiler preservation or production readiness.
 - Source-derived SMT models with independent specifications, nonvacuity,
   counterexample replay and mutation controls; Lean algorithm theorems with a
   finite execution bridge; explicit acyclic scalar tables. All models reject
-  hash and apply nodes and prove nothing about compiler preservation.
+  hash, apply and optional capability and prove nothing about compiler
+  preservation.
 - Typed VM failure codes separating rejection from resource and infrastructure
   failures; ledger negatives require exact consensus codes.
 - Searchable Astro/Starlight documentation generated from source and evidence,
@@ -78,8 +87,10 @@ backlog; this ordering does not mark their acceptance criteria complete.
 1. Finish the external-tool acceptance for agent discovery
    ([#25](https://github.com/judeallred/chialisp-oxide/issues/25)): the
    [authoring guide](https://judeallred.github.io/chialisp-oxide/reference/agent-guide/)
-   and generated Markdown now have deterministic freshness/discovery checks,
-   but two actual fresh-clone agent-tool trials remain outstanding. The new
+   and generated Markdown now have deterministic freshness/discovery checks.
+   One actual Codex fresh-clone trial is recorded in
+   [the discovery report](https://github.com/judeallred/chialisp-oxide/blob/main/docs/agent-documentation.md);
+   a second genuine agent-tool trial remains outstanding. The new
    [input](https://judeallred.github.io/chialisp-oxide/validation/inputs/),
    [output](https://judeallred.github.io/chialisp-oxide/validation/outputs/)
    and [review](https://judeallred.github.io/chialisp-oxide/validation/review/)
@@ -88,8 +99,11 @@ backlog; this ordering does not mark their acceptance criteria complete.
    ([#8](https://github.com/judeallred/chialisp-oxide/issues/8)) has pinned
    official provenance and actual token/contrast checks.
 2. Build the reclaimable boomerang payment
-   ([#9](https://github.com/judeallred/chialisp-oxide/issues/9)), including both
-   authorization paths, boundary probes and complete simulator spends.
+   ([#9](https://github.com/judeallred/chialisp-oxide/issues/9)), including
+   recipient authorization, deadline boundary probes and complete simulator
+   spends for claim and refund. Optional-output construction is a prerequisite;
+   the curried boomerang puzzle and its complete-spend evidence remain
+   unimplemented.
 3. Make the tooling useful end to end: a local package registry with source and
    artifact identity ([#21](https://github.com/judeallred/chialisp-oxide/issues/21)),
    then the explicit-network CLI/GUI lifecycle

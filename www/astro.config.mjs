@@ -2,12 +2,14 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import searchIndex from './search-index.mjs';
 import markdownDocumentation from './llms.mjs';
+import sharedGuideHeadings from './src/integrations/shared-guide-headings.mjs';
 
 export default defineConfig({
   site: 'https://judeallred.github.io',
   base: '/chialisp-oxide',
   trailingSlash: 'always',
   integrations: [
+    sharedGuideHeadings(),
     starlight({
       pagefind: false,
       title: 'chialisp / oxide',
@@ -74,6 +76,7 @@ export default defineConfig({
           { label: 'Compiler trust & standard libraries', slug: 'reference/compiler-trust' },
           { label: 'Hashing and the compiler bridge', slug: 'reference/hashing' },
           { label: 'Puzzle ABI', slug: 'reference/abi' },
+          { label: 'Optional output lists', slug: 'reference/optional-lists' },
           { label: 'Compiler commands', slug: 'reference/cli' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },
           { label: 'Read Chialisp syntax colors', slug: 'reference/highlighting' },

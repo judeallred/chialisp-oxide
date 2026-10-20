@@ -180,6 +180,9 @@ pub fn loaded(tcx: TyCtxt<'_>) -> Result<(), String> {
         language.size_const(),
         language.owned_box(),
         language.global_alloc_ty(),
+        language.option_type(),
+        language.option_none_variant(),
+        language.option_some_variant(),
     ];
     if owners.iter().flatten().any(|id| id.is_local()) {
         return Err(unsupported(

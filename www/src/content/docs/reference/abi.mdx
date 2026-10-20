@@ -1,6 +1,6 @@
 ---
 title: Puzzle ABI
-description: Exact solution shape, canonical integers, booleans, bytes, tuples, and condition-list results.
+description: Exact solution shape, canonical scalars, pairs, and optional output lists.
 ---
 
 The [input validation guide](/chialisp-oxide/validation/inputs/) explains how
@@ -177,12 +177,32 @@ struct, arbitrary generic function, custom layout or unrelated external type
 does not receive this encoding.
 
 Typed Pair capability uses the explicit **version-5 IR envelope**, with the same
-`strict`, `raw` and ignored-environment contracts. Older wire versions reject
+`strict`, `raw` and ignored-environment contracts. Programs that also construct
+optional outputs use version 6. Older wire versions reject
 Pair types and expressions, including in an unused function signature. This is
 separate from `Tree::Pair`, which represents an arbitrary borrowed input tree.
 Current scalar, structural and acyclic SMT models reject typed wire Pair
 capability; successful frontend/native/VM tests are not a model theorem or a
 compiler-preservation proof. These tests are not extra corpus puzzles or spends.
+
+## Optional outputs with `Option<T>`
+
+Standard Rust `Option<T>` has a bounded output encoding: `None` is `()` and
+`Some(value)` is a one-element proper list containing the encoded payload.
+`Some(())` is `(())`, so an empty payload never collapses into the absent variant.
+With `Cons<First, Option<Last>>`, the optional value forms the tail: the output
+contains one or two elements. A tuple containing `None` retains that field.
+
+This is an output-only capability in the version-6 IR envelope. Exported
+parameters reject optional values recursively. Construction, whole-value
+assignment and opaque helper passing are supported; Option inspection, methods,
+references and owned/drop payloads remain outside the subset. Current proof
+models reject optional capability, and optional programs conservatively skip
+Rust IR refinement and inlining.
+
+The [optional-list guide](/chialisp-oxide/reference/optional-lists/) shows actual
+Cargo-tested examples and named condition helpers. Constructor tests do not
+establish a complete spending policy or add puzzles to the corpus.
 
 ## Nominal wrappers erase to the inner encoding
 

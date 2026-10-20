@@ -81,7 +81,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         | Expr::TreePair { .. }
         | Expr::Pair { .. } => 2,
         Expr::If { .. } => 3,
-        Expr::Field { .. }
+        Expr::OptionalSome { .. }
+        | Expr::Field { .. }
         | Expr::Not { .. }
         | Expr::AtomIsEmpty { .. }
         | Expr::TreeAtom { .. }
@@ -91,7 +92,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         | Expr::PairFirst { .. }
         | Expr::PairRest { .. }
         | Expr::TreeRest { .. } => 1,
-        Expr::Arg { .. }
+        Expr::OptionalNone { .. }
+        | Expr::Arg { .. }
         | Expr::Local { .. }
         | Expr::Unit
         | Expr::Bool { .. }
@@ -125,7 +127,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
             then_value,
             else_value,
         } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
-        Expr::Field { value, .. }
+        Expr::OptionalSome { value }
+        | Expr::Field { value, .. }
         | Expr::Not { value }
         | Expr::AtomIsEmpty { value }
         | Expr::TreeAtom { value }
@@ -135,7 +138,8 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         | Expr::PairFirst { value }
         | Expr::PairRest { value }
         | Expr::TreeRest { value } => pending.push(value),
-        Expr::Arg { .. }
+        Expr::OptionalNone { .. }
+        | Expr::Arg { .. }
         | Expr::Local { .. }
         | Expr::Unit
         | Expr::Bool { .. }
@@ -270,7 +274,11 @@ impl Rewriter<'_> {
     ) -> Option<Expr> {
         self.budget.node(depth)?;
         Some(match expr {
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => return None,
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::Pair { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. } => return None,
             Expr::Arg { index } => match &names.arguments {
                 Some(args) => Expr::Local {
                     local_id: *args.get(*index)?,
@@ -495,7 +503,11 @@ fn frames(
     budget.work(1)?;
     (depth <= MAX_DEPTH && live <= MAX_BINDINGS && pending <= MAX_BINDINGS).then_some(())?;
     match expr {
-        Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => None,
+        Expr::OptionalNone { .. }
+        | Expr::OptionalSome { .. }
+        | Expr::Pair { .. }
+        | Expr::PairFirst { .. }
+        | Expr::PairRest { .. } => None,
         Expr::Let {
             local_id,
             value,
@@ -623,7 +635,11 @@ fn prune(program: &mut Program, budget: &mut Budget) -> Option<()> {
         budget.work(1)?;
         (depth <= MAX_DEPTH).then_some(())?;
         match expr {
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => return None,
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::Pair { .. }
+            | Expr::PairFirst { .. }
+            | Expr::PairRest { .. } => return None,
             Expr::Call {
                 function_id,
                 arguments,

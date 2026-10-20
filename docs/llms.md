@@ -22,13 +22,17 @@ template. Use the checkout's `rust-toolchain.toml`: currently
 From the repository root:
 
 ```sh
-cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-cli
 export PATH="$PWD/target/debug:$PATH"
 cargo check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo chialisp-oxide check --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --locked
 ```
+
+This builds the Cargo subcommand, compiler driver and `chialisp-oxide` execution
+CLI. The execution CLI replays a selected bundle's serialized CLVM with `run`;
+it does not validate a complete coin spend.
 
 Mark exported free functions with `#[chialisp_oxide::puzzle]`. Ordinary Cargo
 checks native Rust. The additional command checks the reachable CLVM subset

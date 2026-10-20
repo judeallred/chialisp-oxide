@@ -21,9 +21,13 @@ toolchain file select `nightly-2026-07-14` and its compiler components:
 ```sh
 rustup show
 rustup component add rustc-dev llvm-tools-preview rustfmt clippy
-cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-cli
 export PATH="$PWD/target/debug:$PATH"
 ```
+
+The three packages provide the Cargo subcommand, compiler driver and
+`chialisp-oxide` execution CLI used to replay bundle artifacts in the command
+reference.
 
 This pin reports Rust 1.99.0-nightly. The driver uses compiler-private rustc
 interfaces; no `RUSTC_BOOTSTRAP` is needed. The SDK and user library do not need
