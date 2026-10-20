@@ -146,7 +146,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
-| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, separately validated host-curried password instances, and `chialisp_oxide::curry` (hash arithmetic ported from the pinned `curry-and-treehash.clib` with the `curry-hash` fixture validated against the include itself; owned-tree `curry` construction with native oracle tests and corpus cross-checks of the canonical `currying-multiply` page-argument instances in five builds); see [currying](currying.md) | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
+| Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, separately validated host-curried password instances, and `chialisp_oxide::curry` (hash arithmetic ported from the pinned `curry-and-treehash.clib` with the `curry-hash` fixture validated against the include itself; owned-tree `curry` construction with native oracle tests, corpus cross-checks of the canonical `currying-multiply` page-argument instances in five builds, and the compiled `curry-factory` program factory with second-stage applications); see [currying](currying.md) | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Primary VM costs, selected ledger scenarios and 15 selected whole-bundle conditions measurements; signature verification belongs to separate SDK admissions | Broader whole-spend cost coverage, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
@@ -273,7 +273,7 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The latest locally validated capture covers 29 annotated exports. It includes
+The latest locally validated capture covers 30 annotated exports. It includes
 the full raw-domain `sha256tree` helper
 adapter, singleton launcher, original password tutorial module and canonical
 pay-to-singleton and delegated-conditions components through the
@@ -281,8 +281,9 @@ pay-to-singleton and delegated-conditions components through the
 compiled unchanged beside signed 64-bit typed Rust adapters, and the original
 delegated-puzzle fixture for the reviewed `apply` bridge and the `curry-hash`
 fixture validated against the pinned upstream curry include, and the canonical
-Currying page module with its page-argument instances. Native Rust and five
-separately compiled CLVM builds agree on 559 named and 25,222 generated cases,
+Currying page module with its page-argument instances, and a compiled curry
+factory. Native Rust and five
+separately compiled CLVM builds agree on 571 named and 25,222 generated cases,
 where a named case may declare, before execution, an independently specified
 original result that binds only Chialisp and Rue; Rust CLVM always matches the
 native Rust source. Forty ledger scenario groups
@@ -296,7 +297,7 @@ replays remain results of their recorded source basis.
 The retained 23-export capture was repeated byte-for-byte and is now the
 [retained checkpoint](../corpus/checkpoints/p2dc-append-validation.json) of the
 generic corpus append. Fresh Cargo bundles cover every current export in both
-modes, and all 29 retained IR programs recompile to the recorded artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
+modes, and all 30 retained IR programs recompile to the recorded artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
 remain exact after the closed metadata transition. The actual 578-test workspace
 and Clippy run is carried for the same 327 Rust/Cargo/config inputs; the added
 non-workspace native-control template has separate native tests. Final integration

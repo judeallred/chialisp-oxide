@@ -180,7 +180,7 @@ export interface PuzzleReport {
   generated_cases: number;
   simulator: LedgerScenario[];
   simulator_comparisons: { backend: string; optimize_lir: boolean; scenarios: LedgerScenario[] }[];
-  factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
+  factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; relation?:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null};expected_outcome?:Outcome}[] }[];
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   curried_instances?: CurriedInstanceEvidence;
   curried_examples?: CurriedExample[];

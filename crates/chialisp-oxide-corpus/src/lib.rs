@@ -53,6 +53,7 @@ pub const PUZZLES: &[&str] = &[
     "delegated-puzzle",
     "curry-hash",
     "currying-multiply",
+    "curry-factory",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -165,6 +166,10 @@ pub struct Manifest {
     pub validation_max_cost: Option<u64>,
     #[serde(default)]
     pub curried_examples: Vec<curried::Spec>,
+    #[serde(default)]
+    pub factory_relation: Option<String>,
+    #[serde(default)]
+    pub factory_applications: Vec<String>,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -720,12 +725,28 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         }
     }
     let factory_checks = if manifest.kind == "program_factory" {
-        ensure!(
-            slug == "p2-conditions",
-            "factory requires an independent specification"
-        );
-        factories::validate(&cases)?
+        match manifest.factory_relation.as_deref() {
+            None => {
+                ensure!(
+                    slug == "p2-conditions" && manifest.factory_applications.is_empty(),
+                    "factory requires an independent specification"
+                );
+                factories::validate(&cases)?
+            }
+            Some("standard_curry") => {
+                ensure!(
+                    !manifest.factory_applications.is_empty(),
+                    "standard-curry factory needs declared applications"
+                );
+                factories::validate_curry(&cases, &manifest.factory_applications)?
+            }
+            Some(other) => anyhow::bail!("unknown factory relation {other}"),
+        }
     } else {
+        ensure!(
+            manifest.factory_relation.is_none() && manifest.factory_applications.is_empty(),
+            "factory relation declared for a non-factory"
+        );
         vec![]
     };
     // A published module identity is independent of its output role. The

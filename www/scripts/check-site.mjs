@@ -512,20 +512,33 @@ for (const puzzle of validation.puzzles) {
     }
   }
   if (puzzle.kind === 'program_factory') {
-    for (const label of ['Environment contract: raw tree.', 'returns a program', 'Published module identity', 'Apply the produced programs']) {
+    const curryRelation = puzzle.factory_checks.some(row => row.relation === 'standard_curry');
+    assert(puzzle.factory_checks.every(row => (row.relation === 'standard_curry') === curryRelation), `${puzzle.slug}: mixed factory relations`);
+    const labels = curryRelation
+      ? ['Environment contract: strict typed arguments.', 'returns a program', 'Apply the produced programs', 'Expected program', 'uncurried environment']
+      : ['Environment contract: raw tree.', 'returns a program', 'Published module identity', 'Apply the produced programs', 'Expected payload'];
+    for (const label of labels) {
       assert(detail.includes(label), `${puzzle.slug}: missing factory contract/evidence label ${label}`);
     }
-    assert(puzzle.factory_checks.length > 0 && puzzle.module_identity, `${puzzle.slug}: missing factory evidence`);
+    assert(puzzle.factory_checks.length > 0 && (curryRelation || puzzle.module_identity), `${puzzle.slug}: missing factory evidence`);
     assert.deepEqual(puzzle.simulator, [], 'A factory must not claim direct ledger scenarios');
-    for (const backend of ['rust_mir', 'chialisp', 'rue_source']) {
-      const artifact = puzzle.artifacts.find(row => row.backend === backend && row.optimize_lir);
-      assert.equal(artifact.clvm_hex, puzzle.module_identity.upstream_hex, `${backend}: canonical factory bytes must match`);
-      assert.equal(artifact.tree_hash, puzzle.module_identity.upstream_tree_hash, `${backend}: canonical factory hash must match`);
+    if (curryRelation) {
+      assert.equal(puzzle.provenance.classification, 'original teaching implementation', `${puzzle.slug}: a curry factory is not a canonical module port`);
+      assert.equal(puzzle.module_identity, undefined, `${puzzle.slug}: a curry factory claims no published module identity`);
+      for (const row of puzzle.factory_checks) {
+        assert(row.application_runs.length > 0 && row.application_runs.every(run => run.expected_outcome && JSON.stringify(run.execution.outcome) === JSON.stringify(run.expected_outcome)), `${puzzle.slug}: curry applications must carry and match their independent expectation`);
+      }
+    } else {
+      for (const backend of ['rust_mir', 'chialisp', 'rue_source']) {
+        const artifact = puzzle.artifacts.find(row => row.backend === backend && row.optimize_lir);
+        assert.equal(artifact.clvm_hex, puzzle.module_identity.upstream_hex, `${backend}: canonical factory bytes must match`);
+        assert.equal(artifact.tree_hash, puzzle.module_identity.upstream_tree_hash, `${backend}: canonical factory hash must match`);
+      }
+      const tutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
+      assert(tutorial.includes(puzzle.module_identity.upstream_tree_hash), 'Tutorial must bind the published module identity');
     }
     const applications = puzzle.factory_checks.reduce((n, row) => n + row.application_runs.length, 0);
     assert(detail.includes(`${applications} second-stage VM executions`), 'Factory application count must come from the report');
-    const tutorial = await html(path.join(root, 'tutorials/p2-conditions/index.html'));
-    assert(tutorial.includes(puzzle.module_identity.upstream_tree_hash), 'Tutorial must bind the published module identity');
   }
   if (puzzle.provenance.classification === 'canonical_helper_port') {
     assert.equal(puzzle.kind, 'pure_function', `${puzzle.slug}: helper classification must preserve its evidence scope`);
@@ -1076,7 +1089,7 @@ for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'a
 }
 assert(built.includes(path.join(root, 'tutorials/curry-hash/index.html')), 'Missing curry-hash tutorial');
 const curryPage = await html(path.join(root, 'tutorials/curry-hash/index.html'));
-for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils', 'currying-multiply', '(a (q 18 2 5) (c (q . 2) 1))']) {
+for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils', 'currying-multiply', '(a (q 18 2 5) (c (q . 2) 1))', 'curry-factory', 'second VM execution']) {
   assert(curryPage.includes(needle), `curry-hash tutorial missing ${needle}`);
 }
 const curryLab = await html(path.join(root, 'lab/currying-multiply/index.html'));

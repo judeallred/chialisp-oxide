@@ -65,11 +65,24 @@ programs with different hashes; the Rue translation happens to compile to the
 same seven bytes here, but no identity is claimed for it. `corpus/validate_tutorial_examples.py` and
 the site evidence gate check this contract.
 
+## The compiled factory
+
+`puzzles/curry-factory` compiles the owned constructor itself: a strict
+two-argument export over borrowed trees that returns the standard curried
+program as an owned tree. Its manifest declares the `standard_curry` factory
+relation and a list of application solutions. The corpus requires every
+build's returned program to equal the independent clvmr standard form, then
+applies it to each declared solution in a second VM execution and compares
+the result with running the module itself on the uncurried environment
+`(parameter . solution)`; each application row records that expectation.
+Producing a program is not a spend, and the factory witnesses only the
+wrapper: a curried Rust module still differs from a curried canonical module
+whenever the modules themselves differ.
+
 ## What remains
 
-The owned `curry` constructor is exercised host-side by the corpus, not by a
-compiled program factory returning a curried program; that needs its own
-second-stage application relation. The pinned `curry-and-treehash.clib` is
+Multi-parameter currying nests the one-parameter form and is not exercised as
+a compiled program. The pinned `curry-and-treehash.clib` is
 upstream's deprecated reversed-argument API (the newer `curry.clib` is not
 pinned). No curried-instance identity is claimed for any Rust module: Rust
 artifacts still differ from canonical Chialisp bytes, so a curried Rust module

@@ -1,0 +1,80 @@
+{
+  "slug": "curry-factory",
+  "title": "Standard curried program factory",
+  "kind": "program_factory",
+  "security_scope": "Original teaching factory returning a program, not a coin puzzle or an authorization policy. For a strict two-argument environment (module parameter) it returns the standard curried form (a (q . module) (c (q . parameter) 1)) through the SDK's owned curry constructor; malformed environments reject. The produced program is compared with an independent construction and applied separately to declared solutions, whose expected results come from running the module itself on the uncurried environment. Producing a program is not a spend, and these finite checks are not a compiler-preservation proof.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "factory_relation": "standard_curry",
+  "factory_applications": [
+    "(5)",
+    "(0)",
+    "(-3)",
+    "()",
+    "5",
+    "(1 2)"
+  ],
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/chialisp-currying/",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+    ],
+    "limitations": [
+      "The factory curries exactly one parameter; multi-parameter currying nests this form and is not exercised as a compiled program.",
+      "Expected produced programs come from an independent clvmr construction of the standard form; expected application results come from running the module on the uncurried environment (parameter . solution) in the same VM. Neither is a proof about the curried module's policy.",
+      "All five builds produce the same bytes here because the standard form is data; equal outputs are finite differential evidence, not byte or hash identity of the factories themselves.",
+      "Curried programs returned by Rust still differ from canonical Chialisp modules whenever the curried module itself differs; this fixture only witnesses the wrapper."
+    ]
+  },
+  "cases": [
+    {
+      "label": "page multiply module curried with two",
+      "solution": "((18 2 5) 2)"
+    },
+    {
+      "label": "page reuse with five",
+      "solution": "((18 2 5) 5)"
+    },
+    {
+      "label": "quoted constant module ignores its parameter",
+      "solution": "((1 . 7) 2)"
+    },
+    {
+      "label": "whole-environment module returns the curried environment",
+      "solution": "(1 2)"
+    },
+    {
+      "label": "nil parameter",
+      "solution": "((18 2 5) ())"
+    },
+    {
+      "label": "pair parameter projected by the module",
+      "solution": "((5 2) (7 8))"
+    },
+    {
+      "label": "padded atoms are preserved as data",
+      "solution": "(0x0001 0x0002)"
+    },
+    {
+      "label": "missing parameter rejects",
+      "solution": "((18 2 5))"
+    },
+    {
+      "label": "empty environment rejects",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejects",
+      "solution": "1"
+    },
+    {
+      "label": "extra argument rejects",
+      "solution": "((18 2 5) 2 3)"
+    },
+    {
+      "label": "improper argument list rejects",
+      "solution": "((18 2 5) . 2)"
+    }
+  ]
+}

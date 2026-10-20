@@ -1,0 +1,8 @@
+// Authored Rue translation of the curry factory for the same strict ABI.
+// The standard curried form is built as data: (a (q . module) (c (q . parameter) 1)).
+fn main(...solution: Any) -> Any {
+    assert solution is (Any, (Any, nil));
+    let module = solution.first;
+    let parameter = solution.rest.first;
+    (2, ((1, module), ((4, ((1, parameter), (1, nil))), nil)))
+}

@@ -83,8 +83,15 @@ PYTHON
 python3 scripts/run-p2dc-source-controls.py capture --package "$WORK/p2dc-package" --native-receipt "$WORK/p2dc-native/native-receipt.json" --last-host-window "$WORK/p2dc-last-host.json" --target "$ROOT/target" --output "$WORK/p2dc-capture"
 python3 scripts/check-p2dc-source-controls.py "$WORK/p2dc-capture/report.json" --self-test > "$WORK/gate-p2dc-capture.log"
 # Ignored build output can appear inside the retained packet (its package is a
-# Cargo project); remove the whole packet with the shell before reinstalling.
-rm -rf corpus/p2dc-source-controls
+# Cargo project), and some hosts mount dedicated volumes onto Cargo target
+# directories. Unmount anything below the packet, then remove it with retries.
+for attempt in 1 2 3 4 5; do
+  mount | awk -v prefix="$ROOT/corpus/p2dc-source-controls/" 'index($3, prefix) == 1 { print $3 }' | while read -r point; do
+    diskutil unmount "$point" >/dev/null 2>&1 || umount "$point" >/dev/null 2>&1 || true
+  done
+  rm -rf corpus/p2dc-source-controls 2>/dev/null && break
+  sleep 3
+done
 WORK="$WORK" python3 - <<'PYTHON'
 import json, os, shutil
 from pathlib import Path

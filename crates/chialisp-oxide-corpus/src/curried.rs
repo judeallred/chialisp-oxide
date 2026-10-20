@@ -74,7 +74,7 @@ fn list(a: &mut Allocator, values: &[NodePtr]) -> Result<NodePtr> {
 }
 
 /// Independent standard form from serialized module and argument trees.
-fn standard_form(module: &[u8], argument: &[u8]) -> Result<Vec<u8>> {
+pub(super) fn standard_form(module: &[u8], argument: &[u8]) -> Result<Vec<u8>> {
     let mut a = Allocator::new();
     let module = node_from_bytes(&mut a, module)?;
     let argument = node_from_bytes(&mut a, argument)?;

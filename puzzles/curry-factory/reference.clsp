@@ -1,0 +1,11 @@
+; Authored module adapter for the same strict two-argument ABI. The standard
+; curried form (a (q . module) (c (q . parameter) 1)) is built with cons only.
+(mod solution
+  (if (l solution)
+    (if (l (r solution))
+      (if (= (r (r solution)) ())
+        (c 2 (c (c 1 (f solution)) (c (c 4 (c (c 1 (f (r solution))) (c 1 ()))) ())))
+        (x))
+      (x))
+    (x))
+)

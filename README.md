@@ -94,7 +94,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records twenty-nine
+The locally validated [corpus report](corpus/validation.json) records thirty
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -104,7 +104,8 @@ recursive factorial) through declared signed 64-bit typed adapters, an
 original delegated-puzzle fixture that applies an untrusted inner program
 through the reviewed `apply` bridge, a curried-puzzle-hash fixture checked
 against the pinned upstream curry include, the canonical Currying page module
-with its page-argument instances executed in five builds, the
+with its page-argument instances executed in five builds, a compiled curry
+factory whose returned programs are applied in a second VM execution, the
 exact canonical `p2_conditions` program factory, pinned `last_inner`,
 `prefix`, byte `!=`, insertion-sort-by-key and `sha256tree` helpers through visible
 module adapters, the singleton launcher module, and the exact password tutorial
@@ -117,7 +118,7 @@ original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-559 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
+571 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton

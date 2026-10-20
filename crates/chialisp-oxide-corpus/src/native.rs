@@ -371,6 +371,29 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             Err(_) => Ok(None),
         };
     }
+    if slug == "curry-factory" {
+        // Bound the whole environment before creating Boxes; host limits are
+        // inconclusive oracle errors, never policy rejections.
+        super::native_owned_tree::preflight(&a, env)?;
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 2 => arguments,
+            _ => return Ok(None),
+        };
+        let arena = bumpalo::Bump::new();
+        let module = super::native_tree::decode(&arena, &a, arguments[0])?;
+        let parameter = super::native_tree::decode(&arena, &a, arguments[1])?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::curry_factory::puzzle(module, parameter)
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "delegated-puzzle" {
         let arguments = match args(&a, env) {
             Ok(arguments) if arguments.len() == 2 => arguments,

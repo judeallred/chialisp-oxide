@@ -65,12 +65,24 @@ the Rust instances are different programs with different hashes, and no
 identity is claimed for the Rue instances even where their bytes coincide. Inspect
 [the currying-multiply report](/chialisp-oxide/lab/currying-multiply/#curry).
 
+## A compiled curry factory
+
+<SourceComparison slug="curry-factory" />
+
+The owned `curry` constructor also compiles. This original factory takes a
+module tree and a parameter tree through the strict ABI and returns the
+standard curried program as an owned tree. The corpus requires every build's
+returned program to equal an independent clvmr construction of the standard
+form, then applies it to declared solutions in a second VM execution and
+compares each result with running the module itself on the uncurried
+environment. Producing a program is never counted as a spend. Inspect
+[the curry-factory report](/chialisp-oxide/lab/curry-factory/#factory).
+
 ## What this does not establish
 
 A curried instance hash commits a coin to a program; it does not make that
-program safe. Only the one-parameter form has a corpus fixture, and the owned
-`curry` constructor is exercised host-side by the corpus rather than by a
-compiled factory fixture. Rust artifacts still differ from canonical Chialisp
+program safe. Only the one-parameter form has corpus fixtures; multi-parameter
+currying nests that form and is not exercised as a compiled program. Rust artifacts still differ from canonical Chialisp
 bytes, so a curried Rust module has a different puzzle hash than its canonical
 counterpart, and curried-instance cases carry no declared divergences. The
 pinned include is upstream's deprecated reversed-argument API; the newer

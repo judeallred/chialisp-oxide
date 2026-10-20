@@ -154,6 +154,80 @@ def expected(environment):
     return {"status": "accepted", "output_hex": serialize((b"\x01", tree[0])).hex()}, serialize(tree[0]).hex()
 
 
+def curry_program(tree):
+    """Independent standard curried form (a (q . module) (c (q . parameter) 1)) as a raw tree."""
+    module, (parameter, _) = tree
+    return (b"\x02", ((b"\x01", module), ((b"\x04", ((b"\x01", parameter), (b"\x01", b""))), b"")))
+
+
+def expected_curry(environment):
+    tree = parse(environment)
+    if isinstance(tree, tuple) and isinstance(tree[1], tuple) and tree[1][1] == b"":
+        return {"status": "accepted", "output_hex": serialize(curry_program(tree)).hex()}
+    return {"status": "rejected"}
+
+
+def validate_curry_factory(puzzle, reader):
+    """An original standard-curry factory: exact produced programs from this
+    independent raw-tree construction, and recorded second-stage applications
+    that must equal their recorded independent expectation. No VM is rerun and
+    no canonical module identity is claimed."""
+    slug = puzzle["slug"]
+    manifest = json.loads(reader(f"puzzles/{slug}/puzzle.json"))
+    require(manifest["kind"] == "program_factory" and manifest.get("factory_relation") == "standard_curry"
+            and manifest.get("environment", "strict") == "strict", f"{slug}: curry factory needs the strict standard-curry contract")
+    applications = manifest.get("factory_applications")
+    require(type(applications) is list and applications and all(type(item) is str for item in applications)
+            and len(set(applications)) == len(applications), f"{slug}: declared applications must be unique strings")
+    require(puzzle["validated"] is True and puzzle["kind"] == "program_factory" and puzzle.get("environment", "strict") == "strict"
+            and "module_identity" not in puzzle and puzzle["provenance"] == manifest["provenance"]
+            and puzzle["provenance"]["classification"] == "original teaching implementation", f"{slug}: curry factory provenance/identity contract changed")
+    require(not puzzle["simulator"] and not puzzle["simulator_comparisons"], f"{slug}: factory must not claim direct ledger admission")
+    require(reader(f"puzzles/{slug}/reference.clsp").decode() == puzzle["reference"], f"{slug}: Chialisp comparison source changed")
+    rue = puzzle["rue"]
+    require(reader(rue["path"]).decode() == rue["source"] and hashlib.sha256(reader(rue["path"])).hexdigest() == rue["sha256"], f"{slug}: Rue comparison source changed")
+    boolean_modes(puzzle["artifacts"], f"{slug} artifacts")
+    artifacts = {(item["backend"], item["optimize_lir"]): item for item in puzzle["artifacts"]}
+    require(len(puzzle["artifacts"]) == len(artifacts) == 5 and set(artifacts) == BUILDS, f"{slug}: five compiler artifacts are required")
+    for item in artifacts.values():
+        program = bytes.fromhex(item["clvm_hex"])
+        require(len(program) == item["bytes"] and tree_hash(deserialize(program)).hex() == item["tree_hash"], f"{slug}: artifact size or tree hash disagrees with its program")
+    require([(case["label"], case["solution"]) for case in puzzle["cases"]] == [(case["label"], case["solution"]) for case in manifest["cases"]], f"{slug}: named factory vectors changed")
+    accepted = {}
+    for case in puzzle["cases"]:
+        outcome = expected_curry(case["solution"])
+        check_native_outcome(case["native"], case["label"])
+        require(case["native"] == outcome, f"{slug}: native curried program differs from the independent standard form: {case['label']}")
+        boolean_modes(case["runs"], f"{slug} factory executions")
+        runs = {(run["backend"], run["optimize_lir"]): run for run in case["runs"]}
+        require(len(case["runs"]) == len(runs) == 5 and set(runs) == BUILDS, f"{slug}: incomplete factory executions")
+        for run in runs.values():
+            check_execution(run["execution"], f"{slug}/{case['label']}")
+        require(all(run["execution"]["outcome"] == outcome for run in runs.values()), f"{slug}: recorded VM result differs: {case['label']}")
+        if outcome["status"] == "accepted":
+            accepted[case["solution"]] = outcome["output_hex"]
+    checks = puzzle["factory_checks"]
+    boolean_modes(checks, f"{slug} produced-program checks")
+    keys = {(row["environment"], row["backend"], row["optimize_lir"]) for row in checks}
+    require(len(checks) == len(keys) and keys == {(environment, *build) for environment in accepted for build in BUILDS}, f"{slug}: missing or duplicate produced-program checks")
+    application_inputs = {serialize(parse(solution)) for solution in applications}
+    for row in checks:
+        program = accepted[row["environment"]]
+        require(row.get("relation") == "standard_curry" and row["program_hex"] == program and row["expected_output_hex"] == program,
+                f"{slug}: produced program bytes changed, normalized or relabeled")
+        runs = row["application_runs"]
+        require(len(runs) == len(applications) and {serialize(parse(run["solution"])) for run in runs} == application_inputs, f"{slug}: incomplete second-stage application coverage")
+        for run in runs:
+            execution = run["execution"]
+            check_execution(execution, f"{slug} second-stage application")
+            require("expected_outcome" in run, f"{slug}: application lacks its independent expectation")
+            check_native_outcome(run["expected_outcome"], f"{slug} application expectation")
+            require(execution["outcome"] == run["expected_outcome"], f"{slug}: second-stage program differs from the uncurried module expectation")
+            if execution["outcome"]["status"] == "accepted":
+                require(type(execution["cost"]) is int and execution["cost"] > 0 and execution["error"] is None, f"{slug}: missing actual successful application execution record")
+    return len(puzzle["cases"]), len(checks), sum(len(row["application_runs"]) for row in checks)
+
+
 def validate(report, reader=read_source):
     require(report.get("vm_failure_protocol") == PROTOCOL, "Missing/unsupported VM failure protocol")
     for path, (sha256, blob) in PINS.items():
@@ -165,8 +239,12 @@ def validate(report, reader=read_source):
     require(tree_hash(deserialize(bytes.fromhex(CANONICAL_HEX))).hex() == CANONICAL_HASH, "Published module tree hash changed")
     manifest = json.loads(reader("puzzles/p2-conditions/puzzle.json"))
     factories = [puzzle for puzzle in report["puzzles"] if puzzle["kind"] == "program_factory"]
-    require([factory["slug"] for factory in factories] == ["p2-conditions"], "Unknown or missing canonical factory")
-    puzzle = factories[0]
+    canonical = [factory for factory in factories if "module_identity" in factory]
+    curry = [factory for factory in factories if "module_identity" not in factory
+             and factory.get("factory_checks") and all(row.get("relation") == "standard_curry" for row in factory["factory_checks"])]
+    require([factory["slug"] for factory in canonical] == ["p2-conditions"] and len(canonical) + len(curry) == len(factories),
+            "Unknown or missing canonical factory")
+    puzzle = canonical[0]
     require(puzzle["validated"] is True and puzzle["environment"] == "raw", "Factory lacks validated raw-environment contract")
     require(puzzle["provenance"] == manifest["provenance"], "Factory provenance changed")
     provenance = puzzle["provenance"]
@@ -228,6 +306,7 @@ def validate(report, reader=read_source):
             accepted[case["solution"]] = outcome["output_hex"], payload
     checks = puzzle["factory_checks"]
     boolean_modes(checks, "Produced-program checks")
+    require(all("relation" not in row for row in checks), "Canonical quote factory must not relabel its relation")
     keys = {(row["environment"], row["backend"], row["optimize_lir"]) for row in checks}
     require(len(checks) == len(keys) and keys == {(environment, *build) for environment in accepted for build in BUILDS}, "Missing or duplicate produced-program checks")
     application_inputs = {serialize(parse(solution)) for solution in ["()", "1", "0x0001", "(1 . 2)"]}
@@ -241,7 +320,49 @@ def validate(report, reader=read_source):
             check_execution(execution, "factory second-stage application")
             require(execution["outcome"] == {"status": "accepted", "output_hex": payload}, "Second-stage program did not return the expected raw payload")
             require(type(execution["cost"]) is int and execution["cost"] > 0 and execution["error"] is None, "Missing actual successful application execution record")
-    return len(puzzle["cases"]), len(checks), sum(len(row["application_runs"]) for row in checks)
+    curry_counts = {factory["slug"]: validate_curry_factory(factory, reader) for factory in curry}
+    return len(puzzle["cases"]), len(checks), sum(len(row["application_runs"]) for row in checks), curry_counts
+
+
+def curry_self_test(report):
+    """Mutation controls for original standard-curry factories; no process credit."""
+    slugs = [puzzle["slug"] for puzzle in report["puzzles"] if puzzle["kind"] == "program_factory" and "module_identity" not in puzzle]
+    if not slugs:
+        return 0
+    def padded_case(p):
+        return next(case for case in p["cases"] if case["solution"] == "(0x0001 0x0002)")
+    def rejected_case(p):
+        return next(case for case in p["cases"] if case["native"]["status"] == "rejected")
+    mutations = [
+        ("relabeled relation", lambda p: p["factory_checks"][0].update(relation="quote")),
+        ("missing relation", lambda p: p["factory_checks"][0].pop("relation")),
+        ("canonical identity claim", lambda p: p.update(module_identity={"upstream_hex": "", "upstream_tree_hash": "", "comparisons": []})),
+        ("wrong returned program", lambda p: p["factory_checks"][0].update(program_hex="01")),
+        ("changed expected program", lambda p: p["factory_checks"][0].update(expected_output_hex="01")),
+        ("normalized padded native program", lambda p: padded_case(p)["native"].update(output_hex=padded_case(p)["native"]["output_hex"].replace("820001", "01"))),
+        ("accepted malformed environment", lambda p: rejected_case(p).update(native={"status": "accepted", "output_hex": "80"})),
+        ("missing application expectation", lambda p: p["factory_checks"][0]["application_runs"][0].pop("expected_outcome")),
+        ("application differs from expectation", lambda p: p["factory_checks"][0]["application_runs"][0].update(expected_outcome={"status": "rejected"})),
+        ("missing application input", lambda p: p["factory_checks"][0]["application_runs"].pop()),
+        ("missing produced program", lambda p: p["factory_checks"].pop()),
+        ("missing backend", lambda p: p["artifacts"].pop()),
+        ("false direct ledger claim", lambda p: p["simulator"].append({"name": "invented", "passed": True, "scope": "ledger"})),
+        ("renamed vector", lambda p: p["cases"][0].update(label="renamed")),
+    ]
+    for slug in slugs:
+        original = next(puzzle for puzzle in report["puzzles"] if puzzle["slug"] == slug)
+        original_wire = json.dumps(original, sort_keys=True, separators=(",", ":"))
+        for label, mutate in mutations:
+            changed = copy.deepcopy(report)
+            mutate(next(puzzle for puzzle in changed["puzzles"] if puzzle["slug"] == slug))
+            require(json.dumps(next(puzzle for puzzle in changed["puzzles"] if puzzle["slug"] == slug), sort_keys=True, separators=(",", ":")) != original_wire,
+                    f"No-op curry mutation: {label}")
+            try:
+                validate(changed)
+            except (ValueError, KeyError):
+                continue
+            raise ValueError(f"Curry factory mutation was not rejected: {slug}: {label}")
+    return len(mutations) * len(slugs)
 
 
 def self_test(report):
@@ -319,6 +440,7 @@ def self_test(report):
             continue
         raise ValueError(f"Mutation was not rejected: {label}")
     print(f"PASS: {len(mutations)} canonical factory provenance/identity/raw-payload/replay mutation controls")
+    print(f"PASS: {curry_self_test(report)} standard-curry factory mutation controls")
 
 
 def main():
@@ -327,10 +449,12 @@ def main():
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
     report = json.loads(args.report.read_text())
-    cases, produced, applications = validate(report)
+    cases, produced, applications, curry = validate(report)
     if args.self_test:
         self_test(report)
     print(f"PASS canonical factory: exact source/license/artifact provenance, five builds, {cases} named results, {produced} produced programs and {applications} application records; finite recorded evidence only")
+    for slug, (curry_cases, curry_produced, curry_applications) in curry.items():
+        print(f"PASS {slug}: original standard-curry factory, five builds, {curry_cases} named results, {curry_produced} produced programs and {curry_applications} second-stage applications with recorded independent expectations; no VM rerun or module identity claim")
 
 
 if __name__ == "__main__":
