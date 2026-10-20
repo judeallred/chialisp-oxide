@@ -1,0 +1,10 @@
+---
+import Head from '@astrojs/starlight/components/Head.astro';
+import { href } from '../lib/data';
+const pathname = Astro.url.pathname;
+const markdown = pathname.endsWith('/') ? `${pathname}index.md` : `${pathname}/index.md`;
+---
+<Head />
+<link rel="describedby" href={href('llms.txt')} />
+<link rel="sitemap" type="application/xml" href={href('llms-sitemap.xml')} />
+{!/(?:^|\/)404(?:\.html|\/)?$/.test(pathname) && <link rel="alternate" type="text/markdown" href={markdown} />}

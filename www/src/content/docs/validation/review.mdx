@@ -1,0 +1,139 @@
+---
+title: Review and test a puzzle
+description: Turn an explicit coin policy into boundary vectors, independent comparisons, mutations and typed simulator tests.
+---
+
+import ValidationCases from '../../../components/ValidationCases.astro';
+
+Start with a policy sentence precise enough to refute. “Only this committed key
+can pay this recipient the whole 1,000-mojo coin” rules out more spends than
+“pay at most 1,000.” Write the forbidden spends before the happy path. Keep the
+[input](/chialisp-oxide/validation/inputs/) and
+[output](/chialisp-oxide/validation/outputs/) contracts next to that sentence.
+
+## Review inputs
+
+- Identify the exact compiled module and curried instance. Verify which creator
+  chose each key, hash, amount and deadline; check the destination before funding.
+- List all solution-controlled values, including purported coin context,
+  programs, conditions, witnesses and proofs. Decide the permitted tree shape
+  and exact numeric or byte interpretation for each.
+- Record arity, proper versus improper tails, canonical encoding, bounds and
+  relationships between fields. A width check does not enforce a policy range.
+- For a reveal, check the commitment before using it. State the hash domain and
+  structured encoding. If code is applied, explain who authorized its identity
+  and who constrains its result and resource use.
+
+## Review outputs and composition
+
+- Enumerate conditions from every successful branch. Identify the signer and
+  exact signed message; state replay, coin and network binding.
+- Bind real coin context wherever it affects policy. Document absolute versus
+  relative time, units, deadline boundaries and recovery/refund liveness.
+- Account for every output, its amount and destination, change and fees. Check
+  arithmetic limits, complete-bundle conservation and caller-selected fees.
+- Explain all inner-condition passthrough or transformations. Identify protocol
+  rules that this wrapper actually implements and rules it delegates elsewhere.
+- Test substitution of other coins with the same puzzle hash, detached spends,
+  unmatched or duplicated messages, ephemeral coins and repeated use. Require
+  reciprocal participant binding where the protocol needs it.
+
+An unchecked item is an open question, not evidence of safety. Equivalent
+review is needed for Chialisp and Rue. Rust removes some source-level mistakes;
+it does not choose an application's authorization policy.
+
+## Write witnesses that distinguish the contract
+
+In `puzzles/<slug>/puzzle.json`, declare positive **and** adversarial whole
+environments with explanatory labels. Add an independent expected outcome or
+oracle through the manifest-driven evidence tooling. Test one cause at a time
+before combining malformed inputs, so a different early failure cannot hide
+the missing policy check.
+
+Use the minimum, maximum and adjacent out-of-range values; empty and extra
+arguments; an atom where a list is expected; a pair where an atom is expected;
+improper tails; padded and oversized integers; wrong fixed-byte lengths;
+incorrect commitments, signatures and deadlines. For raw-tree policies,
+include accepted improper and padded data when the contract permits it.
+An input is adversarial because of the claimed policy, not merely because it
+looks unusual.
+
+The canonical `password-coin` demonstrates why this matters. A correct password
+can accompany attacker-selected conditions; the VM also accepts malformed
+condition payloads that consensus later rejects. Password knowledge alone
+does not bind a safe recipient. The retained lesson intentionally preserves
+these canonical semantics rather than silently strengthening the port.
+
+<ValidationCases slug="password-coin" labels={['valid_spend', 'unsigned_retarget', 'wrong_password', 'invalid_pair_destination', 'arbitrary_condition_atom']} />
+
+The [password-instance lesson](/chialisp-oxide/tutorials/password-coin/) records
+the separate complete-spend observations. A condition-tree byte match is not
+evidence that the node will accept it.
+
+## Cross-check the same source through independent paths
+
+Run ordinary Cargo checks/tests, then the reachable CLVM subset check and
+build. The corpus is a real Cargo library used for both native execution and
+extraction. Compare native results with Rust off/on, independent Chialisp and
+Rue off/on. Keep source dependencies, provenance and adapter contracts visible.
+Do not weaken the original to hide a differing ABI or replace a canonical
+module hash with a new one.
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide check --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+python3 scripts/check-port-evidence.py --self-test --replay
+```
+
+These commands are parts of the repository workflow, not a replacement for
+the [complete contributor gates](/chialisp-oxide/reference/contributing/).
+The published [validation report](/chialisp-oxide/reports/validation.json)
+retains individual outcomes, actual failure codes, artifacts and costs. Search
+coverage is not exhaustive just because a generated test count is large.
+
+## Submit actual invalid bundles
+
+Use chia-wallet-sdk's simulator for complete signed coin spends. Assert exact
+created children, input amounts and relevant chain state. For each negative,
+submit the bundle and require the intended typed consensus code. A signer
+refusing to prepare a bad signature does not exercise consensus verification.
+
+The producer must compare the **full simulator state in memory** before and
+after rejection. SDK debug output has unstable ordering and is not a state
+serialization format. Retained “state unchanged” fields describe this finite
+check; they are not proofs of every node implementation's rollback behavior.
+Keep transaction attempts separate from scenario groups and VM runs.
+
+Do not call resource exhaustion a semantic rejection. Cost limits, allocator
+limits, infrastructure failures and missing tools are inconclusive. Retry or
+report the limitation without awarding the policy a passing negative test.
+Pin consensus version, VM version, network and applicable fork flags.
+
+## Make a missing guard fail your harness
+
+For a cap, remove the cap and show that the formerly forbidden amount now
+passes. For authorization, remove the signature or commitment binding and
+show an actual unauthorized spend. Keep native compilation, VM observations
+and ledger results separate; mutations often remain valid Rust.
+
+The [executable error study](/chialisp-oxide/verification/error-study/) includes
+ordinary Rust diagnostics, a strict ABI example and policy mutations that still
+compile. Its limited Chialisp happy-path suite deliberately misses a witness;
+that is a demonstration of insufficient coverage, not a claim that Chialisp
+cannot validate it. Rue receives credit for equivalent checks.
+
+## State exactly what was established
+
+Native type/borrow checking establishes source properties. Subset admission
+establishes that the current frontend accepts the reachable program. Decoder
+tests exercise untrusted environments. Differential tests compare particular
+executions. Simulator tests exercise complete bundles in a pinned model of
+consensus. SMT and Lean results establish their stated model properties.
+None of these alone proves compiler preservation or absence of vulnerabilities.
+
+For each published claim, link the actual source, witness, expected and observed
+outcome, build mode and relevant retained artifact. Identify untested protocol
+paths, dynamic code, cryptographic assumptions, liveness assumptions and
+unsupported features. Keep the WIP notice: this prototype is not ready for
+real funds or production use.

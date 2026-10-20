@@ -70,25 +70,58 @@ compiler preservation or production readiness.
 
 ## Next work
 
-1. Further pair-aware optimization to close the remaining size gap on real
-   ports: explicit pairs now fold, refine and forward through the owned passes
-   (delegated conditions 629 → 365 bytes against 137 for Chialisp), but call
-   and constructor frames remain, pair bodies are never inlined, and optimized
-   Rust is still well above canonical Chialisp; judge by serialized bytes and full
-   spend-bundle cost. The reusable `experiments/spend-costs` benchmark now
-   executes both generator encodings with signatures: the ordinary delegated
+The owner's October 20 priority change puts authoring, validation, puzzle coverage
+and documentation ahead of further optimization. The
+[open issues](https://github.com/judeallred/chialisp-oxide/issues) are part of this
+backlog; this ordering does not mark their acceptance criteria complete.
+
+1. Finish the external-tool acceptance for agent discovery
+   ([#25](https://github.com/judeallred/chialisp-oxide/issues/25)): the
+   [authoring guide](https://judeallred.github.io/chialisp-oxide/reference/agent-guide/)
+   and generated Markdown now have deterministic freshness/discovery checks,
+   but two actual fresh-clone agent-tool trials remain outstanding. The new
+   [input](https://judeallred.github.io/chialisp-oxide/validation/inputs/),
+   [output](https://judeallred.github.io/chialisp-oxide/validation/outputs/)
+   and [review](https://judeallred.github.io/chialisp-oxide/validation/review/)
+   guides address [#24](https://github.com/judeallred/chialisp-oxide/issues/24)
+   using recorded corpus witnesses. Chialisp-specific highlighting
+   ([#8](https://github.com/judeallred/chialisp-oxide/issues/8)) has pinned
+   official provenance and actual token/contrast checks.
+2. Build the reclaimable boomerang payment
+   ([#9](https://github.com/judeallred/chialisp-oxide/issues/9)), including both
+   authorization paths, boundary probes and complete simulator spends.
+3. Make the tooling useful end to end: a local package registry with source and
+   artifact identity ([#21](https://github.com/judeallred/chialisp-oxide/issues/21)),
+   then the explicit-network CLI/GUI lifecycle
+   ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
+   demonstrations require actual testnet evidence, not simulated transaction IDs.
+4. Expand stateful composition with canonical CAT issuance
+   ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)), the XCHandles
+   case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
+   authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)),
+   precommit/wait/reveal ([#17](https://github.com/judeallred/chialisp-oxide/issues/17))
+   and action-layer demonstrations
+   ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)). Derive new
+   capabilities from these concrete ports; preserve honest gaps and model scope.
+5. Use that foundation for the pot game
+   ([#10](https://github.com/judeallred/chialisp-oxide/issues/10)), raffle
+   ([#11](https://github.com/judeallred/chialisp-oxide/issues/11)) and bandit
+   ([#20](https://github.com/judeallred/chialisp-oxide/issues/20)), with explicit
+   randomness, withholding, liveness and refund assumptions. Build the Solana
+   ([#18](https://github.com/judeallred/chialisp-oxide/issues/18)) and EVM
+   ([#19](https://github.com/judeallred/chialisp-oxide/issues/19)) learning tracks
+   from working examples, explaining differences between accounts and coins.
+6. Continue manifest-driven evidence tooling, broader adversarial fuzzing,
+   fork matrices and state-transition models. Keep SHA outside proofs that do
+   not model it, and compiler preservation separate from model equivalence.
+7. Keep optimization ([#6](https://github.com/judeallred/chialisp-oxide/issues/6))
+   and the chain/node storage studies
+   ([#22](https://github.com/judeallred/chialisp-oxide/issues/22),
+   [#23](https://github.com/judeallred/chialisp-oxide/issues/23)) at a lower priority.
+   The signed generator benchmark remains the baseline: the ordinary delegated
    owner spend costs 9,025,107 units in optimized Rust versus 6,530,606 for
-   Chialisp with backreferences, predominantly a 500-versus-293-byte gap.
-2. Migrate further canonical tutorial and CHIP implementations with explicit
-   semantic contracts, module-identity records and complete-spend tests; the
-   inventory has 98 source entries and both parent tutorial pages remain
-   partial.
-3. Generalize per-port evidence tooling onto manifest-driven checkers so new
-   ports need data files, not scripts, and keep CI wall time bounded.
-4. Extend the source-derived models beyond exact byte contracts toward state
-   transitions and, eventually, compiler preservation; keep SHA outside the
-   models rather than assuming a collision-free function.
-5. Larger adversarial fuzzing, upgrade/fork matrices and independent audits.
+   Chialisp with backreferences. Continue measuring full spends as well as
+   module bytes; retain current correctness and regression gates.
 
 ## Hosting
 

@@ -1,0 +1,116 @@
+---
+title: Validate inputs and commitments
+description: Separate attacker-controlled trees, strict decoding, committed values and application policy using real corpus witnesses.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+import ValidationPrograms from '../../../components/ValidationPrograms.astro';
+
+A coin commits to a puzzle hash, not to a promise about how a wallet will call
+it. An attacker can construct a solution directly. Start by writing down what
+the coin commits to, who chose those values, and what remains under the
+spender's control. This guide uses existing executable corpus exports; the
+[short input walkthrough](/chialisp-oxide/tutorials/input-validation/) and
+[exact ABI reference](/chialisp-oxide/reference/abi/) remain useful companions.
+
+## Identify each trust boundary
+
+Source constants are part of the compiled module. Currying commits additional
+values into a particular reveal and therefore its puzzle hash. The creator can
+still commit a wrong key, unreachable destination or insecure inner program.
+Before funding a coin, derive the instance hash from the reviewed module and
+arguments; verify the resulting destination. A parameter *intended* to be
+curried is not automatically fixed by the compiler.
+
+Everything supplied in the solution is untrusted. An amount claimed there is
+not the coin's actual amount. A claimed owner key is not an ownership check. A
+32-byte hash validates width, not what it identifies. A signature requirement
+is checked later by consensus, not by the plain CLVM evaluator.
+
+The [delegated-conditions owner-instance lesson](/chialisp-oxide/tutorials/delegated-conditions/#delegated-owner-instances)
+records this distinction directly: a raw module admits a caller-selected key,
+while an owner instance curries the key before funding. Both policies compile.
+Only the committed instance fixes that key for that coin.
+
+## Know what the typed decoder establishes
+
+The default ABI requires a proper argument list with exactly the declared
+arity. Typed scalar arguments require atoms with canonical numeric encodings
+and the declared range; fixed byte arrays require their exact lengths. Ordinary
+Rust type checking happens before compilation, but the generated CLVM decoder
+must establish these facts again for an arbitrary caller. Checked arithmetic
+and explicit assertions can reject later, after decoding.
+
+In `capped-payment`, `Amount` decodes as an unsigned 64-bit scalar. The assertion
+adds the **policy** limit of 1,000 mojos. `1001` has a valid encoding and width,
+yet fails that policy. Padded `0x0001`, a pair in place of an amount, or an extra
+argument fails the boundary contract. Equivalent explicit Chialisp guards and
+Rue types can enforce these contracts too; the comparison sources show them.
+
+<SourceComparison slug="capped-payment" />
+<ValidationCases slug="capped-payment" labels={['minimum', 'maximum', 'over cap', 'padded integer', 'too large', 'extra arguments', 'nested argument']} />
+
+<ValidationPrograms slug="capped-payment" />
+
+Expand a witness to inspect actual VM costs for each build. The
+[laboratory](/chialisp-oxide/lab/capped-payment/) also exposes disassembly,
+serialized programs and hashes. These costs include the decoder and body:
+subtracting Rust/off from Rust/on does **not** isolate the price of type checks.
+Never delete a check based solely on its apparent source-level redundancy.
+The optimizer may omit a guard only when successful prior execution establishes
+the needed fact; see [guarded projections](/chialisp-oxide/tutorials/guarded-projections/).
+
+## Raw data needs an explicit contract
+
+`Tree` permits atoms and pairs without pretending they are canonical integers,
+fixed-length hashes, condition lists or programs. Pattern-match before
+projecting, distinguish nil from nonempty zero bytes, and decide whether each
+tail may be improper. Borrowed and owned trees have reviewed representations;
+they do not grant arbitrary pointer or allocator support.
+
+`Cons<Head, Tail>` still validates a pair and the types of both fields. It does
+not imply that `Tail` is a proper list. It also does not, by itself, remove the
+outer typed argument-list contract. `environment = "raw"` explicitly gives a
+single tree parameter the **whole environment**, while a typed parameter list
+containing a `Tree` retains its outer list. Nullary `environment = "ignored"`
+is a separate opt-in. See the [wire contracts](/chialisp-oxide/reference/abi/)
+before changing any of these annotations.
+
+The raw `sha256tree` export intentionally preserves byte padding and improper
+tails. Its acceptance of a padded atom is correct for data hashing; it would
+not be correct to silently reinterpret the same bytes as a typed `Amount`.
+
+<ValidationCases slug="sha256tree" labels={['nil atom', 'one zero byte is not nil', 'padded one remains different bytes', 'proper three-element list', 'improper pair']} />
+
+## Commit to a structured value, then check its reveal
+
+Tree hashing separates atoms and pairs with distinct domains. Proper `(a b)`
+has structure `(a . (b . ()))`; improper `(a . b)` is another tree. A hash of a
+CLVM tree is not a hash of its printed spelling, UTF-8 normalization or numeric
+interpretation. For an application commitment containing several variable-length
+fields, choose an injective structured encoding or explicit lengths and domain
+tags. Concatenating fields without boundaries can commit to more than one
+interpretation even when the hash function itself is sound.
+
+`inner-puzzle` checks the supplied program's tree hash against its first
+argument **before** applying it. Recorded curried instances fix that argument.
+Changing the program rejects; a committed program can still raise, consume its
+budget, or return dangerous conditions. Its identity does not establish its
+policy or the caller's authorization. This fixture returns arbitrary data and
+is classified as a pure function; a successful integer result is not a valid
+complete coin spend.
+
+<SourceComparison slug="inner-puzzle" />
+<ValidationCases slug="inner-puzzle" labels={['committed quoted constant returns it', 'mismatched commitment rejects', 'committed program that raises rejects', 'short commitment rejects', 'improper argument list rejects']} />
+
+By contrast, [unrestricted delegation](/chialisp-oxide/tutorials/delegated-puzzle/)
+intentionally applies any supplied inner program. That is an executable policy
+gap unless an outer layer supplies the missing authorization. The compiler
+cannot infer which program the application meant to trust.
+
+Continue with [conditions and output policy](/chialisp-oxide/validation/outputs/).
+The commitment conventions come from the pinned Chialisp include recorded in
+each fixture and Rue's equivalent tree-hash practice; see their source and
+provenance in the laboratory. Hash and dynamic-application nodes remain
+outside the current scalar proof models.

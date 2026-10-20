@@ -1,0 +1,45 @@
+---
+import { puzzles, href, format, backendLabel } from '../lib/data';
+interface Props { slug: string; labels: string[]; ledger?: boolean }
+const { slug, labels, ledger = false } = Astro.props;
+const puzzle = puzzles.find(item => item.slug === slug);
+if (!puzzle || labels.length === 0 || new Set(labels).size !== labels.length) throw new Error(`Invalid validation lesson: ${slug}`);
+const cases = labels.map(label => {
+  const row = puzzle.cases.find(item => item.label === label);
+  if (!row || row.runs.length !== 5) throw new Error(`Missing five-build corpus case: ${slug}/${label}`);
+  return row;
+});
+const modes = [['chialisp', true], ['rust_mir', false], ['rust_mir', true], ['rue_source', false], ['rue_source', true]] as const;
+---
+<section class="validation-cases" data-validation-cases={slug} data-validation-labels={JSON.stringify(labels)}>
+  <h3>Recorded witnesses: {puzzle.title}</h3>
+  <p>Read the actual environment and native outcome, then expand its five recorded VM executions. Costs are VM evaluation only; rejected runs have no recorded cost. These are finite observations, not exhaustive proofs.</p>
+  {cases.map(row => <details data-validation-case={row.label}>
+    <summary>{row.label} · native {row.native.status}</summary>
+    <p>Whole environment: <code class="environment">{row.solution}</code></p>
+    <div class="table-scroll"><table><thead><tr><th scope="col">Build</th><th scope="col">Outcome / typed failure</th><th scope="col">VM cost</th></tr></thead><tbody>
+      {modes.map(([backend, optimize]) => {
+        const run = row.runs.find(item => item.backend === backend && item.optimize_lir === optimize);
+        if (!run) throw new Error(`Missing validation build: ${slug}/${row.label}/${backend}/${optimize}`);
+        return <tr data-validation-mode={`${backend}:${optimize}`}><th scope="row">{backendLabel(backend)} / {optimize ? 'on' : 'off'}</th>
+          <td>{run.execution.outcome.status}{run.execution.failure && <> · <code>{run.execution.failure.kind}/{run.execution.failure.code}</code></>}</td>
+          <td>{run.execution.cost === null ? 'not recorded' : format(run.execution.cost)}</td></tr>;
+      })}
+    </tbody></table></div>
+    {row.declared_divergence && <p>Declared adapter difference: {row.declared_divergence.reason}</p>}
+    {row.native.output_hex && <details><summary>Exact accepted native output bytes (hex)</summary><code class="environment">{row.native.output_hex}</code></details>}
+  </details>)}
+  {ledger && <><h3>Recorded ledger scenarios</h3>
+    <p>These are the optimized Rust scenario groups from the corpus. A scenario can contain several submissions; the other language runs and dedicated protocol suites are listed separately in the laboratory. Consensus rejections below are actual typed codes; the producer checks full simulator equality in memory after rejected submissions.</p>
+    <ul>{puzzle.simulator.map(row => <li data-validation-ledger={row.name}>{row.name} · {row.passed ? 'passed' : 'FAILED'}{row.rejections.length > 0 && <> · {row.rejections.map(item => item.code).join(', ')}</>}</li>)}</ul>
+  </>}
+  <p><a href={href(`lab/${slug}/`)}>Full source, artifacts, adapters and validation for {puzzle.title}</a> · <a href={href('reports/validation.json')}>Exact corpus report</a>.</p>
+</section>
+<style>
+  details { margin-block: .7rem; border: 1px solid var(--oxide-line); padding: .8rem; border-radius: .35rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  .environment { overflow-wrap: anywhere; white-space: pre-wrap; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; font-size: .8rem; }
+  th, td { text-align: left; padding: .5rem; }
+</style>

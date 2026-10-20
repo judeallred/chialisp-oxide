@@ -53,7 +53,7 @@ branch, a different identifier value, or an excluded approval code.
 The Chialisp bug returns a coin ID where the policy requires a recipient puzzle
 hash. Both values are 32-byte atoms:
 
-```clojure
+```clsp
 (mod (RECIPIENT COIN_ID AMOUNT)
   (list (list 51 COIN_ID AMOUNT)))
 ```
@@ -94,7 +94,7 @@ encodings, not a unique capability proved for Rust.
 The true branch returns `((51 recipient amount))`. The false branch omits one
 list layer:
 
-```clojure
+```clsp
 (mod (PAY RECIPIENT AMOUNT)
   (if PAY
     (list (list 51 RECIPIENT AMOUNT))
@@ -120,7 +120,7 @@ shared static-type benefit, not a Rust-only advantage.
 
 This policy permits only approval code `1`. The faulty Chialisp uses truthiness:
 
-```clojure
+```clsp
 (mod (APPROVED RECIPIENT AMOUNT)
   (if APPROVED (list (list 51 RECIPIENT AMOUNT)) (x)))
 ```
@@ -146,7 +146,7 @@ guard before comparison with `Bool`. This protection is shared.
 
 The intended alternative branch returns `AMOUNT`; the faulty source says `amout`:
 
-```clojure
+```clsp
 (mod (PRIMARY AMOUNT)
   (if PRIMARY AMOUNT amout))
 ```
@@ -171,7 +171,7 @@ strong domain types and distinguishing tests remain useful.
 The policy treats balances as 64-bit amounts and requires an overflowing
 deposit to reject. CLVM integers are unbounded:
 
-```clojure
+```clsp
 (mod (BALANCE DEPOSIT)
   (+ BALANCE DEPOSIT))
 ```
@@ -196,7 +196,7 @@ both modes.
 The policy pays only when the approvals list is nonempty. Chialisp truthiness
 treats any nonempty atom as true:
 
-```clojure
+```clsp
 (mod (APPROVALS RECIPIENT AMOUNT)
   (if APPROVALS (list (list 51 RECIPIENT AMOUNT)) (x)))
 ```
@@ -215,7 +215,7 @@ a type guard before comparison with `Bool`; this protection is shared.
 Both addresses are 32-byte puzzle hashes, so a swap type-checks nowhere by
 itself:
 
-```clojure
+```clsp
 (mod (RECIPIENT CHANGE AMOUNT CHANGE_AMOUNT)
   (list (list 51 CHANGE AMOUNT) (list 51 RECIPIENT CHANGE_AMOUNT)))
 ```
@@ -236,7 +236,7 @@ struct control shows the same distinction can be encoded there.
 The policy requires canonical minimal integer atoms. Chialisp passes any atom
 bytes through:
 
-```clojure
+```clsp
 (mod (RECIPIENT AMOUNT)
   (list (list 51 RECIPIENT AMOUNT)))
 ```
@@ -259,7 +259,7 @@ through in both modes.
 
 The policy requires exactly two solution elements:
 
-```clojure
+```clsp
 (mod (RECIPIENT AMOUNT)
   (list (list 51 RECIPIENT AMOUNT)))
 ```
@@ -281,7 +281,7 @@ pattern with an explicit shape assertion can reject them.
 The independently stated policy accepts counters below 1000 and returns the
 increment. Both faulty implementations forget the guard:
 
-```clojure
+```clsp
 (mod (COUNTER) (+ COUNTER 1))
 ```
 
@@ -307,7 +307,7 @@ The policy requires payments above 100 mojos to carry an `AGG_SIG_ME`
 condition over a fixture message. Both faulty implementations omit the
 branch:
 
-```clojure
+```clsp
 (mod (PUBKEY RECIPIENT AMOUNT)
   (list (list 51 RECIPIENT AMOUNT)))
 ```

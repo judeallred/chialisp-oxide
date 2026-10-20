@@ -9,6 +9,13 @@ Compile a supported subset of real Rust into CLVM using Rue's optimizer and
 backend. Test puzzles against native Rust, independently compiled Chialisp, and
 the chia-wallet-sdk transaction simulator.
 
+## For AI agents
+
+Start with [the puzzle-authoring guide](docs/llms.md) to use the SDK.
+[AGENTS.md](AGENTS.md) covers contributing to the compiler. The documentation
+also publishes a [curated Markdown index](https://judeallred.github.io/chialisp-oxide/llms.txt)
+and [complete rendered Markdown](https://judeallred.github.io/chialisp-oxide/llms-full.txt).
+
 ## Explore the Cargo prototype
 
 Use an ordinary Rust library with the real, unpublished `chialisp-oxide` dependency.

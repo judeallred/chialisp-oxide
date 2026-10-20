@@ -1,0 +1,22 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { href, backendLabel, type PuzzleReport } from '../lib/data';
+import { artifactFile, preview, previewLimit } from '../lib/compiled-artifacts.mjs';
+interface Props { puzzle: PuzzleReport }
+const { puzzle } = Astro.props;
+---
+{puzzle.artifacts.map(artifact => <details class="artifact" data-compiled-artifact={`${artifact.backend}:${artifact.optimize_lir}`}>
+  <summary>{backendLabel(artifact.backend)} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary>
+  <p><a href={href(`reports/compiled/${artifactFile(puzzle.slug,artifact,'clvm.txt')}`)} download>Download complete disassembly</a> · <a href={href(`reports/compiled/${artifactFile(puzzle.slug,artifact,'clvm.hex')}`)} download>Download exact serialized hex</a>.</p>
+  <div data-pagefind-ignore>
+    <p>{artifact.disassembly.length > previewLimit ? `Disassembly prefix (${previewLimit} characters); this prefix is incomplete and cannot be executed. The download contains the complete program.` : 'Complete disassembly.'}</p>
+    <Code code={preview(artifact.disassembly)} lang="clsp" title="Recorded compiled CLVM · bounded display" />
+    <p>{artifact.clvm_hex.length > previewLimit ? `Serialized hex prefix (${previewLimit} characters); decode the complete download for the full program bytes.` : 'Complete serialized hex.'}</p>
+    <Code code={preview(artifact.clvm_hex)} lang="text" title="Recorded serialized bytes · bounded display" />
+  </div>
+</details>)}
+<style>
+  .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
+  summary { cursor: pointer; }
+  .artifact div { margin-top: 1rem; }
+</style>

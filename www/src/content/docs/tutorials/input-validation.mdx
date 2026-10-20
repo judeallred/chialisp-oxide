@@ -5,6 +5,11 @@ description: Explore the capped-payment ABI, canonical integers, branch rejectio
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+For the full policy review, continue with the dedicated guide to
+[inputs and commitments](/chialisp-oxide/validation/inputs/),
+[conditions and authority](/chialisp-oxide/validation/outputs/), and
+[adversarial testing](/chialisp-oxide/validation/review/).
+
 The capped-payment function lets a caller choose an amount from zero through
 1,000. The input coin must have amount 1,000; the payment goes to a fixed
 destination, and any remainder is a fee. This is a teaching policy, not a

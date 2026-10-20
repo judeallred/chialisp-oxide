@@ -1,5 +1,11 @@
 # Working on chialisp-oxide
 
+**Writing puzzles with the SDK?** Start with [docs/llms.md](docs/llms.md).
+The rules below cover contributing to the compiler and evidence pipeline.
+Current priorities follow [.cursor/rules/project-priorities.mdc](.cursor/rules/project-priorities.mdc):
+authoring, validation, coverage and documentation precede further optimization;
+review the open GitHub issues when choosing the next milestone.
+
 Build toward goals.md; record current capabilities and gaps without shrinking the goals.
 Use docs/compiler-approach.md for architectural context and docs/verification.md for claim scope.
 

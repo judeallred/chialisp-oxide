@@ -3,6 +3,10 @@ title: Conditions and authorization
 description: Read the condition tuples used in the teaching puzzles without confusing shape checks, ownership, and consensus validation.
 ---
 
+For a complete policy review, read the dedicated
+[conditions and authority guide](/chialisp-oxide/validation/outputs/) and
+[review checklist](/chialisp-oxide/validation/review/).
+
 Author puzzle bodies with `create_coin`, `assert_my_amount`, `agg_sig_me`, and
 `assert_seconds_absolute`. Give policy amounts, recipient hashes, signer keys,
 and timestamps names. Use `Amount::from_mojos` and

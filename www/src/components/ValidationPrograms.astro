@@ -1,0 +1,17 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { puzzles, format } from '../lib/data';
+interface Props { slug: string }
+const puzzle = puzzles.find(item => item.slug === Astro.props.slug);
+if (!puzzle) throw new Error('Unknown validation program');
+const programs = puzzle.artifacts.filter(item => item.backend === 'rust_mir');
+if (programs.length !== 2) throw new Error('Both Rust modes required');
+---
+<section data-validation-programs={puzzle.slug}>
+  <h3>Inspect the emitted boundary checks</h3>
+  <p>These exact disassemblies contain the argument decoder and policy body together. Whole-program bytes and the witness costs above do not isolate decoder overhead. The optimized program can share or eliminate proven checks while retaining the same declared ABI.</p>
+  {programs.map(program => <details data-validation-program={String(program.optimize_lir)}>
+    <summary>Rust / {program.optimize_lir ? 'on' : 'off'} · {format(program.bytes)} serialized bytes</summary>
+    <Code code={program.disassembly} lang="clsp" title={`${puzzle.slug} · recorded complete CLVM program`} wrap />
+  </details>)}
+</section>

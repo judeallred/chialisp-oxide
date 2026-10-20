@@ -13,13 +13,13 @@ const sourceData = new Map(sourceDataArtifacts(report).map(entry => [entry.path,
 // Focused lessons still retain the exact dataset download cards and hashes.
 // Only supporting source-code drawers are limited to reference includes.
 const dependencies = [...puzzle.source_dependencies, ...puzzle.rue.dependencies].filter(dependency => sourceData.has(dependency.path) || Astro.props.supporting !== 'reference_includes' || Object.values(puzzle.reference_includes ?? {}).includes(dependency.path));
-const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'json' : filename.endsWith('.hex') ? 'text' : /\.(?:clsp|clinc|clib)$/.test(filename) ? 'lisp' : 'rust';
+const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'json' : filename.endsWith('.hex') ? 'text' : /\.(?:clsp|clinc|clib)$/.test(filename) ? 'clsp' : 'rust';
 ---
 <div class="source-comparison">
   <div class="split-source">
     <section class="source-column" aria-label="Chialisp source" data-language="chialisp">
       <div class="source-label"><span class="badge">{canonical ? (puzzle.reference_mode === 'expression' ? 'Original Chialisp expression' : 'Original Chialisp module') : canonicalModule ? 'Original Chialisp module' : helperAdapter ? 'Original helper + module adapter' : 'Chialisp reference'}</span> independent compiler · {canonical || canonicalModule ? 'no source wrapper' : helperAdapter ? 'explicit source wrapper' : 'same tested ABI'}</div>
-      <Code code={puzzle.reference} lang="lisp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
+      <Code code={puzzle.reference} lang="clsp" title={`puzzles/${puzzle.slug}/reference.clsp`} wrap preserveIndent />
     </section>
     <section class="source-column" aria-label="Rust source" data-language="rust">
       <div class="source-label"><span class="badge success">Rust source</span> exact recorded source · compiled from MIR</div>

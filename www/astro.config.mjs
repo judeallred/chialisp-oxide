@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import searchIndex from './search-index.mjs';
+import markdownDocumentation from './llms.mjs';
 
 export default defineConfig({
   site: 'https://judeallred.github.io',
@@ -14,12 +15,7 @@ export default defineConfig({
       logo: { src: './src/assets/oxide-mark.svg', replacesTitle: false },
       favicon: '/favicon.svg',
       customCss: ['./src/styles/custom.css'],
-      expressiveCode: {
-        defaultProps: {
-          overridesByLang: { rust: { wrap: true, preserveIndent: true } },
-        },
-      },
-      components: { Banner: './src/components/PrototypeBanner.astro', Search: './src/components/Search.astro' },
+      components: { Banner: './src/components/PrototypeBanner.astro', Search: './src/components/Search.astro', Head: './src/components/Head.astro' },
       social: [{ icon: 'github', label: 'GitHub repository', href: 'https://github.com/judeallred/chialisp-oxide' }],
       sidebar: [
         { label: 'Start here', items: [
@@ -27,6 +23,7 @@ export default defineConfig({
           { label: 'Try the Cargo prototype', slug: 'start/quickstart' },
           { label: 'What works today', slug: 'reference/supported-rust' },
           { label: 'Current status', slug: 'reference/status' },
+          { label: 'Puzzle authoring for agents', slug: 'reference/agent-guide' },
           { label: 'Chialisp functionality and Rust gaps', slug: 'reference/chialisp-functionality' },
         ] },
         { label: 'Learn by building', items: [
@@ -55,6 +52,11 @@ export default defineConfig({
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },
         ] },
+        { label: 'Validate a coin policy', items: [
+          { label: 'Inputs and commitments', slug: 'validation/inputs' },
+          { label: 'Conditions and authority', slug: 'validation/outputs' },
+          { label: 'Review and adversarial tests', slug: 'validation/review' },
+        ] },
         { label: 'Inspect the evidence', items: [
           { label: 'Puzzle laboratory', link: '/lab/' },
           { label: 'Validation & security', slug: 'verification/method' },
@@ -74,10 +76,12 @@ export default defineConfig({
           { label: 'Puzzle ABI', slug: 'reference/abi' },
           { label: 'Compiler commands', slug: 'reference/cli' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },
+          { label: 'Read Chialisp syntax colors', slug: 'reference/highlighting' },
           { label: 'Contributing', slug: 'reference/contributing' },
         ] },
       ],
     }),
     searchIndex(),
+    markdownDocumentation(),
   ],
 });

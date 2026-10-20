@@ -1,8 +1,8 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { Code } from '@astrojs/starlight/components';
 import SourceComparison from '../../components/SourceComparison.astro';
 import ArtifactDiff from '../../components/ArtifactDiff.astro';
+import CompiledArtifacts from '../../components/CompiledArtifacts.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
 import SolutionPreview from '../../components/SolutionPreview.astro';
 import CurriedInstances from '../../components/CurriedInstances.astro';
@@ -75,7 +75,7 @@ if (puzzle.curried_examples) headings.splice(headings.findIndex(heading => headi
     <p>Published CLVM tree hash: <code class="dependency-hash" data-pagefind-ignore>{puzzle.module_identity.upstream_tree_hash}</code>. This identifies the original module; derived programs and curried instances have their own commitments. Equal recorded behavior is separate from byte and hash identity.</p>
     <div class="table-scroll"><table><caption>Actual comparison with the pinned published module</caption><thead><tr><th scope="col">Build</th><th scope="col">Optimization</th><th scope="col">Serialized bytes</th><th scope="col">Tree hash</th></tr></thead><tbody>{puzzle.module_identity.comparisons.map(comparison => <tr><th scope="row">{backendLabel(comparison.backend)}</th><td>{comparison.optimize_lir ? 'on' : 'off'}</td><td>{comparison.serialized_bytes_equal ? 'matches' : 'differs'}</td><td>{comparison.tree_hash_equal ? 'matches' : 'differs'}</td></tr>)}</tbody></table></div>
   </section>}
-  {puzzle.artifacts.map(artifact => <details class="artifact"><summary>{backendLabel(artifact.backend)} · {artifact.optimize_lir ? 'optimized' : 'unoptimized'} disassembly and serialized bytes</summary><div data-pagefind-ignore><Code code={artifact.disassembly} lang="lisp" /><Code code={artifact.clvm_hex} lang="text" /></div></details>)}
+  <CompiledArtifacts puzzle={puzzle} />
   <p class="quiet">The disassembler can print mnemonic names for numeric atoms inside quoted data. A name such as <code>g1_negate</code> in a returned condition list does not mean that operator is executed; inspect the quoted context and serialized bytes.</p>
   <h2 id="vectors">Adversarial input vectors</h2>
   <p>Each named vector records native Rust and five CLVM executions: Chialisp, plus Rust and Rue with optimization off/on using the pipelines above. The generated sweep adds {format(puzzle.generated_cases)} input comparisons{puzzle.generated_cases ? ` ${generatedScope}` : ''}. A rejected VM run has no returned successful cost.</p>
@@ -147,8 +147,7 @@ if (puzzle.curried_examples) headings.splice(headings.findIndex(heading => headi
   .divergences { margin-block: 1.4rem; } .divergences td, .divergences th { font-size: .78rem; }
   .divergence-solution { font-size: .7rem; color: var(--sl-color-gray-3); word-break: break-all; }
   td small { display: block; color: var(--sl-color-gray-3); font: .6rem var(--sl-font-mono); margin-top: .3rem; white-space: nowrap; }
-  .artifact { border: 1px solid var(--oxide-line); border-radius: 5px; margin-block: .8rem; padding: .9rem; font-size: .8rem; }
   .dependency-hash { overflow-wrap: anywhere; }
   .rejections { padding-inline-start: 1.5rem; margin-top: .4rem; } .rejections li { margin: .2rem 0; } .rejections code { overflow-wrap: anywhere; font-size: .72rem; } .accepted-spend { display: block; margin: .4rem 0 0 1.1rem; color: var(--sl-color-gray-3); }
-  summary { cursor: pointer; } .artifact div { margin-top: 1rem; } .scenarios { list-style: none; padding: 0; } .scenarios li { margin: .75rem 0; }
+  summary { cursor: pointer; } .scenarios { list-style: none; padding: 0; } .scenarios li { margin: .75rem 0; }
 </style>

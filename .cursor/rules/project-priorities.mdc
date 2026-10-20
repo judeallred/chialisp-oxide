@@ -1,0 +1,23 @@
+---
+description: Project priorities and issue-driven continuation
+alwaysApply: true
+---
+
+# Project priorities
+
+- Follow the owner's October 20 direction: correctness, readable Rust authoring,
+  validated puzzle coverage, security testing, and documentation take priority
+  over further compiler cost optimization.
+- Review the open GitHub issues alongside `docs/roadmap.md` before selecting the
+  next milestone. Record dependencies and incomplete acceptance criteria honestly.
+- Complete remaining validation guide (#24) and agent authoring/discovery (#25)
+  acceptance first where feasible, then
+  syntax highlighting (#8), the boomerang puzzle (#9), and the tooling and
+  stateful-puzzle tracks. Use issue dependencies to order larger work.
+- Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
+  priority. Preserve measured regressions and existing optimization checks.
+- Publish coherent, verified increments. Do not close an issue until its actual
+  acceptance criteria are met, including live deployment or external-tool checks
+  when requested. A plan or source catalog is not an implemented puzzle.
+- Puzzle authors should start at `docs/llms.md`; compiler contributors also follow
+  `AGENTS.md` and the relevant semantic rules.

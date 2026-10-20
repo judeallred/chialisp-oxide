@@ -1157,6 +1157,16 @@ globalThis.fetch = async input => {
 try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
+  for (const [term, route] of [
+    ['validate inputs commitments', 'validation/inputs/'],
+    ['validate conditions authority', 'validation/outputs/'],
+    ['review adversarial', 'validation/review/'],
+    ['puzzle authoring agents', 'reference/agent-guide/'],
+  ]) {
+    const result = await pagefind.search(term);
+    const matches = await Promise.all(result.results.map(row => row.data()));
+    assert(matches.some(row => row.url === `${base}${route}`), `${route}: guide is not discoverable in the actual Pagefind index`);
+  }
   for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail', 'compressed generators']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);

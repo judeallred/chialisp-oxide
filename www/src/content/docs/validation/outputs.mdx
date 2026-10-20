@@ -1,0 +1,143 @@
+---
+title: Validate conditions and authority
+description: Review signatures, coin context, fees, delegated conditions and bundle composition using actual VM and ledger observations.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+import DelegatedConditionsValidation from '../../../components/DelegatedConditionsValidation.astro';
+import { puzzles } from '../../../lib/data';
+
+Your puzzle returns conditions. Consensus interprets them as constraints and
+coin creations. A perfectly typed return value can authorize the wrong
+recipient, omit a signature, or let a caller turn the entire input into fees.
+Review the resulting policy on **every successful branch**, including the
+conditions passed through from another program.
+
+## Bind authorization to the intended spend
+
+The real `signature-payment` fixture fixes a public key, recipient and amount.
+It returns `AGG_SIG_ME`, an amount assertion and a coin creation. Consensus
+binds that signature requirement to the coin and network domain in addition
+to the message. Passing an arbitrary `Message32` does not let a caller forge
+the fixed owner's signature. Fixture keys are public simulator data, never
+custody keys.
+
+<SourceComparison slug="signature-payment" />
+<ValidationCases slug="signature-payment" labels={['message', 'short bytes', 'extra arguments']} ledger />
+
+Notice that the VM accepts `message` without receiving a signature at all.
+Only a complete bundle can produce the recorded `BadAggregateSignature`
+rejection. Native tests of the returned tuple do not test BLS verification.
+`AGG_SIG_UNSAFE` lacks the coin binding supplied by `AGG_SIG_ME`; use it only
+with a separately reviewed domain and replay contract. The current SDK example
+teaches `agg_sig_me`; it does not claim a complete family of safe signature
+abstractions. See the [condition specification](https://chialisp.com/conditions/)
+and [signature lesson](/chialisp-oxide/tutorials/signatures/).
+
+## Assert the context the policy depends on
+
+Reading an amount from the solution does not read the coin record.
+`ASSERT_MY_AMOUNT` lets consensus check the real amount. When a policy depends
+on its own puzzle hash or exact coin identity, the corresponding assertions
+or signature/message commitments must bind those properties too. Adding every
+assertion mechanically can prevent intended reuse; document which properties
+must be fixed and why. A self-reported coin ID is not evidence until bound to
+the actual spend.
+
+Timelocks also constrain consensus context. The `timelocked-payment` fixture
+uses `Timestamp::from_unix_seconds(100)` and an **absolute** condition. It is a
+mock-chain timestamp, not a 100-second delay after creation. Relative age
+conditions express a different rule. Review both earliest and latest permitted
+spends, the applicable chain timestamp/height semantics, and whether an
+ephemeral coin can satisfy the chosen condition. Native wall-clock time is not
+chain time. The [recovery lesson](/chialisp-oxide/tutorials/recovery/) shows a
+separate key and absolute deadline; a boomerang relative-age policy remains
+[planned work](https://github.com/judeallred/chialisp-oxide/issues/9).
+
+<ValidationCases slug="timelocked-payment" labels={['empty', 'extra arguments']} ledger />
+
+## Specify the destination of every mojo
+
+`capped-payment` is permissionless. Any caller can select a payment from zero
+through 1,000 mojos to the fixed recipient; the remainder contributes to bundle
+fees. It is a valid example of a cap, but an unsafe substitute for a requirement
+that the recipient receive the whole coin. That wrong policy still compiles
+and accepts zero. The [input guide](/chialisp-oxide/validation/inputs/) renders
+that exact accepted witness.
+
+`split-payment` states a different policy: two fixed recipients receive amounts
+whose sum is the asserted coin amount. Checked subtraction and the cap protect
+the arithmetic; named recipient and amount constants explain the policy.
+
+<SourceComparison slug="split-payment" />
+<ValidationCases slug="split-payment" labels={['minimum', 'maximum', 'over cap', 'negative']} ledger />
+
+Consensus value conservation concerns the complete bundle, not an isolated
+Rust return tuple. Another input can subsidize outputs; a surplus can become
+fees. A lower-bound fee reservation does not itself cap a fee or fix who pays
+it. Inspect aggregate inputs, outputs, duplicate output identities, reserved
+fees and actual children, including ephemeral intermediate coins. Do not count
+VM acceptance as proof of value conservation. The
+[complete-spend benchmark](/chialisp-oxide/tutorials/generator-costs/) records
+signed generators and separates execution, conditions and charged bytes.
+
+## Treat delegation as a grant of authority
+
+A wrapper that passes through conditions grants the inner program everything
+those conditions permit, unless it inspects and constrains them. Decide which
+opcodes, destinations, amounts, time constraints and messages may survive.
+Reject malformed lists where required; hashing an arbitrary tree does not
+validate it as a condition list. Do not invent generic filters without a precise
+policy: silently dropping an unfamiliar condition can remove a security check.
+
+The canonical delegated-conditions port intentionally prepends a signature
+over the conditions' tree hash. It does not sanitize arbitrary raw conditions
+or validate every public key at the VM stage. An owner instance fixes the
+signing key; the raw module lets the caller choose it. The following records
+include actual attacker-controlled raw-coin successes as well as rejected
+owner-instance submissions. All three languages preserve this distinction.
+
+<DelegatedConditionsValidation puzzle={puzzles.filter(p => p.slug === 'p2-delegated-conditions')[0]} />
+
+This is the bad-policy lesson: Rust can compile a raw key parameter, but it
+cannot decide that ownership should have been curried. The owner-instance
+construction, funding destination and consensus tests must establish that
+contract. See also the [errors study](/chialisp-oxide/verification/error-study/)
+for removed-cap and removed-authorization controls that compile everywhere.
+
+## Compose protocols deliberately
+
+CAT and singleton wrappers do more than pass through a list. Their protocol
+can constrain child amounts, rewrite destinations, bind lineage or require a
+particular continuation. For example, an odd-child rule only has meaning with
+the exact singleton protocol around it. A typed `CreateCoin` does none of that
+automatically. This project has a
+[pay-to-singleton component lifecycle](/chialisp-oxide/tutorials/p2-singleton/),
+not a complete Rust CAT or singleton top-layer port. See the
+[functionality gaps](/chialisp-oxide/reference/chialisp-functionality/) and
+[official CAT description](https://chialisp.com/cats/).
+
+Coordination conditions must identify the participants that matter. A puzzle
+hash can identify a class of coins; an exact coin ID identifies a particular
+coin. A peer that can be substituted by another coin with the same puzzle hash
+may satisfy a weaker commitment than the application intended. For the newer
+message conditions, choose the sender and receiver mode from the actual
+parent/puzzle/amount commitments, match both sides and their multiplicity,
+and test a spoofing coin. The existing pay-to-singleton protocol suite includes
+the mode-63 binding; it does not validate every mode or protocol.
+
+[CHIP-25](https://github.com/Chia-Network/chips/blob/main/CHIPs/chip-0025.md)
+describes message modes and why announcements can be insufficient. Canonical
+older modules still use announcements, and their identity must be preserved.
+A hard-coded dependency on a specific peer announcement can also prevent a
+future spend once that peer is gone. Review liveness as well as forgery.
+
+A wallet's original bundle is not an access-control boundary. Ask whether an
+attacker can detach a spend, attach a subsidizing or fee coin, substitute a
+peer, or consume an ephemeral coin in the same transaction. Review the
+[official attack catalogue](https://chialisp.com/attacks-and-countermeasures/)
+with the exact protocol, fork and network in mind. The examples here are finite
+evidence, not an exhaustive composition analysis.
+
+Continue with the [review and adversarial-testing checklist](/chialisp-oxide/validation/review/).

@@ -9,10 +9,10 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "check": "python3 ../experiments/spend-costs/check.py --self-test && node scripts/check-evidence.mjs && astro check",
-    "build": "python3 ../experiments/spend-costs/check.py --self-test && node scripts/check-evidence.mjs && astro build",
+    "check": "python3 ../experiments/spend-costs/check.py --self-test && node scripts/check-evidence.mjs && node scripts/check-authoring.mjs && astro check",
+    "build": "python3 ../experiments/spend-costs/check.py --self-test && node scripts/check-evidence.mjs && node scripts/check-authoring.mjs && astro build",
     "preview": "astro preview",
-    "test:site": "node scripts/test-generator-costs.mjs && node scripts/test-p2dc-source-controls.mjs --built && node scripts/test-p2dc-protocol.mjs --built && node scripts/test-composition-costs.mjs --built && node scripts/test-transaction-costs.mjs --built && node scripts/test-acyclic-proof-artifacts.mjs && node scripts/test-p2-protocol.mjs && node scripts/test-artifact-diff.mjs && node scripts/test-published-catalog.mjs && node scripts/test-search-index.mjs && node scripts/test-byte-proof-artifacts.mjs && node scripts/test-source-data.mjs && node scripts/check-site.mjs"
+    "test:site": "node scripts/test-compiled-artifacts.mjs && node scripts/test-chialisp-highlighting.mjs && node scripts/test-validation-guides.mjs && node scripts/test-llms.mjs && node scripts/test-generator-costs.mjs && node scripts/test-p2dc-source-controls.mjs --built && node scripts/test-p2dc-protocol.mjs --built && node scripts/test-composition-costs.mjs --built && node scripts/test-transaction-costs.mjs --built && node scripts/test-acyclic-proof-artifacts.mjs && node scripts/test-p2-protocol.mjs && node scripts/test-artifact-diff.mjs && node scripts/test-published-catalog.mjs && node scripts/test-search-index.mjs && node scripts/test-byte-proof-artifacts.mjs && node scripts/test-source-data.mjs && node scripts/check-site.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.6",
@@ -21,6 +21,12 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "pagefind": "1.5.2",
-    "typescript": "5.9.3"
+    "rehype-parse": "9.0.1",
+    "rehype-remark": "10.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-stringify": "11.0.0",
+    "shiki": "4.5.0",
+    "typescript": "5.9.3",
+    "unified": "11.0.5"
   }
 }
