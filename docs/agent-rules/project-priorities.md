@@ -1,8 +1,3 @@
----
-description: Project priorities and issue-driven continuation
-alwaysApply: true
----
-
 # Project priorities
 
 - Follow the owner's October 20 direction: correctness, readable Rust authoring,

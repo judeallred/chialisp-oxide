@@ -1,8 +1,3 @@
----
-description: Admit current corpus evidence before inspecting immutable historical checkpoints
-alwaysApply: true
----
-
 # Current evidence and historical checkpoints
 
 - Validate the complete active corpus, native source identities, typed outcomes,

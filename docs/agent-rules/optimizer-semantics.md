@@ -1,8 +1,3 @@
----
-description: Preserve strict Rust semantics and closed cost evidence while optimizing CLVM
-alwaysApply: true
----
-
 # Optimizer boundaries
 
 - Validate all IR before scans, rewriting or unreachable-function removal.
@@ -48,7 +43,7 @@ alwaysApply: true
   Validate the active append/composition source, native and typed evidence plus
   complete fresh Cargo bundles before pure historical projection. Never validate
   restored history as current source. Preserve historical source-only labels and
-  six downloads. Follow current-evidence.mdc and the active append/composition
+  six downloads. Follow [current-evidence.md](current-evidence.md) and the active append/composition
   gates; the old guarded profile remains pending. Run the existing
   helper/refinement/cost gates with retained VM replay. Conditions-helper
   runs skip BLS verification and do not add SDK admissions. Resource failures remain

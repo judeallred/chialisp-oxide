@@ -1,8 +1,3 @@
----
-description: Preserve the reviewed Rust SHA implementation and honest native/VM evidence
-alwaysApply: true
----
-
 # Hash primitive boundary
 
 - Read docs/hashing.md before changing hash admission or the SDK kernel. SHA is an explicit narrow bridge, not general external-library or loop support.
