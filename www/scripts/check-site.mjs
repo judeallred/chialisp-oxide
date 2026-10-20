@@ -460,6 +460,7 @@ for (const puzzle of validation.puzzles) {
     ...puzzle.cases.map(test => test.solution),
     ...(puzzle.resource_controls?.cases ?? []).map(test => test.solution),
     ...(puzzle.curried_instances?.cases ?? []).map(test => test.solution),
+    ...(puzzle.curried_examples ?? []).flatMap(example => example.cases.map(test => test.solution)),
     ...(puzzle.curried_instances?.ledger ?? []).flatMap(comparison => comparison.attempts.map(attempt => attempt.solution)),
   ], `${puzzle.slug}: exact report input previews`);
   const comparisonBudget = new Intl.NumberFormat('en-US').format(puzzle.validation_max_cost ?? 1_000_000);
@@ -999,7 +1000,7 @@ for (const name of ['cargo-chialisp-oxide', 'chialisp-oxide-driver', 'cargo chia
 const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tutorial-examples.json'), 'utf8'));
 const coverage = await html(path.join(root, 'coverage/index.html'));
 const introIds = new Set(['chialisp-example:intro-list', 'chialisp-example:intro-add', 'chialisp-example:intro-conditional']);
-const moduleIds = new Set(['chialisp-example:module-add', 'chialisp-example:module-times-ten', 'chialisp-example:module-factorial']);
+const moduleIds = new Set(['chialisp-example:module-add', 'chialisp-example:module-times-ten', 'chialisp-example:module-factorial', 'chialisp-example:currying-multiply']);
 const implementedExamples = [];
 for (const example of tutorialExamples.examples) {
   assert(coverage.includes(example.title), `Missing canonical example: ${example.id}`);
@@ -1075,8 +1076,12 @@ for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'a
 }
 assert(built.includes(path.join(root, 'tutorials/curry-hash/index.html')), 'Missing curry-hash tutorial');
 const curryPage = await html(path.join(root, 'tutorials/curry-hash/index.html'));
-for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils']) {
+for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils', 'currying-multiply', '(a (q 18 2 5) (c (q . 2) 1))']) {
   assert(curryPage.includes(needle), `curry-hash tutorial missing ${needle}`);
+}
+const curryLab = await html(path.join(root, 'lab/currying-multiply/index.html'));
+for (const needle of ['data-curried-examples="2"', 'data-curried-argument="2"', 'data-curried-argument="5"', '(a (q 18 2 5) (c (q . 2) 1))', 'id="curry"']) {
+  assert(curryLab.includes(needle), `currying-multiply lab page missing ${needle}`);
 }
 const modulesPage = await html(path.join(root, 'tutorials/canonical-modules/index.html'));
 for (const needle of ['module-add', 'module-times-ten', 'module-factorial', 'declared_divergence', 'i64']) {

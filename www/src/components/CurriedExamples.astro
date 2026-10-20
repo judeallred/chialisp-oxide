@@ -1,0 +1,33 @@
+---
+import SolutionPreview from './SolutionPreview.astro';
+import { backendLabel, format, href, type CurriedExample } from '../lib/data';
+
+interface Props { examples: CurriedExample[] }
+const { examples } = Astro.props;
+const modeLabel = (backend: string, optimize: boolean) => backend === 'chialisp' ? 'reference' : optimize ? 'on' : 'off';
+const runs = examples.reduce((count, example) => count + example.cases.reduce((inner, test) => inner + test.runs.length, 0), 0);
+---
+<section aria-label="Curried instances" data-curried-examples={examples.length}>
+  <h2 id="curry">Curry the module</h2>
+  <p>Each build’s compiled module is curried in the standard form <code>{examples[0].scheme}</code> with the page’s arguments. The instance is built independently with clvmr, then compared byte for byte with the SDK’s owned <code>curry</code> constructor and its tree hash with <code>curried_puzzle_hash</code>. The {runs} executions below apply every instance to page and adversarial solutions and must equal native Rust on the uncurried environment; no divergence may be declared here. Read the <a href={href('tutorials/curry-hash/')}>currying lesson</a> for what an instance hash does and does not establish.</p>
+  {examples.map(example => <details class="artifact" open data-curried-argument={example.argument}>
+    <summary>{example.label} · {example.instances.length} builds · {example.cases.length} inputs</summary>
+    <p>Argument <code>{example.argument}</code> (serialized <code class="hash" data-pagefind-ignore>{example.argument_hex}</code>, tree hash <code class="hash" data-pagefind-ignore>{example.argument_tree_hash}</code>).{example.page_result && <> The page spells the curried result <code>{example.page_result}</code>; only the Chialisp build’s instance is compared with it. The Rust instances are different programs with different hashes, and no identity is claimed for the Rue instances even where their bytes coincide.</>}</p>
+    <div class="table-scroll"><table>
+      <caption>Each build’s module and curried instance are distinct program identities</caption>
+      <thead><tr><th scope="col">Build</th><th scope="col">Module tree hash</th><th scope="col">Instance bytes</th><th scope="col">Instance tree hash</th><th scope="col">Cross-checks</th></tr></thead>
+      <tbody>{example.instances.map(instance => <tr data-curried-build={`${instance.backend}/${instance.optimize_lir}`}>
+        <th scope="row">{backendLabel(instance.backend)} / {modeLabel(instance.backend, instance.optimize_lir)}</th>
+        <td><code class="hash" data-pagefind-ignore>{instance.module_tree_hash}</code></td>
+        <td>{format(instance.artifact.bytes)}</td>
+        <td><code class="hash" data-pagefind-ignore>{instance.artifact.tree_hash}</code></td>
+        <td><small>SDK bytes {instance.sdk_owned_curry_bytes_equal ? 'equal' : 'differ'} · SDK hash {instance.sdk_hash_equal ? 'equal' : 'differs'}{instance.page_result_equal === undefined ? '' : ` · page result ${instance.page_result_equal ? 'equal' : 'differs'}`}</small></td>
+      </tr>)}</tbody>
+    </table></div>
+    <div class="table-scroll"><table>
+      <caption>Solutions applied to every build’s instance</caption>
+      <thead><tr><th scope="col">Case</th><th scope="col">Native Rust</th><th scope="col">Rust / off</th><th scope="col">Rust / on</th><th scope="col">Chialisp</th><th scope="col">Rue / off</th><th scope="col">Rue / on</th></tr></thead>
+      <tbody>{example.cases.map(test => <tr><th scope="row">{test.label}<details><summary>Exact input</summary><SolutionPreview value={test.solution} /></details></th><td><span class:list={['outcome', { accepted: test.native.status === 'accepted' }]}>{test.native.status}</span>{test.native.status === 'accepted' && <small><code>{test.native.output_hex}</code></small>}</td>{test.runs.map(run => <td><span class:list={['outcome', { accepted: run.execution.outcome.status === 'accepted' }]}>{run.execution.outcome.status}</span><small>{run.execution.cost === null ? run.execution.failure?.code ?? 'cost unavailable' : `${format(run.execution.cost)} cost`}</small></td>)}</tr>)}</tbody>
+    </table></div>
+  </details>)}
+</section>

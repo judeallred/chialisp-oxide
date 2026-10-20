@@ -98,6 +98,13 @@ export interface CurriedInstanceEvidence {
     attempts: InstanceAttempt[];
   }[];
 }
+export interface CurriedExample {
+  label: string; argument: string; argument_hex: string; argument_tree_hash: string;
+  page_result?: string; page_result_hex?: string; scheme: string; constructor: string;
+  instances: { backend: string; optimize_lir: boolean; module_tree_hash: string; artifact: Artifact;
+    sdk_owned_curry_bytes_equal: boolean; sdk_hash_equal: boolean; page_result_equal?: boolean }[];
+  cases: CaseReport[];
+}
 export interface ProtocolCoin {
   amount: number; id: string; parent_id: string; puzzle_hash: string;
 }
@@ -176,6 +183,7 @@ export interface PuzzleReport {
   factory_checks?: { backend:string; optimize_lir:boolean; environment:string; expected_output_hex:string; program_hex:string; application_runs:{solution:string;execution:{outcome:Outcome;cost:number|null;error:string|null}}[] }[];
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   curried_instances?: CurriedInstanceEvidence;
+  curried_examples?: CurriedExample[];
   protocol_validation?: ProtocolValidation | DelegatedProtocol;
   validated: boolean;
 }

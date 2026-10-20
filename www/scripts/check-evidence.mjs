@@ -777,7 +777,7 @@ for (const example of tutorialExamples.examples) {
     assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
     await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
     assert(example.local_examples.includes(adaptation.rue_source));
-  } else if (['module-add', 'module-times-ten', 'module-factorial'].includes(puzzle.slug)) {
+  } else if (['module-add', 'module-times-ten', 'module-factorial', 'currying-multiply'].includes(puzzle.slug)) {
     assert.equal(adaptation.operation, 'extract_complete_chialisp_module');
     assert.equal(puzzle.environment ?? 'strict', 'strict', `${example.id}: typed module adapter must use the default strict ABI`);
     assert.equal(puzzle.reference_mode ?? 'module', 'module', `${example.id}: canonical module must use module compilation`);
@@ -797,6 +797,33 @@ for (const example of tutorialExamples.examples) {
     assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
     await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
     assert(example.local_examples.includes(adaptation.rue_source));
+    if (contract.curried_instances) {
+      const curried = contract.curried_instances;
+      assert.equal(curried.scheme, '(a (q . M) (c (q . A) 1))');
+      assert(Array.isArray(puzzle.curried_examples) && puzzle.curried_examples.length === curried.examples, `${example.id}: curried example count differs from the contract`);
+      const page = puzzle.curried_examples.filter(item => item.argument === curried.page_argument);
+      assert(page.length === 1 && page[0].page_result === curried.page_result, `${example.id}: page argument instance missing`);
+      let instanceCases = 0;
+      for (const item of puzzle.curried_examples) {
+        assert.equal(item.scheme, curried.scheme);
+        assert.deepEqual(item.instances.map(instance => `${instance.backend}:${instance.optimize_lir}`), ['rust_mir:false', 'rust_mir:true', 'chialisp:true', 'rue_source:false', 'rue_source:true'], `${example.id}: curried instances must cover every build once`);
+        assert(item.instances.every(instance => instance.sdk_owned_curry_bytes_equal === true && instance.sdk_hash_equal === true), `${example.id}: SDK curry cross-checks must agree`);
+        const chialisp = item.instances.filter(instance => instance.backend === 'chialisp');
+        assert(chialisp.length === 1 && (chialisp[0].page_result_equal === true) === ('page_result' in item), `${example.id}: page identity must bind the Chialisp build`);
+        assert(item.instances.every(instance => instance.backend === 'chialisp' || instance.page_result_equal === undefined), `${example.id}: page identity may bind only the Chialisp build`);
+        assert(item.cases.length > 0, `${example.id}: curried example without executed cases`);
+        for (const test of item.cases) {
+          assert(!test.declared_divergence && test.runs.length === 5, `${example.id}: curried case ${test.label} must run in five builds without divergence`);
+          for (const run of test.runs) assert.deepStrictEqual(run.execution.outcome, test.native, `${example.id}: curried case ${test.label} differs from native Rust`);
+          instanceCases += 1;
+        }
+      }
+      assert.equal(instanceCases, curried.instance_cases, `${example.id}: curried case count differs from the contract`);
+      const pageCase = page[0].cases.filter(test => test.solution === curried.expected_solution);
+      assert(pageCase.length === 1 && pageCase[0].native.status === 'accepted' && pageCase[0].native.output_hex === curried.expected_output_hex, `${example.id}: page curried input differs from its contract`);
+    } else {
+      assert.equal(puzzle.curried_examples, undefined, `${example.id}: unexpected curried-instance evidence`);
+    }
   } else {
     assert.equal(adaptation.operation, 'extract_single_quoted_run_expression');
     const expression = span.match(/^run '([^']+)'\n$/)?.[1];

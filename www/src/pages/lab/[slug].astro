@@ -6,6 +6,7 @@ import ArtifactDiff from '../../components/ArtifactDiff.astro';
 import RuntimeVersions from '../../components/RuntimeVersions.astro';
 import SolutionPreview from '../../components/SolutionPreview.astro';
 import CurriedInstances from '../../components/CurriedInstances.astro';
+import CurriedExamples from '../../components/CurriedExamples.astro';
 import ProtocolValidation from '../../components/ProtocolValidation.astro';
 import CompositionCosts from '../../components/CompositionCosts.astro';
 import DelegatedConditionsValidation from '../../components/DelegatedConditionsValidation.astro';
@@ -38,6 +39,7 @@ if (singleton) headings.splice(headings.findIndex(heading => heading.slug === 'l
 if (delegated) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'delegated-owner-instances',text:'Validate owner-key instances'});
 if (delegated) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'delegated-source-controls',text:'Policy mistakes that still compile'});
 if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'),0,{depth:2,slug:'curried-instances',text:'Spend a fixed-hash instance'});
+if (puzzle.curried_examples) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'),0,{depth:2,slug:'curry',text:'Curry the module'});
 ---
 <StarlightPage frontmatter={{ title: puzzle.title, description: puzzle.security_scope }} headings={headings}>
   <p class="eyebrow"><a href={href('lab/')}>Puzzle laboratory</a> / {puzzle.slug}</p>
@@ -104,6 +106,7 @@ if (puzzle.curried_instances) headings.splice(headings.findIndex(heading => head
     <p><a href={href('tutorials/p2-conditions/')}>Follow the raw-tree factory walkthrough.</a> Full replay inputs, outputs, costs, and diagnostics remain in the JSON report.</p>
   </section>}
   {puzzle.curried_instances && <CurriedInstances evidence={puzzle.curried_instances} />}
+  {puzzle.curried_examples && <CurriedExamples examples={puzzle.curried_examples} />}
   {singleton && <ProtocolValidation evidence={singleton} />}
   {delegated && <DelegatedConditionsValidation puzzle={puzzle} />}
   {delegated && <DelegatedSourceControls puzzle={puzzle} />}

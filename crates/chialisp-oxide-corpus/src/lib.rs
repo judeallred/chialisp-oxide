@@ -1,5 +1,6 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
 mod authoring;
+mod curried;
 mod factories;
 mod native;
 mod native_hash;
@@ -51,6 +52,7 @@ pub const PUZZLES: &[&str] = &[
     "module-factorial",
     "delegated-puzzle",
     "curry-hash",
+    "currying-multiply",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -161,6 +163,8 @@ pub struct Manifest {
     pub native_sources: Vec<String>,
     #[serde(default)]
     pub validation_max_cost: Option<u64>,
+    #[serde(default)]
+    pub curried_examples: Vec<curried::Spec>,
 }
 #[derive(Serialize)]
 pub struct Run {
@@ -271,6 +275,8 @@ pub struct PuzzleReport {
     pub module_identity: Option<factories::ModuleIdentity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub curried_instances: Option<password::CurriedInstances>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub curried_examples: Option<Vec<curried::Example>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protocol_validation: Option<serde_json::Value>,
     pub validated: bool,
@@ -737,6 +743,20 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     } else {
         None
     };
+    let curried_examples = if manifest.curried_examples.is_empty() {
+        None
+    } else {
+        ensure!(
+            manifest.kind == "pure_function",
+            "curried examples need a pure-function module"
+        );
+        Some(curried::validate(
+            slug,
+            &manifest.curried_examples,
+            &programs,
+            max_cost,
+        )?)
+    };
     let protocol_validation = if manifest.kind == "protocol_component" {
         Some(match slug {
             "p2-singleton" => p2_singleton::validate(&programs)?,
@@ -775,6 +795,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         factory_checks,
         module_identity,
         curried_instances,
+        curried_examples,
         protocol_validation,
         validated: true,
     })

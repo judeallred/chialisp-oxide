@@ -82,6 +82,9 @@ destination.write_text(json.dumps(receipt, indent=2) + "\n")
 PYTHON
 python3 scripts/run-p2dc-source-controls.py capture --package "$WORK/p2dc-package" --native-receipt "$WORK/p2dc-native/native-receipt.json" --last-host-window "$WORK/p2dc-last-host.json" --target "$ROOT/target" --output "$WORK/p2dc-capture"
 python3 scripts/check-p2dc-source-controls.py "$WORK/p2dc-capture/report.json" --self-test > "$WORK/gate-p2dc-capture.log"
+# Ignored build output can appear inside the retained packet (its package is a
+# Cargo project); remove the whole packet with the shell before reinstalling.
+rm -rf corpus/p2dc-source-controls
 WORK="$WORK" python3 - <<'PYTHON'
 import json, os, shutil
 from pathlib import Path

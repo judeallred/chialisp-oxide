@@ -49,15 +49,32 @@ digest of the lesson case is also reproduced by an independent Python SHA-256
 spelling. Inspect [the curry-hash report](/chialisp-oxide/lab/curry-hash/) for
 exact outputs, costs and tree hashes.
 
+## The canonical multiply module
+
+<SourceComparison slug="currying-multiply" />
+
+The page's own program is ported as a strict signed 64-bit adapter like the
+Using Modules programs, with every original/adapter difference declared per
+case. Its lab page then curries each build's compiled artifact with the page's
+argument `2` and again with `5`. The instances are built independently with
+clvmr, cross-checked byte for byte against the SDK's owned `curry` constructor
+and by tree hash against `curried_puzzle_hash`, and applied to page and
+adversarial solutions in all five builds. Only the Chialisp build's instance
+is compared with the page's spelled curried result `(a (q 18 2 5) (c (q . 2) 1))`;
+the Rust instances are different programs with different hashes, and no
+identity is claimed for the Rue instances even where their bytes coincide. Inspect
+[the currying-multiply report](/chialisp-oxide/lab/currying-multiply/#curry).
+
 ## What this does not establish
 
 A curried instance hash commits a coin to a program; it does not make that
-program safe. Only the one-parameter form has a corpus fixture, the owned
-`curry` constructor has native tests but no compiled factory fixture, and the
-canonical `currying-multiply` module is not yet ported. Rust artifacts still
-differ from canonical Chialisp bytes, so a curried Rust module has a different
-puzzle hash than its canonical counterpart. The pinned include is upstream's
-deprecated reversed-argument API; the newer `curry.clib` is not pinned.
+program safe. Only the one-parameter form has a corpus fixture, and the owned
+`curry` constructor is exercised host-side by the corpus rather than by a
+compiled factory fixture. Rust artifacts still differ from canonical Chialisp
+bytes, so a curried Rust module has a different puzzle hash than its canonical
+counterpart, and curried-instance cases carry no declared divergences. The
+pinned include is upstream's deprecated reversed-argument API; the newer
+`curry.clib` is not pinned.
 
 ## Reproduce the comparison
 

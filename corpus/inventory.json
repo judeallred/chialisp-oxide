@@ -109,11 +109,19 @@
         "license": "Apache-2.0"
       },
       "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
-      "implementation_status": "planned",
+      "implementation_status": "in_progress",
       "validation_status": "not_run",
       "puzzle_references": [],
       "local_examples": [],
-      "evidence": []
+      "evidence": [],
+      "example_coverage": {
+        "inventory": "corpus/tutorial-examples.json",
+        "implemented_examples": [
+          "chialisp-example:currying-multiply"
+        ],
+        "scope": "typed_module_adapter_and_page_argument_instances_only"
+      },
+      "migration_notes": "The multiply module has differential evidence through a signed 64-bit typed adapter with every original/adapter difference declared per case, and each build's standard curried instance with the page arguments 2 and 5 is built independently, cross-checked against the SDK curry helpers and executed in five builds. Only the Chialisp build's instance is compared with the page's spelled curried result; no identity is claimed for the Rust or Rue instances. The cdv command-line workflow, the SCREAMING_SNAKE_CASE variant and unbounded integers remain unrun; the page itself is not marked validated."
     },
     {
       "id": "chialisp:chialisp-concepts/inner-puzzles",

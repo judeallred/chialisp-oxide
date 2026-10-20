@@ -3,7 +3,7 @@
 use anyhow::{Result, bail, ensure};
 use chialisp_oxide::{Amount, Cons, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
 use chialisp_oxide_puzzles::{
-    boolean_gate as gate, bounded_counter as counter, capped_payment as capped,
+    boolean_gate as gate, bounded_counter as counter, capped_payment as capped, currying_multiply,
     fixed_payment as fixed, intro_add, intro_conditional, intro_list, module_add, module_factorial,
     module_times_ten, recovery_payment as recovery, signature_payment as signature,
     split_payment as split, timelocked_payment as timelock, two_signature_payment as multisig,
@@ -485,6 +485,13 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             "module-add" => {
                 ensure!(args.len() == 2, "arity");
                 output(module_add::puzzle(int64(&a, args[0])?, int64(&a, args[1])?))
+            }
+            "currying-multiply" => {
+                ensure!(args.len() == 2, "arity");
+                output(currying_multiply::puzzle(
+                    int64(&a, args[0])?,
+                    int64(&a, args[1])?,
+                ))
             }
             "module-times-ten" => {
                 ensure!(args.len() == 1, "arity");

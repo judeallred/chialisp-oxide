@@ -105,12 +105,51 @@ MODULE_PROMOTIONS = {
     "module-add": {"solution": "(2 3)", "expected_output": "5", "expected_output_hex": "05"},
     "module-times-ten": {"solution": "(5)", "expected_output": "50", "expected_output_hex": "32"},
     "module-factorial": {"solution": "(5)", "expected_output": "120", "expected_output_hex": "78"},
+    # The Currying page's module, plus its page-argument instances: each build's
+    # artifact curried in the standard form, cross-checked against the SDK and
+    # executed in five builds. Only the Chialisp instance equals the page result.
+    "currying-multiply": {"solution": "(2 5)", "expected_output": "10", "expected_output_hex": "0a",
+                          "curried": {"argument": "2", "page_result": "(a (q 18 2 5) (c (q . 2) 1))", "solution": "(5)",
+                                      "expected_output": "10", "expected_output_hex": "0a"}},
 }
+CURRY_SCHEME = "(a (q . M) (c (q . A) 1))"
 MODULE_ABI = "strict_typed_i64_list"
 MODULE_CLAIM = "executed_differential_cases_with_declared_original_divergences_only"
 MODULE_DOMAIN = "signed_64_bit_checked_adapter_of_unbounded_original"
 DIVERGENCE_BACKENDS = {"chialisp", "rue_source"}
 ALL_MODES = {("rust_mir", False), ("rust_mir", True), ("chialisp", True), ("rue_source", False), ("rue_source", True)}
+
+
+def check_curried_examples(slug, puzzle, curried):
+    """Page-argument instances: standard form, SDK cross-checks, five-build agreement, no divergences."""
+    examples = puzzle.get("curried_examples")
+    require(isinstance(examples, list) and examples, f"{slug}: missing curried-instance evidence")
+    page = [example for example in examples if example["argument"] == curried["argument"]]
+    require(len(page) == 1 and page[0]["page_result"] == curried["page_result"], f"{slug}: page argument must have exactly one curried example")
+    for example in examples:
+        require(example["scheme"] == CURRY_SCHEME and example["cases"], f"{slug}: curried example must use the standard form with executed cases")
+        instances = example["instances"]
+        require({(item["backend"], item["optimize_lir"]) for item in instances} == ALL_MODES and len(instances) == len(ALL_MODES),
+                f"{slug}: curried instances must cover every build once")
+        require(all(item["sdk_owned_curry_bytes_equal"] is True and item["sdk_hash_equal"] is True for item in instances),
+                f"{slug}: SDK curry cross-checks must agree")
+        chialisp = [item for item in instances if item["backend"] == "chialisp"]
+        require(len(chialisp) == 1 and (chialisp[0].get("page_result_equal") is True) == ("page_result" in example)
+                and all("page_result_equal" not in item for item in instances if item["backend"] != "chialisp"),
+                f"{slug}: page identity may bind only the Chialisp build")
+        for case in example["cases"]:
+            require("declared_divergence" not in case and {(run["backend"], run["optimize_lir"]) for run in case["runs"]} == ALL_MODES
+                    and all(run["execution"]["outcome"] == case["native"] for run in case["runs"]),
+                    f"{slug}: curried case {case['label']!r} must agree with native Rust in every build")
+    tutorial = [case for case in page[0]["cases"] if case["solution"] == curried["solution"]]
+    require(len(tutorial) == 1 and tutorial[0]["native"] == {"status": "accepted", "output_hex": curried["expected_output_hex"]},
+            f"{slug}: the page's curried input must produce the independently specified result")
+    return {"scheme": CURRY_SCHEME, "page_argument": curried["argument"], "page_result": curried["page_result"],
+            "expected_solution": curried["solution"], "expected_output": curried["expected_output"],
+            "expected_output_hex": curried["expected_output_hex"], "examples": len(examples),
+            "instance_cases": sum(len(example["cases"]) for example in examples),
+            "claim_scope": "executed_curried_instance_cases_in_five_builds_only",
+            "instance_hash_identity": "chialisp_build_equals_page_result_only"}
 
 
 def check_module_promotion(row, excerpt, report, root):
@@ -178,6 +217,12 @@ def check_module_promotion(row, excerpt, report, root):
             rejected_everywhere += 1
     require(tutorial == 1 and divergent >= 1 and rejected_everywhere >= 1,
             f"{slug}: promotion needs the page input, at least one declared divergence and one shared rejection")
+    curried = contract.get("curried")
+    if curried is None:
+        require("curried_examples" not in puzzle, f"{slug}: unexpected curried-instance evidence")
+        curried_claim = {}
+    else:
+        curried_claim = {"curried_instances": check_curried_examples(slug, puzzle, curried)}
     adaptation = {"operation": "extract_complete_chialisp_module", "source_span_sha256": row["source"]["sha256"],
                   "report": "corpus/validation.json", "report_sha256": sha256((root / "corpus/validation.json").read_bytes()),
                   "slug": slug}
@@ -190,7 +235,7 @@ def check_module_promotion(row, excerpt, report, root):
         "expected_solution": contract["solution"], "expected_output": contract["expected_output"],
         "expected_output_hex": contract["expected_output_hex"], "integer_domain": MODULE_DOMAIN,
         "declared_divergences": divergent, "claim_scope": MODULE_CLAIM,
-        "ledger": "not_applicable_pure_function", "compiler_preservation": "not_claimed",
+        "ledger": "not_applicable_pure_function", "compiler_preservation": "not_claimed", **curried_claim,
     }, f"{slug}: changed ABI/result/proof-scope claim")
 
 
@@ -201,7 +246,7 @@ def check_promotion(row, excerpt, report, root):
     slug = row["id"].split(":", 1)[1]
     if slug in MODULE_PROMOTIONS:
         return check_module_promotion(row, excerpt, report, root)
-    require(slug in EXPECTATIONS, "Only the three closed Intro expressions and the three Using Modules programs have a reviewed promotion contract")
+    require(slug in EXPECTATIONS, "Only the three closed Intro expressions and the reviewed module ports have a promotion contract")
     require(row["kind"] == "closed_expression" and row["implementation_status"] == "implemented"
             and row["validation_status"] == "differential_only", f"{slug}: unsupported promotion status")
     require(not any(key in row for key in ("validated", "passed", "executed")), f"{slug}: unsupported execution claim")

@@ -1,0 +1,256 @@
+{
+  "slug": "currying-multiply",
+  "title": "Multiply with a curried first argument",
+  "kind": "pure_function",
+  "security_scope": "Canonical tutorial module returning data, not a coin puzzle or an authorization policy. The original multiplies two unbounded signed CLVM integers read by position and is curried on the page into a doubler; this port multiplies two canonical signed 64-bit integers through the strict typed ABI. Declared per-case divergences record where the original's unbounded and untyped environment reading differs. Each build's standard curried instance is constructed separately and executed in all five builds; the Chialisp build's instance is compared with the page's spelled curried result. Finite differential tests are not a compiler-correctness proof, and a curried instance hash commits a coin to a program without making it safe.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:currying-multiply",
+    "references": [
+      "https://chialisp.com/chialisp-currying/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/currying.md#L17-L19"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-concepts/currying.md",
+      "start_line": 17,
+      "end_line": 19
+    },
+    "source_adaptation": {
+      "kind": "extract_complete_chialisp_module",
+      "source_span_sha256": "72ec8e756a011e1e8510e194cbea328a26e87825a89d6d00abc6bb1b9e008f0f",
+      "reference_sha256": "72ec8e756a011e1e8510e194cbea328a26e87825a89d6d00abc6bb1b9e008f0f",
+      "description": "Copy the complete fenced module source lines exactly, including their comments and original LF endings."
+    },
+    "limitations": [
+      "Rust i64 arithmetic is finite and checked; the original CLVM integers are unbounded. Overflow rejects in Rust where the original returns a larger result.",
+      "The default strict Rust ABI rejects padded, noncanonical and out-of-range integer atoms, extra list elements and improper tails that the original module ignores or reads as integers.",
+      "Every such difference is declared per case and checked against independently specified CLVM bytes; declared divergences never cover Rust CLVM, which must match the native Rust source.",
+      "The original module is compiled unchanged; no argument guard or wrapper is added. Behavioral comparison does not require equal CLVM bytes or tree hashes.",
+      "Curried instances use the standard form (a (q . M) (c (q . A) 1)) built independently with clvmr and cross-checked against the SDK's owned constructor and hash arithmetic. Only the Chialisp build's instance is compared with the page's curried result; the Rust instances are different programs with different hashes, and no identity is claimed for the Rue instances even where their bytes coincide.",
+      "Curried instance cases carry no declared divergences, so they only use inputs on which every build agrees. The SCREAMING_SNAKE_CASE naming variant is a convention, not a separate program, and is not ported."
+    ]
+  },
+  "cases": [
+    {
+      "label": "tutorial values: the page doubler applied to five",
+      "solution": "(2 5)"
+    },
+    {
+      "label": "page reuse values: five times five",
+      "solution": "(5 5)"
+    },
+    {
+      "label": "zero product encodes as nil",
+      "solution": "(0 7)"
+    },
+    {
+      "label": "negative result",
+      "solution": "(-2 5)"
+    },
+    {
+      "label": "two negatives",
+      "solution": "(-1 -1)"
+    },
+    {
+      "label": "i64 maximum times one",
+      "solution": "(9223372036854775807 1)"
+    },
+    {
+      "label": "i64 minimum times one",
+      "solution": "(-9223372036854775808 1)"
+    },
+    {
+      "label": "smallest product within i64",
+      "solution": "(2 -4611686018427387904)"
+    },
+    {
+      "label": "missing second argument rejects everywhere",
+      "solution": "(2)"
+    },
+    {
+      "label": "empty environment rejects everywhere",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejects everywhere",
+      "solution": "1"
+    },
+    {
+      "label": "pair operand rejects everywhere",
+      "solution": "((2) 5)"
+    },
+    {
+      "label": "improper second argument rejects everywhere",
+      "solution": "(2 . 5)"
+    },
+    {
+      "label": "overflow rejects in Rust; the original grows",
+      "solution": "(9223372036854775807 2)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "8900fffffffffffffffe"
+        },
+        "reason": "Checked i64 multiplication overflows and rejects; the original returns the unbounded product."
+      }
+    },
+    {
+      "label": "negating the minimum rejects in Rust; the original grows",
+      "solution": "(-9223372036854775808 -1)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "89008000000000000000"
+        },
+        "reason": "Checked i64 multiplication overflows at the minimum and rejects; the original returns the unbounded product."
+      }
+    },
+    {
+      "label": "value above i64 rejects in Rust",
+      "solution": "(9223372036854775808 1)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "89008000000000000000"
+        },
+        "reason": "The original accepts unbounded integers; the typed Rust i64 ABI rejects values outside its 64-bit range."
+      }
+    },
+    {
+      "label": "padded atom rejects in Rust; the original reads it as two",
+      "solution": "(0x0002 5)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "0a"
+        },
+        "reason": "The original reads any atom as a signed integer, so a padded encoding is accepted; the typed Rust ABI rejects noncanonical integer atoms."
+      }
+    },
+    {
+      "label": "explicit zero byte rejects in Rust; the original reads it as zero",
+      "solution": "(0x00 5)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "80"
+        },
+        "reason": "The original reads 0x00 as the integer 0; the typed Rust ABI only accepts the empty atom for zero."
+      }
+    },
+    {
+      "label": "extra argument ignored by the original",
+      "solution": "(2 5 6)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "0a"
+        },
+        "reason": "The original reads arguments by position and ignores trailing environment values; the typed Rust ABI rejects extra list elements."
+      }
+    },
+    {
+      "label": "improper tail ignored by the original",
+      "solution": "(2 5 . 6)",
+      "declared_divergence": {
+        "backends": [
+          "chialisp",
+          "rue_source"
+        ],
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "0a"
+        },
+        "reason": "The original reads arguments by position and ignores an improper tail; the typed Rust ABI requires a proper argument list."
+      }
+    }
+  ],
+  "curried_examples": [
+    {
+      "label": "page doubler: first curried to 2",
+      "argument": "2",
+      "page_result": "(a (q 18 2 5) (c (q . 2) 1))",
+      "solutions": [
+        {
+          "label": "page value",
+          "solution": "(5)"
+        },
+        {
+          "label": "zero encodes as nil",
+          "solution": "(0)"
+        },
+        {
+          "label": "negative value",
+          "solution": "(-3)"
+        },
+        {
+          "label": "largest value within i64",
+          "solution": "(4611686018427387903)"
+        },
+        {
+          "label": "missing argument rejects everywhere",
+          "solution": "()"
+        },
+        {
+          "label": "atom solution rejects everywhere",
+          "solution": "5"
+        },
+        {
+          "label": "pair argument rejects everywhere",
+          "solution": "((5))"
+        }
+      ]
+    },
+    {
+      "label": "page reuse: first curried to 5",
+      "argument": "5",
+      "page_result": "(a (q 18 2 5) (c (q . 5) 1))",
+      "solutions": [
+        {
+          "label": "page value",
+          "solution": "(5)"
+        },
+        {
+          "label": "one",
+          "solution": "(1)"
+        },
+        {
+          "label": "negative value",
+          "solution": "(-4)"
+        },
+        {
+          "label": "missing argument rejects everywhere",
+          "solution": "()"
+        }
+      ]
+    }
+  ]
+}

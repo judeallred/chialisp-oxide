@@ -33,6 +33,8 @@ pub mod delegated_puzzle;
 
 #[path = "curry-hash/puzzle.rs"]
 pub mod curry_hash;
+#[path = "currying-multiply/puzzle.rs"]
+pub mod currying_multiply;
 
 #[path = "module-add/puzzle.rs"]
 pub mod module_add;
