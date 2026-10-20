@@ -1126,6 +1126,12 @@ for (const example of study.studies) {
 assert(studyPage.includes('E0308') && studyPage.includes('E0425') && studyPage.includes('E0061'), 'Missing captured Rust diagnostic references');
 assert(study.studies.filter(example => example.category === 'runtime_policy_control').length === 2, 'Expected two negative controls');
 for (const needle of ['not a compiler guarantee', 'overflow checks', 'E0061']) assert(studyPage.includes(needle), `error study page missing ${needle}`);
+const statusPage = await html(path.join(root, 'reference/status/index.html'));
+assert(statusPage.includes(`${validation.puzzles.length} annotated exports`), 'Status page export count must match the validation report');
+const namedVectors = validation.puzzles.reduce((n, puzzle) => n + puzzle.cases.length, 0);
+assert(statusPage.includes(`${namedVectors} named`), 'Status page named-vector count must match the validation report');
+assert(statusPage.includes(`${study.studies.length === 11 ? 'eleven' : study.studies.length} studies`), 'Status page study count must match the error-study report');
+for (const needle of ['not ready for real funds', 'roadmap-history.md', 'Next work']) assert(statusPage.includes(needle), `status page missing ${needle}`);
 const functionality = await html(path.join(root, 'reference/chialisp-functionality/index.html'));
 assert(functionality.includes('proof') && functionality.includes('recursion'), 'Missing explicit functionality and parity gaps');
 const catalog = await html(path.join(root, 'published/index.html'));

@@ -41,15 +41,6 @@ jobs:
           restore-keys: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}-
       - run: cargo fmt --all --check
       - run: cargo build --workspace --locked
-      - run: cargo test --workspace --locked
-      - name: Check ordinary Cargo consumer crates
-        run: |
-          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
-          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
-          cargo test --manifest-path examples/cargo-invalid/Cargo.toml --locked
-      - name: Test patched upstream optimizer
-        run: cargo test --locked -p rue-lir@0.11.0
-      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Check retained delegated policy source controls
         run: python3 scripts/check-p2dc-source-controls.py corpus/p2dc-source-controls/report.json --self-test
       - name: Prepare and natively check fresh delegated policy mutations
@@ -329,6 +320,32 @@ jobs:
         with:
           name: tree-algorithm-evidence
           path: ${{ runner.temp }}/tree-theorems.json
+  tests:
+    # Workspace tests, consumer crates, the patched optimizer and Clippy run in
+    # parallel with the evidence gates; Pages deployment waits for every job.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust and compiler components
+        run: rustup show active-toolchain
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-rust-tests-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-rust-tests-${{ hashFiles('rust-toolchain.toml') }}-
+      - run: cargo fmt --all --check
+      - run: cargo test --workspace --locked
+      - name: Check ordinary Cargo consumer crates
+        run: |
+          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --locked
+          cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+          cargo test --manifest-path examples/cargo-invalid/Cargo.toml --locked
+      - name: Test patched upstream optimizer
+        run: cargo test --locked -p rue-lir@0.11.0
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
   docs:
     runs-on: ubuntu-latest
     steps:

@@ -26,6 +26,7 @@ export default defineConfig({
           { label: 'Introduction', slug: 'start/introduction' },
           { label: 'Try the Cargo prototype', slug: 'start/quickstart' },
           { label: 'What works today', slug: 'reference/supported-rust' },
+          { label: 'Current status', slug: 'reference/status' },
           { label: 'Chialisp functionality and Rust gaps', slug: 'reference/chialisp-functionality' },
         ] },
         { label: 'Learn by building', items: [
