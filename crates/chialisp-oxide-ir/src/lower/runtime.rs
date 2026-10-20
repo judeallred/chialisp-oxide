@@ -136,9 +136,8 @@ fn projection_preflight(program: &Program) -> bool {
     true
 }
 
-// A v5 program may contain an ordinary Tree helper whose own body never
-// handles typed pairs. Keep this first lane closed to leaf/self-recursive
-// helpers: a call to another table entry is not borrowed admission evidence.
+// Retain the earlier pair-free leaf/self-recursive helper classification so
+// its work budget remains observable. It no longer gates branch-local facts.
 // The whole program is validated and preflighted before this scan. Descriptor
 // visits/copies share the existing optional projection budget across bodies.
 fn helper_charge(work: &mut usize, amount: usize) -> Result<()> {
@@ -967,10 +966,9 @@ pub(super) fn bootstrap(
     compact_unary: bool,
 ) -> Result<LirId> {
     let program = lower.program;
-    // Typed-pair bodies and the v5 entry retain the preceding strict emitter.
-    // Only structurally pair-free leaf/self-recursive table helpers may request
-    // the existing Tree facts. Every v5 call keeps proper argument frames;
-    // helper-local facts do not admit compact unary layouts or Pair rewrites.
+    // Every preflighted body can use branch-local Tree facts. Explicit pair
+    // operands retain strict captures and every v5 call keeps proper argument
+    // frames; these facts do not admit compact unary layouts or Pair rewrites.
     let preflighted = guarded_projections && projection_preflight(program);
     let pair_capability = preflighted && program.uses_pairs();
     let guarded_projections = preflighted;
@@ -991,8 +989,13 @@ pub(super) fn bootstrap(
     };
     let mut functions = Vec::with_capacity(program.functions.len());
     for (frame, function) in program.functions.iter().enumerate() {
+        // Pair-capable tables use the same branch-local facts in every body;
+        // explicit pair constructors keep strict operand frames and typed pair
+        // projections forward only under a recorded fact. The pair-free scan
+        // still charges and classifies helpers so its budget stays observable.
         let helper_facts = if preflighted && pair_capability {
-            pair_free_helper(function, &mut runtime.projection_work)?
+            pair_free_helper(function, &mut runtime.projection_work)?;
+            guarded_projections
         } else {
             guarded_projections
         };
@@ -1570,7 +1573,7 @@ mod pair_optimization_boundary {
     }
 
     #[test]
-    fn pair_result_and_unused_pair_signature_keep_the_preceding_strict_emitter() {
+    fn pair_result_and_unused_pair_signature_use_facts_without_compact_frames() {
         let ordinary = source();
         ordinary.validate().unwrap();
         assert!(!ordinary.uses_pairs());
@@ -1623,9 +1626,13 @@ mod pair_optimization_boundary {
             program.validate().unwrap();
             assert!(program.uses_pairs());
             let previous = emit(&program, false, false, false);
+            let facts = emit(&program, true, true, false);
             let requested = emit(&program, true, true, true);
-            assert_eq!(requested, previous);
-            for code in [&previous, &requested] {
+            // Branch-local facts now apply inside pair-capable tables; compact
+            // unary layouts still do not, so every v5 call keeps proper frames.
+            assert_ne!(facts, previous);
+            assert_eq!(requested, facts);
+            for code in [&previous, &facts, &requested] {
                 for (input, ordinary, pair) in [
                     ("80", "80", "ff8080"),
                     ("00", "00", "ff0000"),

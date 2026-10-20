@@ -6,10 +6,14 @@ description: Read a Cons result, commit an owner key, and distinguish signatures
 import { Code } from '@astrojs/starlight/components';
 import DelegatedConditionsValidation from '../../../components/DelegatedConditionsValidation.astro';
 import DelegatedSourceControls from '../../../components/DelegatedSourceControls.astro';
-import { puzzles, delegatedProtocol } from '../../../lib/data';
+import { puzzles, delegatedProtocol, format } from '../../../lib/data';
 
 export const delegated = puzzles.find(puzzle => puzzle.slug === 'p2-delegated-conditions');
 export const actualProtocol = delegated && delegatedProtocol(delegated);
+export const rustOn = delegated?.artifacts.find(row => row.backend === 'rust_mir' && row.optimize_lir);
+export const rustOff = delegated?.artifacts.find(row => row.backend === 'rust_mir' && !row.optimize_lir);
+export const rueOn = delegated?.artifacts.find(row => row.backend === 'rue_source' && row.optimize_lir);
+export const rueOff = delegated?.artifacts.find(row => row.backend === 'rue_source' && !row.optimize_lir);
 export const independentVectors = delegated?.source_dependencies.find(source => source.path === 'puzzles/p2-delegated-conditions/independent-vectors.json');
 import rustSource from '../../../../../puzzles/p2-delegated-conditions/puzzle.rs?raw';
 import chialispSource from '../../../../../puzzles/p2-delegated-conditions/reference.clsp?raw';
@@ -210,13 +214,14 @@ password experiments. Current proof models reject this program's SHA and typed
 
 ## Understand the measured size gap
 
-The optimized Rust module is 629 bytes, compared with 1,534 without optimization.
-Independent Chialisp reproduces the published 137-byte module; Rue emits 293 bytes
-off and 251 on. The Rust helper optimization reuses earlier successful tree checks
-only in helpers without explicit `Cons` values, with calls restricted to self-calls.
-The recursive hash helper can still match ordinary borrowed `Tree::Pair` values.
-The optimization preserves strict field evaluation and the complete raw ABI;
-the Pair-producing entry retains its preceding lowering.
+The optimized Rust module is {format(rustOn?.bytes ?? 0)} bytes, compared with
+{format(rustOff?.bytes ?? 0)} without optimization. Independent Chialisp reproduces
+the published 137-byte module; Rue emits {format(rueOff?.bytes ?? 0)} bytes off and
+{format(rueOn?.bytes ?? 0)} on. These sizes come from the current validation report.
+Successful tree checks let later projections and atom checks reuse the captured
+value within the same branch. Each called function starts with fresh facts.
+Explicit pair constructors preserve ordered, once-only operand evaluation, and
+version-5 calls keep proper argument frames. The complete raw ABI is preserved.
 There is still a substantial size gap. These module sizes do not measure full
 transaction costs or make the different program hashes interchangeable.
 

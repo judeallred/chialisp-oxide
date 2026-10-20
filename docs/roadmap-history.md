@@ -11,9 +11,9 @@ Commits `67f4d0c`, `4bca10f`, `8d334a4`, `e86564a`, `b92dca0`, `c9f1df0`,
 `2e5ea9b` and the pair-aware optimizer commit.
 
 - The owned constant, forward-fact and interval passes admit explicit `Cons`
-  pairs and the v5 entry uses guarded projection facts. The delegated
-  conditions port fell from 629 to 425 optimized bytes and its mean accepted
-  named cost from 28,875 to 21,565; all five builds agree on 20 named and
+  pairs and every pair-capable table body uses branch-local projection facts.
+  The delegated conditions port fell from 629 to 365 optimized bytes and its
+  mean accepted named cost from 28,875 to 20,482; all five builds agree on 20 named and
   2,239 generated inputs. This is the first declared compiler transition
   inside the generic corpus append root; the retained checkpoint row is
   restored for history.

@@ -154,14 +154,17 @@ pairs, run through the same owned passes. The constant, forward-fact and
 interval passes treat an explicit pair like a borrowed tree constructor: both
 children evaluate strictly in order, a constructed pair records its children's
 facts, and a typed pair projection is total whenever its operand is total, so
-it records no shape requirement and is never folded to a known constant. The
-v5 entry body uses the same guarded projection facts as pair-free entries;
-compact unary layouts stay off and every v5 call keeps proper argument frames.
-Bounded helper inlining still declines any body that constructs or projects an
+it records no shape requirement and is never folded to a known constant. Every
+body of a pair-capable table, including bodies that construct or project
+explicit pairs, uses the same branch-local projection and atom facts as
+pair-free bodies; compact unary layouts stay off and every v5 call keeps
+proper argument frames, while explicit pair constructors keep strict operand
+frames and typed pair projections forward only under a recorded fact. Bounded
+helper inlining still declines any body that constructs or projects an
 explicit pair. On the delegated-conditions port this removed the repeated pair
-guards: optimized Rust fell from 629 to 425 bytes and the mean accepted named
-cost from 28,875 to 21,565, with all five builds agreeing on every named and
-generated input. That transition is declared in the corpus append profile and
+guards and the projection frames: optimized Rust fell from 629 to 365 bytes
+and the mean accepted named cost from 28,875 to 20,482, with all five builds
+agreeing on every named and generated input. That transition is declared in the corpus append profile and
 admits only the optimized Rust artifact, its costs and the module-derived
 protocol fields of that retained row.
 

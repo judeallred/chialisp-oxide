@@ -1,4 +1,4 @@
-//! Pair-free table facts inside v5; no Pair rewrite or compact frame admission.
+//! Branch-local facts in v5 table bodies; strict pairs and proper call frames.
 #[path = "runtime_evaluation/support.rs"]
 #[allow(dead_code)]
 mod support;
@@ -265,5 +265,98 @@ fn malformed_unused_function_is_validated_before_helper_selection() {
     assert!(optimize(&source).is_err());
     for optimize in [false, true] {
         assert!(chialisp_oxide_ir::compile(&source, optimize).is_err());
+    }
+}
+
+#[test]
+fn pair_returning_helpers_rebase_branch_facts_and_keep_unused_calls_strict() {
+    let result = pair_type(Type::Tree, Type::Tree);
+    for (effect, failure) in [
+        (tree_atom("ff"), None),
+        (reject(&Type::Tree), Some(FailureCode::Raise)),
+        (call(1, vec![]), Some(FailureCode::CostExceeded)),
+    ] {
+        let helper = function(
+            0,
+            vec![Type::Tree],
+            result.clone(),
+            branch(
+                is_pair(arg(0)),
+                binding(
+                    0,
+                    Type::Tree,
+                    first(arg(0)),
+                    binding(
+                        1,
+                        Type::Tree,
+                        local(0),
+                        binding(
+                            2,
+                            Type::Tree,
+                            rest(arg(0)),
+                            binding(3, Type::Tree, call(1, vec![]), cons(local(1), local(2))),
+                        ),
+                    ),
+                ),
+                cons(arg(0), arg(0)),
+            ),
+        );
+        let source = raw(
+            result.clone(),
+            call(0, vec![arg(0)]),
+            vec![helper, function(1, vec![], Type::Tree, effect)],
+        );
+        for candidate in [source.clone(), optimize(&source).unwrap()] {
+            for (_, code) in modes(&candidate) {
+                // The other branch must not inherit a pair fact or run its call.
+                for input in [atom(&[]), atom(&[0, 0]), atom(&[0, 128]), atom(&[255])] {
+                    accepted(run(&code, &input, LIMIT), &pair(&input, &input));
+                }
+                for input in [
+                    pair(&atom(&[0, 0]), &atom(&[128])),
+                    pair(&pair(&atom(&[255]), &atom(&[])), &atom(&[0])),
+                ] {
+                    let execution = run(&code, &input, LIMIT);
+                    if let Some(expected) = failure {
+                        // Divergence is resource exhaustion, never rejection credit.
+                        failed(execution, expected);
+                    } else {
+                        accepted(execution, &input);
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pair_returning_helper_keeps_unguarded_fault_before_divergent_tail() {
+    let result = pair_type(Type::Tree, Type::Tree);
+    let source = raw(
+        result.clone(),
+        call(0, vec![arg(0)]),
+        vec![
+            function(
+                0,
+                vec![Type::Tree],
+                result,
+                cons(first(arg(0)), call(1, vec![])),
+            ),
+            function(1, vec![], Type::Tree, call(1, vec![])),
+        ],
+    );
+    for (optimized, code) in modes(&source) {
+        failed(
+            run(&code, &atom(&[]), LIMIT),
+            if optimized {
+                FailureCode::PathIntoAtom
+            } else {
+                FailureCode::InvalidOpArg
+            },
+        );
+        failed(
+            run(&code, &pair(&atom(&[]), &atom(&[0])), LIMIT),
+            FailureCode::CostExceeded,
+        );
     }
 }

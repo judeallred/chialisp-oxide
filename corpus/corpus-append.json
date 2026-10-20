@@ -191,7 +191,7 @@
   },
   "compiler_transition": {
     "protocol": "chialisp-oxide-corpus-compiler-transition/v1",
-    "reason": "Pair-aware owned optimizer passes: explicit Cons pairs now fold, refine and project through the constant, forward-fact and interval passes and the v5 entry uses guarded projection facts, changing only the optimized Rust artifact of the retained delegated-conditions export.",
+    "reason": "Pair-aware owned optimizer passes fold, refine and project explicit Cons pairs, and every preflighted version-5 table body now uses branch-local projection and atom facts with fresh callee scopes. Explicit pair operands remain strict, compact unary layouts remain disabled and calls retain proper argument frames. Only the optimized Rust artifact of the retained delegated-conditions export changes.",
     "slugs": [
       "p2-delegated-conditions"
     ],
@@ -204,17 +204,17 @@
           "mean_accepted_cost": 28875
         },
         "after": {
-          "bytes": 425,
-          "tree_hash": "dbe9bdad78a4b3d158733936a483fb5a9f9b09cdcf0914dfe80909fa00017dea",
-          "mean_accepted_cost": 21565
+          "bytes": 365,
+          "tree_hash": "72c46a526794d449f01e230001023a62f37aa58818f74d6cf123f08031e3bbec",
+          "mean_accepted_cost": 20482
         }
       }
     ]
   },
   "reviewed_after": {
-    "report_sha256": "d1840c57f9535fb5c4ee340156da4ffd42341c57d68a383fa2893307a08f7f94",
-    "canonical_report_sha256": "2e9d167858a66e642a1fce900e76e2959c2690b8bc510d822bcfd2f07a549013",
-    "controls_sha256": "d325a8ce8ac8079d5d1b0d213f85a6deca5059621c50c7b54f4e014544bc7938",
+    "report_sha256": "028d32ec34c6eaaeeff84511f1e48ea6f41deeec94558b02c3799398b5d286fd",
+    "canonical_report_sha256": "f16e0865cfd7e097b537154d7307141e3871f3f61f5d7b5a3e4b4f5ceab68020",
+    "controls_sha256": "d3486ae7ff366ce0bddf1e5611f25b95eec572856d11a1f8ac51db2dcc81d69a",
     "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
     "added_puzzles": [
       {
@@ -378,7 +378,7 @@
     ],
     "bundles": {
       "on": {
-        "manifest_sha256": "87c921a978f922417bbc805b06f9d00a25394d5de445f88ae8e245a8dfc0b41c",
+        "manifest_sha256": "d6d69b513a3ea76fdc33f4f0e0ca6e1e5d4c39215072d28fccdfa6a211812c8a",
         "optimize_lir": true,
         "cargo_options": [
           "--manifest-path",
@@ -389,7 +389,7 @@
         ]
       },
       "off": {
-        "manifest_sha256": "1b8bb87c3548cc53013ec88ab03b4d2b6832a023decc01ce05465310aee49fe6",
+        "manifest_sha256": "d9d55dc5b87213338c63317bf82c932e045e89c59defaa8f690917d93c9848f8",
         "optimize_lir": false,
         "cargo_options": [
           "--manifest-path",

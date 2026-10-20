@@ -3,7 +3,7 @@
 #
 # Run this after every source change that is final (Rust, scripts, puzzles).
 # It performs, in the only order that keeps tool identities consistent:
-#   1. format check and the LAST workspace host build (bins + examples);
+#   1. format check and an initial workspace host build (bins + examples);
 #   2. the full corpus validation twice, requiring byte-identical reports;
 #   3. fresh Cargo bundles in both optimizer modes;
 #   4. the pay-to-singleton policy-control sidecar for this source window;
@@ -22,10 +22,14 @@ ROOT=$(pwd)
 WORK=${CAPTURE_WORK:-"$ROOT/target/capture-current-corpus"}
 LEAN=${LEAN:-lean}
 DRIVER=target/debug/chialisp-oxide-driver
-rm -rf "$WORK" && mkdir -p "$WORK"
+if [[ -e "$WORK" || -L "$WORK" ]]; then
+  echo "Capture path already exists: $WORK. Choose a new CAPTURE_WORK; prior runs are preserved." >&2
+  exit 1
+fi
+mkdir -p "$WORK"
 step() { echo; echo "##### $*"; }
 
-step "format check and LAST host build"
+step "format check and initial host build"
 cargo fmt --all --check
 cargo build --workspace --bins --examples --locked
 
@@ -50,6 +54,8 @@ python3 scripts/check-corpus-append.py --self-test --fresh-on "$WORK/puzzles-on"
 step "delegated source-control packet"
 python3 scripts/run-p2dc-source-controls.py prepare --package "$WORK/p2dc-package" --receipt "$WORK/p2dc-prepare.json"
 python3 scripts/run-p2dc-source-controls.py native --package "$WORK/p2dc-package" --prepared "$WORK/p2dc-prepare.json" --target "$WORK/p2dc-native-target" --output "$WORK/p2dc-native"
+step "LAST host build after native policy checks"
+cargo build --workspace --bins --examples --locked
 WORK="$WORK" python3 - <<'PYTHON'
 import json, os, subprocess, sys, tomllib
 from pathlib import Path
@@ -119,7 +125,8 @@ rm -rf proofs/acyclic-scalar-source
 python3 scripts/check-acyclic-source.py --acyclic-scalar --execute --self-test --tools target/debug --target-dir "$WORK/acyclic-scalar-target" --output proofs/acyclic-scalar-source
 python3 experiments/tree-theorems/check-model.py --lean "$LEAN" --cli target/debug/chialisp-oxide --self-test --replay-vm --output "$WORK/tree-theorems.json"
 cp "$WORK/tree-theorems.json" experiments/tree-theorems/results.json
-python3 corpus/validate_tutorial_examples.py || echo "tutorial rows pin the report hash; restamp promoted rows before rerunning"
+python3 scripts/restamp-tutorial-rows.py "$ROOT"
+python3 corpus/validate_tutorial_examples.py
 
 step "host rebuild, fresh bundles, fresh gates (CI order)"
 cargo build --workspace --bins --examples --locked

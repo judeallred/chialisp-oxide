@@ -5,8 +5,8 @@
   "scope": "One actual native Rust test group checks three independent source-policy observations. Four actual annotated Cargo exports in both modes and twelve retained primary VM witnesses are separate from SDK spends, generic ledger groups and proofs. The baseline copy is explicitly a control. Recorded source/metadata/result consistency is not execution authentication, compiler preservation, exhaustive policy correctness or production readiness.",
   "context": {
     "source_root": "/Users/judeallred/code/clispOx",
-    "package_root": "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-package",
-    "capture_root": "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture",
+    "package_root": "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-package",
+    "capture_root": "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "toolchain": "nightly-2026-07-14",
     "source_window": {
@@ -1191,7 +1191,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
-          "sha256": "74e775ff756a24c5dcadfb40d5b09d870ca44d2e78beef353970241517dab973"
+          "sha256": "ce9ddd89e058d999290cdb7806b76dc6f0c289fbeb56b150befea735732909eb"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize.rs",
@@ -1307,7 +1307,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/runtime_pair_helper_facts.rs",
-          "sha256": "7fd7c78d63e3f45806e62daf38c4fbb4b2cabd0d640f3e86a17347c05a51c67c"
+          "sha256": "9406b46d8c53ac36afbf47af90128216a4f6bd95cc59ff6170b27ac181e856f5"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/runtime_projection_aliases.rs",
@@ -1954,24 +1954,24 @@
     "tools": {
       "cargo-chialisp-oxide": {
         "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
-        "sha256": "0668d6def095da903b03c483eef2a2ca57a71aa8fe1c9c91e323d0b4931f5dd3"
+        "sha256": "6d94710f00e5dbb9602050f60af05994315cd9a07fb320dd79fb070a20e726c0"
       },
       "chialisp-oxide-driver": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
-        "sha256": "3d078ec9aa0a69ddd95363400e1dd559b2bde062a50fd04cd5125c84f7eda41e"
+        "sha256": "1f2cd5a98c06ee8d783dc078dcfa6a487d5b9ceb7d8fc3f4b764a440ebd092ca"
       },
       "chialisp-oxide": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-        "sha256": "6f547da5389bffac6ea7967d6217d8378300d8ecde2c4896b8bce350e69f501c"
+        "sha256": "c00c69649f7f34946c5ff3d212bce749dc5b3e608ab5c64dc84f68799153a222"
       },
       "chialisp-oxide-verifier": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "sha256": "4f09b148ccc1f81b6cc95313e75757fff3334fd717e97693575f87564747255a"
+        "sha256": "29162d30157dca9f63d099d4978398cbafff3a0fe5bd5d417ed4695449c42b40"
       }
     },
     "last_host_window": {
-      "path": "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-last-host.json",
-      "sha256": "83c6f0e6f9c4c09d540dc00787660a5fa21634b5e00b312edc3c9a0a7697fd66"
+      "path": "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-last-host.json",
+      "sha256": "a29ddbf6e4f8c4edf54d3c811ab7dc7b0025408630872440b116b959a5bf8398"
     }
   },
   "prepared": {
@@ -2101,7 +2101,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -2111,12 +2111,12 @@
     "native_test_groups": 1,
     "native_policy_observations": 3,
     "log": "native.log",
-    "log_sha256": "6d12794408a9bc6fa3c9188265dd7f1224a4375c63009ffc28174a1d8760fef8"
+    "log_sha256": "d00b8d42c993100467353f8a59b51a8636570d65d06de97f4c528b6ba1d39c5c"
   },
   "bundles": {
     "off": {
       "manifest": "bundles/off/manifest.json",
-      "manifest_sha256": "6d5142ad70564238d1a8834aa48037fe9c9654be2ac4b15e2e947de48fa905f5",
+      "manifest_sha256": "6c988f96e598368e11ef8a82fac86b43ee4a2dd7f9a7ff2b91cb81a5f45e9ae2",
       "recompiled": [
         {
           "entry": "chialisp_oxide_p2dc_controls::baseline::puzzle",
@@ -2129,10 +2129,10 @@
               "tree_hash": "06949cdc58bca89dd05a19e3e9e556a28ed49acd5168a7edc4b007b07ce125e5"
             },
             {
-              "bytes": 425,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff5780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "dbe9bdad78a4b3d158733936a483fb5a9f9b09cdcf0914dfe80909fa00017dea"
+              "tree_hash": "72c46a526794d449f01e230001023a62f37aa58818f74d6cf123f08031e3bbec"
             }
           ]
         },
@@ -2147,10 +2147,10 @@
               "tree_hash": "b7b02394d96b8f4b9082a99b4013103c67a84f77c5b667549e7bf9f153bbc15a"
             },
             {
-              "bytes": 425,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0102ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff5780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0102ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "469b13458caa23f37a29e204be563acc15cf009483f666bd3ee3ad6b7be3b243"
+              "tree_hash": "ad3c7ae6fbc8552ff48714e11c5be61d47f41ac436f12d01816b3851ede72a19"
             }
           ]
         },
@@ -2165,10 +2165,10 @@
               "tree_hash": "aaf3ea5f8759dad88a76f15188e7cde2953c9ef79ed3500439ada477c5e25026"
             },
             {
-              "bytes": 426,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff81bf80ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "db089bddd9286e9535af5f50505af35538a92d7d96db8d0850f885eb9efdb0bb"
+              "tree_hash": "75349b59212f480aff94dfd149604077e35b15f7f4ecb874bbc25253f5ea6880"
             }
           ]
         },
@@ -2183,10 +2183,10 @@
               "tree_hash": "b7d91a8b177c6accd62732b77842bb14ad2e2e8673ef2dc03fa30b15f8ab3591"
             },
             {
-              "bytes": 643,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff03ff05ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff04ff02ffff04ff820dffff03808080ffff04ff02ffff04ff8204ffff03808080ffff01ff088080ff0180ffff04ff02ffff04ffff09ff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ff03808080ffff04ff02ffff04ff0dff03808080ffff04ff02ffff04ff6fff0380808080ff0180ffff04ff02ffff04ff0dff03808080ffff04ff02ffff04ff1bff03808080ffff01ff088080ff0180ffff04ff02ffff04ff0dff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 457,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff03ffff07ff1d80ffff01ff0880ffff01ff02ffff01ff02ffff01ff02ffff03ff05ffff01ff02ffff01ff02ffff01ff04ff05ff82015f80ffff04ff02ffff04ffff04ffff0132ffff04ff4fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff57ff80808080ff03808080ffff01ff088080ff0180ffff04ff02ffff04ffff09ff05ff8080ff03808080ffff04ff02ffff04ff1dff0380808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "86d9a09f8c6d8db2c62f6c0ab9d3c8659dae0256f65211afe14e0b9f2e8f0ce9"
+              "tree_hash": "1fdd8691c17c4b0e0183f3e3a9ca730735fffab1e6eca1040a97714925852aa1"
             }
           ]
         }
@@ -2194,7 +2194,7 @@
     },
     "on": {
       "manifest": "bundles/on/manifest.json",
-      "manifest_sha256": "e26787dc85bace642ad958fcf7507cd442eaf782dca78aeeb9e2ce6079fa6470",
+      "manifest_sha256": "4d77c922556372ac1bc22e0e4d2de053819f86e4c552103d5d97415b64b978fc",
       "recompiled": [
         {
           "entry": "chialisp_oxide_p2dc_controls::baseline::puzzle",
@@ -2207,10 +2207,10 @@
               "tree_hash": "06949cdc58bca89dd05a19e3e9e556a28ed49acd5168a7edc4b007b07ce125e5"
             },
             {
-              "bytes": 425,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff5780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "dbe9bdad78a4b3d158733936a483fb5a9f9b09cdcf0914dfe80909fa00017dea"
+              "tree_hash": "72c46a526794d449f01e230001023a62f37aa58818f74d6cf123f08031e3bbec"
             }
           ]
         },
@@ -2225,10 +2225,10 @@
               "tree_hash": "b7b02394d96b8f4b9082a99b4013103c67a84f77c5b667549e7bf9f153bbc15a"
             },
             {
-              "bytes": 425,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0102ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff5780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0102ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "469b13458caa23f37a29e204be563acc15cf009483f666bd3ee3ad6b7be3b243"
+              "tree_hash": "ad3c7ae6fbc8552ff48714e11c5be61d47f41ac436f12d01816b3851ede72a19"
             }
           ]
         },
@@ -2243,10 +2243,10 @@
               "tree_hash": "aaf3ea5f8759dad88a76f15188e7cde2953c9ef79ed3500439ada477c5e25026"
             },
             {
-              "bytes": 426,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff81bf80ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ff02ffff04ff1bff03808080ffff04ff02ffff04ff09ff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 365,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff13ffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff15ff80808080ff03808080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "db089bddd9286e9535af5f50505af35538a92d7d96db8d0850f885eb9efdb0bb"
+              "tree_hash": "75349b59212f480aff94dfd149604077e35b15f7f4ecb874bbc25253f5ea6880"
             }
           ]
         },
@@ -2261,10 +2261,10 @@
               "tree_hash": "b7d91a8b177c6accd62732b77842bb14ad2e2e8673ef2dc03fa30b15f8ab3591"
             },
             {
-              "bytes": 643,
-              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff03ff05ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff1780ffff04ff02ffff04ffff04ffff0132ffff04ff2fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff05ff80808080ff03808080ffff04ff02ffff04ff09ff03808080ffff04ff02ffff04ff820dffff03808080ffff04ff02ffff04ff8204ffff03808080ffff01ff088080ff0180ffff04ff02ffff04ffff09ff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ff03808080ffff04ff02ffff04ff0dff03808080ffff04ff02ffff04ff6fff0380808080ff0180ffff04ff02ffff04ff0dff03808080ffff04ff02ffff04ff1bff03808080ffff01ff088080ff0180ffff04ff02ffff04ff0dff03808080ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
+              "bytes": 457,
+              "clvm_hex": "ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff02ffff03ffff07ff1d80ffff01ff0880ffff01ff02ffff01ff02ffff01ff02ffff03ff05ffff01ff02ffff01ff02ffff01ff04ff05ff82015f80ffff04ff02ffff04ffff04ffff0132ffff04ff4fffff04ff05ff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff57ff80808080ff03808080ffff01ff088080ff0180ffff04ff02ffff04ffff09ff05ff8080ff03808080ffff04ff02ffff04ff1dff0380808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ff02ffff03ffff07ff0580ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff1bff80808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff09ff80808080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff05ff0380808080ff0180ff808080ffff04ff01ff80808080",
               "optimize": true,
-              "tree_hash": "86d9a09f8c6d8db2c62f6c0ab9d3c8659dae0256f65211afe14e0b9f2e8f0ce9"
+              "tree_hash": "1fdd8691c17c4b0e0183f3e3a9ca730735fffab1e6eca1040a97714925852aa1"
             }
           ]
         }
@@ -2370,13 +2370,13 @@
       "name": "baseline",
       "witness": "named-key0-conditions0",
       "solution": "(() . (() . ()))",
-      "artifact_sha256": "4ff850272f684f6dfca171ca1a72258c9478caec982bdab1b1e6b70ade17c24d",
+      "artifact_sha256": "b5f219646daada3dfa976057c9eeb44506e1134bb6b333fa294fa5df3ee1ba67",
       "execution": {
         "outcome": {
           "status": "accepted",
           "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
         },
-        "cost": 5614,
+        "cost": 4531,
         "error": null
       }
     },
@@ -2385,13 +2385,13 @@
       "name": "wrong_atom_domain",
       "witness": "named-key0-conditions0",
       "solution": "(() . (() . ()))",
-      "artifact_sha256": "8f4c825be63c67362cdba68f77e1f74554f1663e97ae190b9e284f7508b94c4c",
+      "artifact_sha256": "11f6e334eef18c419c1332c1dfa7c5fcad7f0e906aaec79c3a895fa22f89adc4",
       "execution": {
         "outcome": {
           "status": "accepted",
           "output_hex": "ffff32ff80ffa0dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d9868080"
         },
-        "cost": 5614,
+        "cost": 4531,
         "error": null
       }
     },
@@ -2400,13 +2400,13 @@
       "name": "baseline",
       "witness": "named-key0-conditions0",
       "solution": "(() . (() . ()))",
-      "artifact_sha256": "4ff850272f684f6dfca171ca1a72258c9478caec982bdab1b1e6b70ade17c24d",
+      "artifact_sha256": "b5f219646daada3dfa976057c9eeb44506e1134bb6b333fa294fa5df3ee1ba67",
       "execution": {
         "outcome": {
           "status": "accepted",
           "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
         },
-        "cost": 5614,
+        "cost": 4531,
         "error": null
       }
     },
@@ -2415,13 +2415,13 @@
       "name": "wrong_conditions_tail",
       "witness": "named-key0-conditions0",
       "solution": "(() . (() . ()))",
-      "artifact_sha256": "b198d7a66b56827c37a54226b30d028d498991b2f24a39b73a6f98eb807030ea",
+      "artifact_sha256": "1bc6543c9a0dc5476b9055f283b54d7e955f0339c53fcdcf23d360d42cf11fb0",
       "execution": {
         "outcome": {
           "status": "accepted",
           "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a80ff80ff8080"
         },
-        "cost": 5626,
+        "cost": 4523,
         "error": null
       }
     },
@@ -2430,13 +2430,13 @@
       "name": "baseline",
       "witness": "ignored-outer-tail3",
       "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . (0x09 . (0x08 . ()))))",
-      "artifact_sha256": "4ff850272f684f6dfca171ca1a72258c9478caec982bdab1b1e6b70ade17c24d",
+      "artifact_sha256": "b5f219646daada3dfa976057c9eeb44506e1134bb6b333fa294fa5df3ee1ba67",
       "execution": {
         "outcome": {
           "status": "accepted",
           "output_hex": "ffff32ffb0424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242ffa02b216dd0a27b913062ad71d6e7e081b20bedf306af8c06bd339f9c8734512ab080ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080"
         },
-        "cost": 25944,
+        "cost": 24861,
         "error": null
       }
     },
@@ -2445,7 +2445,7 @@
       "name": "reject_ignored_improper_tail",
       "witness": "ignored-outer-tail3",
       "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . (0x09 . (0x08 . ()))))",
-      "artifact_sha256": "4447163d2af2baecb161d5d33dff3475e989cc9b2257fadb516a74caf089e556",
+      "artifact_sha256": "b88cd2584520b53c6617ef3b4889c737c97447c8b3d44bc833e8231eec1f3795",
       "execution": {
         "outcome": {
           "status": "rejected"
@@ -2466,31 +2466,31 @@
         "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-package/Cargo.toml",
         "--package",
         "chialisp-oxide-p2dc-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/fresh-off",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/fresh-off",
         "--no-optimize"
       ],
       "exit_code": 0,
       "stdout": "logs/00.stdout",
-      "stdout_sha256": "a1b9f4c2b3c748ea47b22814ffa7790126ed8c62cbb3beb980055451d206e77a",
+      "stdout_sha256": "3e1a3e3f44bd55073cfd15f52dc51068bb7bfd171798eb5b3563bf4caaa35dfa",
       "stderr": "logs/00.stderr",
-      "stderr_sha256": "2d05654b1a1cd7ad3c93ca1a845c02ddfd82a44ff73138d0cf07a72a0453e32e"
+      "stderr_sha256": "6ceb08f2ee38226af33b4e0d70bc67ea2b7ed4a19fe23d7b502ed943261c3a57"
     },
     {
       "role": "recompile-off-baseline",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/01.stdout",
-      "stdout_sha256": "afa7785017b119e6df611d98b66e5c69ec6ebc9f628c88153c04df4a570f0b2e",
+      "stdout_sha256": "ea1bac740723c81f6720afe2dfdd3d7965ff9f818e1da06bf233700633475be9",
       "stderr": "logs/01.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2498,12 +2498,12 @@
       "role": "recompile-off-wrong_atom_domain",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/02.stdout",
-      "stdout_sha256": "8c9aa612c192021b4fc91ce11416bd1bf8253ef1975a801c3bd9c01850fc99b0",
+      "stdout_sha256": "d4d51320478d3e1dec8310ba958b532e8ebaa6eec1cef7df23e8da2c5e6fa353",
       "stderr": "logs/02.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2511,12 +2511,12 @@
       "role": "recompile-off-wrong_conditions_tail",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/03.stdout",
-      "stdout_sha256": "19a0d187677bc66920ad287b96a655bc24a8699294a363c23245ef38d729f90c",
+      "stdout_sha256": "750478b8ca4d37dc944a4ed907364f0fe29b9c0992d7b61777dd41abaf38d9df",
       "stderr": "logs/03.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2524,12 +2524,12 @@
       "role": "recompile-off-reject_ignored_improper_tail",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/04.stdout",
-      "stdout_sha256": "d2f1fbed80fa903ce86b583039115945a19781e623d82b0dfdcfec86ab8b0d5f",
+      "stdout_sha256": "080690beaf2a72d5c60c0e8f8b8274de844bcf3b422391c8c75fda6d690fe63a",
       "stderr": "logs/04.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2538,9 +2538,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-baseline-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-baseline-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2555,9 +2555,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-wrong_atom_domain-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-wrong_atom_domain-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2572,9 +2572,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-baseline-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-baseline-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2589,9 +2589,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-wrong_conditions_tail-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-wrong_conditions_tail-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2606,9 +2606,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-baseline-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-baseline-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2623,9 +2623,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/off-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/off-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2641,30 +2641,30 @@
         "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-package/Cargo.toml",
         "--package",
         "chialisp-oxide-p2dc-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/fresh-on"
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/fresh-on"
       ],
       "exit_code": 0,
       "stdout": "logs/11.stdout",
-      "stdout_sha256": "03f3dd136463db4bd2b705920e2ebd135173ccab25f6c86bc0865623cf9abbf0",
+      "stdout_sha256": "c70aea82c0d0a7f3e7b6cff96e54dcc10f5fcb7d3fb095c5ae01cdb1d5350e17",
       "stderr": "logs/11.stderr",
-      "stderr_sha256": "2d05654b1a1cd7ad3c93ca1a845c02ddfd82a44ff73138d0cf07a72a0453e32e"
+      "stderr_sha256": "642cb9dff32fb1efad32610538bef1987489666b1c5e7eb75cbc24fb97288e23"
     },
     {
       "role": "recompile-on-baseline",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/12.stdout",
-      "stdout_sha256": "afa7785017b119e6df611d98b66e5c69ec6ebc9f628c88153c04df4a570f0b2e",
+      "stdout_sha256": "ea1bac740723c81f6720afe2dfdd3d7965ff9f818e1da06bf233700633475be9",
       "stderr": "logs/12.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2672,12 +2672,12 @@
       "role": "recompile-on-wrong_atom_domain",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/13.stdout",
-      "stdout_sha256": "8c9aa612c192021b4fc91ce11416bd1bf8253ef1975a801c3bd9c01850fc99b0",
+      "stdout_sha256": "d4d51320478d3e1dec8310ba958b532e8ebaa6eec1cef7df23e8da2c5e6fa353",
       "stderr": "logs/13.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2685,12 +2685,12 @@
       "role": "recompile-on-wrong_conditions_tail",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/14.stdout",
-      "stdout_sha256": "19a0d187677bc66920ad287b96a655bc24a8699294a363c23245ef38d729f90c",
+      "stdout_sha256": "750478b8ca4d37dc944a4ed907364f0fe29b9c0992d7b61777dd41abaf38d9df",
       "stderr": "logs/14.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2698,12 +2698,12 @@
       "role": "recompile-on-reject_ignored_improper_tail",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
       "stdout": "logs/15.stdout",
-      "stdout_sha256": "d2f1fbed80fa903ce86b583039115945a19781e623d82b0dfdcfec86ab8b0d5f",
+      "stdout_sha256": "080690beaf2a72d5c60c0e8f8b8274de844bcf3b422391c8c75fda6d690fe63a",
       "stderr": "logs/15.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2712,15 +2712,15 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-baseline-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-baseline-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
       "exit_code": 0,
       "stdout": "logs/16.stdout",
-      "stdout_sha256": "d90eb266704b152db0ba7883a1665ca59dddfe42fc1bb525fb995c4b45c29b31",
+      "stdout_sha256": "f39e1237d9da889ec6c959b0e3a518c92db384d55e512b38657a3f5d6ba8aa11",
       "stderr": "logs/16.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2729,15 +2729,15 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-wrong_atom_domain-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-wrong_atom_domain-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
       "exit_code": 0,
       "stdout": "logs/17.stdout",
-      "stdout_sha256": "ee945409f2fca075700968088f07ad40153185f2992d96e50bd578a553aa0b8d",
+      "stdout_sha256": "41faea16110f08e64747b59ec04a2928d8ef9b51612d7c199968799bbb3012b7",
       "stderr": "logs/17.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2746,15 +2746,15 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-baseline-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-baseline-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
       "exit_code": 0,
       "stdout": "logs/18.stdout",
-      "stdout_sha256": "d90eb266704b152db0ba7883a1665ca59dddfe42fc1bb525fb995c4b45c29b31",
+      "stdout_sha256": "f39e1237d9da889ec6c959b0e3a518c92db384d55e512b38657a3f5d6ba8aa11",
       "stderr": "logs/18.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2763,15 +2763,15 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-wrong_conditions_tail-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-wrong_conditions_tail-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
       "exit_code": 0,
       "stdout": "logs/19.stdout",
-      "stdout_sha256": "335867e1b2daa4b47d8ec53fd82c0c3c4a83f93f1a71073c4123fa0689174c7b",
+      "stdout_sha256": "014043721690d806e8d54a9c14f161e79a6d471193ca1c7bb984c82951323480",
       "stderr": "logs/19.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2780,15 +2780,15 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-baseline-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-baseline-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
       "exit_code": 0,
       "stdout": "logs/20.stdout",
-      "stdout_sha256": "2b2d3fef9a7609e810992a817379f738fca267582195d6b43ab393329ccdd761",
+      "stdout_sha256": "124e78e46eba5a296bc903d6c6b08c9683d68f1c696e1a0e9d5c0ed7fa0cb5d3",
       "stderr": "logs/20.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -2797,9 +2797,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/capture-current-corpus/p2dc-capture/on-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/capture-pair-facts-2026-10-20-v1/p2dc-capture/on-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2845,11 +2845,11 @@
     },
     {
       "path": "bundles/off/manifest.json",
-      "sha256": "6d5142ad70564238d1a8834aa48037fe9c9654be2ac4b15e2e947de48fa905f5"
+      "sha256": "6c988f96e598368e11ef8a82fac86b43ee4a2dd7f9a7ff2b91cb81a5f45e9ae2"
     },
     {
       "path": "bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
-      "sha256": "a28024140a33200d048896d466e33fcc6f89cffbb08583293c7740761e972ddd"
+      "sha256": "9ec7812903050de37a4258223e561116be3d22d1c89fe9bd6bca69e7e83f96a4"
     },
     {
       "path": "bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
@@ -2857,7 +2857,7 @@
     },
     {
       "path": "bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
-      "sha256": "d261435b08fe565086742624f43fe9e7d9ff2ef2f4d033ae694cc95112f609db"
+      "sha256": "4fdf32f8da7c2a55ec1d5df69eb46b95a76ae151a337852b14f26d871d1cfb83"
     },
     {
       "path": "bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
@@ -2865,7 +2865,7 @@
     },
     {
       "path": "bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
-      "sha256": "ae06c63ced4af7cc6be7cc77d077669641facbed8594a40988e69da154df80c0"
+      "sha256": "af5fe08c85fe0002f9224b99af9a87d3a1c9ecce0d2916356ae9ea6f4db8de68"
     },
     {
       "path": "bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
@@ -2873,7 +2873,7 @@
     },
     {
       "path": "bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
-      "sha256": "43f47aede74763b6e140604a2c4a654a02ca49270ac76c00e52f154f689c1467"
+      "sha256": "ab0866f4563c68d6c7eea0b8b86c3a80aebf8efde56ca2ec762b2bb6ace49dd3"
     },
     {
       "path": "bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
@@ -2881,19 +2881,19 @@
     },
     {
       "path": "bundles/on/manifest.json",
-      "sha256": "e26787dc85bace642ad958fcf7507cd442eaf782dca78aeeb9e2ce6079fa6470"
+      "sha256": "4d77c922556372ac1bc22e0e4d2de053819f86e4c552103d5d97415b64b978fc"
     },
     {
       "path": "last-host-window.json",
-      "sha256": "83c6f0e6f9c4c09d540dc00787660a5fa21634b5e00b312edc3c9a0a7697fd66"
+      "sha256": "a29ddbf6e4f8c4edf54d3c811ab7dc7b0025408630872440b116b959a5bf8398"
     },
     {
       "path": "logs/00.stderr",
-      "sha256": "2d05654b1a1cd7ad3c93ca1a845c02ddfd82a44ff73138d0cf07a72a0453e32e"
+      "sha256": "6ceb08f2ee38226af33b4e0d70bc67ea2b7ed4a19fe23d7b502ed943261c3a57"
     },
     {
       "path": "logs/00.stdout",
-      "sha256": "a1b9f4c2b3c748ea47b22814ffa7790126ed8c62cbb3beb980055451d206e77a"
+      "sha256": "3e1a3e3f44bd55073cfd15f52dc51068bb7bfd171798eb5b3563bf4caaa35dfa"
     },
     {
       "path": "logs/01.stderr",
@@ -2901,7 +2901,7 @@
     },
     {
       "path": "logs/01.stdout",
-      "sha256": "afa7785017b119e6df611d98b66e5c69ec6ebc9f628c88153c04df4a570f0b2e"
+      "sha256": "ea1bac740723c81f6720afe2dfdd3d7965ff9f818e1da06bf233700633475be9"
     },
     {
       "path": "logs/02.stderr",
@@ -2909,7 +2909,7 @@
     },
     {
       "path": "logs/02.stdout",
-      "sha256": "8c9aa612c192021b4fc91ce11416bd1bf8253ef1975a801c3bd9c01850fc99b0"
+      "sha256": "d4d51320478d3e1dec8310ba958b532e8ebaa6eec1cef7df23e8da2c5e6fa353"
     },
     {
       "path": "logs/03.stderr",
@@ -2917,7 +2917,7 @@
     },
     {
       "path": "logs/03.stdout",
-      "sha256": "19a0d187677bc66920ad287b96a655bc24a8699294a363c23245ef38d729f90c"
+      "sha256": "750478b8ca4d37dc944a4ed907364f0fe29b9c0992d7b61777dd41abaf38d9df"
     },
     {
       "path": "logs/04.stderr",
@@ -2925,7 +2925,7 @@
     },
     {
       "path": "logs/04.stdout",
-      "sha256": "d2f1fbed80fa903ce86b583039115945a19781e623d82b0dfdcfec86ab8b0d5f"
+      "sha256": "080690beaf2a72d5c60c0e8f8b8274de844bcf3b422391c8c75fda6d690fe63a"
     },
     {
       "path": "logs/05.stderr",
@@ -2977,11 +2977,11 @@
     },
     {
       "path": "logs/11.stderr",
-      "sha256": "2d05654b1a1cd7ad3c93ca1a845c02ddfd82a44ff73138d0cf07a72a0453e32e"
+      "sha256": "642cb9dff32fb1efad32610538bef1987489666b1c5e7eb75cbc24fb97288e23"
     },
     {
       "path": "logs/11.stdout",
-      "sha256": "03f3dd136463db4bd2b705920e2ebd135173ccab25f6c86bc0865623cf9abbf0"
+      "sha256": "c70aea82c0d0a7f3e7b6cff96e54dcc10f5fcb7d3fb095c5ae01cdb1d5350e17"
     },
     {
       "path": "logs/12.stderr",
@@ -2989,7 +2989,7 @@
     },
     {
       "path": "logs/12.stdout",
-      "sha256": "afa7785017b119e6df611d98b66e5c69ec6ebc9f628c88153c04df4a570f0b2e"
+      "sha256": "ea1bac740723c81f6720afe2dfdd3d7965ff9f818e1da06bf233700633475be9"
     },
     {
       "path": "logs/13.stderr",
@@ -2997,7 +2997,7 @@
     },
     {
       "path": "logs/13.stdout",
-      "sha256": "8c9aa612c192021b4fc91ce11416bd1bf8253ef1975a801c3bd9c01850fc99b0"
+      "sha256": "d4d51320478d3e1dec8310ba958b532e8ebaa6eec1cef7df23e8da2c5e6fa353"
     },
     {
       "path": "logs/14.stderr",
@@ -3005,7 +3005,7 @@
     },
     {
       "path": "logs/14.stdout",
-      "sha256": "19a0d187677bc66920ad287b96a655bc24a8699294a363c23245ef38d729f90c"
+      "sha256": "750478b8ca4d37dc944a4ed907364f0fe29b9c0992d7b61777dd41abaf38d9df"
     },
     {
       "path": "logs/15.stderr",
@@ -3013,7 +3013,7 @@
     },
     {
       "path": "logs/15.stdout",
-      "sha256": "d2f1fbed80fa903ce86b583039115945a19781e623d82b0dfdcfec86ab8b0d5f"
+      "sha256": "080690beaf2a72d5c60c0e8f8b8274de844bcf3b422391c8c75fda6d690fe63a"
     },
     {
       "path": "logs/16.stderr",
@@ -3021,7 +3021,7 @@
     },
     {
       "path": "logs/16.stdout",
-      "sha256": "d90eb266704b152db0ba7883a1665ca59dddfe42fc1bb525fb995c4b45c29b31"
+      "sha256": "f39e1237d9da889ec6c959b0e3a518c92db384d55e512b38657a3f5d6ba8aa11"
     },
     {
       "path": "logs/17.stderr",
@@ -3029,7 +3029,7 @@
     },
     {
       "path": "logs/17.stdout",
-      "sha256": "ee945409f2fca075700968088f07ad40153185f2992d96e50bd578a553aa0b8d"
+      "sha256": "41faea16110f08e64747b59ec04a2928d8ef9b51612d7c199968799bbb3012b7"
     },
     {
       "path": "logs/18.stderr",
@@ -3037,7 +3037,7 @@
     },
     {
       "path": "logs/18.stdout",
-      "sha256": "d90eb266704b152db0ba7883a1665ca59dddfe42fc1bb525fb995c4b45c29b31"
+      "sha256": "f39e1237d9da889ec6c959b0e3a518c92db384d55e512b38657a3f5d6ba8aa11"
     },
     {
       "path": "logs/19.stderr",
@@ -3045,7 +3045,7 @@
     },
     {
       "path": "logs/19.stdout",
-      "sha256": "335867e1b2daa4b47d8ec53fd82c0c3c4a83f93f1a71073c4123fa0689174c7b"
+      "sha256": "014043721690d806e8d54a9c14f161e79a6d471193ca1c7bb984c82951323480"
     },
     {
       "path": "logs/20.stderr",
@@ -3053,7 +3053,7 @@
     },
     {
       "path": "logs/20.stdout",
-      "sha256": "2b2d3fef9a7609e810992a817379f738fca267582195d6b43ab393329ccdd761"
+      "sha256": "124e78e46eba5a296bc903d6c6b08c9683d68f1c696e1a0e9d5c0ed7fa0cb5d3"
     },
     {
       "path": "logs/21.stderr",
@@ -3065,11 +3065,11 @@
     },
     {
       "path": "native-receipt.json",
-      "sha256": "7cc0e9c947fec7c8c07d21be6e60f935c035b52531e3329fdcb66f699d132ae9"
+      "sha256": "036a35f621e01f38345adbd170fdc376b18b8759bc8e11da2873620a1f6ea720"
     },
     {
       "path": "native.log",
-      "sha256": "6d12794408a9bc6fa3c9188265dd7f1224a4375c63009ffc28174a1d8760fef8"
+      "sha256": "d00b8d42c993100467353f8a59b51a8636570d65d06de97f4c528b6ba1d39c5c"
     },
     {
       "path": "off-baseline-reject_ignored_improper_tail-solution.json",
