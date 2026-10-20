@@ -180,10 +180,32 @@
       "crates/chialisp-oxide/src/lib.rs"
     ]
   },
+  "compiler_transition": {
+    "protocol": "chialisp-oxide-corpus-compiler-transition/v1",
+    "reason": "Pair-aware owned optimizer passes: explicit Cons pairs now fold, refine and project through the constant, forward-fact and interval passes and the v5 entry uses guarded projection facts, changing only the optimized Rust artifact of the retained delegated-conditions export.",
+    "slugs": [
+      "p2-delegated-conditions"
+    ],
+    "metrics": [
+      {
+        "slug": "p2-delegated-conditions",
+        "before": {
+          "bytes": 629,
+          "tree_hash": "3bacf0341c128569ec4c54c97052a2f3b17d776ef7564079f631903bd16d763c",
+          "mean_accepted_cost": 28875
+        },
+        "after": {
+          "bytes": 425,
+          "tree_hash": "dbe9bdad78a4b3d158733936a483fb5a9f9b09cdcf0914dfe80909fa00017dea",
+          "mean_accepted_cost": 21565
+        }
+      }
+    ]
+  },
   "reviewed_after": {
-    "report_sha256": "82dfecb3cb3ee6e7b043452c277eb9a55798275f8fcc202f4835262de147b855",
-    "canonical_report_sha256": "13e2a6d4f1881860e2d34b5922f92d8bd45bfcfa094923101bfe900a205f1ce3",
-    "controls_sha256": "e077b8e5f8aa8cf4cfcc48ff3813cd2a332045f6230014be4f602887a86f43b5",
+    "report_sha256": "6d16e286877e9eec54414aa913514d15043355f2200a0e050b39ce42fe5b6319",
+    "canonical_report_sha256": "ab6c9238c49ff5fc80f3f3561d9365069bc866d1cc57f9ad8af6b646615b56b9",
+    "controls_sha256": "05d0c27c939ca354eee81019452141db9761351200979aa73fb7cd3eb25ce9e1",
     "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
     "added_puzzles": [
       {
@@ -339,7 +361,7 @@
     ],
     "bundles": {
       "on": {
-        "manifest_sha256": "ac0e1fbef342e92759de2f0124af6ce8fa3260e8162b49d2a8a8d6454567a470",
+        "manifest_sha256": "37e39c756a7abe208f28c392b3d79488d93a116094898f9de7de18857e4bf773",
         "optimize_lir": true,
         "cargo_options": [
           "--manifest-path",
@@ -350,7 +372,7 @@
         ]
       },
       "off": {
-        "manifest_sha256": "6825508e5da29de470fc77d2b7c41bd4b9232bae479c38774a7faf82637eeade",
+        "manifest_sha256": "4efa371dc8e2f608204720c80441e1fead02e78d3c94a88573cb1e96353b8c0f",
         "optimize_lir": false,
         "cargo_options": [
           "--manifest-path",

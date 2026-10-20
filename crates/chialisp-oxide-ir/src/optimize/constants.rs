@@ -269,8 +269,36 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
     // bodies. This separate work/copy budget also charges scans/substitution.
     budget.work(1 + bindings.len())?;
     let (expr, known, total) = match expr {
-        Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
-            anyhow::bail!("typed pair frontend rewrites are not admitted")
+        // Explicit typed pairs never fold to a known value (no Known variant
+        // carries their type), but their children fold and their projections
+        // are total by typing whenever the operand is total.
+        Expr::Pair { first, rest } => {
+            let first = expression(first, bindings, budget)?;
+            let rest = expression(rest, bindings, budget)?;
+            let total = first.total && rest.total;
+            (
+                Expr::Pair {
+                    first: Box::new(first.expr),
+                    rest: Box::new(rest.expr),
+                },
+                None,
+                total,
+            )
+        }
+        Expr::PairFirst { value } | Expr::PairRest { value } => {
+            let first = matches!(expr, Expr::PairFirst { .. });
+            let value = expression(value, bindings, budget)?;
+            let total = value.total;
+            let value = Box::new(value.expr);
+            (
+                if first {
+                    Expr::PairFirst { value }
+                } else {
+                    Expr::PairRest { value }
+                },
+                None,
+                total,
+            )
         }
         Expr::Unit => (Expr::Unit, Some(Rc::new(Known::Unit)), true),
         Expr::Bool { value } => (

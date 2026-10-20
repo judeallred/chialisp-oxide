@@ -129,6 +129,22 @@ The manual algorithm theorems, source-derived proof reports and documentation
 publication gates retain their own scopes and must check their actual source
 snapshot separately. **The prototype remains unsuitable for real funds.**
 
+### Compiler transitions inside the append root
+
+A compiler change that alters a retained export's optimized Rust artifact is
+declared in `corpus/corpus-append.json` under `compiler_transition`: the
+retained slugs it touches, a reason, and before/after measurements (bytes,
+tree hash, mean accepted named cost) that the capture records. For each
+declared row, `scripts/corpus_compiler_transition.py` admits only the
+optimized Rust artifact, that mode's recorded VM costs and the fields of the
+dedicated protocol build that derive from the module bytes, which the
+component validator recomputes from the new artifact; every typed outcome and
+failure, the unoptimized Rust artifact, all independent-language artifacts
+and all other builds must stay byte-identical. The checkpoint row is then
+restored for pure historical projection, so the older compiler history stays
+immutable. `scripts/test_corpus_append.py` carries the constructed controls
+for undeclared, wider or mislabeled changes.
+
 ### Manifest-driven port evidence
 
 `scripts/check-port-evidence.py` checks a port's recorded evidence from its

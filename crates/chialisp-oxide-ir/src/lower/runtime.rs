@@ -973,13 +973,13 @@ pub(super) fn bootstrap(
     // helper-local facts do not admit compact unary layouts or Pair rewrites.
     let preflighted = guarded_projections && projection_preflight(program);
     let pair_capability = preflighted && program.uses_pairs();
-    let guarded_projections = preflighted && !pair_capability;
+    let guarded_projections = preflighted;
     let mut runtime = Runtime {
         lower,
         next_temporary: 0,
         work: 0,
         optimize,
-        compact_unary: optimize && compact_unary && guarded_projections,
+        compact_unary: optimize && compact_unary && guarded_projections && !pair_capability,
         pending_operands: 0,
         expression_depth: 0,
         guarded_projections,

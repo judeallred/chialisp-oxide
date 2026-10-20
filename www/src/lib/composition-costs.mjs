@@ -48,7 +48,29 @@ export function compositionCostEvidence(inputs) {
   assert.deepEqual(data['retained-validation'].puzzles.map(row => row.slug), [...append.preserved_slugs, append.added_slug]);
   assert.equal(append.added_slug, 'p2-delegated-conditions');
   const corpus = data['corpus-profile'];
-  fields(corpus, ['schema_version','protocol','status','scope','baseline','preserved_slugs','added','source_transition','reviewed_after']);
+  fields(corpus, ['schema_version','protocol','status','scope','baseline','preserved_slugs','added','source_transition','compiler_transition','reviewed_after']);
+  if (corpus.compiler_transition !== null) {
+    // A declared compiler transition names retained exports whose optimized
+    // Rust artifact changed; the profile records before/after measurements.
+    const transition = corpus.compiler_transition;
+    fields(transition, ['protocol', 'reason', 'slugs', 'metrics']);
+    assert.equal(transition.protocol, 'chialisp-oxide-corpus-compiler-transition/v1');
+    assert(typeof transition.reason === 'string' && transition.reason.length >= 40, 'Compiler transition needs a reviewed reason');
+    assert(Array.isArray(transition.slugs) && transition.slugs.length > 0 && transition.slugs.every(slug => corpus.preserved_slugs.includes(slug)), 'Compiler transition slugs must be retained exports');
+    assert(Array.isArray(transition.metrics) && transition.metrics.map(row => row.slug).join() === transition.slugs.join(), 'Final capture must record transition metrics');
+    for (const row of transition.metrics) {
+      fields(row, ['slug', 'before', 'after']);
+      for (const side of ['before', 'after']) {
+        fields(row[side], ['bytes', 'tree_hash', 'mean_accepted_cost']);
+        assert(Number.isSafeInteger(row[side].bytes) && row[side].bytes > 0 && /^[0-9a-f]{64}$/.test(row[side].tree_hash));
+      }
+      const current = data['active-validation'].puzzles.find(puzzle => puzzle.slug === row.slug);
+      const retained = data['retained-validation'].puzzles.find(puzzle => puzzle.slug === row.slug);
+      const optimized = puzzle => puzzle.artifacts.find(artifact => artifact.backend === 'rust_mir' && artifact.optimize_lir);
+      assert.equal(optimized(current).tree_hash, row.after.tree_hash, `${row.slug}: transition metrics must bind the active optimized artifact`);
+      assert.equal(optimized(retained).tree_hash, row.before.tree_hash, `${row.slug}: transition metrics must bind the retained optimized artifact`);
+    }
+  }
   assert.equal(corpus.schema_version, 1);
   assert.equal(corpus.protocol, 'chialisp-oxide-corpus-append/v1');
   assert.equal(corpus.status, 'reviewed_final', 'Current corpus append remains pending; historical captures cannot publish an active corpus');

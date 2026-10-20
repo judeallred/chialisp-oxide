@@ -18,6 +18,9 @@ def pending_profile():
     value = copy.deepcopy(migration.load())
     value['status'] = migration.PENDING
     value['reviewed_after'] = None
+    if value['compiler_transition'] is not None:
+        # A pending capture carries no measured transition; `record` fills it.
+        value['compiler_transition']['metrics'] = None
     migration.validate_profile(value)
     return value
 
@@ -170,3 +173,94 @@ class SchemaAndRestoration(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class CompilerTransition(unittest.TestCase):
+    """Constructed optimized-artifact transitions for a retained row; no execution credit."""
+    SLUG = 'p2-delegated-conditions'
+
+    def declared(self):
+        profile = pending_profile()
+        profile['compiler_transition'] = dict(protocol=migration.transitions.PROTOCOL, slugs=[self.SLUG], metrics=None,
+                                              reason='Constructed control: pair-aware owned passes change only the optimized Rust artifact.')
+        migration.validate_profile(profile)
+        return profile
+
+    def transitioned(self, before, profile):
+        current = constructed(before, profile)
+        row = next(p for p in current['puzzles'] if p['slug'] == self.SLUG)
+        off, on = row['artifacts'][0], row['artifacts'][1]
+        on.update(bytes=off['bytes'], clvm_hex=off['clvm_hex'], tree_hash=off['tree_hash'], disassembly=off['disassembly'] + ' ; transitioned')
+        for case in row['cases'] + row['protocol_validation']['raw_validation']['cases']:
+            run = case['runs'][1]
+            if type(run['execution']['cost']) is int:
+                run['execution']['cost'] += 1
+        build = row['protocol_validation']['builds'][1]
+        build.update(module_hex=off['clvm_hex'], module_tree_hash=off['tree_hash'])
+        return current
+
+    def test_declared_transition_restores_the_checkpoint_row(self):
+        profile = self.declared()
+        before = migration.predecessor(profile)
+        current = self.transitioned(before, profile)
+        migration.compare_append(profile, before, current)
+        measured = migration.transitions.metrics(before, current, [self.SLUG])
+        self.assertEqual(measured[0]['before']['tree_hash'], before['puzzles'][22]['artifacts'][1]['tree_hash'])
+        self.assertNotEqual(measured[0]['before']['tree_hash'], measured[0]['after']['tree_hash'])
+        profile['compiler_transition']['metrics'] = measured
+        migration.validate_profile(profile)
+        migration.compare_append(profile, before, current)
+        profile['compiler_transition']['metrics'][0]['after']['bytes'] += 1
+        with self.assertRaisesRegex(ValueError, 'metrics differ'):
+            migration.compare_append(profile, before, current)
+
+    def test_undeclared_or_wider_changes_reject(self):
+        profile = self.declared()
+        before = migration.predecessor(profile)
+        current = self.transitioned(before, profile)
+        undeclared = copy.deepcopy(profile)
+        undeclared['compiler_transition'] = None
+        with self.assertRaises(ValueError):
+            migration.compare_append(undeclared, before, current)
+        for mutation in ('optimized_outcome', 'optimized_failure', 'off_artifact', 'chialisp_artifact', 'rue_artifact', 'native', 'raw_native',
+                         'observation_code', 'observation_equality', 'off_build', 'count', 'module_identity', 'source', 'bad_hash'):
+            changed = copy.deepcopy(current)
+            row = next(p for p in changed['puzzles'] if p['slug'] == self.SLUG)
+            protocol = row['protocol_validation']
+            accepted = next(c for c in row['cases'] if c['native']['status'] == 'accepted')
+            if mutation == 'optimized_outcome': accepted['runs'][1]['execution']['outcome'] = {'status': 'rejected'}
+            elif mutation == 'optimized_failure': accepted['runs'][1]['execution']['error'] = 'spoofed'
+            elif mutation == 'off_artifact': row['artifacts'][0]['bytes'] += 1
+            elif mutation == 'chialisp_artifact': row['artifacts'][2]['clvm_hex'] = '80'
+            elif mutation == 'rue_artifact': row['artifacts'][4]['tree_hash'] = '0' * 64
+            elif mutation == 'native': accepted['native'] = {'status': 'rejected'}
+            elif mutation == 'raw_native': protocol['raw_validation']['cases'][0]['native'] = {'status': 'rejected'}
+            elif mutation == 'observation_code': protocol['builds'][1]['observations'][1]['code'] = 'CostExceeded'
+            elif mutation == 'observation_equality': protocol['builds'][1]['observations'][1]['full_simulator_equality'] = False
+            elif mutation == 'off_build': protocol['builds'][0]['module_tree_hash'] = '0' * 64
+            elif mutation == 'count': protocol['accepted'] += 1
+            elif mutation == 'module_identity': row['module_identity']['comparisons'][1]['tree_hash_equal'] = True
+            elif mutation == 'source': row['source'] += '\n'
+            else: row['artifacts'][1]['tree_hash'] = '0' * 64
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):
+                migration.compare_append(profile, before, changed)
+
+    def test_declaration_schema_is_closed(self):
+        base = self.declared()
+        for mutation in ('protocol', 'short_reason', 'unknown_slug', 'added_slug', 'duplicate', 'extra', 'metric_slugs'):
+            changed = copy.deepcopy(base)
+            value = changed['compiler_transition']
+            if mutation == 'protocol': value['protocol'] = 'other/v1'
+            elif mutation == 'short_reason': value['reason'] = 'because'
+            elif mutation == 'unknown_slug': value['slugs'] = ['invented']
+            elif mutation == 'added_slug': value['slugs'] = [changed['added'][0]['slug']]
+            elif mutation == 'duplicate': value['slugs'] = [self.SLUG, self.SLUG]
+            elif mutation == 'extra': value['sidecar'] = 'x'
+            else: value['metrics'] = []
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):
+                migration.validate_profile(changed)
+        final = copy.deepcopy(migration.load())
+        if final['status'] == migration.FINAL:
+            final['compiler_transition'] = dict(base['compiler_transition'])
+            with self.assertRaisesRegex(ValueError, 'metrics'):
+                migration.validate_profile(final)

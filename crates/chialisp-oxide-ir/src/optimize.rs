@@ -14,14 +14,12 @@ pub(crate) struct Plan {
 
 pub(crate) fn plan(program: &Program) -> Result<Plan> {
     program.validate()?;
-    // Initial pair admission deliberately has no frontend rewrite semantics.
-    // Keep strict runtime mode; Rue LIR/codegen and runtime frame forwarding
-    // are independently controlled by the compiler's optimization setting.
+    // Pair-capable programs charge their literal-copy budget before the same
+    // owned passes run over them. Explicit pairs fold and refine like borrowed
+    // trees with total projections; helper inlining still declines any body
+    // that constructs or projects an explicit pair.
     if program.uses_pairs() {
-        return Ok(Plan {
-            program: pair_copy(program)?,
-            before_inlining: None,
-        });
+        pair_copy_budget(program)?;
     }
     let previous = before_inlining(program)?;
     Ok(if let Some(inlined) = inline::optimize(&previous)? {
@@ -50,7 +48,7 @@ impl std::error::Error for PairCopyLimit {}
 /// owned string before cloning the unchanged pair-capable program as an
 /// optimization result; bypassing unsupported rewrites must not bypass their
 /// literal-copy budget. This scan allocates only bounded borrowed descriptors.
-fn pair_copy(program: &Program) -> Result<Program> {
+fn pair_copy_budget(program: &Program) -> Result<()> {
     let mut bytes = 0usize;
     let mut charge = |text: &str| -> Result<()> {
         bytes = bytes.saturating_add(text.len());
@@ -78,7 +76,7 @@ fn pair_copy(program: &Program) -> Result<Program> {
         }
         crate::validate::children(expression, &mut pending);
     }
-    Ok(program.clone())
+    Ok(())
 }
 
 fn refine(program: &Program) -> Result<Option<Program>> {

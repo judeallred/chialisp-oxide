@@ -69,9 +69,12 @@ compiler preservation or production readiness.
 
 ## Next work
 
-1. Pair-aware helper optimization with divergence-aware reasoning to close the
-   size gap on real ports (optimized Rust is still several times canonical
-   Chialisp); judge by serialized bytes and full spend-bundle cost.
+1. Further pair-aware optimization to close the remaining size gap on real
+   ports: explicit pairs now fold and refine through the owned passes
+   (delegated conditions 629 → 425 bytes), but continuation frames in v5
+   entries and pair-constructing helpers remain unelided and optimized Rust is
+   still several times canonical Chialisp; judge by serialized bytes and full
+   spend-bundle cost.
 2. Migrate further canonical tutorial and CHIP implementations with explicit
    semantic contracts, module-identity records and complete-spend tests; the
    inventory has 98 source entries and both parent tutorial pages remain

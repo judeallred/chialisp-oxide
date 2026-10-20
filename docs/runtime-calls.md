@@ -149,6 +149,22 @@ bounded helper inlining → runtime frame elision → guarded projection forward
 and skips these optional stages. The extracted source IR and its wire version
 stay unchanged; every owned IR rewrite is validated before lowering.
 
+Pair-capable programs, those whose IR constructs or projects explicit `Cons`
+pairs, run through the same owned passes. The constant, forward-fact and
+interval passes treat an explicit pair like a borrowed tree constructor: both
+children evaluate strictly in order, a constructed pair records its children's
+facts, and a typed pair projection is total whenever its operand is total, so
+it records no shape requirement and is never folded to a known constant. The
+v5 entry body uses the same guarded projection facts as pair-free entries;
+compact unary layouts stay off and every v5 call keeps proper argument frames.
+Bounded helper inlining still declines any body that constructs or projects an
+explicit pair. On the delegated-conditions port this removed the repeated pair
+guards: optimized Rust fell from 629 to 425 bytes and the mean accepted named
+cost from 28,875 to 21,565, with all five builds agreeing on every named and
+generated input. That transition is declared in the corpus append profile and
+admits only the optimized Rust artifact, its costs and the module-derived
+protocol fields of that retained row.
+
 Constant folding respects Rust's integer width and checked overflow. An unused
 total constant or match discriminant can disappear, but a call, SHA computation,
 checked projection or potentially overflowing arithmetic still executes. Known

@@ -21,11 +21,12 @@ import runtime_cost_migration as cost
 import runtime_composition_migration as composition
 import p2dc_append_migration as outer
 import p2_delegated_conditions_evidence as component
+import corpus_compiler_transition as transitions
 import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = 'fecedefb81ee099c8a37933fd94c09a668b2c17d4876edb9912fe61486c10721'
+PIN = '3b90b522e5ee2139705fc56783fabb09e4741167ac5f62bcfe51f8413b91ba5a'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
@@ -111,7 +112,7 @@ def capture_fields(after, profile):
 
 def validate_profile(value):
     ledger.closed(value, ['schema_version', 'protocol', 'status', 'scope', 'baseline', 'preserved_slugs', 'added',
-                          'source_transition', 'reviewed_after'], 'corpus append profile')
+                          'source_transition', 'compiler_transition', 'reviewed_after'], 'corpus append profile')
     require(type(value['schema_version']) is int and value['schema_version'] == 1 and value['protocol'] == PROTOCOL
             and value['status'] in (PENDING, FINAL) and type(value['scope']) is str and value['scope'], 'corpus append profile schema')
     baseline = value['baseline']
@@ -149,10 +150,14 @@ def validate_profile(value):
     dependencies = transition['embedded_dependency_paths']
     require(type(dependencies) is list and dependencies == sorted(set(dependencies)) and set(dependencies) <= changed_paths,
             'embedded dependency paths must be changed sources')
+    if value['compiler_transition'] is not None:
+        transitions.validate_declaration(value['compiler_transition'], PRESERVED)
     if value['status'] == PENDING:
         require(value['reviewed_after'] is None, 'mixed pending capture')
     else:
         capture_fields(value['reviewed_after'], value)
+        require(value['compiler_transition'] is None or value['compiler_transition']['metrics'] is not None,
+                'a final capture must record its compiler transition metrics')
     return value
 
 
@@ -233,17 +238,18 @@ def compare_append(profile, before, current):
     restored = copy.deepcopy(current)
     restored['authoring'] = copy.deepcopy(a)
     del restored['puzzles'][len(PRESERVED):]
+    transitioned = set(profile['compiler_transition']['slugs']) if profile['compiler_transition'] else set()
     changes = {r['path']: r for r in transition['changed']}
     native = set(transition['embedded_native_paths'])
     dependencies = set(transition['embedded_dependency_paths'])
     substitutions = []
-    for previous, actual, target in zip(before['puzzles'], current['puzzles'][:len(PRESERVED)], restored['puzzles'], strict=True):
+    for index, (previous, actual, target) in enumerate(zip(before['puzzles'], current['puzzles'][:len(PRESERVED)], restored['puzzles'], strict=True)):
         # Declared source dependencies embed the file text: a changed SDK facade
         # restores to the checkpoint's recorded row only through the reviewed
         # transition, exactly like embedded native sources below.
         old_rows, new_rows = previous.get('source_dependencies', []), actual.get('source_dependencies', [])
         require(type(old_rows) is list and type(new_rows) is list and len(old_rows) == len(new_rows), 'dependency metadata count')
-        for index, (x, y) in enumerate(zip(old_rows, new_rows, strict=True)):
+        for position, (x, y) in enumerate(zip(old_rows, new_rows, strict=True)):
             ledger.closed(x, ['path', 'sha256', 'source'], 'old dependency')
             ledger.closed(y, ['path', 'sha256', 'source'], 'new dependency')
             require(x['path'] == y['path'], 'dependency path/order changed')
@@ -251,25 +257,34 @@ def compare_append(profile, before, current):
                 row = changes[x['path']]
                 require(x['sha256'] == row['before_sha256'] and y['sha256'] == row['after_sha256']
                         and sha(y['source'].encode()) == row['after_sha256'], 'embedded dependency hashes not bound')
-                target['source_dependencies'][index] = copy.deepcopy(x)
+                target['source_dependencies'][position] = copy.deepcopy(x)
                 substitutions.append(dict(slug=previous['slug'], path=x['path']))
             else:
                 require(x == y, 'other dependency changed')
         require(('native_sources' in previous) == ('native_sources' in actual), 'native metadata presence changed')
-        if 'native_sources' not in previous:
-            continue
-        require(len(previous['native_sources']) == len(actual['native_sources']), 'native metadata count')
-        for index, (x, y) in enumerate(zip(previous['native_sources'], actual['native_sources'], strict=True)):
-            ledger.closed(x, ['path', 'sha256'], 'old native source')
-            ledger.closed(y, ['path', 'sha256'], 'new native source')
-            require(x['path'] == y['path'], 'native path/order changed')
-            if x['path'] in native:
-                row = changes[x['path']]
-                require(x['sha256'] == row['before_sha256'] and y['sha256'] == row['after_sha256'], 'embedded native source hashes not bound')
-                target['native_sources'][index] = copy.deepcopy(x)
-                substitutions.append(dict(slug=previous['slug'], path=x['path']))
-            else:
-                require(x == y, 'other native source changed')
+        if 'native_sources' in previous:
+            require(len(previous['native_sources']) == len(actual['native_sources']), 'native metadata count')
+            for position, (x, y) in enumerate(zip(previous['native_sources'], actual['native_sources'], strict=True)):
+                ledger.closed(x, ['path', 'sha256'], 'old native source')
+                ledger.closed(y, ['path', 'sha256'], 'new native source')
+                require(x['path'] == y['path'], 'native path/order changed')
+                if x['path'] in native:
+                    row = changes[x['path']]
+                    require(x['sha256'] == row['before_sha256'] and y['sha256'] == row['after_sha256'], 'embedded native source hashes not bound')
+                    target['native_sources'][position] = copy.deepcopy(x)
+                    substitutions.append(dict(slug=previous['slug'], path=x['path']))
+                else:
+                    require(x == y, 'other native source changed')
+        if previous['slug'] in transitioned:
+            # A reviewed compiler transition admits only the optimized Rust
+            # artifact, its costs and the module-derived protocol fields, after
+            # the source transition above; the checkpoint row is then restored
+            # for pure historical projection.
+            transitions.equivalent(previous, target)
+            restored['puzzles'][index] = copy.deepcopy(previous)
+    if transitioned and profile['compiler_transition']['metrics'] is not None:
+        require(profile['compiler_transition']['metrics'] == transitions.metrics(before, current, profile['compiler_transition']['slugs']),
+                'compiler transition metrics differ from the retained and current rows')
     require(same(restored, before), 'whole retained source/ABI/artifact/OFF/typed/coverage/protocol/metadata regression')
     return substitutions
 
@@ -414,6 +429,8 @@ def record(report, payload, on, off, *, compiler, driver_sha256, toolchain, carg
     # newly listed export only needs its `added` row.
     profile['status'] = PENDING
     profile['reviewed_after'] = None
+    if profile['compiler_transition'] is not None:
+        profile['compiler_transition']['metrics'] = None
     before = predecessor(profile)
     slugs = current_slugs(profile)
     require([p['slug'] for p in report['puzzles']] == slugs, 'report must list the preserved slugs then every added slug in order')
@@ -435,6 +452,8 @@ def record(report, payload, on, off, *, compiler, driver_sha256, toolchain, carg
             value = sha(report_payload(loaded.manifest_path.parent / row['ir']))
             require(raw_ir.setdefault(row['entry'], value) == value, 'raw IR differs between optimization modes')
         bundles[mode] = dict(manifest_sha256=sha(report_payload(loaded.manifest_path)), optimize_lir=optimize, cargo_options=list(cargo_options))
+    if profile['compiler_transition'] is not None:
+        profile['compiler_transition']['metrics'] = transitions.metrics(before, report, profile['compiler_transition']['slugs'])
     profile['status'] = FINAL
     profile['reviewed_after'] = dict(
         report_sha256=sha(payload), canonical_report_sha256=sha(canonical(report)),

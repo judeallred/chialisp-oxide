@@ -53,7 +53,8 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::Sequence { .. }
         | Expr::Binary { .. }
         | Expr::Apply { .. }
-        | Expr::TreePair { .. } => 2,
+        | Expr::TreePair { .. }
+        | Expr::Pair { .. } => 2,
         Expr::If { .. } => 3,
         Expr::Field { .. }
         | Expr::Not { .. }
@@ -62,7 +63,9 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::TreeAtomValue { .. }
         | Expr::TreeIsPair { .. }
         | Expr::TreeFirst { .. }
-        | Expr::TreeRest { .. } => 1,
+        | Expr::TreeRest { .. }
+        | Expr::PairFirst { .. }
+        | Expr::PairRest { .. } => 1,
         _ => 0,
     };
     budget.work(n)?;
@@ -86,6 +89,10 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::TreePair {
             first: left,
             rest: right,
+        }
+        | Expr::Pair {
+            first: left,
+            rest: right,
         } => pending.extend([left.as_ref(), right.as_ref()]),
         Expr::If {
             condition,
@@ -99,7 +106,9 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::TreeAtomValue { value }
         | Expr::TreeIsPair { value }
         | Expr::TreeFirst { value }
-        | Expr::TreeRest { value } => pending.push(value),
+        | Expr::TreeRest { value }
+        | Expr::PairFirst { value }
+        | Expr::PairRest { value } => pending.push(value),
         _ => (),
     }
     Some(())
@@ -651,7 +660,8 @@ fn apply(source: &Expr, out: &mut Expr, remove: &BTreeSet<*const Expr>) {
                 left: c, right: d, ..
             },
         )
-        | (Expr::TreePair { first: a, rest: b }, Expr::TreePair { first: c, rest: d }) => {
+        | (Expr::TreePair { first: a, rest: b }, Expr::TreePair { first: c, rest: d })
+        | (Expr::Pair { first: a, rest: b }, Expr::Pair { first: c, rest: d }) => {
             apply(a, c, remove);
             apply(b, d, remove);
         }
@@ -678,7 +688,9 @@ fn apply(source: &Expr, out: &mut Expr, remove: &BTreeSet<*const Expr>) {
         | (Expr::TreeAtomValue { value: a }, Expr::TreeAtomValue { value: z })
         | (Expr::TreeIsPair { value: a }, Expr::TreeIsPair { value: z })
         | (Expr::TreeFirst { value: a }, Expr::TreeFirst { value: z })
-        | (Expr::TreeRest { value: a }, Expr::TreeRest { value: z }) => apply(a, z, remove),
+        | (Expr::TreeRest { value: a }, Expr::TreeRest { value: z })
+        | (Expr::PairFirst { value: a }, Expr::PairFirst { value: z })
+        | (Expr::PairRest { value: a }, Expr::PairRest { value: z }) => apply(a, z, remove),
         _ => (),
     }
 }

@@ -23,6 +23,12 @@ alwaysApply: true
 - Keep Rue codegen iterative, including static-data traversal and staged Closure
   emission. Preserve child/allocator order and repeated DAG allocation. Exercise
   default-sized thread stacks; raising a test's stack is not a robustness fix.
+- Explicit `Cons` pairs fold, refine and project like borrowed trees: strict
+  children, total projections without shape facts, no known-constant pairs and
+  no helper inlining of pair bodies. The v5 entry may use guarded projection
+  facts; compact unary layouts and proper v5 call frames stay as they were.
+  A retained row's optimized Rust artifact changes only through a declared
+  compiler transition in the corpus append profile with before/after metrics.
 - Propagate integer bounds only on immutable lexical values after successful
   guards. Join successful paths and start fresh callee scopes; never borrow
   sibling/future facts. Discard checked arithmetic only when proven total.

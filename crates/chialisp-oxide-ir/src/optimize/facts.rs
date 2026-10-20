@@ -179,8 +179,51 @@ impl Analysis {
         self.charge(1)?;
         let mut value = Value::default();
         let result = match expression {
-            Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {
-                anyhow::bail!("typed pair frontend rewrites are not admitted")
+            // Explicit typed pairs are constructed and projected like borrowed
+            // trees, except that their projections are total by typing and
+            // therefore record no shape requirement. Facts of the constructed
+            // children flow through the pair value exactly as for TreePair.
+            Expr::Pair { first, rest } => {
+                let (first, a) = self.expression(first, context)?;
+                let (rest, b) = self.expression(rest, context)?;
+                value.shape = Some(Shape::Pair);
+                value.pair = Some((a, b));
+                Expr::Pair {
+                    first: Box::new(first),
+                    rest: Box::new(rest),
+                }
+            }
+            Expr::PairFirst { value: operand } | Expr::PairRest { value: operand } => {
+                let (operand, info) = self.expression(operand, context)?;
+                let first = matches!(expression, Expr::PairFirst { .. });
+                let output = if let Some((a, b)) = &info.pair {
+                    if first { a.clone() } else { b.clone() }
+                } else {
+                    Rc::new(Value {
+                        identity: match info.identity {
+                            Some(id) => Some(self.projected(
+                                id,
+                                if first {
+                                    Projection::First
+                                } else {
+                                    Projection::Rest
+                                },
+                            )?),
+                            None => None,
+                        },
+                        ..Value::default()
+                    })
+                };
+                let result = if first {
+                    Expr::PairFirst {
+                        value: Box::new(operand),
+                    }
+                } else {
+                    Expr::PairRest {
+                        value: Box::new(operand),
+                    }
+                };
+                return Ok((result, output));
             }
             Expr::Arg { index } => {
                 return Ok((expression.clone(), context.arguments[*index].clone()));
