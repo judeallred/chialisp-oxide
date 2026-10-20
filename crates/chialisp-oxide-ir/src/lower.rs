@@ -242,6 +242,9 @@ impl Lower<'_> {
             Expr::Sha256 { .. } => {
                 anyhow::bail!("SHA256 requires strict version-4 lowering")
             }
+            Expr::Apply { .. } => {
+                anyhow::bail!("apply requires strict version-4 lowering")
+            }
             Expr::Atom { hex } => self.bytes(hex::decode(hex)?),
             Expr::AtomIsEmpty { value } => {
                 let value = self.expression(value)?;

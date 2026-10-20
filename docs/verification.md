@@ -111,7 +111,7 @@ IR validation/recompilation of every retained program in both modes. The complet
 22-puzzle predecessor and its 44 raw IR/artifact combinations remain exact after
 the closed source/native metadata transition. That 23-export report is now the
 retained checkpoint of the generic corpus append (`corpus/corpus-append.json`),
-which admits the current 26-export report, re-extracts every export in both
+which admits the current 27-export report, re-extracts every export in both
 modes, binds a freshly captured pay-to-singleton policy-control sidecar to the
 current source window, and restores all 23 retained rows byte-for-byte before
 any older projection. The three added Using Modules rows carry their own finite

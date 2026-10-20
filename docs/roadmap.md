@@ -4,15 +4,16 @@
 
 **WIP prototype — not ready for real funds or production use.**
 
-The latest local capture covers 26 annotated exports: the retained 23-export
-delegated-conditions corpus plus the three pinned Using Modules programs through
-declared signed 64-bit typed adapters. The generic corpus append root
+The latest local capture covers 27 annotated exports: the retained 23-export
+delegated-conditions corpus, the three pinned Using Modules programs through
+declared signed 64-bit typed adapters, and the original delegated-puzzle
+fixture for the reviewed `apply` bridge. The generic corpus append root
 (`scripts/corpus_append.py`, profile `corpus/corpus-append.json`) admits the
 current report, restores the retained
 [23-export checkpoint](../corpus/checkpoints/p2dc-append-validation.json)
 byte-for-byte and then projects the older history; new exports extend the
 profile data instead of adding migration modules.
-Its repeated report records 509 named and 25,222 generated inputs. The earlier
+Its repeated report records 525 named and 25,222 generated inputs. The earlier
 [22-export composition report](../corpus/checkpoints/runtime-composition-validation.json),
 `227ce911…`, remains an immutable checkpoint. Current proof, documentation and
 publication gates have separate source and execution requirements; the local
@@ -32,12 +33,18 @@ capture does not establish production readiness or full Chialisp parity.
   checked fixed-width bounds, byte arrays, tuples, booleans, and exact arity.
 - An explicit SHA-256 bridge admits one reviewed safe native implementation by
   actual signature and complete typed-MIR closure/profile fingerprint. Cargo
-  extraction and the local corpus capture cover twenty-six annotated exports,
+  extraction and the local corpus capture cover twenty-seven annotated exports,
   including the raw-domain `sha256tree` helper adapter, singleton launcher,
   original password tutorial module, canonical pay-to-singleton and
   delegated-conditions components, and the three Using Modules programs.
   Immutable fixed-byte-array references coerce to slices for lengths up to 256;
   this does not admit general casts, mutable slices or arbitrary hash libraries.
+- A reviewed `apply` bridge: the SDK's reserved export is admitted by exact
+  signature and implementation fingerprint (its `vm`-less body is a bare
+  panic; the `vm` feature evaluates through the pinned VM for host tests) and
+  lowers to opcode 2 with strict bindings. The original `delegated-puzzle`
+  fixture witnesses it; every proof model rejects applications. See
+  [dynamic application](dynamic-apply.md).
 - Ten original teaching examples, three exact canonical Intro expressions,
   three exact Using Modules programs compiled unchanged with every typed-adapter
   difference declared per case, and
@@ -176,7 +183,7 @@ replays remain historical results. Source-derived proof, error-study, Lean and
 site results must retain their own source basis. The retained 23-export capture
 was executed twice with exact reports, fresh ON/OFF extraction in both repeats,
 all 23 retained IR programs recompiled in both modes, and a separate five-build
-replay of 1,000 VM evaluations over the same 200 inputs. The current 26-export
+replay of 1,000 VM evaluations over the same 200 inputs. The current 27-export
 append re-extracts all exports in both modes, recaptures the pay-to-singleton
 policy-control sidecar for the current source window through
 `scripts/capture-p2-controls.py`, and restores every retained row exactly. The complete earlier
@@ -199,7 +206,7 @@ raw-tree relation, quoted curry trees, instance hashes, typed outcomes, state
 rollback and finite evidence corruption controls. Retained-byte replay does not
 resubmit consensus transactions or prove preservation. The completed checkpoint's
 fresh extraction retains all twenty-two ports' raw IR in both modes. The current
-generic append requires every current export (now twenty-six) before any pure
+generic append requires every current export (now twenty-seven) before any pure
 historical projection; it never admits an older report as current evidence.
 
 The cost iteration adds checked constant folding, forward execution-success

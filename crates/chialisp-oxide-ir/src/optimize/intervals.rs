@@ -49,7 +49,11 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
         | Expr::Call {
             arguments: items, ..
         } => items.len(),
-        Expr::Let { .. } | Expr::Sequence { .. } | Expr::Binary { .. } | Expr::TreePair { .. } => 2,
+        Expr::Let { .. }
+        | Expr::Sequence { .. }
+        | Expr::Binary { .. }
+        | Expr::Apply { .. }
+        | Expr::TreePair { .. } => 2,
         Expr::If { .. } => 3,
         Expr::Field { .. }
         | Expr::Not { .. }
@@ -75,6 +79,10 @@ fn children<'a>(e: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -
             then_value: body,
         } => pending.extend([value.as_ref(), body.as_ref()]),
         Expr::Binary { left, right, .. }
+        | Expr::Apply {
+            program: left,
+            environment: right,
+        }
         | Expr::TreePair {
             first: left,
             rest: right,
@@ -597,6 +605,19 @@ fn apply(source: &Expr, out: &mut Expr, remove: &BTreeSet<*const Expr>) {
         return;
     }
     match (source, out) {
+        (
+            Expr::Apply {
+                program: a1,
+                environment: a2,
+            },
+            Expr::Apply {
+                program: z1,
+                environment: z2,
+            },
+        ) => {
+            apply(a1, z1, remove);
+            apply(a2, z2, remove);
+        }
         (Expr::Tuple { items: a }, Expr::Tuple { items: z })
         | (Expr::Sha256 { parts: a }, Expr::Sha256 { parts: z })
         | (Expr::Call { arguments: a, .. }, Expr::Call { arguments: z, .. }) => {

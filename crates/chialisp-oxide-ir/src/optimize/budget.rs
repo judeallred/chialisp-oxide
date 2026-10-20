@@ -36,6 +36,7 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::Sequence { .. }
             | Expr::TreePair { .. }
             | Expr::Pair { .. }
+            | Expr::Apply { .. }
             | Expr::Binary { .. } => 2,
             Expr::If { .. } => 3,
             Expr::AtomIsEmpty { .. }
@@ -79,7 +80,11 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 pending.extend([(first.as_ref(), depth), (rest.as_ref(), depth)]);
             }
-            Expr::Binary { left, right, .. } => {
+            Expr::Binary { left, right, .. }
+            | Expr::Apply {
+                program: left,
+                environment: right,
+            } => {
                 pending.extend([(left.as_ref(), depth), (right.as_ref(), depth)]);
             }
             Expr::If {

@@ -171,6 +171,7 @@ impl Translation {
     pub(crate) fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
             Expr::Sha256 { .. } => bail!("structural SMT does not model SHA256 semantics"),
+            Expr::Apply { .. } => bail!("structural SMT does not model dynamic application"),
             Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
                 bail!("structural SMT does not model runtime functions or local bindings")
             }

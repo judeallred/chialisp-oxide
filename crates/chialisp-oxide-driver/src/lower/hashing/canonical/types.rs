@@ -40,6 +40,52 @@ impl<'tcx> Encode<'tcx> {
             )
             .map_err(|_| "type constant normalization".into())
     }
+    /// Exactly the borrowed tree shape the frontend admits: an ordinary enum with
+    /// one lifetime parameter, no destructor, variants `Atom(&[u8])` and
+    /// `Pair(&Self, &Self)` in that order. Names and crates are irrelevant.
+    pub(super) fn admitted_borrowed_tree(&self, t: Ty<'tcx>) -> bool {
+        let ty::Adt(definition, args) = t.kind() else {
+            return false;
+        };
+        if !definition.is_enum()
+            || definition.has_dtor(self.tcx)
+            || definition.variants().len() != 2
+            || definition.repr().c()
+            || definition.repr().int.is_some()
+            || args.len() != 1
+            || args.iter().any(|a| a.as_region().is_none())
+        {
+            return false;
+        }
+        let variants = definition.variants();
+        let atom = &variants[rustc_abi::VariantIdx::from_u32(0)];
+        let pair = &variants[rustc_abi::VariantIdx::from_u32(1)];
+        if atom.fields.len() != 1 || pair.fields.len() != 2 {
+            return false;
+        }
+        let field = |v: &ty::VariantDef, i: usize| {
+            self.tcx
+                .try_normalize_erasing_regions(
+                    ty::TypingEnv::fully_monomorphized(),
+                    v.fields[rustc_abi::FieldIdx::from_usize(i)].ty(self.tcx, args),
+                )
+                .ok()
+        };
+        let is_u8_slice_ref = |f: Ty<'tcx>| {
+            matches!(f.kind(), ty::Ref(_, inner, ty::Mutability::Not)
+                if matches!(inner.kind(), ty::Slice(e) if *e == self.tcx.types.u8))
+        };
+        let is_self_ref = |f: Ty<'tcx>| {
+            matches!(f.kind(), ty::Ref(_, inner, ty::Mutability::Not)
+                if matches!(inner.kind(), ty::Adt(inner_def, _) if inner_def.did() == definition.did()))
+        };
+        match (field(atom, 0), field(pair, 0), field(pair, 1)) {
+            (Some(payload), Some(first), Some(rest)) => {
+                is_u8_slice_ref(payload) && is_self_ref(first) && is_self_ref(rest)
+            }
+            _ => false,
+        }
+    }
     pub(super) fn ty(&mut self, t: Ty<'tcx>, depth: usize) -> R {
         self.charge(1)?;
         if depth >= 32 {
@@ -49,6 +95,8 @@ impl<'tcx> Encode<'tcx> {
         match t.kind() {
             ty::Bool => self.tag(1)?,
             ty::Never => self.tag(8)?,
+            // Only the core panic leaf's `&'static str` message reaches here.
+            ty::Str => self.tag(10)?,
             ty::Int(i) => {
                 self.tag(2)?;
                 self.tag(match i {
@@ -100,6 +148,12 @@ impl<'tcx> Encode<'tcx> {
                 for t in items.iter() {
                     self.ty(t, depth + 1)?
                 }
+            }
+            ty::Adt(..) if self.admitted_borrowed_tree(t) => {
+                // Structural identity only: the shape check below fixes every
+                // variant and field, so no definition path or name is encoded.
+                self.tag(9)?;
+                self.string("admitted_borrowed_tree")?
             }
             _ => return Err(format!("unencoded type: {t:?}")),
         }
@@ -189,56 +243,80 @@ impl<'tcx> Encode<'tcx> {
         self.instance = previous;
         result
     }
+    /// Encode one reviewed leaf of the installed core library: the owner must be
+    /// the actual `core` crate loaded from the pinned sysroot target directory.
+    fn core_leaf(&mut self, instance: ty::Instance<'tcx>, label: &str) -> R {
+        let did = instance.def_id();
+        let core = self
+            .tcx
+            .lang_items()
+            .eq_trait()
+            .ok_or("missing core anchor")?
+            .krate;
+        if did.is_local() || did.krate != core || self.tcx.crate_name(core).as_str() != "core" {
+            return Err(format!("{label}: language item has foreign owner"));
+        }
+        let sysroot = std::path::Path::new(env!("CHIALISP_OXIDE_SYSROOT"))
+            .canonicalize()
+            .map_err(|_| "pinned sysroot missing")?;
+        let expected = sysroot
+            .join("lib/rustlib")
+            .join(self.tcx.sess.opts.target_triple.tuple())
+            .join("lib")
+            .canonicalize()
+            .map_err(|_| "target libraries missing")?;
+        let source = self.tcx.used_crate_source(core);
+        let mut count = 0;
+        for p in [
+            &source.rmeta,
+            &source.rlib,
+            &source.dylib,
+            &source.sdylib_interface,
+        ]
+        .into_iter()
+        .flatten()
+        {
+            count += 1;
+            let p = p.canonicalize().map_err(|_| "core source missing")?;
+            if p.parent() != Some(expected.as_path()) {
+                return Err("core leaf source outside pinned installation".into());
+            }
+        }
+        if count == 0 {
+            return Err("core source unavailable".into());
+        }
+        self.tag(1)?;
+        self.string(label)?;
+        self.signature(instance)?;
+        self.leaf_calls += 1;
+        Ok(())
+    }
     pub(super) fn instance_ref(&mut self, instance: ty::Instance<'tcx>) -> R {
         self.raw_graph(Raw::Args(instance.args))?;
         let did = instance.def_id();
-        if Some(did) == self.tcx.lang_items().slice_len_fn() {
-            let core = self
-                .tcx
-                .lang_items()
-                .eq_trait()
-                .ok_or("missing core anchor")?
-                .krate;
-            if did.is_local() || did.krate != core || self.tcx.crate_name(core).as_str() != "core" {
-                return Err("slice-length language item has foreign owner".into());
+        if Some(did) == self.tcx.lang_items().panic_fn() {
+            // The reserved `apply` export without a native evaluator is a bare
+            // `panic!()`, which lowers to one call of the `panic` lang item with
+            // a `&'static str`. Admit exactly that installed core leaf.
+            self.core_leaf(instance, "installed_core_panic_str")?;
+            let sig = self.tcx.instantiate_bound_regions_with_erased(
+                self.tcx.fn_sig(did).instantiate_identity().skip_norm_wip(),
+            );
+            let str_ref = |t: Ty<'tcx>| matches!(t.kind(), ty::Ref(_, inner, ty::Mutability::Not) if inner.is_str());
+            if !instance.args.is_empty()
+                || sig.inputs().len() != 1
+                || !str_ref(sig.inputs()[0])
+                || !sig.output().is_never()
+            {
+                return Err("only the actual core panic(&str) -> ! is a reviewed leaf".into());
             }
+            return Ok(());
+        }
+        if Some(did) == self.tcx.lang_items().slice_len_fn() {
             if instance.args.len() != 1 || instance.args.type_at(0) != self.tcx.types.u8 {
                 return Err("only actual core u8 slice length is a reviewed leaf".into());
             }
-            let sysroot = std::path::Path::new(env!("CHIALISP_OXIDE_SYSROOT"))
-                .canonicalize()
-                .map_err(|_| "pinned sysroot missing")?;
-            let expected = sysroot
-                .join("lib/rustlib")
-                .join(self.tcx.sess.opts.target_triple.tuple())
-                .join("lib")
-                .canonicalize()
-                .map_err(|_| "target libraries missing")?;
-            let source = self.tcx.used_crate_source(core);
-            let mut count = 0;
-            for p in [
-                &source.rmeta,
-                &source.rlib,
-                &source.dylib,
-                &source.sdylib_interface,
-            ]
-            .into_iter()
-            .flatten()
-            {
-                count += 1;
-                let p = p.canonicalize().map_err(|_| "core source missing")?;
-                if p.parent() != Some(expected.as_path()) {
-                    return Err("core leaf source outside pinned installation".into());
-                }
-            }
-            if count == 0 {
-                return Err("core source unavailable".into());
-            }
-            self.tag(1)?;
-            self.string("installed_core_slice_len_u8")?;
-            self.signature(instance)?;
-            self.leaf_calls += 1;
-            Ok(())
+            self.core_leaf(instance, "installed_core_slice_len_u8")
         } else {
             if self.tcx.crate_name(did.krate).as_str() == "core" {
                 return Err(format!("unreviewed core leaf: {instance:?}"));

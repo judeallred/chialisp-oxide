@@ -111,6 +111,13 @@ pub enum Expr {
     Sha256 {
         parts: Vec<Expr>,
     },
+    /// CLVM `a`: apply an untrusted program tree to an environment tree. Both
+    /// operands bind strictly in order; the result is an arbitrary tree.
+    /// Requires version-4 runtime lowering and no proof model admits it.
+    Apply {
+        program: Box<Expr>,
+        environment: Box<Expr>,
+    },
     Call {
         function_id: usize,
         arguments: Vec<Expr>,

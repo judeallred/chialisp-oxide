@@ -28,6 +28,9 @@ pub mod intro_conditional;
 #[path = "intro-list/puzzle.rs"]
 pub mod intro_list;
 
+#[path = "delegated-puzzle/puzzle.rs"]
+pub mod delegated_puzzle;
+
 #[path = "module-add/puzzle.rs"]
 pub mod module_add;
 #[path = "module-factorial/puzzle.rs"]

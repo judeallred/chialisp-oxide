@@ -1068,6 +1068,11 @@ for (const example of tutorialExamples.examples) {
 assert.deepEqual(implementedExamples.sort(), [...introIds, ...moduleIds, 'chialisp-example:password-coin'].sort(), 'Only the three closed Intro expressions, the three Using Modules programs and the exact password module are promoted');
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 assert(built.includes(path.join(root, 'tutorials/canonical-modules/index.html')), 'Missing canonical Using Modules tutorial');
+assert(built.includes(path.join(root, 'tutorials/delegated-puzzle/index.html')), 'Missing delegated-puzzle tutorial');
+const delegatedPage = await html(path.join(root, 'tutorials/delegated-puzzle/index.html'));
+for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'authorization']) {
+  assert(delegatedPage.includes(needle), `delegated-puzzle tutorial missing ${needle}`);
+}
 const modulesPage = await html(path.join(root, 'tutorials/canonical-modules/index.html'));
 for (const needle of ['module-add', 'module-times-ten', 'module-factorial', 'declared_divergence', 'i64']) {
   assert(modulesPage.includes(needle), `Using Modules tutorial missing ${needle}`);

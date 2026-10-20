@@ -609,6 +609,23 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
             // semantic rejection or an excuse to discard required hash work.
             (Expr::Sha256 { parts: output }, None, false)
         }
+        Expr::Apply {
+            program,
+            environment,
+        } => {
+            let program = expression(program, bindings, budget)?.expr;
+            let environment = expression(environment, bindings, budget)?.expr;
+            // Application is an evaluated effect with an unknown result; it is
+            // never folded, dropped or treated as total.
+            (
+                Expr::Apply {
+                    program: Box::new(program),
+                    environment: Box::new(environment),
+                },
+                None,
+                false,
+            )
+        }
     };
     Reduced::finish(expr, known, total, budget)
 }
@@ -627,7 +644,11 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
                 budget.work(items.len())?;
                 pending.extend(items);
             }
-            Expr::Binary { left, right, .. } => pending.extend([left.as_ref(), right.as_ref()]),
+            Expr::Binary { left, right, .. }
+            | Expr::Apply {
+                program: left,
+                environment: right,
+            } => pending.extend([left.as_ref(), right.as_ref()]),
             Expr::Let { value, body, .. }
             | Expr::Sequence {
                 first: value,

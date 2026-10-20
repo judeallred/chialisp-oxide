@@ -17,6 +17,10 @@
         "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
         "source": "puzzles/capped-payment/puzzle.rs"
       },
+      "delegated-puzzle": {
+        "entry": "chialisp_oxide_puzzles::delegated_puzzle::puzzle",
+        "source": "puzzles/delegated-puzzle/puzzle.rs"
+      },
       "fixed-payment": {
         "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
         "source": "puzzles/fixed-payment/puzzle.rs"
@@ -117,7 +121,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "28ea981c1150a39202389c66c826c81158417cab8a18a8d40598ef8d3edd55c0"
+        "sha256": "4813f1971f2575e667a278d0662fd52bfbde54780e3ee4e3812f31d229fa3970"
       },
       {
         "path": "Cargo.toml",
@@ -173,7 +177,7 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-        "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+        "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
       },
       {
         "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -201,11 +205,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+        "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+        "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -281,7 +285,11 @@
       },
       {
         "path": "crates/chialisp-oxide/Cargo.toml",
-        "sha256": "8c227089a36e093006e0330d391e93faecd8d033102f91cb049c86dee5bfe928"
+        "sha256": "01fb9bf56caf5f3cfeed5befae25237cfd79f341afafb92a2acae223fe535630"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/apply.rs",
+        "sha256": "04b4a4494f6917b124aafa32a02be72593d008520da716b3156eb7e23d3e9fcd"
       },
       {
         "path": "crates/chialisp-oxide/src/cons.rs",
@@ -297,7 +305,7 @@
       },
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64"
+        "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -309,7 +317,7 @@
       },
       {
         "path": "puzzles/Cargo.toml",
-        "sha256": "7dcaca9bab2b59336bf1bb70f2815308b847ddfe08988009ef69fec9ad2794dc"
+        "sha256": "b75925e17dbdbdd9debcd326b2ed45f3ea52ff248c16728c6d53009be3819028"
       },
       {
         "path": "puzzles/atom-not-equal/generated-cases.json",
@@ -321,7 +329,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "f65159e09a625ba7e2edfc9dbefc63081f6e546d5b61772c3e93f179d6e36d52"
+        "sha256": "3a5a40cf465c6bd817e86ca6ff91869450d2f4556a1351533280ffb9fd96f65b"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -334,6 +342,10 @@
       {
         "path": "puzzles/capped-payment/puzzle.rs",
         "sha256": "6c7660ce193f7f941acdd2ffa7e3fbc2c89b0e264f6b9b79e038f9ead9bdbbe9"
+      },
+      {
+        "path": "puzzles/delegated-puzzle/puzzle.rs",
+        "sha256": "ee9f664131fd4e674fe7ed5d88989ba1893094093e1fc5ee3fd8eead0018135e"
       },
       {
         "path": "puzzles/fixed-payment/puzzle.rs",
@@ -369,7 +381,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "a301e8b82ce8265ee6891f4104afa53b7c1678528206455599855ae23b14b795"
+        "sha256": "3c240cc1864730ff5100d28e5798e357749dc2ed5f9c25655f16bd84d053ed16"
       },
       {
         "path": "puzzles/module-add/puzzle.rs",
@@ -997,8 +1009,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -2143,8 +2155,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -3289,8 +3301,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -3824,8 +3836,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -4597,8 +4609,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -5408,8 +5420,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -6315,8 +6327,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -8143,8 +8155,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -13268,8 +13280,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -14268,8 +14280,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -15635,8 +15647,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -20922,8 +20934,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -26891,8 +26903,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -29694,7 +29706,7 @@
       "native_sources": [
         {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+          "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -29702,11 +29714,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -30161,8 +30173,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -31741,7 +31753,7 @@
       "native_sources": [
         {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+          "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -31749,11 +31761,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -32173,8 +32185,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -40814,7 +40826,7 @@
       "native_sources": [
         {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+          "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -40822,11 +40834,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -41179,8 +41191,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -44928,7 +44940,7 @@
       "native_sources": [
         {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+          "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -44936,11 +44948,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -49418,8 +49430,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -51058,7 +51070,7 @@
       "native_sources": [
         {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "193d2740c1ab3cbf4ba61d4312635518a5dae5f9ea8a5168f1e8631139bdbef3"
+          "sha256": "5cf43d39634618486a06938589c9b1c0f6b9ecf72eee02d9a14c8fec818aa6cf"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -51066,11 +51078,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "1f1876e435b181024a719346329c316d24135317a88c2c1670d99e8101a1ca72"
+          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "ebbd87bbe954ef0a2397d6843e445c6c98aa3fa27eb6814c60e47980eb426165"
+          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -68139,8 +68151,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n"
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
         },
         {
           "path": "crates/chialisp-oxide/src/cons.rs",
@@ -72432,6 +72444,1316 @@
       "source": "// Port of Chialisp Primer / Using Modules: factorial.clsp.\n// The original recurses over unbounded signed CLVM integers; this port uses\n// signed 64-bit values. 21! overflows i64, so inputs above 20 reject instead\n// of returning the original's larger result. Inputs of 1 or less return 1.\n\n/// Defines the factorial function.\nfn factorial(number: i64) -> i64 {\n    if number > 1 {\n        number * factorial(number - 1)\n    } else {\n        1\n    }\n}\n\n/// Calls the function with the number provided.\n#[chialisp_oxide::puzzle]\npub fn puzzle(number: i64) -> i64 {\n    factorial(number)\n}\n",
       "source_dependencies": [],
       "title": "Recursive factorial",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 263,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff02ffff01ff02ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff05ff03808080ffff04ffff04ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff0bff0580ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff05ff03808080ff03808080ff8080ffff04ffff05ff0180ffff04ffff05ffff06ff018080ff8080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l (r 1)) (q 2 (i (= (r (r 1)) ()) (q 2 (q 2 (q 2 (q 2 4 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 5 3))) (c (c (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 11 5) (c 2 (c 23 3))) (c 2 (c 5 3))) 3))) ()) (c (f 1) (c (f (r 1)) ())))) (q 8)) 1) (q 8)) 1) (q 8)) 1)",
+          "optimize_lir": false,
+          "tree_hash": "5d9aef4f3e6202b1b5a37b0445586e72a806b587f6e413c37612fed496c2953a"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 101,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ff07ffff01ff0880ffff01ff02ffff01ff02ff05ff0b80ffff04ff80ffff04ff02ffff04ff05ff808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l 3) (q 2 (i 7 (q 8) (q 2 (q 2 5 11) (c () (c 2 (c 5 ()))))) 1) (q 8)) 1) (q 8)) 1)",
+          "optimize_lir": true,
+          "tree_hash": "63c2a99fc5cde2c9f3669eb0d9ae612b20e9ba3fcfb70e5ed5eb37275534c29e"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 81,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff09ff07ff8080ffff01ff02ff02ff0580ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l 3) (q 2 (i (= 7 ()) (q 2 2 5) (q 8)) 1) (q 8)) 1) (q 8)) 1)",
+          "optimize_lir": true,
+          "tree_hash": "1432e93ae33d7c10b0ad3703be58135cef3cf08cd714832a0b15c12522b34efe"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 133,
+          "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ff03808080ffff01ff02ffff03ffff09ffff06ff0380ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ff02ffff05ff038080ffff01ff088080ff0180",
+          "disassembly": "(a (i (a (i (l 3) (q 2 (i (a (i (not (l (r 3))) (q 2 (i (= (r 3) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 2 (f 3)) (q 8)) 1)",
+          "optimize_lir": false,
+          "tree_hash": "9c74fcb31c40bfa9cff6036c6be505a94e8a03b9bbcf72d979f63bd2582f5208"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 111,
+          "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff0180ffff01ff02ffff03ff07ffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ff02ff0580ffff01ff088080ff0180",
+          "disassembly": "(a (i (a (i (l 3) (q 2 (i (a (i (l 7) (q) (q 2 (i 7 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 2 5) (q 8)) 1)",
+          "optimize_lir": true,
+          "tree_hash": "6e212b78def430484018ba5b8b598ebf7b631e9e68d3fed10859af44802dcd36"
+        }
+      ],
+      "cases": [
+        {
+          "label": "quoted constant ignores its solution",
+          "native": {
+            "output_hex": "07",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4194,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1482,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1184,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1932,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1488,
+                "error": null,
+                "outcome": {
+                  "output_hex": "07",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 7) (ignored))"
+        },
+        {
+          "label": "quoted condition list is returned unchanged",
+          "native": {
+            "output_hex": "ffff33ff11ff648080",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4194,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ff11ff648080",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1482,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ff11ff648080",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1184,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ff11ff648080",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1932,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ff11ff648080",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1488,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ff11ff648080",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . ((51 0x11 100))) ())"
+        },
+        {
+          "label": "program 1 returns its whole solution",
+          "native": {
+            "output_hex": "ff07ff0809",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4218,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff07ff0809",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1506,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff07ff0809",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1208,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff07ff0809",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1956,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff07ff0809",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1512,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff07ff0809",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(1 (7 8 . 9))"
+        },
+        {
+          "label": "program reads solution fields",
+          "native": {
+            "output_hex": "2a",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 5030,
+                "error": null,
+                "outcome": {
+                  "output_hex": "2a",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 2318,
+                "error": null,
+                "outcome": {
+                  "output_hex": "2a",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 2020,
+                "error": null,
+                "outcome": {
+                  "output_hex": "2a",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2768,
+                "error": null,
+                "outcome": {
+                  "output_hex": "2a",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2324,
+                "error": null,
+                "outcome": {
+                  "output_hex": "2a",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((16 2 5) (20 22))"
+        },
+        {
+          "label": "program builds a pair from its solution",
+          "native": {
+            "output_hex": "ff0201",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4325,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0201",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1613,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0201",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1315,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0201",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2063,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0201",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1619,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ff0201",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((4 5 2) (0x01 0x02))"
+        },
+        {
+          "label": "program returns nil",
+          "native": {
+            "output_hex": "80",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4194,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1482,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1184,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1932,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1488,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1) ())"
+        },
+        {
+          "label": "program returns a padded atom unchanged",
+          "native": {
+            "output_hex": "820001",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4194,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1482,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1184,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1932,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1488,
+                "error": null,
+                "outcome": {
+                  "output_hex": "820001",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 0x0001) ())"
+        },
+        {
+          "label": "program raising rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((8) ())"
+        },
+        {
+          "label": "quoted operand evaluates before the addition",
+          "native": {
+            "output_hex": "02",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4991,
+                "error": null,
+                "outcome": {
+                  "output_hex": "02",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 2279,
+                "error": null,
+                "outcome": {
+                  "output_hex": "02",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1981,
+                "error": null,
+                "outcome": {
+                  "output_hex": "02",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2729,
+                "error": null,
+                "outcome": {
+                  "output_hex": "02",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 2285,
+                "error": null,
+                "outcome": {
+                  "output_hex": "02",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((16 (1 . 2) 1) ())"
+        },
+        {
+          "label": "program path into atom rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(5 ())"
+        },
+        {
+          "label": "nil program returns nil",
+          "native": {
+            "output_hex": "80",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 4218,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 1506,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 1208,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1956,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 1512,
+                "error": null,
+                "outcome": {
+                  "output_hex": "80",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(() (anything))"
+        },
+        {
+          "label": "missing solution rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 7))"
+        },
+        {
+          "label": "extra argument rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "InvalidOpArg(NodePtr(Pair, 132), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "InvalidOpArg(NodePtr(Pair, 41), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 7) () ())"
+        },
+        {
+          "label": "atom environment rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "7"
+        },
+        {
+          "label": "improper argument list rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((1 . 7) . 3)"
+        },
+        {
+          "label": "empty environment rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "PathIntoAtom",
+                "failure": {
+                  "code": "path_into_atom",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        }
+      ],
+      "generated_cases": 0,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "original teaching implementation",
+        "limitations": [
+          "The Chialisp and Rue comparisons are authored for the same strict two-argument ABI; they are not a canonical published module.",
+          "Rust's reserved `apply` export is admitted by exact signature and implementation fingerprint and lowered to opcode 2; its name grants nothing.",
+          "Every proof model rejects programs containing an application; only finite executed cases are recorded.",
+          "Programs that would loop until the cost ceiling are deliberately excluded from named cases because exhaustion is an inconclusive resource result."
+        ],
+        "references": [
+          "https://chialisp.com/chialisp-inner-puzzles/",
+          "https://chialisp.com/operators/"
+        ]
+      },
+      "reference": "; Authored comparison reference for the same strict two-argument ABI.\n(mod solution\n  (if (l solution)\n    (if (l (r solution))\n      (if (= (r (r solution)) ())\n        (a (f solution) (f (r solution)))\n        (x))\n      (x))\n    (x))\n)\n",
+      "rue": {
+        "dependencies": [],
+        "path": "puzzles/delegated-puzzle/puzzle.rue",
+        "sha256": "1aa2a17c53832fd083c6b1a08fea69e373f92e7215a1ae2337b2fc94ee56e0ae",
+        "source": "// Authored Rue comparison of the same strict two-argument ABI.\n// A typed function value applied with a spread solution lowers to CLVM `a`;\n// the shape guard rejects missing or extra arguments and improper tails.\nfn main(inner_puzzle: fn(...solution: Any) -> Any, ...rest: Any) -> Any {\n    assert rest is (Any, nil);\n    inner_puzzle(...rest.first)\n}\n"
+      },
+      "security_scope": "Original teaching fixture for dynamic application (CLVM `a`). It applies an untrusted inner program to an untrusted solution and returns whatever the program returns; an inner failure rejects the spend. It performs no authorization: nothing binds the inner puzzle to an owner, a hash commitment or a signature, so any caller can run any program. That gap is the lesson, not an oversight to patch here. The applied program's cost is charged to the outer puzzle in the VM; the native oracle uses a generous fixed ceiling and reports exhaustion as inconclusive. Finite differential tests are not a termination, cost or compiler-correctness proof.",
+      "simulator": [],
+      "simulator_comparisons": [],
+      "slug": "delegated-puzzle",
+      "source": "//! Original teaching fixture: run an untrusted inner puzzle on its solution.\n//!\n//! `apply` is CLVM's `a` operator. The inner puzzle and its solution both come\n//! from the untrusted environment; whatever the inner program returns is this\n//! puzzle's result, and an inner failure rejects the whole spend. Nothing here\n//! checks who supplied the inner puzzle: that is the delegated-puzzle pattern's\n//! authorization gap, which signature and hash commitments must close elsewhere.\nuse chialisp_oxide::{Tree, apply};\n\n#[chialisp_oxide::puzzle]\npub fn puzzle<'a>(inner_puzzle: &'a Tree<'a>, inner_solution: &'a Tree<'a>) -> Tree<'static> {\n    apply(inner_puzzle, inner_solution)\n}\n",
+      "source_dependencies": [
+        {
+          "path": "crates/chialisp-oxide/src/lib.rs",
+          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/tree.rs",
+          "sha256": "b2d0aab58a96603e5cc30f7b2791a7f5184ac42eb0e84cdf5eb97dbdea54dff4",
+          "source": "//! Immutable CLVM data, with ordinary Rust lifetimes and pattern matching.\n//!\n//! A tree carries its original atom bytes. Numeric padding, improper pairs and\n//! arbitrary tails are data; this type does not interpret or normalize them.\n//! The compiler supports direct recursive traversal of this restricted shape.\n//! The opt-in `alloc` feature adds `OwnedTree` for restricted owned\n//! pair construction. General enums, mutable references, pointer/allocator APIs,\n//! and general runtime program evaluation remain outside the supported subset.\n\n#[derive(Clone, Copy, Debug, PartialEq, Eq)]\npub enum Tree<'a> {\n    Atom(&'a [u8]),\n    Pair(&'a Tree<'a>, &'a Tree<'a>),\n}\n\n/// CLVM's quote operator as data, for constructing a quoted program.\npub const QUOTE: Tree<'static> = Tree::Atom(&[1]);\n\n/// Construct a program returning `value` when applied to any environment.\n///\n/// This is an ordinary Rust function. The compiler checks and lowers its MIR;\n/// its name does not grant it intrinsic semantics.\npub fn quote<'a>(value: &'a Tree<'a>) -> Tree<'a> {\n    Tree::Pair(&QUOTE, value)\n}\n"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/apply.rs",
+          "sha256": "04b4a4494f6917b124aafa32a02be72593d008520da716b3156eb7e23d3e9fcd",
+          "source": "#![forbid(unsafe_code)]\n//! Dynamic application of an untrusted CLVM program to an untrusted environment.\n//!\n//! `apply(program, environment)` is CLVM's `a` operator as a Rust function. In a\n//! compiled puzzle the reviewed compiler bridge lowers actual calls of this\n//! reserved export to opcode 2 after checking its identity, exact signature and\n//! implementation fingerprint; the export name grants nothing. Both operands are\n//! evaluated once, in order, before the application; a failing applied program\n//! fails the whole puzzle, and an unused result is still evaluated.\n//!\n//! Natively this crate is `no_std` and cannot evaluate CLVM. Without the `vm`\n//! feature the function panics, which the compiler bridge fingerprints as the\n//! reviewed body. The `vm` feature evaluates through the pinned VM so that host\n//! tests and the corpus oracle can run puzzles that apply inner programs.\n//! Neither route establishes termination, cost bounds, authorization or\n//! compiler preservation for the applied program.\nuse crate::Tree;\n\n/// Apply `program` to `environment` as CLVM's `a` operator does.\n///\n/// The applied program's result is an arbitrary tree. Its failure rejects the\n/// caller. Host resource exhaustion in the native evaluator is a host limit,\n/// reported through [`ResourceExhausted`], never a policy rejection.\n#[cfg(not(feature = \"vm\"))]\npub fn apply<'a>(_program: &Tree<'a>, _environment: &Tree<'a>) -> Tree<'static> {\n    // A bare panic lowers to one `panic` lang-item call that the compiler\n    // bridge fingerprints; a message would pull in `fmt::Arguments`.\n    panic!()\n}\n\n/// Apply `program` to `environment` as CLVM's `a` operator does.\n///\n/// Evaluates through the pinned VM in mempool mode with a fixed native cost\n/// ceiling. A program failure panics (a policy rejection); exceeding the native\n/// ceiling or a host allocation limit panics with a [`ResourceExhausted`]\n/// payload, which oracles must report as inconclusive rather than rejection.\n#[cfg(feature = \"vm\")]\npub fn apply<'a>(program: &Tree<'a>, environment: &Tree<'a>) -> Tree<'static> {\n    vm::apply(program, environment)\n}\n\n/// Host resource exhaustion inside the native evaluator; not a policy result.\n#[derive(Debug, Clone, Copy, PartialEq, Eq)]\npub struct ResourceExhausted {\n    /// The native cost ceiling or host allocation bound that was exceeded.\n    pub limit: u64,\n}\n\n#[cfg(feature = \"vm\")]\nmod vm {\n    extern crate std;\n    use super::ResourceExhausted;\n    use crate::Tree;\n    use chialisp_oxide_vm::classify_failure;\n    use clvmr::{Allocator, ChiaDialect, MEMPOOL_MODE, NodePtr, allocator::SExp, run_program};\n    use std::boxed::Box;\n    use std::vec::Vec;\n\n    /// Fixed native evaluation ceiling. The VM charges the applied program\n    /// against the outer puzzle's budget; a native oracle has no such budget,\n    /// so this is deliberately generous and its exhaustion is inconclusive.\n    pub const NATIVE_MAX_COST: u64 = 10_000_000_000;\n    /// Bound on nodes materialized for inputs and the result.\n    pub const MAX_NODES: usize = 4_000_000;\n\n    fn exhausted(limit: u64) -> ! {\n        std::panic::panic_any(ResourceExhausted { limit })\n    }\n\n    fn encode(a: &mut Allocator, tree: &Tree<'_>, budget: &mut usize) -> NodePtr {\n        // Iterative post-order encoding; deep right spines are ordinary data.\n        enum Step<'t, 'a> {\n            Visit(&'t Tree<'a>),\n            Pair,\n        }\n        let mut steps = Vec::new();\n        let mut values: Vec<NodePtr> = Vec::new();\n        steps.push(Step::Visit(tree));\n        while let Some(step) = steps.pop() {\n            match step {\n                Step::Visit(Tree::Atom(bytes)) => {\n                    *budget = budget\n                        .checked_sub(1)\n                        .unwrap_or_else(|| exhausted(MAX_NODES as u64));\n                    values.push(\n                        a.new_atom(bytes)\n                            .unwrap_or_else(|_| exhausted(MAX_NODES as u64)),\n                    );\n                }\n                Step::Visit(Tree::Pair(first, rest)) => {\n                    *budget = budget\n                        .checked_sub(1)\n                        .unwrap_or_else(|| exhausted(MAX_NODES as u64));\n                    steps.push(Step::Pair);\n                    steps.push(Step::Visit(rest));\n                    steps.push(Step::Visit(first));\n                }\n                Step::Pair => {\n                    let rest = values.pop().expect(\"pair rest\");\n                    let first = values.pop().expect(\"pair first\");\n                    values.push(\n                        a.new_pair(first, rest)\n                            .unwrap_or_else(|_| exhausted(MAX_NODES as u64)),\n                    );\n                }\n            }\n        }\n        values.pop().expect(\"encoded root\")\n    }\n\n    fn decode(a: &Allocator, node: NodePtr, budget: &mut usize) -> Tree<'static> {\n        // Iterative decoding into leaked boxes: the result must outlive its\n        // inputs, and this evaluator exists only for host tests and oracles.\n        enum Step {\n            Visit(NodePtr),\n            Pair,\n        }\n        let mut steps = Vec::new();\n        let mut values: Vec<Tree<'static>> = Vec::new();\n        steps.push(Step::Visit(node));\n        while let Some(step) = steps.pop() {\n            match step {\n                Step::Visit(node) => {\n                    *budget = budget\n                        .checked_sub(1)\n                        .unwrap_or_else(|| exhausted(MAX_NODES as u64));\n                    match a.sexp(node) {\n                        SExp::Atom => {\n                            let bytes: &'static [u8] =\n                                Box::leak(a.atom(node).as_ref().to_vec().into_boxed_slice());\n                            values.push(Tree::Atom(bytes));\n                        }\n                        SExp::Pair(first, rest) => {\n                            steps.push(Step::Pair);\n                            steps.push(Step::Visit(rest));\n                            steps.push(Step::Visit(first));\n                        }\n                    }\n                }\n                Step::Pair => {\n                    let rest = values.pop().expect(\"pair rest\");\n                    let first = values.pop().expect(\"pair first\");\n                    let first: &'static Tree<'static> = Box::leak(Box::new(first));\n                    let rest: &'static Tree<'static> = Box::leak(Box::new(rest));\n                    values.push(Tree::Pair(first, rest));\n                }\n            }\n        }\n        values.pop().expect(\"decoded root\")\n    }\n\n    pub fn apply<'a>(program: &Tree<'a>, environment: &Tree<'a>) -> Tree<'static> {\n        let mut a = Allocator::new();\n        let mut budget = MAX_NODES;\n        let program = encode(&mut a, program, &mut budget);\n        let environment = encode(&mut a, environment, &mut budget);\n        match run_program(\n            &mut a,\n            &ChiaDialect::new(MEMPOOL_MODE),\n            program,\n            environment,\n            NATIVE_MAX_COST,\n        ) {\n            Ok(reduction) => decode(&a, reduction.1, &mut budget),\n            Err(error) => {\n                let failure = classify_failure(&error);\n                if failure.is_program_rejection() {\n                    panic!(\"applied CLVM program rejected: {error:?}\")\n                }\n                exhausted(NATIVE_MAX_COST)\n            }\n        }\n    }\n}\n"
+        }
+      ],
+      "title": "Run an untrusted inner puzzle",
       "validated": true
     }
   ],

@@ -89,7 +89,11 @@ fn projection_preflight(program: &Program) -> bool {
             | Expr::Call {
                 arguments: items, ..
             } => items.iter().all(&mut child),
-            Expr::Binary { left, right, .. } => child(left.as_ref()) && child(right.as_ref()),
+            Expr::Binary { left, right, .. }
+            | Expr::Apply {
+                program: left,
+                environment: right,
+            } => child(left.as_ref()) && child(right.as_ref()),
             Expr::TreePair { first, rest }
             | Expr::Pair { first, rest }
             | Expr::Sequence {
@@ -196,6 +200,7 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
             Expr::Let { .. }
             | Expr::Sequence { .. }
             | Expr::TreePair { .. }
+            | Expr::Apply { .. }
             | Expr::Binary { .. } => 2,
             Expr::If { .. } => 3,
             Expr::AtomIsEmpty { .. }
@@ -821,6 +826,19 @@ impl<'a, 'p> Runtime<'a, 'p> {
                         .map(|binding| this.value(scope, *binding))
                         .collect::<Result<Vec<_>>>()?;
                     Ok(this.lower.alloc(Lir::Sha256(parts)))
+                },
+            )?,
+            Expr::Apply {
+                program,
+                environment,
+            } => self.values(
+                &[program.as_ref(), environment.as_ref()],
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let program = this.value(scope, bindings[0])?;
+                    let environment = this.value(scope, bindings[1])?;
+                    Ok(this.lower.alloc(Lir::Run(program, environment)))
                 },
             )?,
             Expr::Binary {

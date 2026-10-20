@@ -25,7 +25,7 @@ import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = '1a6fcf3e72a9add58adaceab795f5233005dc6ae5713d77e80c209bff8580ad3'
+PIN = '9ca96678f31b2ff2d6926cf3d686e9e4255414dc52677c12fad254e2f4f7d1d3'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
@@ -132,7 +132,7 @@ def validate_profile(value):
         require(row['entry'] == entry_for(slug) and row['source'] == f'puzzles/{slug}/puzzle.rs', 'added export identity/source')
         seen.add(slug)
     transition = value['source_transition']
-    ledger.closed(transition, ['added', 'changed', 'embedded_native_paths'], 'source transition')
+    ledger.closed(transition, ['added', 'changed', 'embedded_native_paths', 'embedded_dependency_paths'], 'source transition')
     added_paths = rows_map(transition['added'])
     for row in added:
         require(row['source'] in added_paths, 'every added export source must be an added Cargo input')
@@ -146,6 +146,9 @@ def validate_profile(value):
     native = transition['embedded_native_paths']
     changed_paths = {r['path'] for r in changed}
     require(type(native) is list and native == sorted(set(native)) and set(native) <= changed_paths, 'embedded native paths must be changed sources')
+    dependencies = transition['embedded_dependency_paths']
+    require(type(dependencies) is list and dependencies == sorted(set(dependencies)) and set(dependencies) <= changed_paths,
+            'embedded dependency paths must be changed sources')
     if value['status'] == PENDING:
         require(value['reviewed_after'] is None, 'mixed pending capture')
     else:
@@ -232,8 +235,26 @@ def compare_append(profile, before, current):
     del restored['puzzles'][len(PRESERVED):]
     changes = {r['path']: r for r in transition['changed']}
     native = set(transition['embedded_native_paths'])
+    dependencies = set(transition['embedded_dependency_paths'])
     substitutions = []
     for previous, actual, target in zip(before['puzzles'], current['puzzles'][:len(PRESERVED)], restored['puzzles'], strict=True):
+        # Declared source dependencies embed the file text: a changed SDK facade
+        # restores to the checkpoint's recorded row only through the reviewed
+        # transition, exactly like embedded native sources below.
+        old_rows, new_rows = previous.get('source_dependencies', []), actual.get('source_dependencies', [])
+        require(type(old_rows) is list and type(new_rows) is list and len(old_rows) == len(new_rows), 'dependency metadata count')
+        for index, (x, y) in enumerate(zip(old_rows, new_rows, strict=True)):
+            ledger.closed(x, ['path', 'sha256', 'source'], 'old dependency')
+            ledger.closed(y, ['path', 'sha256', 'source'], 'new dependency')
+            require(x['path'] == y['path'], 'dependency path/order changed')
+            if x['path'] in dependencies:
+                row = changes[x['path']]
+                require(x['sha256'] == row['before_sha256'] and y['sha256'] == row['after_sha256']
+                        and sha(y['source'].encode()) == row['after_sha256'], 'embedded dependency hashes not bound')
+                target['source_dependencies'][index] = copy.deepcopy(x)
+                substitutions.append(dict(slug=previous['slug'], path=x['path']))
+            else:
+                require(x == y, 'other dependency changed')
         require(('native_sources' in previous) == ('native_sources' in actual), 'native metadata presence changed')
         if 'native_sources' not in previous:
             continue
@@ -372,9 +393,13 @@ def source_transition(before, current):
     require(set(old) <= set(new), 'removing retained Cargo inputs is not an append')
     added = [dict(path=path, sha256=new[path]) for path in sorted(set(new) - set(old))]
     changed = [dict(path=path, before_sha256=old[path], after_sha256=new[path]) for path in sorted(old) if old[path] != new[path]]
-    embedded = sorted({row['path'] for puzzle in current['puzzles'] for row in puzzle.get('native_sources', [])
-                       if row['path'] in {r['path'] for r in changed}})
-    return dict(added=added, changed=changed, embedded_native_paths=embedded)
+    changed_paths = {r['path'] for r in changed}
+    retained = current['puzzles'][:len(PRESERVED)]
+    embedded = sorted({row['path'] for puzzle in retained for row in puzzle.get('native_sources', [])
+                       if row['path'] in changed_paths})
+    dependencies = sorted({row['path'] for puzzle in retained for row in puzzle.get('source_dependencies', [])
+                           if row['path'] in changed_paths})
+    return dict(added=added, changed=changed, embedded_native_paths=embedded, embedded_dependency_paths=dependencies)
 
 
 def record(report, payload, on, off, *, compiler, driver_sha256, toolchain, cargo_options=OPTIONS):
@@ -384,10 +409,11 @@ def record(report, payload, on, off, *, compiler, driver_sha256, toolchain, carg
     never validates history and never writes the checkpoint.
     """
     profile = json.loads(read(PATH), object_pairs_hook=unique_object)
-    # Re-recording discards any earlier capture before the schema is checked.
+    # Re-recording discards any earlier capture and derives the closed source
+    # transition from the retained checkpoint before the schema is checked, so a
+    # newly listed export only needs its `added` row.
     profile['status'] = PENDING
     profile['reviewed_after'] = None
-    validate_profile(profile)
     before = predecessor(profile)
     slugs = current_slugs(profile)
     require([p['slug'] for p in report['puzzles']] == slugs, 'report must list the preserved slugs then every added slug in order')

@@ -1,0 +1,7 @@
+// Authored Rue comparison of the same strict two-argument ABI.
+// A typed function value applied with a spread solution lowers to CLVM `a`;
+// the shape guard rejects missing or extra arguments and improper tails.
+fn main(inner_puzzle: fn(...solution: Any) -> Any, ...rest: Any) -> Any {
+    assert rest is (Any, nil);
+    inner_puzzle(...rest.first)
+}

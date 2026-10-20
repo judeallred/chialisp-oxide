@@ -14,6 +14,7 @@ use rustc_middle::{
 };
 use rustc_span::Span;
 
+mod applying;
 mod byte_comparison;
 mod cons;
 mod constants;
@@ -36,6 +37,8 @@ pub struct Lowerer<'tcx> {
     explicit_allocator: Cell<Option<bool>>,
     hash_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
     hash_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
+    apply_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
+    apply_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
 }
 
 #[derive(Clone)]
@@ -151,6 +154,8 @@ impl<'tcx> Lowerer<'tcx> {
             explicit_allocator: Cell::new(None),
             hash_candidates: RefCell::new(None),
             hash_primitives: RefCell::new(HashMap::new()),
+            apply_candidates: RefCell::new(None),
+            apply_primitives: RefCell::new(HashMap::new()),
         }
     }
 
@@ -170,7 +175,11 @@ impl<'tcx> Lowerer<'tcx> {
                 Expr::Tuple { items } | Expr::Sha256 { parts: items } => {
                     items.iter().for_each(push)
                 }
-                Expr::Binary { left, right, .. } => {
+                Expr::Binary { left, right, .. }
+                | Expr::Apply {
+                    program: left,
+                    environment: right,
+                } => {
                     push(left);
                     push(right);
                 }
@@ -613,6 +622,8 @@ impl<'tcx> Lowerer<'tcx> {
                         // Runtime graph selection handles every source hash. The
                         // acyclic constant path must never duplicate or drop it.
                         return Err(self.legacy_error(span, "native SHA256 calls require strict runtime bindings; compile-time constant hashing is unsupported"));
+                    } else if self.apply_primitive(body, func, args, *destination, span)? {
+                        return Err(self.legacy_error(span, "native apply calls require strict runtime bindings; compile-time application is unsupported"));
                     } else if self.box_constructor(body, func, args, *destination, span)? {
                         let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
                         self.assign(body, *destination, value, &mut locals, span)?;

@@ -96,7 +96,9 @@ class AppendProjection(unittest.TestCase):
             generic = current.load()
             for row in generic["added"]:
                 metadata["exports"].pop(row["slug"])
-            generic_added = {row["path"] for row in generic["source_transition"]["added"]}
+            # Only the added export sources are historical additions; SDK files the
+            # current authoring script requires stay declared in the copied root.
+            generic_added = {row["source"] for row in generic["added"]}
             metadata["exports"].pop(outer.SLUG)
             metadata["inputs"] = [path for path in metadata["inputs"] if path not in outer.ADDED and path not in generic_added]
             metadata["exports"][append.ADDED] = {"entry":"chialisp_oxide_puzzles::p2_singleton::puzzle", "source":"puzzles/p2-singleton/puzzle.rs"}

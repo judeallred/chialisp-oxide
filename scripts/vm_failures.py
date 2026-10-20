@@ -218,6 +218,7 @@ def execution_paths():
         "crates/chialisp-oxide-verifier/src/tree_witness.rs",
         "crates/chialisp-oxide/Cargo.toml",
         "crates/chialisp-oxide/src/domain.rs",
+        "crates/chialisp-oxide/src/apply.rs",
         "crates/chialisp-oxide/src/hashing.rs",
         "crates/chialisp-oxide/src/lib.rs",
         "crates/chialisp-oxide/src/owned_tree.rs",

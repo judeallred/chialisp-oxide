@@ -1,0 +1,68 @@
+---
+title: Run an untrusted inner puzzle
+description: Apply a solution-supplied program with the reviewed apply bridge, and see why that alone authorizes nothing.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+Many Chia puzzles delegate: an outer puzzle receives an inner puzzle and its
+solution, runs the inner puzzle with CLVM's `a` operator, and returns or
+morphs whatever conditions come back. This lesson ports the smallest version
+of that pattern to Rust with the `delegated-puzzle` fixture, an original
+teaching example rather than a canonical module.
+
+## The reserved apply export
+
+`chialisp_oxide::apply(program, environment)` is CLVM's `a` operator as a Rust
+function over the borrowed `Tree`. The compiler does not trust it because of
+its name. As with the SHA-256 bridge, it locates the public root export named
+`apply`, checks the exact signature over the structurally admitted tree type,
+and compares a fingerprint of the export's typed-MIR body against a pin
+reviewed for the host. Only then does an actual call lower to opcode 2 with
+both operands bound strictly in source order. A same-name local function keeps
+its real body; a changed reserved body fails closed with a diagnostic.
+
+Natively the facade cannot run CLVM, so the reserved body is a bare panic. The
+`vm` feature evaluates through the pinned VM for host tests and the corpus
+oracle; CLVM extraction never enables it, so the compiler always sees the
+fingerprinted panic body. Read the full contract in the
+[dynamic application guide](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md).
+
+## The fixture
+
+<SourceComparison slug="delegated-puzzle" />
+
+The strict ABI takes exactly two trees. The Chialisp comparison spells the same
+shape checks explicitly; the Rue translation applies a typed function value
+with a spread solution and guards the remaining list. All three lower to
+`(a program solution)` surrounded by their argument checks.
+
+The lab page records sixteen named cases across native Rust and the five CLVM
+builds: quoted constants, `1` returning its whole solution, arithmetic over
+solution fields, pair construction, nil and padded results, a raising program,
+a path into an atom, and every malformed argument shape. Inspect
+[the delegated-puzzle report](/chialisp-oxide/lab/delegated-puzzle/) for exact
+outputs, costs and tree hashes.
+
+## What this does not establish
+
+Nothing here checks who supplied the inner puzzle. Any caller can run any
+program, so this fixture authorizes nothing; the inner puzzle hash commitment
+and signature wrapping that make delegation safe are separate work, as is
+currying. Every proof model rejects programs that apply, including dead
+branches, so the fixture has finite executed evidence only. A program that
+would loop until the cost ceiling is deliberately absent from the named cases:
+exhaustion is an inconclusive resource result, not a policy outcome.
+
+## Reproduce the comparison
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --only delegated-puzzle --output /tmp/delegated.json
+```
+
+The puzzles library's own tests enable the SDK's `vm` feature as a
+dev-dependency; the extraction build does not.

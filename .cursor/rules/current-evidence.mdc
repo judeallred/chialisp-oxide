@@ -26,6 +26,12 @@ alwaysApply: true
   independently specified outcome that differs from native Rust; Rust CLVM is
   never declared. Readers check declared backends against the declaration and
   everything else against native Rust.
+- The reserved `apply` export is admitted like the SHA kernel: exact signature
+  plus a per-host fingerprint of its `vm`-less panic body. Never widen the
+  canonical encoder beyond the reviewed leaves (core u8 slice length, core
+  `panic(&str)`), string-slice constants and the structurally checked borrowed
+  tree without re-pinning both hosts; the corpus oracle and puzzles
+  dev-dependency enable `vm`, extraction never does.
 - Recapture `corpus/corpus-append-existing-p2-controls.json` with
   `scripts/capture-p2-controls.py` whenever any workspace source changes; its
   window hashes the complete reviewed workspace.

@@ -1,0 +1,92 @@
+{
+  "slug": "delegated-puzzle",
+  "title": "Run an untrusted inner puzzle",
+  "kind": "pure_function",
+  "security_scope": "Original teaching fixture for dynamic application (CLVM `a`). It applies an untrusted inner program to an untrusted solution and returns whatever the program returns; an inner failure rejects the spend. It performs no authorization: nothing binds the inner puzzle to an owner, a hash commitment or a signature, so any caller can run any program. That gap is the lesson, not an oversight to patch here. The applied program's cost is charged to the outer puzzle in the VM; the native oracle uses a generous fixed ceiling and reports exhaustion as inconclusive. Finite differential tests are not a termination, cost or compiler-correctness proof.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/chialisp-inner-puzzles/",
+      "https://chialisp.com/operators/"
+    ],
+    "limitations": [
+      "The Chialisp and Rue comparisons are authored for the same strict two-argument ABI; they are not a canonical published module.",
+      "Rust's reserved `apply` export is admitted by exact signature and implementation fingerprint and lowered to opcode 2; its name grants nothing.",
+      "Every proof model rejects programs containing an application; only finite executed cases are recorded.",
+      "Programs that would loop until the cost ceiling are deliberately excluded from named cases because exhaustion is an inconclusive resource result."
+    ]
+  },
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/apply.rs"
+  ],
+  "cases": [
+    {
+      "label": "quoted constant ignores its solution",
+      "solution": "((1 . 7) (ignored))"
+    },
+    {
+      "label": "quoted condition list is returned unchanged",
+      "solution": "((1 . ((51 0x11 100))) ())"
+    },
+    {
+      "label": "program 1 returns its whole solution",
+      "solution": "(1 (7 8 . 9))"
+    },
+    {
+      "label": "program reads solution fields",
+      "solution": "((16 2 5) (20 22))"
+    },
+    {
+      "label": "program builds a pair from its solution",
+      "solution": "((4 5 2) (0x01 0x02))"
+    },
+    {
+      "label": "program returns nil",
+      "solution": "((1) ())"
+    },
+    {
+      "label": "program returns a padded atom unchanged",
+      "solution": "((1 . 0x0001) ())"
+    },
+    {
+      "label": "program raising rejects",
+      "solution": "((8) ())"
+    },
+    {
+      "label": "quoted operand evaluates before the addition",
+      "solution": "((16 (1 . 2) 1) ())"
+    },
+    {
+      "label": "program path into atom rejects",
+      "solution": "(5 ())"
+    },
+    {
+      "label": "nil program returns nil",
+      "solution": "(() (anything))"
+    },
+    {
+      "label": "missing solution rejects",
+      "solution": "((1 . 7))"
+    },
+    {
+      "label": "extra argument rejects",
+      "solution": "((1 . 7) () ())"
+    },
+    {
+      "label": "atom environment rejects",
+      "solution": "7"
+    },
+    {
+      "label": "improper argument list rejects",
+      "solution": "((1 . 7) . 3)"
+    },
+    {
+      "label": "empty environment rejects",
+      "solution": "()"
+    }
+  ]
+}

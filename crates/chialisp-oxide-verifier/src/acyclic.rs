@@ -282,6 +282,14 @@ fn preflight(program: &Program, budget: &mut Budget) -> Result<Vec<usize>> {
         "acyclic scalar does not model typed wire pairs"
     );
     ensure!(
+        !program.uses_sha256(),
+        "acyclic scalar does not model SHA256 semantics"
+    );
+    ensure!(
+        !program.uses_apply(),
+        "acyclic scalar does not model dynamic application"
+    );
+    ensure!(
         program.environment != chialisp_oxide_ir::Environment::Raw,
         "acyclic scalar model does not model whole raw environments"
     );

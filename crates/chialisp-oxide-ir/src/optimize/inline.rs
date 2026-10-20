@@ -77,6 +77,7 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         Expr::Let { .. }
         | Expr::Sequence { .. }
         | Expr::Binary { .. }
+        | Expr::Apply { .. }
         | Expr::TreePair { .. }
         | Expr::Pair { .. } => 2,
         Expr::If { .. } => 3,
@@ -111,7 +112,11 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         Expr::Sequence { first, then_value } => {
             pending.extend([first.as_ref(), then_value.as_ref()])
         }
-        Expr::Binary { left, right, .. } => pending.extend([left.as_ref(), right.as_ref()]),
+        Expr::Binary { left, right, .. }
+        | Expr::Apply {
+            program: left,
+            environment: right,
+        } => pending.extend([left.as_ref(), right.as_ref()]),
         Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
             pending.extend([first.as_ref(), rest.as_ref()])
         }
@@ -411,6 +416,16 @@ impl Rewriter<'_> {
                         .collect::<Option<_>>()?,
                 }
             }
+            Expr::Apply {
+                program,
+                environment,
+            } => {
+                self.budget.work(2)?;
+                Expr::Apply {
+                    program: Box::new(self.expr(program, names, fresh, depth + 1)?),
+                    environment: Box::new(self.expr(environment, names, fresh, depth + 1)?),
+                }
+            }
             Expr::Field { value, index } => Expr::Field {
                 value: Box::new(self.expr(value, names, fresh, depth + 1)?),
                 index: *index,
@@ -515,7 +530,11 @@ fn frames(
         | Expr::Call {
             arguments: items, ..
         } => operands(items.iter(), live, pending, depth, budget),
-        Expr::Binary { left, right, .. } => operands(
+        Expr::Binary { left, right, .. }
+        | Expr::Apply {
+            program: left,
+            environment: right,
+        } => operands(
             [left.as_ref(), right.as_ref()].into_iter(),
             live,
             pending,
@@ -627,7 +646,11 @@ fn prune(program: &mut Program, budget: &mut Budget) -> Option<()> {
                 calls(first, remap, budget, depth + 1)?;
                 calls(then_value, remap, budget, depth + 1)?;
             }
-            Expr::Binary { left, right, .. } => {
+            Expr::Binary { left, right, .. }
+            | Expr::Apply {
+                program: left,
+                environment: right,
+            } => {
                 calls(left, remap, budget, depth + 1)?;
                 calls(right, remap, budget, depth + 1)?;
             }

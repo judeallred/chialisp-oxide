@@ -38,7 +38,11 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
                 pending.push(first);
                 pending.push(rest);
             }
-            Expr::Let { value, body, .. } => {
+            Expr::Let { value, body, .. }
+            | Expr::Apply {
+                program: value,
+                environment: body,
+            } => {
                 pending.push(value);
                 pending.push(body);
             }

@@ -336,6 +336,7 @@ impl Translation {
                 bail!("typed wire pairs have no admitted proof model")
             }
             Expr::Sha256 { .. } => bail!("scalar SMT does not model SHA256 semantics"),
+            Expr::Apply { .. } => bail!("scalar SMT does not model dynamic application"),
             Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
                 bail!("scalar SMT does not model runtime functions or local bindings")
             }
@@ -601,6 +602,10 @@ fn require_expression_model(program: &Program, model: &str) -> Result<()> {
     ensure!(
         !program.uses_sha256(),
         "{model} does not model SHA256 semantics"
+    );
+    ensure!(
+        !program.uses_apply(),
+        "{model} does not model dynamic application"
     );
     ensure!(
         !program.uses_runtime(),

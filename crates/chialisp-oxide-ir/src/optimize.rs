@@ -354,6 +354,7 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
         | Expr::Let { .. }
         | Expr::Local { .. }
         | Expr::Sha256 { .. }
+        | Expr::Apply { .. }
         | Expr::Unit
         | Expr::Reject { .. }) => (expr, 0),
     }

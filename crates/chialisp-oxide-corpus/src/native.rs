@@ -371,6 +371,32 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             Err(_) => Ok(None),
         };
     }
+    if slug == "delegated-puzzle" {
+        let arguments = match args(&a, env) {
+            Ok(arguments) if arguments.len() == 2 => arguments,
+            _ => return Ok(None),
+        };
+        let arena = bumpalo::Bump::new();
+        let inner_puzzle = super::native_tree::decode(&arena, &a, arguments[0])?;
+        let inner_solution = super::native_tree::decode(&arena, &a, arguments[1])?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::delegated_puzzle::puzzle(inner_puzzle, inner_solution)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(payload) => {
+                // The native evaluator's host ceiling is inconclusive, never a
+                // policy rejection; an applied program's own failure rejects.
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native apply evaluator exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
     if slug == "rightmost-tree" {
         let arena = bumpalo::Bump::new();
         let tree = super::native_tree::decode(&arena, &a, env)?;

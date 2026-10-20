@@ -66,7 +66,11 @@ fn contains(expr: &Expr, predicate: impl Fn(&Expr) -> bool) -> bool {
             | Expr::Call {
                 arguments: items, ..
             } => pending.extend(items),
-            Expr::Binary { left, right, .. } => pending.extend([left.as_ref(), right.as_ref()]),
+            Expr::Binary { left, right, .. }
+            | Expr::Apply {
+                program: left,
+                environment: right,
+            } => pending.extend([left.as_ref(), right.as_ref()]),
             Expr::Let { value, body, .. }
             | Expr::Sequence {
                 first: value,

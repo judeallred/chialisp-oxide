@@ -266,6 +266,15 @@ impl Serialize for Expr {
             Expr::PairFirst { value } => node1(serializer, "pair_first", ("value", value)),
             Expr::PairRest { value } => node1(serializer, "pair_rest", ("value", value)),
             Expr::Sha256 { parts } => node1(serializer, "sha256", ("parts", parts)),
+            Expr::Apply {
+                program,
+                environment,
+            } => node2(
+                serializer,
+                "apply",
+                ("program", program),
+                ("environment", environment),
+            ),
             Expr::Call {
                 function_id,
                 arguments,

@@ -39,6 +39,7 @@ export default defineConfig({
           { label: 'Time & recovery', slug: 'tutorials/recovery' },
           { label: 'Checked arithmetic', slug: 'tutorials/counter' },
           { label: 'Build a quoted program', slug: 'tutorials/p2-conditions' },
+          { label: 'Run an untrusted inner puzzle', slug: 'tutorials/delegated-puzzle' },
           { label: 'Follow recursive trees', slug: 'tutorials/recursive-trees' },
           { label: 'Port a published list helper', slug: 'tutorials/last-list-element' },
           { label: 'Construct an owned prefix list', slug: 'tutorials/prefix-list' },

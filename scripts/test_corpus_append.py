@@ -39,6 +39,10 @@ def constructed(before, profile):
         for row in puzzle.get('native_sources', []):
             if row['path'] in transition['embedded_native_paths']:
                 row['sha256'] = changed[row['path']]
+        for row in puzzle.get('source_dependencies', []):
+            if row['path'] in transition['embedded_dependency_paths']:
+                row['source'] = open(cost.ROOT / row['path']).read()
+                row['sha256'] = cost.sha(row['source'].encode())
     for row in profile['added']:
         current['puzzles'].append(dict(slug=row['slug'], constructed_no_execution=True))
     return current
@@ -64,7 +68,7 @@ class SchemaAndRestoration(unittest.TestCase):
         base = pending_profile()
         for mutation in ('extra', 'protocol', 'kind', 'checkpoint', 'transition_pin', 'preserved', 'added_empty',
                          'added_preserved', 'added_duplicate', 'added_entry', 'added_missing_source', 'changed_noop',
-                         'native_not_changed', 'mixed'):
+                         'native_not_changed', 'dependency_not_changed', 'mixed'):
             changed = copy.deepcopy(base)
             if mutation == 'extra': changed['signed'] = True
             elif mutation == 'protocol': changed['protocol'] = 'other/v1'
@@ -76,9 +80,12 @@ class SchemaAndRestoration(unittest.TestCase):
             elif mutation == 'added_preserved': changed['added'][0]['slug'] = 'p2-singleton'
             elif mutation == 'added_duplicate': changed['added'].append(copy.deepcopy(changed['added'][0]))
             elif mutation == 'added_entry': changed['added'][0]['entry'] = 'chialisp_oxide_puzzles::other::puzzle'
-            elif mutation == 'added_missing_source': changed['source_transition']['added'] = changed['source_transition']['added'][1:]
+            elif mutation == 'added_missing_source':
+                dropped = changed['added'][0]['source']
+                changed['source_transition']['added'] = [r for r in changed['source_transition']['added'] if r['path'] != dropped]
             elif mutation == 'changed_noop': changed['source_transition']['changed'][0]['after_sha256'] = changed['source_transition']['changed'][0]['before_sha256']
             elif mutation == 'native_not_changed': changed['source_transition']['embedded_native_paths'].append('puzzles/lib.rs.other')
+            elif mutation == 'dependency_not_changed': changed['source_transition']['embedded_dependency_paths'].append('puzzles/lib.rs.other')
             else: changed['reviewed_after'] = {}
             with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):
                 migration.validate_profile(changed)
@@ -88,9 +95,11 @@ class SchemaAndRestoration(unittest.TestCase):
         before = migration.predecessor(profile)
         current = constructed(before, profile)
         substitutions = migration.compare_append(profile, before, current)
-        self.assertEqual({row['path'] for row in substitutions}, set(profile['source_transition']['embedded_native_paths']))
+        transition = profile['source_transition']
+        self.assertEqual({row['path'] for row in substitutions},
+                         set(transition['embedded_native_paths']) | set(transition['embedded_dependency_paths']))
         for mutation in ('order', 'retained_artifact', 'retained_case', 'authoring_header', 'extra_export',
-                         'source_table', 'native_hash', 'dropped_added', 'duplicate_added'):
+                         'source_table', 'native_hash', 'dependency_text', 'dropped_added', 'duplicate_added'):
             changed = copy.deepcopy(current)
             if mutation == 'order': changed['puzzles'][0], changed['puzzles'][1] = changed['puzzles'][1], changed['puzzles'][0]
             elif mutation == 'retained_artifact': changed['puzzles'][0]['artifacts'][0]['bytes'] += 1
@@ -101,6 +110,9 @@ class SchemaAndRestoration(unittest.TestCase):
             elif mutation == 'native_hash':
                 target = next(p for p in changed['puzzles'] if p.get('native_sources'))
                 target['native_sources'][0]['sha256'] = '0' * 64
+            elif mutation == 'dependency_text':
+                target = next(p for p in changed['puzzles'] if p.get('source_dependencies'))
+                target['source_dependencies'][0]['source'] += '\n// unreviewed dependency edit\n'
             elif mutation == 'dropped_added': changed['puzzles'].pop()
             else: changed['puzzles'].append(copy.deepcopy(changed['puzzles'][-1]))
             with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)):

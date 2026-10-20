@@ -99,7 +99,11 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
         | Expr::Call {
             arguments: items, ..
         } => pending.extend(items),
-        Expr::Binary { left, right, .. } => {
+        Expr::Apply {
+            program: left,
+            environment: right,
+        }
+        | Expr::Binary { left, right, .. } => {
             pending.push(left);
             pending.push(right);
         }
@@ -211,7 +215,11 @@ impl Program {
         while let Some(expr) = pending.pop() {
             if matches!(
                 expr,
-                Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } | Expr::Sha256 { .. }
+                Expr::Call { .. }
+                    | Expr::Let { .. }
+                    | Expr::Local { .. }
+                    | Expr::Sha256 { .. }
+                    | Expr::Apply { .. }
             ) {
                 return true;
             }
@@ -221,6 +229,18 @@ impl Program {
     }
     /// Hash semantics require a separate model; inspect dead arms and every
     /// function table entry as well as the entry expression.
+    /// Dynamic application has no model: inspect dead arms and every function.
+    pub fn uses_apply(&self) -> bool {
+        let mut pending = vec![&self.body];
+        pending.extend(self.functions.iter().map(|function| &function.body));
+        while let Some(expression) = pending.pop() {
+            if matches!(expression, Expr::Apply { .. }) {
+                return true;
+            }
+            children(expression, &mut pending);
+        }
+        false
+    }
     pub fn uses_sha256(&self) -> bool {
         let mut pending = vec![&self.body];
         pending.extend(self.functions.iter().map(|function| &function.body));
@@ -370,6 +390,19 @@ impl Validator<'_> {
                     );
                 }
                 Type::Bytes { len: 32 }
+            }
+            Expr::Apply {
+                program,
+                environment,
+            } => {
+                for operand in [program, environment] {
+                    let ty = self.infer(operand, parameters, locals, depth + 1)?;
+                    ensure!(
+                        ty.is_none() || matches!(ty, Some(Type::Tree)),
+                        "apply operands must be arbitrary trees"
+                    );
+                }
+                Type::Tree
             }
             Expr::Call {
                 function_id,

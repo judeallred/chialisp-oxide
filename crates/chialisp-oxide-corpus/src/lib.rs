@@ -49,6 +49,7 @@ pub const PUZZLES: &[&str] = &[
     "module-add",
     "module-times-ten",
     "module-factorial",
+    "delegated-puzzle",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

@@ -120,6 +120,20 @@ impl<'tcx> Lowerer<'tcx> {
                     {
                         return false;
                     }
+                    // A recognized application is likewise NON-total: the applied
+                    // program may fail or loop and its result must be evaluated.
+                    if self
+                        .apply_primitive(
+                            body,
+                            func,
+                            args,
+                            *destination,
+                            block.terminator().source_info.span,
+                        )
+                        .is_ok_and(|apply| apply)
+                    {
+                        return false;
+                    }
                     self.byte_comparison(
                         body,
                         func,

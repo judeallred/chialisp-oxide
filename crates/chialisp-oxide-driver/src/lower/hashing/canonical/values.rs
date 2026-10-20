@@ -129,7 +129,30 @@ impl<'tcx> Encode<'tcx> {
                 self.usize(b.len())?;
                 self.raw(b)?
             }
-            _ => return Err("pointer/slice constant unencoded".into()),
+            mir::ConstValue::Slice { alloc_id, meta } => {
+                // The core panic leaf's `&'static str` message. Encode the exact
+                // initialized bytes of the whole literal; provenance is rejected.
+                let Some(GlobalAlloc::Memory(allocation)) = self.tcx.try_get_global_alloc(alloc_id)
+                else {
+                    return Err("static/function/vtable slice allocation unencoded".into());
+                };
+                let allocation = allocation.inner();
+                if meta > 4096 || allocation.size().bytes() != meta {
+                    return Err("slice constant bound/length mismatch".into());
+                }
+                let range = alloc_range(rustc_abi::Size::ZERO, allocation.size());
+                if allocation.init_mask().is_range_initialized(range).is_err()
+                    || !allocation.provenance().range_empty(range, &self.tcx)
+                {
+                    return Err("uninitialized/provenance slice constant".into());
+                }
+                let b = allocation
+                    .get_bytes_strip_provenance(&self.tcx, range)
+                    .map_err(|_| "invalid slice constant bytes")?;
+                self.tag(3)?;
+                self.usize(b.len())?;
+                self.raw(b)?
+            }
         }
         Ok(())
     }

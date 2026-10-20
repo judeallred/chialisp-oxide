@@ -452,6 +452,18 @@ impl Analysis {
                 value.shape = Some(Shape::Atom);
                 Expr::Sha256 { parts: output }
             }
+            Expr::Apply {
+                program,
+                environment,
+            } => {
+                // Operands evaluate strictly in order; the result carries no fact.
+                let (program, _) = self.expression(program, context)?;
+                let (environment, _) = self.expression(environment, context)?;
+                Expr::Apply {
+                    program: Box::new(program),
+                    environment: Box::new(environment),
+                }
+            }
             Expr::AtomIsEmpty { value: operand } => {
                 let (operand, _) = self.expression(operand, context)?;
                 value.shape = Some(Shape::Atom);

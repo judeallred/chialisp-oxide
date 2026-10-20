@@ -1,6 +1,6 @@
 //! Explicitly reviewed native primitive bridge. Public spelling only selects a
 //! candidate; the actual complete typed-MIR closure and profile authorize it.
-mod canonical;
+pub(super) mod canonical;
 
 use super::Lowerer;
 use rustc_hir::def_id::{CRATE_DEF_INDEX, DefId, LOCAL_CRATE};

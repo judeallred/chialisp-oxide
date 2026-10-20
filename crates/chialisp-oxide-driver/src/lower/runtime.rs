@@ -112,6 +112,16 @@ impl<'tcx> Lowerer<'tcx> {
                                 })?);
                             continue;
                         }
+                        if self.apply_primitive(body, func, args, *destination, span)? {
+                            // Dynamic application needs the same strict runtime
+                            // bindings as hashing; reuse the runtime selector.
+                            has_native_hash = true;
+                            pending.push(
+                                target
+                                    .ok_or_else(|| self.error(span, "native apply must return"))?,
+                            );
+                            continue;
+                        }
                         if self.box_constructor(body, func, args, *destination, span)? {
                             pending.push(
                                 target.ok_or_else(|| self.error(span, "Box::new must return"))?,
@@ -566,6 +576,32 @@ impl<'tcx> Lowerer<'tcx> {
                         self.runtime_block(
                             body,
                             target.ok_or_else(|| self.error(span, "native SHA256 must return"))?,
+                            locals,
+                            path,
+                            runtime,
+                            patterns,
+                        )?
+                    } else if self.apply_primitive(body, func, args, *destination, span)? {
+                        let program = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                        let environment =
+                            self.operand(body, &args[1].node, &locals, args[1].span)?;
+                        self.runtime_bind(
+                            (
+                                *destination,
+                                Type::Tree,
+                                Expr::Apply {
+                                    program: Box::new(program),
+                                    environment: Box::new(environment),
+                                },
+                            ),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        self.runtime_block(
+                            body,
+                            target.ok_or_else(|| self.error(span, "native apply must return"))?,
                             locals,
                             path,
                             runtime,

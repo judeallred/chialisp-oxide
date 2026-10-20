@@ -18,7 +18,7 @@ impl<'tcx> Encode<'tcx> {
             };
             match node {
                 Raw::Ty(t) => match t.kind() {
-                    ty::Bool | ty::Never | ty::Int(_) | ty::Uint(_) => (),
+                    ty::Bool | ty::Never | ty::Str | ty::Int(_) | ty::Uint(_) => (),
                     ty::Array(element, length) => {
                         push(self, Raw::Ty(*element))?;
                         push(self, Raw::Const(*length))?;
@@ -33,6 +33,9 @@ impl<'tcx> Encode<'tcx> {
                         }
                     }
                     ty::FnDef(_, args) => push(self, Raw::Args(args.skip_binder()))?,
+                    // The admitted borrowed tree is structurally closed: one
+                    // lifetime, Atom(&[u8]) and Pair(&Self, &Self), nothing else.
+                    ty::Adt(..) if self.admitted_borrowed_tree(t) => (),
                     ty::Param(parameter) => {
                         let args = self.instance.ok_or("raw parameter outside instance")?.args;
                         let item = args
@@ -41,7 +44,7 @@ impl<'tcx> Encode<'tcx> {
                             .ok_or("unbound raw type parameter")?;
                         push(self, Raw::Ty(item))?
                     }
-                    _ => return Err("raw alias/complex type is unreviewed".into()),
+                    _ => return Err(format!("raw alias/complex type is unreviewed: {t:?}")),
                 },
                 Raw::Args(args) => {
                     if args.len() > 64 {

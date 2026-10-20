@@ -26,3 +26,6 @@ pub use owned_tree::*;
 
 mod hashing;
 pub use hashing::{sha256, sha256_parts};
+
+mod apply;
+pub use apply::{ResourceExhausted, apply};

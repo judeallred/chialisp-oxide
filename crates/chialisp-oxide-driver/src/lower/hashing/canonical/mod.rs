@@ -168,7 +168,7 @@ impl<'tcx> Encode<'tcx> {
 }
 
 /// The caller has already enforced the installed pinned compiler/stdlib policy.
-pub(super) fn bytes<'tcx>(tcx: TyCtxt<'tcx>, id: DefId) -> R<Vec<u8>> {
+pub(in crate::lower) fn bytes<'tcx>(tcx: TyCtxt<'tcx>, id: DefId) -> R<Vec<u8>> {
     if env!("CHIALISP_OXIDE_RUSTC_COMMIT") != "daf2e5e18b3abc4311d9da3d96fd64138f43d508" {
         return Err("reviewed native primitive requires the pinned compiler commit".into());
     }
