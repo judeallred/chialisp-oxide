@@ -379,8 +379,10 @@ source discovery does not mean a file has been ported, executed, or audited.
 
 The dedicated [error study](https://judeallred.github.io/chialisp-oxide/verification/error-study/)
 executes limited Chialisp test suites that miss concrete bugs, then records the
-Rust diagnostics that reject the corresponding source mistakes. It also keeps a
-policy bug that Rust still compiles as a negative control.
+Rust diagnostics that reject the corresponding source mistakes, names the layer
+that catches each one, and credits the compiled strict ABI and checked
+arithmetic through executed corpus cases. It also keeps two policy bugs that
+Rust still compiles as negative controls.
 
 ## Documentation
 

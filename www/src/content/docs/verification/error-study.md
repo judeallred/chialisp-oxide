@@ -3,16 +3,21 @@ title: Errors that Rust makes impossible
 description: Execute Chialisp counterexamples that pass limited tests, inspect real Rust compiler failures, and distinguish type guarantees from policy correctness.
 ---
 
-Four faulty Rust programs in this study cannot compile with their declared types
-and names. Their Chialisp counterparts compile, pass two deliberately limited
-exact-output tests each, and then fail a distinguishing input. A fifth study
-shows a policy bug that **Rust also compiles**.
+Seven faulty Rust programs in this study cannot compile with their declared
+types and names. Their Chialisp counterparts compile, pass two deliberately
+limited exact-output tests each, and then fail a distinguishing input. Two
+further studies show mistakes that compile in Rust but are caught by a later
+layer: a native overflow check and the compiled strict ABI, each credited
+through an executed corpus case. Two negative controls show policy bugs that
+**Rust also compiles**.
 
 “Impossible” has a precise scope here: these ill-typed or unresolved programs
 cannot become executable Rust through the tested compiler. It does not mean
 that every program written in Rust implements its intended policy. Deliberate
 conversions, weaker types, wrong constants, missing authorization and an
-incorrect boolean expression can all reintroduce bugs.
+incorrect boolean expression can all reintroduce bugs. Every study names the
+layer that catches it: native Rust type or name checking, a native overflow
+check, the compiled strict ABI or checked arithmetic, or none.
 
 These are original, intentionally faulty teaching fixtures, separate from the
 canonical tutorial ports. The [executed error-study report](../../reports/error-study.json)
@@ -30,8 +35,11 @@ revision with LIR optimization disabled and enabled; its measured outcomes
 are reported below.
 
 The Rust failures come from normal rustc analysis, not a source-text matcher.
-Corrected fixtures compile as real native test binaries and run eight tests
-in total. **These host-only Rust studies do not establish Rust-to-CLVM
+Corrected fixtures compile as real native test binaries. Studies whose
+compiled layer is the project compiler cite an executed case of the canonical
+`module-add` port from the corpus report, where the independent Chialisp
+module accepts the witness and the Rust CLVM rejects it in both optimizer
+modes; the gate re-reads that case from the current report. **These host-only Rust studies do not establish Rust-to-CLVM
 preservation or transaction admission.** The puzzle laboratory and formal
 pages describe those separate checks.
 
@@ -158,6 +166,116 @@ Rue rejects the same undeclared symbol in both modes. A misspelling that happens
 to name another valid variable can still compile in either typed language;
 strong domain types and distinguishing tests remain useful.
 
+## A deposit silently grows past 64 bits
+
+The policy treats balances as 64-bit amounts and requires an overflowing
+deposit to reject. CLVM integers are unbounded:
+
+```clojure
+(mod (BALANCE DEPOSIT)
+  (+ BALANCE DEPOSIT))
+```
+
+The limited tests add `7 + 1` and `18446744073709551614 + 1`, which reaches
+the width limit exactly. Both pass. The witness adds `1` to
+`18446744073709551615`: the VM returns `18446744073709551616` instead of
+rejecting.
+
+The Rust source `balance + deposit` over `u64` **compiles**. It is compiled
+here with overflow checks enabled, so the native witness test, marked
+`#[should_panic]`, actually passes: the fixed-width sum panics instead of
+growing. The corrected fixture uses `checked_add`, which rejects regardless of
+compiler settings. The compiled layer is credited through the referenced
+corpus case `overflow rejects in Rust; the original grows`, where the Rust
+CLVM rejects and the independently compiled Chialisp module accepts the
+unbounded sum. Rue `Int` is unbounded by design and reproduces the growth in
+both modes.
+
+## A nonempty atom passes as a nonempty approvals list
+
+The policy pays only when the approvals list is nonempty. Chialisp truthiness
+treats any nonempty atom as true:
+
+```clojure
+(mod (APPROVALS RECIPIENT AMOUNT)
+  (if APPROVALS (list (list 51 RECIPIENT AMOUNT)) (x)))
+```
+
+The limited tests pass `(1)` and `()`. Both behave as specified. The witness
+passes the single byte `0x00`, which is not a list: the program pays anyway.
+
+The Rust attempt writes `if approvals` over a borrowed `Tree`. rustc reports
+**E0308**, expected `bool`, found `&Tree`. The corrected fixture matches on
+`Tree::Pair` and its native tests cover a one-element list, the empty list
+and the zero byte. Rue rejects the untyped condition in both modes, requiring
+a type guard before comparison with `Bool`; this protection is shared.
+
+## Recipient and change addresses swapped
+
+Both addresses are 32-byte puzzle hashes, so a swap type-checks nowhere by
+itself:
+
+```clojure
+(mod (RECIPIENT CHANGE AMOUNT CHANGE_AMOUNT)
+  (list (list 51 CHANGE AMOUNT) (list 51 RECIPIENT CHANGE_AMOUNT)))
+```
+
+The limited tests use identical recipient and change fixtures, so the
+swapped outputs equal the expected ones. The witness uses distinct addresses
+and observes the two payments sent to the wrong parties.
+
+The Rust fixture declares `Recipient(PuzzleHash)` and `Change(PuzzleHash)`
+wrappers and routes each through its own helper. Passing `change` where
+`Recipient` is required reports **E0308**. The guarantee relies on using the
+wrappers consistently; unwrapping both first would compile. The Rue
+translation uses `Bytes32` for both and swaps them; the coin-ID study's Rue
+struct control shows the same distinction can be encoded there.
+
+## A padded amount atom is accepted as an amount
+
+The policy requires canonical minimal integer atoms. Chialisp passes any atom
+bytes through:
+
+```clojure
+(mod (RECIPIENT AMOUNT)
+  (list (list 51 RECIPIENT AMOUNT)))
+```
+
+The limited tests pay `7` and `300`. The witness supplies `0x0007`, a padded
+seven: the program returns a condition carrying the padded atom instead of
+rejecting.
+
+Nothing in the Rust source changes between the faulty and corrected fixtures,
+and native Rust cannot express a padded seven at all. The layer that catches
+this is the decoder generated for the default strict typed ABI, **a runtime
+ABI rejection, not a compiler guarantee**. It is credited through the
+referenced corpus case `padded atom rejects in Rust; the original reads it as
+one`, where the Rust CLVM rejects in both modes while the independent
+Chialisp module reads the atom as an integer. An explicit ignored or raw
+environment would not add this check. Rue `Int` carries the padded bytes
+through in both modes.
+
+## An extra solution element is silently ignored
+
+The policy requires exactly two solution elements:
+
+```clojure
+(mod (RECIPIENT AMOUNT)
+  (list (list 51 RECIPIENT AMOUNT)))
+```
+
+The limited tests pass two elements. The witness appends a third, `99`, and
+the program pays as if it were absent.
+
+A Rust signature fixes the argument count. The faulty fixture includes a host
+caller that passes a third field, and rustc reports **E0061**, this function
+takes 2 arguments but 3 were supplied. On chain the solution is
+attacker-controlled rather than a Rust caller, so the layer that matters
+there is the compiled strict ABI's proper-list and arity check, credited
+through the referenced corpus case `extra argument ignored by the original`.
+Positional Rue parameters ignore extra elements like Chialisp; a rest
+pattern with an explicit shape assertion can reject them.
+
 ## Negative control: missing policy cap still compiles
 
 The independently stated policy accepts counters below 1000 and returns the
@@ -181,7 +299,25 @@ Rue's compiled output reproduces the failure with optimization off and on.
 
 The corrected Rust fixture adds `assert!(counter < 1000)`. Its native tests check
 the accepted boundary and the rejected witness. The stronger property depends
-on the specification and guard, not on `u64` alone. The separate
+on the specification and guard, not on `u64` alone.
+
+## Negative control: missing signature requirement still compiles
+
+The policy requires payments above 100 mojos to carry an `AGG_SIG_ME`
+condition over a fixture message. Both faulty implementations omit the
+branch:
+
+```clojure
+(mod (PUBKEY RECIPIENT AMOUNT)
+  (list (list 51 RECIPIENT AMOUNT)))
+```
+
+The limited tests pay `7` and `100`, and both pass. The witness pays `101`:
+the expected output has two conditions, the observed output one.
+**Rust and Rue both compile this bug.** The native limited suite passes and
+the expanded native assertion that a signature is present fails when
+executed. The corrected fixture returns `Some(agg_sig_me(..))` above the
+threshold; an `Option<AggSigMe>` return type did not choose that policy. The separate
 [bounded-counter model](../formal/) checks an independently stated property of
 actual source-derived IR and detects a removed guard; its proof scope still
 excludes general compiler preservation.

@@ -1,0 +1,3 @@
+; Bug: the recipient and change addresses are both 32-byte atoms and are swapped.
+(mod (RECIPIENT CHANGE AMOUNT CHANGE_AMOUNT)
+  (list (list 51 CHANGE AMOUNT) (list 51 RECIPIENT CHANGE_AMOUNT)))

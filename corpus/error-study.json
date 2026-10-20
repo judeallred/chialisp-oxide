@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Original deliberately faulty teaching fixtures. Weak suites assert exact outcomes but intentionally omit a distinguishing input. These are host Rust compiler/tests and independent Chialisp/Rue VM executions, not Rust-to-CLVM or consensus proofs.",
+  "scope": "Original deliberately faulty teaching fixtures. Weak suites assert exact outcomes but intentionally omit a distinguishing input. Each study names the layer that catches the mistake: native Rust type or name checking, native overflow checks, the compiled strict ABI or checked arithmetic recorded in the referenced corpus case, or none for the negative controls. These are host Rust compiler/tests and independent Chialisp/Rue VM executions plus references to executed corpus cases, not Rust-to-CLVM or consensus proofs.",
   "toolchain": {
     "rustc": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)",
     "reference": "chialisp 0.4.6",
@@ -1590,6 +1590,22 @@
       "sha256": "6a8694c04b73338282f579bce0c81da8b7526fef80a2c2e0b386dee3a171070a"
     },
     {
+      "path": "experiments/error-study/arity-mismatch/bad.clsp",
+      "sha256": "3bb7eaa7c10a21dbcd21bdc0473bcc35c20c536140231aca8f3655757acde17c"
+    },
+    {
+      "path": "experiments/error-study/arity-mismatch/bad.rs",
+      "sha256": "bfcdbf4ac0c5c0c10465edbabc6216926e0b07a0878065fa8b2e568d8cc90446"
+    },
+    {
+      "path": "experiments/error-study/arity-mismatch/bad.rue",
+      "sha256": "f6e309e04d944f4292d93df214c9962552ff364e4607e946bed99c17bb46c44c"
+    },
+    {
+      "path": "experiments/error-study/arity-mismatch/fixed.rs",
+      "sha256": "8c4685554b064dd9c9fd8402af17b9aef4d3599315c16ad829c4fcf86ac67164"
+    },
+    {
       "path": "experiments/error-study/branch-shape/bad.clsp",
       "sha256": "38dbb06fd2398a72da489b2c94a4ef00fb097f08f66e6df5631866c0f8d8595d"
     },
@@ -1646,6 +1662,38 @@
       "sha256": "38ad8f93addde9b5ae6db85bab92af9d2b7c5a81089627ee131864793a436084"
     },
     {
+      "path": "experiments/error-study/list-truthiness/bad.clsp",
+      "sha256": "26b71d28770823f1666471fdb43345bf525947bb44e26f87d059ed11b6848f8d"
+    },
+    {
+      "path": "experiments/error-study/list-truthiness/bad.rs",
+      "sha256": "20988da4ff2163eb28b25bb7134e47d321e82f2f9e11743cbc46d02421167456"
+    },
+    {
+      "path": "experiments/error-study/list-truthiness/bad.rue",
+      "sha256": "9b6e40b06a692f3f6523ab2c476741bf6d398650cf250d89079c20137266da91"
+    },
+    {
+      "path": "experiments/error-study/list-truthiness/fixed.rs",
+      "sha256": "9055948d93c3430be58b1c5f91cbe4e5d4bcc83c4891ac5a41962ac5472a9562"
+    },
+    {
+      "path": "experiments/error-study/missing-authorization/bad.clsp",
+      "sha256": "59cfa535df1bee03a374e7dc37c023a2bd7189c8f1e293db4b18c77d5349253e"
+    },
+    {
+      "path": "experiments/error-study/missing-authorization/bad.rs",
+      "sha256": "244c8936364349be64153d839c3d3d6dbc686e950cb945489564cec84ab8c3b8"
+    },
+    {
+      "path": "experiments/error-study/missing-authorization/bad.rue",
+      "sha256": "9e8c771e4a40ffadb95bfaa17d6bd916f9f7c0da8d48d544d606c90eecba3121"
+    },
+    {
+      "path": "experiments/error-study/missing-authorization/fixed.rs",
+      "sha256": "1f24b146b6dbc5a8241cfa0e2d2c13057f67108ebb8d9ff48cb38f8d272586a1"
+    },
+    {
       "path": "experiments/error-study/missing-cap/bad.clsp",
       "sha256": "2cb18ab160bd6505fe626a45e65c4a3ecc09ffe264cfc364703b2ae61c3c9493"
     },
@@ -1662,8 +1710,56 @@
       "sha256": "fc158be7c0b2178715dc72efc0a09142b8190ca0337cc650635f25be113d9060"
     },
     {
+      "path": "experiments/error-study/padded-atom/bad.clsp",
+      "sha256": "80545410ea8c9a9fb9cffd9641b0f55e51dee43cda0b228db89d1ff669791469"
+    },
+    {
+      "path": "experiments/error-study/padded-atom/bad.rs",
+      "sha256": "f21a4560bfdedc48d8eaf1439951aee6d66e28bd2be0b9ab5bc15035cf4f0dd8"
+    },
+    {
+      "path": "experiments/error-study/padded-atom/bad.rue",
+      "sha256": "ffb58ff5ef7225876085fc87f9a66c9560d94f5936af1157de2ef363c6f845ce"
+    },
+    {
+      "path": "experiments/error-study/padded-atom/fixed.rs",
+      "sha256": "d37de4d9ffe72470682216d4352793f608ae1a623ddea1774a043233ace551bf"
+    },
+    {
+      "path": "experiments/error-study/role-swap/bad.clsp",
+      "sha256": "d4041241825f6d807e8ee4ddfeceadc32a37dc63b2a54cd62920ab121ba991c7"
+    },
+    {
+      "path": "experiments/error-study/role-swap/bad.rs",
+      "sha256": "e1739cb8b72feca145bb375421d1259e4f2efd687f8f437732306048a475b8d2"
+    },
+    {
+      "path": "experiments/error-study/role-swap/bad.rue",
+      "sha256": "8db5f812c41baaf94c24dffed6762b611607bf2fe54bee2fb2e816c26e072b8b"
+    },
+    {
+      "path": "experiments/error-study/role-swap/fixed.rs",
+      "sha256": "67de5e1d0655da1d677b164dbe7abdfbd51f6b72d974a327863567c33ffdf470"
+    },
+    {
       "path": "experiments/error-study/studies.json",
-      "sha256": "069d19c102786791ef180c7c9b24dbf475b28518cb20b654ea48fbbce5a85841"
+      "sha256": "652f5ac48a066ddee751b94b4f78ac30c4ec04c7cf4741e6d9b6f629fed124c1"
+    },
+    {
+      "path": "experiments/error-study/unbounded-growth/bad.clsp",
+      "sha256": "aae2561b1a47af4dec5886095cf9e445e00decae0985531263defd11ec39bfa0"
+    },
+    {
+      "path": "experiments/error-study/unbounded-growth/bad.rs",
+      "sha256": "d5df943e1f7d98c9b78d7e1288ef15e0f20317601519206a7c42a94e2ad344f3"
+    },
+    {
+      "path": "experiments/error-study/unbounded-growth/bad.rue",
+      "sha256": "a4cd3a98577f9775395516c8ea87b92247de6e101e7cfc329a1cc3aa64603459"
+    },
+    {
+      "path": "experiments/error-study/unbounded-growth/fixed.rs",
+      "sha256": "aa857c77282b643f65afb2db97a1bd5fcc420d1bf99e3631a3524a0312955bf8"
     },
     {
       "path": "experiments/error-study/unresolved-name/bad.clsp",
@@ -2167,7 +2263,7 @@
     },
     {
       "path": "scripts/check-error-study.py",
-      "sha256": "6e92acae968b6c8311ce5829fb81c2270a2a33ab713772a9edc40199859d7471"
+      "sha256": "052f0a9be0f12fe717f555964f8a0944fd3810ee764041d50a0207c551600755"
     },
     {
       "path": "scripts/check-hashing-puzzles.py",
@@ -2403,6 +2499,9 @@
       "id": "domain-swap",
       "title": "Coin ID used as a payment destination",
       "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck"
+      ],
       "claim": "Distinct SDK CoinId and PuzzleHash types reject this direct argument swap, even though both contain 32 bytes.",
       "limitations": [
         "The guarantee relies on choosing distinct domain types. Deliberately wrapping coin_id.0 as PuzzleHash still compiles and needs policy review.",
@@ -2652,6 +2751,9 @@
       "id": "branch-shape",
       "title": "Untested branch returns a condition instead of a condition list",
       "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck"
+      ],
       "claim": "The declared Rust return type requires both returning branches to produce a one-element condition tuple.",
       "limitations": [
         "Consistent types do not establish correct condition opcodes or authorization. Both branches could return the same wrong well-typed policy.",
@@ -2768,6 +2870,9 @@
       "id": "integer-truthiness",
       "title": "Approval code two is accidentally treated as true",
       "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck"
+      ],
       "claim": "Rust rejects an integer directly used as an if condition; it requires an explicit boolean expression.",
       "limitations": [
         "Rust does not select the intended boolean expression. Writing approved != 0 would recreate the policy bug and compile.",
@@ -2894,6 +2999,9 @@
       "id": "unresolved-name",
       "title": "A misspelled name survives an untested classic Chialisp branch",
       "category": "rust_name_resolution",
+      "caught_by": [
+        "native_rust_name_resolution"
+      ],
       "claim": "Rust resolves the amount name in both branches before tests execute; an undeclared amout cannot compile.",
       "limitations": [
         "This behavior is measured with the classic chialisp 0.4.6 compiler path, not claimed for every Chialisp dialect or linter.",
@@ -3007,9 +3115,1287 @@
       ]
     },
     {
+      "id": "unbounded-growth",
+      "title": "A deposit silently grows past 64 bits",
+      "category": "rust_runtime_check",
+      "caught_by": [
+        "native_rust_overflow_check",
+        "compiled_checked_arithmetic"
+      ],
+      "claim": "Fixed-width u64 arithmetic compiled with overflow checks panics on the overflowing deposit natively, and the project compiler emits checked arithmetic that rejects it in CLVM; Chialisp integers grow without bound.",
+      "limitations": [
+        "Native overflow behavior depends on compiler settings; this study enables overflow checks explicitly, and the corrected fixture uses checked_add so the rejection no longer depends on them.",
+        "The compiled-subset credit is the referenced corpus case, where the independent Chialisp module accepts the unbounded sum and the Rust CLVM rejects it in both optimizer modes; that is finite executed evidence, not a compiler-preservation proof.",
+        "Rue Int is unbounded by design, so the Rue translation reproduces the growth; a bounded Rue type or explicit guard would be needed."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/unbounded-growth/bad.clsp",
+        "rust_bad": "experiments/error-study/unbounded-growth/bad.rs",
+        "rust_fixed": "experiments/error-study/unbounded-growth/fixed.rs",
+        "rue": "experiments/error-study/unbounded-growth/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 7,
+            "clvm_hex": "ff10ff02ff0580",
+            "disassembly": "(+ 2 5)",
+            "optimize_lir": true,
+            "tree_hash": "19c7b1ed29e8f501f6985cd6addd3b6e5bd7ccc251f1a4018550837b3006239b"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small deposit",
+              "input": "(7 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 856,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "deposit reaching the width limit",
+              "input": "(18446744073709551614 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "8900ffffffffffffffff"
+              },
+              "execution": {
+                "cost": 960,
+                "error": null,
+                "outcome": {
+                  "output_hex": "8900ffffffffffffffff",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "deposit past the width limit",
+            "input": "(18446744073709551615 1)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 960,
+              "error": null,
+              "outcome": {
+                "output_hex": "89010000000000000000",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "accepted",
+          "diagnostics": []
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "ordinary_deposits_pass",
+              "event": "ok"
+            },
+            {
+              "name": "overflowing_deposit_is_rejected_regardless_of_compiler_settings",
+              "event": "ok"
+            }
+          ]
+        },
+        "limited_native_suite": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "ordinary_deposits_pass",
+              "event": "ok"
+            }
+          ]
+        },
+        "expanded_native_witness": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "overflowing_deposit_is_rejected",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 7,
+            "clvm_hex": "ff10ff02ff0580",
+            "disassembly": "(+ 2 5)",
+            "optimize_lir": false,
+            "tree_hash": "19c7b1ed29e8f501f6985cd6addd3b6e5bd7ccc251f1a4018550837b3006239b"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small deposit",
+              "input": "(7 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 856,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "deposit reaching the width limit",
+              "input": "(18446744073709551614 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "8900ffffffffffffffff"
+              },
+              "execution": {
+                "cost": 960,
+                "error": null,
+                "outcome": {
+                  "output_hex": "8900ffffffffffffffff",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "deposit past the width limit",
+            "input": "(18446744073709551615 1)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 960,
+              "error": null,
+              "outcome": {
+                "output_hex": "89010000000000000000",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 7,
+            "clvm_hex": "ff10ff02ff0580",
+            "disassembly": "(+ 2 5)",
+            "optimize_lir": true,
+            "tree_hash": "19c7b1ed29e8f501f6985cd6addd3b6e5bd7ccc251f1a4018550837b3006239b"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small deposit",
+              "input": "(7 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "08"
+              },
+              "execution": {
+                "cost": 856,
+                "error": null,
+                "outcome": {
+                  "output_hex": "08",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "deposit reaching the width limit",
+              "input": "(18446744073709551614 1)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "8900ffffffffffffffff"
+              },
+              "execution": {
+                "cost": 960,
+                "error": null,
+                "outcome": {
+                  "output_hex": "8900ffffffffffffffff",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "deposit past the width limit",
+            "input": "(18446744073709551615 1)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 960,
+              "error": null,
+              "outcome": {
+                "output_hex": "89010000000000000000",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "corpus_evidence": {
+        "slug": "module-add",
+        "case": "overflow rejects in Rust; the original grows",
+        "solution": "(9223372036854775807 1)",
+        "native": {
+          "status": "rejected"
+        },
+        "declared_divergence": {
+          "backends": [
+            "chialisp",
+            "rue_source"
+          ],
+          "outcome": {
+            "output_hex": "89008000000000000000",
+            "status": "accepted"
+          },
+          "reason": "Checked i64 addition overflows and rejects; the original returns the unbounded sum."
+        },
+        "runs": [
+          {
+            "backend": "rust_mir",
+            "optimize_lir": false,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "rust_mir",
+            "optimize_lir": true,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "chialisp",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "89008000000000000000",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": false,
+            "outcome": {
+              "output_hex": "89008000000000000000",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "89008000000000000000",
+              "status": "accepted"
+            }
+          }
+        ],
+        "scope": "Executed corpus observation of the compiled layer; finite evidence, not a compiler-preservation proof."
+      }
+    },
+    {
+      "id": "list-truthiness",
+      "title": "A nonempty atom passes as a nonempty approvals list",
+      "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck"
+      ],
+      "claim": "Rust rejects a tree value used directly as an if condition; the approvals shape must be matched explicitly.",
+      "limitations": [
+        "Rust does not choose the right predicate: matching only on Pair still accepts any pair, including malformed approvals, and policy review remains necessary.",
+        "Rue rejects the same untyped condition with a type-guard diagnostic; this protection is shared, not unique to Rust.",
+        "This host-only study does not claim project ABI or Rust-to-CLVM validation."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/list-truthiness/bad.clsp",
+        "rust_bad": "experiments/error-study/list-truthiness/bad.rs",
+        "rust_fixed": "experiments/error-study/list-truthiness/fixed.rs",
+        "rue": "experiments/error-study/list-truthiness/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 47,
+            "clvm_hex": "ff02ffff03ff02ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i 2 (q 4 (c (q . 51) (c 5 (c 11 ()))) ()) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "15c94b8bf8c4b1d8f42cb0bb133dc7751fdccbe3204a5f2acb876545d683e623"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "one approval",
+              "input": "((1) 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 677,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "no approvals",
+              "input": "(() 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "rejected"
+              },
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "zero byte instead of a list",
+            "input": "(0x00 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 677,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n --> <repo>/experiments/error-study/list-truthiness/bad.rs:4:8\n  |\n4 |     if approvals {\n  |        ^^^^^^^^^ expected `bool`, found `&Tree<'_>`\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "a_nonempty_atom_is_not_a_list",
+              "event": "ok"
+            },
+            {
+              "name": "a_nonempty_list_pays",
+              "event": "ok"
+            },
+            {
+              "name": "an_empty_list_is_rejected",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot compare `Any` to `Bool` without a type guard, since the runtime value must be constrained at bad.rue:7:8",
+          "optimize_lir": false,
+          "status": "compile_rejected"
+        },
+        {
+          "diagnostic": "Rue 245c107a8e795229ea08097142f005a4c0d91075: Cannot compare `Any` to `Bool` without a type guard, since the runtime value must be constrained at bad.rue:7:8",
+          "optimize_lir": true,
+          "status": "compile_rejected"
+        }
+      ]
+    },
+    {
+      "id": "role-swap",
+      "title": "Recipient and change addresses swapped",
+      "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck"
+      ],
+      "claim": "User-declared Recipient and Change wrappers around the same PuzzleHash type reject the swapped arguments, even though both carry 32 bytes.",
+      "limitations": [
+        "The guarantee relies on declaring and using the role wrappers consistently; unwrapping both to PuzzleHash before the call compiles and needs policy review.",
+        "Swapping an Amount with a PuzzleHash fails the same way through the SDK's distinct types, as the coin-ID study shows.",
+        "The equal-width Rue Bytes32 translation compiles and swaps the roles; the coin-ID study's Rue struct control shows Rue can encode such roles too."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/role-swap/bad.clsp",
+        "rust_bad": "experiments/error-study/role-swap/bad.rs",
+        "rust_fixed": "experiments/error-study/role-swap/fixed.rs",
+        "rue": "experiments/error-study/role-swap/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 53,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ffff04ffff04ffff0133ffff04ff02ffff04ff17ff80808080ff808080",
+            "disassembly": "(c (c (q . 51) (c 5 (c 11 ()))) (c (c (q . 51) (c 2 (c 23 ()))) ()))",
+            "optimize_lir": true,
+            "tree_hash": "87af37083b00c6bdef747e0d7cce11ec777d6d85752b2b1882f6f05d16a96d1b"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal addresses, seven and three",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7 3)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080"
+              },
+              "execution": {
+                "cost": 796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal addresses, nine and four",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9 4)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080"
+              },
+              "execution": {
+                "cost": 796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and change addresses",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7 3)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff0780ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff038080"
+            },
+            "execution": {
+              "cost": 796,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff0780ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff038080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n  --> <repo>/experiments/error-study/role-swap/bad.rs:20:20\n   |\n20 |     (pay_recipient(change, amount), pay_change(recipient, change_amount))\n   |      ------------- ^^^^^^ expected `Recipient`, found `Change`\n   |      |\n   |      arguments to this function are incorrect\n   |\nnote: function defined here\n  --> <repo>/experiments/error-study/role-swap/bad.rs:6:4\n   |\n 6 | fn pay_recipient(to: Recipient, amount: Amount) -> CreateCoin {\n   |    ^^^^^^^^^^^^^ -------------\n\n"
+            },
+            {
+              "code": "E0308",
+              "message": "mismatched types",
+              "rendered": "error[E0308]: mismatched types\n  --> <repo>/experiments/error-study/role-swap/bad.rs:20:48\n   |\n20 |     (pay_recipient(change, amount), pay_change(recipient, change_amount))\n   |                                     ---------- ^^^^^^^^^ expected `Change`, found `Recipient`\n   |                                     |\n   |                                     arguments to this function are incorrect\n   |\nnote: function defined here\n  --> <repo>/experiments/error-study/role-swap/bad.rs:10:4\n   |\n10 | fn pay_change(to: Change, amount: Amount) -> CreateCoin {\n   |    ^^^^^^^^^^ ----------\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "each_role_receives_its_own_amount",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 725,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff20ffff07ffff05ff01808080ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff012080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ff0180808080ffff01ff02ffff03ffff09ffff0dffff05ffff06ff01808080ffff012080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ffff06ffff06ff01808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ffff06ff018080808080ffff01ff02ffff03ffff02ffff03ffff07ffff06ffff06ffff06ff0180808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ffff06ffff06ff01808080808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ffff06ffff06ffff06ff01808080808080ffff01ff02ffff03ffff09ffff06ffff06ffff06ffff06ff0180808080ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ffff05ffff06ff018080ffff04ffff05ffff06ffff06ff01808080ff80808080ffff04ffff04ffff0133ffff04ffff05ff0180ffff04ffff05ffff06ffff06ffff06ff0180808080ff80808080ff808080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (a (i (not (l (f 1))) (q 2 (i (= (strlen (f 1)) (q . 32)) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (i (a (i (l (r 1)) (q 2 (i (a (i (a (i (not (l (f (r 1)))) (q 2 (i (= (strlen (f (r 1))) (q . 32)) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (i (a (i (l (r (r 1))) (q 2 (i (a (i (not (l (f (r (r 1))))) (q 2 (i (a (i (l (r (r (r 1)))) (q 2 (i (a (i (not (l (f (r (r (r 1)))))) (q 2 (i (a (i (not (l (r (r (r (r 1)))))) (q 2 (i (= (r (r (r (r 1)))) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c (f (r 1)) (c (f (r (r 1))) ()))) (c (c (q . 51) (c (f 1) (c (f (r (r (r 1)))) ()))) ())) (q 8)) 1)",
+            "optimize_lir": false,
+            "tree_hash": "d860960429a56368be05f60653d7da7d5a4f1e57afa0771e14c7626642bb7882"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal addresses, seven and three",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7 3)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080"
+              },
+              "execution": {
+                "cost": 9517,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal addresses, nine and four",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9 4)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080"
+              },
+              "execution": {
+                "cost": 9517,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and change addresses",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7 3)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff0780ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff038080"
+            },
+            "execution": {
+              "cost": 9517,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff0780ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff038080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 551,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff07ff0280ffff0180ffff01ff02ffff03ffff09ffff0dff0280ffff012080ffff01ff0101ffff018080ff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff07ff0580ffff0180ffff01ff02ffff03ffff09ffff0dff0580ffff012080ffff01ff0101ffff018080ff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff01ff02ffff03ffff02ffff03ffff07ff0b80ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0f80ffff01ff02ffff03ffff02ffff03ffff07ff1780ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff1f80ffff0180ffff01ff02ffff03ff1fffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ffff04ffff04ffff0133ffff04ff02ffff04ff17ff80808080ff808080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (a (i (l 2) (q) (q 2 (i (= (strlen 2) (q . 32)) (q 1 . 1) (q)) 1)) 1) (q 2 (i (a (i (l 3) (q 2 (i (a (i (a (i (l 5) (q) (q 2 (i (= (strlen 5) (q . 32)) (q 1 . 1) (q)) 1)) 1) (q 2 (i (a (i (l 7) (q 2 (i (a (i (l 11) (q) (q 2 (i (a (i (l 15) (q 2 (i (a (i (l 23) (q) (q 2 (i (a (i (l 31) (q) (q 2 (i 31 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c 5 (c 11 ()))) (c (c (q . 51) (c 2 (c 23 ()))) ())) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "47128e8aa36c30b690bcbf96b85cf04a26cb6c70a8e8efb8df7b865e566520f7"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "equal addresses, seven and three",
+              "input": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x1111111111111111111111111111111111111111111111111111111111111111 7 3)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080"
+              },
+              "execution": {
+                "cost": 7351,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff0780ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff038080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "equal addresses, nine and four",
+              "input": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x2222222222222222222222222222222222222222222222222222222222222222 9 4)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080"
+              },
+              "execution": {
+                "cost": 7351,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff0980ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff048080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "distinct recipient and change addresses",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x9999999999999999999999999999999999999999999999999999999999999999 7 3)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff0780ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff038080"
+            },
+            "execution": {
+              "cost": 7351,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa09999999999999999999999999999999999999999999999999999999999999999ff0780ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff038080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "padded-atom",
+      "title": "A padded amount atom is accepted as an amount",
+      "category": "runtime_abi_rejection",
+      "caught_by": [
+        "compiled_strict_abi"
+      ],
+      "claim": "The compiled strict typed ABI rejects the noncanonical amount atom before the function body runs; native Rust has no padded seven, so this is a runtime ABI rejection rather than a compiler guarantee.",
+      "limitations": [
+        "Nothing in the Rust source changes between the faulty and corrected fixtures: the decoder generated for the default strict ABI performs the check, and an explicit ignored or raw environment would not.",
+        "The compiled credit is the referenced corpus case, where the independent Chialisp module reads the padded atom as an integer and the Rust CLVM rejects it in both optimizer modes; that is finite executed evidence, not a compiler-preservation proof.",
+        "Rue Int carries the padded bytes through to the condition in both optimizer modes."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/padded-atom/bad.clsp",
+        "rust_bad": "experiments/error-study/padded-atom/bad.rs",
+        "rust_fixed": "experiments/error-study/padded-atom/fixed.rs",
+        "rue": "experiments/error-study/padded-atom/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "canonical seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "canonical three hundred",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 300)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "padded seven",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x0007)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8200078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "accepted",
+          "diagnostics": []
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "native_amounts_have_one_representation",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": false,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "canonical seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "canonical three hundred",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 300)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "padded seven",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x0007)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8200078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "canonical seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "canonical three hundred",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 300)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff82012c8080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "padded seven",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 0x0007)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8200078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "corpus_evidence": {
+        "slug": "module-add",
+        "case": "padded atom rejects in Rust; the original reads it as one",
+        "solution": "(0x0001 2)",
+        "native": {
+          "status": "rejected"
+        },
+        "declared_divergence": {
+          "backends": [
+            "chialisp",
+            "rue_source"
+          ],
+          "outcome": {
+            "output_hex": "03",
+            "status": "accepted"
+          },
+          "reason": "The original reads any atom as a signed integer, so a padded encoding is accepted; the typed Rust ABI rejects noncanonical integer atoms."
+        },
+        "runs": [
+          {
+            "backend": "rust_mir",
+            "optimize_lir": false,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "rust_mir",
+            "optimize_lir": true,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "chialisp",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": false,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          }
+        ],
+        "scope": "Executed corpus observation of the compiled layer; finite evidence, not a compiler-preservation proof."
+      }
+    },
+    {
+      "id": "arity-mismatch",
+      "title": "An extra solution element is silently ignored",
+      "category": "rust_typecheck",
+      "caught_by": [
+        "native_rust_typecheck",
+        "compiled_strict_abi"
+      ],
+      "claim": "A Rust signature fixes the argument count: a host caller passing a third field fails to compile, and the compiled strict ABI rejects a third solution element at runtime.",
+      "limitations": [
+        "The host diagnostic concerns Rust callers; on chain the solution is attacker-controlled, so the compiled strict ABI's proper-list and arity check is the layer that matters there, as the referenced corpus case shows.",
+        "An explicit ignored or raw environment ABI would not add this check.",
+        "Positional Rue parameters ignore extra elements like Chialisp; a rest pattern with an explicit shape assertion can reject them, so this is a convention rather than a Rue type error."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/arity-mismatch/bad.clsp",
+        "rust_bad": "experiments/error-study/arity-mismatch/bad.rs",
+        "rust_fixed": "experiments/error-study/arity-mismatch/fixed.rs",
+        "rue": "experiments/error-study/arity-mismatch/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "two elements, seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "two elements, nine",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "third element ignored",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7 99)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "rejected",
+          "diagnostics": [
+            {
+              "code": "E0061",
+              "message": "this function takes 2 arguments but 3 arguments were supplied",
+              "rendered": "error[E0061]: this function takes 2 arguments but 3 arguments were supplied\n --> <repo>/experiments/error-study/arity-mismatch/bad.rs:9:5\n  |\n9 |     puzzle(PuzzleHash([0x42; 32]), Amount::from_mojos(7), 99u64)\n  |     ^^^^^^                                                ----- unexpected argument #3 of type `u64`\n  |\nnote: function defined here\n --> <repo>/experiments/error-study/arity-mismatch/bad.rs:3:8\n  |\n3 | pub fn puzzle(recipient: PuzzleHash, amount: Amount) -> (CreateCoin,) {\n  |        ^^^^^^\nhelp: remove the extra argument\n  |\n9 -     puzzle(PuzzleHash([0x42; 32]), Amount::from_mojos(7), 99u64)\n9 +     puzzle(PuzzleHash([0x42; 32]), Amount::from_mojos(7))\n  |\n\n"
+            }
+          ]
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "exactly_two_arguments_pay",
+              "event": "ok"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": false,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "two elements, seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "two elements, nine",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "third element ignored",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7 99)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff02ffff04ff05ff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 2 (c 5 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "be9d84646cd37ab1c9a9850b34c6f8b5158457572d647f70a2f0be67c39773d4"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "two elements, seven",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "two elements, nine",
+              "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 9)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080"
+              },
+              "execution": {
+                "cost": 412,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff098080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "third element ignored",
+            "input": "(0x4242424242424242424242424242424242424242424242424242424242424242 7 99)",
+            "expected": {
+              "status": "rejected"
+            },
+            "execution": {
+              "cost": 412,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "corpus_evidence": {
+        "slug": "module-add",
+        "case": "extra argument ignored by the original",
+        "solution": "(1 2 3)",
+        "native": {
+          "status": "rejected"
+        },
+        "declared_divergence": {
+          "backends": [
+            "chialisp",
+            "rue_source"
+          ],
+          "outcome": {
+            "output_hex": "03",
+            "status": "accepted"
+          },
+          "reason": "The original reads arguments by position and ignores trailing environment values; the typed Rust ABI rejects extra list elements."
+        },
+        "runs": [
+          {
+            "backend": "rust_mir",
+            "optimize_lir": false,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "rust_mir",
+            "optimize_lir": true,
+            "outcome": {
+              "status": "rejected"
+            }
+          },
+          {
+            "backend": "chialisp",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": false,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          },
+          {
+            "backend": "rue_source",
+            "optimize_lir": true,
+            "outcome": {
+              "output_hex": "03",
+              "status": "accepted"
+            }
+          }
+        ],
+        "scope": "Executed corpus observation of the compiled layer; finite evidence, not a compiler-preservation proof."
+      }
+    },
+    {
       "id": "missing-cap",
       "title": "Negative control: missing policy cap still compiles",
       "category": "runtime_policy_control",
+      "caught_by": [],
       "claim": "A u64 return type does not prove the independently specified output limit of 1000.",
       "limitations": [
         "Both the Chialisp and native Rust bugs compile. The missed witness needs a policy assertion, stronger tests or a separately stated model specification.",
@@ -3248,6 +4634,260 @@
               "error": null,
               "outcome": {
                 "output_hex": "8203e9",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "missing-authorization",
+      "title": "Negative control: missing signature requirement still compiles",
+      "category": "runtime_policy_control",
+      "caught_by": [],
+      "claim": "An Option<AggSigMe> return type does not prove that payments above 100 mojos require the independently specified signature.",
+      "limitations": [
+        "Both the Chialisp and native Rust bugs compile. Only a test or specification that mentions the signature threshold exposes the omission.",
+        "Rue also compiles the omission in both modes; no typed language chooses the policy."
+      ],
+      "sources": {
+        "chialisp": "experiments/error-study/missing-authorization/bad.clsp",
+        "rust_bad": "experiments/error-study/missing-authorization/bad.rs",
+        "rust_fixed": "experiments/error-study/missing-authorization/fixed.rs",
+        "rue": "experiments/error-study/missing-authorization/bad.rue"
+      },
+      "chialisp": [
+        {
+          "artifact": {
+            "backend": "chialisp",
+            "bytes": 27,
+            "clvm_hex": "ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080",
+            "disassembly": "(c (c (q . 51) (c 5 (c 11 ()))) ())",
+            "optimize_lir": true,
+            "tree_hash": "0879656bea271181241b26a9da11452708fafd0f68e2e8f02043a53830377fb9"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small payment",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 420,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "payment at the threshold",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 100)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080"
+              },
+              "execution": {
+                "cost": 420,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "payment above the threshold without a signature",
+            "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 101)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff6580ffff32ffb0111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111ffa077777777777777777777777777777777777777777777777777777777777777778080"
+            },
+            "execution": {
+              "cost": 420,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff658080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        }
+      ],
+      "rust": {
+        "compilation": {
+          "status": "accepted",
+          "diagnostics": []
+        },
+        "corrected_native": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "large_payment_requires_a_signature",
+              "event": "ok"
+            },
+            {
+              "name": "small_payments_need_no_signature",
+              "event": "ok"
+            }
+          ]
+        },
+        "limited_native_suite": {
+          "exit_code": 0,
+          "tests": [
+            {
+              "name": "small_payments_pass",
+              "event": "ok"
+            }
+          ]
+        },
+        "expanded_native_witness": {
+          "exit_code": 101,
+          "tests": [
+            {
+              "name": "large_payment_requires_a_signature",
+              "event": "failed",
+              "stdout": "\nthread 'large_payment_requires_a_signature' (<thread>) panicked at <repo>/experiments/error-study/missing-authorization/bad.rs:19:5:\nassertion failed: signature.is_some()\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+            }
+          ]
+        }
+      },
+      "rue": [
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 501,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ff01808080ffff01ff02ffff03ffff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ff0180808080ffff01ff02ffff03ffff09ffff0dffff05ffff06ff01808080ffff012080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ffff06ffff06ff01808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ffff06ff018080808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ffff06ffff06ff018080808080ffff01ff02ffff03ffff09ffff06ffff06ffff06ff01808080ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ffff05ffff06ff018080ffff04ffff05ffff06ffff06ff01808080ff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (not (l (f 1))) (q 2 (i (a (i (l (r 1)) (q 2 (i (a (i (a (i (not (l (f (r 1)))) (q 2 (i (= (strlen (f (r 1))) (q . 32)) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (i (a (i (l (r (r 1))) (q 2 (i (a (i (not (l (f (r (r 1))))) (q 2 (i (a (i (not (l (r (r (r 1))))) (q 2 (i (= (r (r (r 1))) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c (f (r 1)) (c (f (r (r 1))) ()))) ()) (q 8)) 1)",
+            "optimize_lir": false,
+            "tree_hash": "f339b43f428111dd8a3e8a550e14c76736241af6a1129b4b3d9309aee9d9fc34"
+          },
+          "optimize_lir": false,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small payment",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 6653,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "payment at the threshold",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 100)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080"
+              },
+              "execution": {
+                "cost": 6653,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "payment above the threshold without a signature",
+            "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 101)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff6580ffff32ffb0111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111ffa077777777777777777777777777777777777777777777777777777777777777778080"
+            },
+            "execution": {
+              "cost": 6653,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff658080",
+                "status": "accepted"
+              }
+            },
+            "matches_expected": false
+          }
+        },
+        {
+          "artifact": {
+            "backend": "rue",
+            "bytes": 391,
+            "clvm_hex": "ff02ffff03ffff02ffff03ffff07ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0280ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff02ffff03ffff07ff0580ffff0180ffff01ff02ffff03ffff09ffff0dff0580ffff012080ffff01ff0101ffff018080ff018080ff0180ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff01ff02ffff03ffff02ffff03ffff07ff0b80ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0f80ffff0180ffff01ff02ffff03ff0fffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff04ffff04ffff0133ffff04ff05ffff04ff0bff80808080ff8080ffff01ff088080ff0180",
+            "disassembly": "(a (i (a (i (l 1) (q 2 (i (a (i (l 2) (q) (q 2 (i (a (i (l 3) (q 2 (i (a (i (a (i (l 5) (q) (q 2 (i (= (strlen 5) (q . 32)) (q 1 . 1) (q)) 1)) 1) (q 2 (i (a (i (l 7) (q 2 (i (a (i (l 11) (q) (q 2 (i (a (i (l 15) (q) (q 2 (i 15 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 4 (c (q . 51) (c 5 (c 11 ()))) ()) (q 8)) 1)",
+            "optimize_lir": true,
+            "tree_hash": "f85f0b566873f5ed316282c8d5a24e93225c413ec9c542751ad245e63b31838a"
+          },
+          "optimize_lir": true,
+          "status": "compiled",
+          "weak_suite": [
+            {
+              "name": "small payment",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 7)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080"
+              },
+              "execution": {
+                "cost": 5093,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff078080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            },
+            {
+              "name": "payment at the threshold",
+              "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 100)",
+              "expected": {
+                "status": "accepted",
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080"
+              },
+              "execution": {
+                "cost": 5093,
+                "error": null,
+                "outcome": {
+                  "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff648080",
+                  "status": "accepted"
+                }
+              },
+              "matches_expected": true
+            }
+          ],
+          "missed_witness": {
+            "name": "payment above the threshold without a signature",
+            "input": "(0x111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 0x4242424242424242424242424242424242424242424242424242424242424242 101)",
+            "expected": {
+              "status": "accepted",
+              "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff6580ffff32ffb0111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111ffa077777777777777777777777777777777777777777777777777777777777777778080"
+            },
+            "execution": {
+              "cost": 5093,
+              "error": null,
+              "outcome": {
+                "output_hex": "ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff658080",
                 "status": "accepted"
               }
             },

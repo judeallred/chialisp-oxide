@@ -1,0 +1,4 @@
+; Negative control: amounts above 100 must also require AGG_SIG_ME over the
+; fixture message 0x77..77. The missing branch compiles everywhere.
+(mod (PUBKEY RECIPIENT AMOUNT)
+  (list (list 51 RECIPIENT AMOUNT)))

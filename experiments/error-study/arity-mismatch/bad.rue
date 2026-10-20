@@ -1,0 +1,4 @@
+// Positional Rue parameters read the environment like Chialisp and ignore extras.
+fn main(recipient: Bytes32, amount: Int) -> List<Condition> {
+    [CreateCoin { puzzle_hash: recipient, amount }]
+}

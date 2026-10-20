@@ -26,11 +26,30 @@ from vm_failures import PROTOCOL, check_execution, execution_sources
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = "experiments/error-study/studies.json"
 OUTPUT = ROOT / "corpus/error-study.json"
-EXPECTED_ERRORS = {"domain-swap": "E0308", "branch-shape": "E0308",
-                   "integer-truthiness": "E0308", "unresolved-name": "E0425", "missing-cap": None}
+EXPECTED_ERRORS = {"domain-swap": "E0308", "branch-shape": "E0308", "integer-truthiness": "E0308", "unresolved-name": "E0425",
+                   "unbounded-growth": None, "list-truthiness": "E0308", "role-swap": "E0308", "padded-atom": None,
+                   "arity-mismatch": "E0061", "missing-cap": None, "missing-authorization": None}
+CATEGORIES = {"domain-swap": "rust_typecheck", "branch-shape": "rust_typecheck", "integer-truthiness": "rust_typecheck",
+              "unresolved-name": "rust_name_resolution", "unbounded-growth": "rust_runtime_check", "list-truthiness": "rust_typecheck",
+              "role-swap": "rust_typecheck", "padded-atom": "runtime_abi_rejection", "arity-mismatch": "rust_typecheck",
+              "missing-cap": "runtime_policy_control", "missing-authorization": "runtime_policy_control"}
+LAYERS = {"native_rust_typecheck", "native_rust_name_resolution", "native_rust_overflow_check", "compiled_checked_arithmetic", "compiled_strict_abi"}
+# Studies whose compiled layer is an executed corpus case: the independent
+# Chialisp module accepts the witness and the Rust CLVM rejects it in both modes.
+CORPUS_REFERENCES = {"unbounded-growth": ("module-add", "overflow rejects in Rust; the original grows"),
+                     "padded-atom": ("module-add", "padded atom rejects in Rust; the original reads it as one"),
+                     "arity-mismatch": ("module-add", "extra argument ignored by the original")}
+# Native test names for studies whose faulty Rust compiles: the limited suite
+# passes; the witness fails (101) for policy controls or passes (0) when a
+# native runtime check rejects the witness.
+NATIVE_TESTS = {"missing-cap": ("ordinary_small_values_pass", "independent_output_cap_catches_the_missing_guard", 101),
+                "missing-authorization": ("small_payments_pass", "large_payment_requires_a_signature", 101),
+                "unbounded-growth": ("ordinary_deposits_pass", "overflowing_deposit_is_rejected", 0)}
 RUE_DIAGNOSTICS = {"branch-shape": "Cannot assign `(CreateCoin, nil) | CreateCoin` to `List<Condition>`",
                    "integer-truthiness": "Cannot compare `Int` to `Bool` without a type guard",
-                   "unresolved-name": "Undeclared symbol `amout`"}
+                   "unresolved-name": "Undeclared symbol `amout`",
+                   "list-truthiness": "Cannot compare `Any` to `Bool` without a type guard"}
+CORPUS_REPORT = ROOT / "corpus/validation.json"
 LIBRARIES = {"chialisp_oxide", "chialisp_oxide_reference", "chialisp_oxide_backend_experiment",
              "chialisp_oxide_rue", "serde_json"}
 DEPENDENCIES = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
@@ -67,7 +86,19 @@ def specification():
     require([row["id"] for row in rows] == list(EXPECTED_ERRORS), "Reviewed study set/order changed")
     for row in rows:
         require(row["rust_error"] == EXPECTED_ERRORS[row["id"]], "Reviewed native compiler expectation changed")
+        require(row["category"] == CATEGORIES[row["id"]], "Reviewed study category changed")
         require(row["weak_suite"] and row["limitations"] and row["claim"], "Missing study assertions or scope")
+        require(isinstance(row["caught_by"], list) and set(row["caught_by"]) <= LAYERS and len(set(row["caught_by"])) == len(row["caught_by"])
+                and (bool(row["caught_by"]) == (row["category"] != "runtime_policy_control")), "Each study must name the actual layers that catch it")
+        reference = row.get("corpus_reference")
+        expected_reference = CORPUS_REFERENCES.get(row["id"])
+        require((reference is None) == (expected_reference is None)
+                and (reference is None or reference == {"slug": expected_reference[0], "case": expected_reference[1]}), "Reviewed corpus reference changed")
+        tests = row.get("native_tests")
+        expected_tests = NATIVE_TESTS.get(row["id"])
+        require((tests is None) == (expected_tests is None)
+                and (tests is None or tests == {"limited": expected_tests[0], "witness": expected_tests[1], "witness_exit_code": expected_tests[2]}),
+                "Reviewed native test names changed")
         required_sources = {"chialisp", "rust_bad", "rust_fixed", "rue"}
         if row["id"] == "domain-swap":
             required_sources.add("rue_nominal_control")
@@ -76,6 +107,28 @@ def specification():
             require(path.startswith(f"experiments/error-study/{row['id']}/"), "Source belongs to a different study")
             contained_file(ROOT, path)
     return manifest
+
+
+def corpus_case(row):
+    """The executed corpus case a study cites for its compiled layer, read from the current report."""
+    reference = row["corpus_reference"]
+    report = load_json(CORPUS_REPORT)
+    puzzles = [puzzle for puzzle in report["puzzles"] if puzzle["slug"] == reference["slug"]]
+    require(len(puzzles) == 1 and puzzles[0]["validated"] is True, f"{row['id']}: referenced corpus puzzle is missing")
+    cases = [case for case in puzzles[0]["cases"] if case["label"] == reference["case"]]
+    require(len(cases) == 1, f"{row['id']}: referenced corpus case is missing")
+    case = cases[0]
+    divergence = case.get("declared_divergence")
+    require(divergence is not None and "chialisp" in divergence["backends"] and divergence["outcome"]["status"] == "accepted"
+            and case["native"] == {"status": "rejected"}, f"{row['id']}: referenced case must be a declared Chialisp acceptance that native Rust rejects")
+    runs = [{"backend": run["backend"], "optimize_lir": run["optimize_lir"], "outcome": run["execution"]["outcome"]} for run in case["runs"]]
+    require({(run["backend"], run["optimize_lir"]) for run in runs} == {("rust_mir", False), ("rust_mir", True), ("chialisp", True), ("rue_source", False), ("rue_source", True)}
+            and all(run["outcome"] == {"status": "rejected"} for run in runs if run["backend"] == "rust_mir")
+            and all(run["outcome"] == divergence["outcome"] for run in runs if run["backend"] == "chialisp"),
+            f"{row['id']}: referenced case must show Rust CLVM rejecting in both modes while Chialisp accepts")
+    return {"slug": reference["slug"], "case": reference["case"], "solution": case["solution"], "native": case["native"],
+            "declared_divergence": divergence, "runs": runs,
+            "scope": "Executed corpus observation of the compiled layer; finite evidence, not a compiler-preservation proof."}
 
 
 def atom(payload):
@@ -240,15 +293,19 @@ def reproduce():
             fixed, test, _ = rust_command(rustc, ROOT / row["sources"]["rust_fixed"], directory, libraries, test=True)
             require(fixed.returncode == 0, f"Corrected Rust failed to compile: {fixed.stderr}")
             rust["corrected_native"] = test_binary(test)
-            if row["rust_error"] is None:
+            if row["id"] in NATIVE_TESTS:
+                limited, witness, exit_code = NATIVE_TESTS[row["id"]]
                 bad, test, _ = rust_command(rustc, ROOT / row["sources"]["rust_bad"], directory, libraries, test=True)
-                require(bad.returncode == 0, f"Negative-control Rust failed to compile: {bad.stderr}")
-                rust["limited_native_suite"] = test_binary(test, "ordinary_small_values_pass")
-                rust["expanded_native_witness"] = test_binary(test, "independent_output_cap_catches_the_missing_guard", success=101)
-            studies.append({"id": row["id"], "title": row["title"], "category": row["category"],
-                            "claim": row["claim"], "limitations": row["limitations"], "sources": row["sources"],
-                            "chialisp": executions(bridge, "chialisp", row), "rust": rust,
-                            "rue": executions(bridge, "rue", row)})
+                require(bad.returncode == 0, f"Compiling faulty Rust with native tests failed: {bad.stderr}")
+                rust["limited_native_suite"] = test_binary(test, limited)
+                rust["expanded_native_witness"] = test_binary(test, witness, success=exit_code)
+            study = {"id": row["id"], "title": row["title"], "category": row["category"], "caught_by": row["caught_by"],
+                     "claim": row["claim"], "limitations": row["limitations"], "sources": row["sources"],
+                     "chialisp": executions(bridge, "chialisp", row), "rust": rust,
+                     "rue": executions(bridge, "rue", row)}
+            if row["id"] in CORPUS_REFERENCES:
+                study["corpus_evidence"] = corpus_case(row)
+            studies.append(study)
             if row["id"] == "domain-swap":
                 studies[-1]["rue_nominal_control"] = executions(bridge, "rue", row, "rue_nominal_control")
     require(before == inputs(), "Declared study inputs changed during execution")
@@ -278,8 +335,12 @@ def validate_report(report):
             and report["toolchain"]["rustc"].startswith("rustc 1.99.0-nightly"), "Unexpected study compiler pins")
     require(len(report["studies"]) == len(manifest["studies"]), "Missing study evidence")
     for row, evidence in zip(manifest["studies"], report["studies"]):
-        for key in ("id", "title", "category", "claim", "limitations", "sources"):
+        for key in ("id", "title", "category", "caught_by", "claim", "limitations", "sources"):
             require(evidence[key] == row[key], f"{row['id']}: changed study identity/scope")
+        if row["id"] in CORPUS_REFERENCES:
+            require(evidence["corpus_evidence"] == corpus_case(row), f"{row['id']}: recorded corpus evidence differs from the current executed report")
+        else:
+            require("corpus_evidence" not in evidence, f"{row['id']}: unexpected corpus reference")
         for language in ("chialisp", "rue", "rue_nominal_control"):
             if language in evidence:
                 boolean_modes(evidence[language], f"{row['id']}/{language}")
@@ -325,11 +386,22 @@ def validate_report(report):
                     and any(error["code"] == row["rust_error"] and error["rendered"] for error in rust["compilation"]["diagnostics"]),
                     "Missing actual native Rust compile-fail evidence")
         else:
-            require(rust["compilation"] == {"status": "accepted", "diagnostics": []}, "The negative control must remain well typed")
-            require(rust["limited_native_suite"]["exit_code"] == 0
-                    and all(test["event"] == "ok" for test in rust["limited_native_suite"]["tests"]), "Missing passing weak native suite")
-            require(rust["expanded_native_witness"]["exit_code"] == 101
-                    and any(test["event"] == "failed" for test in rust["expanded_native_witness"]["tests"]), "Missing native policy counterexample")
+            require(rust["compilation"] == {"status": "accepted", "diagnostics": []}, "Faulty Rust without a compile error must remain well typed")
+            if row["id"] in NATIVE_TESTS:
+                limited, witness, exit_code = NATIVE_TESTS[row["id"]]
+                require(rust["limited_native_suite"]["exit_code"] == 0 and [test["name"] for test in rust["limited_native_suite"]["tests"]] == [limited]
+                        and all(test["event"] == "ok" for test in rust["limited_native_suite"]["tests"]), "Missing passing weak native suite")
+                observed = rust["expanded_native_witness"]
+                require(observed["exit_code"] == exit_code and [test["name"] for test in observed["tests"]] == [witness], "Missing native witness execution")
+                if exit_code == 0:
+                    require(row["category"] == "rust_runtime_check" and all(test["event"] == "ok" for test in observed["tests"]),
+                            "A native runtime check must actually reject the witness")
+                else:
+                    require(row["category"] == "runtime_policy_control" and any(test["event"] == "failed" for test in observed["tests"]),
+                            "Missing native policy counterexample")
+            else:
+                require(row["category"] == "runtime_abi_rejection" and "limited_native_suite" not in rust and "expanded_native_witness" not in rust,
+                        "Only the runtime ABI study may omit native witness tests")
         corrected = rust["corrected_native"]
         require(corrected["exit_code"] == 0 and corrected["tests"]
                 and all(test["event"] == "ok" for test in corrected["tests"]), "Corrected native tests did not pass")
@@ -353,12 +425,35 @@ class EvidenceControls(unittest.TestCase):
     def test_false_claims_and_stale_evidence_are_rejected(self):
         original = load_json(OUTPUT)
         validate_report(original)
+        by_id = {study["id"]: study for study in original["studies"]}
         for mutation in ("source", "weak_result", "weak_actual", "witness", "expectation", "rust_code", "rust_accepted",
-                         "fixed_failure", "negative_control", "missing_rue", "rue_parse_error", "rue_nominal", "scope"):
+                         "fixed_failure", "negative_control", "missing_rue", "rue_parse_error", "rue_nominal", "scope",
+                         "layer", "corpus_slug", "corpus_rust_outcome", "corpus_dropped", "runtime_check_failed",
+                         "control_witness_passed", "abi_native_witness", "second_control_rejected"):
             changed = copy.deepcopy(original)
             row = changed["studies"][0]
             mode = row["chialisp"][0]
-            if mutation == "source":
+            changed_by_id = {study["id"]: study for study in changed["studies"]}
+            if mutation == "layer":
+                changed_by_id["padded-atom"]["caught_by"] = ["native_rust_typecheck"]
+            elif mutation == "corpus_slug":
+                changed_by_id["padded-atom"]["corpus_evidence"]["slug"] = "module-times-ten"
+            elif mutation == "corpus_rust_outcome":
+                run = next(run for run in changed_by_id["arity-mismatch"]["corpus_evidence"]["runs"] if run["backend"] == "rust_mir")
+                run["outcome"] = {"status": "accepted", "output_hex": "03"}
+            elif mutation == "corpus_dropped":
+                del changed_by_id["unbounded-growth"]["corpus_evidence"]
+            elif mutation == "runtime_check_failed":
+                changed_by_id["unbounded-growth"]["rust"]["expanded_native_witness"]["tests"][0]["event"] = "failed"
+            elif mutation == "control_witness_passed":
+                witness = changed_by_id["missing-authorization"]["rust"]["expanded_native_witness"]
+                witness["exit_code"] = 0
+                witness["tests"][0]["event"] = "ok"
+            elif mutation == "abi_native_witness":
+                changed_by_id["padded-atom"]["rust"]["expanded_native_witness"] = copy.deepcopy(by_id["missing-cap"]["rust"]["expanded_native_witness"])
+            elif mutation == "second_control_rejected":
+                changed_by_id["missing-authorization"]["rust"]["compilation"] = {"status": "rejected", "diagnostics": []}
+            elif mutation == "source":
                 changed["sources"][0]["sha256"] = "0" * 64
             elif mutation == "weak_result":
                 mode["weak_suite"][0]["matches_expected"] = False
@@ -444,7 +539,13 @@ def main():
     except (ValueError, KeyError, TypeError, OSError, subprocess.TimeoutExpired) as error:
         parser.exit(1, f"Error study failed: {error}\n")
     scope = "declared-source freshness/recorded claims" if args.freshness_only else "actual Chialisp/Rue compilation+VM, rustc diagnostics and native tests"
-    print(f"PASS: 4 native Rust compile-fail studies + 1 policy negative control; {scope}")
+    manifest = load_json(ROOT / MANIFEST)["studies"]
+    counts = {"compile-fail": sum(1 for row in manifest if row["rust_error"]),
+              "native runtime check": sum(1 for row in manifest if row["category"] == "rust_runtime_check"),
+              "compiled ABI": sum(1 for row in manifest if row["category"] == "runtime_abi_rejection"),
+              "policy negative control": sum(1 for row in manifest if row["category"] == "runtime_policy_control")}
+    print(f"PASS: {counts['compile-fail']} native Rust compile-fail studies + {counts['native runtime check']} native runtime-check study + "
+          f"{counts['compiled ABI']} compiled strict-ABI study + {counts['policy negative control']} policy negative controls; {scope}")
     return 0
 
 

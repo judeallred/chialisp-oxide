@@ -1,16 +1,26 @@
 ---
 import study from '../../../corpus/error-study.json';
 import { href } from '../lib/data';
-const prevented = study.studies.filter(example => example.category === 'rust_typecheck');
+const prevented = study.studies.filter(example => example.category !== 'runtime_policy_control');
+const layerLabel: Record<string, string> = {
+  native_rust_typecheck: 'native Rust type check', native_rust_name_resolution: 'native Rust name resolution',
+  native_rust_overflow_check: 'native overflow check', compiled_checked_arithmetic: 'compiled checked arithmetic',
+  compiled_strict_abi: 'compiled strict ABI',
+};
+const caught = (example: typeof prevented[number]) => example.caught_by.map(layer => layerLabel[layer] ?? layer).join(' + ');
+const rustOutcome = (example: typeof prevented[number]) => example.rust.compilation.status === 'rejected'
+  ? `Rust rejects with ${example.rust.compilation.diagnostics.map(item => item.code).join(', ')}`
+  : example.category === 'rust_runtime_check' ? 'Rust compiles; the native overflow check and the compiled checked arithmetic reject the witness'
+  : 'Rust compiles; the compiled strict ABI rejects the witness';
 ---
 <div class="error-studies">
   {prevented.map(example => <article class="error-study">
     <h3>{example.title}</h3>
     <p>{example.claim}</p>
-    <p class="evidence"><strong>{example.chialisp[0].weak_suite?.length} limited Chialisp tests pass</strong> · a recorded counterexample fails · Rust rejects with <code>{example.rust.compilation.diagnostics.map(item => item.code).join(', ')}</code>.</p>
+    <p class="evidence"><strong>{example.chialisp[0].weak_suite?.length} limited Chialisp tests pass</strong> · a recorded counterexample fails · {rustOutcome(example)} · caught by: {caught(example)}.</p>
   </article>)}
 </div>
-<p class="source-note">These are precise source-type and name guarantees under the shown APIs. The missing-cap control still compiles in Rust: type checking does not establish authorization or conservation. Rue’s observed protections are recorded separately.</p>
+<p class="source-note">These are precise source-type and name guarantees under the shown APIs, plus two runtime layers credited through executed corpus cases. The missing-cap and missing-authorization controls still compile in Rust: type checking does not establish authorization or conservation. Rue’s observed protections are recorded separately.</p>
 <p><a href={href('verification/error-study/')}>Read the failing sources, missed inputs, actual diagnostics, and remaining mistakes →</a></p>
 <style>
   .error-studies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-block: 1.4rem; }

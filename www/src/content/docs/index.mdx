@@ -82,7 +82,8 @@ a disclosed password can authorize unsigned destination changes.
 
 These faulty Chialisp examples pass deliberately limited tests that assert exact
 outputs. A distinguishing input exposes each bug. The corresponding Rust source
-mistakes fail type or name checking before they can become CLVM.
+mistakes fail type or name checking before they can become CLVM, or are caught
+by a named later layer: a native overflow check or the compiled strict ABI.
 
 <ErrorStudySummary />
 

@@ -1,0 +1,9 @@
+// Bytes32 models width, not role; the swapped hashes type-check.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Bytes32, (Bytes32, (Int, (Int, nil))));
+    let recipient = solution.first;
+    let change = solution.rest.first;
+    let amount = solution.rest.rest.first;
+    let change_amount = solution.rest.rest.rest.first;
+    [CreateCoin { puzzle_hash: change, amount }, CreateCoin { puzzle_hash: recipient, amount: change_amount }]
+}

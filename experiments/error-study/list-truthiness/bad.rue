@@ -1,0 +1,12 @@
+// Rue requires a type guard before an Any value can be used as a condition.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Any, (Bytes32, (Int, nil)));
+    let approvals = solution.first;
+    let recipient = solution.rest.first;
+    let amount = solution.rest.rest.first;
+    if approvals {
+        [CreateCoin { puzzle_hash: recipient, amount }]
+    } else {
+        raise;
+    }
+}

@@ -1,0 +1,4 @@
+// Rue Int carries the padded atom bytes through to the condition.
+fn main(recipient: Bytes32, amount: Int) -> List<Condition> {
+    [CreateCoin { puzzle_hash: recipient, amount }]
+}

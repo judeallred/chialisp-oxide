@@ -1123,7 +1123,9 @@ for (const example of study.studies) {
   assert(studyPage.includes(example.title), `${example.id}: missing executable error study`);
   if (example.category === 'rust_typecheck') assert(homepage.includes(example.title), `${example.id}: missing actual diagnostic summary`);
 }
-assert(studyPage.includes('E0308') && studyPage.includes('E0425'), 'Missing captured Rust diagnostic references');
+assert(studyPage.includes('E0308') && studyPage.includes('E0425') && studyPage.includes('E0061'), 'Missing captured Rust diagnostic references');
+assert(study.studies.filter(example => example.category === 'runtime_policy_control').length === 2, 'Expected two negative controls');
+for (const needle of ['not a compiler guarantee', 'overflow checks', 'E0061']) assert(studyPage.includes(needle), `error study page missing ${needle}`);
 const functionality = await html(path.join(root, 'reference/chialisp-functionality/index.html'));
 assert(functionality.includes('proof') && functionality.includes('recursion'), 'Missing explicit functionality and parity gaps');
 const catalog = await html(path.join(root, 'published/index.html'));

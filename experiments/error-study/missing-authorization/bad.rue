@@ -1,0 +1,7 @@
+// Negative control: the missing signature branch type-checks in Rue as well.
+fn main(...solution: Any) -> List<Condition> {
+    assert solution is (Bytes, (Bytes32, (Int, nil)));
+    let recipient = solution.rest.first;
+    let amount = solution.rest.rest.first;
+    [CreateCoin { puzzle_hash: recipient, amount }]
+}

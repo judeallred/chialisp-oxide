@@ -1,0 +1,4 @@
+; Policy: balances are 64-bit amounts; a deposit that overflows must reject.
+; CLVM integers grow without bound, so the sum silently exceeds the width.
+(mod (BALANCE DEPOSIT)
+  (+ BALANCE DEPOSIT))

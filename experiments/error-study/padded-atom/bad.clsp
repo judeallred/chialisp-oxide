@@ -1,0 +1,4 @@
+; Policy: the amount must be a canonical minimal integer atom; padded encodings reject.
+; Chialisp arithmetic and list construction accept any atom bytes.
+(mod (RECIPIENT AMOUNT)
+  (list (list 51 RECIPIENT AMOUNT)))

@@ -1,0 +1,4 @@
+; Policy: pay only when the approvals list is nonempty.
+; Chialisp truthiness treats any nonempty atom, such as 0x00, as true.
+(mod (APPROVALS RECIPIENT AMOUNT)
+  (if APPROVALS (list (list 51 RECIPIENT AMOUNT)) (x)))
