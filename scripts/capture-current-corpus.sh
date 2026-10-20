@@ -119,7 +119,8 @@ rm -rf proofs/acyclic-scalar-source
 python3 scripts/check-acyclic-source.py --acyclic-scalar --execute --self-test --tools target/debug --target-dir "$WORK/acyclic-scalar-target" --output proofs/acyclic-scalar-source
 python3 experiments/tree-theorems/check-model.py --lean "$LEAN" --cli target/debug/chialisp-oxide --self-test --replay-vm --output "$WORK/tree-theorems.json"
 cp "$WORK/tree-theorems.json" experiments/tree-theorems/results.json
-python3 corpus/validate_tutorial_examples.py || echo "tutorial rows pin the report hash; restamp promoted rows before rerunning"
+python3 scripts/restamp-tutorial-rows.py "$ROOT"
+python3 corpus/validate_tutorial_examples.py
 
 step "host rebuild, fresh bundles, fresh gates (CI order)"
 cargo build --workspace --bins --examples --locked

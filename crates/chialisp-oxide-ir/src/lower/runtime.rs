@@ -991,8 +991,13 @@ pub(super) fn bootstrap(
     };
     let mut functions = Vec::with_capacity(program.functions.len());
     for (frame, function) in program.functions.iter().enumerate() {
+        // Pair-capable tables use the same branch-local facts in every body;
+        // explicit pair constructors keep strict operand frames and typed pair
+        // projections forward only under a recorded fact. The pair-free scan
+        // still charges and classifies helpers so its budget stays observable.
         let helper_facts = if preflighted && pair_capability {
-            pair_free_helper(function, &mut runtime.projection_work)?
+            pair_free_helper(function, &mut runtime.projection_work)?;
+            guarded_projections
         } else {
             guarded_projections
         };
@@ -1570,7 +1575,7 @@ mod pair_optimization_boundary {
     }
 
     #[test]
-    fn pair_result_and_unused_pair_signature_keep_the_preceding_strict_emitter() {
+    fn pair_result_and_unused_pair_signature_use_facts_without_compact_frames() {
         let ordinary = source();
         ordinary.validate().unwrap();
         assert!(!ordinary.uses_pairs());
@@ -1623,9 +1628,13 @@ mod pair_optimization_boundary {
             program.validate().unwrap();
             assert!(program.uses_pairs());
             let previous = emit(&program, false, false, false);
+            let facts = emit(&program, true, true, false);
             let requested = emit(&program, true, true, true);
-            assert_eq!(requested, previous);
-            for code in [&previous, &requested] {
+            // Branch-local facts now apply inside pair-capable tables; compact
+            // unary layouts still do not, so every v5 call keeps proper frames.
+            assert_ne!(facts, previous);
+            assert_eq!(requested, facts);
+            for code in [&previous, &facts, &requested] {
                 for (input, ordinary, pair) in [
                     ("80", "80", "ff8080"),
                     ("00", "00", "ff0000"),
