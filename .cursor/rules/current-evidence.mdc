@@ -32,6 +32,11 @@ alwaysApply: true
   `panic(&str)`), string-slice constants and the structurally checked borrowed
   tree without re-pinning both hosts; the corpus oracle and puzzles
   dev-dependency enable `vm`, extraction never does.
+- `scripts/capture-current-corpus.sh` performs the complete capture in the only
+  consistent order (LAST host build, validation twice, bundles, sidecar,
+  `--record` and pin, delegated packet, derived reports, then a host rebuild
+  and the fresh-bundle gates before any builder relinks the driver). Use it
+  instead of ad hoc sequences; it still requires the pinned Lean binary.
 - Recapture `corpus/corpus-append-existing-p2-controls.json` with
   `scripts/capture-p2-controls.py` whenever any workspace source changes; its
   window hashes the complete reviewed workspace.

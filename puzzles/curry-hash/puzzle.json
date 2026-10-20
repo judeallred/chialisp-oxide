@@ -1,0 +1,88 @@
+{
+  "slug": "curry-hash",
+  "title": "Curried puzzle hash of a module and one parameter",
+  "kind": "pure_function",
+  "security_scope": "Original teaching fixture returning data, not a coin puzzle or an authorization policy. It computes the standard curried puzzle hash from two 32-byte tree hashes through the reviewed SHA-256 bridge. The Chialisp comparison embeds the pinned upstream curry-and-treehash.clib include behind an explicit two-argument adapter; the Rue comparison spells the same hash relation. Agreement is finite differential evidence about this arithmetic, not a proof that any curried instance is secure or that a given module hash is the right commitment.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/chialisp-currying/",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+    ],
+    "limitations": [
+      "Only the one-parameter form is exercised here; the SDK's two- and three-parameter helpers have native oracle tests against clvm-utils but no corpus fixture yet.",
+      "Inputs are tree hashes, not trees: this fixture does not hash or materialize a module or parameter.",
+      "The upstream include's deprecated reversed-argument API is used exactly as pinned; the newer curry.clib is not pinned in this corpus.",
+      "Every proof model treats SHA-256 as unmodeled; only executed cases are recorded."
+    ]
+  },
+  "reference_includes": {
+    "curry-and-treehash.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+  },
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "crates/chialisp-oxide/src/curry.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+  ],
+  "cases": [
+    {
+      "label": "tutorial multiply module curried with two",
+      "solution": "(0x4ecfce04e7660e701196fbd8ef3ae98b9ee5be4a83895982079bf320ecaaaea1 0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222)"
+    },
+    {
+      "label": "all-zero hashes",
+      "solution": "(0x0000000000000000000000000000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000000000000000000000000000)"
+    },
+    {
+      "label": "all-ff hashes",
+      "solution": "(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)"
+    },
+    {
+      "label": "leading zero byte is preserved",
+      "solution": "(0x0011111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222)"
+    },
+    {
+      "label": "swapped arguments differ",
+      "solution": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x0011111111111111111111111111111111111111111111111111111111111111)"
+    },
+    {
+      "label": "nil parameter hash of an empty atom",
+      "solution": "(0xabababababababababababababababababababababababababababababababab 0x4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a)"
+    },
+    {
+      "label": "short module hash rejects",
+      "solution": "(0x11111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222)"
+    },
+    {
+      "label": "long parameter hash rejects",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x222222222222222222222222222222222222222222222222222222222222222222)"
+    },
+    {
+      "label": "missing parameter rejects",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111)"
+    },
+    {
+      "label": "extra argument rejects",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222 0x33)"
+    },
+    {
+      "label": "pair argument rejects",
+      "solution": "((0x1111111111111111111111111111111111111111111111111111111111111111) 0x2222222222222222222222222222222222222222222222222222222222222222)"
+    },
+    {
+      "label": "atom environment rejects",
+      "solution": "0x1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "label": "improper argument list rejects",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . 0x2222222222222222222222222222222222222222222222222222222222222222)"
+    },
+    {
+      "label": "empty environment rejects",
+      "solution": "()"
+    }
+  ]
+}

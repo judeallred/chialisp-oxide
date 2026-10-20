@@ -107,6 +107,8 @@ The generic corpus append (`scripts/corpus_append.py`, profile
 re-recorded with `scripts/check-corpus-append.py --record` after the final host
 build; `scripts/capture-p2-controls.py` recaptures the pay-to-singleton
 policy-control sidecar for the current source window.
+`scripts/capture-current-corpus.sh` runs the whole capture in the required
+order and is the supported way to refresh evidence after a source change.
 
 ## Three-language comparisons and discovery
 

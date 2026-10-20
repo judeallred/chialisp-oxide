@@ -17,6 +17,10 @@
         "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
         "source": "puzzles/capped-payment/puzzle.rs"
       },
+      "curry-hash": {
+        "entry": "chialisp_oxide_puzzles::curry_hash::puzzle",
+        "source": "puzzles/curry-hash/puzzle.rs"
+      },
       "delegated-puzzle": {
         "entry": "chialisp_oxide_puzzles::delegated_puzzle::puzzle",
         "source": "puzzles/delegated-puzzle/puzzle.rs"
@@ -121,7 +125,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "4813f1971f2575e667a278d0662fd52bfbde54780e3ee4e3812f31d229fa3970"
+        "sha256": "6516e57ebff6c9a0b1b783be7ea1e353f3673340f3d96f4e912ab54565371001"
       },
       {
         "path": "Cargo.toml",
@@ -205,11 +209,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+        "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+        "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -285,7 +289,7 @@
       },
       {
         "path": "crates/chialisp-oxide/Cargo.toml",
-        "sha256": "01fb9bf56caf5f3cfeed5befae25237cfd79f341afafb92a2acae223fe535630"
+        "sha256": "2791350a5526455c727581e799b99a86cfdb56aff67a40fcf6679051c7b8894b"
       },
       {
         "path": "crates/chialisp-oxide/src/apply.rs",
@@ -294,6 +298,10 @@
       {
         "path": "crates/chialisp-oxide/src/cons.rs",
         "sha256": "8e624e3d9f888b2de8d713bbe4ddfaa19bc9d08747ddd3e6c8cc2fda05cc99a2"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/curry.rs",
+        "sha256": "c4358f195d7f96c9b040df8a1f2d8928d41675836f8327f8bda50b7dd556c10d"
       },
       {
         "path": "crates/chialisp-oxide/src/domain.rs",
@@ -305,7 +313,7 @@
       },
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4"
+        "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -329,7 +337,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "3a5a40cf465c6bd817e86ca6ff91869450d2f4556a1351533280ffb9fd96f65b"
+        "sha256": "c88f10c041f8e1902abe2620dd2d357a15c9f28213fd328abf4901caa16c7935"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -342,6 +350,10 @@
       {
         "path": "puzzles/capped-payment/puzzle.rs",
         "sha256": "6c7660ce193f7f941acdd2ffa7e3fbc2c89b0e264f6b9b79e038f9ead9bdbbe9"
+      },
+      {
+        "path": "puzzles/curry-hash/puzzle.rs",
+        "sha256": "3a9204f84491f3d1d6f1b03e2814aa92bd0c049bc0fb3761f5867caddd6d2624"
       },
       {
         "path": "puzzles/delegated-puzzle/puzzle.rs",
@@ -381,7 +393,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "3c240cc1864730ff5100d28e5798e357749dc2ed5f9c25655f16bd84d053ed16"
+        "sha256": "267e7dc50f38a4428b2b28b333754077c05b669c5a836c55df611088fe644622"
       },
       {
         "path": "puzzles/module-add/puzzle.rs",
@@ -1009,8 +1021,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -2155,8 +2167,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -3301,8 +3313,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -3836,8 +3848,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -4609,8 +4621,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -5420,8 +5432,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -6327,8 +6339,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -8155,8 +8167,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/domain.rs",
@@ -13280,8 +13292,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -14280,8 +14292,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -15647,8 +15659,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -20934,8 +20946,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -26903,8 +26915,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -29714,11 +29726,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+          "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+          "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -30173,8 +30185,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -31761,11 +31773,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+          "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+          "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -32185,8 +32197,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -40834,11 +40846,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+          "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+          "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -41191,8 +41203,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -44948,11 +44960,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+          "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+          "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -49430,8 +49442,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -51078,11 +51090,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "a6ebb93b4fe5de2f9314dc742c6e72f9fb0ef0137b62133453a03a75bc48a062"
+          "sha256": "1deecd0acfb24f37d6f7ae6e5ca99e6f81db7823559b31d7f5a180fc8f893e0f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "66050a066cdb29e8d1ee6d2c5c06ed928d6603447751181e8a5394533d1bf684"
+          "sha256": "033849e8447aa5ade362473ba6846cfbdf82eb74d74517b02df35d4713f67c24"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -68151,8 +68163,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/cons.rs",
@@ -73739,8 +73751,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "af355baf10bb0e0cee77f152e7809d275cc3d162bd29c0ba477db9a4b76d15c4",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n"
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -73754,6 +73766,1198 @@
         }
       ],
       "title": "Run an untrusted inner puzzle",
+      "validated": true
+    },
+    {
+      "artifacts": [
+        {
+          "backend": "rust_mir",
+          "bytes": 2065,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ffff05ff018080ffff01ff0880ffff01ff02ffff03ffff09ffff0dffff05ff018080ffff012080ffff01ff02ffff03ffff07ffff06ff018080ffff01ff02ffff03ffff07ffff05ffff06ff01808080ffff01ff0880ffff01ff02ffff03ffff09ffff0dffff05ffff06ff01808080ffff012080ffff01ff02ffff03ffff09ffff06ffff06ff018080ff8080ffff01ff02ffff01ff02ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff05ff03808080ffff04ffff04ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff0affff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff5effff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff2effff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ff808080ff03808080ffff04ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ffff0101ff03808080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ffff0104ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff80ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff82017effff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ffff0102ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff80ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff82017effff04ff02ffff04ff05ff80808080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ffff01ff0bff17ff0bff0580ffff04ff02ffff04ff80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0101ff03808080ff03808080ffff04ffff01ff02ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ff8202feffff04ff02ffff04ff0bffff04ff05ff8080808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff05ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ff81beffff04ff02ffff04ff05ff80808080ffff04ff02ffff04ffff0101ff03808080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff0105ffff04ff02ffff04ffff02ffff01ff02ffff01ff02ffff01ff0bff17ff0bff0580ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0102ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ffff04ff02ffff04ff17ff03808080ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff010580ff0180ffff04ff02ffff04ff05ff03808080ff03808080ff808080808080808080ffff04ffff05ff0180ffff04ffff05ffff06ff018080ff8080808080ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l (f 1)) (q 8) (q 2 (i (= (strlen (f 1)) (q . 32)) (q 2 (i (l (r 1)) (q 2 (i (l (f (r 1))) (q 8) (q 2 (i (= (strlen (f (r 1))) (q . 32)) (q 2 (i (= (r (r 1)) ()) (q 2 (q 2 (q 2 (q 2 4 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 5 3))) (c (c (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 10 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 5 3))) 3))) (c (q 2 (q 2 (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 94 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 23 3))) 3))) (c 2 (c (a (q 2 (q 2 46 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 23 3))) 3))) (c 2 (c (a 22 (c 2 ())) 3))) (c (q 2 (q . 5) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c (q . 1) 3))) 3))) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 11 3))) 3))) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 47 3))) 3))) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c (q . 4) 3))) 3))) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 47 3))) 3))) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c () 3))) 3))) (c 2 (c (a (q 2 382 (c 2 (c 5 ()))) (c 2 (c 5 3))) 3))) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 11 3))) 3))) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 47 3))) 3))) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c (q . 2) 3))) 3))) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 11 3))) (c 2 (c 47 3))) 3))) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c () 3))) 3))) (c 2 (c (a (q 2 382 (c 2 (c 5 ()))) (c 2 (c 5 3))) 3))) (c (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 (q 11 23 11 5) (c 2 (c () 3))) (c 2 (c 11 3))) (c 2 (c (q . 1) 3))) 3))) (c (q 2 (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 766 (c 2 (c 11 (c 5 ())))) (c 2 (c 23 3))) (c 2 (c 5 3))) 3))) (c 2 (c (a (q 2 -66 (c 2 (c 5 ()))) (c 2 (c (q . 1) 3))) 3))) (c (q 2 (q 2 (q 2 (q . 5) (c 2 (c (a (q 2 (q 2 (q 11 23 11 5) (c 2 (c 23 3))) (c 2 (c 23 3))) (c 2 (c (q . 2) 3))) 3))) (c 2 (c (a (q 2 (i (l 5) (q 8) (q . 5)) 1) (c 2 (c 23 3))) 3))) (c 2 (c (a (q 2 (i (l 5) (q 8) (q . 5)) 1) (c 2 (c 5 3))) 3))) ())))))))) (c (f 1) (c (f (r 1)) ())))) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)",
+          "optimize_lir": false,
+          "tree_hash": "17f2a81d3040eba3f0b630c5e0de65b238f46ea380d79135d8c96d5725355b26"
+        },
+        {
+          "backend": "rust_mir",
+          "bytes": 1009,
+          "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0280ffff012080ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0580ffff012080ffff01ff02ffff03ff07ffff01ff0880ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bff8080808080ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ff2effff04ff02ffff04ff17ffff04ff05ff8080808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ff17ffff04ff05ff8080808080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff808080ff03808080ffff04ffff01ff0bffff0182010180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff0bffff0182010480ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff02ff5effff04ff02ff058080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff0bffff0182010280ff03808080ffff04ff02ffff04ffff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff2fff03808080ff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff02ff5effff04ff02ff058080ff03808080ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0fff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ff808080808080ffff04ff02ffff04ff05ff808080808080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+          "disassembly": "(a (i (l 1) (q 2 (i (l 2) (q 8) (q 2 (i (= (strlen 2) (q . 32)) (q 2 (i (l 3) (q 2 (i (l 5) (q 8) (q 2 (i (= (strlen 5) (q . 32)) (q 2 (i 7 (q 8) (q 2 (q 2 4 (c 2 (c 5 (c 11 ())))) (c (c (q 2 (q 2 (q 2 46 (c 2 (c 23 (c 5 ())))) (c 2 (c (a 22 (c 2 (c 23 (c 5 ())))) 3))) (c 2 (c (a 10 (c 2 ())) 3))) (c (q 11 (q . 257)) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a (q 2 (q 11 (q . 2) 11 5) (c 2 (c 23 3))) (c 2 (c 47 3))) 3))) (c 2 (c (sha256 (q . 260)) 3))) (c 2 (c (a (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 47 3))) 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (a 94 (c 2 5)) 3))) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a (q 2 (q 11 (q . 2) 11 5) (c 2 (c 23 3))) (c 2 (c 47 3))) 3))) (c 2 (c (sha256 (q . 258)) 3))) (c 2 (c (a (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 47 3))) 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (a 94 (c 2 5)) 3))) (c (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 15 3))) (c 2 (c 5 3))) (c 2 (c (sha256 (q . 257)) 3))) ()))))) (c 2 (c 5 ()))))) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)",
+          "optimize_lir": true,
+          "tree_hash": "a6b58e2e568abeeef424bc457586f8bdf84718a3b212d7f8748c41894418837f"
+        },
+        {
+          "backend": "chialisp",
+          "bytes": 435,
+          "clvm_hex": "ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff09ff0fff8080ffff01ff02ffff03ffff02ff16ffff04ff02ffff04ff05ff80808080ffff01ff02ffff03ffff02ff16ffff04ff02ffff04ff0bff80808080ffff01ff02ff1effff04ff02ffff04ff05ffff04ff0bff8080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff01ffffff0204ff0101ffff02ff02ffff03ff05ffff01ff02ff1affff04ff02ffff04ff0dffff04ffff0bff12ffff0bff14ff1880ffff0bff12ffff0bff12ffff0bff14ff1c80ff0980ffff0bff12ff0bffff0bff14ff8080808080ff8080808080ffff010b80ff0180ffff02ffff03ffff07ff0580ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0580ffff012080ffff01ff0101ffff01ff088080ff018080ff0180ff0bff12ffff0bff14ff1080ffff0bff12ffff0bff12ffff0bff14ff1c80ff0580ffff0bff12ffff02ff1affff04ff02ffff04ff07ffff04ffff0bff14ff1480ff8080808080ffff0bff14ff8080808080ff018080",
+          "disassembly": "(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (= 15 ()) (q 2 (i (a 22 (c 2 (c 5 ()))) (q 2 (i (a 22 (c 2 (c 11 ()))) (q 2 30 (c 2 (c 5 (c 11 ())))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (q ((a . 4) 1 . 1) (a 2 (i 5 (q 2 26 (c 2 (c 13 (c (sha256 18 (sha256 20 24) (sha256 18 (sha256 18 (sha256 20 28) 9) (sha256 18 11 (sha256 20 ())))) ())))) (q . 11)) 1) (a (i (l 5) (q 8) (q 2 (i (= (strlen 5) (q . 32)) (q 1 . 1) (q 8)) 1)) 1) 11 18 (sha256 20 16) (sha256 18 (sha256 18 (sha256 20 28) 5) (sha256 18 (a 26 (c 2 (c 7 (c (sha256 20 20) ())))) (sha256 20 ())))) 1))",
+          "optimize_lir": true,
+          "tree_hash": "55ca38278b0e6321f08378b56b50ec41538ec706bc6fa33d1b555146370be5b3"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 635,
+          "clvm_hex": "ff02ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ff03808080ffff01ff02ffff03ffff02ffff03ffff07ffff06ff038080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff05ffff06ff0380808080ffff01ff02ffff03ffff02ffff03ffff20ffff07ffff06ffff06ff0380808080ffff01ff02ffff03ffff09ffff06ffff06ff038080ff8080ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff01ff02ffff03ffff09ffff0dff0480ffff012080ffff01ff02ffff03ffff09ffff0dff0680ffff012080ffff01ff02ffff01ff02ff13ffff04ffff02ff2bffff010280ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bff3b80ff098080ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bffff010480ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bff3b80ff0d8080ffff02ff13ffff04ffff02ff2bffff010180ff02808080808080ff02808080808080ffff04ffff02ff15ff8080ff018080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff05ff0380ffff05ffff06ff03808080ff018080ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff04ffff04ffff010bff8080ffff04ffff0102ffff04ff02ffff04ff03ff8080808080ff8080ffff04ffff01ff02ffff04ffff04ffff010bff8080ffff04ffff0101ffff04ff01ff80808080ff8080ffff01018080ff018080",
+          "disassembly": "(a (q 2 (i (a (i (l 3) (q 2 (i (a (i (not (l (f 3))) (q 2 (i (a (i (l (r 3)) (q 2 (i (a (i (not (l (f (r 3)))) (q 2 (i (a (i (not (l (r (r 3)))) (q 2 (i (= (r (r 3)) ()) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (q 2 (i (= (strlen 4) (q . 32)) (q 2 (i (= (strlen 6) (q . 32)) (q 2 (q 2 19 (c (a 43 (q . 2)) (a 19 (c (a 19 (c (a 43 59) 9)) (a 19 (c (a 19 (c (a 43 (q . 4)) (a 19 (c (a 19 (c (a 43 59) 13)) (a 19 (c (a 43 (q . 1)) 2)))))) 2)))))) (c (a 21 ()) 1)) (q 8)) 1) (q 8)) 1) (c (c (f 3) (f (r 3))) 1)) (q 8)) 1) (c (c (q 2 (c (c (q . 11) ()) (c (q . 2) (c 2 (c 3 ())))) ()) (c (q 2 (c (c (q . 11) ()) (c (q . 1) (c 1 ()))) ()) (q . 1))) 1))",
+          "optimize_lir": false,
+          "tree_hash": "0e2af3cd0784cd0713086e82077ae662f2183d0ab39f07a0c408ba18ba9f1b77"
+        },
+        {
+          "backend": "rue_source",
+          "bytes": 573,
+          "clvm_hex": "ff02ffff01ff02ffff03ffff02ffff03ffff07ff0380ffff01ff02ffff03ffff02ffff03ffff07ff0580ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0780ffff01ff02ffff03ffff02ffff03ffff07ff0b80ffff0180ffff01ff02ffff03ffff02ffff03ffff07ff0f80ffff0180ffff01ff02ffff03ff0fffff0180ffff01ff010180ff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff0101ffff018080ff018080ff0180ffff01ff0101ffff018080ff0180ffff018080ff0180ffff01ff02ffff01ff02ffff03ffff09ffff0dff0480ffff012080ffff01ff02ffff03ffff09ffff0dff0680ffff012080ffff01ff02ffff01ff02ff13ffff04ffff02ff2bffff010280ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bff3b80ff098080ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bffff010480ffff02ff13ffff04ffff02ff13ffff04ffff02ff2bff3b80ff0d8080ffff02ff13ffff04ffff02ff2bffff010180ff02808080808080ff02808080808080ffff04ffff02ff15ff8080ff018080ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ff05ff0b80ff018080ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff04ffff04ffff010bff8080ffff04ffff0102ffff04ff02ffff04ff03ff8080808080ff8080ffff04ffff01ff02ffff04ffff04ffff010bff8080ffff04ffff0101ffff04ff01ff80808080ff8080ffff01018080ff018080",
+          "disassembly": "(a (q 2 (i (a (i (l 3) (q 2 (i (a (i (l 5) (q) (q 2 (i (a (i (l 7) (q 2 (i (a (i (l 11) (q) (q 2 (i (a (i (l 15) (q) (q 2 (i 15 (q) (q 1 . 1)) 1)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 1 . 1) (q)) 1)) 1) (q 1 . 1) (q)) 1) (q)) 1) (q 2 (q 2 (i (= (strlen 4) (q . 32)) (q 2 (i (= (strlen 6) (q . 32)) (q 2 (q 2 19 (c (a 43 (q . 2)) (a 19 (c (a 19 (c (a 43 59) 9)) (a 19 (c (a 19 (c (a 43 (q . 4)) (a 19 (c (a 19 (c (a 43 59) 13)) (a 19 (c (a 43 (q . 1)) 2)))))) 2)))))) (c (a 21 ()) 1)) (q 8)) 1) (q 8)) 1) (c (c 5 11) 1)) (q 8)) 1) (c (c (q 2 (c (c (q . 11) ()) (c (q . 2) (c 2 (c 3 ())))) ()) (c (q 2 (c (c (q . 11) ()) (c (q . 1) (c 1 ()))) ()) (q . 1))) 1))",
+          "optimize_lir": true,
+          "tree_hash": "e831b6f15e9654f8da532c682b5b3315b593eaa2d6e82729e1ccbcbe6f64bb32"
+        }
+      ],
+      "cases": [
+        {
+          "label": "tutorial multiply module curried with two",
+          "native": {
+            "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a084a12e436cdee23e377b8f8ca294220ecf6e805a88f7349b7b08717020165374",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x4ecfce04e7660e701196fbd8ef3ae98b9ee5be4a83895982079bf320ecaaaea1 0xa12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222)"
+        },
+        {
+          "label": "all-zero hashes",
+          "native": {
+            "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a06829c05016d42ef6abf52c90f6c97fc96d65f3ef9e424d3eed5dff654a73c352",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x0000000000000000000000000000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000000000000000000000000000)"
+        },
+        {
+          "label": "all-ff hashes",
+          "native": {
+            "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0e2a67a7139566a668d3dc01ce12993352b597b9b18d27a1ee733079ed9f6d65b",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)"
+        },
+        {
+          "label": "leading zero byte is preserved",
+          "native": {
+            "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0da5e94c441e7396d3156434eb62243b10bd46b40db949d1cf47db0be40a19b2d",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x0011111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222)"
+        },
+        {
+          "label": "swapped arguments differ",
+          "native": {
+            "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a0156b231d61438e242a905ddebc77a93a5d1cda093760d185e87e201ea9ca2246",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x2222222222222222222222222222222222222222222222222222222222222222 0x0011111111111111111111111111111111111111111111111111111111111111)"
+        },
+        {
+          "label": "nil parameter hash of an empty atom",
+          "native": {
+            "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+            "status": "accepted"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 86156,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": 28532,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": 19973,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 29858,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": 28796,
+                "error": null,
+                "outcome": {
+                  "output_hex": "a045a45657ea6bb9ec6139303f4f6bf33049b8be9cbb7ea132a5bddee2786ce212",
+                  "status": "accepted"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0xabababababababababababababababababababababababababababababababab 0x4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a)"
+        },
+        {
+          "label": "short module hash rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x11111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222)"
+        },
+        {
+          "label": "long parameter hash rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x222222222222222222222222222222222222222222222222222222222222222222)"
+        },
+        {
+          "label": "missing parameter rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111)"
+        },
+        {
+          "label": "extra argument rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "InvalidOpArg(NodePtr(Pair, 1020), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "InvalidOpArg(NodePtr(Pair, 217), \"= used on list\")",
+                "failure": {
+                  "code": "invalid_op_arg",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 0x2222222222222222222222222222222222222222222222222222222222222222 0x33)"
+        },
+        {
+          "label": "pair argument rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "((0x1111111111111111111111111111111111111111111111111111111111111111) 0x2222222222222222222222222222222222222222222222222222222222222222)"
+        },
+        {
+          "label": "atom environment rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "0x1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "label": "improper argument list rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . 0x2222222222222222222222222222222222222222222222222222222222222222)"
+        },
+        {
+          "label": "empty environment rejects",
+          "native": {
+            "status": "rejected"
+          },
+          "runs": [
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rust_mir",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "chialisp",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": false
+            },
+            {
+              "backend": "rue_source",
+              "execution": {
+                "cost": null,
+                "error": "Raise(NodePtr(SmallAtom, 0))",
+                "failure": {
+                  "code": "raise",
+                  "kind": "program"
+                },
+                "outcome": {
+                  "status": "rejected"
+                }
+              },
+              "optimize_lir": true
+            }
+          ],
+          "solution": "()"
+        }
+      ],
+      "generated_cases": 0,
+      "kind": "pure_function",
+      "provenance": {
+        "classification": "original teaching implementation",
+        "limitations": [
+          "Only the one-parameter form is exercised here; the SDK's two- and three-parameter helpers have native oracle tests against clvm-utils but no corpus fixture yet.",
+          "Inputs are tree hashes, not trees: this fixture does not hash or materialize a module or parameter.",
+          "The upstream include's deprecated reversed-argument API is used exactly as pinned; the newer curry.clib is not pinned in this corpus.",
+          "Every proof model treats SHA-256 as unmodeled; only executed cases are recorded."
+        ],
+        "references": [
+          "https://chialisp.com/chialisp-currying/",
+          "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+        ]
+      },
+      "reference": "; Authored module adapter for the same strict two-argument ABI; the include is\n; the pinned upstream curry-and-treehash.clib with its deprecated reversed API.\n(mod solution\n  (include curry-and-treehash.clib)\n  (defun bytes32 (v) (if (l v) (x) (if (= (strlen v) 32) 1 (x))))\n  (if (l solution)\n    (if (l (r solution))\n      (if (= (r (r solution)) ())\n        (if (bytes32 (f solution))\n          (if (bytes32 (f (r solution)))\n            (puzzle-hash-of-curried-function (f solution) (f (r solution)))\n            (x))\n          (x))\n        (x))\n      (x))\n    (x))\n)\n",
+      "reference_includes": {
+        "curry-and-treehash.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib"
+      },
+      "rue": {
+        "dependencies": [],
+        "path": "puzzles/curry-hash/puzzle.rue",
+        "sha256": "53f097009ae8a167bdabd3bd345ab8bf8abb76a2d00587ba28e9d4e073617d29",
+        "source": "// Authored Rue translation of the curried puzzle hash for the same strict ABI.\n// The arithmetic is the pinned curry-and-treehash relation spelled out directly.\nconst ATOM_DOMAIN: Bytes = 0x01;\nconst PAIR_DOMAIN: Bytes = 0x02;\nconst QUOTE: Bytes = 0x01;\nconst APPLY: Bytes = 0x02;\nconst CONS: Bytes = 0x04;\nconst ONE: Bytes = 0x01;\n\nfn atom_hash(payload: Bytes) -> Bytes32 {\n    sha256(...[ATOM_DOMAIN, payload])\n}\n\nfn pair_hash(first: Bytes, rest: Bytes) -> Bytes32 {\n    sha256(...[PAIR_DOMAIN, first, rest])\n}\n\nfn main(...solution: Any) -> Bytes32 {\n    assert solution is (Bytes, (Bytes, nil));\n    let module_hash = solution.first;\n    let parameter_hash = solution.rest.first;\n    assert module_hash.length == 32;\n    assert parameter_hash.length == 32;\n    let nil_hash = atom_hash(nil);\n    let quoted_parameter = pair_hash(atom_hash(QUOTE), parameter_hash);\n    let environment = pair_hash(atom_hash(CONS), pair_hash(quoted_parameter, pair_hash(atom_hash(ONE), nil_hash)));\n    let quoted_module = pair_hash(atom_hash(QUOTE), module_hash);\n    pair_hash(atom_hash(APPLY), pair_hash(quoted_module, pair_hash(environment, nil_hash)))\n}\n"
+      },
+      "security_scope": "Original teaching fixture returning data, not a coin puzzle or an authorization policy. It computes the standard curried puzzle hash from two 32-byte tree hashes through the reviewed SHA-256 bridge. The Chialisp comparison embeds the pinned upstream curry-and-treehash.clib include behind an explicit two-argument adapter; the Rue comparison spells the same hash relation. Agreement is finite differential evidence about this arithmetic, not a proof that any curried instance is secure or that a given module hash is the right commitment.",
+      "simulator": [],
+      "simulator_comparisons": [],
+      "slug": "curry-hash",
+      "source": "//! Original teaching fixture: the puzzle hash of a module curried with one parameter.\n//!\n//! Coins commit to puzzle hashes, so a parent that creates a child with a\n//! curried inner puzzle needs this hash without materializing the program.\n//! The SDK helpers port the pinned `curry-and-treehash.clib` arithmetic over the\n//! reviewed SHA-256 bridge; this fixture takes the module's and parameter's\n//! tree hashes as fixed 32-byte arguments and returns the curried puzzle hash.\nuse chialisp_oxide::curry::curried_puzzle_hash;\n\n#[chialisp_oxide::puzzle]\npub fn puzzle(module_hash: [u8; 32], parameter_hash: [u8; 32]) -> [u8; 32] {\n    curried_puzzle_hash(&module_hash, &parameter_hash)\n}\n",
+      "source_dependencies": [
+        {
+          "path": "crates/chialisp-oxide/src/lib.rs",
+          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/hashing.rs",
+          "sha256": "e05f5eaf962b30910ade0a6d2eae8387b74f35ca92aa68e0625794af89b14115",
+          "source": "#![forbid(unsafe_code)]\n//! Exact atom-payload hashing for native tests and the reviewed compiler bridge.\n//! This module does not establish authorization, domain separation or security.\n\n/// SHA256 of the exact bytes, returning all 32 digest bytes, including zeros.\n///\n/// No integer, UTF-8, hexadecimal or CLVM serialization conversion is performed.\npub fn sha256(bytes: &[u8]) -> [u8; 32] {\n    sha256_parts(bytes, &[], &[])\n}\n\n/// Scalar SHA-256 of the exact concatenation a || b || c.\n///\n/// Native kernel for the prototype compiler bridge; not a verified implementation.\n/// Byte/block positions use u128: three usize lengths plus SHA padding fit even\n/// on a 64-bit target. FIPS 180-4 defines SHA-256 for messages below 2^64 bits;\n/// this implementation encodes the low 64 bits of the bit length explicitly.\n/// No allocation, helper/trait calls, architecture dispatch or wrapping methods.\n// Keep the reviewed scalar operations explicit: rotate/div_ceil methods would\n// change the closed MIR call graph that the compiler bridge matches.\n#[allow(clippy::manual_rotate, clippy::manual_div_ceil)]\npub fn sha256_parts(a: &[u8], b: &[u8], c: &[u8]) -> [u8; 32] {\n    const K: [u32; 64] = [\n        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,\n        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,\n        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,\n        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,\n        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,\n        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,\n        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,\n        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,\n        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,\n        0xc67178f2,\n    ];\n    let mut h: [u32; 8] = [\n        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,\n        0x5be0cd19,\n    ];\n    let a_len = a.len() as u128;\n    let ab_len = a_len + b.len() as u128;\n    let message_len = ab_len + c.len() as u128;\n    let bit_len = (message_len << 3) as u64;\n    let padded_len = ((message_len + 9 + 63) / 64) * 64;\n    let mut block_start = 0u128;\n    while block_start < padded_len {\n        let mut w = [0u32; 64];\n        let mut i = 0usize;\n        while i < 64 {\n            let position = block_start + i as u128;\n            let byte = if position < a_len {\n                a[position as usize]\n            } else if position < ab_len {\n                b[(position - a_len) as usize]\n            } else if position < message_len {\n                c[(position - ab_len) as usize]\n            } else if position == message_len {\n                0x80\n            } else if position >= padded_len - 8 {\n                (bit_len >> ((padded_len - 1 - position) as u32 * 8)) as u8\n            } else {\n                0\n            };\n            let word = i / 4;\n            w[word] = (w[word] << 8) | byte as u32;\n            i += 1;\n        }\n        i = 16;\n        while i < 64 {\n            let x = w[i - 15];\n            let y = w[i - 2];\n            let small0 = ((x >> 7) | (x << 25)) ^ ((x >> 18) | (x << 14)) ^ (x >> 3);\n            let small1 = ((y >> 17) | (y << 15)) ^ ((y >> 19) | (y << 13)) ^ (y >> 10);\n            w[i] = (w[i - 16] as u64 + small0 as u64 + w[i - 7] as u64 + small1 as u64) as u32;\n            i += 1;\n        }\n        let mut aa = h[0];\n        let mut bb = h[1];\n        let mut cc = h[2];\n        let mut dd = h[3];\n        let mut ee = h[4];\n        let mut ff = h[5];\n        let mut gg = h[6];\n        let mut hh = h[7];\n        i = 0;\n        while i < 64 {\n            let big1 =\n                ((ee >> 6) | (ee << 26)) ^ ((ee >> 11) | (ee << 21)) ^ ((ee >> 25) | (ee << 7));\n            let choose = (ee & ff) ^ (!ee & gg);\n            let temp1 =\n                (hh as u64 + big1 as u64 + choose as u64 + K[i] as u64 + w[i] as u64) as u32;\n            let big0 =\n                ((aa >> 2) | (aa << 30)) ^ ((aa >> 13) | (aa << 19)) ^ ((aa >> 22) | (aa << 10));\n            let majority = (aa & bb) ^ (aa & cc) ^ (bb & cc);\n            let temp2 = (big0 as u64 + majority as u64) as u32;\n            hh = gg;\n            gg = ff;\n            ff = ee;\n            ee = (dd as u64 + temp1 as u64) as u32;\n            dd = cc;\n            cc = bb;\n            bb = aa;\n            aa = (temp1 as u64 + temp2 as u64) as u32;\n            i += 1;\n        }\n        h[0] = (h[0] as u64 + aa as u64) as u32;\n        h[1] = (h[1] as u64 + bb as u64) as u32;\n        h[2] = (h[2] as u64 + cc as u64) as u32;\n        h[3] = (h[3] as u64 + dd as u64) as u32;\n        h[4] = (h[4] as u64 + ee as u64) as u32;\n        h[5] = (h[5] as u64 + ff as u64) as u32;\n        h[6] = (h[6] as u64 + gg as u64) as u32;\n        h[7] = (h[7] as u64 + hh as u64) as u32;\n        block_start += 64;\n    }\n    let mut digest = [0u8; 32];\n    let mut i = 0usize;\n    while i < 32 {\n        digest[i] = (h[i / 4] >> (24 - (i % 4) * 8)) as u8;\n        i += 1;\n    }\n    digest\n}\n\n#[cfg(test)]\nmod tests {\n    use super::{sha256, sha256_parts};\n\n    #[test]\n    fn known_answers_and_exact_multipart_payloads() {\n        let empty = [\n            0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f,\n            0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c, 0xa4, 0x95, 0x99, 0x1b,\n            0x78, 0x52, 0xb8, 0x55,\n        ];\n        let abc = [\n            0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,\n            0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,\n            0xf2, 0x00, 0x15, 0xad,\n        ];\n        assert_eq!(sha256(b\"\"), empty);\n        assert_eq!(sha256_parts(b\"\", b\"\", b\"\"), empty);\n        assert_eq!(sha256(b\"abc\"), abc);\n        assert_eq!(sha256_parts(b\"a\", b\"b\", b\"c\"), abc);\n        assert_eq!(sha256_parts(b\"\", b\"abc\", b\"\"), abc);\n        assert_ne!(sha256(b\"\"), sha256(b\"\\0\"));\n        assert_ne!(sha256(b\"\\x01\"), sha256(b\"\\0\\x01\"));\n    }\n}\n"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/curry.rs",
+          "sha256": "c4358f195d7f96c9b040df8a1f2d8928d41675836f8327f8bda50b7dd556c10d",
+          "source": "#![forbid(unsafe_code)]\n//! Standard currying as hash arithmetic and as owned tree construction.\n//!\n//! Chia's standard curried form of a module `M` with parameter `P` is\n//! `(a (q . M) (c (q . P) 1))`: apply the quoted module to an environment that\n//! prepends the quoted parameter to the caller's solution. The puzzle hash of\n//! that form can be computed from the module's and parameter's tree hashes\n//! alone, which is what coin commitments need. These helpers port the hash\n//! arithmetic of the pinned upstream `curry-and-treehash.clib` include using\n//! the reviewed SHA-256 bridge; they do not establish that a particular module\n//! or instance is secure, and the compiler lowers their ordinary bodies, not\n//! their names.\nuse crate::sha256_parts;\n\n/// CLVM `a`.\npub const APPLY_OPCODE: u8 = 2;\n/// CLVM `c`.\npub const CONS_OPCODE: u8 = 4;\n/// CLVM `q`.\npub const QUOTE_OPCODE: u8 = 1;\n\n/// Tree hash of an atom: `sha256(0x01 || bytes)`.\npub fn atom_hash(bytes: &[u8]) -> [u8; 32] {\n    sha256_parts(&[1], bytes, &[])\n}\n\n/// Tree hash of a pair from its children's hashes: `sha256(0x02 || left || right)`.\npub fn pair_hash(left: &[u8; 32], right: &[u8; 32]) -> [u8; 32] {\n    sha256_parts(&[2], left, right)\n}\n\n/// Tree hash of `(q . value)` given `value`'s tree hash.\npub fn quoted_hash(value_hash: &[u8; 32]) -> [u8; 32] {\n    pair_hash(&atom_hash(&[QUOTE_OPCODE]), value_hash)\n}\n\n/// Tree hash of `(c (q . parameter) environment)` given both operands' hashes:\n/// the environment with one more parameter curried in.\npub fn curried_environment_hash(\n    parameter_hash: &[u8; 32],\n    environment_hash: &[u8; 32],\n) -> [u8; 32] {\n    let quoted = quoted_hash(parameter_hash);\n    let tail = pair_hash(environment_hash, &atom_hash(&[]));\n    pair_hash(&atom_hash(&[CONS_OPCODE]), &pair_hash(&quoted, &tail))\n}\n\n/// Tree hash of `(a (q . function) environment)` given both operands' hashes.\npub fn applied_hash(function_hash: &[u8; 32], environment_hash: &[u8; 32]) -> [u8; 32] {\n    let quoted = quoted_hash(function_hash);\n    let tail = pair_hash(environment_hash, &atom_hash(&[]));\n    pair_hash(&atom_hash(&[APPLY_OPCODE]), &pair_hash(&quoted, &tail))\n}\n\n/// Tree hash of the caller's whole solution, `1`, as the innermost environment.\npub fn solution_environment_hash() -> [u8; 32] {\n    atom_hash(&[1])\n}\n\n/// Puzzle hash of `module` curried with one parameter.\npub fn curried_puzzle_hash(module_hash: &[u8; 32], parameter_hash: &[u8; 32]) -> [u8; 32] {\n    applied_hash(\n        module_hash,\n        &curried_environment_hash(parameter_hash, &solution_environment_hash()),\n    )\n}\n\n/// Puzzle hash of `module` curried with two parameters, first then second.\npub fn curried_puzzle_hash_2(\n    module_hash: &[u8; 32],\n    first_hash: &[u8; 32],\n    second_hash: &[u8; 32],\n) -> [u8; 32] {\n    let inner = curried_environment_hash(second_hash, &solution_environment_hash());\n    applied_hash(module_hash, &curried_environment_hash(first_hash, &inner))\n}\n\n/// Puzzle hash of `module` curried with three parameters in order.\npub fn curried_puzzle_hash_3(\n    module_hash: &[u8; 32],\n    first_hash: &[u8; 32],\n    second_hash: &[u8; 32],\n    third_hash: &[u8; 32],\n) -> [u8; 32] {\n    let inner = curried_environment_hash(third_hash, &solution_environment_hash());\n    let middle = curried_environment_hash(second_hash, &inner);\n    applied_hash(module_hash, &curried_environment_hash(first_hash, &middle))\n}\n\n#[cfg(feature = \"alloc\")]\nmod owned {\n    use super::{APPLY_OPCODE, CONS_OPCODE, QUOTE_OPCODE};\n    use crate::OwnedTree;\n    use alloc::boxed::Box;\n\n    fn pair<'a>(first: OwnedTree<'a>, rest: OwnedTree<'a>) -> OwnedTree<'a> {\n        OwnedTree::Pair(Box::new(first), Box::new(rest))\n    }\n\n    /// Prepend one quoted parameter to an environment tree: `(c (q . parameter) environment)`.\n    pub fn curried_environment<'a>(\n        parameter: OwnedTree<'a>,\n        environment: OwnedTree<'a>,\n    ) -> OwnedTree<'a> {\n        let quoted = pair(OwnedTree::Atom(&[QUOTE_OPCODE]), parameter);\n        let tail = pair(environment, OwnedTree::Atom(&[]));\n        pair(OwnedTree::Atom(&[CONS_OPCODE]), pair(quoted, tail))\n    }\n\n    /// The standard curried program `(a (q . module) (c (q . parameter) 1))`.\n    pub fn curry<'a>(module: OwnedTree<'a>, parameter: OwnedTree<'a>) -> OwnedTree<'a> {\n        let environment = curried_environment(parameter, OwnedTree::Atom(&[1]));\n        let quoted = pair(OwnedTree::Atom(&[QUOTE_OPCODE]), module);\n        let tail = pair(environment, OwnedTree::Atom(&[]));\n        pair(OwnedTree::Atom(&[APPLY_OPCODE]), pair(quoted, tail))\n    }\n}\n#[cfg(feature = \"alloc\")]\npub use owned::{curried_environment, curry};\n\n#[cfg(test)]\nmod tests {\n    extern crate alloc;\n    extern crate std;\n    use super::*;\n    use alloc::boxed::Box;\n    use clvm_utils::{TreeHash, curry_tree_hash, tree_hash};\n    use oracle_clvmr::{Allocator, NodePtr, serde::node_to_bytes};\n    use std::vec::Vec;\n\n    fn hash(a: &Allocator, node: NodePtr) -> [u8; 32] {\n        tree_hash(a, node).to_bytes()\n    }\n    fn tree_hash_of(value: [u8; 32]) -> TreeHash {\n        TreeHash::new(value)\n    }\n    fn list(a: &mut Allocator, items: &[NodePtr]) -> NodePtr {\n        let mut out = NodePtr::NIL;\n        for item in items.iter().rev() {\n            out = a.new_pair(*item, out).unwrap();\n        }\n        out\n    }\n\n    #[test]\n    fn hash_arithmetic_matches_the_independent_oracle_for_one_two_and_three_parameters() {\n        let mut a = Allocator::new();\n        // (* 2 5) as a module tree, plus assorted parameter trees.\n        let module = {\n            let op = a.new_atom(&[18]).unwrap();\n            let two = a.new_atom(&[2]).unwrap();\n            let five = a.new_atom(&[5]).unwrap();\n            list(&mut a, &[op, two, five])\n        };\n        let parameters = [\n            a.new_atom(&[2]).unwrap(),\n            a.new_atom(&[]).unwrap(),\n            a.new_atom(&[0, 1]).unwrap(),\n            {\n                let x = a.new_atom(b\"abc\").unwrap();\n                let y = a.new_atom(&[0x80, 0xff]).unwrap();\n                a.new_pair(x, y).unwrap()\n            },\n        ];\n        let module_hash = hash(&a, module);\n        for p in parameters {\n            let ph = hash(&a, p);\n            assert_eq!(\n                curried_puzzle_hash(&module_hash, &ph),\n                curry_tree_hash(tree_hash_of(module_hash), &[tree_hash_of(ph)]).to_bytes()\n            );\n            for q in parameters {\n                let qh = hash(&a, q);\n                assert_eq!(\n                    curried_puzzle_hash_2(&module_hash, &ph, &qh),\n                    curry_tree_hash(\n                        tree_hash_of(module_hash),\n                        &[tree_hash_of(ph), tree_hash_of(qh)]\n                    )\n                    .to_bytes()\n                );\n                assert_eq!(\n                    curried_puzzle_hash_3(&module_hash, &ph, &qh, &ph),\n                    curry_tree_hash(\n                        tree_hash_of(module_hash),\n                        &[tree_hash_of(ph), tree_hash_of(qh), tree_hash_of(ph)]\n                    )\n                    .to_bytes()\n                );\n            }\n        }\n        // Zero parameters: (a (q . M) 1) is not a curried form these helpers produce,\n        // but the environment hash of `1` is the oracle's starting point.\n        assert_eq!(\n            solution_environment_hash(),\n            clvm_utils::tree_hash_atom(&[1]).to_bytes()\n        );\n    }\n\n    #[cfg(feature = \"alloc\")]\n    #[test]\n    fn owned_curry_materializes_the_standard_form_and_hashes_consistently() {\n        fn encode(a: &mut Allocator, tree: &crate::OwnedTree<'_>) -> NodePtr {\n            match tree {\n                crate::OwnedTree::Atom(bytes) => a.new_atom(bytes).unwrap(),\n                crate::OwnedTree::Pair(first, rest) => {\n                    let first = encode(a, first);\n                    let rest = encode(a, rest);\n                    a.new_pair(first, rest).unwrap()\n                }\n            }\n        }\n        use crate::OwnedTree;\n        let mut a = Allocator::new();\n        // The tutorial's multiply module (* 2 5) curried with 2: (a (q 18 2 5) (c (q . 2) 1)).\n        let module = OwnedTree::Pair(\n            Box::new(OwnedTree::Atom(&[18])),\n            Box::new(OwnedTree::Pair(\n                Box::new(OwnedTree::Atom(&[2])),\n                Box::new(OwnedTree::Pair(\n                    Box::new(OwnedTree::Atom(&[5])),\n                    Box::new(OwnedTree::Atom(&[])),\n                )),\n            )),\n        );\n        let curried = curry(module, OwnedTree::Atom(&[2]));\n        let node = encode(&mut a, &curried);\n        let bytes: Vec<u8> = node_to_bytes(&a, node).unwrap();\n        // Independently spelled expected serialization of the page's curried result.\n        let expected = {\n            let two = a.new_atom(&[2]).unwrap();\n            let one = a.new_atom(&[1]).unwrap();\n            let four = a.new_atom(&[4]).unwrap();\n            let op = a.new_atom(&[18]).unwrap();\n            let p2 = a.new_atom(&[2]).unwrap();\n            let p5 = a.new_atom(&[5]).unwrap();\n            let body = list(&mut a, &[op, p2, p5]);\n            let quoted_module = a.new_pair(one, body).unwrap();\n            let quoted_arg = a.new_pair(one, two).unwrap();\n            let env = list(&mut a, &[four, quoted_arg, one]);\n            let program = list(&mut a, &[two, quoted_module, env]);\n            node_to_bytes(&a, program).unwrap()\n        };\n        assert_eq!(bytes, expected);\n        // The hash-only route agrees with the materialized tree.\n        let module_hash = {\n            let op = a.new_atom(&[18]).unwrap();\n            let p2 = a.new_atom(&[2]).unwrap();\n            let p5 = a.new_atom(&[5]).unwrap();\n            let body = list(&mut a, &[op, p2, p5]);\n            hash(&a, body)\n        };\n        assert_eq!(\n            curried_puzzle_hash(&module_hash, &atom_hash(&[2])),\n            hash(&a, node)\n        );\n    }\n}\n"
+        },
+        {
+          "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib",
+          "sha256": "5132c3d2428264deb1c405a1debf7a75a84495f96717b0795f18ea0f0f16120e",
+          "source": ";;\n;; THIS FILE IS DEPRECATED and is only for legacy contracts.\n;; Please use `curry.clib` going forward. It has a less stupid API.\n;;\n\n(\n  ;; The code below is used to calculate of the tree hash of a curried function\n  ;; without actually doing the curry, and using other optimization tricks\n  ;; like unrolling `sha256tree`.\n\n  (defconstant ONE 1)\n  (defconstant TWO 2)\n  (defconstant A_KW #a)\n  (defconstant Q_KW #q)\n  (defconstant C_KW #c)\n\n  ;; Given the tree hash `environment-hash` of an environment tree E\n  ;; and the tree hash `parameter-hash` of a constant parameter P\n  ;; return the tree hash of the tree corresponding to\n  ;; `(c (q . P) E)`\n  ;; This is the new environment tree with the addition parameter P curried in.\n  ;;\n  ;; Note that `(c (q . P) E)` = `(c . ((q . P) . (E . 0)))`\n\n  (defun-inline update-hash-for-parameter-hash (parameter-hash environment-hash)\n    (sha256 TWO (sha256 ONE C_KW)\n      (sha256 TWO (sha256 TWO (sha256 ONE Q_KW) parameter-hash)\n    (sha256 TWO environment-hash (sha256 ONE 0))))\n  )\n\n  ;; This function recursively calls `update-hash-for-parameter-hash`, updating `environment-hash`\n  ;; along the way.\n\n  (defun build-curry-list (reversed-curry-parameter-hashes environment-hash)\n    (if reversed-curry-parameter-hashes\n        (build-curry-list (r reversed-curry-parameter-hashes)\n        (update-hash-for-parameter-hash (f reversed-curry-parameter-hashes) environment-hash))\n        environment-hash\n    )\n  )\n\n  ;; Given the tree hash `environment-hash` of an environment tree E\n  ;; and the tree hash `function-hash` of a function tree F\n  ;; return the tree hash of the tree corresponding to\n  ;; `(a (q . F) E)`\n  ;; This is the hash of a new function that adopts the new environment E.\n  ;; This is used to build of the tree hash of a curried function.\n  ;;\n  ;; Note that `(a (q . F) E)` = `(a . ((q . F)  . (E . 0)))`\n\n  (defun-inline tree-hash-of-apply (function-hash environment-hash)\n    (sha256 TWO (sha256 ONE A_KW)\n      (sha256 TWO (sha256 TWO (sha256 ONE Q_KW) function-hash)\n    (sha256 TWO environment-hash (sha256 ONE 0))))\n  )\n\n  ;; DO NOT USE THIS FUNCTION GOING FORWARD. Having to pass the arguments in reverse order is stupid.\n  ;; When I (RK) wrote this, I thought it was necessary, but of course, I was just being dumb\n  ;; and it is not necessary. It's very confusing.\n  ;;\n  ;; function-hash:\n  ;;   the hash of a puzzle function, ie. a `mod`\n  ;;\n  ;; reversed-curry-parameter-hashes:\n  ;;   a list of pre-hashed trees representing parameters to be curried into the puzzle.\n  ;;   Note that this must be applied in REVERSED order. This may seem strange, but it greatly simplifies\n  ;;   the underlying code, since we calculate the tree hash from the bottom nodes up, and the last\n  ;;   parameters curried must have their hashes calculated first.\n  ;;\n  ;; we return the hash of the curried expression\n  ;;   (a (q . function-hash) (c (cp1 (c cp2 (c ... 1)...))))\n  ;;\n  ;; Note that from a user's perspective the hashes passed in here aren't simply\n  ;; the hashes of the desired parameters, but their treehash representation since\n  ;; that's the form we're assuming they take in the actual curried program.\n\n  ;; DO NOT USE\n  (defun puzzle-hash-of-curried-function (function-hash . reversed-curry-parameter-hashes)\n    (tree-hash-of-apply function-hash\n    (build-curry-list reversed-curry-parameter-hashes (sha256 ONE ONE)))\n  )\n\n  (defconstant b32 32)\n\n  (defun-inline size_b32 (var)\n    (= (strlen var) b32)\n  )\n\n  (defun calculate_coin_id (parent puzzlehash amount)\n    (if (all (size_b32 parent) (size_b32 puzzlehash) (> amount -1))\n        (sha256 parent puzzlehash amount)\n        (x)\n    )\n  )\n\n  ; takes a lisp tree and returns the hash of it\n  (defun sha256tree (TREE)\n    (if (l TREE)\n        (sha256 2 (sha256tree (f TREE)) (sha256tree (r TREE)))\n  (sha256 1 TREE)))\n\n)\n"
+        }
+      ],
+      "title": "Curried puzzle hash of a module and one parameter",
       "validated": true
     }
   ],

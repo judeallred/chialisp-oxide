@@ -1073,6 +1073,11 @@ const delegatedPage = await html(path.join(root, 'tutorials/delegated-puzzle/ind
 for (const needle of ['delegated-puzzle', 'apply', 'opcode 2', 'fingerprint', 'authorization']) {
   assert(delegatedPage.includes(needle), `delegated-puzzle tutorial missing ${needle}`);
 }
+assert(built.includes(path.join(root, 'tutorials/curry-hash/index.html')), 'Missing curry-hash tutorial');
+const curryPage = await html(path.join(root, 'tutorials/curry-hash/index.html'));
+for (const needle of ['curry-hash', 'curry-and-treehash.clib', 'curried_puzzle_hash', 'clvm-utils']) {
+  assert(curryPage.includes(needle), `curry-hash tutorial missing ${needle}`);
+}
 const modulesPage = await html(path.join(root, 'tutorials/canonical-modules/index.html'));
 for (const needle of ['module-add', 'module-times-ten', 'module-factorial', 'declared_divergence', 'i64']) {
   assert(modulesPage.includes(needle), `Using Modules tutorial missing ${needle}`);

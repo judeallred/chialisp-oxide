@@ -17,3 +17,6 @@ chialisp-oxide-vm = { path = "../chialisp-oxide-vm", version = "0.1.0", optional
 
 [dev-dependencies]
 sha2 = "0.10"
+clvm-utils = "=0.36.1"
+# The oracle crate's own VM version, used only to build its input nodes.
+oracle-clvmr = { package = "clvmr", version = "=0.16.2" }

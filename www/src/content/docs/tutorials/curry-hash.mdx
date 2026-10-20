@@ -1,0 +1,69 @@
+---
+title: Hash a curried puzzle
+description: Compute the standard curried puzzle hash in Rust and check it against the upstream curry include.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+Chia's standard curried form of a module `M` with a parameter `P` is
+`(a (q . M) (c (q . P) 1))`. The [Currying](https://chialisp.com/chialisp-currying/)
+lesson curries `(mod (first second) (* first second))` with `2` and gets a
+doubler. Coins commit to puzzle hashes rather than programs, so a parent that
+creates a child with a curried inner puzzle usually needs the hash of that
+form without materializing it. This lesson ports that arithmetic to Rust with
+the `curry-hash` fixture, an original teaching example rather than a
+canonical module.
+
+## The SDK helpers
+
+`chialisp_oxide::curry` provides two routes. The hash route,
+`curried_puzzle_hash(module_hash, parameter_hash)` and its two- and
+three-parameter variants, ports the pinned upstream `curry-and-treehash.clib`
+relation over the reviewed SHA-256 bridge using fixed 32-byte arrays. The
+bodies are ordinary functions the compiler lowers through the existing bridge;
+their names grant nothing. The owned route, `curry(module, parameter)` under
+the `alloc` feature, materializes the standard form as an owned tree and
+reproduces the lesson's `(a (q 18 2 5) (c (q . 2) 1))` byte for byte in a
+native test. Native unit tests check all three hash arities against the
+independent `clvm-utils` oracle. Read the contract in the
+[currying guide](https://github.com/judeallred/chialisp-oxide/blob/main/docs/currying.md).
+
+## The fixture
+
+<SourceComparison slug="curry-hash" />
+
+The strict ABI takes exactly two 32-byte atoms and returns the one-parameter
+curried puzzle hash. The Chialisp comparison includes the pinned
+`curry-and-treehash.clib` and calls upstream's own
+`puzzle-hash-of-curried-function` behind a two-argument adapter, so the
+independent compiler evaluates the include itself. The Rue comparison spells
+the hash relation directly with a pair-type guard.
+
+The lab page records fourteen named cases across native Rust and the five CLVM
+builds: the lesson's multiply module curried with `2`, all-zero and all-ff
+digests, a preserved leading zero byte, swapped arguments, the hash of an
+empty atom as the parameter, and every malformed argument shape. The expected
+digest of the lesson case is also reproduced by an independent Python SHA-256
+spelling. Inspect [the curry-hash report](/chialisp-oxide/lab/curry-hash/) for
+exact outputs, costs and tree hashes.
+
+## What this does not establish
+
+A curried instance hash commits a coin to a program; it does not make that
+program safe. Only the one-parameter form has a corpus fixture, the owned
+`curry` constructor has native tests but no compiled factory fixture, and the
+canonical `currying-multiply` module is not yet ported. Rust artifacts still
+differ from canonical Chialisp bytes, so a curried Rust module has a different
+puzzle hash than its canonical counterpart. The pinned include is upstream's
+deprecated reversed-argument API; the newer `curry.clib` is not pinned.
+
+## Reproduce the comparison
+
+```sh
+cargo test --manifest-path puzzles/Cargo.toml --locked
+cargo test -p chialisp-oxide --features alloc --locked curry
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+./scripts/chialisp-oxide validate --only curry-hash --output /tmp/curry.json
+```

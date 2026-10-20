@@ -500,6 +500,7 @@ const executionPaths = [
   "crates/chialisp-oxide/src/cons.rs",
   "crates/chialisp-oxide/src/domain.rs",
   "crates/chialisp-oxide/src/apply.rs",
+  "crates/chialisp-oxide/src/curry.rs",
   "crates/chialisp-oxide/src/hashing.rs",
   "crates/chialisp-oxide/src/lib.rs",
   "crates/chialisp-oxide/src/owned_tree.rs",

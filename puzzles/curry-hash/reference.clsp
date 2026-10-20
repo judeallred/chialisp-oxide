@@ -1,0 +1,17 @@
+; Authored module adapter for the same strict two-argument ABI; the include is
+; the pinned upstream curry-and-treehash.clib with its deprecated reversed API.
+(mod solution
+  (include curry-and-treehash.clib)
+  (defun bytes32 (v) (if (l v) (x) (if (= (strlen v) 32) 1 (x))))
+  (if (l solution)
+    (if (l (r solution))
+      (if (= (r (r solution)) ())
+        (if (bytes32 (f solution))
+          (if (bytes32 (f (r solution)))
+            (puzzle-hash-of-curried-function (f solution) (f (r solution)))
+            (x))
+          (x))
+        (x))
+      (x))
+    (x))
+)

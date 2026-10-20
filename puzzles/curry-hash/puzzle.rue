@@ -1,0 +1,29 @@
+// Authored Rue translation of the curried puzzle hash for the same strict ABI.
+// The arithmetic is the pinned curry-and-treehash relation spelled out directly.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+const QUOTE: Bytes = 0x01;
+const APPLY: Bytes = 0x02;
+const CONS: Bytes = 0x04;
+const ONE: Bytes = 0x01;
+
+fn atom_hash(payload: Bytes) -> Bytes32 {
+    sha256(...[ATOM_DOMAIN, payload])
+}
+
+fn pair_hash(first: Bytes, rest: Bytes) -> Bytes32 {
+    sha256(...[PAIR_DOMAIN, first, rest])
+}
+
+fn main(...solution: Any) -> Bytes32 {
+    assert solution is (Bytes, (Bytes, nil));
+    let module_hash = solution.first;
+    let parameter_hash = solution.rest.first;
+    assert module_hash.length == 32;
+    assert parameter_hash.length == 32;
+    let nil_hash = atom_hash(nil);
+    let quoted_parameter = pair_hash(atom_hash(QUOTE), parameter_hash);
+    let environment = pair_hash(atom_hash(CONS), pair_hash(quoted_parameter, pair_hash(atom_hash(ONE), nil_hash)));
+    let quoted_module = pair_hash(atom_hash(QUOTE), module_hash);
+    pair_hash(atom_hash(APPLY), pair_hash(quoted_module, pair_hash(environment, nil_hash)))
+}

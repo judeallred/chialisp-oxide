@@ -468,6 +468,13 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                 ensure!(args.len() == 1, "arity");
                 output(multisig::puzzle(Message32(bytes32(&a, args[0])?)))
             }
+            "curry-hash" => {
+                ensure!(args.len() == 2, "arity");
+                output(chialisp_oxide_puzzles::curry_hash::puzzle(
+                    bytes32(&a, args[0])?,
+                    bytes32(&a, args[1])?,
+                ))
+            }
             "recovery-payment" => {
                 ensure!(args.len() == 2, "arity");
                 output(recovery::puzzle(

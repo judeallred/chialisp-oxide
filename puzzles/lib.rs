@@ -31,6 +31,9 @@ pub mod intro_list;
 #[path = "delegated-puzzle/puzzle.rs"]
 pub mod delegated_puzzle;
 
+#[path = "curry-hash/puzzle.rs"]
+pub mod curry_hash;
+
 #[path = "module-add/puzzle.rs"]
 pub mod module_add;
 #[path = "module-factorial/puzzle.rs"]

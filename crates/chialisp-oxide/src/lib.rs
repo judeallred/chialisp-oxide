@@ -29,3 +29,5 @@ pub use hashing::{sha256, sha256_parts};
 
 mod apply;
 pub use apply::{ResourceExhausted, apply};
+
+pub mod curry;
