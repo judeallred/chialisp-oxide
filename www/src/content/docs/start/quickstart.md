@@ -65,6 +65,14 @@ For this example, output defaults to
 per-entry IR/CLVM artifacts. A failed build leaves the prior successful bundle
 intact. `--output-dir PATH` selects another artifact destination.
 
+Default builds also attach a bounded receipt of selected-library file reads
+and named launcher snapshots, including generated Rust. The
+[offline package registry](/chialisp-oxide/reference/package-registry/)
+can import those exact declared bytes without the original checkout or compiler.
+The receipt does not capture the complete build graph or prove source/IR/CLVM
+equivalence. `build --artifact-only` explicitly skips source capture and emits
+the older bundle format; `check` records no receipt.
+
 No crates are published to crates.io. The example uses a real path dependency
 on `crates/chialisp-oxide`, which re-exports the annotation from `chialisp-oxide-macros`.
 A separate package can use a reviewed pinned Git dependency. See

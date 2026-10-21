@@ -13,6 +13,10 @@ packet shape that ``p2_source_cost_migration.validate_controls`` reads:
 Run it only after every workspace source edit is final: the recorded window hashes
 the complete reviewed workspace and goes stale on any later change. The packet is
 recorded consistency, not authenticated execution or compiler preservation.
+
+This sidecar deliberately retains artifact-only Cargo schema 1 and its exact
+manual source window. It earns no automatic compiler file-read receipt credit;
+ordinary Cargo builds and the supplied-bundle identity gate retain schema 2.
 """
 import argparse
 import importlib.util
@@ -76,7 +80,7 @@ def main():
     view = component_view(report)
     before = source.control_source_window(view)
     compiler, driver_sha256, toolchain = gate.captured_identities(ROOT, args.driver)
-    run([ROOT / 'target/debug/cargo-chialisp-oxide', 'build', *gate.CARGO_OPTIONS, '--output-dir', args.bundle], timeout=1800)
+    run([ROOT / 'target/debug/cargo-chialisp-oxide', 'build', '--artifact-only', *gate.CARGO_OPTIONS, '--output-dir', args.bundle], timeout=1800)
     identity = gate.validate_bundle(args.bundle.resolve(), root=ROOT, compiler=compiler, driver_sha256=driver_sha256, toolchain=toolchain)
     manifest = Path(identity['manifest_path']).read_text()
     native = native_receipt()

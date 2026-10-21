@@ -502,6 +502,27 @@ class ActualSourcePacketReader(unittest.TestCase):
         self.assertEqual(result["accepted_policy_counterexamples"], 6)
         self.assertEqual(result["exact_typed_rejections"], 12)
 
+    def test_exact_legacy_and_explicit_artifact_only_export_commands(self):
+        explicit = copy.deepcopy(self.original)
+        for row in explicit["commands"]:
+            if row["role"].startswith("export-"):
+                row["argv"].insert(2, "--artifact-only")
+        self.assertEqual(self.validate(explicit), self.validate(self.original))
+        self.rejected(lambda p: p["commands"][0]["argv"].insert(2, "--artifact-only"))
+        for change in [lambda a: a.insert(2, "--artifact-only"), lambda a: a.append(a.pop(2)),
+                       lambda a: a.__setitem__(2, "--source-receipt"), lambda a: a.append("--unreviewed"),
+                       lambda a: a.remove("--offline")]:
+            bad = copy.deepcopy(explicit)
+            for row in bad["commands"]:
+                if row["role"].startswith("export-"):
+                    change(row["argv"])
+            with self.subTest(argv=bad["commands"][0]["argv"]), self.assertRaises(ValueError):
+                self.validate(bad)
+        bad = copy.deepcopy(explicit)
+        bad["commands"][1]["argv"].insert(2, "--artifact-only")
+        with self.assertRaises(ValueError):
+            self.validate(bad)
+
     def test_every_actual_source_VM_andSDK_observation_is_required(self):
         for index in range(18):
             with self.subTest(kind="VM", index=index): self.rejected(lambda p: p["runs"].pop(index))

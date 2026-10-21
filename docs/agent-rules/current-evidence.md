@@ -53,3 +53,10 @@
   scripts/check-runtime-composition.py and scripts/check-p2dc-source-controls.py.
   Recorded readers, constructed corruption controls and actual execution are
   separate claims. Preserve the WIP and not-ready-for-use notices.
+- Retained P2, P2dc, boomerang and acyclic-scalar source-control packets deliberately
+  request `--artifact-only` and keep their schema-1 inventories and stronger
+  reviewed source windows. Their readers accept only exact historical or exact
+  explicit artifact-only extraction commands, consistently across both modes.
+  Do not credit those packets with automatic source capture. Fresh ordinary
+  corpus/proof bundles use the complete schema-2 reader; narrow automatic
+  attachments do not replace their independently declared source checks.

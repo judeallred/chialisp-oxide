@@ -72,11 +72,17 @@ for attempt in 1 2 3 4 5; do
   sleep 3
 done
 WORK="$WORK" python3 - <<'PYTHON'
-import json, os, shutil
+import json, os, shutil, time
 from pathlib import Path
 source, target = Path(os.environ["WORK"]) / "p2dc-capture", Path("corpus/p2dc-source-controls")
 report = json.loads((source / "report.json").read_bytes())
-shutil.rmtree(target, ignore_errors=True)
+# Managed Cargo caches can disappear shortly after their unmount/removal.
+# Bound the retry; preserve the captured packet if the old directory stays busy.
+for attempt in range(5):
+    shutil.rmtree(target, ignore_errors=True)
+    if not target.exists():
+        break
+    time.sleep(3)
 if target.exists():
     raise SystemExit(f"{target} still contains files after removal (ignored build output left inside the packet?); remove it and rerun the install step")
 target.mkdir()
@@ -95,12 +101,27 @@ cargo build --workspace --bins --examples --locked
 python3 scripts/record-controls-quiet-window.py --kind boomerang --package "$WORK/boomerang-package" --native-receipt "$WORK/boomerang-native/native-receipt.json" --output "$WORK/boomerang-last-host.json"
 python3 scripts/run-boomerang-source-controls.py capture --package "$WORK/boomerang-package" --native-receipt "$WORK/boomerang-native/native-receipt.json" --last-host-window "$WORK/boomerang-last-host.json" --target "$ROOT/target" --output "$WORK/boomerang-capture"
 python3 scripts/check-boomerang.py --source-controls "$WORK/boomerang-capture/report.json" --self-test --replay > "$WORK/gate-boomerang-capture.log"
+# Apply the same ignored-build-output cleanup as the delegated packet above.
+# A successful capture must survive separately even if old mounted output is busy.
+for attempt in 1 2 3 4 5; do
+  mount | awk -v prefix="$ROOT/corpus/boomerang-source-controls/" 'index($3, prefix) == 1 { print $3 }' | while read -r point; do
+    diskutil unmount "$point" >/dev/null 2>&1 || umount "$point" >/dev/null 2>&1 || true
+  done
+  rm -rf corpus/boomerang-source-controls 2>/dev/null && break
+  sleep 3
+done
 WORK="$WORK" python3 - <<'PYTHON'
-import json, os, shutil
+import json, os, shutil, time
 from pathlib import Path
 source, target = Path(os.environ["WORK"]) / "boomerang-capture", Path("corpus/boomerang-source-controls")
 report = json.loads((source / "report.json").read_bytes())
-shutil.rmtree(target, ignore_errors=True)
+# Managed Cargo caches can disappear shortly after their unmount/removal.
+# Bound the retry; preserve the captured packet if the old directory stays busy.
+for attempt in range(5):
+    shutil.rmtree(target, ignore_errors=True)
+    if not target.exists():
+        break
+    time.sleep(3)
 if target.exists():
     raise SystemExit("Retained boomerang packet removal failed; preserve this capture and remove only its ignored build output before retrying install")
 target.mkdir()

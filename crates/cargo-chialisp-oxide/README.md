@@ -28,6 +28,12 @@ generated code, and `--extern` arguments. No `--target clvm` target is implement
 Build output lives under the package workspace's `target/chialisp-oxide/artifacts` by
 default. `latest.json` points to an immutable bundle containing a manifest,
 typed IR, CLVM hex, disassembly, and tree hashes for every exported function.
+Ordinary builds also retain bounded exact selected-library compiler-read files
+and named launcher snapshots in a schema-2 source receipt. The selected child's
+generated `OUT_DIR` files are included when rustc reads them. Source files use
+portable labels and raw content blobs; registry import needs no handwritten
+source declaration. `--artifact-only` deliberately emits the older schema-1
+artifact bundle without this capture. `check` does not record sources.
 `--output-dir PATH` changes that destination. A failed build leaves the previous
 successful bundle intact; it never publishes a partial new bundle.
 
@@ -38,9 +44,15 @@ identity. Builds are serialized per extraction directory. The explicit host
 analysis target separates puzzle-library compilation from native build scripts
 and procedural macros; it is not a CLVM target specification.
 
-The manifest records compiler/driver identity, package selection, Cargo options,
-and compiled artifacts. It does not yet fingerprint every source, generated file,
-or transitive dependency; it is build metadata, not a complete reproducibility proof.
+The receipt distinguishes selected compiler file reads from launcher snapshots
+of package/workspace manifests, the build-script root and the post-Cargo
+lockfile. It includes actual selected-unit feature cfg declarations. Build-script
+execution, dependencies, arbitrary processes/environment and other external
+files are outside its capture boundary. Exact external library/build-script
+root files get named labels without capturing their parent directories.
+Unstable, malformed or oversized capture fails packaging; it never silently
+falls back to artifact-only mode. The receipt is a declared bounded observation,
+not compiler authentication, source/IR/CLVM equivalence or a complete build graph.
 
 Current limits: one library package at a time; no existing compiler wrappers;
 only concrete vetted SDK calls and local helpers; no arbitrary Rust dependency

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 pub struct Options {
     pub check: bool,
     pub optimize: bool,
+    pub artifact_only: bool,
     pub output: Option<PathBuf>,
     pub package: Option<String>,
     pub manifest: Option<PathBuf>,
@@ -31,6 +32,7 @@ impl Options {
         let mut options = Self {
             check: command == "check",
             optimize: true,
+            artifact_only: false,
             output: None,
             package: None,
             manifest: None,
@@ -44,6 +46,10 @@ impl Options {
                 "--help" | "-h" => return Ok(None),
                 "--lib" => {} // This prototype always extracts a library target.
                 "--no-optimize" => options.optimize = false,
+                "--artifact-only" => {
+                    ensure!(!options.artifact_only, "--artifact-only supplied twice");
+                    options.artifact_only = true;
+                }
                 "--output-dir" => {
                     ensure!(options.output.is_none(), "--output-dir supplied twice");
                     options.output = Some(args.next().context("--output-dir needs a path")?.into());
@@ -101,6 +107,10 @@ impl Options {
                 ),
             }
         }
+        ensure!(
+            !(options.check && options.artifact_only),
+            "--artifact-only applies to build, not check"
+        );
         Ok(Some(options))
     }
 }
@@ -111,6 +121,19 @@ mod tests {
 
     fn parse(args: &[&str]) -> Result<Option<Options>> {
         Options::parse(args.iter().map(|value| (*value).into()).collect())
+    }
+
+    #[test]
+    fn source_capture_is_default_and_artifact_only_is_explicit() {
+        assert!(!parse(&["build"]).unwrap().unwrap().artifact_only);
+        let options = parse(&["build", "--artifact-only", "--features", "strict"])
+            .unwrap()
+            .unwrap();
+        assert!(options.artifact_only);
+        assert_eq!(options.cargo, ["--features", "strict"]);
+        assert_eq!(options.metadata, ["--features", "strict"]);
+        assert!(parse(&["check", "--artifact-only"]).is_err());
+        assert!(parse(&["build", "--artifact-only", "--artifact-only"]).is_err());
     }
 
     #[test]

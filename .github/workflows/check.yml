@@ -209,6 +209,7 @@ jobs:
       - name: Check source-derived byte contracts and policy counterexamples
         run: |
           python3 scripts/test_cargo_bundle.py
+          python3 scripts/test_cargo_source_receipt.py
           python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json"
           python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json" --check
           python3 scripts/check-byte-proofs.py --output "$RUNNER_TEMP/byte-proofs.json" --self-test

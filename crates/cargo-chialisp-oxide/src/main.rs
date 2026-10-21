@@ -1,10 +1,12 @@
 //! Cargo orchestrates Rust compilation; chialisp-oxide-driver extracts annotated exports.
 mod options;
 mod registry;
+mod source_receipt;
 
 use anyhow::{Context, Result, ensure};
 use chialisp_oxide_backend_experiment::{RUE_REV, artifact};
 use chialisp_oxide_ir::Program;
+use chialisp_oxide_package::{Limits, digest, receipt::ExportDeclaration};
 use serde::Deserialize;
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -33,6 +35,7 @@ struct Package {
 struct Target {
     name: String,
     kind: Vec<String>,
+    src_path: PathBuf,
 }
 
 fn toolchain() -> &'static str {
@@ -210,6 +213,9 @@ fn main() -> Result<()> {
     let crate_name = &libraries[0].name;
     let oxide_dir = metadata.target_directory.join("chialisp-oxide");
     std::fs::create_dir_all(&oxide_dir)?;
+    let oxide_dir = oxide_dir
+        .canonicalize()
+        .context("locate extraction work directory")?;
     // Serialize extraction, including the explicit root-package invalidation.
     // Cargo's individual command locks do not cover clean + check together.
     let build_lock = std::fs::OpenOptions::new()
@@ -230,6 +236,26 @@ fn main() -> Result<()> {
     );
     let work = oxide_dir.join("runs").join(&nonce);
     std::fs::create_dir_all(&work)?;
+    let capture = if !options.check && !options.artifact_only {
+        let scripts: Vec<_> = package
+            .targets
+            .iter()
+            .filter(|target| target.kind.iter().any(|kind| kind == "custom-build"))
+            .collect();
+        ensure!(
+            scripts.len() <= 1,
+            "selected package has ambiguous custom-build targets"
+        );
+        Some(source_receipt::CapturePlan::begin(
+            &package.manifest_path,
+            &metadata.workspace_root,
+            &libraries[0].src_path,
+            scripts.first().map(|target| target.src_path.as_path()),
+            crate_name,
+        )?)
+    } else {
+        None
+    };
     // Cargo may consider an export crate fresh even after its .ir.json files
     // disappeared. Force just the selected package to re-run; dependencies keep
     // their separate extraction cache. Never consume an old IR directory.
@@ -262,6 +288,14 @@ fn main() -> Result<()> {
     if options.package.is_none() {
         command.args(["--package", &package.name]);
     }
+    // Never inherit another launcher's capture configuration in check/artifact-only.
+    command
+        .env_remove("CHIALISP_OXIDE_SOURCE_RECEIPT")
+        .env_remove("CHIALISP_OXIDE_SOURCE_PACKAGE_ROOT")
+        .env_remove("CHIALISP_OXIDE_SOURCE_LIBRARY");
+    if let Some(capture) = &capture {
+        capture.configure(&mut command);
+    }
     let status = command
         .env("RUSTC_WRAPPER", &driver)
         .env("RUSTC", &rustc)
@@ -273,24 +307,53 @@ fn main() -> Result<()> {
         status.success(),
         "Rust/CLVM checking failed; no new artifacts published"
     );
-    let mut paths: Vec<_> = std::fs::read_dir(&work)?
-        .map(|entry| entry.map(|entry| entry.path()))
-        .collect::<std::io::Result<_>>()?;
-    paths.retain(|path| path.to_str().is_some_and(|path| path.ends_with(".ir.json")));
+    let mut paths = Vec::new();
+    for (count, entry) in std::fs::read_dir(&work)?.enumerate() {
+        ensure!(
+            count < Limits::default().max_bundle_files,
+            "extraction directory exceeds entry limit"
+        );
+        let entry = entry?;
+        ensure!(
+            entry.file_type()?.is_file(),
+            "unexpected nonregular extraction output"
+        );
+        let path = entry.path();
+        if path.to_str().is_some_and(|path| path.ends_with(".ir.json")) {
+            ensure!(
+                paths.len() < Limits::default().max_objects,
+                "too many exported IR programs"
+            );
+            paths.push(path);
+        }
+    }
     paths.sort();
     ensure!(
         !paths.is_empty(),
         "no #[chialisp_oxide::puzzle] functions found in selected library"
     );
     let mut entries = vec![];
+    let mut exports = vec![];
+    let mut ir_bytes = 0usize;
     for path in paths {
-        let program: Program = serde_json::from_slice(&std::fs::read(&path)?)?;
+        let raw_ir = source_receipt::read_ir(&path, &mut ir_bytes)?;
+        ensure!(
+            entries.len() < Limits::default().max_objects,
+            "too many exported IR programs"
+        );
+        let program: Program = serde_json::from_slice(&raw_ir)?;
         program.validate()?;
         let bytes = chialisp_oxide_ir::compile(&program, options.optimize)
             .with_context(|| format!("compile {} to CLVM", program.name))?;
         let compiled = artifact("rust_mir", options.optimize, &bytes)?;
         let filename = path.file_name().context("IR filename")?.to_string_lossy();
         let stem = filename.strip_suffix(".ir.json").context("IR suffix")?;
+        exports.push(ExportDeclaration {
+            entry: program.name.clone(),
+            ir: filename.to_string(),
+            bytes: raw_ir.len() as u64,
+            sha256: digest(&raw_ir),
+        });
         std::fs::write(
             work.join(format!("{stem}.clvm.hex")),
             format!("{}\n", hex::encode(bytes)),
@@ -305,16 +368,36 @@ fn main() -> Result<()> {
         )?;
         entries.push(json!({"entry":program.name,"ir":filename,"clvm":format!("{stem}.clvm.hex"),"artifact":compiled}));
     }
-    let manifest = json!({
+    let receipt = capture
+        .map(|capture| {
+            capture.finish(
+                &work,
+                &source_receipt::BuildContext {
+                    package: &package.name,
+                    package_id: &package.id,
+                    compiler: &compiler,
+                    toolchain: toolchain(),
+                    analysis_target: host,
+                    driver_sha256: &driver_hash,
+                    rue_revision: RUE_REV,
+                    cargo_options: &options.cargo,
+                    optimize_lir: options.optimize,
+                },
+                &exports,
+            )
+        })
+        .transpose()?;
+    let mut manifest = json!({
         "schema_version":1,"status":"wip_prototype_not_ready_for_use",
         "package":package.name,"package_id":package.id,"manifest_path":package.manifest_path,"workspace_root":metadata.workspace_root,
         "compiler":compiler,"toolchain":toolchain(),"analysis_target":host,"driver_sha256":driver_hash,
         "rue_revision":RUE_REV,"cargo_options":options.cargo,"entries":entries,
     });
-    std::fs::write(
-        work.join("manifest.json"),
-        serde_json::to_vec_pretty(&manifest)?,
-    )?;
+    if let Some(receipt) = &receipt {
+        manifest["schema_version"] = 2.into();
+        manifest["source_receipt"] = serde_json::to_value(receipt)?;
+    }
+    source_receipt::write_manifest(&work.join("manifest.json"), &manifest)?;
     if options.check {
         println!(
             "Checked {} CLVM entry functions in {} (WIP prototype).",
@@ -323,6 +406,15 @@ fn main() -> Result<()> {
         );
         std::fs::remove_dir_all(work)?;
     } else {
+        let files = source_receipt::publication_files(&exports, receipt.as_ref())?;
+        source_receipt::check_publication_files(&work, &files)?;
+        // Whole-bundle admission includes every IR/artifact and v2 source blob
+        // before selection or a visible latest pointer. It runs no compiler/VM.
+        chialisp_oxide_package::bundle::admit_bundle(
+            &work.join("manifest.json"),
+            &Limits::default(),
+        )
+        .context("admit complete immutable Cargo bundle before publication")?;
         // Immutable bundle plus an atomically replaced manifest pointer keeps a
         // failed build from exposing a mixture of old and new artifacts.
         let output = options
@@ -331,13 +423,8 @@ fn main() -> Result<()> {
         std::fs::create_dir_all(&output)?;
         let bundle = output.join(&nonce);
         std::fs::create_dir(&bundle)?;
-        for entry in std::fs::read_dir(&work)? {
-            let entry = entry?;
-            ensure!(
-                entry.file_type()?.is_file(),
-                "unexpected extraction subdirectory"
-            );
-            std::fs::copy(entry.path(), bundle.join(entry.file_name()))?;
+        for filename in files {
+            std::fs::copy(work.join(&filename), bundle.join(&filename))?;
         }
         let pointer = output.join(format!(".latest-{nonce}.json"));
         std::fs::write(
@@ -363,9 +450,11 @@ fn usage() {
         cargo chialisp-oxide build|check [--lib] [-p NAME] [--manifest-path PATH]\n\
         \x20   [--features FEATURES] [--all-features] [--no-default-features]\n\
         \x20   [--locked|--offline|--frozen] [--release|--profile NAME] [-j N] [-v|-q]\n\
-        \x20   [--no-optimize] [--output-dir PATH]\n\
+        \x20   [--no-optimize] [--output-dir PATH] [--artifact-only]\n\
         Compiles annotated functions in one Cargo library using the pinned Rust driver.\n\
         cargo check/test remain normal native Rust checks; cargo chialisp-oxide checks the CLVM subset.\n\
+        Build automatically declares bounded selected compiler-read files and launcher snapshots.\n\
+        --artifact-only explicitly builds legacy schema 1 without source capture; check does not capture.\n\
         cargo chialisp-oxide registry --help: offline package identities and explicit local storage."
     );
 }

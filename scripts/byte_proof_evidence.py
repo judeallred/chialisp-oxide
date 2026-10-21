@@ -9,6 +9,7 @@ from pathlib import Path
 import runpy
 
 from cargo_authoring import contained_file, load_json, snapshot
+from source_walk import source_files
 
 ROOT = Path(__file__).resolve().parents[1]
 TREE = runpy.run_path(str(ROOT / "scripts/check-tree-proofs.py"))
@@ -131,13 +132,15 @@ def lineage():
 
 def control_authoring():
     value = lineage()
-    paths = {"Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml", LINEAGE}
+    paths = {"Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml", LINEAGE,
+             "scripts/source_walk.py", "scripts/test_source_walk.py"}
     paths.update(row["source"] for row in value["controls"])
     paths.update(value[key]["path"] for key in ("manifest", "library"))
     paths.add(value["native_cli"]["source"])
-    for package in ("crates/chialisp-oxide", "crates/chialisp-oxide-macros"):
+    packages = ("crates/chialisp-oxide", "crates/chialisp-oxide-macros")
+    for package in packages:
         paths.add(f"{package}/Cargo.toml")
-        paths.update(str(path.relative_to(ROOT)) for path in (ROOT / package / "src").rglob("*.rs"))
+    paths.update(source_files(ROOT, [f"{package}/src" for package in packages]))
     return {"mode": "cargo_library", "package": "chialisp-oxide-byte-proofs",
             "manifest": "experiments/byte-proofs/Cargo.toml", "library": "experiments/byte-proofs/src/lib.rs",
             "exports": {row["id"]: {"entry": row["entry"], "source": row["source"]} for row in value["controls"]},
@@ -164,6 +167,7 @@ def checked_corpus(report=None):
 def implementation_sources():
     paths = {row["path"] for row in TREE["implementation_sources"]()}
     paths.update({"scripts/check-byte-proofs.py", "scripts/byte_proof_evidence.py", "scripts/cargo_bundle.py", "scripts/check-canonical-factories.py", "scripts/check-canonical-helpers.py",
+                  "scripts/source_walk.py", "scripts/test_source_walk.py",
                   SPECIFICATION, LINEAGE, "corpus/validation.json", "puzzles/atom-not-equal/puzzle.json",
                   "puzzles/atom-not-equal/reference.clsp", "puzzles/atom-not-equal/puzzle.rue"})
     # checked_corpus executes aggregate helper validation, including the hash

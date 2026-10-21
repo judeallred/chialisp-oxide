@@ -5,11 +5,13 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from cargo_authoring import snapshot
+import p2_source_cost_migration as source_cost
 
 SPEC = importlib.util.spec_from_file_location("p2_source_control_gate", Path(__file__).with_name("check-p2-source-controls.py"))
 GATE = importlib.util.module_from_spec(SPEC)
@@ -70,6 +72,56 @@ class SourceControlIdentity(unittest.TestCase):
         self.assertEqual(result["main_authoring"], snapshot(self.root))
         self.assertIn("does not extract", result["scope"])
         self.assertIn("authenticate execution", result["scope"])
+        self.assertEqual(result["implementation_sources"], [
+            {"path": "scripts/" + path.name, "sha256": GATE.digest(path.read_bytes())}
+            for path in [Path(GATE.__file__), Path(GATE.cargo_authoring.__file__),
+                         Path(GATE.cargo_bundle.__file__), Path(GATE.cargo_source_receipt.__file__)]])
+
+    def test_schema2_supplied_bundle_keeps_complete_receipt_admission(self):
+        self.manifest["schema_version"] = 2
+        self.manifest["package_id"] = "constructed-supplied-source-control-package"
+        files = []
+        control = self.root / GATE.CONTROL
+        for label, path, kind, count in [
+            ("package/Cargo.toml", control / "Cargo.toml", "launcher_manifest", 0),
+            ("package/src/lib.rs", control / "src/lib.rs", "compiler_text", 1),
+        ]:
+            raw = path.read_bytes(); digest = GATE.digest(raw); blob = f"source-{digest}.bin"
+            (self.folder / blob).write_bytes(raw)
+            files.append(dict(path=label, kinds=[kind], compiler_read_count=count,
+                              bytes=len(raw), sha256=digest, blob=blob))
+        exports = []
+        for row in self.manifest["entries"]:
+            raw = (self.folder / row["ir"]).read_bytes()
+            exports.append(dict(entry=row["entry"], ir=row["ir"], bytes=len(raw), sha256=GATE.digest(raw)))
+        self.manifest["source_receipt"] = dict(
+            protocol=GATE.cargo_source_receipt.PROTOCOL, scope=GATE.cargo_source_receipt.SCOPE,
+            build=dict(package=GATE.PACKAGE, package_id=self.manifest["package_id"],
+                       compiler_sha256=GATE.digest(self.compiler.encode()), toolchain=self.toolchain,
+                       analysis_target="control-host", driver_sha256=self.driver,
+                       rue_revision=GATE.RUE, cargo_options=GATE.CARGO_OPTIONS, optimize_lir=True),
+            unit=dict(crate_name="chialisp_oxide_p2_singleton_controls", analysis_target="control-host",
+                      features=[], library_source="package/src/lib.rs"),
+            exports=exports, files=files,
+            snapshots=dict(package_manifest="package/Cargo.toml", workspace_manifest="package/Cargo.toml",
+                           lockfile=None, build_script=None),
+            omitted=dict(outside_roots_reads=0, outside_roots_bytes=0))
+        self.publish()
+        with patch.object(subprocess, "run", side_effect=AssertionError("identity gate cannot execute tools")):
+            self.assertEqual(len(self.check()["exports"]), 3)
+        receipt = self.manifest["source_receipt"]
+        # A non-selected export's receipt and every declared source blob remain
+        # mandatory, even though this caller only requests identity observations.
+        receipt["exports"][-1]["sha256"] = "0" * 64
+        self.publish()
+        with self.assertRaisesRegex(ValueError, "exact IR"):
+            self.check()
+        receipt["exports"][-1]["sha256"] = exports[-1]["sha256"] = GATE.digest(
+            (self.folder / self.manifest["entries"][-1]["ir"]).read_bytes())
+        self.publish(); self.check()
+        (self.folder / files[-1]["blob"]).write_bytes(b"x" * files[-1]["bytes"])
+        with self.assertRaisesRegex(ValueError, "digest"):
+            self.check()
 
     def test_manifest_and_unselected_IR_identity_corruptions(self):
         original = copy.deepcopy(self.manifest)
@@ -152,6 +204,72 @@ class SourceControlIdentity(unittest.TestCase):
         for returncode, stderr in ((1, ""), (0, "warning")):
             with patch.object(GATE.subprocess, "run", return_value=subprocess.CompletedProcess([], returncode, self.compiler, stderr)), self.assertRaises(ValueError): GATE.captured_identities(self.root, driver)
         with patch.object(GATE.subprocess, "run", side_effect=subprocess.TimeoutExpired("rustc", 30)), self.assertRaises(subprocess.TimeoutExpired): GATE.captured_identities(self.root, driver)
+
+
+class CurrentSourceClosure(unittest.TestCase):
+    def current_fixture(self):
+        # Construct current metadata around retained finite observations. These
+        # edited declarations are test fixtures, never fresh execution evidence.
+        report = json.loads((GATE.ROOT / "corpus/validation.json").read_bytes())
+        report["puzzles"] = [row for row in report["puzzles"] if row["slug"] == "p2-singleton"]
+        self.assertEqual(len(report["puzzles"]), 1)
+        value = json.loads((GATE.ROOT / "corpus/corpus-append-existing-p2-controls.json").read_bytes())
+        value["window"]["sources"] = source_cost.control_source_window(report)
+        value["identity"]["implementation_sources"] = [
+            dict(path="scripts/" + name, sha256=source_cost.sha(source_cost.read("scripts/" + name)))
+            for name in ("check-p2-source-controls.py", "cargo_authoring.py", "cargo_bundle.py", "cargo_source_receipt.py")]
+        source_cost.validate_controls(report, value)
+        return report, value
+
+    def test_current_control_window_requires_imported_receipt_helper(self):
+        report, value = self.current_fixture()
+        self.assertIn("scripts/cargo_source_receipt.py", [row["path"] for row in value["window"]["sources"]])
+        missing_identity = copy.deepcopy(value)
+        missing_identity["identity"]["implementation_sources"].pop()
+        with self.assertRaisesRegex(ValueError, "Stale control compiler"):
+            source_cost.validate_controls(report, missing_identity)
+        missing_window = copy.deepcopy(value)
+        missing_window["window"]["sources"] = [row for row in missing_window["window"]["sources"]
+                                               if row["path"] != "scripts/cargo_source_receipt.py"]
+        with self.assertRaisesRegex(ValueError, "Stale control source window"):
+            source_cost.validate_controls(report, missing_window)
+
+    def test_current_helper_bytes_are_bound_by_window_and_identity_separately(self):
+        report, value = self.current_fixture()
+        original = source_cost.read
+        def changed(path, **kwargs):
+            raw = original(path, **kwargs)
+            return raw + b"\n" if path == "scripts/cargo_source_receipt.py" else raw
+        with patch.object(source_cost, "read", side_effect=changed):
+            with self.assertRaisesRegex(ValueError, "Stale control source window"):
+                source_cost.validate_controls(report, value)
+            value["window"]["sources"] = source_cost.control_source_window(report)
+            with self.assertRaisesRegex(ValueError, "Stale control compiler"):
+                source_cost.validate_controls(report, value)
+
+    def test_historical_control_retention_stays_an_immutable_data_relation(self):
+        result = source_cost.validate_before_controls()
+        self.assertEqual(result["retained_private_inputs"], 7)
+        self.assertEqual(result["reconstructible_source_mutations"], 3)
+        self.assertIn("no current freshness or new execution credit", result["scope"])
+
+    def test_capture_producer_explicitly_requests_artifact_only(self):
+        spec = importlib.util.spec_from_file_location("constructed_capture_p2_controls", GATE.ROOT / "scripts/capture-p2-controls.py")
+        producer = importlib.util.module_from_spec(spec); spec.loader.exec_module(producer)
+        class StopBeforeExtraction(Exception):
+            pass
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            with patch.object(sys, "argv", ["capture-p2-controls.py", "--bundle", str(base / "bundle"),
+                                             "--replay", str(base / "replay.json")]), \
+                    patch.object(producer.corpus_append, "report_payload", return_value=b'{"puzzles":[{"slug":"p2-singleton"}]}'), \
+                    patch.object(producer.source, "control_source_window", return_value=[]), \
+                    patch.object(producer.gate, "captured_identities", return_value=("constructed", "a" * 64, "pinned")), \
+                    patch.object(producer, "run", side_effect=StopBeforeExtraction) as command, \
+                    self.assertRaises(StopBeforeExtraction):
+                producer.main()
+            self.assertEqual(command.call_args.args[0], [producer.ROOT / "target/debug/cargo-chialisp-oxide",
+                "build", "--artifact-only", *GATE.CARGO_OPTIONS, "--output-dir", base / "bundle"])
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import tomllib
+from source_walk import source_files
 
 from cargo_authoring import contained_file, unique_object
 import p2_append_migration as append
@@ -300,7 +301,7 @@ def validate_metrics(report, metrics):
 def control_source_window(report):
     paths = {row["path"] for row in report["authoring"]["sources"]}
     paths.update(["Cargo.toml","Cargo.lock","rust-toolchain.toml",".cargo/config.toml"])
-    paths.update("scripts/"+name for name in ("check-p2-source-controls.py","cargo_authoring.py","cargo_bundle.py"))
+    paths.update("scripts/"+name for name in ("check-p2-source-controls.py","cargo_authoring.py","cargo_bundle.py","cargo_source_receipt.py","source_walk.py","test_source_walk.py"))
     members = ("experiments/backend","experiments/byte-proofs","crates/chialisp-oxide-ir",
         "crates/chialisp-oxide-reference","crates/chialisp-oxide-rue","crates/chialisp-oxide-driver",
         "crates/chialisp-oxide","crates/chialisp-oxide-macros","crates/cargo-chialisp-oxide","crates/chialisp-oxide-package",
@@ -308,6 +309,7 @@ def control_source_window(report):
         "crates/chialisp-oxide-cli","crates/chialisp-oxide-vm","puzzles","vendor/rue-lir")
     require(tomllib.loads(read("Cargo.toml").decode())["workspace"]["members"] == list(members),
             "Control implementation closure requires the reviewed workspace packages")
+    directories = []
     for package in members:
         path = package+"/Cargo.toml";paths.add(path)
         manifest = tomllib.loads(read(path).decode())
@@ -327,7 +329,8 @@ def control_source_window(report):
                     require(example.get("path", "examples/"+example["name"]+".rs") == "examples/"+example["name"]+".rs",
                             "Unsupported P2 metric/control example path")
         if (ROOT/package/"build.rs").is_file():paths.add(package+"/build.rs")
-        paths.update(p.relative_to(ROOT).as_posix() for p in (ROOT/package/"src").rglob("*.rs") if p.is_file())
+        directories.append(package+"/src")
+    paths.update(source_files(ROOT,directories))
     paths.add("crates/chialisp-oxide-simulator/examples/p2_singleton_cost.rs")
     paths.update("crates/chialisp-oxide-corpus/examples/"+name+".rs" for name in
         ("p2_singleton_controls","p2_singleton_probe"))
@@ -408,7 +411,7 @@ def validate_controls(report, value):
         and identity["baseline"] == {"path":SOURCE,"sha256":AFTER_SOURCE}
         and identity["cargo_options"] == gate.CARGO_OPTIONS and identity["rue_revision"] == gate.RUE
         and identity["implementation_sources"] == [{"path":"scripts/"+name,"sha256":sha(read("scripts/"+name))}
-             for name in ("check-p2-source-controls.py","cargo_authoring.py","cargo_bundle.py")],
+             for name in ("check-p2-source-controls.py","cargo_authoring.py","cargo_bundle.py","cargo_source_receipt.py")],
         "Stale control compiler/main/private/recipe identity capture")
     identity_manifest = captured_absolute(identity["manifest_path"])
     require(identity_manifest.name == "manifest.json" and type(value["manifest"]) is str

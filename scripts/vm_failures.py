@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import unittest
+from source_walk import source_files
 
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = "clvmr-0.21.0/v1"
@@ -104,6 +105,8 @@ def check_replay(value, label="VM replay", *, expected_code=None):
 def execution_paths():
     """Closed wire/ledger and current aggregate-reader dependency paths."""
     paths = [PROTOCOL_PATH, "scripts/vm_failures.py", "www/scripts/vm-failures.mjs",
+             "scripts/source_walk.py", "scripts/test_source_walk.py",
+             "www/scripts/source-walk.mjs", "www/scripts/test-source-walk.mjs", "www/package.json",
              "crates/chialisp-oxide-simulator/rejection-protocol.json",
              "crates/chialisp-oxide-simulator/Cargo.toml", "crates/chialisp-oxide-simulator/src/lib.rs",
              "scripts/ledger_rejections.py", "www/scripts/ledger-rejections.mjs",
@@ -112,7 +115,8 @@ def execution_paths():
              "scripts/p2_singleton_evidence.py", "scripts/p2_append_migration.py", "scripts/check-p2-singleton.py",
              "scripts/password_evidence.py", "scripts/password_ledger.py", "scripts/password_provenance.py",
              "scripts/password_vectors.py", "scripts/hashing_vectors.py", "scripts/check-canonical-factories.py",
-             "scripts/cargo_authoring.py", "scripts/cargo_bundle.py", "scripts/check-readable-puzzles.py",
+             "scripts/cargo_authoring.py", "scripts/cargo_bundle.py", "scripts/cargo_source_receipt.py",
+             "scripts/test_cargo_source_receipt.py", "scripts/check-readable-puzzles.py",
              "scripts/check-hashing-puzzles.py", "scripts/hashing_provenance.py",
              "corpus/validate_published_puzzles.py",
              "scripts/runtime_cost_migration.py", "scripts/runtime_inline_migration.py",
@@ -598,10 +602,13 @@ def execution_paths():
     paths += ["crates/chialisp-oxide-package/Cargo.toml",
               "crates/cargo-chialisp-oxide/src/registry.rs",
               "crates/cargo-chialisp-oxide/tests/registry_offline.rs"]
-    for directory in ("src", "tests", "examples", "benches"):
-        paths += [path.relative_to(ROOT).as_posix() for path in
-                  (ROOT / "crates/chialisp-oxide-package" / directory).rglob("*.rs") if path.is_file()]
-    paths += [str(path.relative_to(ROOT)) for path in (ROOT / "crates/chialisp-oxide-vm/src").rglob("*.rs")]
+    # Capture/launch code is part of the same compiler execution boundary.
+    # Restrict discovery to conventional source roots, never generated targets.
+    directories = [f"crates/{crate}/{directory}"
+                   for crate in ("chialisp-oxide-package", "chialisp-oxide-driver", "cargo-chialisp-oxide")
+                   for directory in ("src", "tests", "examples", "benches")]
+    paths += source_files(ROOT, [*directories, "crates/chialisp-oxide-vm/src"])
+    require(len(set(paths)) <= 4096, "Execution source count exceeded")
     return sorted(set(paths))
 
 
@@ -704,6 +711,13 @@ class FailureProtocolTests(unittest.TestCase):
                 with self.assertRaises(ValueError): check_replay(replay)
         with self.assertRaises(ValueError):
             check_replay({"status": "rejected", "error": "Raise(spoofed)", "failure": {"kind": "program", "code": "path_into_atom"}}, expected_code="raise")
+
+
+def load_tests(loader, tests, pattern):
+    # Invoked only by unittest, not by importing this recorded-evidence reader.
+    from test_source_walk import SourceWalkTests
+    tests.addTests(loader.loadTestsFromTestCase(SourceWalkTests))
+    return tests
 
 
 if __name__ == "__main__":

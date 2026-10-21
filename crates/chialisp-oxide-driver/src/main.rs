@@ -13,6 +13,7 @@ extern crate rustc_target;
 mod cargo;
 mod exports;
 mod lower;
+mod source_receipt;
 mod toolchain;
 
 use std::{io::Write, path::PathBuf};
@@ -28,6 +29,7 @@ struct Driver {
     output: Option<PathBuf>,
     cargo_output: Option<PathBuf>,
     route: Option<toolchain::Route>,
+    source_capture: Option<source_receipt::CaptureSession>,
     result: Result<(), String>,
 }
 
@@ -44,6 +46,12 @@ fn configure(
 impl Callbacks for Driver {
     fn config(&mut self, config: &mut rustc_interface::interface::Config) {
         configure(config, self.cargo_output.is_some(), self.route.as_ref());
+        if let Some(capture) = &mut self.source_capture
+            && let Err(error) = capture.install(config)
+        {
+            rustc_session::EarlyDiagCtxt::new(config.opts.error_format)
+                .early_fatal(format!("declared source receipt configuration: {error}"));
+        }
     }
 
     fn after_analysis<'tcx>(
@@ -64,6 +72,9 @@ impl Callbacks for Driver {
             self.result = Err(error);
             return Compilation::Stop;
         }
+        if let Some(capture) = &self.source_capture {
+            capture.record_features(tcx);
+        }
         self.result = self.extract(tcx);
         if self.cargo_output.is_some() && self.result.is_ok() {
             // Cargo needs the normal metadata for downstream crates. Artifacts
@@ -78,6 +89,30 @@ impl Callbacks for Driver {
 impl Driver {
     fn extract<'tcx>(&self, tcx: TyCtxt<'tcx>) -> Result<(), String> {
         if let Some(output) = &self.cargo_output {
+            if let Some(capture) = &self.source_capture {
+                let maximum = capture.export_limit().map_err(|error| error.to_string())?;
+                let entries = exports::collect_bounded(tcx, maximum)?;
+                let mut staged = Vec::new();
+                staged.try_reserve_exact(entries.len()).map_err(|_| {
+                    "ResourceLimit: cannot reserve bounded IR export metadata".to_owned()
+                })?;
+                for (id, environment) in entries {
+                    let name = format!(
+                        "{}::{}",
+                        tcx.crate_name(rustc_hir::def_id::LOCAL_CRATE),
+                        tcx.def_path_str(id)
+                    );
+                    let program = self.extract_program(tcx, id, name, environment)?;
+                    staged.push(
+                        capture
+                            .stage_export(&program)
+                            .map_err(|error| error.to_string())?,
+                    );
+                }
+                source_receipt::write_staged_exports(output, staged)
+                    .map_err(|error| error.to_string())?;
+                return Ok(());
+            }
             let mut programs = Vec::new();
             for (id, environment) in exports::collect(tcx)? {
                 let name = format!(
@@ -275,6 +310,7 @@ fn standalone(arguments: Vec<String>) -> std::process::ExitCode {
         output: None,
         cargo_output: None,
         route: None,
+        source_capture: None,
         result: Err("Rust checking did not complete".into()),
     };
     while let Some(argument) = arguments.next() {
@@ -313,6 +349,16 @@ fn finish(args: Vec<String>, driver: &mut Driver) -> std::process::ExitCode {
     if let Err(error) = &driver.result {
         eprintln!("error: chialisp-oxide: {error}");
         return std::process::ExitCode::FAILURE;
+    }
+    if let Some(capture) = &driver.source_capture {
+        let Some(work) = &driver.cargo_output else {
+            eprintln!("error: declared source receipt requires selected Cargo output");
+            return std::process::ExitCode::FAILURE;
+        };
+        if let Err(error) = capture.finish(work) {
+            eprintln!("error: chialisp-oxide: declared source receipt: {error}");
+            return std::process::ExitCode::FAILURE;
+        }
     }
     std::process::ExitCode::SUCCESS
 }

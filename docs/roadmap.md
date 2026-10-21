@@ -80,6 +80,12 @@ compiler preservation or production readiness.
   preservation.
 - Typed VM failure codes separating rejection from resource and infrastructure
   failures; ledger negatives require exact consensus codes.
+- Bounded source receipts in default Cargo builds, including exact raw
+  selected-library reads, generated files and named launcher snapshots. Explicit
+  `--artifact-only` builds retain the older bundle format. The offline registry
+  imports complete immutable bundles and verifies package, blob, tree and
+  structural ABI identities. These records do not authenticate sources,
+  capture a complete build graph or prove source/IR/CLVM equivalence.
 - Searchable Astro/Starlight documentation generated from source and evidence,
   published-source discovery across 98 pinned repository trees, and seven
   upstream Rue regressions filed with fixes.
@@ -109,8 +115,8 @@ backlog; this ordering does not mark their acceptance criteria complete.
    [offline registry prototype](https://judeallred.github.io/chialisp-oxide/reference/package-registry/)
    imports immutable Cargo bundles and verifies exact package, artifact and
    structural ABI identities without running a compiler or VM. Complete
-   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) with automatic
-   source-aware Cargo receipts, observed mainnet reveals, standard-curry
+   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) with explicit
+   dependency selection and locks, observed mainnet reveals, standard-curry
    decoding, pinned bindings and a dependency-by-hash authoring example;
    source attachments and build declarations alone do not establish compilation
    or source authenticity. Then build the explicit-network CLI/GUI lifecycle

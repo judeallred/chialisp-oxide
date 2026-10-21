@@ -12,6 +12,8 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
+mod bundle_sniff;
+
 const MAX_JSON_BYTES: u64 = 16 * 1024 * 1024;
 
 #[derive(Debug)]
@@ -20,6 +22,9 @@ pub struct ArtifactBundle {
     pub manifest: Value,
     /// Fully qualified Rust export names, in deterministic order.
     pub programs: BTreeMap<String, Program>,
+    /// Present only after complete schema-2 bundle/source admission. This is a
+    /// checked declaration, not authenticated build provenance.
+    pub source_receipt: Option<chialisp_oxide_package::receipt::SourceReceipt>,
 }
 
 fn confined_file(root: &Path, relative: &str) -> Result<PathBuf> {
@@ -43,17 +48,24 @@ fn confined_file(root: &Path, relative: &str) -> Result<PathBuf> {
     Ok(path)
 }
 
-fn read_json<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T> {
+fn read_json_bytes(path: &Path) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     std::fs::File::open(path)?
         .take(MAX_JSON_BYTES + 1)
         .read_to_end(&mut bytes)?;
-    ensure!(
-        bytes.len() as u64 <= MAX_JSON_BYTES,
-        "artifact JSON exceeds 16 MiB: {}",
-        path.display()
-    );
-    serde_json::from_slice(&bytes).with_context(|| format!("decode artifact {}", path.display()))
+    if bytes.len() as u64 > MAX_JSON_BYTES {
+        return Err(chialisp_oxide_package::Error::new(
+            chialisp_oxide_package::ErrorKind::ResourceLimit,
+            format!("artifact JSON exceeds 16 MiB: {}", path.display()),
+        )
+        .into());
+    }
+    Ok(bytes)
+}
+
+fn read_json<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T> {
+    serde_json::from_slice(&read_json_bytes(path)?)
+        .with_context(|| format!("decode artifact {}", path.display()))
 }
 
 /// Load the latest immutable bundle and validate every typed IR export.
@@ -62,18 +74,73 @@ fn read_json<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T> {
 /// compare against the build it requested. CLVM files are not used to establish
 /// IR semantics; callers can independently compile and validate these programs.
 pub fn load_bundle(output: &Path) -> Result<ArtifactBundle> {
+    load_bundle_with_legacy_decoder(output, |bytes| {
+        serde_json::from_slice(bytes).context("decode legacy artifact manifest")
+    })
+}
+
+// Keep the weak schema-1 transport contract explicit. Tests supply a failing
+// decoder to prove schema-2 and bounded-preflight paths never parse a Value here.
+fn load_bundle_with_legacy_decoder(
+    output: &Path,
+    legacy_decoder: impl FnOnce(&[u8]) -> Result<Value>,
+) -> Result<ArtifactBundle> {
     let output = output
         .canonicalize()
         .context("locate Cargo chialisp-oxide output directory")?;
-    let pointer: Value = read_json(&confined_file(&output, "latest.json")?)?;
-    let relative = pointer["manifest"]
-        .as_str()
+    let limits = chialisp_oxide_package::Limits::default();
+    let pointer = bundle_sniff::pointer(
+        &read_json_bytes(&confined_file(&output, "latest.json")?)?,
+        &limits,
+    )?;
+    let relative = pointer
+        .manifest
+        .as_deref()
         .context("latest.json requires a manifest path")?;
     let manifest_path = confined_file(&output, relative)?;
     let root = manifest_path
         .parent()
         .context("artifact manifest has no bundle directory")?;
-    let manifest: Value = read_json(&manifest_path)?;
+    let manifest_bytes = read_json_bytes(&manifest_path)?;
+    if bundle_sniff::source_aware(&manifest_bytes, &limits)? {
+        // Preserve the original weak schema-1 compatibility path below. A new
+        // receipt can never be silently discarded by that legacy path.
+        let bundle = pointer
+            .bundle
+            .as_deref()
+            .context("schema-2 pointer requires a bundle name")?;
+        ensure!(
+            pointer.fields == 2
+                && !bundle.is_empty()
+                && !bundle.contains(['/', '\\'])
+                && !matches!(bundle, "." | "..")
+                && relative == format!("{bundle}/manifest.json"),
+            "invalid schema-2 atomic bundle pointer"
+        );
+        ensure!(
+            !std::fs::symlink_metadata(output.join("latest.json"))?
+                .file_type()
+                .is_symlink(),
+            "schema-2 latest pointer is a symlink"
+        );
+        let admitted =
+            chialisp_oxide_package::bundle::admit_bundle(&output.join(relative), &limits)
+                .context("admit complete schema-2 Cargo bundle and declared sources")?;
+        ensure!(
+            admitted.manifest_json().as_bytes() == manifest_bytes.as_slice(),
+            "Cargo manifest changed during complete admission"
+        );
+        let manifest = serde_json::from_str(admitted.manifest_json())?;
+        let source_receipt = admitted.source_receipt().cloned();
+        let programs = admitted.into_programs();
+        return Ok(ArtifactBundle {
+            manifest_path,
+            manifest,
+            programs,
+            source_receipt,
+        });
+    }
+    let manifest = legacy_decoder(&manifest_bytes)?;
     ensure!(
         manifest["schema_version"] == 1,
         "unsupported Cargo chialisp-oxide artifact schema"
@@ -120,6 +187,7 @@ pub fn load_bundle(output: &Path) -> Result<ArtifactBundle> {
         manifest_path,
         manifest,
         programs,
+        source_receipt: None,
     })
 }
 
@@ -192,6 +260,7 @@ mod tests {
         let fixture = Bundle::new();
         let bundle = load_bundle(&fixture.0).unwrap();
         assert_eq!(bundle.manifest["compiler"], "test compiler");
+        assert!(bundle.source_receipt.is_none());
         assert_eq!(
             bundle
                 .programs
@@ -200,6 +269,167 @@ mod tests {
                 .collect::<Vec<_>>(),
             ["puzzles::one::puzzle"]
         );
+    }
+
+    fn source_bundle() -> (Bundle, Value) {
+        use chialisp_oxide_package::{
+            digest,
+            receipt::{RECEIPT_PROTOCOL, RECEIPT_SCOPE},
+        };
+        let fixture = Bundle::new();
+        let ir = std::fs::read(fixture.0.join("run/one.ir.json")).unwrap();
+        let compiler = "rustc constructed fixture\nhost: fixture-host\n";
+        let mut files = Vec::new();
+        for (path, contents, kinds, count) in [
+            (
+                "package/Cargo.toml",
+                b"".as_slice(),
+                json!(["launcher_manifest"]),
+                0,
+            ),
+            (
+                "package/src/lib.rs",
+                b"abc".as_slice(),
+                json!(["compiler_text"]),
+                1,
+            ),
+        ] {
+            let blob = format!("source-{}.bin", digest(contents));
+            std::fs::write(fixture.0.join("run").join(&blob), contents).unwrap();
+            files.push(json!({"path":path,"kinds":kinds,"compiler_read_count":count,"bytes":contents.len(),"sha256":digest(contents),"blob":blob}));
+        }
+        let manifest = json!({
+            "schema_version":2,"status":"wip_prototype_not_ready_for_use","package":"puzzles","package_id":"fixture-puzzles@0.1.0",
+            "manifest_path":"/declared/Cargo.toml","workspace_root":"/declared","compiler":compiler,"toolchain":"nightly-fixture","analysis_target":"fixture-host",
+            "driver_sha256":"00".repeat(32),"rue_revision":"a".repeat(40),"cargo_options":[],
+            "entries":[{"entry":"puzzles::one::puzzle","ir":"one.ir.json","clvm":"one.clvm.hex","artifact":{"backend":"rust_mir","optimize_lir":true,"bytes":1,"tree_hash":"4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a","clvm_hex":"80","disassembly":"()"}}],
+            "source_receipt":{"protocol":RECEIPT_PROTOCOL,"scope":RECEIPT_SCOPE,
+                "build":{"package":"puzzles","package_id":"fixture-puzzles@0.1.0","compiler_sha256":digest(compiler.as_bytes()),"toolchain":"nightly-fixture","analysis_target":"fixture-host","driver_sha256":"00".repeat(32),"rue_revision":"a".repeat(40),"cargo_options":[],"optimize_lir":true},
+                "unit":{"crate_name":"puzzles","analysis_target":"fixture-host","features":[],"library_source":"package/src/lib.rs"},
+                "exports":[{"entry":"puzzles::one::puzzle","ir":"one.ir.json","bytes":ir.len(),"sha256":digest(&ir)}],"files":files,
+                "snapshots":{"package_manifest":"package/Cargo.toml","workspace_manifest":"package/Cargo.toml","lockfile":null,"build_script":null},
+                "omitted":{"outside_roots_reads":0,"outside_roots_bytes":0}}
+        });
+        fixture.write(
+            "latest.json",
+            &json!({"bundle":"run","manifest":"run/manifest.json"}),
+        );
+        fixture.write("run/manifest.json", &manifest);
+        std::fs::write(fixture.0.join("run/one.clvm.hex"), "80\n").unwrap();
+        (fixture, manifest)
+    }
+
+    fn forbid_legacy_value(_: &[u8]) -> Result<Value> {
+        panic!("schema-2/bounded routing called the legacy Value decoder")
+    }
+
+    #[test]
+    fn v2_uses_complete_admission_and_returns_checked_source_declarations() {
+        use chialisp_oxide_package::digest;
+        let (fixture, manifest) = source_bundle();
+        let loaded = load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).unwrap();
+        assert_eq!(
+            loaded.source_receipt.as_ref().unwrap().unit.library_source,
+            "package/src/lib.rs"
+        );
+        assert_eq!(
+            loaded.programs["puzzles::one::puzzle"].name,
+            "puzzles::one::puzzle"
+        );
+        std::fs::write(
+            fixture
+                .0
+                .join("run")
+                .join(format!("source-{}.bin", digest(b"abc"))),
+            b"abd",
+        )
+        .unwrap();
+        assert!(
+            load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).is_err(),
+            "v2 source bytes were silently discarded"
+        );
+        let mut downgrade = manifest;
+        downgrade["schema_version"] = json!(1);
+        fixture.write("run/manifest.json", &downgrade);
+        assert!(
+            load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).is_err(),
+            "receipt-bearing input downgraded to weak v1"
+        );
+    }
+
+    #[test]
+    fn routing_bounds_and_malformed_claims_precede_legacy_value_decoding() {
+        use chialisp_oxide_package::{Error, ErrorKind, Limits};
+        let deep = format!(
+            "{{\"schema_version\":2,\"padding\":{}0{}}}",
+            "[".repeat(97),
+            "]".repeat(97)
+        );
+        let wide = format!(
+            "{{\"schema_version\":2,\"padding\":[{}0]}}",
+            "0,".repeat(Limits::default().max_json_nodes)
+        );
+        for (raw, kind) in [
+            (deep, ErrorKind::ResourceLimit),
+            (wide, ErrorKind::ResourceLimit),
+            (
+                r#"{"schema_version":1,"source_receipt":null}"#.into(),
+                ErrorKind::InvalidManifest,
+            ),
+            (
+                r#"{"schema_version":1,"source_receipt":{}}"#.into(),
+                ErrorKind::InvalidManifest,
+            ),
+            (
+                r#"{"schema_version":2,"source_receipt":null}"#.into(),
+                ErrorKind::InvalidManifest,
+            ),
+            (
+                r#"{"schema_version":2,"schema_\u0076ersion":1}"#.into(),
+                ErrorKind::InvalidManifest,
+            ),
+            (
+                r#"{"schema_version":1,"source_receipt":null,"source_receipt":null}"#.into(),
+                ErrorKind::InvalidManifest,
+            ),
+        ] {
+            let fixture = Bundle::new();
+            fixture.write(
+                "latest.json",
+                &json!({"bundle":"run","manifest":"run/manifest.json"}),
+            );
+            std::fs::write(fixture.0.join("run/manifest.json"), raw).unwrap();
+            let error =
+                load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).unwrap_err();
+            assert_eq!(
+                error.downcast_ref::<Error>().unwrap().kind(),
+                kind,
+                "{error:#}"
+            );
+        }
+        for raw in [
+            r#"{"manifest":"run/manifest.json","mani\u0066est":"run/manifest.json"}"#.to_owned(),
+            r#"{"manifest":"run/manifest.json","extra":0,"extra":1}"#.to_owned(),
+            format!(
+                "{{\"manifest\":\"run/manifest.json\",\"padding\":{}0{}}}",
+                "[".repeat(97),
+                "]".repeat(97)
+            ),
+        ] {
+            let fixture = Bundle::new();
+            std::fs::write(fixture.0.join("latest.json"), raw).unwrap();
+            assert!(load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).is_err());
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn source_admission_keeps_the_original_lexical_manifest_path() {
+        let (fixture, _) = source_bundle();
+        let root = fixture.0.join("run");
+        std::fs::rename(root.join("manifest.json"), root.join("retained.json")).unwrap();
+        std::os::unix::fs::symlink("retained.json", root.join("manifest.json")).unwrap();
+        assert!(load_bundle_with_legacy_decoder(&fixture.0, forbid_legacy_value).is_err());
     }
 
     #[test]

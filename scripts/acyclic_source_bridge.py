@@ -1,4 +1,10 @@
-"""Explicit actual-source bridge; typed post-ABI models and finite executions only."""
+"""Explicit actual-source bridge; typed post-ABI models and finite executions only.
+
+The reviewed bridge keeps artifact-only Cargo schema 1: its explicit source
+snapshot and retained IR/query/CLVM relations are independently checked here.
+This does not acquire automatic compiler file-read receipt credit. Ordinary
+Cargo builds retain their current default source-receipt behavior.
+"""
 import copy
 import hashlib
 import json
@@ -13,6 +19,7 @@ import tempfile
 from cargo_authoring import contained_file, require, snapshot, unique_object
 from cargo_bundle import load_declared_export
 from vm_failures import check_execution, check_replay
+from source_walk import source_files
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPERIMENT = "experiments/acyclic-scalar"
@@ -96,12 +103,11 @@ def source_snapshot(root):
     # Registry/std/installed tool bytes and mutable environment remain assumptions.
     paths = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
              "scripts/check-acyclic-source.py", "scripts/acyclic_source_bridge.py", "scripts/test_acyclic_source.py",
-             "scripts/cargo_authoring.py", "scripts/cargo_bundle.py", "scripts/vm_failures.py",
+             "scripts/cargo_authoring.py", "scripts/cargo_bundle.py", "scripts/cargo_source_receipt.py",
+             "scripts/test_cargo_source_receipt.py", "scripts/vm_failures.py",
+             "scripts/source_walk.py", "scripts/test_source_walk.py",
              "crates/chialisp-oxide-vm/failure-protocol.json"]
-    for directory in ("crates", "experiments/backend", "vendor"):
-        for path in (root / directory).rglob("*"):
-            if path.is_file() and (path.suffix == ".rs" or path.name in ("Cargo.toml", "Cargo.lock")):
-                paths.append(path.relative_to(root).as_posix())
+    paths += source_files(root, ["crates", "experiments/backend", "vendor"], names=("Cargo.toml", "Cargo.lock"))
     return {"production": fingerprints(root, paths), "main_authoring": snapshot(root), "experiment": private_snapshot(root)}
 
 
@@ -293,6 +299,13 @@ def check_export(output, *, root, authoring, identity, optimize, entry, before):
         toolchain=identity["toolchain"], current_authoring=current, optimize=optimize, rue_revision=RUE, cargo_options=OPTIONS)
 
 
+def artifact_export_command(tool, output, optimize):
+    args = [tool, "build", "--artifact-only", *OPTIONS, "--output-dir", output]
+    if not optimize:
+        args.append("--no-optimize")
+    return args
+
+
 def produce(root, output, tools, target, z3):
     contract, specifications = reviewed_contract(root)
     output.mkdir(parents=False, exist_ok=False)
@@ -315,9 +328,7 @@ def produce(root, output, tools, target, z3):
     loaded, bundles = {}, []
     for optimize in (False, True):
         fresh = output / ("fresh-on" if optimize else "fresh-off")
-        args = [tools / "cargo-chialisp-oxide", "build", *OPTIONS, "--output-dir", fresh]
-        if not optimize:
-            args.append("--no-optimize")
+        args = artifact_export_command(tools / "cargo-chialisp-oxide", fresh, optimize)
         extracted = run(args, root=root, env=env, timeout=240)
         (output / f"extract-{optimize}.log").write_text(extracted.stdout + extracted.stderr)
         loaded[optimize] = {}

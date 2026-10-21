@@ -8,6 +8,8 @@ use crate::{
     artifact::{ArtifactIdentity, Encoding, VerifiedArtifact, verify_artifact},
     digest,
     fs::read_regular_file,
+    package::SourceAttachment,
+    receipt::SourceReceipt,
 };
 use chialisp_oxide_ir::Program;
 use serde::Deserialize;
@@ -31,11 +33,12 @@ pub(crate) struct BundleManifest {
     compiler: String,
     toolchain: String,
     analysis_target: String,
-    #[serde(rename = "driver_sha256")]
-    _driver_sha256: Digest32,
+    driver_sha256: Digest32,
     rue_revision: String,
     cargo_options: Vec<String>,
     entries: Vec<CargoEntry>,
+    #[serde(default)]
+    pub(crate) source_receipt: Option<SourceReceipt>,
 }
 
 #[derive(Deserialize)]
@@ -60,14 +63,49 @@ struct CargoArtifact {
 
 /// Complete-bundle admission retains exact bytes rather than reserializing IR.
 /// These fields are internal inputs to the package-envelope constructor.
-pub(crate) struct AdmittedBundle {
+pub struct AdmittedBundle {
     pub(crate) manifest_json: String,
     pub(crate) entries: BTreeMap<String, AdmittedExport>,
+    source_receipt: Option<SourceReceipt>,
+    sources: Vec<SourceAttachment>,
 }
 
-pub(crate) struct AdmittedExport {
+pub struct AdmittedExport {
     pub(crate) ir_json: String,
     pub(crate) artifact: VerifiedArtifact,
+    program: Program,
+}
+impl AdmittedBundle {
+    pub fn manifest_json(&self) -> &str {
+        &self.manifest_json
+    }
+    pub fn entries(&self) -> &BTreeMap<String, AdmittedExport> {
+        &self.entries
+    }
+    pub fn source_receipt(&self) -> Option<&SourceReceipt> {
+        self.source_receipt.as_ref()
+    }
+    pub fn sources(&self) -> &[SourceAttachment] {
+        &self.sources
+    }
+    /// Consume already validated programs without reparsing or cloning their IR.
+    pub fn into_programs(self) -> BTreeMap<String, Program> {
+        self.entries
+            .into_iter()
+            .map(|(name, export)| (name, export.program))
+            .collect()
+    }
+}
+impl AdmittedExport {
+    pub fn ir_json(&self) -> &str {
+        &self.ir_json
+    }
+    pub fn program(&self) -> &Program {
+        &self.program
+    }
+    pub fn artifact(&self) -> &VerifiedArtifact {
+        &self.artifact
+    }
 }
 
 fn invalid(message: impl Into<String>) -> Error {
@@ -112,13 +150,15 @@ struct Reader<'a> {
     consumed: usize,
 }
 impl Reader<'_> {
-    fn read(&mut self, path: &Path, maximum: usize) -> Result<Vec<u8>> {
-        let remaining = self
-            .limits
+    fn remaining(&self) -> Result<usize> {
+        self.limits
             .max_lookup_bytes
             .checked_sub(self.consumed)
-            .ok_or_else(|| resource("Cargo bundle aggregate read limit exceeded"))?;
-        let bytes = read_regular_file(path, maximum.min(remaining))?;
+            .ok_or_else(|| resource("Cargo bundle aggregate read limit exceeded"))
+    }
+
+    fn read(&mut self, path: &Path, maximum: usize) -> Result<Vec<u8>> {
+        let bytes = read_regular_file(path, maximum.min(self.remaining()?))?;
         self.consumed = self
             .consumed
             .checked_add(bytes.len())
@@ -127,8 +167,21 @@ impl Reader<'_> {
     }
 }
 
+fn precharge_declared_ir(receipt: &SourceReceipt, remaining: usize) -> Result<()> {
+    let mut total = 0usize;
+    for row in &receipt.exports {
+        let length = usize::try_from(row.bytes)
+            .map_err(|_| resource("source receipt IR length exceeds host bounds"))?;
+        total = total
+            .checked_add(length)
+            .filter(|total| *total <= remaining)
+            .ok_or_else(|| resource("Cargo declared IR aggregate read limit exceeded"))?;
+    }
+    Ok(())
+}
+
 fn declarations(manifest: &BundleManifest) -> Result<()> {
-    if manifest.schema_version != 1 {
+    if !matches!(manifest.schema_version, 1 | 2) {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             "unsupported immutable Cargo bundle version",
@@ -247,6 +300,41 @@ fn artifact(entry: &CargoArtifact, limits: &Limits) -> Result<VerifiedArtifact> 
 /// Decode a closed recorded manifest; this alone does not admit its files.
 pub(crate) fn decode_manifest(bytes: &[u8], limits: &Limits) -> Result<BundleManifest> {
     let value = crate::json::decode_value(bytes, limits)?;
+    match value.get("schema_version").and_then(Value::as_u64) {
+        Some(1) if value.get("source_receipt").is_some() => {
+            return Err(invalid("schema-1 bundle cannot carry a source receipt"));
+        }
+        Some(2) if !value.get("source_receipt").is_some_and(Value::is_object) => {
+            return Err(invalid("schema-2 bundle requires a source receipt"));
+        }
+        Some(1 | 2) => (),
+        Some(_) => {
+            return Err(Error::new(
+                ErrorKind::UnsupportedVersion,
+                "unsupported immutable Cargo bundle version",
+            ));
+        }
+        None => return Err(invalid("Cargo bundle schema version must be an integer")),
+    }
+    if let Some(receipt) = value.get("source_receipt") {
+        for (field, maximum) in [
+            ("files", limits.max_sources),
+            ("exports", limits.max_objects),
+        ] {
+            if let Some(rows) = receipt.get(field).and_then(Value::as_array)
+                && rows.len() > maximum
+            {
+                return Err(resource("source receipt collection limit exceeded"));
+            }
+        }
+        if receipt
+            .pointer("/unit/features")
+            .and_then(Value::as_array)
+            .is_some_and(|features| features.len() > limits.max_objects.min(128))
+        {
+            return Err(resource("source receipt feature count limit exceeded"));
+        }
+    }
     let entries = value
         .get("entries")
         .and_then(Value::as_array)
@@ -286,6 +374,44 @@ pub(crate) fn decode_manifest(bytes: &[u8], limits: &Limits) -> Result<BundleMan
             }
         }
     }
+    if let Some(receipt) = &manifest.source_receipt {
+        receipt.validate(limits)?;
+        let build = &receipt.build;
+        if build.package != manifest.package
+            || build.package_id != manifest.package_id
+            || build.compiler_sha256 != digest(manifest.compiler.as_bytes())
+            || build.toolchain != manifest.toolchain
+            || build.analysis_target != manifest.analysis_target
+            || build.driver_sha256 != manifest.driver_sha256
+            || build.rue_revision != manifest.rue_revision
+            || build.cargo_options != manifest.cargo_options
+            || build.optimize_lir != mode
+        {
+            return Err(invalid(
+                "source receipt build declaration differs from enclosing Cargo manifest",
+            ));
+        }
+        let declared_exports: BTreeSet<_> = manifest
+            .entries
+            .iter()
+            .map(|entry| (entry.entry.as_str(), entry.ir.as_str()))
+            .collect();
+        if receipt.exports.len() != manifest.entries.len()
+            || receipt
+                .exports
+                .iter()
+                .any(|row| !declared_exports.contains(&(row.entry.as_str(), row.ir.as_str())))
+        {
+            return Err(invalid(
+                "source receipt export set differs from complete Cargo manifest",
+            ));
+        }
+        for file in &receipt.files {
+            if paths.contains(Path::new(&file.blob)) || file.blob == "latest.json" {
+                return Err(invalid("source blob aliases a non-source bundle file"));
+            }
+        }
+    }
     Ok(manifest)
 }
 
@@ -316,7 +442,10 @@ pub(crate) fn check_selected_metadata(
     Ok(())
 }
 
-pub(crate) fn admit_bundle(manifest_path: &Path, limits: &Limits) -> Result<AdmittedBundle> {
+pub fn admit_bundle(manifest_path: &Path, limits: &Limits) -> Result<AdmittedBundle> {
+    // Anchor relative paths lexically. Canonicalizing here would erase a
+    // symlink before the bounded file reader can reject its path components.
+    let manifest_path = crate::fs::absolute_path(manifest_path)?;
     if manifest_path.file_name().and_then(|name| name.to_str()) != Some("manifest.json") {
         return Err(Error::new(
             ErrorKind::InvalidPath,
@@ -333,13 +462,34 @@ pub(crate) fn admit_bundle(manifest_path: &Path, limits: &Limits) -> Result<Admi
         limits,
         consumed: 0,
     };
-    let manifest_bytes = reader.read(manifest_path, limits.max_envelope_bytes)?;
+    let manifest_bytes = reader.read(&manifest_path, limits.max_envelope_bytes)?;
     let manifest = decode_manifest(&manifest_bytes, limits)?;
+    let source_receipt = manifest.source_receipt;
+    if let Some(receipt) = &source_receipt {
+        // The complete receipt was validated by decode_manifest. Charge all
+        // declared IR before opening any export, including unselected exports.
+        precharge_declared_ir(receipt, reader.remaining()?)?;
+        check_source_inventory(root, receipt, limits)?;
+    }
     // The complete metadata/path set was checked before any export is read or
     // selected. The bounded file reader additionally rejects symlinks/specials.
     let mut entries = BTreeMap::new();
     for entry in manifest.entries {
-        let ir_bytes = reader.read(&relative_file(root, &entry.ir)?, limits.max_ir_bytes)?;
+        let ir_limit = if let Some(receipt) = &source_receipt {
+            let row = receipt
+                .exports
+                .iter()
+                .find(|row| row.entry == entry.entry)
+                .ok_or_else(|| invalid("Cargo export is absent from its source receipt"))?;
+            usize::try_from(row.bytes)
+                .map_err(|_| resource("source receipt IR length exceeds host bounds"))?
+        } else {
+            limits.max_ir_bytes
+        };
+        let ir_bytes = reader.read(&relative_file(root, &entry.ir)?, ir_limit)?;
+        if let Some(receipt) = &source_receipt {
+            receipt.check_ir(&entry.entry, Some(&entry.ir), &ir_bytes)?;
+        }
         let ir_value = crate::json::decode_value(&ir_bytes, limits)?;
         wire_version(&ir_value)?;
         let program: Program = serde_json::from_value(ir_value)
@@ -379,19 +529,53 @@ pub(crate) fn admit_bundle(manifest_path: &Path, limits: &Limits) -> Result<Admi
             AdmittedExport {
                 ir_json,
                 artifact: verified,
+                program,
             },
         );
+    }
+    let mut sources = Vec::new();
+    if let Some(receipt) = &source_receipt {
+        let mut blobs: BTreeMap<&str, Vec<u8>> = BTreeMap::new();
+        for file in &receipt.files {
+            if !blobs.contains_key(file.blob.as_str()) {
+                let length = usize::try_from(file.bytes)
+                    .map_err(|_| resource("source blob length exceeds host bounds"))?;
+                let bytes = reader.read(&root.join(&file.blob), length)?;
+                if bytes.len() != length || digest(&bytes) != file.sha256 {
+                    return Err(Error::new(
+                        ErrorKind::DigestMismatch,
+                        "source blob differs from exact receipt bytes",
+                    ));
+                }
+                blobs.insert(&file.blob, bytes);
+            }
+            let bytes = &blobs[file.blob.as_str()];
+            if bytes.len() as u64 != file.bytes || digest(bytes) != file.sha256 {
+                return Err(Error::new(
+                    ErrorKind::DigestMismatch,
+                    "shared source blob declaration disagrees",
+                ));
+            }
+            sources.push(SourceAttachment {
+                path: file.path.clone(),
+                sha256: file.sha256,
+                content_hex: hex::encode(bytes),
+            });
+        }
     }
     let manifest_json = String::from_utf8(manifest_bytes)
         .map_err(|_| invalid("Cargo manifest must be UTF-8 JSON"))?;
     Ok(AdmittedBundle {
         manifest_json,
         entries,
+        source_receipt,
+        sources,
     })
 }
 
 /// Package a selected export only after admission of its complete recorded set.
-/// Source attachments are explicitly absent in this artifact-only import lane.
+/// Schema 2 retains every declared source file; schema 1 remains artifact-only
+/// by default. Neither lane authenticates the declaration or proves equivalence.
 pub fn import_bundle(
     manifest_path: &Path,
     entry: &str,
@@ -409,8 +593,43 @@ pub fn import_bundle(
         entry.to_owned(),
         selected.ir_json,
         selected.artifact,
+        bundle.sources,
         limits,
     )
+}
+
+fn check_source_inventory(root: &Path, receipt: &SourceReceipt, limits: &Limits) -> Result<()> {
+    crate::fs::require_directory(root)?;
+    let expected: BTreeSet<_> = receipt.files.iter().map(|row| row.blob.as_str()).collect();
+    let mut actual = BTreeSet::new();
+    for (index, item) in std::fs::read_dir(root)
+        .map_err(|error| Error::io("enumerate source bundle", error))?
+        .enumerate()
+    {
+        if index >= limits.max_bundle_files {
+            return Err(resource("bundle directory entry limit exceeded"));
+        }
+        let item = item.map_err(|error| Error::io("read source bundle inventory", error))?;
+        let name = item.file_name();
+        let encoded = name.as_encoded_bytes();
+        if encoded == b"source-unit.json" {
+            return Err(invalid(
+                "private driver source-unit receipt is not a published bundle file",
+            ));
+        }
+        if encoded.starts_with(b"source-") && encoded.ends_with(b".bin") {
+            let name = name
+                .to_str()
+                .ok_or_else(|| invalid("reserved source blob filename must be UTF-8"))?;
+            actual.insert(name.to_owned());
+        }
+    }
+    if actual.iter().map(String::as_str).collect::<BTreeSet<_>>() != expected {
+        return Err(invalid(
+            "source blob inventory differs from complete receipt",
+        ));
+    }
+    Ok(())
 }
 
 #[cfg(test)]

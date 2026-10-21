@@ -521,3 +521,34 @@ fn identity_wire_encoding_is_closed_and_preserves_separate_hash_fields() {
         assert!(serde_json::from_value::<ArtifactIdentity>(value).is_err());
     }
 }
+
+#[test]
+fn artifact_encoding_is_a_string_not_an_external_unit_enum_object() {
+    use serde_json::json;
+    let expected = inspect("80").identity().clone();
+    let name = "clvm-legacy-plain/v1";
+    assert_eq!(
+        serde_json::to_vec(&Encoding::Plain).unwrap(),
+        serde_json::to_vec(name).unwrap()
+    );
+    assert_eq!(
+        serde_json::from_value::<Encoding>(json!(name)).unwrap(),
+        Encoding::Plain
+    );
+    for alternate in [
+        json!({name:null}),
+        json!({name:{}}),
+        json!([name]),
+        json!(null),
+        json!(true),
+        json!(1),
+    ] {
+        assert!(serde_json::from_value::<Encoding>(alternate.clone()).is_err());
+        assert!(
+            serde_json::from_slice::<Encoding>(&serde_json::to_vec(&alternate).unwrap()).is_err()
+        );
+        let mut identity = serde_json::to_value(&expected).unwrap();
+        identity["encoding"] = alternate;
+        assert!(serde_json::from_value::<ArtifactIdentity>(identity).is_err());
+    }
+}

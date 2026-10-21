@@ -11,6 +11,7 @@ import { loadP2CostEvidence } from '../src/lib/p2-costs.mjs';
 import { loadCompositionCostEvidence } from '../src/lib/composition-costs.mjs';
 import { checkDelegatedReport } from './p2dc-protocol.mjs';
 import { checkBoomerangReport } from './boomerang-protocol.mjs';
+import { sourceFiles, compareSourcePaths } from './source-walk.mjs';
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));
@@ -651,6 +652,8 @@ const executionPaths = [
   "rust-toolchain.toml",
   "scripts/cargo_authoring.py",
   "scripts/cargo_bundle.py",
+  "scripts/cargo_source_receipt.py",
+  "scripts/test_cargo_source_receipt.py",
   "scripts/check-canonical-factories.py",
   "scripts/check-hashing-puzzles.py",
   "scripts/capture-p2-controls.py",
@@ -731,28 +734,16 @@ executionPaths.push(
 // Registry objects and build/cache directories add no execution evidence.
 executionPaths.push('crates/chialisp-oxide-package/Cargo.toml',
   'crates/cargo-chialisp-oxide/src/registry.rs',
-  'crates/cargo-chialisp-oxide/tests/registry_offline.rs');
-async function packageRustSources(directory, depth = 0) {
-  assert(depth <= 64, 'Package implementation directory depth exceeded');
-  let entries;
-  try {
-    entries = await readdir(new URL(`${directory}/`, root), { withFileTypes: true });
-  } catch (error) {
-    if (error.code === 'ENOENT' && depth === 0) return;
-    throw error;
+  'crates/cargo-chialisp-oxide/tests/registry_offline.rs',
+  'scripts/source_walk.py', 'scripts/test_source_walk.py',
+  'www/scripts/source-walk.mjs', 'www/scripts/test-source-walk.mjs', 'www/package.json');
+const conventionalRoots = ['chialisp-oxide-package', 'chialisp-oxide-driver', 'cargo-chialisp-oxide']
+  .flatMap(crate => ['src', 'tests', 'examples', 'benches'].map(directory => `crates/${crate}/${directory}`));
+for (const filename of await sourceFiles(rootPath, [...conventionalRoots, 'crates/chialisp-oxide-vm/src'])) {
+  if (!executionPaths.includes(filename)) {
+    assert(executionPaths.length < 4096, 'Execution source count exceeded');
+    executionPaths.push(filename);
   }
-  assert(entries.length <= 4096, 'Package implementation directory entry limit exceeded');
-  for (const entry of entries) {
-    const filename = `${directory}/${entry.name}`;
-    if (entry.isDirectory()) await packageRustSources(filename, depth + 1);
-    else if (entry.isFile() && entry.name.endsWith('.rs')) {
-      assert(executionPaths.length < 4096, 'Execution source count exceeded');
-      executionPaths.push(filename);
-    }
-  }
-}
-for (const directory of ['src', 'tests', 'examples', 'benches']) {
-  await packageRustSources(`crates/chialisp-oxide-package/${directory}`);
 }
 const controlPacket = JSON.parse(await read('corpus/p2dc-source-controls/report.json'));
 assert.equal(controlPacket.files.length, 86, 'Missing retained mutation-control files');
@@ -779,7 +770,7 @@ for(const row of boomerangPacket.files) {
 }
 assert.deepEqual(boomerangControlPaths,[...new Set(boomerangControlPaths)].sort(),'Sorted unique boomerang control data required');
 executionPaths.push('corpus/boomerang-source-controls/report.json',...boomerangControlPaths);
-assert.deepEqual(proof.execution_sources.map(source => source.path), executionPaths.sort(), 'Scalar proof VM classifier/gate bindings changed');
+assert.deepEqual(proof.execution_sources.map(source => source.path), executionPaths.sort(compareSourcePaths), 'Scalar proof VM classifier/gate bindings changed');
 for (const source of proof.execution_sources) await checkRecordedHash(source.path, source.sha256);
 await checkAuthoring(proof.authoring, 'proof');
 assert.equal(proof.authoring.entry, configuration.exports['bounded-counter'].entry, 'Proof selects another Cargo export');

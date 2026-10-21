@@ -58,9 +58,12 @@ trusted. Target configuration and actual loaded core/alloc/std and primitive
 owners must use the pinned installation. These are location checks, not binary
 authentication; see [toolchain trust](docs/toolchain-trust.md).
 
-Each successful export build creates an immutable bundle under the consumer
+Each successful default build creates an immutable bundle under the consumer
 workspace's `target/chialisp-oxide/artifacts/<bundle>/manifest.json`, with typed IR,
-serialized CLVM, disassembly, sizes, and tree hashes. `latest.json` points to the
+serialized CLVM, disassembly, sizes, tree hashes, and a bounded source receipt.
+The receipt retains exact selected-library file reads and named launcher
+snapshots, including generated Rust. It does not capture the complete build
+graph or establish source/IR/CLVM equivalence. `latest.json` points to the
 most recent successful bundle. Failed builds preserve the previous successful
 bundle instead of publishing partial artifacts.
 
@@ -68,8 +71,10 @@ The [offline package registry](docs/package-registry.md) imports a selected
 export from an immutable bundle, verifies its exact bytes and structural ABI,
 and supports local `publish`, `verify`, `lookup` and `get` commands without
 running a compiler or VM. It keeps envelope identity, blob digest and tree hash
-separate. Source capture, typed dependency bindings and observed mainnet lookup
-remain unfinished; this is the first storage increment of issue #21.
+separate. Default builds attach their declared files automatically; explicit
+`--artifact-only` builds retain the older bundle format without source capture.
+Typed dependency bindings and observed mainnet lookup remain unfinished in
+issue #21. See the guide for the precise capture and verification boundaries.
 
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 `--target clvm` implementation. A target configuration alone does not provide

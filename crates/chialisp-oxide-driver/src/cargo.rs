@@ -191,11 +191,22 @@ fn run_inner(mut args: Vec<String>) -> ExitCode {
     };
     args.insert(0, compiler);
     if let Some(output) = output {
+        let source_capture = match crate::source_receipt::CaptureSession::from_selected_environment(
+            route.crate_name.as_deref().unwrap_or(""),
+            &route.target,
+        ) {
+            Ok(capture) => capture,
+            Err(error) => {
+                eprintln!("error: chialisp-oxide: declared source receipt: {error}");
+                return ExitCode::FAILURE;
+            }
+        };
         let mut driver = Driver {
             entry: String::new(),
             output: None,
             cargo_output: Some(output),
             route: Some(route),
+            source_capture,
             result: Err("Rust checking did not complete".into()),
         };
         finish(args, &mut driver)

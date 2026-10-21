@@ -13,10 +13,24 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// Explicit supported serialization. No alternate decoder is tried on failure.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum Encoding {
     #[serde(rename = "clvm-legacy-plain/v1")]
     Plain,
+}
+impl<'de> Deserialize<'de> for Encoding {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        crate::string_enum::deserialize(
+            deserializer,
+            &["clvm-legacy-plain/v1"],
+            |value| match value {
+                "clvm-legacy-plain/v1" => Some(Self::Plain),
+                _ => None,
+            },
+        )
+    }
 }
 
 /// Exact byte identity and decoded module-tree identity are separate commitments.

@@ -1,7 +1,12 @@
 //! Exercise genuine Cargo resolution, host build scripts, rustc checking, and CLVM.
 use chialisp_oxide_backend_experiment::{FailureCode, Outcome, execute};
 use chialisp_oxide_package::{
-    Digest32, Limits, bundle::import_bundle, digest, package::SourceScope, store::Registry,
+    Digest32, Limits,
+    bundle::{AdmittedBundle, admit_bundle, import_bundle},
+    digest,
+    package::SourceScope,
+    receipt::{ObservationKind, SourceReceipt},
+    store::Registry,
 };
 use serde_json::Value;
 use std::{
@@ -80,25 +85,39 @@ fn nested_modules_export_same_leaf_names_without_identity_collisions() {
                 .unwrap()
                 .as_nanos()
         )));
-    std::fs::create_dir_all(scratch.0.join("src")).unwrap();
+    let consumer = scratch.0.join("consumer");
+    let external = scratch.0.join("external");
+    let target = scratch.0.join("target");
+    std::fs::create_dir_all(consumer.join("src")).unwrap();
+    std::fs::create_dir_all(consumer.join("inputs")).unwrap();
+    std::fs::create_dir(&external).unwrap();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .canonicalize()
         .unwrap();
-    std::fs::write(scratch.0.join("Cargo.toml"),format!("[package]\nname=\"nested-puzzles\"\nversion=\"0.1.0\"\nedition=\"2024\"\n[workspace]\n[dependencies]\nchialisp-oxide={{path={}}}\n",serde_json::to_string(&root.join("crates/chialisp-oxide")).unwrap())).unwrap();
-    std::fs::write(scratch.0.join("src/lib.rs"),"pub mod alpha { #[chialisp_oxide::puzzle] pub fn puzzle(value:u8)->u8 {value+1} } pub mod beta { pub mod nested { #[chialisp_oxide::puzzle] pub fn puzzle(value:u8)->u8 {value+2} } }").unwrap();
+    let manifest_source = format!(
+        "[package]\nname=\"nested-puzzles\"\nversion=\"0.1.0\"\nedition=\"2024\"\nbuild=\"../external/custom-build.rs\"\n[lib]\npath=\"../external/custom-lib.rs\"\n[workspace]\n[dependencies]\nchialisp-oxide={{path={}}}\n",
+        serde_json::to_string(&root.join("crates/chialisp-oxide")).unwrap()
+    );
+    let library_source = "\u{feff}// Preserve the compiler loader's BOM and CRLF bytes.\r\npub const MESSAGE: &str = include_str!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/inputs/message.txt\"));\r\npub const BINARY: &[u8] = include_bytes!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/inputs/payload.bin\"));\r\npub const OUTSIDE: &str = include_str!(\"outside-note.txt\");\r\ninclude!(concat!(env!(\"OUT_DIR\"), \"/limits.rs\"));\r\ninclude!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/src/policies.rs\"));\r\n";
+    let policies = "pub mod alpha { #[chialisp_oxide::puzzle] pub fn puzzle(value:u8)->u8 {value+crate::ALPHA_INCREMENT} } pub mod beta { pub mod nested { #[chialisp_oxide::puzzle] pub fn puzzle(value:u8)->u8 {value+2} } }\r\n";
+    let build_script = "fn main() { let out = std::path::PathBuf::from(std::env::var_os(\"OUT_DIR\").unwrap()); std::fs::write(out.join(\"limits.rs\"), b\"pub const ALPHA_INCREMENT: u8 = 1;\\r\\n\").unwrap(); println!(\"cargo:rerun-if-changed=../external/custom-build.rs\"); }\n";
+    let message = b"\xef\xbb\xbfmessage with raw CRLF\r\n";
+    let binary = [0, 0xff, 0x80, 0x0d, 0x0a];
+    let outside = b"outside-root declaration must remain omitted\r\n";
+    std::fs::write(consumer.join("Cargo.toml"), &manifest_source).unwrap();
+    std::fs::write(external.join("custom-lib.rs"), library_source).unwrap();
+    std::fs::write(external.join("custom-build.rs"), build_script).unwrap();
+    std::fs::write(external.join("outside-note.txt"), outside).unwrap();
+    std::fs::write(consumer.join("src/policies.rs"), policies).unwrap();
+    std::fs::write(consumer.join("inputs/message.txt"), message).unwrap();
+    std::fs::write(consumer.join("inputs/payload.bin"), binary).unwrap();
     let pin = include_str!("../../../rust-toolchain.toml")
         .lines()
         .find_map(|line| line.strip_prefix("channel = "))
         .unwrap()
         .trim_matches('"');
-    success(
-        Command::new("rustup")
-            .args(["run", pin, "cargo", "generate-lockfile", "--offline"])
-            .current_dir(&scratch.0)
-            .output()
-            .unwrap(),
-    );
+    assert!(!consumer.join("Cargo.lock").exists());
     let executable = Path::new(env!("CARGO_BIN_EXE_cargo-chialisp-oxide"));
     let output = scratch.0.join("artifacts");
     let search_path = std::env::var_os("PATH").unwrap();
@@ -110,27 +129,30 @@ fn nested_modules_export_same_leaf_names_without_identity_collisions() {
     let mut published = None;
     for subcommand in ["build", "check"] {
         // Exercise actual Cargo plugin dispatch and its injected first argument.
-        success(
-            Command::new("rustup")
-                .args([
-                    "run",
-                    pin,
-                    "cargo",
-                    "chialisp-oxide",
-                    subcommand,
-                    "--manifest-path",
-                ])
-                .arg(scratch.0.join("Cargo.toml"))
-                .args(["--locked", "--offline", "--output-dir"])
-                .arg(&output)
-                .env("PATH", &search_path)
-                .env(
-                    "CHIALISP_OXIDE_DRIVER",
-                    executable.with_file_name("chialisp-oxide-driver"),
-                )
-                .output()
-                .unwrap(),
-        );
+        let mut command = Command::new("rustup");
+        command
+            .args([
+                "run",
+                pin,
+                "cargo",
+                "chialisp-oxide",
+                subcommand,
+                "--manifest-path",
+            ])
+            .arg(consumer.join("Cargo.toml"))
+            .args(["--offline", "--output-dir"])
+            .arg(&output)
+            .env("PATH", &search_path)
+            .env("CARGO_TARGET_DIR", &target)
+            .env(
+                "CHIALISP_OXIDE_DRIVER",
+                executable.with_file_name("chialisp-oxide-driver"),
+            );
+        if subcommand == "check" {
+            command.arg("--locked");
+        }
+        success(command.output().unwrap());
+        assert!(consumer.join("Cargo.lock").is_file());
         let pointer = std::fs::read(output.join("latest.json")).unwrap();
         if let Some(previous) = &published {
             assert_eq!(previous, &pointer, "check changed the published bundle");
@@ -151,6 +173,8 @@ fn nested_modules_export_same_leaf_names_without_identity_collisions() {
         ]
     );
     assert_eq!(bundle.manifest["entries"].as_array().unwrap().len(), 2);
+    assert_eq!(bundle.manifest["schema_version"], 2);
+    assert!(bundle.source_receipt.is_some());
     let mut files = std::collections::BTreeSet::new();
     for entry in bundle.manifest["entries"].as_array().unwrap() {
         assert!(files.insert(entry["ir"].as_str().unwrap()));
@@ -170,6 +194,180 @@ fn nested_modules_export_same_leaf_names_without_identity_collisions() {
             execution(&bundle.manifest_path, &bundle.manifest, name, "(255)"),
             Outcome::Rejected
         );
+    }
+    let admitted = admit_bundle(&bundle.manifest_path, &Limits::default()).unwrap();
+    let receipt = admitted.source_receipt().unwrap();
+    assert_eq!(receipt.unit.library_source, "entry/library.rs");
+    assert_eq!(
+        receipt.snapshots.build_script.as_deref(),
+        Some("entry/build-script.rs")
+    );
+    assert_eq!(
+        receipt.snapshots.package_manifest,
+        receipt.snapshots.workspace_manifest
+    );
+    assert!(receipt.omitted.outside_roots_reads >= 1);
+    assert!(receipt.omitted.outside_roots_bytes >= outside.len() as u64);
+    assert_eq!(receipt.files.len(), 8);
+    assert_declared_file(
+        &admitted,
+        "entry/library.rs",
+        library_source.as_bytes(),
+        ObservationKind::CompilerText,
+    );
+    assert_declared_file(
+        &admitted,
+        "entry/build-script.rs",
+        build_script.as_bytes(),
+        ObservationKind::LauncherBuildScriptSource,
+    );
+    assert_declared_file(
+        &admitted,
+        "package/src/policies.rs",
+        policies.as_bytes(),
+        ObservationKind::CompilerText,
+    );
+    // Both include_str! and include_bytes! use the pinned rustc binary loader.
+    assert_declared_file(
+        &admitted,
+        "package/inputs/message.txt",
+        message,
+        ObservationKind::CompilerBinary,
+    );
+    assert_declared_file(
+        &admitted,
+        "package/inputs/payload.bin",
+        &binary,
+        ObservationKind::CompilerBinary,
+    );
+    assert_declared_file(
+        &admitted,
+        "generated/limits.rs",
+        b"pub const ALPHA_INCREMENT: u8 = 1;\r\n",
+        ObservationKind::CompilerText,
+    );
+    assert_declared_file(
+        &admitted,
+        "package/Cargo.toml",
+        manifest_source.as_bytes(),
+        ObservationKind::LauncherManifest,
+    );
+    assert_declared_file(
+        &admitted,
+        "package/Cargo.lock",
+        &std::fs::read(consumer.join("Cargo.lock")).unwrap(),
+        ObservationKind::LauncherLockfilePostCargo,
+    );
+    let portable = scratch.0.join("offline/bundle");
+    copy_declared_bundle(&bundle.manifest_path, &bundle.manifest, &portable);
+    let portable = portable.canonicalize().unwrap();
+    let portable_manifest = portable.join("manifest.json");
+    let original_manifest = std::fs::read(&bundle.manifest_path).unwrap();
+    std::fs::remove_dir_all(&consumer).unwrap();
+    std::fs::remove_dir_all(&external).unwrap();
+    std::fs::remove_dir_all(&target).unwrap();
+    std::fs::remove_dir_all(&output).unwrap();
+    for deleted in [&consumer, &external, &target, &output] {
+        assert!(!deleted.exists());
+    }
+    assert_eq!(
+        std::fs::read(&portable_manifest).unwrap(),
+        original_manifest
+    );
+    registry_round_trip(
+        &scratch.0,
+        &portable_manifest,
+        &bundle.manifest,
+        "::alpha::puzzle",
+    );
+}
+
+fn assert_declared_file(
+    bundle: &AdmittedBundle,
+    label: &str,
+    expected: &[u8],
+    kind: ObservationKind,
+) {
+    let row = bundle
+        .source_receipt()
+        .unwrap()
+        .files
+        .iter()
+        .find(|row| row.path == label)
+        .unwrap();
+    assert_eq!(row.bytes, expected.len() as u64, "{label}");
+    assert_eq!(row.sha256, digest(expected), "{label}");
+    assert!(row.kinds.contains(&kind), "{label}: {:?}", row.kinds);
+    if matches!(
+        kind,
+        ObservationKind::CompilerText | ObservationKind::CompilerBinary
+    ) {
+        assert!(row.compiler_read_count >= 1, "{label}");
+    } else {
+        assert_eq!(row.compiler_read_count, 0, "{label}");
+    }
+    let source = bundle
+        .sources()
+        .iter()
+        .find(|source| source.path == label)
+        .unwrap();
+    assert_eq!(
+        hex::decode(&source.content_hex).unwrap(),
+        expected,
+        "{label}"
+    );
+}
+
+fn copy_declared_bundle(path: &Path, manifest: &Value, destination: &Path) {
+    let receipt: SourceReceipt =
+        serde_json::from_value(manifest["source_receipt"].clone()).unwrap();
+    let mut files = std::collections::BTreeSet::from(["manifest.json".to_owned()]);
+    for entry in manifest["entries"].as_array().unwrap() {
+        for field in ["ir", "clvm"] {
+            files.insert(entry[field].as_str().unwrap().to_owned());
+        }
+    }
+    files.extend(receipt.files.into_iter().map(|row| row.blob));
+    std::fs::create_dir_all(destination).unwrap();
+    for file in files {
+        std::fs::copy(path.parent().unwrap().join(&file), destination.join(file)).unwrap();
+    }
+}
+
+fn assert_generated_receipt(path: &Path, limit: u64, features: &[&str]) {
+    let bundle = admit_bundle(path, &Limits::default()).unwrap();
+    let receipt = bundle
+        .source_receipt()
+        .expect("default build requires a checked source receipt");
+    assert_eq!(
+        receipt
+            .unit
+            .features
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
+        features
+    );
+    assert_eq!(receipt.unit.library_source, "package/src/lib.rs");
+    assert_eq!(
+        receipt.snapshots.build_script.as_deref(),
+        Some("package/build.rs")
+    );
+    assert_declared_file(
+        &bundle,
+        "generated/limits.rs",
+        format!("pub const PAYMENT_LIMIT: u64 = {limit};\n").as_bytes(),
+        ObservationKind::CompilerText,
+    );
+    assert_eq!(receipt.exports.len(), bundle.entries().len());
+    for (name, export) in bundle.entries() {
+        let row = receipt
+            .exports
+            .iter()
+            .find(|row| row.entry == *name)
+            .unwrap();
+        assert_eq!(row.bytes, export.ir_json().len() as u64);
+        assert_eq!(row.sha256, digest(export.ir_json().as_bytes()));
     }
 }
 
@@ -250,7 +448,7 @@ fn offline_registry(scratch: &Path, args: &[OsString]) -> Value {
     serde_json::from_slice(&output.stdout).expect("one machine-readable registry result")
 }
 
-fn registry_round_trip(scratch: &Path, path: &Path, manifest: &Value) {
+fn registry_round_trip(scratch: &Path, path: &Path, manifest: &Value, suffix: &str) {
     // Reuse the actual source-produced bundle already compiled and executed
     // above. Registry admission itself adds no VM or source-equivalence credit.
     let scratch = scratch.canonicalize().unwrap();
@@ -258,7 +456,7 @@ fn registry_round_trip(scratch: &Path, path: &Path, manifest: &Value) {
         .as_array()
         .unwrap()
         .iter()
-        .find(|entry| entry["entry"].as_str().unwrap().ends_with("::pay"))
+        .find(|entry| entry["entry"].as_str().unwrap().ends_with(suffix))
         .unwrap();
     let name = entry["entry"].as_str().unwrap();
     let artifact = &entry["artifact"];
@@ -291,11 +489,38 @@ fn registry_round_trip(scratch: &Path, path: &Path, manifest: &Value) {
         manifest_bytes.as_slice()
     );
     assert_eq!(rust.bundle_manifest_sha256, digest(&manifest_bytes));
-    assert_eq!(package.manifest().source_scope, SourceScope::NotRecorded);
-    assert!(package.manifest().sources.is_empty());
+    match manifest["schema_version"].as_u64().unwrap() {
+        1 => {
+            assert_eq!(package.manifest().source_scope, SourceScope::NotRecorded);
+            assert!(package.manifest().sources.is_empty());
+        }
+        2 => {
+            assert_eq!(
+                package.manifest().source_scope,
+                SourceScope::DeclaredFilesOnly
+            );
+            let receipt: SourceReceipt =
+                serde_json::from_value(manifest["source_receipt"].clone()).unwrap();
+            assert_eq!(package.manifest().sources.len(), receipt.files.len());
+            for (source, row) in package.manifest().sources.iter().zip(&receipt.files) {
+                assert_eq!(source.path, row.path);
+                let bytes = hex::decode(&source.content_hex).unwrap();
+                assert_eq!(bytes.len() as u64, row.bytes);
+                assert_eq!(source.sha256, row.sha256);
+                assert_eq!(digest(&bytes), row.sha256);
+                assert_eq!(
+                    bytes,
+                    std::fs::read(path.parent().unwrap().join(&row.blob)).unwrap()
+                );
+            }
+        }
+        other => panic!("unexpected actual Cargo bundle version {other}"),
+    }
     let expected = serde_json::to_value(package.summary()).unwrap();
-    assert_eq!(expected["source_scope"], "not_recorded");
-    assert_eq!(expected["source_files"], 0);
+    assert_eq!(
+        expected["source_files"].as_u64().unwrap(),
+        package.manifest().sources.len() as u64
+    );
 
     let store = scratch.join("registry");
     let published = offline_registry(
@@ -407,13 +632,35 @@ fn real_cargo_annotations_features_cache_and_failure_boundaries() {
     exact_outputs(&first_path, &first);
     assert!(!accepts(&first_path, &first, "::pay", "(1001)"));
     assert!(!accepts(&first_path, &first, "::pay", "(0x0001)"));
-    registry_round_trip(&scratch.0, &first_path, &first);
+    assert_generated_receipt(&first_path, 1000, &["default"]);
+    registry_round_trip(&scratch.0, &first_path, &first, "::pay");
     // Same source/features with dependencies already fresh still regenerates
     // exports, rather than reporting success using an old IR file.
-    success(run(&root, &scratch.0, "cargo-puzzles", "build", &[]));
+    success(run(
+        &root,
+        &scratch.0,
+        "cargo-puzzles",
+        "build",
+        &["--artifact-only"],
+    ));
     let (second_path, second) = manifest(&scratch.0);
     assert_ne!(first_path, second_path);
     assert_eq!(first["entries"], second["entries"]);
+    assert_eq!(second["schema_version"], 1);
+    assert!(second.get("source_receipt").is_none());
+    let artifact_only = cargo_chialisp_oxide::load_bundle(&scratch.0.join("artifacts")).unwrap();
+    assert!(artifact_only.source_receipt.is_none());
+    let artifact_package = import_bundle(
+        &second_path,
+        "chialisp_oxide_cargo_puzzles::pay",
+        &Limits::default(),
+    )
+    .unwrap();
+    assert_eq!(
+        artifact_package.manifest().source_scope,
+        SourceScope::NotRecorded
+    );
+    assert!(artifact_package.manifest().sources.is_empty());
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -452,6 +699,7 @@ fn real_cargo_annotations_features_cache_and_failure_boundaries() {
         &["--features", "strict-cap"],
     ));
     let (strict_path, strict) = manifest(&scratch.0);
+    assert_generated_receipt(&strict_path, 100, &["default", "strict-cap"]);
     assert!(!accepts(&strict_path, &strict, "::pay", "(101)"));
     assert!(!accepts(&strict_path, &strict, "::guarded_add", "(101 0)"));
     assert!(accepts(&strict_path, &strict, "::pay", "(100)"));

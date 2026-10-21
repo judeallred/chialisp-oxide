@@ -171,6 +171,7 @@ fn rust_manifest(program: Program) -> PackageManifest {
         program.name,
         ir,
         artifact,
+        vec![],
         &Limits::default(),
     )
     .unwrap()
@@ -185,6 +186,180 @@ fn unit_program() -> Program {
         result: Type::Unit,
         body: chialisp_oxide_ir::Expr::Unit,
         functions: vec![],
+    }
+}
+
+#[test]
+fn every_package_kind_uses_string_only_direct_and_complete_envelope_wire() {
+    for (name, kind, value) in [
+        ("clvm_artifact", PackageKind::ClvmArtifact, fixture()),
+        (
+            "rust_cargo_export",
+            PackageKind::RustCargoExport,
+            serde_json::to_value(rust_manifest(unit_program())).unwrap(),
+        ),
+    ] {
+        let wire = serde_json::to_vec(name).unwrap();
+        assert_eq!(serde_json::to_vec(&kind).unwrap(), wire);
+        assert_eq!(serde_json::from_slice::<PackageKind>(&wire).unwrap(), kind);
+        let complete = serde_json::to_vec(&value).unwrap();
+        assert_eq!(
+            verify_package(&complete, &Limits::default())
+                .unwrap()
+                .bytes(),
+            complete
+        );
+        for alternate in [
+            json!({name:null}),
+            json!({name:{}}),
+            json!([name]),
+            Value::Null,
+            json!(true),
+            json!(1),
+        ] {
+            assert!(serde_json::from_value::<PackageKind>(alternate.clone()).is_err());
+            assert!(
+                serde_json::from_slice::<PackageKind>(&serde_json::to_vec(&alternate).unwrap())
+                    .is_err()
+            );
+            let mut bad = value.clone();
+            bad["kind"] = alternate;
+            assert!(serde_json::from_value::<PackageManifest>(bad.clone()).is_err());
+            assert_eq!(
+                admit(&bad).unwrap_err().kind(),
+                ErrorKind::InvalidManifest,
+                "{name}"
+            );
+        }
+    }
+}
+
+#[test]
+fn every_source_scope_and_artifact_encoding_requires_string_wire() {
+    let mut declared = fixture();
+    declared["source_scope"] = json!("declared_files_only");
+    declared["sources"] =
+        json!([{"path":"manual/source.bin","sha256":digest(b""),"content_hex":""}]);
+    for (name, scope, value) in [
+        ("not_recorded", SourceScope::NotRecorded, fixture()),
+        (
+            "declared_files_only",
+            SourceScope::DeclaredFilesOnly,
+            declared,
+        ),
+    ] {
+        let wire = serde_json::to_vec(name).unwrap();
+        assert_eq!(serde_json::to_vec(&scope).unwrap(), wire);
+        assert_eq!(serde_json::from_slice::<SourceScope>(&wire).unwrap(), scope);
+        let complete = serde_json::to_vec(&value).unwrap();
+        assert_eq!(
+            verify_package(&complete, &Limits::default())
+                .unwrap()
+                .bytes(),
+            complete
+        );
+        for alternate in [
+            json!({name:null}),
+            json!({name:{}}),
+            json!([name]),
+            Value::Null,
+            json!(true),
+            json!(1),
+        ] {
+            assert!(serde_json::from_value::<SourceScope>(alternate.clone()).is_err());
+            assert!(
+                serde_json::from_slice::<SourceScope>(&serde_json::to_vec(&alternate).unwrap())
+                    .is_err()
+            );
+            let mut bad = value.clone();
+            bad["source_scope"] = alternate;
+            assert!(serde_json::from_value::<PackageManifest>(bad.clone()).is_err());
+            assert_eq!(
+                admit(&bad).unwrap_err().kind(),
+                ErrorKind::InvalidManifest,
+                "{name}"
+            );
+        }
+    }
+    for value in [
+        fixture(),
+        serde_json::to_value(rust_manifest(unit_program())).unwrap(),
+    ] {
+        for alternate in [
+            json!({"clvm-legacy-plain/v1":null}),
+            json!({"clvm-legacy-plain/v1":{}}),
+            json!(["clvm-legacy-plain/v1"]),
+            Value::Null,
+            json!(true),
+            json!(1),
+        ] {
+            let mut bad = value.clone();
+            bad["artifact"]["identity"]["encoding"] = alternate;
+            assert!(serde_json::from_value::<PackageManifest>(bad.clone()).is_err());
+            assert_eq!(admit(&bad).unwrap_err().kind(), ErrorKind::InvalidManifest);
+        }
+    }
+}
+
+#[test]
+fn abi_environment_string_adapter_rejects_map_null_before_model_validation() {
+    for (name, environment) in [
+        ("strict", Environment::Strict),
+        ("ignored", Environment::Ignored),
+        ("raw", Environment::Raw),
+    ] {
+        let mut program = unit_program();
+        program.environment = environment;
+        if environment == Environment::Raw {
+            program.parameters.push(chialisp_oxide_ir::Parameter {
+                name: "environment".into(),
+                ty: Type::Tree,
+            });
+            program.result = Type::Tree;
+            program.body = chialisp_oxide_ir::Expr::Arg { index: 0 };
+        }
+        let manifest = rust_manifest(program);
+        let abi = &manifest.rust.as_ref().unwrap().abi;
+        let abi_value = serde_json::to_value(abi).unwrap();
+        assert_eq!(abi_value["environment"], name);
+        assert_eq!(
+            serde_json::to_vec(&environment).unwrap(),
+            serde_json::to_vec(name).unwrap()
+        );
+        assert_eq!(
+            serde_json::from_value::<StructuralAbi>(abi_value.clone()).unwrap(),
+            *abi
+        );
+        let value = serde_json::to_value(&manifest).unwrap();
+        let complete = serde_json::to_vec(&value).unwrap();
+        assert_eq!(
+            verify_package(&complete, &Limits::default())
+                .unwrap()
+                .bytes(),
+            complete
+        );
+        for alternate in [
+            json!({name:null}),
+            json!({name:{}}),
+            json!([name]),
+            Value::Null,
+            json!(true),
+            json!(1),
+        ] {
+            let mut bad_abi = abi_value.clone();
+            bad_abi["environment"] = alternate.clone();
+            assert!(serde_json::from_value::<StructuralAbi>(bad_abi).is_err());
+            let mut bad = value.clone();
+            bad["rust"]["abi"]["environment"] = alternate;
+            // These typed-deserialization failures precede any Program/model
+            // validation; the external IR serde implementation is untouched.
+            assert!(serde_json::from_value::<PackageManifest>(bad.clone()).is_err());
+            assert_eq!(
+                admit(&bad).unwrap_err().kind(),
+                ErrorKind::InvalidManifest,
+                "{name}"
+            );
+        }
     }
 }
 

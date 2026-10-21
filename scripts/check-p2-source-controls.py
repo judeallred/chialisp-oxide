@@ -17,6 +17,7 @@ import unittest
 
 import cargo_authoring
 import cargo_bundle
+import cargo_source_receipt
 from cargo_authoring import contained_file, require, snapshot, unique_object
 from cargo_bundle import load_declared_export
 
@@ -126,7 +127,7 @@ def validate_bundle(bundle, *, root, compiler, driver_sha256, toolchain):
             "private_authoring": control_before, "main_authoring": before,
             "implementation_sources": [{"path": f"scripts/{path.name}", "sha256": digest(path.read_bytes())}
                 for path in (Path(__file__).resolve(), Path(cargo_authoring.__file__).resolve(),
-                             Path(cargo_bundle.__file__).resolve())],
+                             Path(cargo_bundle.__file__).resolve(), Path(cargo_source_receipt.__file__).resolve())],
             "baseline": {"path": BASELINE, "sha256": BASELINE_SHA},
             "recipes": {"path": f"{CONTROL}/mutations.json", "sha256": RECIPE_SHA,
                         "mutations": [row["name"] for row in recipe["mutations"]]},

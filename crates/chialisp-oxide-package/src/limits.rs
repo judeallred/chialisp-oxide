@@ -18,6 +18,9 @@ pub struct Limits {
     pub max_total_source_bytes: usize,
     pub max_objects: usize,
     pub max_lookup_bytes: usize,
+    pub max_source_read_events: usize,
+    pub max_source_read_bytes: usize,
+    pub max_bundle_files: usize,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -38,6 +41,9 @@ impl Default for Limits {
             max_total_source_bytes: 8 * 1024 * 1024,
             max_objects: 1024,
             max_lookup_bytes: 64 * 1024 * 1024,
+            max_source_read_events: 16_384,
+            max_source_read_bytes: 64 * 1024 * 1024,
+            max_bundle_files: 16_384,
         }
     }
 }

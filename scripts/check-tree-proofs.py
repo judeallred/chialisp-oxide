@@ -20,6 +20,8 @@ import tomllib
 import unittest
 
 from cargo_authoring import contained_file, load_json, snapshot
+from cargo_bundle import load_declared_export
+from source_walk import source_files
 from vm_failures import PROTOCOL, check_native_outcome, check_replay, execution_sources
 
 
@@ -83,17 +85,19 @@ def authoring():
 
 def implementation_sources():
     paths = {"scripts/check-tree-proofs.py", "scripts/cargo_authoring.py", SPECIFICATION,
+             "scripts/source_walk.py", "scripts/test_source_walk.py",
              "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
              "puzzles/p2-conditions/puzzle.json", "puzzles/p2-conditions/reference.clsp", REFERENCE,
              PUBLISHED, f"{CANONICAL}/LICENSE"}
     paths.update(row["path"] for row in execution_sources())
-    for package in ["crates/chialisp-oxide-driver", "crates/chialisp-oxide-ir", "crates/chialisp-oxide-verifier",
+    packages = ["crates/chialisp-oxide-driver", "crates/chialisp-oxide-ir", "crates/chialisp-oxide-verifier",
                     "crates/chialisp-oxide-reference", "crates/chialisp-oxide-corpus", "crates/chialisp-oxide-cli",
-                    "crates/cargo-chialisp-oxide", "experiments/backend", "vendor/rue-lir"]:
+                    "crates/cargo-chialisp-oxide", "experiments/backend", "vendor/rue-lir"]
+    for package in packages:
         paths.add(f"{package}/Cargo.toml")
         if (ROOT / package / "build.rs").is_file():
             paths.add(f"{package}/build.rs")
-        paths.update(str(path.relative_to(ROOT)) for path in (ROOT / package / "src").rglob("*.rs"))
+    paths.update(source_files(ROOT, [f"{package}/src" for package in packages]))
     return [{"path": path, "sha256": sha(contained_file(ROOT, path))} for path in sorted(paths)]
 
 
@@ -178,18 +182,15 @@ def mutants(program):
     return {"accept-atom": guard, "wrong-quote": construction}
 
 
-def load_cargo(output, current):
-    pointer = load_json(contained_file(output, "latest.json"))
-    bundle = pointer["bundle"]
-    require(len(Path(bundle).parts) == 1 and pointer["manifest"] == f"{bundle}/manifest.json", "Invalid atomic Cargo bundle pointer")
-    path = contained_file(output, pointer["manifest"])
-    manifest = load_json(path)
-    require(manifest["schema_version"] == 1 and manifest["package"] == current["package"]
-            and Path(manifest["manifest_path"]).resolve() == (ROOT / current["manifest"]).resolve(), "Wrong Cargo extraction manifest")
-    names = [entry["entry"] for entry in manifest["entries"]]
-    require(len(names) == len(set(names)) and set(names) == {entry["entry"] for entry in current["exports"].values()}, "Cargo export set differs from declared library")
-    entry = next(entry for entry in manifest["entries"] if entry["entry"] == ENTRY)
-    return normalized_ir(load_json(contained_file(path.parent, entry["ir"])))
+def load_cargo(output, current, *, compiler, driver_sha256, toolchain,
+               cargo_options, rue_revision):
+    # Check every actual export/artifact and, for v2, the complete declared
+    # source inventory before selecting this raw-tree model's source IR.
+    export = load_declared_export(output, root=ROOT, authoring=current,
+        selected_entry=ENTRY, compiler=compiler, driver_sha256=driver_sha256,
+        toolchain=toolchain, current_authoring=authoring, optimize=True,
+        rue_revision=rue_revision, cargo_options=cargo_options)
+    return normalized_ir(export.program)
 
 
 def tree(value, depth=0, budget=None):
@@ -357,12 +358,20 @@ def generate(output):
          "-p", "chialisp-oxide-cli", "-p", "chialisp-oxide-verifier", "--bins"])
     for path in BINARIES.values():
         require(path.is_file(), f"Missing required compiler/replay binary: {path}")
+    compiler = run(["rustup", "run", pin, "rustc", "-vV"])
+    driver_sha256 = sha(BINARIES["chialisp-oxide-driver"])
+    rue_revision = tomllib.loads((ROOT / "crates/chialisp-oxide-ir/Cargo.toml").read_text())["dependencies"]["rue-lir"]["rev"]
+    cargo_options = ["--manifest-path", str(ROOT / current["manifest"]),
+                     "--package", current["package"], "--locked"]
     with tempfile.TemporaryDirectory(prefix="chialisp-oxide-tree-proofs-") as directory:
         temp = Path(directory)
         cargo_output = temp / "cargo"
-        run([BINARIES["cargo-chialisp-oxide"], "build", "--manifest-path", ROOT / current["manifest"],
-             "--package", current["package"], "--locked", "--output-dir", cargo_output])
-        program = load_cargo(cargo_output, current)
+        run([BINARIES["cargo-chialisp-oxide"], "build", *cargo_options, "--output-dir", cargo_output])
+        program = load_cargo(cargo_output, current, compiler=compiler,
+            driver_sha256=driver_sha256, toolchain=pin, cargo_options=cargo_options,
+            rue_revision=rue_revision)
+        require(sha(BINARIES["chialisp-oxide-driver"]) == driver_sha256,
+                "Prebuilt driver changed during proof extraction; coordinate build phases")
         variants = mutants(program)
         stage = temp / "artifacts"
         stage.mkdir()

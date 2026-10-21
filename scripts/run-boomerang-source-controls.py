@@ -179,7 +179,9 @@ def capture(package, native_path, quiet_path, target, output):
     bundles, instances, runs, ledger_inputs = {}, {}, [], []
     for mode in ("off", "on"):
         directory = output / f"fresh-{mode}"
-        execute("export-" + mode, [target / "debug/cargo-chialisp-oxide", "build", *c.options(package), "--output-dir", directory] + (["--no-optimize"] if mode == "off" else []))
+        # Preserve this manually source-bound v1 control packet and its closed
+        # inventory; artifact-only adds no automatic source-read receipt credit.
+        execute("export-" + mode, [target / "debug/cargo-chialisp-oxide", "build", "--artifact-only", *c.options(package), "--output-dir", directory] + (["--no-optimize"] if mode == "off" else []))
         checked = c.fresh_bundle(directory, package, compiler=compiler,
             driver_sha256=tools["chialisp-oxide-driver"]["sha256"], toolchain=toolchain(), optimize=mode == "on")
         retained = output / "bundles" / mode

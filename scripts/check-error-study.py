@@ -20,6 +20,7 @@ import tomllib
 import unittest
 
 from cargo_authoring import contained_file, load_json
+from source_walk import source_files
 from vm_failures import PROTOCOL, check_execution, execution_sources
 
 
@@ -59,7 +60,8 @@ DEPENDENCIES = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/confi
                 "crates/chialisp-oxide-reference/src/lib.rs", "crates/chialisp-oxide-rue/Cargo.toml",
                 "crates/chialisp-oxide-rue/src/lib.rs", "experiments/backend/Cargo.toml",
                 "experiments/backend/src/lib.rs", "vendor/rue-lir/Cargo.toml",
-                "scripts/check-error-study.py", "scripts/cargo_authoring.py"]
+                "scripts/check-error-study.py", "scripts/cargo_authoring.py",
+                "scripts/source_walk.py", "scripts/test_source_walk.py"]
 
 
 def require(condition, message):
@@ -74,8 +76,11 @@ def sha256(path):
 def inputs():
     paths = set(DEPENDENCIES)
     paths.update(row["path"] for row in execution_sources())
-    paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "experiments/error-study").rglob("*") if path.is_file())
-    paths.update(str(path.relative_to(ROOT)) for path in (ROOT / "vendor/rue-lir/src").rglob("*.rs"))
+    # Share traversal budgets across both roots while preserving every regular
+    # fixture extension and the vendor's existing Rust-only input contract.
+    discovered = source_files(ROOT, ["experiments/error-study", "vendor/rue-lir/src"], suffixes=None)
+    paths.update(path for path in discovered
+                 if path.startswith("experiments/error-study/") or path.endswith(".rs"))
     return [{"path": path, "sha256": sha256(contained_file(ROOT, path))} for path in sorted(paths)]
 
 

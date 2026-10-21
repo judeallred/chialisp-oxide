@@ -801,13 +801,23 @@ def _control_ledger(report, base, common, witnesses, artifacts):
 
 
 def _control_commands(report, base, common, expected, capture, binary, ledger):
+    # This manually source-bound v1 packet keeps its reviewed source/recipe
+    # relation and closed file inventory. The new opt-out spelling adds no
+    # automatic compiler file-read receipt or execution/authentication credit.
     expected = [*expected, ("sdk-ledger", [str(binary), str(capture / "ledger-request.json")], ledger)]
     rows = report["commands"]
     require(type(rows) is list and len(rows) == len(expected) == 31, "Exactly two exports/ten recompile/eighteen VM/one SDK commands required")
-    files = set()
+    files, export_variants = set(), set()
     for index, (row, (role, argv, result)) in enumerate(zip(rows, expected, strict=True)):
         closed(row, ["role", "argv", "exit_code", "stdout", "stdout_sha256", "stderr", "stderr_sha256"], "source-control actual command")
-        require(row["role"] == role and row["argv"] == argv and type(row["exit_code"]) is int and row["exit_code"] == 0
+        argv_matches = row["argv"] == argv
+        if role.startswith("export-"):
+            require(type(row["argv"]) is list, "Export argv must be a list")
+            explicit = argv[:2] + ["--artifact-only"] + argv[2:]
+            require(argv_matches or row["argv"] == explicit, "Export argv must be exact historical or explicit artifact-only form")
+            export_variants.add("historical" if argv_matches else "artifact_only")
+            argv_matches = True
+        require(row["role"] == role and argv_matches and type(row["exit_code"]) is int and row["exit_code"] == 0
                 and row["stdout"] == f"logs/{index:02}.stdout" and row["stderr"] == f"logs/{index:02}.stderr", "Actual command role/argv/normal status changed")
         stdout = common.read(common.relative(base, row["stdout"]), allow_empty=True)
         stderr = common.read(common.relative(base, row["stderr"]), allow_empty=True)
@@ -824,6 +834,7 @@ def _control_commands(report, base, common, expected, capture, binary, ledger):
             require(same(actual, [observed["execution"]]), "Actual VM raw stdout differs from parsed witness")
         else:
             require(same(actual, result), "Actual recompile/SDK raw stdout differs from retained result")
+    require(len(export_variants) == 1, "Both compiler modes must use one exact export argv form")
     return files
 
 

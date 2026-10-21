@@ -13,9 +13,11 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
-from cargo_authoring import contained_file, load_json, snapshot
+from cargo_authoring import snapshot
+from cargo_bundle import load_declared_export
 from vm_failures import PROTOCOL, check_replay, execution_sources
 
 
@@ -77,37 +79,37 @@ def authoring_snapshot():
 
 
 def cargo_program(output, authoring):
-    run([CARGO_OXIDE, "build", "--manifest-path", ROOT / authoring["manifest"],
-         "--package", authoring["package"], "--locked", "--output-dir", output], timeout=180)
-    return load_cargo_program(output, authoring)
+    toolchain = tomllib.loads((ROOT / "rust-toolchain.toml").read_text())["toolchain"]["channel"]
+    compiler = run(["rustup", "run", toolchain, "rustc", "-vV"])
+    driver_sha256 = sha256(DRIVER)
+    rue_revision = tomllib.loads((ROOT / "crates/chialisp-oxide-ir/Cargo.toml").read_text())["dependencies"]["rue-lir"]["rev"]
+    options = ["--manifest-path", str(ROOT / authoring["manifest"]),
+               "--package", authoring["package"], "--locked"]
+    run([CARGO_OXIDE, "build", *options, "--output-dir", output], timeout=180)
+    result = load_cargo_program(output, authoring, compiler=compiler,
+        driver_sha256=driver_sha256, toolchain=toolchain, cargo_options=options,
+        rue_revision=rue_revision)
+    if sha256(DRIVER) != driver_sha256:
+        raise SystemExit("Prebuilt driver changed during proof extraction; coordinate build phases")
+    return result
 
 
-def load_cargo_program(output, authoring):
-    pointer = load_json(contained_file(output, "latest.json"))
-    bundle = pointer["bundle"]
-    if len(Path(bundle).parts) != 1 or pointer["manifest"] != f"{bundle}/manifest.json":
-        raise SystemExit("Malformed atomic Cargo bundle pointer")
-    manifest_path = contained_file(output, pointer["manifest"])
-    manifest = load_json(manifest_path)
-    if not (
-        type(manifest.get("schema_version")) is int and manifest["schema_version"] == 1
-        and manifest["package"] == authoring["package"]
-        and Path(manifest["manifest_path"]).resolve() == (ROOT / authoring["manifest"]).resolve()
-    ):
-        raise SystemExit("Cargo bundle does not describe the requested puzzle library")
-    entries = manifest["entries"]
-    names = [entry["entry"] for entry in entries]
-    expected = {export["entry"] for export in authoring["exports"].values()}
-    if len(names) != len(set(names)) or set(names) != expected:
-        raise SystemExit("Cargo bundle exports differ from declared authoring entries")
-    entry = next(entry for entry in entries if entry["entry"] == authoring["entry"])
-    path = contained_file(manifest_path.parent, entry["ir"])
-    program = load_json(path)
+def load_cargo_program(output, authoring, *, compiler, driver_sha256, toolchain,
+                       cargo_options, rue_revision):
+    # Both transport versions admit the complete declared export/artifact set.
+    # V2 additionally checks all retained source declarations and exact blobs;
+    # neither transport version establishes the scalar model's semantics.
+    export = load_declared_export(output, root=ROOT, authoring=authoring,
+        selected_entry=authoring["entry"], compiler=compiler,
+        driver_sha256=driver_sha256, toolchain=toolchain,
+        current_authoring=authoring_snapshot, optimize=True,
+        rue_revision=rue_revision, cargo_options=cargo_options)
+    program = export.program
     if set(program) != {"name", "parameters", "result", "body"}:
         raise SystemExit("bounded-counter proof requires the legacy strict-environment IR; refusing an envelope or changed ABI")
     if program["name"] != authoring["entry"]:
         raise SystemExit("Cargo-exported IR name does not match selected proof entry")
-    return path, manifest
+    return export.path, export.manifest
 
 
 def native_replay(value):

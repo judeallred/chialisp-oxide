@@ -8,15 +8,49 @@ const IGNORED_MARKER: &str = "__chialisp_oxide_puzzle_v2_environment_ignored";
 const RAW_MARKER: &str = "__chialisp_oxide_puzzle_v3_environment_raw";
 
 pub fn collect(tcx: TyCtxt<'_>) -> Result<Vec<(DefId, Environment)>, String> {
+    collect_with_limit(tcx, None)
+}
+
+/// Capture bounds its own export metadata before retaining/lowering each body.
+pub fn collect_bounded(
+    tcx: TyCtxt<'_>,
+    maximum: usize,
+) -> Result<Vec<(DefId, Environment)>, String> {
+    collect_with_limit(tcx, Some(maximum))
+}
+
+fn collect_with_limit(
+    tcx: TyCtxt<'_>,
+    maximum: Option<usize>,
+) -> Result<Vec<(DefId, Environment)>, String> {
     let mut exports = Vec::new();
     // Include non-body items: a forged marker on a struct must not disappear
     // merely because a separate, valid function also produces an export.
     for owner in tcx.hir_crate_items(()).definitions() {
         if let Some(environment) = environment(tcx, owner)? {
-            exports.push((owner.to_def_id(), environment));
+            let entry = (owner.to_def_id(), environment);
+            if let Some(maximum) = maximum {
+                push_bounded(&mut exports, entry, maximum)?;
+            } else {
+                exports.push(entry);
+            }
         }
     }
     Ok(exports)
+}
+
+fn push_bounded<T>(exports: &mut Vec<T>, entry: T, maximum: usize) -> Result<(), String> {
+    if exports.len() >= maximum {
+        return Err(
+            "ResourceLimit: declared source receipt export-count limit exceeded before lowering"
+                .into(),
+        );
+    }
+    exports
+        .try_reserve(1)
+        .map_err(|_| "ResourceLimit: cannot reserve declared export metadata".to_owned())?;
+    exports.push(entry);
+    Ok(())
 }
 
 pub fn environment(tcx: TyCtxt<'_>, owner: LocalDefId) -> Result<Option<Environment>, String> {
@@ -62,4 +96,19 @@ fn error(tcx: TyCtxt<'_>, owner: LocalDefId, message: &str) -> String {
             .source_map()
             .span_to_diagnostic_string(tcx.def_span(owner))
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::push_bounded;
+
+    #[test]
+    fn bounded_metadata_collection_accepts_exact_count_and_rejects_before_push() {
+        let mut exports = Vec::new();
+        push_bounded(&mut exports, 1, 1).unwrap();
+        let error = push_bounded(&mut exports, 2, 1).unwrap_err();
+        assert!(error.contains("before lowering"));
+        assert_eq!(exports, [1]);
+        assert!(push_bounded(&mut Vec::new(), 1, 0).is_err());
+    }
 }

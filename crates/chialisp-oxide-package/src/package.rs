@@ -19,17 +19,47 @@ pub struct ArtifactRecord {
     pub identity: ArtifactIdentity,
     pub clvm_hex: String,
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PackageKind {
     ClvmArtifact,
     RustCargoExport,
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+impl<'de> Deserialize<'de> for PackageKind {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        crate::string_enum::deserialize(
+            deserializer,
+            &["clvm_artifact", "rust_cargo_export"],
+            |value| match value {
+                "clvm_artifact" => Some(Self::ClvmArtifact),
+                "rust_cargo_export" => Some(Self::RustCargoExport),
+                _ => None,
+            },
+        )
+    }
+}
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceScope {
     NotRecorded,
     DeclaredFilesOnly,
+}
+impl<'de> Deserialize<'de> for SourceScope {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        crate::string_enum::deserialize(
+            deserializer,
+            &["not_recorded", "declared_files_only"],
+            |value| match value {
+                "not_recorded" => Some(Self::NotRecorded),
+                "declared_files_only" => Some(Self::DeclaredFilesOnly),
+                _ => None,
+            },
+        )
+    }
 }
 /// Closed portable ABI vocabulary. Legacy IR readers retain their own wire
 /// compatibility; unknown fields in a package ABI are never silently discarded.
@@ -97,9 +127,24 @@ pub struct AbiParameter {
 #[serde(deny_unknown_fields)]
 pub struct StructuralAbi {
     pub protocol: String,
+    #[serde(deserialize_with = "deserialize_abi_environment")]
     pub environment: Environment,
     pub parameters: Vec<AbiParameter>,
     pub result: AbiType,
+}
+fn deserialize_abi_environment<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> std::result::Result<Environment, D::Error> {
+    crate::string_enum::deserialize(
+        deserializer,
+        &["strict", "ignored", "raw"],
+        |value| match value {
+            "strict" => Some(Environment::Strict),
+            "ignored" => Some(Environment::Ignored),
+            "raw" => Some(Environment::Raw),
+            _ => None,
+        },
+    )
 }
 impl StructuralAbi {
     fn from_program(program: &Program) -> Self {
@@ -281,7 +326,11 @@ fn read_ir(text: &str, limits: &Limits) -> Result<(Program, u32)> {
         .map_err(|e| invalid(format!("invalid typed IR attachment: {e}")))?;
     Ok((program, version))
 }
-fn check_rust(rust: &RustExport, artifact: &ArtifactRecord, limits: &Limits) -> Result<()> {
+fn check_rust(
+    rust: &RustExport,
+    artifact: &ArtifactRecord,
+    limits: &Limits,
+) -> Result<Option<crate::receipt::SourceReceipt>> {
     bounded_text(&rust.entry, 4096, "export identity")?;
     if rust.entry.is_empty() {
         return Err(invalid("empty Rust export identity"));
@@ -313,7 +362,10 @@ fn check_rust(rust: &RustExport, artifact: &ArtifactRecord, limits: &Limits) -> 
     // the original host paths or authenticates which compiler produced them.
     let manifest = crate::bundle::decode_manifest(rust.bundle_manifest_json.as_bytes(), limits)?;
     crate::bundle::check_selected_metadata(&manifest, &rust.entry, artifact)?;
-    Ok(())
+    if let Some(receipt) = &manifest.source_receipt {
+        receipt.check_ir(&rust.entry, None, rust.ir_json.as_bytes())?;
+    }
+    Ok(manifest.source_receipt)
 }
 /// Admit an exact envelope without executing any attached artifact or tool.
 pub fn verify_package(bytes: &[u8], limits: &Limits) -> Result<VerifiedPackage> {
@@ -346,11 +398,11 @@ pub fn verify_package(bytes: &[u8], limits: &Limits) -> Result<VerifiedPackage> 
         "CLVM artifact",
     )?;
     let artifact = verify_artifact(&blob, &manifest.artifact.identity, limits)?;
-    match (manifest.kind, &manifest.rust) {
-        (PackageKind::ClvmArtifact, None) => {}
+    let receipt = match (manifest.kind, &manifest.rust) {
+        (PackageKind::ClvmArtifact, None) => None,
         (PackageKind::RustCargoExport, Some(rust)) => check_rust(rust, &manifest.artifact, limits)?,
         _ => return Err(invalid("package kind and Rust attachment disagree")),
-    }
+    };
     if manifest.sources.len() > limits.max_sources {
         return Err(Error::new(
             ErrorKind::ResourceLimit,
@@ -362,6 +414,14 @@ pub fn verify_package(bytes: &[u8], limits: &Limits) -> Result<VerifiedPackage> 
     {
         return Err(invalid(
             "source scope must state whether declared files were retained",
+        ));
+    }
+    if let Some(receipt) = &receipt
+        && (manifest.source_scope != SourceScope::DeclaredFilesOnly
+            || manifest.sources.len() != receipt.files.len())
+    {
+        return Err(invalid(
+            "schema-2 source receipt requires every declared source attachment",
         ));
     }
     let mut labels = BTreeSet::new();
@@ -397,6 +457,22 @@ pub fn verify_package(bytes: &[u8], limits: &Limits) -> Result<VerifiedPackage> 
                     "aggregate source byte limit exceeded",
                 )
             })?;
+        if let Some(receipt) = &receipt {
+            let row = receipt
+                .files
+                .binary_search_by(|row| row.path.as_str().cmp(source.path.as_str()))
+                .ok()
+                .map(|index| &receipt.files[index])
+                .ok_or_else(|| {
+                    invalid("source attachment is absent from retained schema-2 receipt")
+                })?;
+            if row.bytes != length as u64 || row.sha256 != source.sha256 {
+                return Err(Error::new(
+                    ErrorKind::DigestMismatch,
+                    "source attachment differs from retained source receipt",
+                ));
+            }
+        }
         let data = decode_hex(&source.content_hex, length, "source attachment")?;
         if digest(&data) != source.sha256 {
             return Err(Error::new(
@@ -711,6 +787,7 @@ pub(crate) fn from_rust_bundle(
     entry: String,
     ir_json: String,
     artifact: VerifiedArtifact,
+    sources: Vec<SourceAttachment>,
     limits: &Limits,
 ) -> Result<VerifiedPackage> {
     bounded_text(
@@ -737,8 +814,12 @@ pub(crate) fn from_rust_bundle(
                 clvm_hex: hex::encode(artifact.bytes()),
             },
             rust: Some(rust),
-            source_scope: SourceScope::NotRecorded,
-            sources: vec![],
+            source_scope: if sources.is_empty() {
+                SourceScope::NotRecorded
+            } else {
+                SourceScope::DeclaredFilesOnly
+            },
+            sources,
             provenance: None,
         },
         limits,

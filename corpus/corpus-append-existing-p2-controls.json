@@ -26,10 +26,10 @@
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7"
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/registry-20261021/capture-1/p2-controls-bundle/27348-1792550245676983000/manifest.json",
-    "manifest_sha256": "7ca96b0245320f840c433f1628931a49e2606035fd391a43946518f95d3165f8",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2-controls-bundle/903-1792559577001745000/manifest.json",
+    "manifest_sha256": "37f94e7f748fe1d2db1edb32253e2e72b4fc7a8e2e0b893057ea03d76b8d9296",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
-    "driver_sha256": "199dd505f439bf7a69403b36aa2d2f04d3c643a7929df16dcc6bb563e2bf1768",
+    "driver_sha256": "be05ceb22d092d32cdb4e52422b8f832c7ed92b055c8a20a325d6ca36f04c54c",
     "toolchain": "nightly-2026-07-14",
     "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
     "optimize_lir": true,
@@ -230,7 +230,7 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "cb3a0f2834daf5323be6d1726d140ea9b90770eb9fa0f3eff55fdd4b1b100fb8"
+          "sha256": "25e3e485c48761235687442a5709f10d305f51afacedefc632b417e868a0d90b"
         },
         {
           "path": "Cargo.toml",
@@ -649,7 +649,7 @@
     "implementation_sources": [
       {
         "path": "scripts/check-p2-source-controls.py",
-        "sha256": "bcb3c13e4109f992553ecc9e782f688e7ff56becac0c58e2782ba2d2084511bb"
+        "sha256": "0935d81ba47900cee955c2cfe794bc7f98ed95573b86910b8c72f0a961b37388"
       },
       {
         "path": "scripts/cargo_authoring.py",
@@ -657,7 +657,11 @@
       },
       {
         "path": "scripts/cargo_bundle.py",
-        "sha256": "d7000f4ea296d9358ef84154ceb8dfff671e875f8b7add3b277c8a4f10e3823f"
+        "sha256": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664"
+      },
+      {
+        "path": "scripts/cargo_source_receipt.py",
+        "sha256": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f"
       }
     ],
     "baseline": {
@@ -675,12 +679,12 @@
     },
     "scope": "Fresh caller-supplied three-export Cargo bundle identity and current source consistency only. Exact reviewed Rust mutations are checked separately from IR identity. The main declared Cargo/SDK and seven private inputs are checked before/after loading. This gate does not extract, validate Program semantics, compile or replay native/CLVM programs, authenticate execution, capture the complete build environment, or prove compiler/IR/CLVM preservation. Existing Rust replay performs Program validation and six finite VM comparisons."
   },
-  "manifest": "{\n  \"analysis_target\": \"aarch64-apple-darwin\",\n  \"cargo_options\": [\n    \"--locked\",\n    \"--manifest-path\",\n    \"experiments/p2-singleton-controls/Cargo.toml\"\n  ],\n  \"compiler\": \"rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\\nbinary: rustc\\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\\ncommit-date: 2026-07-13\\nhost: aarch64-apple-darwin\\nrelease: 1.99.0-nightly\\nLLVM version: 22.1.8\\n\",\n  \"driver_sha256\": \"199dd505f439bf7a69403b36aa2d2f04d3c643a7929df16dcc6bb563e2bf1768\",\n  \"entries\": [\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1380,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff8405ffffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff835fffff80ffff01ff0880ffff01835fffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff825fff80ffff01ff0880ffff01825fff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff820bff80ffff01ff0880ffff01820bff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ff80ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 100663295 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 6291455) (q 8) (q . 6291455)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 24575) (q 8) (q . 24575)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 3071) (q 8) (q . 3071)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c () 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"13f3e4c1a585a4db47f2ac68211f9d2d9cf0683b3bb95659137502e0ff980209\"\n      },\n      \"clvm\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::proper_struct::puzzle\",\n      \"ir\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2180ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8202ff80ffff01ff0880ffff018202ff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 33) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 767) (q 8) (q . 767)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"b2abbd4e448db99c0e4a76752f1d001ecaf0260f0b8473e285826f25b562ca3b\"\n      },\n      \"clvm\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle\",\n      \"ir\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"7cf88d533580b1f8c15dd1bd02ac8b16fcd601bfe6096efc82f2a4125422fdb0\"\n      },\n      \"clvm\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle\",\n      \"ir\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json\"\n    }\n  ],\n  \"manifest_path\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls/Cargo.toml\",\n  \"package\": \"chialisp-oxide-p2-singleton-controls\",\n  \"package_id\": \"path+file:///Users/judeallred/code/clispOx/experiments/p2-singleton-controls#chialisp-oxide-p2-singleton-controls@0.1.0\",\n  \"rue_revision\": \"245c107a8e795229ea08097142f005a4c0d91075\",\n  \"schema_version\": 1,\n  \"status\": \"wip_prototype_not_ready_for_use\",\n  \"toolchain\": \"nightly-2026-07-14\",\n  \"workspace_root\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls\"\n}",
+  "manifest": "{\n  \"analysis_target\": \"aarch64-apple-darwin\",\n  \"cargo_options\": [\n    \"--locked\",\n    \"--manifest-path\",\n    \"experiments/p2-singleton-controls/Cargo.toml\"\n  ],\n  \"compiler\": \"rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\\nbinary: rustc\\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\\ncommit-date: 2026-07-13\\nhost: aarch64-apple-darwin\\nrelease: 1.99.0-nightly\\nLLVM version: 22.1.8\\n\",\n  \"driver_sha256\": \"be05ceb22d092d32cdb4e52422b8f832c7ed92b055c8a20a325d6ca36f04c54c\",\n  \"entries\": [\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1380,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff8405ffffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff835fffff80ffff01ff0880ffff01835fffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff825fff80ffff01ff0880ffff01825fff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff820bff80ffff01ff0880ffff01820bff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ff80ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 100663295 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 6291455) (q 8) (q . 6291455)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 24575) (q 8) (q . 24575)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 3071) (q 8) (q . 3071)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c () 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"13f3e4c1a585a4db47f2ac68211f9d2d9cf0683b3bb95659137502e0ff980209\"\n      },\n      \"clvm\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::proper_struct::puzzle\",\n      \"ir\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2180ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8202ff80ffff01ff0880ffff018202ff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 33) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 767) (q 8) (q . 767)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"b2abbd4e448db99c0e4a76752f1d001ecaf0260f0b8473e285826f25b562ca3b\"\n      },\n      \"clvm\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle\",\n      \"ir\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"7cf88d533580b1f8c15dd1bd02ac8b16fcd601bfe6096efc82f2a4125422fdb0\"\n      },\n      \"clvm\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle\",\n      \"ir\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json\"\n    }\n  ],\n  \"manifest_path\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls/Cargo.toml\",\n  \"package\": \"chialisp-oxide-p2-singleton-controls\",\n  \"package_id\": \"path+file:///Users/judeallred/code/clispOx/experiments/p2-singleton-controls#chialisp-oxide-p2-singleton-controls@0.1.0\",\n  \"rue_revision\": \"245c107a8e795229ea08097142f005a4c0d91075\",\n  \"schema_version\": 1,\n  \"status\": \"wip_prototype_not_ready_for_use\",\n  \"toolchain\": \"nightly-2026-07-14\",\n  \"workspace_root\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls\"\n}",
   "vm_replay": {
     "controls": [
       {
         "entry": "chialisp_oxide_p2_singleton_controls::proper_struct::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/registry-20261021/capture-1/p2-controls-bundle/27348-1792550245676983000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2-controls-bundle/903-1792559577001745000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
         "ir_sha256": "47ab6cc139bf20e4c7db32ef04da38d35382a4402a9db1b67fef70ce8801c112",
         "runs": [
           {
@@ -729,7 +733,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/registry-20261021/capture-1/p2-controls-bundle/27348-1792550245676983000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2-controls-bundle/903-1792559577001745000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7",
         "runs": [
           {
@@ -778,7 +782,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/registry-20261021/capture-1/p2-controls-bundle/27348-1792550245676983000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2-controls-bundle/903-1792559577001745000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
         "ir_sha256": "ca7214b68d737e0442c0c91a6361d4e6efcd6a78219c4f8e296624f39ab6dbfc",
         "runs": [
           {
@@ -826,8 +830,8 @@
         ]
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/registry-20261021/capture-1/p2-controls-bundle/27348-1792550245676983000/manifest.json",
-    "manifest_sha256": "7ca96b0245320f840c433f1628931a49e2606035fd391a43946518f95d3165f8",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2-controls-bundle/903-1792559577001745000/manifest.json",
+    "manifest_sha256": "37f94e7f748fe1d2db1edb32253e2e72b4fc7a8e2e0b893057ea03d76b8d9296",
     "scope": "Three actual ordinary Rust policy mutations admitted through Cargo. Native tests and six CLVM runs distinguish the independent protocol relation. This is not an error Rust makes impossible or constructed-IR mutation.",
     "source_controls": [
       {
@@ -869,7 +873,7 @@
     ],
     "exit_code": 0,
     "tests": 3,
-    "log_sha256": "cb95926181224b42962b3ad8c20fbde0b85e247f590626d106a7ca96e916349d",
+    "log_sha256": "218f8d41c3c5f000a85767fbfc256378daa105d50f33351e0029f2ee73173148",
     "observations": [
       {
         "name": "proper_struct",
@@ -891,7 +895,7 @@
   "window": {
     "source_root": "/Users/judeallred/code/clispOx",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
-    "driver_sha256": "199dd505f439bf7a69403b36aa2d2f04d3c643a7929df16dcc6bb563e2bf1768",
+    "driver_sha256": "be05ceb22d092d32cdb4e52422b8f832c7ed92b055c8a20a325d6ca36f04c54c",
     "toolchain": "nightly-2026-07-14",
     "sources": [
       {
@@ -900,7 +904,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "cb3a0f2834daf5323be6d1726d140ea9b90770eb9fa0f3eff55fdd4b1b100fb8"
+        "sha256": "25e3e485c48761235687442a5709f10d305f51afacedefc632b417e868a0d90b"
       },
       {
         "path": "Cargo.toml",
@@ -959,20 +963,32 @@
         "sha256": "79440881fa1d95043dfa378c0ca3fa38314468032167f040c48e1e624b953dd1"
       },
       {
+        "path": "crates/cargo-chialisp-oxide/src/bundle_sniff.rs",
+        "sha256": "f45ed8e9e89e35aeb2987ffdb532d4d7c1312102fbfc1079f9437806ad052e0a"
+      },
+      {
         "path": "crates/cargo-chialisp-oxide/src/lib.rs",
-        "sha256": "a379994f7e4df47f305f681fa866cad8c5588cdf8e0d186b7377cac337d960b1"
+        "sha256": "1f2f41ac79e2bb6f6bf63aba04390c2490be0c1f86b6180395c3be959d463e5d"
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/main.rs",
-        "sha256": "6d1d9fef36a35c641545256c7fb131e81b06fda268349085b07eaec365bf9ee1"
+        "sha256": "a8bc06d5e2631a5ae5795479f6d69991885f3215e03522028906be80b9801325"
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/options.rs",
-        "sha256": "5081de9ac5cb01a8b6646cd71d46cc55670c5870efb69b60c830bdd1b8b4cafd"
+        "sha256": "6c22fe58819c63928e6752a4c55c98abcea003f438301088211c25b3518365ff"
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/registry.rs",
         "sha256": "45917907a52aca9e7927d877769a79996e6000d91e523d3e777502da57dc3f5c"
+      },
+      {
+        "path": "crates/cargo-chialisp-oxide/src/source_receipt.rs",
+        "sha256": "2d840828726e84c706edd968626dc3b6a6a498c4cd1bd0664372cce545228f80"
+      },
+      {
+        "path": "crates/cargo-chialisp-oxide/src/source_receipt/tests.rs",
+        "sha256": "c010b2a58f76697458a0dc8c3559b786104b6a5d60c660cef4ffcd6f240e7e51"
       },
       {
         "path": "crates/chialisp-oxide-cli/Cargo.toml",
@@ -1096,7 +1112,7 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/Cargo.toml",
-        "sha256": "50f85bb2d89a6a135a42980a012460924543ff29824e190c9a09de39bb289e44"
+        "sha256": "5373459633baa8243decd448ec3f5a3464d828833c29ccea50ab98259632e6dd"
       },
       {
         "path": "crates/chialisp-oxide-driver/build.rs",
@@ -1104,11 +1120,11 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/cargo.rs",
-        "sha256": "a3962e259e77c10dd78fc56a75fb5cfcfcc622e8293aff72af4dab4416b22079"
+        "sha256": "da4da730d259f041a100b3bab1602820445e60ec0e63f2a9f3d560c7a83273b7"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/exports.rs",
-        "sha256": "be58bf1a6daf2d42da0657f16d4e945175d500345c2def0a7cf0a52cde6ec3bf"
+        "sha256": "7377fa58e5c5a45cf2c718f8eed294c5efa50d1a700a679fa44277a1f5447318"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower.rs",
@@ -1184,7 +1200,23 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/main.rs",
-        "sha256": "2d22d2e5f9b8169b5e1076dd64095c3fede70fc7cb5e99f0c1be8a71690d5794"
+        "sha256": "55c1e2caf1baeacec5575b25f2bcf19aa754e88a2de433009aa12021d3f685ec"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/source_receipt.rs",
+        "sha256": "cd9c4d0a6a2845054339b12dedf4779abe99c5e8f6557ba2c1ff8ee833e3260f"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/source_receipt/collector.rs",
+        "sha256": "4416c61fb91242aa0787ed24904dd7332df817635a7b8e945b71c34dfa764545"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/source_receipt/paths.rs",
+        "sha256": "cecbac379152f73531c7440b6b200923277eb1ce0f2e0eba17b0f053ef5f4959"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/source_receipt/tests.rs",
+        "sha256": "18b4197cb4df6494534c9a27307ec925533d3d037c285b63ab8d38bbe904782b"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/toolchain.rs",
@@ -1260,19 +1292,19 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/artifact.rs",
-        "sha256": "776b6b803abf96fae4e2f2480a9295fdc128a7d6d7945961a30fccebd55c4228"
+        "sha256": "180790cf2718085b46e90247e6e61129289ec95ab933fcce5dfabe99afccd7da"
       },
       {
         "path": "crates/chialisp-oxide-package/src/artifact/tests.rs",
-        "sha256": "1c49278965f5707f02fe88b2730e4368e922d9667dc1ef6c6ff7ed1c6327bcdf"
+        "sha256": "107d9352fc1de25f77690f05359145a26af36f19c73ea1766858ea2a6271d621"
       },
       {
         "path": "crates/chialisp-oxide-package/src/bundle.rs",
-        "sha256": "e267e9709c8aa5a5071cc5012db31b86aada2436b4e4107383a4c84f1b4239bf"
+        "sha256": "fcc26783843087cc55fab53518583151ab5d91bca48d963476f4cd78874ebd45"
       },
       {
         "path": "crates/chialisp-oxide-package/src/bundle/tests.rs",
-        "sha256": "f9febea6939534ceff8347cebab2b7bfd6a28efe8acd56f39b9b1bae699d595c"
+        "sha256": "7e1bee0e449fd1b4f6c94da4893bcf61e78d288d36737b872a183d2451b35bcb"
       },
       {
         "path": "crates/chialisp-oxide-package/src/digest.rs",
@@ -1296,19 +1328,27 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/lib.rs",
-        "sha256": "057a66074cb5e50adbdbd3b1a505b9c59283c289e0c6d2534acf2787b86369ab"
+        "sha256": "335e0503602142bb5d8b90f993c6ab4615e94417216325d63d92689818fd8700"
       },
       {
         "path": "crates/chialisp-oxide-package/src/limits.rs",
-        "sha256": "1997fc1af25b6c613149bde3bd09b100d5a51d4bd8fef608494b108838bb98b8"
+        "sha256": "8c8198d94ebf7914540b979fd521415e6e1490af60f3b450c0b300efc62d01cf"
       },
       {
         "path": "crates/chialisp-oxide-package/src/package.rs",
-        "sha256": "9e0cb0a5eef2864b1bf50a79b403541051bb97b0e63387a940fcc12620e7b378"
+        "sha256": "b60f78d6312d4103e40e6314052c5a2fb190b859725c9fcfc43016c4ae7533ae"
       },
       {
         "path": "crates/chialisp-oxide-package/src/package_tests.rs",
-        "sha256": "ee14f947279cd0bbc7a7af8225821a647e4a42ddd30a684b63ccd483f290c48b"
+        "sha256": "99389569a8f580cc018f0ffb777139fde9d73ad99ec69587b4f4d4c17f89e302"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/src/receipt.rs",
+        "sha256": "8167a3c72a8a4e950b43e92dfe505152258817ef9a7aaedeb0f846c2e3b622a1"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/src/receipt/tests.rs",
+        "sha256": "b3376d7f0cab7fbdd2f90ebdd35f255f91f8d33892bc44184373d1e4137c534a"
       },
       {
         "path": "crates/chialisp-oxide-package/src/store.rs",
@@ -1317,6 +1357,10 @@
       {
         "path": "crates/chialisp-oxide-package/src/store_tests.rs",
         "sha256": "90323f144685a309d92c00abdc81f37bb0b17acdd4534eda53d0521b57ec8078"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/src/string_enum.rs",
+        "sha256": "c857af8f517703bc6fe01e44da57802bfcaa17c648c719ce8175e46b8116c198"
       },
       {
         "path": "crates/chialisp-oxide-reference/Cargo.toml",
@@ -1732,11 +1776,23 @@
       },
       {
         "path": "scripts/cargo_bundle.py",
-        "sha256": "d7000f4ea296d9358ef84154ceb8dfff671e875f8b7add3b277c8a4f10e3823f"
+        "sha256": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664"
+      },
+      {
+        "path": "scripts/cargo_source_receipt.py",
+        "sha256": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f"
       },
       {
         "path": "scripts/check-p2-source-controls.py",
-        "sha256": "bcb3c13e4109f992553ecc9e782f688e7ff56becac0c58e2782ba2d2084511bb"
+        "sha256": "0935d81ba47900cee955c2cfe794bc7f98ed95573b86910b8c72f0a961b37388"
+      },
+      {
+        "path": "scripts/source_walk.py",
+        "sha256": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423"
+      },
+      {
+        "path": "scripts/test_source_walk.py",
+        "sha256": "7f8ccaa9947ebd4d54c4768442a0e94c843b728ed7e529e7d7537711857cecc0"
       },
       {
         "path": "vendor/rue-lir/Cargo.toml",

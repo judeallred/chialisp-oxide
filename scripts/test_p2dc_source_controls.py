@@ -119,6 +119,23 @@ class ProtocolTests(unittest.TestCase):
             value=self.check()
         self.assertEqual([value[k] for k in ('native_test_groups','native_policy_observations','exports','export_modes','retained_VM_observations')],[1,3,4,8,12]);self.assertEqual(len(self.report['files']),86)
 
+    def test_exact_legacy_and_explicit_artifact_only_export_commands(self):
+        explicit=copy.deepcopy(self.report)
+        for row in explicit['commands']:
+            if row['role'].startswith('export-'):row['argv'].insert(2,'--artifact-only')
+        with patch.object(subprocess,'run',side_effect=AssertionError('no process credit')):
+            self.assertEqual(self.check(explicit),self.check())
+        self.bad(lambda r:r['commands'][0]['argv'].insert(2,'--artifact-only'))
+        for change in [lambda a:a.insert(2,'--artifact-only'),lambda a:a.append(a.pop(2)),
+                       lambda a:a.__setitem__(2,'--source-receipt'),lambda a:a.append('--unreviewed'),
+                       lambda a:a.remove('--offline')]:
+            bad=copy.deepcopy(explicit)
+            for row in bad['commands']:
+                if row['role'].startswith('export-'):change(row['argv'])
+            with self.subTest(argv=bad['commands'][0]['argv']),self.assertRaises(ValueError):self.check(bad)
+        bad=copy.deepcopy(explicit);bad['commands'][1]['argv'].insert(2,'--artifact-only')
+        with self.assertRaises(ValueError):self.check(bad)
+
     def test_closed_schema_and_boolean_counts(self):
         for key,value in [('schema_version',True),('status','native_only'),('SDK_submissions',60)]:
             with self.subTest(key=key):self.bad(lambda r:r.update({key:value}))

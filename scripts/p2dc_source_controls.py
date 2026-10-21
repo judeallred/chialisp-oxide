@@ -3,6 +3,11 @@
 Default readers check current inputs and retained metadata/results only. Source
 freshness and receipt consistency do not authenticate execution, prove compiler
 preservation, or establish authorization/state/BLS/security properties.
+
+These manually source-bound mutation packets deliberately retain artifact-only
+Cargo schema 1. Their checked recipes, source window and closed inventory remain
+the source relation; accepting the explicit artifact-only flag adds no automatic
+compiler file-read receipt credit. Ordinary Cargo builds use the current default.
 """
 from pathlib import Path
 import copy
@@ -12,6 +17,7 @@ import os
 import re
 import stat
 import tomllib
+from source_walk import source_files
 
 import cargo_authoring
 import cargo_bundle
@@ -32,7 +38,7 @@ MEMBERS = ('experiments/backend','experiments/byte-proofs','crates/chialisp-oxid
     'crates/chialisp-oxide','crates/chialisp-oxide-macros','crates/cargo-chialisp-oxide','crates/chialisp-oxide-package',
     'crates/chialisp-oxide-simulator','crates/chialisp-oxide-verifier','crates/chialisp-oxide-corpus',
     'crates/chialisp-oxide-cli','crates/chialisp-oxide-vm','puzzles','vendor/rue-lir')
-CODE = ['scripts/'+n for n in ('p2dc_source_controls.py','check-p2dc-source-controls.py','run-p2dc-source-controls.py','test_p2dc_source_controls.py','p2_delegated_conditions_vectors.py','cargo_authoring.py','cargo_bundle.py','hashing_provenance.py','hashing_vectors.py','check-canonical-factories.py','vm_failures.py')]+[TEMPLATE,'corpus/validate_published_puzzles.py']
+CODE = ['scripts/'+n for n in ('p2dc_source_controls.py','check-p2dc-source-controls.py','run-p2dc-source-controls.py','test_p2dc_source_controls.py','p2_delegated_conditions_vectors.py','cargo_authoring.py','cargo_bundle.py','cargo_source_receipt.py','test_cargo_source_receipt.py','source_walk.py','test_source_walk.py','hashing_provenance.py','hashing_vectors.py','check-canonical-factories.py','vm_failures.py')]+[TEMPLATE,'corpus/validate_published_puzzles.py']
 SCOPE = 'One actual native Rust test group checks three independent source-policy observations. Four actual annotated Cargo exports in both modes and twelve retained primary VM witnesses are separate from SDK spends, generic ledger groups and proofs. The baseline copy is explicitly a control. Recorded source/metadata/result consistency is not execution authentication, compiler preservation, exhaustive policy correctness or production readiness.'
 require,closed = vectors.require,vectors.closed
 
@@ -167,6 +173,7 @@ def source_window(root=ROOT):
     vectors.source_inputs(root,reader=collect)
     manifest=tomllib.loads(vectors.read(root,'Cargo.toml').decode())
     members=manifest['workspace']['members'];require(type(members) is list and members==list(MEMBERS),'reviewed workspace source packages required')
+    directories=[]
     for member in members:
         require(type(member) is str and not Path(member).is_absolute() and '..' not in Path(member).parts,'workspace source path')
         paths.add(member+'/Cargo.toml');metadata=tomllib.loads(vectors.read(root,member+'/Cargo.toml').decode())
@@ -175,7 +182,8 @@ def source_window(root=ROOT):
         # Include conventional implicit and explicit targets too. This is bounded
         # source-root discovery, never a recursive scan of target/cache outputs.
         for directory in ('src','examples','tests','benches'):
-            paths.update(p.relative_to(root).as_posix() for p in (root/member/directory).rglob('*.rs') if p.is_file())
+            directories.append(member+'/'+directory)
+    paths.update(source_files(root,directories))
     total=0;rows=[];require(len(paths)<=4096,'implementation source count bound')
     for path in sorted(paths):
         payload=vectors.read(root,path);total+=len(payload);require(total<=64*1024*1024,'implementation source byte bound')
@@ -237,6 +245,15 @@ def relative(base,path):
     parsed=cargo_bundle._relative(path);base=Path(base).resolve();original=base.joinpath(*parsed.parts)
     require(all(not current.is_symlink() for current in [original,*list(original.parents)[:len(parsed.parts)-1]]),'retained artifact path cannot contain symlinks')
     return cargo_bundle._contained(base,path)
+
+
+def artifact_export_variant(actual,historical):
+    """Only the complete historical argv or its one explicit opt-out form."""
+    require(type(actual) is list,'export argv must be a list')
+    if actual==historical:return 'historical'
+    require(actual==historical[:2]+['--artifact-only']+historical[2:],
+        'export argv must be exact historical or explicit artifact-only form')
+    return 'artifact_only'
 
 
 def validate_recorded(report,base,root=ROOT):
@@ -352,10 +369,13 @@ def validate_recorded(report,base,root=ROOT):
         require(check_execution(row['execution'])==expected,'VM witness differs from independent full output/acceptance')
         if expected['status']=='rejected':require(row['execution'].get('failure')==dict(kind='program',code='raise'),'only conclusive typed Raise confirms source assertion')
     require(type(report['commands']) is list and len(report['commands'])==22,'exact two exports/eight compiles/twelve VM commands')
-    command_files=set()
+    command_files=set();export_variants=set()
     for index,(row,(role,argv,result)) in enumerate(zip(report['commands'],expected_commands,strict=True)):
         closed(row,['role','argv','exit_code','stdout','stdout_sha256','stderr','stderr_sha256'],'capture command')
-        require(row['role']==role and row['argv']==argv and type(row['exit_code']) is int and row['exit_code']==0
+        if role.startswith('export-'):
+            export_variants.add(artifact_export_variant(row['argv'],argv));argv_matches=True
+        else:argv_matches=row['argv']==argv
+        require(row['role']==role and argv_matches and type(row['exit_code']) is int and row['exit_code']==0
             and row['stdout']==f'logs/{index:02}.stdout' and row['stderr']==f'logs/{index:02}.stderr','actual command role/argv/normal status')
         stdout=read(relative(base,row['stdout']),allow_empty=True);stderr=read(relative(base,row['stderr']),allow_empty=True)
         require(digest(stdout)==row['stdout_sha256'] and digest(stderr)==row['stderr_sha256'],'actual command stream digests')
@@ -377,6 +397,7 @@ def validate_recorded(report,base,root=ROOT):
         expected_files.add(value['manifest']);manifest=load(relative(base,value['manifest']))
         expected_files.update(f'bundles/{mode}/'+r[k] for r in manifest['entries'] for k in ('ir','clvm'))
     require({r['path'] for r in report['files']}==expected_files,'retained artifact set')
+    require(len(export_variants)==1,'both compiler modes must use one exact export argv form')
     for row in report['files']:
         closed(row,['path','sha256'],'retained file');require(sha(relative(base,row['path']))==row['sha256'],'retained artifact bytes changed')
     return dict(native_test_groups=1,native_policy_observations=3,exports=4,export_modes=8,retained_VM_observations=12,

@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 from unittest.mock import patch
 
@@ -41,6 +42,40 @@ def execution(module, policy, n):
 
 
 class SourceTests(unittest.TestCase):
+    def test_actual_producer_requests_artifact_only_in_both_modes(self):
+        # Run producer orchestration only: every subprocess/native identity and
+        # export load is constructed, and stop before IR/model/VM processing.
+        class StopAfterSecondExport(Exception):
+            pass
+        commands = []
+        def run(argv, **kwargs):
+            commands.append(list(argv))
+            if len(commands) == 3:
+                raise StopAfterSecondExport
+            return subprocess.CompletedProcess(argv, 0, "constructed tool log\n", "")
+        def exported(directory, **kwargs):
+            return types.SimpleNamespace(manifest_path=directory / "manifest.json", ir_sha256="a" * 64)
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory).resolve()
+            tools, target, z3 = base / "tools", base / "target", base / "tools/z3"
+            with patch.object(B, "reviewed_contract", return_value=({}, {})), \
+                    patch.object(B, "source_snapshot", return_value={"experiment": {}}), \
+                    patch.object(B, "identities", return_value={"toolchain": "constructed"}), \
+                    patch.object(B, "file_sha", return_value="a" * 64), \
+                    patch.object(B.shutil, "which", return_value=str(z3)), \
+                    patch.object(B, "check_export", side_effect=exported), \
+                    patch.object(B, "run", side_effect=run), \
+                    self.assertRaises(StopAfterSecondExport):
+                B.produce(B.ROOT, base / "output", tools, target, z3)
+            self.assertEqual(len(commands), 3)
+            self.assertNotIn("--artifact-only", commands[0])  # Native Cargo remains ordinary.
+            for index, mode in [(1, "off"), (2, "on")]:
+                expected = [tools / "cargo-chialisp-oxide", "build", "--artifact-only", *B.OPTIONS,
+                            "--output-dir", base / "output" / ("fresh-" + mode)]
+                if mode == "off":
+                    expected.append("--no-optimize")
+                self.assertEqual(commands[index], expected)
+
     def test_exact_current_contract_and_actual_file_corruptions(self):
         B.reviewed_contract(B.ROOT)
         with tempfile.TemporaryDirectory() as directory:

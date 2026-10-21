@@ -62,15 +62,28 @@ rather than silently composed with the extraction wrapper.
 
 The default output root is the selected package workspace's
 `target/chialisp-oxide/artifacts/`. `--output-dir PATH` chooses another root. Each
-successful build publishes a new immutable bundle containing `manifest.json`
-and each export's typed IR, serialized CLVM hex, disassembly, and artifact
-metadata. `latest.json` atomically points to the new bundle's manifest. Failed
+successful default build publishes a new immutable bundle containing `manifest.json`
+and each export's typed IR, serialized CLVM hex, disassembly, artifact metadata,
+and a bounded schema-2 source receipt. `latest.json` atomically points to the new bundle's manifest. Failed
 builds leave the previous successful bundle intact.
 
 The manifest records package selection, compiler and driver identity, Cargo
 options, Rue revision, and paths to the entries. Follow those recorded paths;
 do not rely on a particular generated entry filename. This is build metadata,
 not a complete hash of all source files and transitive inputs.
+
+Default builds retain the selected library's successful compiler file reads
+under its package and actual `OUT_DIR`, plus named manifest/build-script
+snapshots and the post-Cargo lockfile. Raw bytes preserve BOMs, line endings
+and binary inputs. Dependency units, process/environment inputs and the complete
+build graph remain outside the capture scope. These declarations do not prove
+source authenticity or source/IR/CLVM equivalence.
+
+`build --artifact-only` explicitly emits a legacy schema-1 bundle without this
+capture. Capture failures never select that mode automatically. `check` records
+no receipt and rejects `--artifact-only`. The
+[package registry guide](/chialisp-oxide/reference/package-registry/)
+explains exact source attachments, limits and offline import.
 
 The separate extraction directory is keyed by the driver binary's SHA-256.
 The selected library is re-extracted even when Cargo would otherwise consider

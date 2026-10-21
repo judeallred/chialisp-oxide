@@ -12,6 +12,7 @@ import os
 import re
 import stat
 import tomllib
+from source_walk import WalkLimits, source_files
 
 import cargo_authoring
 import cargo_bundle
@@ -196,11 +197,15 @@ def source_window(root=ROOT):
         "puzzles/boomerang/puzzle.json", "crates/chialisp-oxide-vm/failure-protocol.json",
         "crates/chialisp-oxide-simulator/rejection-protocol.json", RECIPES,
         DIRECTORY + "/native.rs", DIRECTORY + "/ledger.rs"])
+    paths.update(["scripts/source_walk.py", "scripts/test_source_walk.py"])
     # Every root Python reader/producer is a declared implementation input. Never
     # recurse through target, virtual environments or a private prepared package.
-    paths.update(path.relative_to(root).as_posix() for path in (root / "scripts").glob("*.py") if path.is_file())
+    script_paths = source_files(root, "scripts", suffixes=(".py",), recursive=False,
+        limits=WalkLimits(directories=1, entries=4096))
+    paths.update(script_paths)
     members = tomllib.loads(read(root / "Cargo.toml").decode())["workspace"]["members"]
     require(type(members) is list and 0 < len(members) <= 64, "bounded workspace source roots")
+    directories = []
     for member in members:
         require(type(member) is str and not Path(member).is_absolute() and ".." not in Path(member).parts and Path(member).as_posix() == member, "confined workspace member")
         manifest = member + "/Cargo.toml"
@@ -220,7 +225,11 @@ def source_window(root=ROOT):
         if (root / member / "build.rs").is_file():
             paths.add(member + "/build.rs")
         for directory in ("src", "examples", "tests", "benches"):
-            paths.update(path.relative_to(root).as_posix() for path in (root / member / directory).rglob("*.rs") if path.is_file())
+            directories.append(member + "/" + directory)
+    # Reserve the shallow script pass's entire entry/directory budget so both
+    # passes together retain the same 16,384-entry / 4,096-directory ceilings.
+    paths.update(source_files(root, directories, limits=WalkLimits(
+        directories=4095, entries=12288, sources=4096-len(script_paths))))
     require(len(paths) <= 4096, "source count bound")
     total, rows = 0, []
     for path in sorted(paths):

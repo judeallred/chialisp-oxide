@@ -18,11 +18,14 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 
-from cargo_authoring import require, unique_object
+from cargo_authoring import require
+import cargo_source_receipt as receipt_protocol
+from cargo_source_receipt import decode_json, regular_path, validate_receipt
 
 
 PROTOCOL = "cargo-chialisp-oxide-artifact/v1"
 MAX_JSON_BYTES = 16 * 1024 * 1024
+MAX_BLOB_BYTES = 2 * 1024 * 1024
 MAX_TOTAL_BYTES = 64 * 1024 * 1024
 MAX_EXPORTS = 1024
 MAX_SOURCE_FILES = 4096
@@ -39,6 +42,8 @@ class CargoExport:
     manifest_path: Path
     manifest: dict
     ir_sha256: str
+    source_receipt: dict | None = None
+    source_files: tuple = ()
 
 
 def _relative(raw):
@@ -52,7 +57,8 @@ def _relative(raw):
 
 
 def _contained(root, relative):
-    path = root.joinpath(*_relative(relative).parts).resolve()
+    _relative(relative)
+    path = regular_path(root, relative).resolve()
     require(path.is_relative_to(root) and path.is_file(),
             f"Cargo artifact is missing or escapes its bundle: {relative}")
     return path
@@ -62,18 +68,19 @@ class _Reader:
     def __init__(self):
         self.remaining = MAX_TOTAL_BYTES
 
-    def bytes(self, path):
-        limit = min(MAX_JSON_BYTES, self.remaining)
+    def bytes(self, path, maximum=MAX_JSON_BYTES):
+        limit = min(MAX_JSON_BYTES, maximum, self.remaining)
+        require(path.stat().st_size <= limit, f"Cargo bundle read budget exceeded: {path}")
         with path.open("rb") as source:
             payload = source.read(limit + 1)
         require(len(payload) <= limit, f"Cargo bundle read budget exceeded: {path}")
         self.remaining -= len(payload)
         return payload
 
-    def json(self, path):
-        payload = self.bytes(path)
+    def json(self, path, maximum=MAX_JSON_BYTES):
+        payload = self.bytes(path, maximum)
         try:
-            value = json.loads(payload, object_pairs_hook=unique_object)
+            value = decode_json(payload)
         except (UnicodeError, json.JSONDecodeError, RecursionError) as error:
             raise ValueError(f"Invalid Cargo artifact JSON: {path}") from error
         require(isinstance(value, dict), f"Cargo artifact must be an object: {path}")
@@ -166,16 +173,17 @@ def _check_fingerprints(root, authoring):
 
 
 def _artifact(entry, root, reader, paths, optimize):
-    require(set(entry) == {"entry", "ir", "clvm", "artifact"},
-            "Malformed Cargo artifact entry")
-    ir_path = _contained(root, entry["ir"])
-    clvm_path = _contained(root, entry["clvm"])
-    for path in (ir_path, clvm_path):
-        require(path not in paths, "Cargo entries alias an artifact file")
-        paths.add(path)
-    program, payload = reader.json(ir_path)
-    require(_identity(program) == entry["entry"], "Cargo IR export identity mismatch")
-    artifact = entry["artifact"]
+    """Retain the legacy three-value transport API for historical readers."""
+    return _artifact_details(entry, root, reader, paths, optimize)[:3]
+
+
+def _artifact_metadata(artifact, optimize, version):
+    if version == 2:
+        require(type(artifact) is dict and set(artifact) == {
+            "backend", "optimize_lir", "bytes", "clvm_hex", "tree_hash", "disassembly"},
+            "Unknown source-aware artifact fields")
+        require(type(artifact["bytes"]) is int and 0 < artifact["bytes"] <= MAX_BLOB_BYTES,
+                "Source-aware artifact byte limit exceeded")
     require(isinstance(artifact, dict) and artifact.get("backend") == "rust_mir"
             and type(artifact.get("optimize_lir")) is bool
             and artifact["optimize_lir"] == optimize
@@ -185,9 +193,83 @@ def _artifact(entry, root, reader, paths, optimize):
             and isinstance(artifact.get("tree_hash"), str) and SHA256.fullmatch(artifact["tree_hash"])
             and isinstance(artifact.get("disassembly"), str) and artifact["disassembly"],
             "Malformed Cargo CLVM artifact metadata")
+
+
+def _ir_declaration(row):
+    receipt_protocol._object(row, ("entry", "ir", "bytes", "sha256"), "source export")
+    name = receipt_protocol._text(row["entry"], "source export name", 256)
+    ir = receipt_protocol._label(row["ir"])
+    size = receipt_protocol._integer(row["bytes"], receipt_protocol.MAX_IR_BYTES, "source IR length", 1)
+    digest = receipt_protocol._hash(row["sha256"], "source IR digest")
+    return name, ir, size, digest
+
+
+def _preflight_ir_declarations(manifest, reader, optimize):
+    """Admit the complete v2 IR length inventory before any artifact read.
+
+    These are untrusted declarations, not actual IR observations. The independent
+    complete receipt validator still checks actual bytes and source protocol.
+    """
+    receipt_protocol._object(manifest, ("schema_version", "status", "package", "package_id", "manifest_path",
+        "workspace_root", "compiler", "toolchain", "analysis_target", "driver_sha256", "rue_revision",
+        "cargo_options", "entries", "source_receipt"), "source-aware Cargo manifest")
+    receipt = receipt_protocol._object(manifest["source_receipt"],
+        ("protocol", "scope", "build", "unit", "exports", "files", "snapshots", "omitted"), "source receipt")
+    require(receipt["protocol"] == receipt_protocol.PROTOCOL and receipt["scope"] == receipt_protocol.SCOPE,
+            "Unsupported source receipt protocol/scope")
+    rows = receipt["exports"]
+    require(type(rows) is list and 0 < len(rows) <= MAX_EXPORTS
+            and len(rows) == len(manifest["entries"]), "Source export limit/inventory mismatch")
+    named, ir_paths, total = {}, set(), 0
+    for row in rows:
+        name, ir, size, _ = _ir_declaration(row)
+        require(name not in named and ir not in ir_paths, "Duplicate source export/path")
+        total += size
+        require(total <= reader.remaining, "Declared Cargo IR aggregate read budget exceeded")
+        named[name] = row
+        ir_paths.add(ir)
+    receipt_protocol._sorted_unique(list(named), "Source exports")
+    paths = {"manifest.json"}
+    for entry in manifest["entries"]:
+        receipt_protocol._object(entry, ("entry", "ir", "clvm", "artifact"), "Cargo export")
+        require(entry["entry"] in named and named[entry["entry"]]["ir"] == entry["ir"],
+                "Source receipt differs from complete exact IR inventory")
+        _artifact_metadata(entry["artifact"], optimize, 2)
+        for filename in (entry["ir"], entry["clvm"]):
+            receipt_protocol._label(filename)
+            _relative(filename)
+            require(filename not in paths, "Cargo entries alias an artifact file")
+            paths.add(filename)
+    return named
+
+
+def _artifact_details(entry, root, reader, paths, optimize, version=1, *, ir_declaration=None):
+    require(set(entry) == {"entry", "ir", "clvm", "artifact"},
+            "Malformed Cargo artifact entry")
+    if version == 2:
+        name, ir, size, expected_hash = _ir_declaration(ir_declaration)
+        require(name == entry["entry"] and ir == entry["ir"], "Source IR declaration identity mismatch")
+        _artifact_metadata(entry["artifact"], optimize, version)
+    ir_path = _contained(root, entry["ir"])
+    clvm_path = _contained(root, entry["clvm"])
+    for path in (ir_path, clvm_path):
+        require(path not in paths, "Cargo entries alias an artifact file")
+        paths.add(path)
+    if version == 2:
+        payload = reader.bytes(ir_path, min(size, receipt_protocol.MAX_IR_BYTES, reader.remaining))
+        require(len(payload) == size and hashlib.sha256(payload).hexdigest() == expected_hash,
+                "Source receipt differs from complete exact IR inventory")
+        program = decode_json(payload)
+        require(type(program) is dict, f"Cargo artifact must be an object: {ir_path}")
+    else:
+        program, payload = reader.json(ir_path)
+    require(_identity(program) == entry["entry"], "Cargo IR export identity mismatch")
+    artifact = entry["artifact"]
+    if version == 1:
+        _artifact_metadata(artifact, optimize, version)
     require(reader.bytes(clvm_path) == (artifact["clvm_hex"] + "\n").encode("ascii"),
             "Published Cargo CLVM file differs from its manifest metadata")
-    return program, ir_path, hashlib.sha256(payload).hexdigest()
+    return program, ir_path, hashlib.sha256(payload).hexdigest(), len(payload)
 
 
 def load_declared_export(output, *, root, authoring, selected_entry, compiler,
@@ -229,9 +311,12 @@ def load_declared_export(output, *, root, authoring, selected_entry, compiler,
     manifest_path = _contained(output, pointer["manifest"])
     require(manifest_path.parent == bundle_root, "Cargo manifest escapes its named bundle")
     manifest, _ = reader.json(manifest_path)
-    require(type(manifest.get("schema_version")) is int and manifest["schema_version"] == 1
+    version = manifest.get("schema_version")
+    require(type(version) is int and version in (1, 2)
             and manifest.get("status") == "wip_prototype_not_ready_for_use",
             "Unsupported Cargo bundle schema/status")
+    require(version == 2 or "source_receipt" not in manifest,
+            "Schema-1 Cargo bundle cannot carry a source receipt")
     require(manifest.get("package") == authoring["package"]
             and _absolute(manifest.get("manifest_path"), "manifest path")
             == _contained(root, authoring["manifest"])
@@ -253,10 +338,21 @@ def load_declared_export(output, *, root, authoring, selected_entry, compiler,
     names = [entry.get("entry") if isinstance(entry, dict) else None for entry in entries]
     require(all(isinstance(name, str) for name in names) and len(names) == len(set(names))
             and set(names) == expected, "Cargo export identities differ from their declarations")
+    declarations = _preflight_ir_declarations(manifest, reader, optimize) if version == 2 else None
     loaded, paths = {}, set()
     for entry in entries:
-        loaded[entry["entry"]] = _artifact(entry, manifest_path.parent, reader, paths, optimize)
+        if version == 1:
+            loaded[entry["entry"]] = (*_artifact(entry, manifest_path.parent, reader, paths, optimize), None)
+        else:
+            loaded[entry["entry"]] = _artifact_details(entry, manifest_path.parent, reader, paths, optimize, version,
+                ir_declaration=declarations[entry["entry"]])
+    source_files = ()
+    if version == 2:
+        ir_details = {entry["entry"]: (entry["ir"], loaded[entry["entry"]][3],
+                                      loaded[entry["entry"]][2]) for entry in entries}
+        source_files = validate_receipt(manifest, manifest_path.parent, ir_details, reader, paths)
     require(current_authoring() == authoring, "Declared Cargo inputs changed during bundle loading")
     _check_fingerprints(root, authoring)
-    program, path, digest = loaded[selected_entry]
-    return CargoExport(program, path, manifest_path, manifest, digest)
+    program, path, digest, _ = loaded[selected_entry]
+    return CargoExport(program, path, manifest_path, manifest, digest,
+                       manifest.get("source_receipt"), source_files)

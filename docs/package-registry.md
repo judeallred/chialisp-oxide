@@ -6,7 +6,7 @@ metadata and declared attachments. These checks do not establish source or
 compiler authenticity, source/IR/CLVM equivalence, authorization, an audit or
 production safety.
 
-This is the first local storage increment of
+This extends the local storage increment of
 [issue #21](https://github.com/judeallred/chialisp-oxide/issues/21). It does not
 download dependencies, query a node or execute a puzzle. Registry commands do
 not launch Cargo, rustup, the compiler, a driver, a build script, a VM or a
@@ -33,7 +33,9 @@ target/debug/cargo-chialisp-oxide build --manifest-path /path/to/puzzle/Cargo.to
 ```
 
 The CLVM build publishes a new immutable bundle directory and prints its
-`manifest.json` path. Use that exact path for import. Replace `IMMUTABLE_RUN`
+`manifest.json` path. By default, it also records bounded selected-library
+compiler-read files and named launcher snapshots automatically. Use that exact
+path for import. Replace `IMMUTABLE_RUN`
 and `my_puzzles::payment::puzzle` below with the actual directory and fully
 qualified export name from your build:
 
@@ -49,7 +51,8 @@ unselected export prevents publication. The import requires the immutable
 Undeclared adjacent disassembly and presentation files are not imported.
 
 The selected package retains its exact IR JSON, original complete bundle
-manifest JSON and selected artifact bytes. It does not retain all unselected
+manifest JSON, selected artifact bytes and all declared source files when the
+bundle has a source receipt. It does not retain all unselected
 IR files or reconstruct the original source tree. Later package verification
 checks the retained attachments; it cannot authenticate the earlier complete
 bundle read or prove which process produced those files.
@@ -158,15 +161,59 @@ recover these meanings. The registry does not infer a safe binding API from
 them. The attached IR's ABI also does not prove that the attached CLVM artifact
 implements that ABI or the same policy.
 
-## Source attachments and build declarations
+## Automatically declared files and build context
 
-The current Cargo bundle import produces `source_scope: "not_recorded"` and
-an empty `sources` list. It does not silently infer sources from declared
-absolute paths, inspect the checkout or capture a complete build graph.
-Compiler text, driver digest, toolchain, target, Rue revision, effective Cargo
-options and package paths in the retained bundle manifest are recorded
-declarations. Internal consistency checks do not authenticate those claims or
-compare them with an independently observed build.
+Ordinary `cargo chialisp-oxide build` emits bundle schema 2 with a closed source
+receipt. Its registry import produces `source_scope: "declared_files_only"`
+and retains the exact bytes of every declared logical file. There is no
+handwritten source JSON step. Import validates the complete source inventory
+alongside all exports, then requires exact receipt/attachment correspondence
+when verifying the resulting package. It does not reopen the original checkout
+or reconstruct those files on the host filesystem.
+
+The receipt distinguishes these observations:
+
+- Successful selected-library compiler text/binary file reads under the selected
+  package (`package/`) and its actual Cargo `OUT_DIR` (`generated/`), with exact
+  returned bytes and successful read counts. The exact metadata-selected library
+  root may instead use `entry/library.rs` when outside those roots.
+- Launcher snapshots of the selected/workspace manifests and exact build-script
+  root. These must remain byte-identical before and after the Cargo invocation.
+  An external build-script root uses `entry/build-script.rs`; its surrounding
+  directory is not captured. A root snapshot does not prove Cargo reran the
+  script or capture its transitive inputs.
+- The workspace lockfile after successful Cargo, if present. Normal unlocked
+  builds may create or update it. This is a post-Cargo declaration, not a trace
+  of the exact dependency resolution bytes consumed earlier.
+
+Other successful external reads have bounded omission counters. Their paths
+and contents are absent. Dependency compiler units, build-script execution,
+arbitrary subprocesses, environment reads and the complete effective dependency
+graph remain outside this scope. The unit records its parsed feature cfg set,
+not all custom cfg or environment values. Raw data preserves empty files,
+non-UTF8 binary bytes, BOMs and line endings; text normalization is not applied.
+
+Compiler text, driver digest, toolchain, target, Rue revision, ordered Cargo
+options and package identities remain recorded declarations. The receipt binds
+them and every exact emitted IR file to its enclosing bundle. These consistency
+checks do not authenticate the compiler or show that attached source, IR and
+CLVM have equivalent behavior. Rehashing a changed, internally consistent
+declaration creates a different package identity rather than proving its author
+told the truth.
+
+Capture uses fixed host resource limits. Missing, conflicting, nonportable or
+oversized observations fail packaging without publishing a partial bundle or
+silently discarding sources. A deliberately artifact-only build uses:
+
+```sh
+target/debug/cargo-chialisp-oxide build --manifest-path /path/to/puzzle/Cargo.toml --locked --artifact-only --output-dir /path/to/artifacts
+```
+
+`--artifact-only` emits legacy bundle schema 1, whose default import keeps
+`source_scope: "not_recorded"` and an empty source list. `check` performs no
+capture and rejects that build-only flag. Existing immutable schema-1 bundles
+remain accepted unchanged. Old readers that do not support embedded bundle
+schema 2 reject it; the outer package-envelope schema remains 1.
 
 The package schema can also carry explicit source attachments with
 `source_scope: "declared_files_only"`. Each attachment has a unique normalized
@@ -177,9 +224,8 @@ or generated files, or represent a complete effective build environment.
 Path labels are not extracted onto the host filesystem. Optional provenance
 URLs, revisions and license labels remain declarations too.
 
-There is no automatic source-aware Cargo receipt in this increment. The CLI's
-`publish --package` accepts an already constructed valid envelope; it does not
-add or discover source files. Host applications can construct a
+The CLI's `publish --package` accepts an already constructed valid envelope;
+it does not add or discover source files. Host applications can construct a
 `package::PackageManifest` and call `package::encode_manifest` to obtain an
 independently admitted envelope.
 
@@ -297,9 +343,8 @@ not exist.
 ## Work still required for issue #21
 
 This local registry does not complete the broader package tooling goal.
-Actual mainnet observation, an automatic ordinary-Cargo source/build receipt,
-standard-curry argument decoding, reviewed nominal bindings and a
-dependency-by-hash authoring example remain unfinished. Broader ecosystem
+Actual mainnet observation, standard-curry argument decoding, reviewed nominal
+bindings and a dependency-by-hash authoring example remain unfinished. Broader ecosystem
 coverage and issue acceptance also remain open. Package identity checks add
 no native execution, VM execution, simulator spending, model proof or
 compiler-preservation evidence by themselves.

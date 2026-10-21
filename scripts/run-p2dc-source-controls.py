@@ -121,7 +121,9 @@ def capture(package,native_path,quiet_path,target,output):
         fixed[str(stdout)]=c.sha(stdout);fixed[str(stderr)]=c.sha(stderr)
         return c.read(stdout,allow_empty=True)
     for mode in ('off','on'):
-        directory=output/f'fresh-{mode}';execute(f'export-{mode}',[target/'debug/cargo-chialisp-oxide','build',*c.options(package),'--output-dir',directory]+(['--no-optimize'] if mode=='off' else []))
+        # This reviewed v1 packet already binds its exact source recipes/window.
+        # Keep that lane artifact-only; it earns no automatic source-read receipt.
+        directory=output/f'fresh-{mode}';execute(f'export-{mode}',[target/'debug/cargo-chialisp-oxide','build','--artifact-only',*c.options(package),'--output-dir',directory]+(['--no-optimize'] if mode=='off' else []))
         checked=c.fresh_bundle(directory,package,root=c.ROOT,compiler=compiler,driver_sha256=tools['chialisp-oxide-driver']['sha256'],toolchain=toolchain(),optimize=mode=='on')
         retained=output/'bundles'/mode;retained.mkdir(parents=True);shutil.copy2(checked.manifest_path,retained/'manifest.json');recompiled=[]
         fixed[str(retained/'manifest.json')]=c.sha(retained/'manifest.json')
