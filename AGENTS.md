@@ -13,6 +13,7 @@ this file:
 - [Current evidence and historical checkpoints](docs/agent-rules/current-evidence.md)
 - [Optimizer boundaries](docs/agent-rules/optimizer-semantics.md)
 - [Hash primitive boundary](docs/agent-rules/hash-primitive-boundary.md)
+- [Registry dependencies](docs/agent-rules/registry-dependencies.md)
 
 **Writing puzzles with the SDK?** Start with [docs/llms.md](docs/llms.md).
 The rules below cover contributing to the compiler and evidence pipeline.

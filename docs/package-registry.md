@@ -115,6 +115,114 @@ contains machine-readable results or a structured error; diagnostics also use
 stderr and failed commands return an error exit status. Without `--json`, the
 CLI prints a readable result and the verification scope.
 
+## Pin an exact local dependency
+
+After reviewing lookup's variants, select a package and give it a local name:
+
+```sh
+target/debug/cargo-chialisp-oxide registry add --name payment --module-hash MODULE_TREE_HASH --object-id OBJECT_ID --registry .local-puzzles --lock chialisp-oxide.lock --json
+```
+
+The installed form is `cargo chialisp-oxide registry add` with the same flags.
+`--object-id` may be omitted only when the complete admitted store has exactly
+one package for that tree hash. Multiple envelopes remain ambiguous even when
+their CLVM bytes match. Use `lookup`, review the declarations and select an
+exact object; the tool never chooses the first variant.
+
+`add` writes use local POSIX semantics, reviewed on macOS/Linux;
+non-Unix platforms fail explicitly before mutation. Reading a portable lock and
+resolving its packages remain independent of this writer restriction.
+`--lock` is explicit and its parent must already exist. The tool does not
+discover Cargo workspaces or change `Cargo.toml` or `Cargo.lock`. Those output
+basenames are reserved, including Unicode lowercase equivalents. A lock cannot be placed
+inside its selected registry. Commit a project-local `chialisp-oxide.lock`
+alongside the consumer code; choose a registry separately when resolving it.
+
+The closed `chialisp-oxide-dependencies/v1` protocol records sorted unique
+names, exact envelope IDs, artifact encoding, byte length, serialized-blob
+digest and decoded tree hash. Each pin has an explicit `binding: null`:
+neither its name nor the stored structural ABI grants a typed callable API.
+Names use `[a-z][a-z0-9_]{0,63}` and do not become filesystem paths or Rust
+module names. A lock has at most 128 dependencies and 1 MiB of JSON, with
+fixed depth and node bounds. It contains no absolute registry path, executable
+bytes or source tree, so copying a lock also requires copying its exact packages.
+
+An add checks every registry object once within the shared scan budget and
+verifies all existing pins before writing. An identical pin for an existing
+name returns `already_present` and preserves the original lock bytes, including
+whitespace. A different pin under that name is a conflict; replacement is not
+implicit. Missing, changed or corrupt dependencies prevent the update.
+
+Writers use a nonblocking sibling advisory lock, compare the original exact
+file snapshot, then write, sync and recheck a private staging file before
+committing the complete replacement. Contention or a changed snapshot returns
+a conflict. Precommit failures preserve the old destination; an I/O failure
+after commit can leave the complete new lock visible. Retry rechecks that state;
+if an orphaned hard-link stage could not be removed, its extra link must be
+cleaned up before another update. The persistent, empty sibling writer-lock
+file is coordination state. This protocol
+coordinates cooperating writers on supported local filesystems; it is not a
+hostile-directory sandbox or a power-loss guarantee.
+
+## Consume the actual locked artifact from Rust
+
+The package library resolves every pin against a selected local store before
+returning executable bytes:
+
+```rust
+use std::path::Path;
+use chialisp_oxide_package::{
+    Error, ErrorKind, Limits, Result, dependency::read_lock, store::Registry,
+};
+
+fn payment_bytes() -> Result<Vec<u8>> {
+    let registry = Registry::open(Path::new(".local-puzzles"), Limits::default())?;
+    let lock = read_lock(Path::new("chialisp-oxide.lock"))?;
+    let dependencies = lock.resolve(&registry)?;
+    let payment = dependencies.get("payment").ok_or_else(|| {
+        Error::new(ErrorKind::UnknownObject, "payment dependency is absent")
+    })?;
+    Ok(payment.artifact().bytes().to_vec())
+}
+```
+
+The checkout includes a runnable host example which executes those retrieved
+bytes with an explicit serialized environment. There is no embedded puzzle or
+fallback when retrieval fails. For a lock whose `payment` pin is the corpus's
+`chialisp_oxide_puzzles::capped_payment::puzzle`, `ff8201f480` encodes its `(500)`
+solution:
+
+```sh
+cargo run --locked -p chialisp-oxide-package --example locked-artifact -- chialisp-oxide.lock .local-puzzles payment ff8201f480
+```
+
+This example bounds the solution to 64 KiB, its depth to 256, atom heap to
+8 MiB and VM work to 10,000,000 cost units. Its successful JSON includes the
+actual object/artifact identities, result bytes and cost. VM errors carry the
+pinned typed failure code; resource exhaustion is inconclusive. Running a
+module in a host VM does not validate a coin spend or supply a nominal solution
+schema. This is an opaque host dependency; generated typed bindings and genuine
+on-chain Rust dependency authoring remain work for issue #21.
+
+To reproduce the actual host workflow from this checkout, build the tools and
+extract the corpus in both modes into fresh output directories:
+
+```sh
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-package --bins --examples
+target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --output-dir target/registry-source-on
+target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --no-optimize --output-dir target/registry-source-off
+python3 scripts/check-registry-dependencies.py --cli target/debug/cargo-chialisp-oxide --consumer target/debug/examples/locked-artifact --bundle-on target/registry-source-on --bundle-off target/registry-source-off --output target/registry-replay
+```
+
+The replay selects only the capped-payment export after complete bundle
+admission, publishes its two compiler variants and pins them in a local lock.
+It checks the actual Rust consumer's expected output and typed failures,
+byte-preserving idempotence, tampering, missing objects and copied-store
+resolution. Child tool commands run with an empty `PATH` and invalid
+Cargo/compiler overrides. The output directory must be new and retains the
+command results and report. This is an executable seed recipe for those two
+packages; it does not compile or seed the entire published-source catalog.
+
 ## Keep the identities separate
 
 - **Object ID:** SHA-256 of the complete exact package-envelope bytes. There is
@@ -343,8 +451,11 @@ not exist.
 ## Work still required for issue #21
 
 This local registry does not complete the broader package tooling goal.
-Actual mainnet observation, standard-curry argument decoding, reviewed nominal
-bindings and a dependency-by-hash authoring example remain unfinished. Broader ecosystem
+The [reveal inspection and standard binding guide](https://judeallred.github.io/chialisp-oxide/reference/reveal-inspection/)
+covers the retained mainnet observation, local standard-curry decoding and the
+first reviewed host binding. Broader nominal bindings and an on-chain
+dependency-by-hash authoring example remain unfinished.
+Local exact pins and host VM consumers do not complete those requirements. Broader ecosystem
 coverage and issue acceptance also remain open. Package identity checks add
 no native execution, VM execution, simulator spending, model proof or
 compiler-preservation evidence by themselves.

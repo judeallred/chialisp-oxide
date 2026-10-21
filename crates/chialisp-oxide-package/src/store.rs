@@ -11,6 +11,7 @@ use crate::{
 };
 use serde::Serialize;
 use std::{
+    collections::BTreeSet,
     fs::{File, OpenOptions},
     io::{self, Write},
     path::{Path, PathBuf},
@@ -55,6 +56,10 @@ impl Registry {
         fs::create_directories(&path.join("objects"))?;
         fs::create_directories(&path.join(".staging"))?;
         Self::open(path, limits)
+    }
+
+    pub(crate) fn root(&self) -> &Path {
+        &self.root
     }
 
     fn objects(&self) -> PathBuf {
@@ -156,6 +161,24 @@ impl Registry {
     /// All objects are checked under bounded aggregate reads; a corrupt object
     /// cannot be hidden by claiming that its module hash does not match.
     pub fn lookup(&self, module_hash: Digest32) -> Result<Vec<VerifiedPackage>> {
+        self.scan_for_dependencies(Some(module_hash), &BTreeSet::new())
+    }
+
+    /// Admit the complete store once, retaining the union of exact requested
+    /// objects and module-hash matches. Missing requested IDs remain the
+    /// dependency caller's responsibility. The fixed request bound is separate
+    /// from the store's object count and aggregate byte limits.
+    pub(crate) fn scan_for_dependencies(
+        &self,
+        module_hash: Option<Digest32>,
+        object_ids: &BTreeSet<Digest32>,
+    ) -> Result<Vec<VerifiedPackage>> {
+        if object_ids.len() > 128 {
+            return Err(Error::new(
+                ErrorKind::ResourceLimit,
+                "dependency object request count exceeds limit",
+            ));
+        }
         let mut remaining = self.limits.max_lookup_bytes;
         let mut matches = Vec::new();
         for (identity, path) in self.object_paths()? {
@@ -163,7 +186,9 @@ impl Registry {
                 fs::read_regular_file(&path, remaining.min(self.limits.max_envelope_bytes))?;
             remaining -= bytes.len();
             let package = self.admit_object(identity, &bytes)?;
-            if package.module_tree_hash() == module_hash {
+            if object_ids.contains(&identity)
+                || module_hash.is_some_and(|hash| package.module_tree_hash() == hash)
+            {
                 matches.push(package);
             }
         }

@@ -85,6 +85,19 @@ no receipt and rejects `--artifact-only`. The
 [package registry guide](/chialisp-oxide/reference/package-registry/)
 explains exact source attachments, limits and offline import.
 
+`registry add --name payment --module-hash HASH --registry DIR --lock PATH`
+pins an exact local package into a separate dependency lock. Add `--object-id ID`
+when lookup has multiple envelopes for that hash. The lock destination is explicit;
+this operation does not edit Cargo manifests or generate typed bindings. See the
+guide's local dependency and host consumer examples.
+
+`registry inspect --clvm-hex-file PATH [--expected-puzzle-hash HASH] [--registry DIR]`
+checks a complete reveal and strictly inspects canonical curry structure. The
+optional store lookup uses the extracted module hash after checking the full
+reveal hash. It opens no store when no module is extracted. See
+[reveal inspection and standard bindings](/chialisp-oxide/reference/reveal-inspection/)
+for the real observed standard-puzzle fixture, argument decoding and host consumer.
+
 The separate extraction directory is keyed by the driver binary's SHA-256.
 The selected library is re-extracted even when Cargo would otherwise consider
 it fresh; dependency builds remain cached for that driver identity. An explicit

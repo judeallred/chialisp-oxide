@@ -2,13 +2,32 @@
 use chialisp_oxide_package::{
     Digest32, Error, ErrorKind, Limits, Result,
     bundle::import_bundle,
+    dependency::{self, add_local},
+    inspect,
     package::{VERIFICATION_SCOPE, verify_package_file},
     store::Registry,
 };
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, ffi::OsString, path::PathBuf};
 
-const USAGE: &str = "WIP prototype. Not ready for use or real funds.\n\ncargo chialisp-oxide registry publish --bundle IMMUTABLE/manifest.json --entry RUST_EXPORT --registry DIR [--json]\ncargo chialisp-oxide registry publish --package ENVELOPE.json --registry DIR [--json]\ncargo chialisp-oxide registry verify --package ENVELOPE.json [--json]\ncargo chialisp-oxide registry lookup --module-hash LOWERCASE_HEX --registry DIR [--json]\ncargo chialisp-oxide registry get --object-id LOWERCASE_HEX --registry DIR [--json]\n\nPublish writes only the explicitly selected local registry. No registry operation runs Cargo, rustup, a compiler, VM, build script or network client. Bundle metadata and optional source attachments are declarations; identity checks do not prove source/IR/CLVM equivalence or security.";
+const USAGE: &str = concat!(
+    "WIP prototype. Not ready for use or real funds.\n\n",
+    "cargo chialisp-oxide registry publish --bundle IMMUTABLE/manifest.json --entry RUST_EXPORT --registry DIR [--json]\n",
+    "cargo chialisp-oxide registry publish --package ENVELOPE.json --registry DIR [--json]\n",
+    "cargo chialisp-oxide registry verify --package ENVELOPE.json [--json]\n",
+    "cargo chialisp-oxide registry lookup --module-hash LOWERCASE_HEX --registry DIR [--json]\n",
+    "cargo chialisp-oxide registry get --object-id LOWERCASE_HEX --registry DIR [--json]\n",
+    "cargo chialisp-oxide registry add --name ASCII_ALIAS --module-hash LOWERCASE_HEX [--object-id LOWERCASE_HEX] --registry DIR --lock PATH [--json]\n",
+    "cargo chialisp-oxide registry inspect --clvm-hex-file PATH [--expected-puzzle-hash LOWERCASE_HEX] [--registry DIR] [--json]\n\n",
+    "Publish writes only the explicitly selected local registry. ",
+    "Add pins one exact local object in the explicitly selected consumer lock; ambiguous hashes require --object-id. ",
+    "Add writes are reviewed for macOS/Linux local POSIX filesystems; non-Unix add writes are unsupported. ",
+    "Add does not create a registry, change Cargo.toml/Cargo.lock, infer a binding or affect build/check. ",
+    "Inspect reads an explicit local reveal. An optional --registry looks up only its extracted or recognized module; no store is opened for an unclassified reveal without a module. ",
+    "The full reveal puzzle hash and an extracted module hash are distinct; recognition does not verify a chain observation or spend. ",
+    "No registry operation runs Cargo, rustup, a compiler, VM, build script or network client. ",
+    "Bundle metadata and optional source attachments are declarations; identity checks do not prove source/IR/CLVM equivalence or security.",
+);
 
 fn invalid(message: impl Into<String>) -> Error {
     Error::new(ErrorKind::InvalidManifest, message)
@@ -26,7 +45,7 @@ impl Options {
             .to_str()
             .ok_or_else(|| Error::new(ErrorKind::InvalidPath, "registry command must be UTF-8"))?
             .to_owned();
-        if !["publish", "verify", "lookup", "get"].contains(&command.as_str()) {
+        if !["publish", "verify", "lookup", "get", "add", "inspect"].contains(&command.as_str()) {
             return Err(invalid(format!("unknown registry command {command}")));
         }
         let mut values = BTreeMap::new();
@@ -50,6 +69,10 @@ impl Options {
                 "--package",
                 "--module-hash",
                 "--object-id",
+                "--name",
+                "--lock",
+                "--clvm-hex-file",
+                "--expected-puzzle-hash",
             ]
             .contains(&arg)
             {
@@ -68,6 +91,14 @@ impl Options {
             "verify" => &["--package"],
             "lookup" => &["--module-hash", "--registry"],
             "get" => &["--object-id", "--registry"],
+            "add" => &[
+                "--name",
+                "--module-hash",
+                "--object-id",
+                "--registry",
+                "--lock",
+            ],
+            "inspect" => &["--clvm-hex-file", "--expected-puzzle-hash", "--registry"],
             _ => unreachable!(),
         };
         if values.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -146,6 +177,45 @@ fn execute(options: &Options) -> Result<Value> {
             let registry = Registry::open(&options.path("--registry")?, limits)?;
             Ok(json!({"status":"verified","package":registry.get(id)?.summary()}))
         }
+        "inspect" => {
+            let expected = options
+                .values
+                .contains_key("--expected-puzzle-hash")
+                .then(|| options.value("--expected-puzzle-hash")?.parse::<Digest32>())
+                .transpose()?;
+            let bytes = inspect::read_hex_file(&options.path("--clvm-hex-file")?, &limits)?;
+            let inspection = inspect::inspect_reveal(&bytes, &limits, expected)?;
+            // Verify the complete reveal and optional full puzzle hash before
+            // consulting an explicit store. Module lookup never aliases the
+            // full curried puzzle hash to a module-only package.
+            let module_lookup = if let Some(module) = inspection.module()
+                && options.values.contains_key("--registry")
+            {
+                let module_hash = module.identity().module_tree_hash;
+                let registry = Registry::open(&options.path("--registry")?, limits)?;
+                let packages = registry.lookup(module_hash)?;
+                Some(json!({"module_tree_hash":module_hash,
+                    "packages":packages.iter().map(|package|package.summary()).collect::<Vec<_>>()}))
+            } else {
+                None
+            };
+            Ok(json!({"status":"inspected","inspection":inspection,"module_lookup":module_lookup}))
+        }
+        "add" => {
+            let name = options.value("--name")?;
+            let hash: Digest32 = options.value("--module-hash")?.parse()?;
+            let object_id = options
+                .values
+                .contains_key("--object-id")
+                .then(|| options.value("--object-id")?.parse::<Digest32>())
+                .transpose()?;
+            let lock = options.path("--lock")?;
+            let registry = Registry::open(&options.path("--registry")?, limits)?;
+            let outcome = add_local(&registry, &lock, name, hash, object_id)?;
+            Ok(json!({"status":outcome.status,"pin":outcome.pin,
+                "lock_sha256":outcome.lock_sha256,"dependency_count":outcome.dependency_count,
+                "scope":dependency::VERIFICATION_SCOPE}))
+        }
         _ => Err(invalid("unknown registry command")),
     }
 }
@@ -215,6 +285,24 @@ mod tests {
             vec!["get", "--object-id"],
             vec!["unknown"],
             vec!["verify", "--wat", "x"],
+            vec!["add", "--name", "payment", "--name", "other"],
+            vec!["add", "--lock"],
+            vec!["add", "--entry", "payment"],
+            vec!["add", "--binding", "guessed_type"],
+            vec!["lookup", "--lock", "consumer.lock"],
+            vec!["get", "--name", "payment"],
+            vec!["inspect", "--lock", "consumer.lock"],
+            vec!["inspect", "--package", "input.json"],
+            vec!["inspect", "--clvm-hex-file"],
+            vec![
+                "inspect",
+                "--clvm-hex-file",
+                "a.hex",
+                "--clvm-hex-file",
+                "b.hex",
+            ],
+            vec!["inspect", "--expected-puzzle-hash"],
+            vec!["lookup", "--clvm-hex-file", "input.hex"],
         ] {
             assert!(Options::parse(&args(&values)).is_err(), "{values:?}");
         }
@@ -231,5 +319,36 @@ mod tests {
             .json
         );
         assert!(dispatch(&args(&["build", "--json"])).is_none());
+        let add = Options::parse(&args(&[
+            "add",
+            "--name",
+            "payment",
+            "--module-hash",
+            "00",
+            "--registry",
+            "local",
+            "--lock",
+            "consumer.lock",
+            "--json",
+        ]))
+        .unwrap();
+        assert_eq!(add.command, "add");
+        assert_eq!(add.value("--name").unwrap(), "payment");
+        assert_eq!(add.path("--lock").unwrap(), PathBuf::from("consumer.lock"));
+        assert!(!add.values.contains_key("--object-id"));
+        assert!(add.json);
+        let inspect = Options::parse(&args(&[
+            "inspect",
+            "--clvm-hex-file",
+            "input.hex",
+            "--json",
+        ]))
+        .unwrap();
+        assert_eq!(inspect.command, "inspect");
+        assert_eq!(
+            inspect.path("--clvm-hex-file").unwrap(),
+            PathBuf::from("input.hex")
+        );
+        assert!(!inspect.values.contains_key("--registry"));
     }
 }

@@ -80,6 +80,7 @@ export default defineConfig({
           { label: 'Optional output lists', slug: 'reference/optional-lists' },
           { label: 'Compiler commands', slug: 'reference/cli' },
           { label: 'Offline package registry', slug: 'reference/package-registry' },
+          { label: 'Reveal inspection & standard binding', slug: 'reference/reveal-inspection' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },
           { label: 'Read Chialisp syntax colors', slug: 'reference/highlighting' },
           { label: 'Contributing', slug: 'reference/contributing' },

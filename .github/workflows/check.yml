@@ -158,6 +158,12 @@ jobs:
         run: |
           target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --output-dir "$RUNNER_TEMP/puzzles-on"
           target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --no-optimize --output-dir "$RUNNER_TEMP/puzzles-off"
+      - name: Execute exact registry dependencies with the Rust host consumer
+        run: |
+          python3 scripts/check-registry-dependencies.py --cli target/debug/cargo-chialisp-oxide --consumer target/debug/examples/locked-artifact --bundle-on "$RUNNER_TEMP/puzzles-on" --bundle-off "$RUNNER_TEMP/puzzles-off" --output "$RUNNER_TEMP/registry-dependencies"
+      - name: Execute the retrieved standard binding around Rust inner programs
+        run: |
+          python3 scripts/check-registry-standard.py --cli target/debug/cargo-chialisp-oxide --consumer target/debug/examples/locked-standard --bundle-on "$RUNNER_TEMP/puzzles-on" --bundle-off "$RUNNER_TEMP/puzzles-off" --output "$RUNNER_TEMP/registry-standard"
       - name: Execute P2 raw-domain and separate resource controls
         run: |
           p2_ir=$(python3 - <<'PYTHON'
@@ -253,6 +259,16 @@ jobs:
             ${{ runner.temp }}/p2dc-source-native/
             ${{ runner.temp }}/p2dc-source-last-host.json
             ${{ runner.temp }}/p2dc-source-capture/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: registry-dependencies
+          path: ${{ runner.temp }}/registry-dependencies/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: registry-standard
+          path: ${{ runner.temp }}/registry-standard/
       - uses: actions/upload-artifact@v4
         with:
           name: acyclic-scalar-source-evidence

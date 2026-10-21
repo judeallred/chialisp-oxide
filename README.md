@@ -69,12 +69,15 @@ bundle instead of publishing partial artifacts.
 
 The [offline package registry](docs/package-registry.md) imports a selected
 export from an immutable bundle, verifies its exact bytes and structural ABI,
-and supports local `publish`, `verify`, `lookup` and `get` commands without
+and supports local `publish`, `verify`, `lookup`, `get` and `add` commands without
 running a compiler or VM. It keeps envelope identity, blob digest and tree hash
-separate. Default builds attach their declared files automatically; explicit
+separate. Explicit dependency locks pin exact local packages; a host Rust example
+executes the actual retrieved bytes. Default builds attach their declared files automatically; explicit
 `--artifact-only` builds retain the older bundle format without source capture.
-Typed dependency bindings and observed mainnet lookup remain unfinished in
-issue #21. See the guide for the precise capture and verification boundaries.
+The [reveal inspector and standard host binding](docs/reveal-inspection.md)
+decode a retained mainnet observation and construct curries from retrieved bytes.
+Broader typed bindings and on-chain dependency authoring remain unfinished in
+issue #21. See the guides for the precise capture and verification boundaries.
 
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 `--target clvm` implementation. A target configuration alone does not provide

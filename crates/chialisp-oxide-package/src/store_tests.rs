@@ -19,6 +19,191 @@ fn fixture() -> (tempfile::TempDir, PathBuf, Registry) {
     (temporary, root, registry)
 }
 
+fn artifact_package(blob: &[u8]) -> VerifiedPackage {
+    let artifact = crate::artifact::inspect_artifact(
+        blob,
+        crate::artifact::Encoding::Plain,
+        &Limits::default(),
+    )
+    .unwrap();
+    let mut manifest: serde_json::Value = serde_json::from_slice(&fixture_bytes()).unwrap();
+    manifest["artifact"]["identity"] = serde_json::to_value(artifact.identity()).unwrap();
+    manifest["artifact"]["clvm_hex"] = hex::encode(blob).into();
+    verify_package(&serde_json::to_vec(&manifest).unwrap(), &Limits::default()).unwrap()
+}
+
+fn declared_variant(package: &VerifiedPackage) -> VerifiedPackage {
+    let mut manifest: serde_json::Value = serde_json::from_slice(package.bytes()).unwrap();
+    manifest["provenance"] = serde_json::json!({
+        "label": "independent local declaration",
+        "source_url": null,
+        "revision": null,
+        "license": null
+    });
+    verify_package(&serde_json::to_vec(&manifest).unwrap(), &Limits::default()).unwrap()
+}
+
+#[test]
+fn dependency_scan_retains_the_exact_union_once_and_leaves_missing_ids_to_caller() {
+    let (_temporary, root, registry) = fixture();
+    assert_eq!(registry.root(), root);
+    let first = package();
+    let variant = declared_variant(&first);
+    let requested_other = artifact_package(&[1]);
+    let unrelated = artifact_package(&[2]);
+    assert_ne!(first.object_id(), variant.object_id());
+    assert_eq!(first.artifact().identity(), variant.artifact().identity());
+    for package in [&first, &variant, &requested_other, &unrelated] {
+        registry.publish(package).unwrap();
+    }
+    let missing = Digest32::new([9; 32]);
+    let requested = BTreeSet::from([variant.object_id(), requested_other.object_id(), missing]);
+    let matches = registry
+        .scan_for_dependencies(Some(first.module_tree_hash()), &requested)
+        .unwrap();
+    let mut expected = vec![
+        first.object_id(),
+        variant.object_id(),
+        requested_other.object_id(),
+    ];
+    expected.sort();
+    assert_eq!(
+        matches
+            .iter()
+            .map(VerifiedPackage::object_id)
+            .collect::<Vec<_>>(),
+        expected
+    );
+    assert!(matches.iter().all(|package| package.object_id() != missing));
+    let retrieved_variant = matches
+        .iter()
+        .find(|package| package.object_id() == variant.object_id())
+        .unwrap();
+    assert_eq!(retrieved_variant.bytes(), variant.bytes());
+    assert_eq!(
+        registry
+            .scan_for_dependencies(None, &BTreeSet::from([requested_other.object_id()]))
+            .unwrap()
+            .iter()
+            .map(VerifiedPackage::object_id)
+            .collect::<Vec<_>>(),
+        vec![requested_other.object_id()]
+    );
+    assert!(
+        registry
+            .scan_for_dependencies(None, &BTreeSet::new())
+            .unwrap()
+            .is_empty()
+    );
+}
+
+#[test]
+fn dependency_scan_charges_every_object_against_one_aggregate_budget() {
+    let (_temporary, root, registry) = fixture();
+    let first = package();
+    let unrelated = artifact_package(&[1]);
+    registry.publish(&first).unwrap();
+    registry.publish(&unrelated).unwrap();
+    let requested = BTreeSet::from([first.object_id()]);
+    let total_bytes = first.bytes().len() + unrelated.bytes().len();
+    let max_envelope_bytes = first.bytes().len().max(unrelated.bytes().len());
+    let limits = Limits {
+        max_objects: 2,
+        max_lookup_bytes: total_bytes,
+        max_envelope_bytes,
+        ..Limits::default()
+    };
+    let exact = Registry::open(&root, limits.clone()).unwrap();
+    assert_eq!(
+        exact
+            .scan_for_dependencies(None, &requested)
+            .unwrap()
+            .iter()
+            .map(VerifiedPackage::object_id)
+            .collect::<Vec<_>>(),
+        vec![first.object_id()]
+    );
+    for limited in [
+        Limits {
+            max_lookup_bytes: total_bytes - 1,
+            ..limits.clone()
+        },
+        Limits {
+            max_envelope_bytes: max_envelope_bytes - 1,
+            ..limits.clone()
+        },
+        Limits {
+            max_objects: 1,
+            ..limits
+        },
+    ] {
+        assert_eq!(
+            Registry::open(&root, limited)
+                .unwrap()
+                .scan_for_dependencies(None, &requested)
+                .unwrap_err()
+                .kind(),
+            ErrorKind::ResourceLimit
+        );
+    }
+}
+
+#[test]
+fn dependency_scan_rejects_unrelated_corruption_even_without_requests() {
+    let (_temporary, root, registry) = fixture();
+    let first = package();
+    registry.publish(&first).unwrap();
+    let malformed = b"{";
+    let corrupt_identity = digest(malformed);
+    assert_ne!(corrupt_identity, first.object_id());
+    std::fs::write(registry.object_path(corrupt_identity), malformed).unwrap();
+    for (module_hash, requested) in [
+        (None, BTreeSet::new()),
+        (None, BTreeSet::from([first.object_id()])),
+        (Some(first.module_tree_hash()), BTreeSet::new()),
+    ] {
+        assert_eq!(
+            registry
+                .scan_for_dependencies(module_hash, &requested)
+                .unwrap_err()
+                .kind(),
+            ErrorKind::CorruptObject
+        );
+    }
+    assert_eq!(std::fs::read_dir(root.join("objects")).unwrap().count(), 2);
+    assert_eq!(
+        std::fs::read(registry.object_path(corrupt_identity)).unwrap(),
+        malformed
+    );
+}
+
+#[test]
+fn dependency_request_count_is_bounded_before_store_inspection() {
+    let (_temporary, root, registry) = fixture();
+    let mut requested = (0..128)
+        .map(|byte| Digest32::new([byte; 32]))
+        .collect::<BTreeSet<_>>();
+    assert_eq!(requested.len(), 128);
+    assert!(
+        registry
+            .scan_for_dependencies(None, &requested)
+            .unwrap()
+            .is_empty()
+    );
+    requested.insert(Digest32::new([128; 32]));
+    // An invalid layout would fail first if the request count were not checked
+    // before enumerating or allocating store entries.
+    std::fs::remove_dir(root.join("objects")).unwrap();
+    let error = registry
+        .scan_for_dependencies(None, &requested)
+        .unwrap_err();
+    assert_eq!(error.kind(), ErrorKind::ResourceLimit);
+    assert_eq!(
+        error.to_string(),
+        "dependency object request count exceeds limit"
+    );
+}
+
 #[test]
 fn exact_objects_are_idempotent_and_module_lookup_keeps_variants() {
     let (_temporary, root, registry) = fixture();

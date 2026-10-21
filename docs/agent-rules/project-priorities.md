@@ -12,7 +12,8 @@
 - The original boomerang puzzle (#9) shipped with five-build committed-instance
   and separate source-mutation evidence, exact-commit CI, Pages and live checks;
   the issue is closed. The next tooling slice is #21's offline package registry,
-  followed by source-aware Cargo receipts, pinned bindings and #12's broader lifecycle;
+  with source-aware Cargo receipts and exact local dependency locks, followed by
+  observed mainnet inspection, pinned bindings and #12's broader lifecycle;
   keep full issue acceptance and the later stateful-puzzle tracks explicit.
   Complete the remaining #25 trial where feasible, and use issue dependencies
   to order larger work.

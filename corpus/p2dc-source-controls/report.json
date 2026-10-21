@@ -4,9 +4,9 @@
   "status": "actual_source_controls_captured",
   "scope": "One actual native Rust test group checks three independent source-policy observations. Four actual annotated Cargo exports in both modes and twelve retained primary VM witnesses are separate from SDK spends, generic ledger groups and proofs. The baseline copy is explicitly a control. Recorded source/metadata/result consistency is not execution authentication, compiler preservation, exhaustive policy correctness or production readiness.",
   "context": {
-    "source_root": "/Users/judeallred/code/clispOx",
-    "package_root": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-package",
-    "capture_root": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture",
+    "source_root": "/Users/judeallred/code/clispOx/target/registry-reveals-worktree",
+    "package_root": "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-package",
+    "capture_root": "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "toolchain": "nightly-2026-07-14",
     "source_window": {
@@ -152,7 +152,7 @@
           },
           {
             "path": "Cargo.lock",
-            "sha256": "25e3e485c48761235687442a5709f10d305f51afacedefc632b417e868a0d90b"
+            "sha256": "b0d724f428a2c25cbc6bfb016a338ee8f98227fd5b15e8a0cd17aeaddcd4cc72"
           },
           {
             "path": "Cargo.toml",
@@ -575,7 +575,7 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "25e3e485c48761235687442a5709f10d305f51afacedefc632b417e868a0d90b"
+          "sha256": "b0d724f428a2c25cbc6bfb016a338ee8f98227fd5b15e8a0cd17aeaddcd4cc72"
         },
         {
           "path": "Cargo.toml",
@@ -675,7 +675,7 @@
         },
         {
           "path": "crates/cargo-chialisp-oxide/src/registry.rs",
-          "sha256": "45917907a52aca9e7927d877769a79996e6000d91e523d3e777502da57dc3f5c"
+          "sha256": "d91c6b9ab533e0c12da652accc18c0e9b689dc7167f26fd2bbd7a4542decdb53"
         },
         {
           "path": "crates/cargo-chialisp-oxide/src/source_receipt.rs",
@@ -691,7 +691,7 @@
         },
         {
           "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
-          "sha256": "fa01bf6dccdeed90af05da924cdf1272e0ee1bc9ac5336d27c7fe81de41bf215"
+          "sha256": "dff3b0d93d2e24318b0ea59d6e5ea71fa6606cb43df4954230ed88cef93de333"
         },
         {
           "path": "crates/chialisp-oxide-cli/Cargo.toml",
@@ -1447,7 +1447,15 @@
         },
         {
           "path": "crates/chialisp-oxide-package/Cargo.toml",
-          "sha256": "de8aeca679687ff54eb03bae30f43c158c607bcd3e92254e826c68593db90b43"
+          "sha256": "3f5ec3d8f38e1fb2885c42dbf030115f9a0384e8d00a630a32ae9117ca87fa1d"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/examples/locked-artifact.rs",
+          "sha256": "5f09f073f358ee8904f0888395e01685468225d8599d040397994ecd8359650c"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/examples/locked-standard.rs",
+          "sha256": "fc3ac1c391ace17e2f469bf9432e0ef2b37c05bec28648e3493a93a13173ba82"
         },
         {
           "path": "crates/chialisp-oxide-package/src/artifact.rs",
@@ -1466,8 +1474,44 @@
           "sha256": "7e1bee0e449fd1b4f6c94da4893bcf61e78d288d36737b872a183d2451b35bcb"
         },
         {
+          "path": "crates/chialisp-oxide-package/src/dependency.rs",
+          "sha256": "1bef1e7e256390cf14f039d72ef568a95fd8ad265298ddea59eda7a169efbe92"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/protocol.rs",
+          "sha256": "57f315018d8ba6f9a81cf30d0ad1bef28b1773d14d7992fb5eaf2d93e8a80f64"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/resolve.rs",
+          "sha256": "4801b4619ddae0297eb91cbbd5679117d33b2fc30baa867ebfaecd7c837fcb1c"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/tests.rs",
+          "sha256": "d8ed8a2ada9cdf53149c834cd469744ed27f99d6dd09e5300b94095ead1fce6a"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/tests/operations.rs",
+          "sha256": "be8ab94d488187658013153fba3540a3a3e74c4d7ec55ba7a21bfd621e223b58"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/tests/protocol.rs",
+          "sha256": "e103087139803cc642198f1aad41c1ff69efbce5cdac3e9a24f7882c68bcfc6a"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/tests/writer.rs",
+          "sha256": "2633a2da5be338256e6db19e0d394cf018228b5ca8c20b19bb762a7900e37a41"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/writer.rs",
+          "sha256": "a6639c2ece06a25c6993f28efce436841cfb6e86b217e46f542fc4f36e084fb5"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/dependency/writer/local.rs",
+          "sha256": "f2c795bb25171219672adfbd1483eaa68770151f1ffb9ca44f902f8bab8f24d9"
+        },
+        {
           "path": "crates/chialisp-oxide-package/src/digest.rs",
-          "sha256": "a2b69da78c44f91fd44f9e012750875c671352714d336ee21bba4d65be0e3237"
+          "sha256": "751aad07f88f82445ca0fa3f292f358a6f5b3137c1dce0ae0f101dff6f748f64"
         },
         {
           "path": "crates/chialisp-oxide-package/src/error.rs",
@@ -1482,12 +1526,40 @@
           "sha256": "397031f4ca71810f86ab9ec250aeac07afddd54736b2b84198b47ea3c16a1c02"
         },
         {
+          "path": "crates/chialisp-oxide-package/src/inspect.rs",
+          "sha256": "1b763de38d64f7e7829351178db2f9ed7ed20169c0d43f6cd7863490aa2b5ac8"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/catalog.rs",
+          "sha256": "52529f9ae478f55a8c8451bed307d97603bba7d4b9d20e80b3bdb5e92598a06d"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/index.rs",
+          "sha256": "d0b911d6934cde03d46922b5efb908636a7512d645b834df9371fa214e28597a"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/tests.rs",
+          "sha256": "58b07b2e4eb4ce5696bd5362e954b45e117cfee439170ef997268dc5c963ef7f"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/tests/bounds.rs",
+          "sha256": "3f3b043f29fdd39817879631e9d99ceec7e1940bc5b97acc73aa5e64650ab378"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/tests/curry.rs",
+          "sha256": "0d85131b6fbedc8148f5cccab37853e5d907d29ba7443177ef303c4866c24e9b"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/inspect/tests/standard.rs",
+          "sha256": "b50a478cc7f39308d9848d79aa9f2cf9e19547c1d00a104d0e78cc518ec91569"
+        },
+        {
           "path": "crates/chialisp-oxide-package/src/json.rs",
           "sha256": "a39bb309f0e3c4bcce782aaf5b9860015e1c5de336e2be1dbe97d682e70fd90d"
         },
         {
           "path": "crates/chialisp-oxide-package/src/lib.rs",
-          "sha256": "335e0503602142bb5d8b90f993c6ab4615e94417216325d63d92689818fd8700"
+          "sha256": "ee81418891283ee87d926854412d408f3ae5a0982fcd5a74b991d6cc5ea4c4d9"
         },
         {
           "path": "crates/chialisp-oxide-package/src/limits.rs",
@@ -1510,16 +1582,32 @@
           "sha256": "b3376d7f0cab7fbdd2f90ebdd35f255f91f8d33892bc44184373d1e4137c534a"
         },
         {
+          "path": "crates/chialisp-oxide-package/src/standard.rs",
+          "sha256": "4c167e0f5d4d03fa86460d14de8cc2cf6ce3e4ab153bd94af674d0dc90f85918"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/src/standard/tests.rs",
+          "sha256": "cf4bde61f702e0f8b551ad324a4360d0ece0507dc3865e1c3ceb2b3e46ee0be5"
+        },
+        {
           "path": "crates/chialisp-oxide-package/src/store.rs",
-          "sha256": "15b3e2c181e03557d3713930fb974748d252be493e7e23ebfc1124a1c38d6080"
+          "sha256": "e42f226d09f7c08d6c0bc47e9f4188021c3283649b71f940f1ed12ebe775c4df"
         },
         {
           "path": "crates/chialisp-oxide-package/src/store_tests.rs",
-          "sha256": "90323f144685a309d92c00abdc81f37bb0b17acdd4534eda53d0521b57ec8078"
+          "sha256": "c0dde80e83767b5b140880e9537dddcbf194a5ce73eb0af7b5613723fa449c69"
         },
         {
           "path": "crates/chialisp-oxide-package/src/string_enum.rs",
           "sha256": "c857af8f517703bc6fe01e44da57802bfcaa17c648c719ce8175e46b8116c198"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/tests/inspect_boundaries.rs",
+          "sha256": "cec858eb646328d09e082e915c59cdf066a8d40a1a7c19d188a57ce45062cae5"
+        },
+        {
+          "path": "crates/chialisp-oxide-package/tests/standard_inspection.rs",
+          "sha256": "b8fa6b62b6d611a650753c87b69b7a3abe16762d8005e7f33a127236c932dd28"
         },
         {
           "path": "crates/chialisp-oxide-reference/Cargo.toml",
@@ -2165,25 +2253,25 @@
     },
     "tools": {
       "cargo-chialisp-oxide": {
-        "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
-        "sha256": "730a779af3e8384f5522afdbd32de140bfe2ca37c1fcb174b1df93c6b858e1ea"
+        "path": "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/cargo-chialisp-oxide",
+        "sha256": "4df9aa867e0e1b6810bb3cbaa6316ad9d796b3b11ed29d88987c7e93b67c7f13"
       },
       "chialisp-oxide-driver": {
-        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
-        "sha256": "be05ceb22d092d32cdb4e52422b8f832c7ed92b055c8a20a325d6ca36f04c54c"
+        "path": "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-driver",
+        "sha256": "52fa8f13498e087d615e16b54c73edbf9f3cfdb6234db869f74e1bd501632692"
       },
       "chialisp-oxide": {
-        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-        "sha256": "40188471de1fa665fbc6491a0bf7d3b4574b4b4608dc7e4c6087d108193f0073"
+        "path": "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
+        "sha256": "d01c8c9dfe5d45377626cbf5cc2889888be6f44b29ead12cc720268245a72184"
       },
       "chialisp-oxide-verifier": {
-        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "sha256": "6510864deb8caf3e198d0468cf93b8d8603c4f8b40caca0fce837aa63e30b838"
+        "path": "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "sha256": "ac63394b16727498bc0418c37f6be2f98fe258c689150d16c8ad2d1a461101de"
       }
     },
     "last_host_window": {
-      "path": "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-last-host.json",
-      "sha256": "59db5a754cd06952c370f5cfd40a93544fbd77ad9e6aa8a7fe299402537d0ea2"
+      "path": "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-last-host.json",
+      "sha256": "ad3acc13678e069678d4532e4c35756dd2726a48f38deeea966e71c54b35f4d1"
     }
   },
   "prepared": {
@@ -2230,7 +2318,7 @@
       },
       {
         "path": "Cargo.toml",
-        "sha256": "658717e3f584622b8278edd7f4e15644489d49a102ac6a9f46171826db78ae8f"
+        "sha256": "0c63fb3d12eec034da5759f5a927a4ed477b365b4da6bdbcef4ee40a457a1d57"
       },
       {
         "path": "src/baseline.rs",
@@ -2313,7 +2401,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -2323,12 +2411,12 @@
     "native_test_groups": 1,
     "native_policy_observations": 3,
     "log": "native.log",
-    "log_sha256": "782a9af3e4671af61f89064e66ad87af2739d741b1df5dbe4241bbe760e4e0bf"
+    "log_sha256": "9e76bb7f95c432c1f7da93356844f70df4397944cbcd91d8ad7b2d1fedb7f86b"
   },
   "bundles": {
     "off": {
       "manifest": "bundles/off/manifest.json",
-      "manifest_sha256": "86d5a8a4c9da539b3e36d6b36ef20ddb2ca5361bb8b7622fe0e920bfa8eac887",
+      "manifest_sha256": "72d7babb6f836fd1933dd6ecc1214823335e88780453da40a6b10f4d67178764",
       "recompiled": [
         {
           "entry": "chialisp_oxide_p2dc_controls::baseline::puzzle",
@@ -2406,7 +2494,7 @@
     },
     "on": {
       "manifest": "bundles/on/manifest.json",
-      "manifest_sha256": "05fed49d7d9ae4ee32455e43c5ab86bafe1f027ebc0e5b6737f05e59b7df4fef",
+      "manifest_sha256": "c3d5f17a74b37affbcf02fd41d08660a67e85a5753a64d2bfac0087529af2def",
       "recompiled": [
         {
           "entry": "chialisp_oxide_p2dc_controls::baseline::puzzle",
@@ -2675,30 +2763,30 @@
     {
       "role": "export-off",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/cargo-chialisp-oxide",
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-package/Cargo.toml",
         "--package",
         "chialisp-oxide-p2dc-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/fresh-off",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/fresh-off",
         "--no-optimize"
       ],
       "exit_code": 0,
       "stdout": "logs/00.stdout",
-      "stdout_sha256": "712208f06213e7a0b8d630328ca4ab34d9de4f482d738f377330ce6ce5dc9c4e",
+      "stdout_sha256": "68b4f700046cf1d68bfc10ac317850adfe4c4528b2a516b2cfd725bb8c8dfa10",
       "stderr": "logs/00.stderr",
-      "stderr_sha256": "478e5410b0014ab70703beaf66a48997c14a36607cfbba55259d81cf6daad47c"
+      "stderr_sha256": "79e54e0362ce9b90a1697bb2df4c5baad02cc6bda3bcd68cce3d5906be185051"
     },
     {
       "role": "recompile-off-baseline",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2710,8 +2798,8 @@
     {
       "role": "recompile-off-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2723,8 +2811,8 @@
     {
       "role": "recompile-off-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2736,8 +2824,8 @@
     {
       "role": "recompile-off-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2749,11 +2837,11 @@
     {
       "role": "vm-off-baseline-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-baseline-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-baseline-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2766,11 +2854,11 @@
     {
       "role": "vm-off-wrong_atom_domain-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-wrong_atom_domain-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-wrong_atom_domain-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2783,11 +2871,11 @@
     {
       "role": "vm-off-baseline-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-baseline-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-baseline-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2800,11 +2888,11 @@
     {
       "role": "vm-off-wrong_conditions_tail-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-wrong_conditions_tail-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-wrong_conditions_tail-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2817,11 +2905,11 @@
     {
       "role": "vm-off-baseline-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-baseline-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-baseline-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2834,11 +2922,11 @@
     {
       "role": "vm-off-reject_ignored_improper_tail-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/off/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/off-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/off-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2851,29 +2939,29 @@
     {
       "role": "export-on",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/cargo-chialisp-oxide",
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-package/Cargo.toml",
         "--package",
         "chialisp-oxide-p2dc-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/fresh-on"
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/fresh-on"
       ],
       "exit_code": 0,
       "stdout": "logs/11.stdout",
-      "stdout_sha256": "9dd015cfa8d0a62fa92d06fe90cad157280e8e6e931f3d5fd38d0c965d7d0f4a",
+      "stdout_sha256": "870727e1d59feef0689225007d37fe522182f51ac5e4c90fc399508f4def1448",
       "stderr": "logs/11.stderr",
-      "stderr_sha256": "e011e351d2c815017d32de281f8da79b1eaeedfcd6343602995a2900abf4abda"
+      "stderr_sha256": "62b086a22f304738e266ae31a01585810e89be1dbecec0da99aea9d5738eb651"
     },
     {
       "role": "recompile-on-baseline",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2885,8 +2973,8 @@
     {
       "role": "recompile-on-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2898,8 +2986,8 @@
     {
       "role": "recompile-on-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2911,8 +2999,8 @@
     {
       "role": "recompile-on-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -2924,11 +3012,11 @@
     {
       "role": "vm-on-baseline-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-baseline-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-baseline-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2941,11 +3029,11 @@
     {
       "role": "vm-on-wrong_atom_domain-wrong_atom_domain",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/87fbaa7046550ba70ec03bb7b1a9133ef47e9d52ba2f64c39a2e5ccf4cf5a511.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-wrong_atom_domain-wrong_atom_domain-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-wrong_atom_domain-wrong_atom_domain-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2958,11 +3046,11 @@
     {
       "role": "vm-on-baseline-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-baseline-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-baseline-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2975,11 +3063,11 @@
     {
       "role": "vm-on-wrong_conditions_tail-wrong_conditions_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/c95e95913d8d250663cf4ad43f0c8d4e2bfc446088106d0b8f93c1ced13936c9.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-wrong_conditions_tail-wrong_conditions_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-wrong_conditions_tail-wrong_conditions_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -2992,11 +3080,11 @@
     {
       "role": "vm-on-baseline-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-baseline-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-baseline-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -3009,11 +3097,11 @@
     {
       "role": "vm-on-reject_ignored_improper_tail-reject_ignored_improper_tail",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-worktree/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/bundles/on/ff3920e00ed196de4b38c6e3221070ccbf19efb3c2e7d90016c879347f25533d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/source-receipt-20261021/main-capture-2/p2dc-capture/on-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
+        "/Users/judeallred/code/clispOx/target/registry-reveals-20261021/capture-1/p2dc-capture/on-reject_ignored_improper_tail-reject_ignored_improper_tail-solution.json",
         "--max-cost",
         "1000000"
       ],
@@ -3059,7 +3147,7 @@
     },
     {
       "path": "bundles/off/manifest.json",
-      "sha256": "86d5a8a4c9da539b3e36d6b36ef20ddb2ca5361bb8b7622fe0e920bfa8eac887"
+      "sha256": "72d7babb6f836fd1933dd6ecc1214823335e88780453da40a6b10f4d67178764"
     },
     {
       "path": "bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
@@ -3095,19 +3183,19 @@
     },
     {
       "path": "bundles/on/manifest.json",
-      "sha256": "05fed49d7d9ae4ee32455e43c5ab86bafe1f027ebc0e5b6737f05e59b7df4fef"
+      "sha256": "c3d5f17a74b37affbcf02fd41d08660a67e85a5753a64d2bfac0087529af2def"
     },
     {
       "path": "last-host-window.json",
-      "sha256": "59db5a754cd06952c370f5cfd40a93544fbd77ad9e6aa8a7fe299402537d0ea2"
+      "sha256": "ad3acc13678e069678d4532e4c35756dd2726a48f38deeea966e71c54b35f4d1"
     },
     {
       "path": "logs/00.stderr",
-      "sha256": "478e5410b0014ab70703beaf66a48997c14a36607cfbba55259d81cf6daad47c"
+      "sha256": "79e54e0362ce9b90a1697bb2df4c5baad02cc6bda3bcd68cce3d5906be185051"
     },
     {
       "path": "logs/00.stdout",
-      "sha256": "712208f06213e7a0b8d630328ca4ab34d9de4f482d738f377330ce6ce5dc9c4e"
+      "sha256": "68b4f700046cf1d68bfc10ac317850adfe4c4528b2a516b2cfd725bb8c8dfa10"
     },
     {
       "path": "logs/01.stderr",
@@ -3191,11 +3279,11 @@
     },
     {
       "path": "logs/11.stderr",
-      "sha256": "e011e351d2c815017d32de281f8da79b1eaeedfcd6343602995a2900abf4abda"
+      "sha256": "62b086a22f304738e266ae31a01585810e89be1dbecec0da99aea9d5738eb651"
     },
     {
       "path": "logs/11.stdout",
-      "sha256": "9dd015cfa8d0a62fa92d06fe90cad157280e8e6e931f3d5fd38d0c965d7d0f4a"
+      "sha256": "870727e1d59feef0689225007d37fe522182f51ac5e4c90fc399508f4def1448"
     },
     {
       "path": "logs/12.stderr",
@@ -3279,11 +3367,11 @@
     },
     {
       "path": "native-receipt.json",
-      "sha256": "9f97e56bfb0fcf4f72b97b1253a1e89dac693d88650668df169d892012ea60c1"
+      "sha256": "e86ee7fa0c8b80fc09be525f3762f76779feaa695491a347f0f09aa5907a0984"
     },
     {
       "path": "native.log",
-      "sha256": "782a9af3e4671af61f89064e66ad87af2739d741b1df5dbe4241bbe760e4e0bf"
+      "sha256": "9e76bb7f95c432c1f7da93356844f70df4397944cbcd91d8ad7b2d1fedb7f86b"
     },
     {
       "path": "off-baseline-reject_ignored_improper_tail-solution.json",
@@ -3339,7 +3427,7 @@
     },
     {
       "path": "package/Cargo.toml",
-      "sha256": "658717e3f584622b8278edd7f4e15644489d49a102ac6a9f46171826db78ae8f"
+      "sha256": "0c63fb3d12eec034da5759f5a927a4ed477b365b4da6bdbcef4ee40a457a1d57"
     },
     {
       "path": "package/src/baseline.rs",

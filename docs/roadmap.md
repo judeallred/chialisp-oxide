@@ -84,8 +84,13 @@ compiler preservation or production readiness.
   selected-library reads, generated files and named launcher snapshots. Explicit
   `--artifact-only` builds retain the older bundle format. The offline registry
   imports complete immutable bundles and verifies package, blob, tree and
-  structural ABI identities. These records do not authenticate sources,
+  structural ABI identities. Local `add` selects exact packages into a portable
+  dependency lock; the host consumer executes retrieved bytes. These records do not authenticate sources,
   capture a complete build graph or prove source/IR/CLVM equivalence.
+- Bounded offline reveal inspection with exact canonical uncurry, a retained
+  Coinset-reported mainnet standard puzzle checked through independent SDK
+  codecs, and an explicit retrieved-byte standard host binding. Host VM
+  conditions do not establish signatures, chain authentication or complete spends.
 - Searchable Astro/Starlight documentation generated from source and evidence,
   published-source discovery across 98 pinned repository trees, and seven
   upstream Rue regressions filed with fixes.
@@ -115,9 +120,9 @@ backlog; this ordering does not mark their acceptance criteria complete.
    [offline registry prototype](https://judeallred.github.io/chialisp-oxide/reference/package-registry/)
    imports immutable Cargo bundles and verifies exact package, artifact and
    structural ABI identities without running a compiler or VM. Complete
-   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) with explicit
-   dependency selection and locks, observed mainnet reveals, standard-curry
-   decoding, pinned bindings and a dependency-by-hash authoring example;
+   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) beyond local
+   exact dependency locks and the first standard host binding with broader
+   reviewed bindings and an on-chain dependency-by-hash authoring example;
    source attachments and build declarations alone do not establish compilation
    or source authenticity. Then build the explicit-network CLI/GUI lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet

@@ -4,13 +4,16 @@
 //! compiler preservation, authorization, an audit, or suitability for real funds.
 pub mod artifact;
 pub mod bundle;
+pub mod dependency;
 mod digest;
 mod error;
 pub(crate) mod fs;
+pub mod inspect;
 pub(crate) mod json;
 mod limits;
 pub mod package;
 pub mod receipt;
+pub mod standard;
 pub mod store;
 mod string_enum;
 pub use digest::{Digest32, digest};

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "scope": "Retained unauthenticated public Coinset HTTP observations plus pinned upstream source/artifact declarations. Offline relation checks and actual SDK decoding/recurry are separate tests; no consensus, inclusion, network identity, chain membership, BLS signature, VM execution or complete-spend claim.",
+  "network_declaration": "Coinset response only: mainnet/xch",
+  "coin_id": "ca3fe5c90b9466ad958964c035c38ecbd4b596df70e5e31341e33cee0b640421",
+  "reported_confirmed_height": 6318250,
+  "reported_spent_height": 6318254,
+  "remote_data_license": "No ownership or chain-authenticity claim; raw API responses retained for reproducible tests.",
+  "upstream_license_file": "UPSTREAM-LICENSE-APACHE-2.0",
+  "files": [
+    {
+      "path": "UPSTREAM-LICENSE-APACHE-2.0",
+      "bytes": 11347,
+      "sha256": "d2db94fa34f37910c925ac45d98084a41c1bcb08296eb5525ead62e9f26aeb75"
+    },
+    {
+      "path": "expected.json",
+      "bytes": 3206,
+      "sha256": "f5a076c3e6bc19c2045069ccecc923c3b6a6b5ca2b97afa5e537d31eb45289a9"
+    },
+    {
+      "path": "network-info.body",
+      "bytes": 64,
+      "sha256": "bc6dd3f5d924825c7444ece4aceab7dcbeb7d54e82badad476324c263ef18942"
+    },
+    {
+      "path": "network-info.receipt.json",
+      "bytes": 571,
+      "sha256": "4a7937707920c8101f683358c38daff4fd8db06a6b80591ff332ec32fec2aaa8"
+    },
+    {
+      "path": "pinned-standard-module-hex.body",
+      "bytes": 455,
+      "sha256": "81ac2c9256e356df768c1fb6819cc4d157c733cfdd51881c51cf3c61f424fd66"
+    },
+    {
+      "path": "pinned-standard-module-hex.receipt.json",
+      "bytes": 931,
+      "sha256": "4cfc040557b97fc130d69c126470c9624585e4c934af4ac9310890685e4e4832"
+    },
+    {
+      "path": "pinned-standard-source.body",
+      "bytes": 3072,
+      "sha256": "8a766b6979bd915b08143ddb702ac386dc859fe525506f634e5dd528ead7f9da"
+    },
+    {
+      "path": "pinned-standard-source.receipt.json",
+      "bytes": 925,
+      "sha256": "e016d91f9766af7705e6152f114d099f96df9aaf4dd74d3504c3ce0a21403400"
+    },
+    {
+      "path": "standard-coin-record.body",
+      "bytes": 351,
+      "sha256": "b85914852c7636452b627541a9d840434c0c86e6ef383df6c4404292d7c08f5b"
+    },
+    {
+      "path": "standard-coin-record.receipt.json",
+      "bytes": 670,
+      "sha256": "ae4703454d1c614088b0664734c7998916e15b8823ff74fcd3d3fc5b97a8b76d"
+    },
+    {
+      "path": "standard-coin-spend.body",
+      "bytes": 1065,
+      "sha256": "f166d2b1d4f561c0138f62697e776531f62740f79190531ba94bc44dc0b2080c"
+    },
+    {
+      "path": "standard-coin-spend.receipt.json",
+      "bytes": 697,
+      "sha256": "91e9cc5408c46abee3f7ea28abb0db0d0e80f4e5d8ea539a297429a3fbdef742"
+    }
+  ],
+  "upstream_source_pins": [
+    {
+      "crate": "chia-puzzles",
+      "version": "0.20.3",
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "d122456feeef55708d354a065623037bfa010714",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/Chia-Network/chia_puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp",
+      "source_bytes": 3072,
+      "source_sha256": "8a766b6979bd915b08143ddb702ac386dc859fe525506f634e5dd528ead7f9da",
+      "retained_body": "pinned-standard-source.body"
+    },
+    {
+      "crate": "chia-puzzles",
+      "version": "0.20.3",
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "d122456feeef55708d354a065623037bfa010714",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/Chia-Network/chia_puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp.hex",
+      "source_bytes": 455,
+      "source_sha256": "81ac2c9256e356df768c1fb6819cc4d157c733cfdd51881c51cf3c61f424fd66",
+      "retained_body": "pinned-standard-module-hex.body"
+    },
+    {
+      "crate": "chia-puzzle-types",
+      "version": "0.36.1",
+      "repository": "https://github.com/Chia-Network/chia_rs",
+      "revision": "56f6b676a96de8659fe05d7e4f705df553f37fa5",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/Chia-Network/chia_rs/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-puzzle-types/src/puzzles/standard.rs",
+      "source_bytes": 2699,
+      "source_sha256": "8a81dec23ed1c9ace8e11e9aa0ea73c0d4f8fec0c23a89f7bfde148d2b742899",
+      "retained_body": null
+    },
+    {
+      "crate": "clvm-utils",
+      "version": "0.36.1",
+      "repository": "https://github.com/Chia-Network/chia_rs",
+      "revision": "56f6b676a96de8659fe05d7e4f705df553f37fa5",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/Chia-Network/chia_rs/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/clvm-utils/src/curried_program.rs",
+      "source_bytes": 2076,
+      "source_sha256": "055a2106a454aac2ab319fb1ddf14cbfa5fec503f0da8f63aa08b9f218fffed2",
+      "retained_body": null
+    },
+    {
+      "crate": "chia-protocol",
+      "version": "0.36.1",
+      "repository": "https://github.com/Chia-Network/chia_rs",
+      "revision": "56f6b676a96de8659fe05d7e4f705df553f37fa5",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/Chia-Network/chia_rs/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-protocol/src/coin.rs",
+      "source_bytes": 4861,
+      "source_sha256": "f21862ad7bd538fe9f66f120a1842f252f85964a178650d6087d194defdafb8e",
+      "retained_body": null
+    },
+    {
+      "crate": "chia-sdk-types",
+      "version": "0.36.0",
+      "repository": "https://github.com/xch-dev/chia-wallet-sdk",
+      "revision": "e9a08f6e54ea5132f7da06327836a3b386a944b1",
+      "license": "Apache-2.0",
+      "url": "https://raw.githubusercontent.com/xch-dev/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzle_mod.rs",
+      "source_bytes": 5018,
+      "source_sha256": "e18186fc996913fbf11ba16c87529be86365b950e82355a8de3ebef29ef17ebb",
+      "retained_body": null
+    }
+  ],
+  "sdk_independent_lane": {
+    "chia_bls": "0.36.1",
+    "chia_protocol": "0.36.1",
+    "chia_puzzle_types": "0.36.1",
+    "chia_puzzles": "0.20.3",
+    "chia_sdk_types": "0.36.0",
+    "clvm_traits": "0.36.1",
+    "clvm_utils": "0.36.1",
+    "clvmr": "0.16.2",
+    "scope": "Typed decode, point parsing, exact serialization, recurry and tree/coin identities only; no VM, BLS signature or spend execution."
+  }
+}
