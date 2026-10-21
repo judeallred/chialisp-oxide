@@ -6,7 +6,7 @@ jobs:
   compiler:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install checksum-pinned Z3 4.15.4
         run: |
           z3_archive="$RUNNER_TEMP/z3-4.15.4-x64-glibc-2.39.zip"
@@ -31,7 +31,7 @@ jobs:
           printf '%s\n' "$z3_directory/bin" >> "$GITHUB_PATH"
       - name: Install pinned Rust and compiler components
         run: rustup show active-toolchain
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -95,7 +95,7 @@ jobs:
         run: |
           python3 experiments/hash-native/check-native.py --work-dir "$RUNNER_TEMP/hash-native-work" --output "$RUNNER_TEMP/hash-native.json" --self-test
           python3 experiments/hash-native/check-native.py --output "$RUNNER_TEMP/hash-native.json" --check --self-test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: boomerang-source-controls-linux
@@ -253,7 +253,7 @@ jobs:
             --output "$RUNNER_TEMP/acyclic-scalar-source"
       - name: Require committed validation data to match current compiler
         run: git diff --exit-code -- corpus/validation.json corpus/tree-proofs.json proofs/p2-conditions proofs/atom-not-equal
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: p2dc-source-controls-linux
@@ -263,26 +263,26 @@ jobs:
             ${{ runner.temp }}/p2dc-source-native/
             ${{ runner.temp }}/p2dc-source-last-host.json
             ${{ runner.temp }}/p2dc-source-capture/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: registry-dependencies
           path: ${{ runner.temp }}/registry-dependencies/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: registry-standard
           path: ${{ runner.temp }}/registry-standard/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: registry-codegen
           path: ${{ runner.temp }}/registry-codegen/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acyclic-scalar-source-evidence
           path: ${{ runner.temp }}/acyclic-scalar-source/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: p2-policy-counterexamples
           path: |
@@ -292,17 +292,17 @@ jobs:
             ${{ runner.temp }}/p2-raw-domain/
             ${{ runner.temp }}/puzzles-on/
             ${{ runner.temp }}/puzzles-off/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: native-hash-evidence
           path: |
             ${{ runner.temp }}/hash-native.json
             ${{ runner.temp }}/hash-native-work/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: byte-proof-runner
           path: ${{ runner.temp }}/byte-proofs.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: compiler-validation
           path: |
@@ -319,12 +319,12 @@ jobs:
     needs: compiler
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: compiler-validation
           path: ${{ runner.temp }}/compiler-validation
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: lean-cache
         with:
           path: ${{ runner.temp }}/lean-4.35.0-linux
@@ -345,7 +345,7 @@ jobs:
             --lean "$RUNNER_TEMP/lean-4.35.0-linux/bin/lean" \
             --cli "$RUNNER_TEMP/compiler-validation/target/debug/chialisp-oxide" \
             --self-test --replay-vm --output "$RUNNER_TEMP/tree-theorems.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tree-algorithm-evidence
           path: ${{ runner.temp }}/tree-theorems.json
@@ -355,7 +355,7 @@ jobs:
     # The verifier tests invoke the same pinned Z3 release as the evidence job.
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install checksum-pinned Z3 4.15.4
         run: |
           z3_archive="$RUNNER_TEMP/z3-4.15.4-x64-glibc-2.39.zip"
@@ -380,7 +380,7 @@ jobs:
           printf '%s\n' "$z3_directory/bin" >> "$GITHUB_PATH"
       - name: Install pinned Rust and compiler components
         run: rustup show active-toolchain
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -401,11 +401,11 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           package_json_file: www/package.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
