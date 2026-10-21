@@ -19,12 +19,14 @@ const USAGE: &str = concat!(
     "cargo chialisp-oxide registry lookup --module-hash LOWERCASE_HEX --registry DIR [--json]\n",
     "cargo chialisp-oxide registry get --object-id LOWERCASE_HEX --registry DIR [--json]\n",
     "cargo chialisp-oxide registry add --name ASCII_ALIAS --module-hash LOWERCASE_HEX [--object-id LOWERCASE_HEX] --registry DIR --lock PATH [--json]\n",
+    "cargo chialisp-oxide registry resolve --lock PATH --registry DIR [--name ASCII_ALIAS] [--json]\n",
     "cargo chialisp-oxide registry inspect --clvm-hex-file PATH [--expected-puzzle-hash LOWERCASE_HEX] [--registry DIR] [--json]\n",
     "cargo chialisp-oxide registry generate-rust --lock PATH --registry DIR --name ASCII_ALIAS --output NEW_OR_IDENTICAL.rs [--check] [--json]\n\n",
     "Publish writes only the explicitly selected local registry. ",
     "Add pins one exact local object in the explicitly selected consumer lock; ambiguous hashes require --object-id. ",
     "Add writes are reviewed for macOS/Linux local POSIX filesystems; non-Unix add writes are unsupported. ",
     "Add does not create a registry, change Cargo.toml/Cargo.lock, infer a binding or affect build/check. ",
+    "Resolve checks every pin and the complete local store before optionally selecting one alias; it reads without creating files or changing the lock. ",
     "Inspect reads an explicit local reveal. An optional --registry looks up only its extracted or recognized module; no store is opened for an unclassified reveal without a module. ",
     "The full reveal puzzle hash and an extracted module hash are distinct; recognition does not verify a chain observation or spend. ",
     "Generate-rust resolves the complete explicit lock and store, then emits an opaque whole-environment local Rust helper. ",
@@ -57,6 +59,7 @@ impl Options {
             "lookup",
             "get",
             "add",
+            "resolve",
             "inspect",
             "generate-rust",
         ]
@@ -124,6 +127,7 @@ impl Options {
                 "--lock",
             ],
             "inspect" => &["--clvm-hex-file", "--expected-puzzle-hash", "--registry"],
+            "resolve" => &["--lock", "--registry", "--name"],
             "generate-rust" => &["--lock", "--registry", "--name", "--output"],
             _ => unreachable!(),
         };
@@ -161,6 +165,49 @@ impl Options {
 fn execute(options: &Options) -> Result<Value> {
     let limits = Limits::default();
     match options.command.as_str() {
+        "resolve" => {
+            let lock_path = options.path("--lock")?;
+            let registry_path = options.path("--registry")?;
+            let name = options
+                .values
+                .contains_key("--name")
+                .then(|| options.value("--name"))
+                .transpose()?;
+            if let Some(name) = name {
+                let bytes = name.as_bytes();
+                if bytes.is_empty()
+                    || bytes.len() > 64
+                    || !bytes[0].is_ascii_lowercase()
+                    || !bytes
+                        .iter()
+                        .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || *b == b'_')
+                {
+                    return Err(invalid("dependency name must match [a-z][a-z0-9_]{0,63}"));
+                }
+            }
+            let lock = dependency::read_lock(&lock_path)?;
+            let registry = Registry::open(&registry_path, limits)?;
+            // Retain one admitted collection. All pins and unrelated store
+            // objects are checked exactly once before optional alias selection.
+            let resolved = lock.resolve(&registry)?;
+            if name.is_some_and(|name| resolved.get(name).is_none()) {
+                return Err(Error::new(
+                    ErrorKind::UnknownObject,
+                    "selected dependency alias is absent from the complete resolved lock",
+                ));
+            }
+            let dependencies = resolved
+                .entries()
+                .filter(|(alias, _)| name.is_none_or(|name| *alias == name))
+                .map(|(name, package)| {
+                    json!({"name":name,"object_id":package.object_id(),
+                        "artifact":package.artifact().identity(),"binding":null})
+                })
+                .collect::<Vec<_>>();
+            Ok(json!({"status":"resolved",
+                "lock_sha256":chialisp_oxide_package::digest(lock.bytes()),
+                "dependencies":dependencies,"scope":dependency::VERIFICATION_SCOPE}))
+        }
         "generate-rust" => {
             let lock_path = options.path("--lock")?;
             let output_path = options.path("--output")?;

@@ -5,6 +5,7 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -34,6 +35,41 @@ def constructed_envelope(*, discarded=False):
 
 
 class RegistryCodegenReaderTests(unittest.TestCase):
+    def test_source_window_detects_changed_or_missing_imported_json_helper(self):
+        # Constructed source inventory only. The fake tool files are never
+        # executed, and no original checkout source is modified.
+        script = Path(__file__).with_name("check-registry-codegen.py")
+        spec = importlib.util.spec_from_file_location("registry_codegen_source_window_test", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
+                         "scripts/check-registry-codegen.py", "scripts/registry_codegen_evidence.py",
+                         "scripts/cargo_bundle.py", "scripts/cargo_source_receipt.py",
+                         "scripts/cargo_authoring.py", "scripts/source_walk.py", "scripts/vm_failures.py"):
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(b"constructed source A")
+            tool = root / "nonexecutable-tool"
+            tool.write_bytes(b"constructed identity, never executed")
+            run = object.__new__(module.Run)
+            run.args = SimpleNamespace(registry_cli=tool, cli=tool, driver=tool)
+            run.snapshot = lambda: {"scope": "constructed source-window control"}
+            helper = root / "scripts/cargo_authoring.py"
+            with patch.object(module, "ROOT", root), patch.object(module, "FIXTURE", root / "fixture"):
+                before = run.quiet_inputs()
+                original = next(row for row in before["repository_sources"] if row["path"] == str(helper))
+                helper.write_bytes(b"constructed source B")
+                after = run.quiet_inputs()
+                changed = next(row for row in after["repository_sources"] if row["path"] == str(helper))
+                self.assertEqual(original["bytes"], changed["bytes"])
+                self.assertNotEqual(original["sha256"], changed["sha256"])
+                self.assertNotEqual(before, after)
+                helper.unlink()
+                with self.assertRaises(FileNotFoundError):
+                    run.quiet_inputs()
+
     def test_driver_one_line_and_full_pinned_rustc_protocol_are_cross_checked(self):
         # Constructed query text exercises protocol validation only. No command
         # is replaced, and this test earns no compiler-query/execution credit.

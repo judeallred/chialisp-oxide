@@ -1306,3 +1306,6 @@ mod inspect_cli_tests {
 
 #[path = "registry_offline/generate.rs"]
 mod generate_cli_tests;
+
+#[path = "registry_offline/resolve.rs"]
+mod resolve_cli_tests;

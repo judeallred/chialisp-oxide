@@ -2,8 +2,8 @@
   "schema_version": 1,
   "protocol": "chialisp-oxide-p2dc-controls-quiet-window/v1",
   "status": "LAST_host_build_terminal_tools_quiet",
-  "source_root": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree",
-  "package_root": "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/p2dc-package",
+  "source_root": "/Users/judeallred/code/clispOx/target/registry-witness-worktree",
+  "package_root": "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/p2dc-package",
   "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
@@ -672,7 +672,7 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/registry.rs",
-        "sha256": "286df24079dcee7102e5faa2102f8d161c7659f639b061f96b6f311cf0d3da6c"
+        "sha256": "b9ef832e92b118791439b6d20a571f85e0b631555122af3940d123ebaff846af"
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/source_receipt.rs",
@@ -688,11 +688,15 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
-        "sha256": "6286c222bb0ba4b382dde095fdf10b0bff1d889433e628d212ba5b66fa630f33"
+        "sha256": "b87cc61cf48a45e4741fec5ecbcafa66f4746a690f8eced11b0fc7f8619e2893"
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline/generate.rs",
         "sha256": "2dbccc6c4b844daae6616740ca32f3542ece0ba95a3e28a6e4dd1ba0c1bfb7c4"
+      },
+      {
+        "path": "crates/cargo-chialisp-oxide/tests/registry_offline/resolve.rs",
+        "sha256": "5a74a1248a533220f2b20e0759034ee602217fad57a8fe9cad176809f55b07c1"
       },
       {
         "path": "crates/chialisp-oxide-cli/Cargo.toml",
@@ -2294,22 +2298,22 @@
   },
   "tools": {
     "cargo-chialisp-oxide": {
-      "path": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree/target/debug/cargo-chialisp-oxide",
-      "sha256": "b54c7b4462da8a8fc08e0e937e849ab9b7879f94cb92d2f1f9a4d15d1567d2c9"
+      "path": "/Users/judeallred/code/clispOx/target/registry-witness-worktree/target/debug/cargo-chialisp-oxide",
+      "sha256": "94b1a42961d1c9a8b8b3a8774c593a09ad1bdfba1d19f7c8ffa373fdd1899a86"
     },
     "chialisp-oxide-driver": {
-      "path": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree/target/debug/chialisp-oxide-driver",
-      "sha256": "219e5e40ad421b9459450ca55e129b8f3e087a7f62dae44bc0e97bb08dae0d67"
+      "path": "/Users/judeallred/code/clispOx/target/registry-witness-worktree/target/debug/chialisp-oxide-driver",
+      "sha256": "8b28d71fc142784f7c703149f6ff1340a71dadb08a8a09c640105d62ef03fc71"
     },
     "chialisp-oxide": {
-      "path": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree/target/debug/chialisp-oxide",
-      "sha256": "50254c65ef0259670bcce694c5ab08a1a54aa0d65c827c3b651d890220a67835"
+      "path": "/Users/judeallred/code/clispOx/target/registry-witness-worktree/target/debug/chialisp-oxide",
+      "sha256": "7522dd74eed10c5e4f598bb9172a9249701926e839213eaae131317a8c5e8eee"
     },
     "chialisp-oxide-verifier": {
-      "path": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree/target/debug/chialisp-oxide-verifier",
-      "sha256": "93f98141e3a662c909759c412bcb320baf5ae17fdb25ba146fa4a32af866bbb8"
+      "path": "/Users/judeallred/code/clispOx/target/registry-witness-worktree/target/debug/chialisp-oxide-verifier",
+      "sha256": "d650eba2e64690eddc887f0d5bdf0b669b27d6507ccdfc325dd07943a46a0939"
     }
   },
-  "native_receipt_sha256": "e11415f205f08e52b2793e96a3134e9c4a83ac1368019471f05373cbcacd8e8e",
+  "native_receipt_sha256": "5b71cac83911b028c54febbf4089869e1b57bf07aa3436581987708d3224f72d",
   "scope": "Sequential coordinator record after its successful workspace --bins --examples host build and before fresh capture. The caller keeps builds serialized. This receipt does not authenticate execution or prove compiler preservation."
 }

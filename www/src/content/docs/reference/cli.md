@@ -91,6 +91,14 @@ when lookup has multiple envelopes for that hash. The lock destination is explic
 this operation does not edit Cargo manifests or generate typed bindings. See the
 guide's local dependency and host consumer examples.
 
+`registry resolve --lock PATH --registry DIR [--name payment] --json`
+checks the complete lock and bounded store without writing or running Cargo,
+a compiler or a VM. Optional `--name` filters the displayed pins after all
+dependencies and store objects have been admitted. The result records the
+exact raw lock digest and each displayed pin's envelope and artifact identities;
+it supplies no module bytes or inferred Rust binding. Resolution is independent
+of the static source generator's narrower eligibility limits.
+
 `registry generate-rust --lock PATH --registry DIR --name payment --output src/payment_module.rs`
 resolves the complete lock and emits an ordinary local Rust helper from the
 selected admitted program bytes. Add `--check` to compare an existing source

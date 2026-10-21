@@ -11,6 +11,10 @@
   corrupt objects. Retain each admitted package once and index aliases into
   that collection. Preserve the caller's registry limits without default-limit
   re-admission or per-alias byte/work amplification.
+- Keep `registry resolve` a read-only use of that complete resolver. Optional
+  alias selection filters displayed pin identities after admission; it never
+  skips unselected pins or unrelated objects. Do not use static source
+  generation as a general resolver: its literal bounds are a separate contract.
 - Require an explicit consumer lock path. Protect Cargo manifests/lockfiles,
   registry descendants and nonregular/symlink/hardlink aliases. On Unix compare
   directory identities for containment; canonical path spelling alone does not

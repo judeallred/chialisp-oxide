@@ -226,7 +226,8 @@ class Run:
         paths += source_files(ROOT, [FIXTURE.relative_to(ROOT).as_posix()], suffixes=None)
         paths += ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml",
                   "scripts/check-registry-codegen.py", "scripts/registry_codegen_evidence.py",
-                  "scripts/cargo_bundle.py", "scripts/cargo_source_receipt.py", "scripts/source_walk.py", "scripts/vm_failures.py"]
+                  "scripts/cargo_bundle.py", "scripts/cargo_source_receipt.py", "scripts/cargo_authoring.py",
+                  "scripts/source_walk.py", "scripts/vm_failures.py"]
         return {"repository_sources": [file_identity(ROOT / path) for path in sorted(set(paths))],
                 "consumer": self.snapshot(), "binaries": [file_identity(path, 512 * 1024 * 1024)
                     for path in (self.args.registry_cli, self.args.cli, self.args.driver)]}

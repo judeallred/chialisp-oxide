@@ -164,6 +164,35 @@ file is coordination state. This protocol
 coordinates cooperating writers on supported local filesystems; it is not a
 hostile-directory sandbox or a power-loss guarantee.
 
+## Resolve a lock without building or writing
+
+Check a copied lock and its selected local store independently of Rust source
+generation or execution:
+
+```sh
+target/debug/cargo-chialisp-oxide registry resolve --lock chialisp-oxide.lock --registry .local-puzzles --json
+target/debug/cargo-chialisp-oxide registry resolve --lock chialisp-oxide.lock --registry .local-puzzles --name payment --json
+```
+
+The installed form is `cargo chialisp-oxide registry resolve` with the same
+flags. Both forms admit every locked pin and every object in the bounded store
+scan. `--name` filters only the displayed dependencies after this complete
+check; an unrelated corrupt object or missing unselected pin still fails the
+command. An unknown selected name fails after admission too.
+
+Successful JSON contains `status: "resolved"`, `lock_sha256`, `dependencies`
+and `scope`. The digest covers the exact checked lock bytes, including
+whitespace. Each returned dependency has its name, exact `object_id`, complete
+`artifact` identity and explicit `binding: null`. Without `--name`, the array
+contains all pins in name order; with it, the array contains one pin. Module
+bytes and source attachments are not included in this result.
+
+Resolution creates no registry, lock, sidecar or generated source and runs no
+compiler or VM. Its artifact admission limits are separate from the narrower
+static Rust generator's limits: a valid stored program can resolve even when
+it cannot be embedded by `generate-rust`. This is a checked local read, not a
+reservation against later filesystem changes or an authenticity claim.
+
 ## Consume the actual locked artifact from Rust
 
 The package library resolves every pin against a selected local store before

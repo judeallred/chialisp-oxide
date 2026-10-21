@@ -2,8 +2,8 @@
   "schema_version": 1,
   "protocol": "chialisp-oxide-boomerang-controls-native/v1",
   "status": "native_phase_passed_before_LAST_host_build",
-  "source_root": "/Users/judeallred/code/clispOx/target/registry-bindings-worktree",
-  "package_root": "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package",
+  "source_root": "/Users/judeallred/code/clispOx/target/registry-witness-worktree",
+  "package_root": "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
     "authoring": {
@@ -647,7 +647,7 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/registry.rs",
-        "sha256": "286df24079dcee7102e5faa2102f8d161c7659f639b061f96b6f311cf0d3da6c"
+        "sha256": "b9ef832e92b118791439b6d20a571f85e0b631555122af3940d123ebaff846af"
       },
       {
         "path": "crates/cargo-chialisp-oxide/src/source_receipt.rs",
@@ -663,11 +663,15 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
-        "sha256": "6286c222bb0ba4b382dde095fdf10b0bff1d889433e628d212ba5b66fa630f33"
+        "sha256": "b87cc61cf48a45e4741fec5ecbcafa66f4746a690f8eced11b0fc7f8619e2893"
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline/generate.rs",
         "sha256": "2dbccc6c4b844daae6616740ca32f3542ece0ba95a3e28a6e4dd1ba0c1bfb7c4"
+      },
+      {
+        "path": "crates/cargo-chialisp-oxide/tests/registry_offline/resolve.rs",
+        "sha256": "5a74a1248a533220f2b20e0759034ee602217fad57a8fe9cad176809f55b07c1"
       },
       {
         "path": "crates/chialisp-oxide-cli/Cargo.toml",
@@ -2271,7 +2275,7 @@
       },
       {
         "path": "scripts/check-registry-codegen.py",
-        "sha256": "e984c941da685964eb3a5b47550bc2aaa66e6567412fb7b35e320c4822700469"
+        "sha256": "1b67f00b44f3bee679b2c0c0919354974daadc955a0784cd6b2e9d93fdf959a1"
       },
       {
         "path": "scripts/check-registry-dependencies.py",
@@ -2299,7 +2303,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "75501cf0f5aaab73a2d923764130e523a6844b602ffca39bf84834bc6c1c3328"
+        "sha256": "96e6657a710a439df1bf747522ca55da7aa4e4bfdd6a030a2d5de835cf6d7e0c"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -2543,7 +2547,7 @@
       },
       {
         "path": "scripts/test_registry_codegen_evidence.py",
-        "sha256": "5ce26b912fd9b1b9f5e40de2352bc6d02d0c5cb05acd66d5fa10c4856f5f865a"
+        "sha256": "eebf5988b6e2f779bba635153762b05e5d05f7fdf4691d25a59af0835483535d"
       },
       {
         "path": "scripts/test_runtime_composition.py",
@@ -2709,7 +2713,7 @@
       },
       {
         "path": "Cargo.toml",
-        "sha256": "bdb904c6e179d30813cb0d3facb4077cb61cd26fe555e682080ef1265dad7856"
+        "sha256": "a5a179434e4ed85ebf7b16a8daccc9339353bfcdc2d4b95af5479f7f1393c06d"
       },
       {
         "path": "examples/ledger.rs",
@@ -2913,7 +2917,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -2923,10 +2927,10 @@
     "native_test_groups": 1,
     "native_policy_observations": 9,
     "log": "native.log",
-    "log_sha256": "6e3b9c60d5be9d1b5592148d0197eeab283d28e2bcaae537d698d8b01ad4a854",
+    "log_sha256": "b1b6d748df38d8c08070345d802ce6f605b62dd98646bb36d90ccccadac4559b",
     "ledger_binary": {
-      "path": "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-native-target/debug/examples/ledger",
-      "sha256": "741511996bfbd1c4b9ca2ea065b2af23037a627206d2a84a0304e4ff4965d347"
+      "path": "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-native-target/debug/examples/ledger",
+      "sha256": "3f52e5f7abd9fd65409b3de8a9dc5f7dc711a6db3e3d775128d2d0a06e0fd2d6"
     }
   },
   "commands": [
@@ -2939,7 +2943,7 @@
         "generate-lockfile",
         "--offline",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml"
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml"
       ],
       "exit_code": 0,
       "log": "native-logs/0.log",
@@ -2953,7 +2957,7 @@
         "cargo",
         "fmt",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
         "--all",
         "--check"
       ],
@@ -2969,14 +2973,14 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline"
       ],
       "exit_code": 0,
       "log": "native-logs/2.log",
-      "log_sha256": "08d30e0e1f708244bd668012251278ab3a7b533b31c3adcc4ebab29d7469b424"
+      "log_sha256": "957bc651dc5fed0a4430cb30d83e78e54b5d6ba77e12ee07a6025c3eb10fa981"
     },
     {
       "argv": [
@@ -2986,7 +2990,7 @@
         "cargo",
         "test",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
         "--locked",
         "--offline",
         "--",
@@ -2994,7 +2998,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/3.log",
-      "log_sha256": "6e3b9c60d5be9d1b5592148d0197eeab283d28e2bcaae537d698d8b01ad4a854"
+      "log_sha256": "b1b6d748df38d8c08070345d802ce6f605b62dd98646bb36d90ccccadac4559b"
     },
     {
       "argv": [
@@ -3004,7 +3008,7 @@
         "cargo",
         "clippy",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline",
@@ -3014,7 +3018,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/4.log",
-      "log_sha256": "7bf64e60cc5f4ad2a88ad42acb1a8cd6a7399d193e1d2ed6bbe32908bed1b2b3"
+      "log_sha256": "47886eeb06124b5aaf7e6feb53eccae5036445aebcef31271bee2565375a69cb"
     },
     {
       "argv": [
@@ -3024,7 +3028,7 @@
         "cargo",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/registry-bindings-20261021/capture-1/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/registry-witness-20261021/capture-1/boomerang-package/Cargo.toml",
         "--example",
         "ledger",
         "--locked",
@@ -3032,7 +3036,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/5.log",
-      "log_sha256": "deb6cb4a6c3e79707fe01a80013f10f53ed028864b8a94992b33872d11736be8"
+      "log_sha256": "9c73735a1033f44f00ea48e15c38d73843ff5a391557aac653bd81d564a34b5f"
     }
   ]
 }
