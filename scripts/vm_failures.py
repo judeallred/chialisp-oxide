@@ -592,6 +592,15 @@ def execution_paths():
     paths += _boomerang_control_artifact_paths()
     from p2_singleton_evidence import RUNTIME_INPUTS
     paths += list(RUNTIME_INPUTS)
+    # The Cargo registry adapter links this offline library into the same tool.
+    # Bind its full conventional Rust source/test roots, without scanning target
+    # directories or treating local registry objects as execution evidence.
+    paths += ["crates/chialisp-oxide-package/Cargo.toml",
+              "crates/cargo-chialisp-oxide/src/registry.rs",
+              "crates/cargo-chialisp-oxide/tests/registry_offline.rs"]
+    for directory in ("src", "tests", "examples", "benches"):
+        paths += [path.relative_to(ROOT).as_posix() for path in
+                  (ROOT / "crates/chialisp-oxide-package" / directory).rglob("*.rs") if path.is_file()]
     paths += [str(path.relative_to(ROOT)) for path in (ROOT / "crates/chialisp-oxide-vm/src").rglob("*.rs")]
     return sorted(set(paths))
 

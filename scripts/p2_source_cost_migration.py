@@ -303,7 +303,7 @@ def control_source_window(report):
     paths.update("scripts/"+name for name in ("check-p2-source-controls.py","cargo_authoring.py","cargo_bundle.py"))
     members = ("experiments/backend","experiments/byte-proofs","crates/chialisp-oxide-ir",
         "crates/chialisp-oxide-reference","crates/chialisp-oxide-rue","crates/chialisp-oxide-driver",
-        "crates/chialisp-oxide","crates/chialisp-oxide-macros","crates/cargo-chialisp-oxide",
+        "crates/chialisp-oxide","crates/chialisp-oxide-macros","crates/cargo-chialisp-oxide","crates/chialisp-oxide-package",
         "crates/chialisp-oxide-simulator","crates/chialisp-oxide-verifier","crates/chialisp-oxide-corpus",
         "crates/chialisp-oxide-cli","crates/chialisp-oxide-vm","puzzles","vendor/rue-lir")
     require(tomllib.loads(read("Cargo.toml").decode())["workspace"]["members"] == list(members),

@@ -64,6 +64,13 @@ serialized CLVM, disassembly, sizes, and tree hashes. `latest.json` points to th
 most recent successful bundle. Failed builds preserve the previous successful
 bundle instead of publishing partial artifacts.
 
+The [offline package registry](docs/package-registry.md) imports a selected
+export from an immutable bundle, verifies its exact bytes and structural ABI,
+and supports local `publish`, `verify`, `lookup` and `get` commands without
+running a compiler or VM. It keeps envelope identity, blob digest and tree hash
+separate. Source capture, typed dependency bindings and observed mainnet lookup
+remain unfinished; this is the first storage increment of issue #21.
+
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 `--target clvm` implementation. A target configuration alone does not provide
 code generation, runtime layouts, linking, or a CLVM SDK. See the
@@ -104,7 +111,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records thirty-one
+The locally validated [corpus report](corpus/validation.json) records thirty-two
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -123,14 +130,15 @@ exact canonical `p2_conditions` program factory, pinned `last_inner`,
 module adapters, the singleton launcher module, and the exact password tutorial
 module with separate curried-instance observations, plus canonical pay-to-singleton
 with dedicated counterpart composition evidence, and canonical delegated
-conditions with owner-key and signature/reveal checks. The
+conditions with owner-key and signature/reveal checks, and an original boomerang
+payment with terms committed before funding. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The Using Modules ports compile the
 original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-587 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
+688 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
 complete-spend scenario groups run separately in all three languages (120 ledger
 scenario runs). The eight condition-producing teaching fixtures and the singleton
@@ -170,6 +178,16 @@ and 251 for optimized Rue; their hashes differ. One native test group with
 three policy observations and 12 VM source-control runs exposes mistakes that
 still compile. See the
 [delegated-conditions lesson](https://judeallred.github.io/chialisp-oxide/tutorials/delegated-conditions/).
+
+The original [boomerang payment](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
+commits its owner key, both destinations, full amount and deadline before
+funding. A signed claim runs strictly before the deadline; a permissionless
+full refund runs at or after it. Its dedicated five-build suite records 145
+SDK submissions: 25 accepted, 80 exact typed semantic rejections and 40
+malformed-input runtime observations without semantic rejection credit.
+Separate source mutations submit 18 transactions, including six accepted
+counterexamples to intentionally broken policies. This is a teaching policy,
+not the canonical clawback module or a liveness guarantee.
 
 The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
 to 1,685 bytes. In the recorded accepted joint transaction, total conditions
@@ -227,19 +245,13 @@ that gap is the 500-versus-293-byte generator size. The
 distinguishes these measurements from the signature-skipping conditions helper,
 raw VM costs, fee quotes and full ledger admission.
 
-The preceding cost milestone passed 502 workspace tests and all-target Clippy
-with warnings denied on macOS. The hash evidence gate passes 168 corruption controls and
-22,285 executions of the retained hash-port artifacts. The source-derived proof,
-error-study, Lean and documentation gates are checked separately; these finite
-checks do not establish compiler preservation or production readiness.
-
-A 578-test workspace run and all-target Clippy cover the carried compiler
-sources. Final integration carries that run for unchanged Rust/Cargo inputs,
-with a separately tested native-control template added outside the
-workspace. The two Rue corpus tests were rerun on the current 23-puzzle data
-before a fresh final host build. This is not a new full test run in the final
-checkout. Source-derived proof, Lean and site gates require their own current
-source checks; execution results do not supply those proofs.
+The workspace tests cover Cargo authoring, compiler rejection boundaries,
+native/VM comparisons, bundle and package admission, and local-store concurrency.
+CI runs the suite and all-target Clippy with warnings denied. The hash evidence
+gate separately checks 168 corruption controls and 22,285 executions of retained
+hash-port artifacts. Source-derived proof, error-study, Lean and documentation
+gates check their own current inputs; these finite checks do not establish
+compiler preservation or production readiness.
 
 The launcher's pinned source, include, license, commit/tree membership and
 published artifact are recorded separately. Independent Chialisp reproduces

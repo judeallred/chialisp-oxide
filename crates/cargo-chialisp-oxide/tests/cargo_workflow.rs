@@ -1,7 +1,11 @@
 //! Exercise genuine Cargo resolution, host build scripts, rustc checking, and CLVM.
 use chialisp_oxide_backend_experiment::{FailureCode, Outcome, execute};
+use chialisp_oxide_package::{
+    Digest32, Limits, bundle::import_bundle, digest, package::SourceScope, store::Registry,
+};
 use serde_json::Value;
 use std::{
+    ffi::OsString,
     path::{Path, PathBuf},
     process::{Command, Output},
 };
@@ -218,6 +222,168 @@ fn exact_outputs(path: &Path, manifest: &Value) {
     );
 }
 
+fn offline_registry(scratch: &Path, args: &[OsString]) -> Value {
+    let unavailable = scratch.join("nonexistent-build-tool");
+    let output = Command::new(env!("CARGO_BIN_EXE_cargo-chialisp-oxide"))
+        .args(args)
+        .current_dir(scratch)
+        .env("PATH", "")
+        .env("CARGO", &unavailable)
+        .env("RUSTC", &unavailable)
+        .env("CHIALISP_OXIDE_DRIVER", &unavailable)
+        .env("RUSTC_WRAPPER", &unavailable)
+        .env("RUSTC_WORKSPACE_WRAPPER", &unavailable)
+        .env("CARGO_BUILD_RUSTC_WRAPPER", &unavailable)
+        .env("CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER", &unavailable)
+        .output()
+        .expect("run prebuilt offline registry executable");
+    assert!(
+        output.status.success(),
+        "offline registry stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "offline registry emitted diagnostics"
+    );
+    serde_json::from_slice(&output.stdout).expect("one machine-readable registry result")
+}
+
+fn registry_round_trip(scratch: &Path, path: &Path, manifest: &Value) {
+    // Reuse the actual source-produced bundle already compiled and executed
+    // above. Registry admission itself adds no VM or source-equivalence credit.
+    let scratch = scratch.canonicalize().unwrap();
+    let entry = manifest["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["entry"].as_str().unwrap().ends_with("::pay"))
+        .unwrap();
+    let name = entry["entry"].as_str().unwrap();
+    let artifact = &entry["artifact"];
+    let module_hash: Digest32 = artifact["tree_hash"].as_str().unwrap().parse().unwrap();
+    let clvm_file =
+        std::fs::read_to_string(path.parent().unwrap().join(entry["clvm"].as_str().unwrap()))
+            .unwrap();
+    assert_eq!(
+        clvm_file,
+        format!("{}\n", artifact["clvm_hex"].as_str().unwrap())
+    );
+    let blob = hex::decode(clvm_file.trim_end()).unwrap();
+    let ir_bytes =
+        std::fs::read(path.parent().unwrap().join(entry["ir"].as_str().unwrap())).unwrap();
+    let manifest_bytes = std::fs::read(path).unwrap();
+    let package = import_bundle(path, name, &Limits::default()).unwrap();
+    assert_eq!(package.module_tree_hash(), module_hash);
+    assert_eq!(package.artifact().bytes(), blob.as_slice());
+    assert_eq!(package.artifact().identity().blob_sha256, digest(&blob));
+    assert_eq!(
+        package.artifact().identity().bytes,
+        artifact["bytes"].as_u64().unwrap()
+    );
+    let rust = package.manifest().rust.as_ref().unwrap();
+    assert_eq!(rust.entry, name);
+    assert_eq!(rust.ir_json.as_bytes(), ir_bytes.as_slice());
+    assert_eq!(rust.ir_sha256, digest(&ir_bytes));
+    assert_eq!(
+        rust.bundle_manifest_json.as_bytes(),
+        manifest_bytes.as_slice()
+    );
+    assert_eq!(rust.bundle_manifest_sha256, digest(&manifest_bytes));
+    assert_eq!(package.manifest().source_scope, SourceScope::NotRecorded);
+    assert!(package.manifest().sources.is_empty());
+    let expected = serde_json::to_value(package.summary()).unwrap();
+    assert_eq!(expected["source_scope"], "not_recorded");
+    assert_eq!(expected["source_files"], 0);
+
+    let store = scratch.join("registry");
+    let published = offline_registry(
+        &scratch,
+        &[
+            "registry".into(),
+            "publish".into(),
+            "--bundle".into(),
+            path.as_os_str().to_owned(),
+            "--entry".into(),
+            name.into(),
+            "--registry".into(),
+            store.as_os_str().to_owned(),
+            "--json".into(),
+        ],
+    );
+    assert_eq!(published["publication"]["status"], "published");
+    assert_eq!(
+        published["publication"]["object_id"],
+        package.object_id().to_hex()
+    );
+    assert_eq!(published["package"], expected);
+    let stored_path = store
+        .join("objects")
+        .join(format!("{}.json", package.object_id()));
+    assert_eq!(std::fs::read(&stored_path).unwrap(), package.bytes());
+    let verified = offline_registry(
+        &scratch,
+        &[
+            "registry".into(),
+            "verify".into(),
+            "--package".into(),
+            stored_path.as_os_str().to_owned(),
+            "--json".into(),
+        ],
+    );
+    assert_eq!(verified["status"], "verified");
+    assert_eq!(verified["package"], expected);
+    let found = offline_registry(
+        &scratch,
+        &[
+            "registry".into(),
+            "lookup".into(),
+            "--module-hash".into(),
+            module_hash.to_hex().into(),
+            "--registry".into(),
+            store.as_os_str().to_owned(),
+            "--json".into(),
+        ],
+    );
+    assert_eq!(found["status"], "lookup_complete");
+    assert_eq!(found["module_tree_hash"], module_hash.to_hex());
+    assert_eq!(
+        found["packages"].as_array().unwrap().as_slice(),
+        std::slice::from_ref(&expected)
+    );
+    // Exercise Cargo's injected prefix without invoking Cargo on the offline
+    // path. The prebuilt executable must dispatch before driver/wrapper checks.
+    let retrieved = offline_registry(
+        &scratch,
+        &[
+            "chialisp-oxide".into(),
+            "registry".into(),
+            "get".into(),
+            "--object-id".into(),
+            package.object_id().to_hex().into(),
+            "--registry".into(),
+            store.as_os_str().to_owned(),
+            "--json".into(),
+        ],
+    );
+    assert_eq!(retrieved["status"], "verified");
+    assert_eq!(retrieved["package"], expected);
+    let registry = Registry::open(&store, Limits::default()).unwrap();
+    assert_eq!(
+        registry.get(package.object_id()).unwrap().bytes(),
+        package.bytes()
+    );
+    let variants = registry.lookup(module_hash).unwrap();
+    assert_eq!(variants.len(), 1);
+    assert_eq!(variants[0].bytes(), package.bytes());
+    assert_eq!(std::fs::read(path).unwrap(), manifest_bytes);
+    assert_eq!(
+        std::fs::read(path.parent().unwrap().join(entry["ir"].as_str().unwrap())).unwrap(),
+        ir_bytes
+    );
+}
+
 #[test]
 fn real_cargo_annotations_features_cache_and_failure_boundaries() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -241,6 +407,7 @@ fn real_cargo_annotations_features_cache_and_failure_boundaries() {
     exact_outputs(&first_path, &first);
     assert!(!accepts(&first_path, &first, "::pay", "(1001)"));
     assert!(!accepts(&first_path, &first, "::pay", "(0x0001)"));
+    registry_round_trip(&scratch.0, &first_path, &first);
     // Same source/features with dependencies already fresh still regenerates
     // exports, rather than reporting success using an old IR file.
     success(run(&root, &scratch.0, "cargo-puzzles", "build", &[]));

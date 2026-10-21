@@ -105,9 +105,15 @@ backlog; this ordering does not mark their acceptance criteria complete.
    using recorded corpus witnesses. Chialisp-specific highlighting
    ([#8](https://github.com/judeallred/chialisp-oxide/issues/8)) has pinned
    official provenance and actual token/contrast checks.
-2. Make the tooling useful end to end: a local package registry with source and
-   artifact identity ([#21](https://github.com/judeallred/chialisp-oxide/issues/21)),
-   then the explicit-network CLI/GUI lifecycle
+2. Make the tooling useful end to end: the
+   [offline registry prototype](https://judeallred.github.io/chialisp-oxide/reference/package-registry/)
+   imports immutable Cargo bundles and verifies exact package, artifact and
+   structural ABI identities without running a compiler or VM. Complete
+   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) with automatic
+   source-aware Cargo receipts, observed mainnet reveals, standard-curry
+   decoding, pinned bindings and a dependency-by-hash authoring example;
+   source attachments and build declarations alone do not establish compilation
+   or source authenticity. Then build the explicit-network CLI/GUI lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
    demonstrations require actual testnet evidence, not simulated transaction IDs.
 3. Expand stateful composition with canonical CAT issuance

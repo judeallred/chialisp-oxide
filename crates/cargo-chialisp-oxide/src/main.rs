@@ -1,5 +1,6 @@
 //! Cargo orchestrates Rust compilation; chialisp-oxide-driver extracts annotated exports.
 mod options;
+mod registry;
 
 use anyhow::{Context, Result, ensure};
 use chialisp_oxide_backend_experiment::{RUE_REV, artifact};
@@ -154,7 +155,19 @@ fn select<'a>(metadata: &'a Metadata, options: &options::Options) -> Result<&'a 
 }
 
 fn main() -> Result<()> {
-    let Some(options) = options::Options::parse(std::env::args().skip(1).collect())? else {
+    let args = std::env::args_os().skip(1).collect::<Vec<_>>();
+    if let Some(result) = registry::dispatch(&args) {
+        return result;
+    }
+    let args = args
+        .into_iter()
+        .map(|arg| {
+            arg.into_string().map_err(|_| {
+                anyhow::anyhow!("build/check arguments must be UTF-8 in this prototype")
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+    let Some(options) = options::Options::parse(args)? else {
         usage();
         return Ok(());
     };
@@ -352,6 +365,7 @@ fn usage() {
         \x20   [--locked|--offline|--frozen] [--release|--profile NAME] [-j N] [-v|-q]\n\
         \x20   [--no-optimize] [--output-dir PATH]\n\
         Compiles annotated functions in one Cargo library using the pinned Rust driver.\n\
-        cargo check/test remain normal native Rust checks; cargo chialisp-oxide checks the CLVM subset."
+        cargo check/test remain normal native Rust checks; cargo chialisp-oxide checks the CLVM subset.\n\
+        cargo chialisp-oxide registry --help: offline package identities and explicit local storage."
     );
 }

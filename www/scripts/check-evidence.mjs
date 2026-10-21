@@ -1,4 +1,4 @@
-import { readFile, realpath } from 'node:fs/promises';
+import { readFile, readdir, realpath } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
@@ -727,6 +727,33 @@ executionPaths.push(
   'scripts/record-controls-quiet-window.py', 'www/src/lib/boomerang-source-controls.mjs',
   'www/scripts/test-boomerang-source-controls.mjs',
 );
+// Keep an independent source-root enumeration in parity with vm_failures.py.
+// Registry objects and build/cache directories add no execution evidence.
+executionPaths.push('crates/chialisp-oxide-package/Cargo.toml',
+  'crates/cargo-chialisp-oxide/src/registry.rs',
+  'crates/cargo-chialisp-oxide/tests/registry_offline.rs');
+async function packageRustSources(directory, depth = 0) {
+  assert(depth <= 64, 'Package implementation directory depth exceeded');
+  let entries;
+  try {
+    entries = await readdir(new URL(`${directory}/`, root), { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT' && depth === 0) return;
+    throw error;
+  }
+  assert(entries.length <= 4096, 'Package implementation directory entry limit exceeded');
+  for (const entry of entries) {
+    const filename = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) await packageRustSources(filename, depth + 1);
+    else if (entry.isFile() && entry.name.endsWith('.rs')) {
+      assert(executionPaths.length < 4096, 'Execution source count exceeded');
+      executionPaths.push(filename);
+    }
+  }
+}
+for (const directory of ['src', 'tests', 'examples', 'benches']) {
+  await packageRustSources(`crates/chialisp-oxide-package/${directory}`);
+}
 const controlPacket = JSON.parse(await read('corpus/p2dc-source-controls/report.json'));
 assert.equal(controlPacket.files.length, 86, 'Missing retained mutation-control files');
 const controlPaths = controlPacket.files.map(row => {

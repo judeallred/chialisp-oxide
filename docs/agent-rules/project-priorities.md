@@ -9,10 +9,10 @@
   both issues are closed. Agent authoring/discovery (#25) has one actual Codex
   fresh-clone trial recorded in `docs/agent-documentation.md`; a second genuine
   agent tool is still required before its acceptance is complete.
-- The original boomerang puzzle (#9) has five-build committed-instance and
-  separate source-mutation evidence. Require exact-commit CI, Pages and live
-  evidence checks before closing it. The next tooling slice is #21's offline
-  package registry, followed by pinned bindings and #12's broader lifecycle;
+- The original boomerang puzzle (#9) shipped with five-build committed-instance
+  and separate source-mutation evidence, exact-commit CI, Pages and live checks;
+  the issue is closed. The next tooling slice is #21's offline package registry,
+  followed by source-aware Cargo receipts, pinned bindings and #12's broader lifecycle;
   keep full issue acceptance and the later stateful-puzzle tracks explicit.
   Complete the remaining #25 trial where feasible, and use issue dependencies
   to order larger work.

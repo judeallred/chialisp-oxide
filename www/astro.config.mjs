@@ -79,6 +79,7 @@ export default defineConfig({
           { label: 'Puzzle ABI', slug: 'reference/abi' },
           { label: 'Optional output lists', slug: 'reference/optional-lists' },
           { label: 'Compiler commands', slug: 'reference/cli' },
+          { label: 'Offline package registry', slug: 'reference/package-registry' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },
           { label: 'Read Chialisp syntax colors', slug: 'reference/highlighting' },
           { label: 'Contributing', slug: 'reference/contributing' },

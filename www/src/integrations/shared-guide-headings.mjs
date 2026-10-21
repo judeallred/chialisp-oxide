@@ -3,6 +3,7 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const titles = new Map([
+  [realpathSync(new URL('../../../docs/package-registry.md', import.meta.url)), 'Offline package registry'],
   [realpathSync(new URL('../../../docs/roadmap.md', import.meta.url)), 'Current status'],
   [realpathSync(new URL('../../../docs/optional-lists.md', import.meta.url)), 'Optional output lists with standard Rust Option'],
   [realpathSync(new URL('../../../docs/llms.md', import.meta.url)), 'Writing puzzles with chialisp-oxide'],
