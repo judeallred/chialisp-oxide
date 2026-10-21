@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { failureProtocol, checkCorpusExecutions, checkScalarProofReplays, testFailureProtocol } from './vm-failures.mjs';
+import { failureProtocol, checkCorpusExecutions, checkNativeOutcome, checkScalarProofReplays, testFailureProtocol } from './vm-failures.mjs';
 import { checkLedgerReport, testLedgerProtocol } from './ledger-rejections.mjs';
 import { checkProtocolReport, historicalOptimizationReport } from './p2-protocol.mjs';
 import { loadP2CostEvidence } from '../src/lib/p2-costs.mjs';
 import { loadCompositionCostEvidence } from '../src/lib/composition-costs.mjs';
 import { checkDelegatedReport } from './p2dc-protocol.mjs';
+import { checkBoomerangReport } from './boomerang-protocol.mjs';
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));
@@ -31,6 +32,8 @@ const report = JSON.parse(await read('corpus/validation.json'));
 // validation of every export, then pure projection to the retained 23-export checkpoint.
 // A pending profile cannot authorize a historical capture as the active report.
 execFileSync('python3', ['scripts/check-corpus-append.py'], { cwd: rootPath, stdio: 'inherit' });
+execFileSync('python3', ['scripts/check-boomerang.py', '--self-test'], { cwd: rootPath, stdio: 'inherit' });
+execFileSync('python3', ['scripts/check-boomerang.py', '--source-controls', 'corpus/boomerang-source-controls/report.json', '--source-controls-only'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-append.py'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-source-controls.py', 'corpus/p2dc-source-controls/report.json'], { cwd: rootPath, stdio: 'inherit' });
 await loadCompositionCostEvidence();
@@ -50,6 +53,7 @@ checkCorpusExecutions(report);
 checkLedgerReport(report);
 const protocolCounts = checkProtocolReport(report);
 const delegatedCounts = checkDelegatedReport(report);
+const boomerangCounts = checkBoomerangReport(report);
 const optimizationReport = historicalOptimizationReport(report);
 console.log(`Consensus rejection protocol: ${testLedgerProtocol()} independent corruption controls passed`);
 console.log(`Typed VM failure protocol: ${testFailureProtocol()} independent corruption controls passed`);
@@ -78,6 +82,7 @@ assert.deepEqual(optimizationReport.authoring, predecessor.authoring);
 assert.equal(optimizationReport.puzzles.length, 21);
 assert.deepEqual([protocolCounts.groups, protocolCounts.attempts, protocolCounts.accepted, protocolCounts.rejected], [5,110,15,95]);
 assert.deepEqual([delegatedCounts.groups,delegatedCounts.attempts,delegatedCounts.accepted,delegatedCounts.rejected],[5,60,20,40]);
+assert.deepEqual(boomerangCounts, { builds: 5, attempts: 145, accepted: 25, rejected: 80, umbrellas: 40 });
 const previousPatches = [108, 109, 110, 111, 112, 113].map(number => `https://github.com/xch-dev/rue/issues/${number}`);
 assert.deepEqual(helperInlining.rue_local_patches.before, previousPatches);
 assert.equal(helperInlining.rue_local_patches.status, 'reviewed');
@@ -164,8 +169,14 @@ for (const puzzle of report.puzzles) {
     assert.equal(await recordedSource(dependency.path), dependency.source, `${puzzle.slug}: stale Rue dependency`);
     await checkRecordedHash(dependency.path, dependency.sha256);
   }
-  assert.deepEqual(puzzle.cases.map(({ label, solution, declared_divergence }) => declared_divergence === undefined ? { label, solution } : { label, solution, declared_divergence }), manifest.cases, `${puzzle.slug}: test vectors changed`);
-  for (const test of puzzle.cases) {
+  // Only expected is manifest-only oracle metadata; keep every other field in
+  // the identity comparison so unknown fields and changed vectors still fail.
+  assert.deepEqual(puzzle.cases.map(({ label, solution, declared_divergence }) => declared_divergence === undefined ? { label, solution } : { label, solution, declared_divergence }), manifest.cases.map(({ expected: _expected, ...identity }) => identity), `${puzzle.slug}: test vectors changed`);
+  for (const [index, test] of puzzle.cases.entries()) {
+    if (Object.hasOwn(manifest.cases[index], 'expected')) {
+      const expected = checkNativeOutcome(manifest.cases[index].expected, `${puzzle.slug}/${test.label}: declared expectation`);
+      assert.deepEqual(test.native, expected, `${puzzle.slug}/${test.label}: native result differs from declared expectation`);
+    }
     if (test.declared_divergence === undefined) continue;
     const { backends, outcome } = test.declared_divergence;
     assert(Array.isArray(backends) && backends.length > 0 && backends.every(backend => ['chialisp', 'rue_source'].includes(backend)), `${puzzle.slug}/${test.label}: declared divergence may only bind Chialisp or Rue`);
@@ -199,7 +210,10 @@ for (const puzzle of report.puzzles) {
     }
   }
   assert(puzzle.simulator.every(scenario => scenario.passed), `${puzzle.slug}: failed ledger scenario`);
-  if (puzzle.kind === 'coin_puzzle') {
+  if (puzzle.slug === 'boomerang') {
+    assert.deepEqual(puzzle.simulator, [], 'Boomerang spends belong to its committed-instance protocol');
+    assert.deepEqual(puzzle.simulator_comparisons, [], 'Boomerang has no ordinary scenario-group credit');
+  } else if (puzzle.kind === 'coin_puzzle') {
     assert.deepEqual(puzzle.simulator_comparisons.map(run => `${run.backend}:${run.optimize_lir}`).sort(), ['chialisp:true', 'rue_source:true']);
     for (const run of puzzle.simulator_comparisons) assert.deepEqual(run.scenarios, puzzle.simulator, `${puzzle.slug}: ${run.backend} ledger behavior differs`);
   } else assert.deepEqual(puzzle.simulator_comparisons, [], `${puzzle.slug}: pure function claims ledger comparisons`);
@@ -698,6 +712,21 @@ const executionPaths = [
   "www/scripts/p2dc-protocol.mjs",
   "www/scripts/vm-failures.mjs"
 ];
+executionPaths.push(
+  'crates/chialisp-oxide-corpus/src/boomerang.rs',
+  'crates/chialisp-oxide-corpus/src/boomerang/ledger.rs',
+  'crates/chialisp-oxide-ir/src/lower/decoder_tests.rs',
+  'crates/chialisp-oxide-simulator/tests/wrong_key_signature.rs',
+  'puzzles/boomerang/puzzle.json', 'puzzles/boomerang/puzzle.rs',
+  'puzzles/boomerang/reference.clsp', 'puzzles/boomerang/puzzle.rue',
+  'scripts/boomerang_evidence.py', 'scripts/boomerang_source_controls.py',
+  'scripts/check-boomerang.py', 'scripts/run-boomerang-source-controls.py', 'scripts/test_boomerang.py',
+  'experiments/boomerang-controls/mutations.json', 'experiments/boomerang-controls/native.rs',
+  'experiments/boomerang-controls/ledger.rs', 'www/scripts/boomerang-protocol.mjs',
+  'www/scripts/test-boomerang-protocol.mjs',
+  'scripts/record-controls-quiet-window.py', 'www/src/lib/boomerang-source-controls.mjs',
+  'www/scripts/test-boomerang-source-controls.mjs',
+);
 const controlPacket = JSON.parse(await read('corpus/p2dc-source-controls/report.json'));
 assert.equal(controlPacket.files.length, 86, 'Missing retained mutation-control files');
 const controlPaths = controlPacket.files.map(row => {
@@ -708,6 +737,21 @@ const controlPaths = controlPacket.files.map(row => {
 });
 assert.deepEqual(controlPaths, [...new Set(controlPaths)].sort(), 'Mutation-control file paths are not sorted and unique');
 executionPaths.push(...controlPaths);
+const boomerangPacket=JSON.parse(await read('corpus/boomerang-source-controls/report.json'));
+assert.equal(boomerangPacket.protocol,'chialisp-oxide-boomerang-source-controls/v1');
+assert.equal(boomerangPacket.status,'actual_source_controls_captured');
+assert(Array.isArray(boomerangPacket.files)&&boomerangPacket.files.length>=1&&boomerangPacket.files.length<=512,'Bounded actual boomerang control inventory required');
+const boomerangControlPaths=[];
+for(const row of boomerangPacket.files) {
+  assert.deepEqual(Object.keys(row).sort(),['path','sha256']);
+  assert(typeof row.path==='string'&&row.path.length<=4096&&!row.path.startsWith('/')
+    &&!row.path.split('/').some(part=>!part||part==='.'||part==='..'),'Unconfined boomerang control path');
+  assert.match(row.sha256,/^[0-9a-f]{64}$/);
+  const filename=`corpus/boomerang-source-controls/${row.path}`;
+  await checkRecordedHash(filename,row.sha256);boomerangControlPaths.push(filename);
+}
+assert.deepEqual(boomerangControlPaths,[...new Set(boomerangControlPaths)].sort(),'Sorted unique boomerang control data required');
+executionPaths.push('corpus/boomerang-source-controls/report.json',...boomerangControlPaths);
 assert.deepEqual(proof.execution_sources.map(source => source.path), executionPaths.sort(), 'Scalar proof VM classifier/gate bindings changed');
 for (const source of proof.execution_sources) await checkRecordedHash(source.path, source.sha256);
 await checkAuthoring(proof.authoring, 'proof');

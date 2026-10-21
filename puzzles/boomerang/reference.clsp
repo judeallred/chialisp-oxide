@@ -1,0 +1,67 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not a canonical clawback module or ready for real funds.
+; Exact template environment: ((KEY RECIPIENT REFUND_TO AMOUNT DEADLINE) CLAIM).
+(mod environment
+  (defconstant ASSERT_BEFORE_SECONDS_ABSOLUTE 85)
+  (defconstant ASSERT_SECONDS_ABSOLUTE 81)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant CREATE_COIN 51)
+  (defconstant AGG_SIG_ME 50)
+  ; UTF-8 bytes of the fixed 32-byte intent "chialisp-oxide/boomerang/claim:1".
+  (defconstant CLAIM_INTENT 0x636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31)
+
+  ; Only these two fixed arities are used; nonempty zero/padded tails are not nil.
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun fixed_bytes (value width)
+    (if (l value) (x)
+      (if (= (strlen value) width) 1 (x))))
+
+  (defun boolean (value)
+    (if (l value) (x)
+      (if (any (= value ()) (= value 1)) 1 (x))))
+
+  ; The whole Rust u64 domain: canonical nil zero through 00ffffffffffffffff.
+  (defun canonical_u64 (value)
+    (if (l value) (x)
+      (if (> (strlen value) 9) (x)
+        (if (any (> 0 value) (> value 18446744073709551615)) (x)
+          (if (= (strlen value) 0) 1
+            (if (= (substr value 0 1) 0x00)
+              (if (= (strlen value) 1) (x)
+                (if (>s (substr value 1 2) 0x7f) 1 (x)))
+              1))))))
+
+  (defun pay ((recipient_key recipient refund_to amount deadline) claim)
+    (if (fixed_bytes recipient_key 48)
+      (if (fixed_bytes recipient 32)
+        (if (fixed_bytes refund_to 32)
+          (if (canonical_u64 amount)
+            (if (canonical_u64 deadline)
+              (if (boolean claim)
+                (if claim
+                  (list
+                    (list ASSERT_BEFORE_SECONDS_ABSOLUTE deadline)
+                    (list ASSERT_MY_AMOUNT amount)
+                    (list CREATE_COIN recipient amount)
+                    (list AGG_SIG_ME recipient_key CLAIM_INTENT))
+                  (list
+                    (list ASSERT_SECONDS_ABSOLUTE deadline)
+                    (list ASSERT_MY_AMOUNT amount)
+                    (list CREATE_COIN refund_to amount)))
+                (x))
+              (x))
+            (x))
+          (x))
+        (x))
+      (x)))
+
+  (if (exact_list environment 2)
+    (if (exact_list (f environment) 5)
+      (pay (f environment) (f (r environment)))
+      (x))
+    (x))
+)

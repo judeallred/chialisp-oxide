@@ -1,0 +1,56 @@
+---
+import { backendLabel, coinInstanceCounts, format, href, type PuzzleReport } from '../lib/data';
+interface Props { puzzle?: PuzzleReport }
+const { puzzle } = Astro.props;
+const evidence = puzzle?.coin_instances;
+if (puzzle?.slug !== 'boomerang' || evidence?.protocol !== 'chialisp-oxide-boomerang-instances/v1') {
+  throw new Error('Boomerang needs actual committed-instance evidence');
+}
+const counts = coinInstanceCounts(evidence);
+const mode = (backend: string, optimize: boolean) => backend === 'chialisp' ? 'reference' : optimize ? 'on' : 'off';
+const short = (value: string) => value.slice(0, 16);
+---
+<section class="coin-instances" aria-label="Boomerang committed coin instances" data-coin-instances={evidence.protocol}
+  data-coin-builds={counts.builds} data-coin-attempts={counts.attempts}
+  data-coin-accepted={counts.accepted} data-coin-rejected={counts.rejected} data-coin-umbrellas={counts.umbrellas}>
+  <h2 id="boomerang-instances">Test the coin that commits to the terms</h2>
+  <p>The template receives configurable terms. A funded coin instead commits to one instance with the recipient key, recipient destination, refund destination, amount and deadline already curried. Each build below has its own template hash and committed instance hash. Equal tested behavior does not make these hashes interchangeable.</p>
+  <div class="metric-grid">
+    <div class="metric" data-coin-count="attempts"><strong>{format(counts.attempts)}</strong><span>actual SDK submissions</span></div>
+    <div class="metric" data-coin-count="accepted"><strong>{format(counts.accepted)}</strong><span>accepted</span></div>
+    <div class="metric" data-coin-count="rejected"><strong>{format(counts.rejected)}</strong><span>typed consensus rejections</span></div>
+    <div class="metric" data-coin-count="umbrellas"><strong>{format(counts.umbrellas)}</strong><span>runtime umbrellas</span></div>
+  </div>
+  <p data-coin-summary>{format(counts.attempts)} actual submissions: {format(counts.accepted)} accepted, {format(counts.rejected)} typed consensus rejections and {format(counts.umbrellas)} runtime umbrellas across {counts.builds} builds. These are not ordinary ledger scenario groups. Counts include the accepted setup and rejected retry as separate submissions in each replay test.</p>
+  <p>The demonstration commits to 1,000 mojos and absolute Unix deadline 100 seconds. Claim at 99 requires the recipient signature; the permissionless refund succeeds at 100 and 101. These public fixture keys have known secret seeds. This is not ready for real funds.</p>
+  <p>Every failed submission must preserve full SDK equality checked in memory, including state that the compact snapshots omit. The retained Boolean is not a serialized state proof. Primary <code>clvmr 0.21.0</code> observations remain separate from <code>clvmr 0.16.2</code> SDK consensus execution. Malformed solutions first require a typed primary program failure, whose actual code is displayed; runtime umbrellas never earn semantic rejection credit. Resource or infrastructure failures are inconclusive.</p>
+  <p>Protocol <code>{evidence.protocol}</code> · {evidence.ledger[0].simulator} · {evidence.ledger[0].consensus} · {evidence.ledger[0].network}. This is not a BLS proof, not compiler preservation and not execution authentication. Optional output is outside the current proof models. There is no automatic refund service.</p>
+  {evidence.ledger.map(build => <details class="coin-build" data-coin-mode={`${build.backend}:${build.optimize_lir}`}>
+    <summary>{backendLabel(build.backend)} / {mode(build.backend, build.optimize_lir)} · {build.transaction_attempts} actual submissions</summary>
+    <p data-coin-identities>Own template hash: <code class="hash" data-pagefind-ignore>{build.module_tree_hash}</code>.<br />Own committed instance hash: <code class="hash" data-pagefind-ignore>{build.instance_tree_hash}</code>.</p>
+    <p><a href={href(`reports/boomerang/boomerang--${build.backend}--${build.optimize_lir ? 'on' : 'off'}.clvm.hex`)} download>Download this exact committed reveal (serialized hex)</a>. These bytes include all five fixed terms; reveal this instance when spending its coin.</p>
+    <div class="table-scroll"><table>
+      <caption>Timing, authorization, amount, commitment and replay witnesses for this actual instance</caption>
+      <thead><tr><th scope="col">Witness / input</th><th scope="col">Reveal commitment</th><th scope="col">Submitted signature</th><th scope="col">Primary VM / consensus</th><th scope="col">Child or rollback</th></tr></thead>
+      <tbody>{build.attempts.map(attempt => <tr data-coin-attempt={attempt.label}>
+        <th scope="row">{attempt.label}<small>t={attempt.timestamp} · amount={attempt.coin.amount} mojos</small><code>{attempt.solution}</code></th>
+        <td data-coin-reveal><code class="hash" data-pagefind-ignore>{attempt.reveal_tree_hash}</code></td>
+        <td data-coin-signature><code>Signature {attempt.signature_kind}</code>{attempt.signature_context && <small data-pagefind-ignore>key {short(attempt.signature_context.public_key)}…<br />coin {short(attempt.signature_context.coin_id)}…<br />intent {short(attempt.signature_context.intent_hex)}…</small>}{attempt.signature_origin && <small>Signer-only origin; never an extra submitted transaction.</small>}</td>
+        <td data-coin-outcome><code>VM {attempt.vm_021.outcome.status}{attempt.vm_021.failure ? ` / ${attempt.vm_021.failure.code}` : ''}</code><br /><code>Consensus {attempt.consensus.code ?? attempt.consensus.status}</code><small>{attempt.consensus.semantic_rejection_credit ? 'semantic rejection' : 'no semantic rejection credit'}</small></td>
+        <td data-coin-state><small>input before={attempt.before.spent_height ?? 'unspent'} after={attempt.after.spent_height ?? 'unspent'}</small>{attempt.full_state_unchanged ? 'full SDK equality checked in memory' : attempt.after.children.map(child => <><small>child amount={child.amount} mojos</small><small>child ID <code class="hash" data-pagefind-ignore>{child.coin_id}</code></small><small>parent <code class="hash" data-pagefind-ignore>{child.parent_coin_id}</code></small><small>destination <code class="hash" data-pagefind-ignore>{child.puzzle_hash}</code></small></>)}</td>
+      </tr>)}</tbody>
+    </table></div>
+  </details>)}
+  <p><a href={href('reports/boomerang.json')}>Download the exact embedded coin-instance JSON</a>, including every coin, full reveal, solution, signature and signer-only origin, typed VM observation and deterministic ledger snapshot. <a href={href('reports/validation.json')}>The complete corpus report</a> also retains template artifacts and input comparisons. <a href={href('tutorials/boomerang/')}>Read the complete boomerang lesson</a>.</p>
+</section>
+<style is:global>
+  .coin-instances { margin-block: 2rem; }
+  .coin-instances .coin-build { margin-block: 1rem; border: 1px solid var(--oxide-line); border-radius: .35rem; padding: 1rem; }
+  .coin-instances summary { cursor: pointer; font-weight: 600; }
+  .coin-instances .table-scroll { overflow-x: auto; }
+  .coin-instances table { width: 100%; border-collapse: collapse; font-size: .73rem; }
+  .coin-instances th, .coin-instances td { text-align: left; vertical-align: top; padding: .65rem; border-bottom: 1px solid var(--oxide-line); }
+  .coin-instances caption { text-align: left; padding-block: .5rem; }
+  .coin-instances .hash { overflow-wrap: anywhere; font-size: .66rem; }
+  .coin-instances small { display: block; margin-block: .3rem; font-size: .67rem; font-weight: 400; }
+</style>

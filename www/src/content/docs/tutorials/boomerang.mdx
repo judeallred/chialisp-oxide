@@ -1,0 +1,182 @@
+---
+title: Build a payment that can return
+description: Commit payment terms before funding, sign a claim before a deadline, and submit a permissionless refund afterward.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import CoinInstances from '../../../components/CoinInstances.astro';
+import BoomerangSourceControls from '../../../components/BoomerangSourceControls.astro';
+import { puzzles, format } from '../../../lib/data';
+
+export const boomerang = puzzles.find(puzzle => puzzle.slug === 'boomerang');
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+A **boomerang payment** lets the recipient claim before a deadline.
+If the recipient does not claim it, the value can return to a fixed refund
+destination. The puzzle must answer three separate questions: which terms are
+fixed, who may choose a path, and when that path is valid.
+
+This original teaching policy gives the recipient a signed claim **strictly
+before** the deadline. At or after the deadline, anyone may submit an unsigned
+refund that pays the full amount to the committed refund destination.
+Permissionless submission cannot choose a new destination.
+
+It is not the canonical CHIP-0044 clawback contract, whose entitlement schedule
+differs. No published clawback module hash or compatibility is claimed.
+
+## Read the same policy in three languages
+
+<SourceComparison slug="boomerang" />
+
+These are the actual recorded sources. The native oracle calls this same Rust
+Cargo export; independently compiled Chialisp and Rue provide comparisons. Rust
+and Rue each run with optimization off and on.
+
+`Terms` is a normal Rust tuple with nominal SDK values: a `PublicKey`, two
+`PuzzleHash` values, an `Amount` in mojos and a `Timestamp` in absolute Unix
+seconds. Named constructors expose the corresponding Chia conditions. The
+source uses an ordinary `if` and ordinary `Option`, rather than encoding a
+signature condition with a special sentinel or an unexplained opcode.
+
+`Cons` constructs the exact condition-list spine. `Some(agg_sig_me(...))` adds
+one signature condition to the claim. `None` ends the refund list. The result
+therefore has four conditions for a claim and three for a refund. See
+[optional output lists](/chialisp-oxide/reference/optional-lists/) for this
+bounded output capability and its explicit unsupported cases.
+
+Native `cargo check` establishes ordinary Rust validity. The additional
+`cargo chialisp-oxide check` establishes whether marked exports fit this
+prototype's supported CLVM subset. Neither establishes that the chosen payment
+policy is safe.
+
+## Commit all five terms before funding
+
+The reusable template's exact environment is:
+
+```text
+((RECIPIENT_KEY RECIPIENT_HASH REFUND_HASH AMOUNT DEADLINE) CLAIM)
+```
+
+The five values form **one** tuple argument. Curry that complete tuple as one
+argument; currying five separate arguments gives a different environment.
+Write `M` for a build's compiled template and `T` for its encoded `Terms`:
+
+```text
+(a (q . M) (c (q . T) 1))
+```
+
+The remaining solution is exactly `(1)` for a claim or `(())` for a refund.
+There is no solution field for a replacement key, destination, amount,
+deadline, signing message or fee. Applying the committed instance to its
+solution applies the template to `(T . solution)`.
+
+Follow this order:
+
+1. Check and compile the annotated Cargo export. Select the exact compiled
+   build whose bytes you intend to use.
+2. Choose the recipient key, recipient destination, refund destination,
+   amount and useful future deadline. Validate those choices in the creator's
+   application.
+3. Construct the standard curried instance with the **whole tuple**, and
+   compute that instance's tree hash.
+4. Create the coin at the **instance** hash with exactly the committed amount.
+   Funding the template hash leaves the terms caller-controlled.
+5. Reveal those same instance bytes when spending. Submit the one-element
+   solution, plus the required claim signature when selecting the claim path.
+
+The experiment constructs each instance independently and compares its bytes
+and hash with the SDK's owned curry helpers. The public fixture uses 1,000
+mojos and deadline 100 only to make the boundary tests easy to read; these
+ancient timestamps and publicly known keys are not deployment parameters.
+General wallet packaging, funding and refund-service integration remain
+application work.
+
+## Separate intent from a spend's consensus conditions
+
+The claim requires the recipient key to sign the fixed 32-byte message
+`chialisp-oxide/boomerang/claim:1` through `AGG_SIG_ME`. Consensus augments that
+message with the actual coin ID and network domain. The caller cannot supply
+an arbitrary signing message. A valid signature for another intent, another
+key or another coin is still invalid for this claim.
+
+The VM emits time conditions; it does not read the wall clock. Consensus
+checks the before-deadline condition for a claim and the at-or-after-deadline
+condition for a refund. At the deadline, claiming has closed and refunding has
+opened. `ASSERT_MY_AMOUNT` binds the actual input amount to the curried term.
+Both paths create one child containing the full committed amount.
+
+The recipient key and recipient hash are independent creator-selected values.
+This puzzle does not establish that the key controls that destination or that
+the refund hash belongs to the sender. `PublicKey` checks the source/wire
+width, not curve membership; actual claim authorization is a consensus check.
+The template accepts the canonical full `u64` range, including zero. Choosing
+meaningful amounts and deadlines remains the creator's responsibility.
+
+A permissionless refund still needs someone to submit a transaction. There
+is no automatic refund service, fee reward or liveness guarantee. The puzzle
+returns its full amount, so any fee must come from another input. It does not
+let a refund submitter deduct a fee from the payment.
+
+## Inspect actual coin-instance submissions
+
+<CoinInstances puzzle={boomerang} />
+
+The [laboratory](/chialisp-oxide/lab/boomerang/) separately shows
+{boomerang?.cases.length} named template inputs and
+{format(boomerang?.generated_cases ?? 0)} generated inputs. Those VM comparisons
+include malformed list shapes, byte widths, canonical integer boundaries and
+invalid bool encodings on both paths. A VM returning conditions has not yet
+verified a signature or admitted a coin spend.
+
+The transaction matrix isolates failures. A claim at the deadline carries a
+matching signature, so its rejection demonstrates the time boundary. A
+wrong-signature claim runs before the deadline with the correct amount and
+reveal. Each substituted term runs an otherwise evaluable refund but fails the
+coin's puzzle-hash commitment. Replay cases count their accepted setup and
+their rejected retry separately.
+
+Malformed solutions require a typed primary VM program failure. Exact ABI
+checks can fail with different program codes across the independently compiled
+builds; the records retain and display each actual code. The SDK's broader
+`GeneratorRuntimeError` is retained as a runtime umbrella without semantic
+rejection credit. Low-budget or infrastructure failures cannot substitute for
+either observation. Full in-memory simulator equality after failure is
+checked by the producer; the downloadable record is not a proof of that state.
+
+Current formal models reject Optional outputs. These finite native, VM and
+ledger checks do not establish cryptographic security, compiler preservation,
+exhaustive authorization or production readiness. Optional-capable programs
+also conservatively skip the Rust IR optimization passes; the backend's
+on/off measurements are not evidence of a new optional-value optimization.
+
+<BoomerangSourceControls />
+
+## Reproduce the checks
+
+Use the pinned toolchain and the unpublished local Cargo workspace:
+
+```sh
+cargo build --locked -p cargo-chialisp-oxide -p chialisp-oxide-driver -p chialisp-oxide-cli
+cargo check --manifest-path puzzles/Cargo.toml --locked
+cargo test -p chialisp-oxide-corpus boomerang --locked
+target/debug/cargo-chialisp-oxide check --manifest-path puzzles/Cargo.toml --locked
+```
+
+After building the workspace, validate the current source and replay the
+retained primary VM artifacts:
+
+```sh
+cargo build --workspace --locked
+target/debug/chialisp-oxide validate --output corpus/validation.json
+python3 scripts/check-boomerang.py --self-test --replay
+```
+
+The validation command executes native and compiled policies and submits the
+actual transaction matrix to the SDK simulator. The Python gate independently
+checks the policy relation, exact curried commitments and recorded typed
+outcomes, challenges its reader with constructed corruptions, and replays
+retained template and instance bytes. That replay does not resubmit SDK
+transactions or authenticate a previous execution. Contributors publishing
+new evidence must follow the coordinated capture procedure in
+[AGENTS.md](https://github.com/judeallred/chialisp-oxide/blob/main/AGENTS.md).

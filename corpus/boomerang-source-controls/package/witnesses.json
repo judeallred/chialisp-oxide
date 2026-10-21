@@ -1,0 +1,152 @@
+[
+  {
+    "name": "original",
+    "witness": "timely_unsigned_claim",
+    "claim": true,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff55ff6480ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e880ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a318080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "BadAggregateSignature"
+    }
+  },
+  {
+    "name": "original",
+    "witness": "signed_late_claim",
+    "claim": true,
+    "timestamp": 101,
+    "signing": "recipient",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff55ff6480ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e880ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a318080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "AssertBeforeSecondsAbsoluteFailed"
+    }
+  },
+  {
+    "name": "original",
+    "witness": "early_unsigned_refund",
+    "claim": false,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) ())",
+    "instance_solution": "(())",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff51ff6480ffff49ff8203e880ffff33ffa04343434343434343434343434343434343434343434343434343434343434343ff8203e88080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "AssertSecondsAbsoluteFailed"
+    }
+  },
+  {
+    "name": "equivalent",
+    "witness": "timely_unsigned_claim",
+    "claim": true,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff55ff6480ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e880ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a318080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "BadAggregateSignature"
+    }
+  },
+  {
+    "name": "equivalent",
+    "witness": "signed_late_claim",
+    "claim": true,
+    "timestamp": 101,
+    "signing": "recipient",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff55ff6480ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e880ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a318080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "AssertBeforeSecondsAbsoluteFailed"
+    }
+  },
+  {
+    "name": "equivalent",
+    "witness": "early_unsigned_refund",
+    "claim": false,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) ())",
+    "instance_solution": "(())",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff51ff6480ffff49ff8203e880ffff33ffa04343434343434343434343434343434343434343434343434343434343434343ff8203e88080"
+    },
+    "ledger_expected": {
+      "status": "consensus_rejected",
+      "code": "AssertSecondsAbsoluteFailed"
+    }
+  },
+  {
+    "name": "drop_claim_signature",
+    "witness": "timely_unsigned_claim",
+    "claim": true,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff55ff6480ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e88080"
+    },
+    "ledger_expected": {
+      "status": "accepted"
+    }
+  },
+  {
+    "name": "late_claim",
+    "witness": "signed_late_claim",
+    "claim": true,
+    "timestamp": 101,
+    "signing": "recipient",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) 1)",
+    "instance_solution": "(1)",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff51ff8080ffff49ff8203e880ffff33ffa04242424242424242424242424242424242424242424242424242424242424242ff8203e880ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a318080"
+    },
+    "ledger_expected": {
+      "status": "accepted"
+    }
+  },
+  {
+    "name": "early_refund",
+    "witness": "early_unsigned_refund",
+    "claim": false,
+    "timestamp": 99,
+    "signing": "none",
+    "solution": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 0x4242424242424242424242424242424242424242424242424242424242424242 0x4343434343434343434343434343434343434343434343434343434343434343 1000 100) ())",
+    "instance_solution": "(())",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff51ff8080ffff49ff8203e880ffff33ffa04343434343434343434343434343434343434343434343434343434343434343ff8203e88080"
+    },
+    "ledger_expected": {
+      "status": "accepted"
+    }
+  }
+]

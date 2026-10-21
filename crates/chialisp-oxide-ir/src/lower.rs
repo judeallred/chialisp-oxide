@@ -5,6 +5,8 @@ use id_arena::Arena;
 use num_bigint::BigInt;
 use rue_lir::{CodegenOptions, Lir, LirId};
 
+#[cfg(test)]
+mod decoder_tests;
 mod limits;
 mod runtime;
 
@@ -335,6 +337,34 @@ impl Lower<'_> {
     }
 }
 pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
+    let result = compile_existing(program, optimize);
+    if program.environment == crate::Environment::Strict
+        && result.as_ref().is_err_and(|error| {
+            matches!(
+                error.downcast_ref::<limits::Limit>(),
+                Some(limits::Limit::ExpansionSize)
+            )
+        })
+    {
+        // Retry only after the entire preceding pipeline, including optional
+        // emitter and inlining fallbacks, has failed. A successful historical
+        // fallback must retain its exact artifact. Use the original validated
+        // program conservatively, preserving strict runtime evaluation and the
+        // selected Rue mode without optional Rust IR/layout rewrites.
+        return emit_decoder_attempt(
+            program,
+            optimize,
+            program.uses_runtime(),
+            false,
+            false,
+            false,
+            true,
+        );
+    }
+    result
+}
+
+fn compile_existing(program: &Program, optimize: bool) -> Result<Vec<u8>> {
     // Bound even structural scans before observing the original runtime mode.
     program.validate()?;
     // Optional inlining may remove the last table, call or binding. The
@@ -437,6 +467,26 @@ fn emit_layout_attempt(
     atom_facts: bool,
     compact_unary: bool,
 ) -> Result<Vec<u8>> {
+    emit_decoder_attempt(
+        program,
+        optimize,
+        runtime_required,
+        guarded_projections,
+        atom_facts,
+        compact_unary,
+        false,
+    )
+}
+
+fn emit_decoder_attempt(
+    program: &Program,
+    optimize: bool,
+    runtime_required: bool,
+    guarded_projections: bool,
+    atom_facts: bool,
+    compact_unary: bool,
+    separate_decoder: bool,
+) -> Result<Vec<u8>> {
     program.validate()?;
     let mut lower = Lower {
         arena: Arena::new(),
@@ -472,6 +522,15 @@ fn emit_layout_attempt(
         .map(|p| p.ty.clone())
         .collect::<Vec<_>>();
     let mut root = match program.environment {
+        crate::Environment::Strict if separate_decoder => {
+            // Every original guard runs in its original order before returning
+            // the unchanged environment. Only then run immutable compiler code
+            // on that environment; input data never selects the executable.
+            check_expansion(&lower.arena, body)?;
+            let checked_environment = lower.decode_list(env, &types, env)?;
+            let quoted_body = lower.alloc(Lir::Quote(body));
+            lower.alloc(Lir::Run(quoted_body, checked_environment))
+        }
         crate::Environment::Strict => lower.decode_list(env, &types, body)?,
         crate::Environment::Ignored => body,
         crate::Environment::Raw => body,

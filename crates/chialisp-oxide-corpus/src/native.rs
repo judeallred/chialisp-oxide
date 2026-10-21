@@ -14,6 +14,22 @@ use num_bigint::{BigInt, Sign};
 trait Encode {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr>;
 }
+impl Encode for () {
+    fn encode(&self, _a: &mut Allocator) -> Result<NodePtr> {
+        Ok(NodePtr::NIL)
+    }
+}
+impl<T: Encode> Encode for Option<T> {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        match self {
+            None => Ok(NodePtr::NIL),
+            Some(value) => {
+                let item = value.encode(a)?;
+                Ok(a.new_pair(item, NodePtr::NIL)?)
+            }
+        }
+    }
+}
 impl Encode for bool {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
         if *self {
@@ -210,6 +226,51 @@ fn bytes32(a: &Allocator, n: NodePtr) -> Result<[u8; 32]> {
         .try_into()
         .map_err(|_| anyhow::anyhow!("expected 32 bytes"))
 }
+
+// The boomerang decoder checks fixed widths before copying attacker input.
+// Existing fixture decoders retain their independently recorded behavior.
+fn fixed_atom<const N: usize>(a: &Allocator, n: NodePtr) -> Result<[u8; N]> {
+    ensure!(matches!(a.sexp(n), SExp::Atom), "expected atom");
+    a.atom(n)
+        .as_ref()
+        .try_into()
+        .map_err(|_| anyhow::anyhow!("expected {N} bytes"))
+}
+fn public_key(a: &Allocator, n: NodePtr) -> Result<PublicKey> {
+    Ok(PublicKey(fixed_atom(a, n)?))
+}
+fn boomerang_arguments(
+    a: &Allocator,
+    env: NodePtr,
+) -> Result<((PublicKey, PuzzleHash, PuzzleHash, Amount, Timestamp), bool)> {
+    let arguments = args(a, env)?;
+    ensure!(arguments.len() == 2, "boomerang arity");
+    let terms = args(a, arguments[0])?;
+    ensure!(terms.len() == 5, "boomerang terms arity");
+    let recipient_key = public_key(a, terms[0])?;
+    let recipient = PuzzleHash(fixed_atom(a, terms[1])?);
+    let refund_to = PuzzleHash(fixed_atom(a, terms[2])?);
+    for n in [terms[3], terms[4]] {
+        ensure!(matches!(a.sexp(n), SExp::Atom), "expected u64 atom");
+        // A positive u64 needs at most eight bytes plus a leading sign byte.
+        ensure!(a.atom(n).as_ref().len() <= 9, "u64 atom exceeds width");
+    }
+    let amount = Amount::from_mojos(uint(a, terms[3])?);
+    let deadline = Timestamp::from_unix_seconds(uint(a, terms[4])?);
+    ensure!(
+        matches!(a.sexp(arguments[1]), SExp::Atom),
+        "expected bool atom"
+    );
+    ensure!(
+        a.atom(arguments[1]).as_ref().len() <= 1,
+        "bool atom exceeds width"
+    );
+    let claim = boolean(a, arguments[1])?;
+    Ok((
+        (recipient_key, recipient, refund_to, amount, deadline),
+        claim,
+    ))
+}
 thread_local! { static EXPECTED_PANIC: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
 struct NativePanicScope(bool);
 impl NativePanicScope {
@@ -238,6 +299,29 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if slug == "boomerang" {
+        // Invalid typed arguments reject before source execution. This closed
+        // decoder bounds every copied scalar; assembly errors still propagate.
+        let Ok((terms, claim)) = boomerang_arguments(&a, env) else {
+            return Ok(None);
+        };
+        let result =
+            std::panic::catch_unwind(|| chialisp_oxide_puzzles::boomerang::puzzle(terms, claim));
+        return match result {
+            // Output allocation/codec errors are inconclusive host failures,
+            // outside the source-policy panic adapter.
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(payload) => {
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native boomerang policy exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
     if slug == "sha256tree" {
         let arena = bumpalo::Bump::new();
         // Hash both branches. Bound all decoded occurrences and payloads before
@@ -559,7 +643,217 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
 
 #[cfg(test)]
 mod tests {
-    use super::execute;
+    use super::{Encode, boomerang_arguments, execute, output, public_key};
+    use chialisp_oxide::Cons;
+    use clvmr::{Allocator, NodePtr};
+
+    fn boomerang_terms() -> [String; 5] {
+        [
+            format!("0x{}", "07".repeat(48)),
+            format!("0x{}", "42".repeat(32)),
+            format!("0x{}", "43".repeat(32)),
+            "1000".to_string(),
+            "100".to_string(),
+        ]
+    }
+
+    fn boomerang_solution(terms: &[String], claim: &str) -> String {
+        format!("(({}) {claim})", terms.join(" "))
+    }
+
+    #[test]
+    fn optional_outputs_preserve_nil_and_singleton_payloads() {
+        for (actual, expected) in [
+            (output(None::<()>).unwrap(), "80"),
+            (output(Some(())).unwrap(), "ff8080"),
+            (output(None::<u64>).unwrap(), "80"),
+            (output(Some(0_u64)).unwrap(), "ff8080"),
+            (output(Some(1_u64)).unwrap(), "ff0180"),
+            (output(None::<Cons<u64, u64>>).unwrap(), "80"),
+            (
+                output(Some(Cons {
+                    first: 1_u64,
+                    rest: 2_u64,
+                }))
+                .unwrap(),
+                "ffff010280",
+            ),
+            (
+                output(Cons {
+                    first: 1_u64,
+                    rest: None::<u64>,
+                })
+                .unwrap(),
+                "ff0180",
+            ),
+            (
+                output(Cons {
+                    first: 1_u64,
+                    rest: Some(0_u64),
+                })
+                .unwrap(),
+                "ff01ff8080",
+            ),
+        ] {
+            assert_eq!(hex::encode(actual), expected);
+        }
+    }
+
+    #[test]
+    fn optional_payload_is_encoded_once_and_codec_errors_propagate() {
+        struct Counted<'a>(&'a std::cell::Cell<usize>);
+        impl Encode for Counted<'_> {
+            fn encode(&self, _a: &mut Allocator) -> anyhow::Result<NodePtr> {
+                self.0.set(self.0.get() + 1);
+                Ok(NodePtr::NIL)
+            }
+        }
+        let calls = std::cell::Cell::new(0);
+        assert_eq!(output(Some(Counted(&calls))).unwrap(), [0xff, 0x80, 0x80]);
+        assert_eq!(calls.get(), 1);
+
+        struct FailedPayload;
+        impl Encode for FailedPayload {
+            fn encode(&self, _a: &mut Allocator) -> anyhow::Result<NodePtr> {
+                anyhow::bail!("native output codec failed")
+            }
+        }
+        assert!(
+            output(Some(FailedPayload))
+                .unwrap_err()
+                .to_string()
+                .contains("native output codec failed")
+        );
+        let mut limited = Allocator::new_limited(1);
+        assert!(Some([0x80_u8; 48]).encode(&mut limited).is_err());
+    }
+
+    #[test]
+    fn public_key_decoder_requires_exact_atom_width_and_preserves_bytes() {
+        let mut a = Allocator::new();
+        let key: [u8; 48] = std::array::from_fn(|index| index as u8);
+        let node = a.new_atom(&key).unwrap();
+        assert_eq!(public_key(&a, node).unwrap().0, key);
+        for width in [0, 1, 47, 49, 1024] {
+            let node = a.new_atom(&vec![7; width]).unwrap();
+            assert!(public_key(&a, node).is_err(), "width {width}");
+        }
+        let pair = a.new_pair(node, NodePtr::NIL).unwrap();
+        assert!(public_key(&a, pair).is_err());
+    }
+
+    #[test]
+    fn boomerang_native_decodes_canonical_scalars_and_full_u64_domain() {
+        let mut a = Allocator::new();
+        for (scalar, expected) in [
+            ("()", 0),
+            ("1", 1),
+            ("127", 127),
+            ("128", 128),
+            ("0x00ffffffffffffffff", u64::MAX),
+        ] {
+            for claim in ["()", "1"] {
+                let mut terms = boomerang_terms();
+                terms[3] = scalar.to_string();
+                terms[4] = scalar.to_string();
+                let solution = boomerang_solution(&terms, claim);
+                let env = rue_clvm::assemble(&mut a, &solution).unwrap();
+                let ((key, recipient, refund_to, amount, deadline), decoded_claim) =
+                    boomerang_arguments(&a, env).unwrap();
+                assert_eq!(key.0, [7; 48]);
+                assert_eq!(recipient.0, [0x42; 32]);
+                assert_eq!(refund_to.0, [0x43; 32]);
+                assert_eq!(amount.mojos(), expected);
+                assert_eq!(deadline.unix_seconds(), expected);
+                assert_eq!(decoded_claim, claim == "1");
+                assert!(execute("boomerang", &solution).unwrap().is_some());
+            }
+        }
+    }
+
+    #[test]
+    fn boomerang_native_rejects_malformed_shapes_widths_and_scalars() {
+        let terms = boomerang_terms();
+        let term_list = format!("({})", terms.join(" "));
+        let mut malformed = vec![
+            "()".to_string(),
+            "0x00".to_string(),
+            format!("({term_list})"),
+            format!("({term_list} 1 1)"),
+            format!("({term_list} . 1)"),
+            format!("({term_list} 1 . 0x00)"),
+            "(1 1)".to_string(),
+            boomerang_solution(&terms[..4], "1"),
+            format!("(({} 1) 1)", terms.join(" ")),
+            format!("(({} . 0x00) 1)", terms.join(" ")),
+        ];
+        for (index, widths) in [(0, [0, 47, 49]), (1, [0, 31, 33]), (2, [0, 31, 33])] {
+            for width in widths {
+                let mut changed = terms.clone();
+                changed[index] = if width == 0 {
+                    "()".to_string()
+                } else {
+                    format!("0x{}", "07".repeat(width))
+                };
+                malformed.push(boomerang_solution(&changed, "1"));
+            }
+        }
+        for index in 0..5 {
+            let mut changed = terms.clone();
+            changed[index] = "(1 . 2)".to_string();
+            malformed.push(boomerang_solution(&changed, "1"));
+        }
+        for index in [3, 4] {
+            for scalar in [
+                "0x00",     // Nonempty zero.
+                "0x0001",   // Padded positive value.
+                "0x000080", // Excess sign padding.
+                "-1",
+                "0x80",                   // Negative signed atom.
+                "0x010000000000000000",   // u64::MAX + 1.
+                "0x00010000000000000000", // Too wide before integer parsing.
+            ] {
+                let mut changed = terms.clone();
+                changed[index] = scalar.to_string();
+                malformed.push(boomerang_solution(&changed, "1"));
+            }
+        }
+        for claim in ["2", "0x00", "0x0001", "(1)", "(1 . 2)"] {
+            malformed.push(boomerang_solution(&terms, claim));
+        }
+        for solution in malformed {
+            assert_eq!(execute("boomerang", &solution).unwrap(), None, "{solution}");
+        }
+        // Input assembly failures are codec errors, never policy rejection.
+        assert!(execute("boomerang", "(").is_err());
+    }
+
+    #[test]
+    fn boomerang_native_calls_actual_policy_with_exact_optional_signature_tail() {
+        let terms = boomerang_terms();
+        for (claim, expected) in [
+            (
+                "1",
+                format!(
+                    "((85 100) (73 1000) (51 {} 1000) (50 {} 0x{}))",
+                    terms[1],
+                    terms[0],
+                    hex::encode(b"chialisp-oxide/boomerang/claim:1")
+                ),
+            ),
+            ("()", format!("((81 100) (73 1000) (51 {} 1000))", terms[2])),
+        ] {
+            let mut a = Allocator::new();
+            let expected = rue_clvm::assemble(&mut a, &expected).unwrap();
+            let expected = clvmr::serde::node_to_bytes(&a, expected).unwrap();
+            assert_eq!(
+                execute("boomerang", &boomerang_solution(&terms, claim))
+                    .unwrap()
+                    .unwrap(),
+                expected
+            );
+        }
+    }
 
     #[test]
     fn actual_hash_ports_preserve_digest_width_raw_fields_and_ignored_tail() {

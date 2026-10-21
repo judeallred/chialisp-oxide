@@ -270,6 +270,11 @@ def check_cases(puzzle, manifest, expected, budget):
 def check_ledger(puzzle, report):
     slug = puzzle["slug"]
     if puzzle["kind"] == "coin_puzzle":
+        if slug == "boomerang":
+            check_ledger_report({"simulator": report["simulator"], "puzzles": [puzzle]})
+            # Dedicated actual submissions retain their separate count in the
+            # instance protocol; they do not become ordinary scenario groups.
+            return 0
         require(bool(puzzle["simulator"]), f"{slug}: coin puzzle requires actual ledger scenarios")
         check_ledger_report({"simulator": report["simulator"], "puzzles": [puzzle]})
         return len(puzzle["simulator"])

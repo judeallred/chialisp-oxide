@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { checkProtocolComponent } from './p2-protocol.mjs';
+import { checkBoomerangComponent } from './boomerang-protocol.mjs';
 
 const table = JSON.parse(readFileSync(new URL('../../crates/chialisp-oxide-simulator/rejection-protocol.json', import.meta.url), 'utf8'));
 assert.deepEqual(Object.keys(table).sort(), ['codes', 'protocol', 'puzzles', 'scenarios', 'schema_version', 'stage']);
@@ -43,6 +44,8 @@ export function checkLedgerReport(report) {
   for (const puzzle of report.puzzles) {
     assert(Array.isArray(puzzle.simulator), `${puzzle.slug}: malformed scenario list`);
     assert.equal(new Set(puzzle.simulator.map(row => row.name)).size, puzzle.simulator.length, `${puzzle.slug}: duplicate scenario grouping`);
+    if (puzzle.slug === 'boomerang') { checkBoomerangComponent(puzzle); continue; }
+    assert(!Object.hasOwn(puzzle, 'coin_instances'), `${puzzle.slug}: unexpected coin-instance protocol`);
     if (puzzle.kind === 'protocol_component') { checkProtocolComponent(puzzle); continue; }
     assert(!Object.hasOwn(puzzle, 'protocol_validation'), `${puzzle.slug}: unexpected dedicated protocol evidence`);
     assert(['coin_puzzle', 'pure_function', 'program_factory'].includes(puzzle.kind), `${puzzle.slug}: unknown ledger puzzle kind`);

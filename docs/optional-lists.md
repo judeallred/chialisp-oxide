@@ -197,6 +197,10 @@ The implementation's evidence has separate scopes:
 - Simulator tests for before/after time conditions check pinned consensus
   behavior. They do not turn these constructor tests into a complete boomerang
   spend or prove a policy's authorization and liveness.
+- The [boomerang tutorial](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
+  uses this output capability in an original payment policy. Its five committed
+  instances, actual SDK submissions and separate source mutations are a
+  distinct evidence lane; they do not extend the optional-output proof models.
 
 These are finite regressions and model-boundary checks. Resource exhaustion is
 inconclusive, not evidence that a malicious spend was correctly rejected.

@@ -3,6 +3,24 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderMarkdown, generateMarkdown, siteURL, warning, sha256 } from '../llms.mjs';
+import { siteFiles } from '../src/lib/site-files.mjs';
+
+// Traversal must skip build directories before attempting to open them, while
+// preserving actual pages and the declared source-packet download inventory.
+const entry = (name, directory) => ({ name, isDirectory: () => directory, isFile: () => !directory });
+const visited = [];
+const fakeTree = new Map([
+  ['/site', [entry('index.html', false), entry('guides', true), entry('reports', true), entry('target', true), entry('.git', true), entry('node_modules', true)]],
+  ['/site/guides', [entry('index.html', false)]],
+  ['/site/reports', [entry('source.rs', false), entry('target', true)]],
+]);
+const scanned = await siteFiles('/site', async directory => {
+  visited.push(directory);
+  assert(fakeTree.has(directory), `Entered ignored directory: ${directory}`);
+  return fakeTree.get(directory);
+});
+assert.deepEqual(scanned, ['guides/index.html', 'index.html', 'reports/source.rs']);
+assert.deepEqual(visited, ['/site', '/site/guides', '/site/reports']);
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const fixture = content => `<html><head><script>OUTSIDE_SCRIPT</script></head><body><nav>OUTSIDE_NAV</nav><main><h1>Fixture title</h1><div class="sl-markdown-content">${content}</div></main></body></html>`;

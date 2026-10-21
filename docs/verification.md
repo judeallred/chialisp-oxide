@@ -111,17 +111,17 @@ IR validation/recompilation of every retained program in both modes. The complet
 22-puzzle predecessor and its 44 raw IR/artifact combinations remain exact after
 the closed source/native metadata transition. That 23-export report is now the
 retained checkpoint of the generic corpus append (`corpus/corpus-append.json`),
-which admits the current 31-export report, re-extracts every export in both
+which admits the current 32-export report, re-extracts every export in both
 modes, binds a freshly captured pay-to-singleton policy-control sidecar to the
 current source window, and restores all 23 retained rows byte-for-byte before
 any older projection. The three added Using Modules rows carry their own finite
 native/five-build evidence with declared per-case divergences for the
-independently compiled languages. The actual 578-test workspace,
-formatting and all-target Clippy results are carried for 327 unchanged
-Rust/Cargo/config inputs. The only added Rust file is the separate native-control
-template, bound to its executed native package. Final integration reran the two
-Rue corpus tests on the current 23-puzzle data before its own host build; this
-does not claim another complete workspace test run.
+independently compiled languages. The earlier 578-test workspace,
+formatting and all-target Clippy results belong to that recorded 23-export
+source basis. The current boomerang integration separately passes 635 workspace
+tests, formatting and all-target Clippy. Its 145 committed-instance SDK
+submissions and separate 18 source-mutant submissions retain their own typed
+outcomes, exact reveal commitments and in-memory rejection rollback checks.
 
 These executions do not prove the Rust/MIR/IR/CLVM bridge, cryptography or complete
 authorization. Current models reject this program's SHA and typed Pair operations.

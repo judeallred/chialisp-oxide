@@ -2,6 +2,9 @@
 
 mod fixture_keys;
 
+#[path = "boomerang/puzzle.rs"]
+pub mod boomerang;
+
 #[path = "boolean-gate/puzzle.rs"]
 pub mod boolean_gate;
 #[path = "bounded-counter/puzzle.rs"]

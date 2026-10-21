@@ -9,9 +9,13 @@
   both issues are closed. Agent authoring/discovery (#25) has one actual Codex
   fresh-clone trial recorded in `docs/agent-documentation.md`; a second genuine
   agent tool is still required before its acceptance is complete.
-- The boomerang puzzle (#9) is the next implementation milestone, followed by
-  the tooling and stateful-puzzle tracks. Complete the remaining #25 trials
-  where feasible, and use issue dependencies to order larger work.
+- The original boomerang puzzle (#9) has five-build committed-instance and
+  separate source-mutation evidence. Require exact-commit CI, Pages and live
+  evidence checks before closing it. The next tooling slice is #21's offline
+  package registry, followed by pinned bindings and #12's broader lifecycle;
+  keep full issue acceptance and the later stateful-puzzle tracks explicit.
+  Complete the remaining #25 trial where feasible, and use issue dependencies
+  to order larger work.
 - Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
   priority. Preserve measured regressions and existing optimization checks.
 - Publish coherent, verified increments. Do not close an issue until its actual

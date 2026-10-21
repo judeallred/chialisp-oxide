@@ -1,0 +1,3752 @@
+{
+  "ir_version": 6,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
+    "parameters": [
+      {
+        "name": "terms",
+        "ty": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        }
+      },
+      {
+        "name": "claim",
+        "ty": {
+          "kind": "bool"
+        }
+      }
+    ],
+    "result": {
+      "kind": "pair",
+      "first": {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      },
+      "rest": {
+        "kind": "pair",
+        "first": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "rest": {
+          "kind": "pair",
+          "first": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "rest": {
+            "kind": "optional",
+            "item": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 48
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        },
+        {
+          "op": "arg",
+          "index": 1
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "bytes",
+                  "len": 48
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              ]
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bool"
+            }
+          }
+        ],
+        "result": {
+          "kind": "pair",
+          "first": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "rest": {
+            "kind": "pair",
+            "first": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              ]
+            },
+            "rest": {
+              "kind": "pair",
+              "first": {
+                "kind": "tuple",
+                "items": [
+                  {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  },
+                  {
+                    "kind": "bytes",
+                    "len": 32
+                  },
+                  {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                ]
+              },
+              "rest": {
+                "kind": "optional",
+                "item": {
+                  "kind": "tuple",
+                  "items": [
+                    {
+                      "kind": "int",
+                      "bits": 64,
+                      "signed": false
+                    },
+                    {
+                      "kind": "bytes",
+                      "len": 48
+                    },
+                    {
+                      "kind": "bytes",
+                      "len": 32
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 48
+          },
+          "value": {
+            "op": "field",
+            "value": {
+              "op": "arg",
+              "index": 0
+            },
+            "index": 0
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "field",
+              "value": {
+                "op": "arg",
+                "index": 0
+              },
+              "index": 1
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "field",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                },
+                "index": 2
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                "value": {
+                  "op": "field",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  },
+                  "index": 3
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  },
+                  "value": {
+                    "op": "field",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    },
+                    "index": 4
+                  },
+                  "body": {
+                    "op": "if",
+                    "condition": {
+                      "op": "binary",
+                      "kind": "eq",
+                      "left": {
+                        "op": "arg",
+                        "index": 1
+                      },
+                      "right": {
+                        "op": "bool",
+                        "value": false
+                      },
+                      "ty": {
+                        "kind": "bool"
+                      }
+                    },
+                    "then_value": {
+                      "op": "let",
+                      "local_id": 32,
+                      "ty": {
+                        "kind": "tuple",
+                        "items": [
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": false
+                          },
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": false
+                          }
+                        ]
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 1,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 4
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "if",
+                        "condition": {
+                          "op": "binary",
+                          "kind": "eq",
+                          "left": {
+                            "op": "arg",
+                            "index": 1
+                          },
+                          "right": {
+                            "op": "bool",
+                            "value": false
+                          },
+                          "ty": {
+                            "kind": "bool"
+                          }
+                        },
+                        "then_value": {
+                          "op": "if",
+                          "condition": {
+                            "op": "binary",
+                            "kind": "eq",
+                            "left": {
+                              "op": "arg",
+                              "index": 1
+                            },
+                            "right": {
+                              "op": "bool",
+                              "value": false
+                            },
+                            "ty": {
+                              "kind": "bool"
+                            }
+                          },
+                          "then_value": {
+                            "op": "let",
+                            "local_id": 53,
+                            "ty": {
+                              "kind": "optional",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "value": {
+                              "op": "optional_none",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 54,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 2,
+                                "arguments": [
+                                  {
+                                    "op": "local",
+                                    "local_id": 3
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 55,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 3,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 2
+                                    },
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 56,
+                                  "ty": {
+                                    "kind": "pair",
+                                    "first": {
+                                      "kind": "tuple",
+                                      "items": [
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        },
+                                        {
+                                          "kind": "bytes",
+                                          "len": 32
+                                        },
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        }
+                                      ]
+                                    },
+                                    "rest": {
+                                      "kind": "optional",
+                                      "item": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 48
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "value": {
+                                    "op": "pair",
+                                    "first": {
+                                      "op": "local",
+                                      "local_id": 55
+                                    },
+                                    "rest": {
+                                      "op": "local",
+                                      "local_id": 53
+                                    }
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 57,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "optional",
+                                          "item": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 48
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 54
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 56
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 58,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "optional",
+                                              "item": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 48
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 32
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 57
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "local",
+                                        "local_id": 58
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "else_value": {
+                            "op": "let",
+                            "local_id": 46,
+                            "ty": {
+                              "kind": "tuple",
+                              "items": [
+                                {
+                                  "kind": "int",
+                                  "bits": 64,
+                                  "signed": false
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 48
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 32
+                                }
+                              ]
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 4,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 0
+                                },
+                                {
+                                  "op": "bytes",
+                                  "hex": "636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 47,
+                              "ty": {
+                                "kind": "optional",
+                                "item": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 48
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    }
+                                  ]
+                                }
+                              },
+                              "value": {
+                                "op": "optional_some",
+                                "value": {
+                                  "op": "local",
+                                  "local_id": 46
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 48,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 2,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 49,
+                                  "ty": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      },
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 3,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 2
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 3
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 50,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "optional",
+                                        "item": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 48
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 49
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 47
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 51,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "optional",
+                                            "item": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 48
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 48
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 50
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 52,
+                                        "ty": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "pair",
+                                              "first": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              },
+                                              "rest": {
+                                                "kind": "optional",
+                                                "item": {
+                                                  "kind": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "kind": "int",
+                                                      "bits": 64,
+                                                      "signed": false
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 48
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 32
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "value": {
+                                          "op": "pair",
+                                          "first": {
+                                            "op": "local",
+                                            "local_id": 32
+                                          },
+                                          "rest": {
+                                            "op": "local",
+                                            "local_id": 51
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "local",
+                                          "local_id": 52
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "else_value": {
+                          "op": "if",
+                          "condition": {
+                            "op": "binary",
+                            "kind": "eq",
+                            "left": {
+                              "op": "arg",
+                              "index": 1
+                            },
+                            "right": {
+                              "op": "bool",
+                              "value": false
+                            },
+                            "ty": {
+                              "kind": "bool"
+                            }
+                          },
+                          "then_value": {
+                            "op": "let",
+                            "local_id": 40,
+                            "ty": {
+                              "kind": "optional",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "value": {
+                              "op": "optional_none",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 41,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 2,
+                                "arguments": [
+                                  {
+                                    "op": "local",
+                                    "local_id": 3
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 42,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 3,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 1
+                                    },
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 43,
+                                  "ty": {
+                                    "kind": "pair",
+                                    "first": {
+                                      "kind": "tuple",
+                                      "items": [
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        },
+                                        {
+                                          "kind": "bytes",
+                                          "len": 32
+                                        },
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        }
+                                      ]
+                                    },
+                                    "rest": {
+                                      "kind": "optional",
+                                      "item": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 48
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "value": {
+                                    "op": "pair",
+                                    "first": {
+                                      "op": "local",
+                                      "local_id": 42
+                                    },
+                                    "rest": {
+                                      "op": "local",
+                                      "local_id": 40
+                                    }
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 44,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "optional",
+                                          "item": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 48
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 41
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 43
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 45,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "optional",
+                                              "item": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 48
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 32
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 44
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "local",
+                                        "local_id": 45
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "else_value": {
+                            "op": "let",
+                            "local_id": 33,
+                            "ty": {
+                              "kind": "tuple",
+                              "items": [
+                                {
+                                  "kind": "int",
+                                  "bits": 64,
+                                  "signed": false
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 48
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 32
+                                }
+                              ]
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 4,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 0
+                                },
+                                {
+                                  "op": "bytes",
+                                  "hex": "636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 34,
+                              "ty": {
+                                "kind": "optional",
+                                "item": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 48
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    }
+                                  ]
+                                }
+                              },
+                              "value": {
+                                "op": "optional_some",
+                                "value": {
+                                  "op": "local",
+                                  "local_id": 33
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 35,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 2,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 36,
+                                  "ty": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      },
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 3,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 1
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 3
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 37,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "optional",
+                                        "item": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 48
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 36
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 34
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 38,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "optional",
+                                            "item": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 48
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 35
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 37
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 39,
+                                        "ty": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "pair",
+                                              "first": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              },
+                                              "rest": {
+                                                "kind": "optional",
+                                                "item": {
+                                                  "kind": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "kind": "int",
+                                                      "bits": 64,
+                                                      "signed": false
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 48
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 32
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "value": {
+                                          "op": "pair",
+                                          "first": {
+                                            "op": "local",
+                                            "local_id": 32
+                                          },
+                                          "rest": {
+                                            "op": "local",
+                                            "local_id": 38
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "local",
+                                          "local_id": 39
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "else_value": {
+                      "op": "let",
+                      "local_id": 5,
+                      "ty": {
+                        "kind": "tuple",
+                        "items": [
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": false
+                          },
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": false
+                          }
+                        ]
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 5,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 4
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "if",
+                        "condition": {
+                          "op": "binary",
+                          "kind": "eq",
+                          "left": {
+                            "op": "arg",
+                            "index": 1
+                          },
+                          "right": {
+                            "op": "bool",
+                            "value": false
+                          },
+                          "ty": {
+                            "kind": "bool"
+                          }
+                        },
+                        "then_value": {
+                          "op": "if",
+                          "condition": {
+                            "op": "binary",
+                            "kind": "eq",
+                            "left": {
+                              "op": "arg",
+                              "index": 1
+                            },
+                            "right": {
+                              "op": "bool",
+                              "value": false
+                            },
+                            "ty": {
+                              "kind": "bool"
+                            }
+                          },
+                          "then_value": {
+                            "op": "let",
+                            "local_id": 26,
+                            "ty": {
+                              "kind": "optional",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "value": {
+                              "op": "optional_none",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 27,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 2,
+                                "arguments": [
+                                  {
+                                    "op": "local",
+                                    "local_id": 3
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 28,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 3,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 2
+                                    },
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 29,
+                                  "ty": {
+                                    "kind": "pair",
+                                    "first": {
+                                      "kind": "tuple",
+                                      "items": [
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        },
+                                        {
+                                          "kind": "bytes",
+                                          "len": 32
+                                        },
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        }
+                                      ]
+                                    },
+                                    "rest": {
+                                      "kind": "optional",
+                                      "item": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 48
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "value": {
+                                    "op": "pair",
+                                    "first": {
+                                      "op": "local",
+                                      "local_id": 28
+                                    },
+                                    "rest": {
+                                      "op": "local",
+                                      "local_id": 26
+                                    }
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 30,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "optional",
+                                          "item": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 48
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 27
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 29
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 31,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "optional",
+                                              "item": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 48
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 5
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 30
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "local",
+                                        "local_id": 31
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "else_value": {
+                            "op": "let",
+                            "local_id": 19,
+                            "ty": {
+                              "kind": "tuple",
+                              "items": [
+                                {
+                                  "kind": "int",
+                                  "bits": 64,
+                                  "signed": false
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 48
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 32
+                                }
+                              ]
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 4,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 0
+                                },
+                                {
+                                  "op": "bytes",
+                                  "hex": "636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 20,
+                              "ty": {
+                                "kind": "optional",
+                                "item": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 48
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    }
+                                  ]
+                                }
+                              },
+                              "value": {
+                                "op": "optional_some",
+                                "value": {
+                                  "op": "local",
+                                  "local_id": 19
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 21,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 2,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 22,
+                                  "ty": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      },
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 3,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 2
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 3
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 23,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "optional",
+                                        "item": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 48
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 22
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 20
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 24,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "optional",
+                                            "item": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 48
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 21
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 23
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 25,
+                                        "ty": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "pair",
+                                              "first": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              },
+                                              "rest": {
+                                                "kind": "optional",
+                                                "item": {
+                                                  "kind": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "kind": "int",
+                                                      "bits": 64,
+                                                      "signed": false
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 48
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 32
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "value": {
+                                          "op": "pair",
+                                          "first": {
+                                            "op": "local",
+                                            "local_id": 5
+                                          },
+                                          "rest": {
+                                            "op": "local",
+                                            "local_id": 24
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "local",
+                                          "local_id": 25
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "else_value": {
+                          "op": "if",
+                          "condition": {
+                            "op": "binary",
+                            "kind": "eq",
+                            "left": {
+                              "op": "arg",
+                              "index": 1
+                            },
+                            "right": {
+                              "op": "bool",
+                              "value": false
+                            },
+                            "ty": {
+                              "kind": "bool"
+                            }
+                          },
+                          "then_value": {
+                            "op": "let",
+                            "local_id": 13,
+                            "ty": {
+                              "kind": "optional",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "value": {
+                              "op": "optional_none",
+                              "item": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 48
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 14,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 2,
+                                "arguments": [
+                                  {
+                                    "op": "local",
+                                    "local_id": 3
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 15,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 3,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 1
+                                    },
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 16,
+                                  "ty": {
+                                    "kind": "pair",
+                                    "first": {
+                                      "kind": "tuple",
+                                      "items": [
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        },
+                                        {
+                                          "kind": "bytes",
+                                          "len": 32
+                                        },
+                                        {
+                                          "kind": "int",
+                                          "bits": 64,
+                                          "signed": false
+                                        }
+                                      ]
+                                    },
+                                    "rest": {
+                                      "kind": "optional",
+                                      "item": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 48
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "value": {
+                                    "op": "pair",
+                                    "first": {
+                                      "op": "local",
+                                      "local_id": 15
+                                    },
+                                    "rest": {
+                                      "op": "local",
+                                      "local_id": 13
+                                    }
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 17,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "optional",
+                                          "item": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 48
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 14
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 16
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 18,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "optional",
+                                              "item": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 48
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 5
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 17
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "local",
+                                        "local_id": 18
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "else_value": {
+                            "op": "let",
+                            "local_id": 6,
+                            "ty": {
+                              "kind": "tuple",
+                              "items": [
+                                {
+                                  "kind": "int",
+                                  "bits": 64,
+                                  "signed": false
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 48
+                                },
+                                {
+                                  "kind": "bytes",
+                                  "len": 32
+                                }
+                              ]
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 4,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 0
+                                },
+                                {
+                                  "op": "bytes",
+                                  "hex": "636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 7,
+                              "ty": {
+                                "kind": "optional",
+                                "item": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 48
+                                    },
+                                    {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    }
+                                  ]
+                                }
+                              },
+                              "value": {
+                                "op": "optional_some",
+                                "value": {
+                                  "op": "local",
+                                  "local_id": 6
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 8,
+                                "ty": {
+                                  "kind": "tuple",
+                                  "items": [
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    },
+                                    {
+                                      "kind": "int",
+                                      "bits": 64,
+                                      "signed": false
+                                    }
+                                  ]
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 2,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 3
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 9,
+                                  "ty": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      },
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 3,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 1
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 3
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 10,
+                                    "ty": {
+                                      "kind": "pair",
+                                      "first": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          },
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          }
+                                        ]
+                                      },
+                                      "rest": {
+                                        "kind": "optional",
+                                        "item": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 48
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "value": {
+                                      "op": "pair",
+                                      "first": {
+                                        "op": "local",
+                                        "local_id": 9
+                                      },
+                                      "rest": {
+                                        "op": "local",
+                                        "local_id": 7
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 11,
+                                      "ty": {
+                                        "kind": "pair",
+                                        "first": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "rest": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "optional",
+                                            "item": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 48
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 32
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "value": {
+                                        "op": "pair",
+                                        "first": {
+                                          "op": "local",
+                                          "local_id": 8
+                                        },
+                                        "rest": {
+                                          "op": "local",
+                                          "local_id": 10
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 12,
+                                        "ty": {
+                                          "kind": "pair",
+                                          "first": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            ]
+                                          },
+                                          "rest": {
+                                            "kind": "pair",
+                                            "first": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                }
+                                              ]
+                                            },
+                                            "rest": {
+                                              "kind": "pair",
+                                              "first": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              },
+                                              "rest": {
+                                                "kind": "optional",
+                                                "item": {
+                                                  "kind": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "kind": "int",
+                                                      "bits": 64,
+                                                      "signed": false
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 48
+                                                    },
+                                                    {
+                                                      "kind": "bytes",
+                                                      "len": 32
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "value": {
+                                          "op": "pair",
+                                          "first": {
+                                            "op": "local",
+                                            "local_id": 5
+                                          },
+                                          "rest": {
+                                            "op": "local",
+                                            "local_id": 11
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "local",
+                                          "local_id": 12
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide::assert_seconds_absolute",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "81",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "chialisp_oxide::assert_my_amount",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "73",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 3,
+        "name": "chialisp_oxide::create_coin",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "51",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 4,
+        "name": "chialisp_oxide::agg_sig_me",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 48
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 48
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "50",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 5,
+        "name": "chialisp_oxide::assert_before_seconds_absolute",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "85",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      }
+    ]
+  }
+}

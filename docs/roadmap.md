@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 31 annotated exports of the real
+The latest local capture covers 32 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -15,8 +15,9 @@ for the reviewed `apply` bridge, the `curry-hash` fixture checked against the
 pinned upstream curry include, the canonical Currying page module with its
 page-argument instances cross-checked and executed in five builds, the
 compiled curry factory with second-stage applications, and the inner-puzzle
-commitment fixture whose curried instances run only the committed program.
-Its repeated report records 587 named and 25,222 generated inputs across native Rust and five
+commitment fixture whose curried instances run only the committed program, and
+the original boomerang payment with fixed terms committed before funding.
+Its repeated report records 688 named and 25,222 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -27,8 +28,13 @@ instead of adding migration modules.
 Forty complete-spend scenario groups run separately for Rust, Chialisp and Rue
 through chia-wallet-sdk's simulator (120 ledger scenario runs), plus the
 dedicated pay-to-singleton (110 submissions), delegated-conditions (60) and
-password-instance (21) ledger suites, each with exact typed consensus
-rejections and in-memory rollback checks. The executable error study holds
+password-instance (21) and boomerang-instance (145) ledger suites, each with exact typed consensus
+rejections and in-memory rollback checks. A separate actual Rust source-control
+experiment uses nine native output observations, eighteen primary-VM runs and
+eighteen SDK submissions: removing a returned authorization or deadline
+condition admits a forbidden spend under the mutant’s own committed instance.
+These are policy mistakes that ordinary Rust, Clippy and the subset permit,
+not additional errors Rust makes impossible. The executable error study holds
 eleven studies: seven native compile failures, one native overflow check, one
 compiled strict-ABI rejection and two negative controls that compile
 everywhere. None of these finite checks establishes full Chialisp parity,
@@ -52,8 +58,9 @@ compiler preservation or production readiness.
   and optional `Cons` tails, described in [optional-lists.md](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/).
   Version 6 preserves strict construction and helper passing; it does not add
   optional inputs, general enums, `Vec` or trait APIs. This capability has
-  separate constructor regressions and does not extend the 31-export corpus
-  or its recorded spend counts and metrics.
+  separate constructor regressions. The original
+  [boomerang payment](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
+  uses the capability with its own committed-instance and ledger evidence.
 - Optimizations on by default, each with retained before/after baselines:
   checked constants, forward success facts, branch-aware intervals, bounded
   helper inlining, runtime frame elision, guarded projection forwarding and
@@ -98,18 +105,12 @@ backlog; this ordering does not mark their acceptance criteria complete.
    using recorded corpus witnesses. Chialisp-specific highlighting
    ([#8](https://github.com/judeallred/chialisp-oxide/issues/8)) has pinned
    official provenance and actual token/contrast checks.
-2. Build the reclaimable boomerang payment
-   ([#9](https://github.com/judeallred/chialisp-oxide/issues/9)), including
-   recipient authorization, deadline boundary probes and complete simulator
-   spends for claim and refund. Optional-output construction is a prerequisite;
-   the curried boomerang puzzle and its complete-spend evidence remain
-   unimplemented.
-3. Make the tooling useful end to end: a local package registry with source and
+2. Make the tooling useful end to end: a local package registry with source and
    artifact identity ([#21](https://github.com/judeallred/chialisp-oxide/issues/21)),
    then the explicit-network CLI/GUI lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
    demonstrations require actual testnet evidence, not simulated transaction IDs.
-4. Expand stateful composition with canonical CAT issuance
+3. Expand stateful composition with canonical CAT issuance
    ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)), the XCHandles
    case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
    authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)),
@@ -117,7 +118,7 @@ backlog; this ordering does not mark their acceptance criteria complete.
    and action-layer demonstrations
    ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)). Derive new
    capabilities from these concrete ports; preserve honest gaps and model scope.
-5. Use that foundation for the pot game
+4. Use that foundation for the pot game
    ([#10](https://github.com/judeallred/chialisp-oxide/issues/10)), raffle
    ([#11](https://github.com/judeallred/chialisp-oxide/issues/11)) and bandit
    ([#20](https://github.com/judeallred/chialisp-oxide/issues/20)), with explicit
@@ -125,10 +126,10 @@ backlog; this ordering does not mark their acceptance criteria complete.
    ([#18](https://github.com/judeallred/chialisp-oxide/issues/18)) and EVM
    ([#19](https://github.com/judeallred/chialisp-oxide/issues/19)) learning tracks
    from working examples, explaining differences between accounts and coins.
-6. Continue manifest-driven evidence tooling, broader adversarial fuzzing,
+5. Continue manifest-driven evidence tooling, broader adversarial fuzzing,
    fork matrices and state-transition models. Keep SHA outside proofs that do
    not model it, and compiler preservation separate from model equivalence.
-7. Keep optimization ([#6](https://github.com/judeallred/chialisp-oxide/issues/6))
+6. Keep optimization ([#6](https://github.com/judeallred/chialisp-oxide/issues/6))
    and the chain/node storage studies
    ([#22](https://github.com/judeallred/chialisp-oxide/issues/22),
    [#23](https://github.com/judeallred/chialisp-oxide/issues/23)) at a lower priority.

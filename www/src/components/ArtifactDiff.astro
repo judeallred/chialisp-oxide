@@ -1,5 +1,6 @@
 ---
-import type { Artifact, PuzzleReport } from '../lib/data';
+import { href, type Artifact, type PuzzleReport } from '../lib/data';
+import { artifactFile, preview, previewLimit } from '../lib/compiled-artifacts.mjs';
 import { compareSerializedBytes } from '../../scripts/test-artifact-diff.mjs';
 
 interface Props { puzzle: PuzzleReport; }
@@ -35,8 +36,8 @@ const lines = (hex: string, start: number, marker: string) => {
 <section class="artifact-diffs" aria-label="Serialized-byte comparisons">
   <h3>Serialized-byte diffs</h3>
   <p class="method">Each comparison elides the longest shared byte prefix and a non-overlapping shared suffix. The remaining middle is one replacement range, with zero-based byte offsets and an exclusive end. This is not an instruction-aligned or minimal-edit diff.</p>
-  {comparisons.map(({ title, beforeLabel, afterLabel, diff, hashMatches }) => (
-    <details class="byte-diff">
+  {comparisons.map(({ title, before, after, beforeLabel, afterLabel, diff, hashMatches }) => (
+    <details class="byte-diff" data-artifact-diff={`${before.backend}:${before.optimize_lir}/${after.backend}:${after.optimize_lir}`}>
       <summary>
         <span class="comparison-title">{title}</span>
         <span class="diff-count">{diff.identical ? 'identical bytes' : `−${byteCount(diff.before.bytes)} / +${byteCount(diff.after.bytes)}`}</span>
@@ -50,19 +51,19 @@ const lines = (hex: string, start: number, marker: string) => {
             <p class="shared">Unchanged: {byteCount(diff.prefixBytes)} at the start · {byteCount(diff.suffixBytes)} at the end.</p>
             <div class="byte-columns" data-pagefind-ignore>
               {[
-                { label: beforeLabel, marker: '-', range: diff.before, kind: 'removed' },
-                { label: afterLabel, marker: '+', range: diff.after, kind: 'added' },
-              ].map(({ label, marker, range, kind }) => (
+                { label: beforeLabel, marker: '-', range: diff.before, kind: 'removed', artifact: before },
+                { label: afterLabel, marker: '+', range: diff.after, kind: 'added', artifact: after },
+              ].map(({ label, marker, range, kind, artifact }) => (
                 <section class:list={['byte-column', kind]} aria-label={`${kind === 'removed' ? 'Removed from' : 'Added to'} ${label}: ${byteCount(range.bytes)} in replacement range`}>
                   <h4><span aria-hidden="true">{marker}</span> {label}</h4>
-                  <p class="range"><code>[{offset(range.offset)}, {offset(range.end)})</code> · {byteCount(range.bytes)} / {byteCount(range.total)} total</p>
+                  <p class="range" data-byte-range={kind}><code>[{offset(range.offset)}, {offset(range.end)})</code> · {byteCount(range.bytes)} / {byteCount(range.total)} total</p>
                   {range.bytes
-                    ? <pre tabindex="0" aria-label={`${label} replacement bytes; each row starts with its byte offset`}><code>{lines(range.hex, range.offset, marker)}</code></pre>
+                    ? <><pre tabindex="0" data-byte-preview={kind} aria-label={`${label} replacement prefix; each row starts with its byte offset`}><code>{lines(preview(range.hex), range.offset, marker)}</code></pre><p class="full-artifacts">{range.hex.length > previewLimit ? `Prefix only: ${previewLimit / 2} of ${range.bytes} replacement bytes shown. This prefix is incomplete.` : 'Complete replacement range shown.'} <a href={href(`reports/compiled/${artifactFile(puzzle.slug,artifact,'clvm.hex')}`)} download>Download exact complete artifact</a>.</p></>
                     : <p class="empty">∅ · No bytes on this side of the replacement.</p>}
                 </section>
               ))}
             </div>
-            <p class="full-artifacts">The artifact panels below contain the complete serialized bytes and disassembly. Byte similarity alone says nothing about semantic equivalence.</p>
+            <p class="full-artifacts">Offsets and byte counts describe the full artifacts; only the displayed replacement prefixes are bounded. Complete serialized bytes and disassembly are available through the artifact downloads below. Matching previews do not establish identical artifacts or semantic equivalence.</p>
           </>
         )}
       </div>

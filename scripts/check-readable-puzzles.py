@@ -192,6 +192,10 @@ def check_report(report, *, require_typed_failures=True):
             comparisons = puzzle["simulator_comparisons"]
             if puzzle["kind"] in ("pure_function", "program_factory", "protocol_component"):
                 require(not comparisons and not puzzle["simulator"], f"{slug}: non-spend function claims ledger evidence")
+            elif slug == "boomerang":
+                # check_ledger_report above requires the complete, closed
+                # five-build instance lane; its submissions are not generic groups.
+                require(not comparisons and not puzzle["simulator"], f"{slug}: mixed instance/generic ledger evidence")
             else:
                 require(modes(comparisons, f"{slug} ledger comparisons").keys()
                         == {("chialisp", True), ("rue_source", True)},

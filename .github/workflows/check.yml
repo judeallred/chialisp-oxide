@@ -56,50 +56,10 @@ jobs:
       - name: Finish host tools before delegated source-control extraction
         run: |
           cargo build --workspace --bins --examples --locked --target-dir "$GITHUB_WORKSPACE/target"
-          python3 - <<'PYTHON'
-          import json
-          import os
-          from pathlib import Path
-          import subprocess
-          import sys
-          import tomllib
-
-          sys.path.insert(0, "scripts")
-          import p2dc_source_controls as controls
-
-          root = Path.cwd().resolve()
-          temporary = Path(os.environ["RUNNER_TEMP"]).resolve()
-          package = temporary / "p2dc-source-package"
-          native_path = temporary / "p2dc-source-native/native-receipt.json"
-          destination = temporary / "p2dc-source-last-host.json"
-          controls.require(controls.ROOT == root and not destination.exists(), "NEW CI quiet receipt required")
-          toolchain = tomllib.loads(controls.read(root / "rust-toolchain.toml").decode())["toolchain"]["channel"]
-          source_window = controls.source_window()
-          native = controls.load(native_path)
-          controls.require(native["status"] == "native_phase_passed_before_LAST_host_build"
-              and native["source_root"] == str(root) and native["package_root"] == str(package)
-              and native["toolchain"] == toolchain and native["source_window"] == source_window,
-              "Native phase and terminal host build must share exact source inputs")
-          compiler = subprocess.run(["rustup", "run", toolchain, "rustc", "-vV"],
-              cwd=root, capture_output=True, text=True, timeout=30)
-          controls.require(type(compiler.returncode) is int and compiler.returncode == 0
-              and not compiler.stderr, "Cannot independently query pinned CI compiler")
-          controls.compiler_host(compiler.stdout)
-          names = ("cargo-chialisp-oxide", "chialisp-oxide-driver", "chialisp-oxide", "chialisp-oxide-verifier")
-          controls.require(controls.TOOLS == names, "Closed four-tool capture required")
-          tools = {name: {"path": str(root / "target/debug" / name),
-              "sha256": controls.sha(root / "target/debug" / name, 2 * 1024 * 1024 * 1024)} for name in names}
-          controls.require(controls.source_window() == source_window
-              and all(controls.sha(Path(row["path"]), 2 * 1024 * 1024 * 1024) == row["sha256"] for row in tools.values()),
-              "Source/tool inputs changed after terminal host build")
-          receipt = {"schema_version": 1, "protocol": "chialisp-oxide-p2dc-controls-quiet-window/v1",
-              "status": "LAST_host_build_terminal_tools_quiet", "source_root": str(root),
-              "package_root": str(package), "compiler": compiler.stdout, "toolchain": toolchain,
-              "source_window": source_window, "tools": tools,
-              "native_receipt_sha256": controls.sha(native_path),
-              "scope": "Sequential CI coordination after the successful workspace --bins --examples host build and before fresh capture. No concurrent builds are started in this interval. This receipt does not authenticate execution or prove compiler preservation."}
-          destination.write_text(json.dumps(receipt, indent=2) + "\n")
-          PYTHON
+          python3 scripts/record-controls-quiet-window.py --kind p2dc \
+            --package "$RUNNER_TEMP/p2dc-source-package" \
+            --native-receipt "$RUNNER_TEMP/p2dc-source-native/native-receipt.json" \
+            --output "$RUNNER_TEMP/p2dc-source-last-host.json"
       - name: Capture and check fresh Linux delegated source controls
         run: |
           # Fresh Linux host metadata remains separate from the retained macOS packet.
@@ -110,10 +70,41 @@ jobs:
             --target "$GITHUB_WORKSPACE/target" \
             --output "$RUNNER_TEMP/p2dc-source-capture"
           python3 scripts/check-p2dc-source-controls.py "$RUNNER_TEMP/p2dc-source-capture/report.json" --self-test
+      - name: Prepare and natively check fresh boomerang source mutations
+        run: |
+          python3 scripts/run-boomerang-source-controls.py prepare \
+            --package "$RUNNER_TEMP/boomerang-source-package" --receipt "$RUNNER_TEMP/boomerang-source-prepare.json"
+          python3 scripts/run-boomerang-source-controls.py native \
+            --package "$RUNNER_TEMP/boomerang-source-package" --prepared "$RUNNER_TEMP/boomerang-source-prepare.json" \
+            --target "$RUNNER_TEMP/boomerang-source-native-target" --output "$RUNNER_TEMP/boomerang-source-native"
+      - name: Finish host tools before boomerang source-control extraction
+        run: |
+          cargo build --workspace --bins --examples --locked
+          python3 scripts/record-controls-quiet-window.py --kind boomerang \
+            --package "$RUNNER_TEMP/boomerang-source-package" \
+            --native-receipt "$RUNNER_TEMP/boomerang-source-native/native-receipt.json" \
+            --output "$RUNNER_TEMP/boomerang-source-last-host.json"
+      - name: Capture fresh Linux boomerang source controls
+        run: |
+          python3 scripts/run-boomerang-source-controls.py capture \
+            --package "$RUNNER_TEMP/boomerang-source-package" \
+            --native-receipt "$RUNNER_TEMP/boomerang-source-native/native-receipt.json" \
+            --last-host-window "$RUNNER_TEMP/boomerang-source-last-host.json" \
+            --target "$GITHUB_WORKSPACE/target" --output "$RUNNER_TEMP/boomerang-source-capture"
       - name: Execute actual SDK SHA against native known answers and OpenSSL
         run: |
           python3 experiments/hash-native/check-native.py --work-dir "$RUNNER_TEMP/hash-native-work" --output "$RUNNER_TEMP/hash-native.json" --self-test
           python3 experiments/hash-native/check-native.py --output "$RUNNER_TEMP/hash-native.json" --check --self-test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boomerang-source-controls-linux
+          path: |
+            ${{ runner.temp }}/boomerang-source-package/
+            ${{ runner.temp }}/boomerang-source-prepare.json
+            ${{ runner.temp }}/boomerang-source-native/
+            ${{ runner.temp }}/boomerang-source-last-host.json
+            ${{ runner.temp }}/boomerang-source-capture/
       - name: Check VM failure and consensus rejection protocols
         run: |
           python3 scripts/vm_failures.py
@@ -147,6 +138,10 @@ jobs:
           target/debug/chialisp-oxide validate --output corpus/validation.json
           target/debug/chialisp-oxide validate --output "$RUNNER_TEMP/validation-repeat.json"
           cmp corpus/validation.json "$RUNNER_TEMP/validation-repeat.json"
+      - name: Check boomerang policy, retained bytes and both source-mutant packets
+        run: |
+          python3 scripts/check-boomerang.py --self-test --replay --source-controls corpus/boomerang-source-controls/report.json
+          python3 scripts/check-boomerang.py --source-controls "$RUNNER_TEMP/boomerang-source-capture/report.json"
       - name: Check canonical pay-to-singleton and actual Rust policy mutations
         run: |
           python3 -m unittest discover -s scripts -p test_p2_append_migration.py

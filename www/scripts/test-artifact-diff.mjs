@@ -61,6 +61,7 @@ function test() {
     ['no overlap', 'aaaa', 'aaaaaa', 2, 0, '', 'aa'],
     ['byte alignment', '01ab', '0aab', 0, 1, '01', '0a'],
     ['case normalized', 'ABCD', 'abcd', 2, 0, '', ''],
+    ['difference after preview', '00'.repeat(256) + '01', '00'.repeat(256) + '02', 256, 0, '01', '02'],
   ];
   for (const [label, before, after, prefix, suffix, removed, added] of cases) {
     const result = compareSerializedBytes(before, after);

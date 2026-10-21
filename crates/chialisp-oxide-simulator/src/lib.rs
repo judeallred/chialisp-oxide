@@ -126,6 +126,34 @@ pub fn partial_aggregate_signature(spends: &[CoinSpend], keys: &[SecretKey]) -> 
     Ok(signature)
 }
 
+/// Sign one actual TESTNET11 BLS requirement with a deliberately different key.
+/// This negative-test helper retains the required message's coin/domain binding;
+/// it does not omit the signature or alter the spend. Submit the returned
+/// signature through `new_transaction` to test consensus rejection directly.
+pub fn sign_single_requirement_with_wrong_key(
+    spends: &[CoinSpend],
+    wrong_key: &SecretKey,
+) -> Result<Signature> {
+    let mut allocator = clvmr::Allocator::new();
+    let constants = AggSigConstants::new(TESTNET11_CONSTANTS.agg_sig_me_additional_data);
+    let required = RequiredSignature::from_coin_spends(&mut allocator, spends, &constants)?;
+    let [RequiredSignature::Bls(required)] = required.as_slice() else {
+        bail!(
+            "wrong-key signature control requires exactly one BLS requirement and no secp requirements"
+        );
+    };
+    ensure!(
+        wrong_key.public_key() != required.public_key,
+        "wrong-key signature control requires a key different from the required public key"
+    );
+    let signature = chia_bls::sign(wrong_key, required.message());
+    ensure!(
+        signature != Signature::default(),
+        "wrong-key signature control must produce a nonempty signature"
+    );
+    Ok(signature)
+}
+
 /// Decode exactly one serialized CLVM object, rejecting truncation and trailing
 /// bytes before passing it to upstream APIs that assume well-formed programs.
 pub fn program(bytes: &[u8]) -> Result<Program> {

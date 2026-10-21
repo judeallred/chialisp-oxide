@@ -10,9 +10,11 @@
 #   5. the generic corpus-append capture (--record) and its pin;
 #   6. the delegated-conditions source-control packet (prepare, native,
 #      LAST-host quiet receipt, capture, install);
-#   7. derived reports: error study, IR/tree/byte proofs, acyclic-scalar and
+#   7. the separate boomerang source-control packet, with native policy checks,
+#      its own LAST-host quiet receipt, capture, independent check and install;
+#   8. derived reports: error study, IR/tree/byte proofs, acyclic-scalar and
 #      Lean records (the Lean binary must be the pinned 4.35.0 release);
-#   8. a host rebuild, fresh bundles and the fresh-bundle gates, because the
+#   9. a host rebuild, fresh bundles and the fresh-bundle gates, because the
 #      derived-report producers relink the driver (CI runs them in this order).
 # The script stops at the first failure. It never pushes, never edits sources
 # beyond the recorded profiles, and establishes no execution authentication.
@@ -56,36 +58,7 @@ python3 scripts/run-p2dc-source-controls.py prepare --package "$WORK/p2dc-packag
 python3 scripts/run-p2dc-source-controls.py native --package "$WORK/p2dc-package" --prepared "$WORK/p2dc-prepare.json" --target "$WORK/p2dc-native-target" --output "$WORK/p2dc-native"
 step "LAST host build after native policy checks"
 cargo build --workspace --bins --examples --locked
-WORK="$WORK" python3 - <<'PYTHON'
-import json, os, subprocess, sys, tomllib
-from pathlib import Path
-sys.path.insert(0, "scripts")
-import p2dc_source_controls as controls
-root = Path.cwd().resolve()
-work = Path(os.environ["WORK"]).resolve()
-package, native_path, destination = work / "p2dc-package", work / "p2dc-native/native-receipt.json", work / "p2dc-last-host.json"
-controls.require(controls.ROOT == root and not destination.exists(), "NEW quiet receipt required")
-toolchain = tomllib.loads(controls.read(root / "rust-toolchain.toml").decode())["toolchain"]["channel"]
-window = controls.source_window()
-native = controls.load(native_path)
-controls.require(native["status"] == "native_phase_passed_before_LAST_host_build" and native["source_root"] == str(root)
-    and native["package_root"] == str(package) and native["toolchain"] == toolchain and native["source_window"] == window,
-    "Native phase and terminal host build must share exact source inputs")
-compiler = subprocess.run(["rustup", "run", toolchain, "rustc", "-vV"], cwd=root, capture_output=True, text=True, timeout=30)
-controls.require(compiler.returncode == 0 and not compiler.stderr, "Cannot independently query pinned compiler")
-controls.compiler_host(compiler.stdout)
-names = ("cargo-chialisp-oxide", "chialisp-oxide-driver", "chialisp-oxide", "chialisp-oxide-verifier")
-controls.require(controls.TOOLS == names, "Closed four-tool capture required")
-tools = {name: {"path": str(root / "target/debug" / name), "sha256": controls.sha(root / "target/debug" / name, 2 * 1024 * 1024 * 1024)} for name in names}
-controls.require(controls.source_window() == window and all(controls.sha(Path(row["path"]), 2 * 1024 * 1024 * 1024) == row["sha256"] for row in tools.values()),
-    "Source/tool inputs changed after terminal host build")
-receipt = {"schema_version": 1, "protocol": "chialisp-oxide-p2dc-controls-quiet-window/v1",
-    "status": "LAST_host_build_terminal_tools_quiet", "source_root": str(root), "package_root": str(package),
-    "compiler": compiler.stdout, "toolchain": toolchain, "source_window": window, "tools": tools,
-    "native_receipt_sha256": controls.sha(native_path),
-    "scope": "Sequential local coordination after the successful workspace --bins --examples host build and before fresh capture. No concurrent builds are started in this interval. This receipt does not authenticate execution or prove compiler preservation."}
-destination.write_text(json.dumps(receipt, indent=2) + "\n")
-PYTHON
+python3 scripts/record-controls-quiet-window.py --kind p2dc --package "$WORK/p2dc-package" --native-receipt "$WORK/p2dc-native/native-receipt.json" --output "$WORK/p2dc-last-host.json"
 python3 scripts/run-p2dc-source-controls.py capture --package "$WORK/p2dc-package" --native-receipt "$WORK/p2dc-native/native-receipt.json" --last-host-window "$WORK/p2dc-last-host.json" --target "$ROOT/target" --output "$WORK/p2dc-capture"
 python3 scripts/check-p2dc-source-controls.py "$WORK/p2dc-capture/report.json" --self-test > "$WORK/gate-p2dc-capture.log"
 # Ignored build output can appear inside the retained packet (its package is a
@@ -113,6 +86,30 @@ for row in report["files"]:
     shutil.copy2(source / row["path"], destination)
 PYTHON
 python3 scripts/check-p2dc-source-controls.py corpus/p2dc-source-controls/report.json --self-test > "$WORK/gate-p2dc-installed.log"
+
+step "boomerang source-control packet"
+python3 scripts/run-boomerang-source-controls.py prepare --package "$WORK/boomerang-package" --receipt "$WORK/boomerang-prepare.json"
+python3 scripts/run-boomerang-source-controls.py native --package "$WORK/boomerang-package" --prepared "$WORK/boomerang-prepare.json" --target "$WORK/boomerang-native-target" --output "$WORK/boomerang-native"
+step "LAST host build after boomerang native checks"
+cargo build --workspace --bins --examples --locked
+python3 scripts/record-controls-quiet-window.py --kind boomerang --package "$WORK/boomerang-package" --native-receipt "$WORK/boomerang-native/native-receipt.json" --output "$WORK/boomerang-last-host.json"
+python3 scripts/run-boomerang-source-controls.py capture --package "$WORK/boomerang-package" --native-receipt "$WORK/boomerang-native/native-receipt.json" --last-host-window "$WORK/boomerang-last-host.json" --target "$ROOT/target" --output "$WORK/boomerang-capture"
+python3 scripts/check-boomerang.py --source-controls "$WORK/boomerang-capture/report.json" --self-test --replay > "$WORK/gate-boomerang-capture.log"
+WORK="$WORK" python3 - <<'PYTHON'
+import json, os, shutil
+from pathlib import Path
+source, target = Path(os.environ["WORK"]) / "boomerang-capture", Path("corpus/boomerang-source-controls")
+report = json.loads((source / "report.json").read_bytes())
+shutil.rmtree(target, ignore_errors=True)
+if target.exists():
+    raise SystemExit("Retained boomerang packet removal failed; preserve this capture and remove only its ignored build output before retrying install")
+target.mkdir()
+shutil.copy2(source / "report.json", target / "report.json")
+for row in report["files"]:
+    destination = target / row["path"]; destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source / row["path"], destination)
+PYTHON
+python3 scripts/check-boomerang.py --source-controls corpus/boomerang-source-controls/report.json --self-test > "$WORK/gate-boomerang-installed.log"
 
 step "derived reports"
 python3 scripts/check-error-study.py --write

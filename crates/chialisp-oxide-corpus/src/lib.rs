@@ -1,5 +1,6 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
 mod authoring;
+mod boomerang;
 mod curried;
 mod factories;
 mod native;
@@ -55,6 +56,7 @@ pub const PUZZLES: &[&str] = &[
     "currying-multiply",
     "curry-factory",
     "inner-puzzle",
+    "boomerang",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -167,6 +169,8 @@ pub struct Manifest {
     pub validation_max_cost: Option<u64>,
     #[serde(default)]
     pub curried_examples: Vec<curried::Spec>,
+    #[serde(default)]
+    pub coin_instances: Vec<curried::Spec>,
     #[serde(default)]
     pub factory_relation: Option<String>,
     #[serde(default)]
@@ -283,6 +287,8 @@ pub struct PuzzleReport {
     pub curried_instances: Option<password::CurriedInstances>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub curried_examples: Option<Vec<curried::Example>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coin_instances: Option<boomerang::CoinInstances>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protocol_validation: Option<serde_json::Value>,
     pub validated: bool,
@@ -708,12 +714,19 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         .map(|(backend, opt, code)| artifact(backend, *opt, code))
         .collect::<Result<_>>()?;
     let simulator = match manifest.kind.as_str() {
+        "coin_puzzle" if slug == "boomerang" => {
+            ensure!(
+                !manifest.coin_instances.is_empty(),
+                "boomerang requires actual committed coin-instance evidence"
+            );
+            vec![]
+        }
         "coin_puzzle" => spends::validate(slug, &programs[1].2)?,
         "pure_function" | "program_factory" | "protocol_component" => vec![],
         kind => anyhow::bail!("unknown corpus kind {kind}"),
     };
     let mut simulator_comparisons = vec![];
-    if manifest.kind == "coin_puzzle" {
+    if manifest.kind == "coin_puzzle" && slug != "boomerang" {
         for (backend, optimize, code) in programs
             .iter()
             .filter(|(backend, opt, _)| *opt && *backend != "rust_mir")
@@ -788,6 +801,23 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     } else {
         None
     };
+    let coin_instances = if slug == "boomerang" {
+        ensure!(
+            manifest.kind == "coin_puzzle",
+            "boomerang is a condition-producing coin policy"
+        );
+        Some(boomerang::validate(
+            &manifest.coin_instances,
+            &programs,
+            max_cost,
+        )?)
+    } else {
+        ensure!(
+            manifest.coin_instances.is_empty(),
+            "undeclared coin-instance protocol"
+        );
+        None
+    };
     if !native_sources.is_empty() {
         // A changed declared input must not publish observations from an older
         // native binary, even when the change happened during compilation.
@@ -818,6 +848,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         module_identity,
         curried_instances,
         curried_examples,
+        coin_instances,
         protocol_validation,
         validated: true,
     })

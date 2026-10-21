@@ -121,6 +121,25 @@ def execution_paths():
              "corpus/runtime-refinement-baseline.json", "corpus/p2-singleton-append-baseline.json",
              "puzzles/p2-singleton/vectors.py", "puzzles/p2-singleton/vectors.json",
              "puzzles/p2-singleton/generated-cases.json"]
+    paths += [
+        "crates/chialisp-oxide-corpus/src/boomerang.rs",
+        "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs",
+        "crates/chialisp-oxide-ir/src/lower/decoder_tests.rs",
+        "crates/chialisp-oxide-simulator/tests/wrong_key_signature.rs",
+        "puzzles/boomerang/puzzle.json", "puzzles/boomerang/puzzle.rs",
+        "puzzles/boomerang/reference.clsp", "puzzles/boomerang/puzzle.rue",
+        "scripts/boomerang_evidence.py", "scripts/boomerang_source_controls.py",
+        "scripts/check-boomerang.py", "scripts/run-boomerang-source-controls.py",
+        "scripts/record-controls-quiet-window.py",
+        "scripts/test_boomerang.py",
+        "experiments/boomerang-controls/mutations.json",
+        "experiments/boomerang-controls/native.rs",
+        "experiments/boomerang-controls/ledger.rs",
+        "www/scripts/boomerang-protocol.mjs",
+        "www/scripts/test-boomerang-protocol.mjs",
+        "www/src/lib/boomerang-source-controls.mjs",
+        "www/scripts/test-boomerang-source-controls.mjs",
+    ]
     # The source-cost reader verifies retained native/control captures against
     # their closed Cargo/production source window before pure historical projection.
     # Bind those inputs too; these hashes establish freshness, not execution.
@@ -570,6 +589,7 @@ def execution_paths():
         "www/scripts/p2dc-protocol.mjs"
 ]
     paths += _source_control_artifact_paths()
+    paths += _boomerang_control_artifact_paths()
     from p2_singleton_evidence import RUNTIME_INPUTS
     paths += list(RUNTIME_INPUTS)
     paths += [str(path.relative_to(ROOT)) for path in (ROOT / "crates/chialisp-oxide-vm/src").rglob("*.rs")]
@@ -607,6 +627,30 @@ def _source_control_artifact_paths():
 def execution_sources():
     return [{"path": path, "sha256": hashlib.sha256((ROOT / path).read_bytes()).hexdigest()}
             for path in execution_paths()]
+
+
+def _boomerang_control_artifact_paths():
+    """Bounded retained-file identities only; the independent gate checks semantics."""
+    import boomerang_source_controls as controls
+    base = ROOT / "corpus/boomerang-source-controls"
+    value = controls.load(base / "report.json")
+    require(value.get("protocol") == controls.PROTOCOL
+            and value.get("status") == "actual_source_controls_captured",
+            "Actual boomerang source-control packet required")
+    rows = value.get("files")
+    require(type(rows) is list and 1 <= len(rows) <= 512, "Bounded retained boomerang files required")
+    paths = []
+    for row in rows:
+        require(type(row) is dict and set(row) == {"path", "sha256"}
+                and type(row["path"]) is str and len(row["path"]) <= 4096
+                and type(row["sha256"]) is str
+                and re.fullmatch("[0-9a-f]{64}", row["sha256"]) is not None,
+                "Malformed retained boomerang file identity")
+        path = controls.relative(base, row["path"])
+        require(controls.sha(path) == row["sha256"], "Retained boomerang data bytes changed")
+        paths.append("corpus/boomerang-source-controls/" + row["path"])
+    require(paths == sorted(set(paths)), "Sorted unique retained boomerang files required")
+    return ["corpus/boomerang-source-controls/report.json", *paths]
 
 
 class FailureProtocolTests(unittest.TestCase):

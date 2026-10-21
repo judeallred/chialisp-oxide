@@ -80,6 +80,18 @@ def check_ledger_report(report, *, require_typed=True):
         require(isinstance(scenarios, list), "Malformed ledger scenario list")
         names = [row.get("name") for row in scenarios]
         require(len(names) == len(set(names)), "Duplicate ledger scenario grouping")
+        if puzzle.get("slug") == "boomerang" or "coin_instances" in puzzle:
+            require(puzzle.get("slug") == "boomerang" and puzzle.get("kind") == "coin_puzzle",
+                    "Only the reviewed boomerang coin may use its dedicated instance protocol")
+            require(not scenarios and not comparisons and "protocol_validation" not in puzzle,
+                    "Boomerang instance submissions are separate from ordinary scenario groups")
+            if require_typed:
+                from boomerang_evidence import validate_coin
+                validate_coin(puzzle)
+            # Historical projections have already passed the current-source
+            # gate. Like the older protocol components, their untyped reader
+            # must not reopen today's sources as evidence for a past capture.
+            continue
         if require_typed:
             kind = puzzle.get("kind")
             require(kind in ("coin_puzzle", "pure_function", "program_factory", "protocol_component"), "Unknown puzzle kind for ledger contract")
@@ -120,6 +132,26 @@ def check_ledger_report(report, *, require_typed=True):
 
 
 class LedgerProtocolTests(unittest.TestCase):
+    def test_boomerang_current_gate_is_not_reopened_for_historical_projection(self):
+        from unittest.mock import patch
+        report = {"simulator": {"rejection_protocol": PROTOCOL}, "puzzles": [{
+            "slug": "boomerang", "kind": "coin_puzzle", "simulator": [],
+            "simulator_comparisons": [], "coin_instances": {"protocol": "retained history"}}]}
+        with patch("boomerang_evidence.validate_coin", side_effect=ValueError("current-source gate")) as current:
+            check_ledger_report(report, require_typed=False)
+            current.assert_not_called()
+            with self.assertRaisesRegex(ValueError, "current-source gate"):
+                check_ledger_report(report)
+            current.assert_called_once_with(report["puzzles"][0])
+        for mutation in ("slug", "kind", "generic"):
+            bad = copy.deepcopy(report)
+            puzzle = bad["puzzles"][0]
+            if mutation == "slug": puzzle["slug"] = "unreviewed-coin"
+            elif mutation == "kind": puzzle["kind"] = "pure_function"
+            else: puzzle["simulator"] = [{"name": "invented"}]
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                check_ledger_report(bad, require_typed=False)
+
     def test_mode_and_passed_flags_reject_numeric_boolean_substitutes(self):
         scenarios = [{"name": row["name"], "passed": True, "scope": "ledger",
                       "rejections": [{"stage": "consensus", "code": code} for code in row["codes"]]}

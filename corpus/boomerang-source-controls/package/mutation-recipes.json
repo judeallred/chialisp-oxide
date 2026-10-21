@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "source": "puzzles/boomerang/puzzle.rs",
+  "classification": "actual_source_policy_controls",
+  "controls": [
+    {
+      "name": "original",
+      "role": "byte-identical base source control",
+      "edits": []
+    },
+    {
+      "name": "equivalent",
+      "role": "source-equivalent positive control",
+      "edits": [
+        {
+          "before": "    let destination = if claim { recipient } else { refund_to };\n",
+          "after": "    let destination = if !claim { refund_to } else { recipient };\n"
+        }
+      ]
+    },
+    {
+      "name": "drop_claim_signature",
+      "role": "ordinary compiling authorization policy error",
+      "edits": [
+        {
+          "before": "        Some(agg_sig_me(recipient_key, CLAIM_INTENT))\n",
+          "after": "        let _unused_authorization = agg_sig_me(recipient_key, CLAIM_INTENT);\n        None\n"
+        }
+      ]
+    },
+    {
+      "name": "late_claim",
+      "role": "ordinary compiling claim deadline policy error",
+      "edits": [
+        {
+          "before": "        assert_before_seconds_absolute(deadline)\n",
+          "after": "        let _unused_deadline = assert_before_seconds_absolute(deadline);\n        assert_seconds_absolute(Timestamp::from_unix_seconds(0))\n"
+        }
+      ]
+    },
+    {
+      "name": "early_refund",
+      "role": "ordinary compiling refund deadline policy error",
+      "edits": [
+        {
+          "before": "        assert_seconds_absolute(deadline)\n",
+          "after": "        assert_seconds_absolute(Timestamp::from_unix_seconds(0))\n"
+        }
+      ]
+    }
+  ],
+  "scope": "Constructing a signature or time condition and discarding it does not enforce that condition. These are policy mistakes that ordinary Rust, Clippy and the project subset may accept; they are not errors Rust makes impossible. Each mutant must be funded under its own compiled curried reveal before the distinguishing SDK spend."
+}

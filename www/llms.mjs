@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { unified } from 'unified';
@@ -8,6 +8,7 @@ import rehypeParse from 'rehype-parse';
 import rehypeRemark from 'rehype-remark';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
+import { siteFiles } from './src/lib/site-files.mjs';
 
 export const siteURL = 'https://judeallred.github.io/chialisp-oxide/';
 export const warning = 'WIP prototype. Not ready for use. Do not use for real funds or production puzzles.';
@@ -82,18 +83,8 @@ export async function renderMarkdown(html, pageURL) {
   return { title, markdown: `> ${warning}\n\nSource: ${pageURL}\n\n${markdown}` };
 }
 
-async function htmlFiles(directory, prefix = '') {
-  const result = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const name = path.posix.join(prefix, entry.name);
-    if (entry.isDirectory()) result.push(...await htmlFiles(path.join(directory, entry.name), name));
-    else if (entry.isFile() && entry.name === 'index.html') result.push(name);
-  }
-  return result.sort();
-}
-
 export async function generateMarkdown(directory) {
-  const files = await htmlFiles(directory);
+  const files = (await siteFiles(directory)).filter(file => path.posix.basename(file) === 'index.html');
   assert(files.length > 0, 'No rendered documentation pages');
   const pages = [];
   for (const htmlPath of files) {

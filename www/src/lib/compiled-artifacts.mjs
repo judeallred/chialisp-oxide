@@ -1,4 +1,5 @@
-export const previewLimit = 2048;
+// Debug prefixes are deliberately small; exact full programs remain downloads.
+export const previewLimit = 192;
 export const artifactFile = (slug, artifact, extension) => {
   if (!/^[a-z0-9-]+$/.test(slug) || !['rust_mir','chialisp','rue_source'].includes(artifact.backend)
     || typeof artifact.optimize_lir !== 'boolean' || !['clvm.hex','clvm.txt'].includes(extension)) throw new Error('Invalid compiled artifact identity');

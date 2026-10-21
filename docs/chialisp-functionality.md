@@ -273,7 +273,7 @@ establish extension or cost correctness.
 
 ## Concrete next compiler and corpus work
 
-The latest locally validated capture covers 31 annotated exports. It includes
+The latest locally validated capture covers 32 annotated exports. It includes
 the full raw-domain `sha256tree` helper
 adapter, singleton launcher, original password tutorial module and canonical
 pay-to-singleton and delegated-conditions components through the
@@ -283,12 +283,16 @@ delegated-puzzle fixture for the reviewed `apply` bridge and the `curry-hash`
 fixture validated against the pinned upstream curry include, and the canonical
 Currying page module with its page-argument instances, a compiled curry
 factory, and an inner-puzzle commitment fixture that hashes and applies a
-solution-supplied program behind a curried commitment. Native Rust and five
-separately compiled CLVM builds agree on 587 named and 25,222 generated cases,
+solution-supplied program behind a curried commitment, and the original
+boomerang payment with fixed terms committed before funding. Native Rust and five
+separately compiled CLVM builds agree on 688 named and 25,222 generated cases,
 where a named case may declare, before execution, an independently specified
 original result that binds only Chialisp and Rue; Rust CLVM always matches the
 native Rust source. Forty ledger scenario groups
 execute in Rust, Chialisp and Rue, giving 120 language-specific scenario runs.
+The boomerang instance lane separately records 145 SDK submissions; its actual
+Rust source-mutation experiment records another 18 submissions. Neither count
+adds ordinary ledger scenario groups or establishes a security proof.
 The earlier 22-puzzle composition remains the
 [retained report](../corpus/checkpoints/runtime-composition-validation.json),
 `227ce911…`, with its own 564-test workspace and Clippy results. The earlier
@@ -298,12 +302,11 @@ replays remain results of their recorded source basis.
 The retained 23-export capture was repeated byte-for-byte and is now the
 [retained checkpoint](../corpus/checkpoints/p2dc-append-validation.json) of the
 generic corpus append. Fresh Cargo bundles cover every current export in both
-modes, and all 31 retained IR programs recompile to the recorded artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
-remain exact after the closed metadata transition. The actual 578-test workspace
-and Clippy run is carried for the same 327 Rust/Cargo/config inputs; the added
-non-workspace native-control template has separate native tests. Final integration
-also reran the two Rue corpus tests on current data before its host build. This
-is not a new full workspace run in that checkout. Proof and site gates require
+modes, and all 32 retained IR programs recompile to the recorded artifacts. The complete earlier 22-puzzle report and its 44 IR/artifact combinations
+remain exact after the closed metadata transition. The current integration
+passes 635 workspace tests, formatting and all-target Clippy. The earlier
+578-test run belongs to its recorded 23-export source basis; the separate
+source-control packages have their own native tests. Proof and site gates require
 separate current-source verification. These finite observations do not establish
 universal functionality parity or compiler preservation.
 

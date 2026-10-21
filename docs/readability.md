@@ -53,8 +53,10 @@ payloads and strict initializer evaluation. It does not admit optional exported
 inputs, Option inspection or methods, general enums, `Vec`, or trait-based
 collection APIs. Optional-capable programs conservatively skip Rust IR
 refinement and inlining, so this feature carries no cost-improvement claim.
-It is a constructor prerequisite for varying condition lists, not a completed
-boomerang puzzle or evidence of a complete spend.
+The [boomerang lesson](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
+uses this capability to return a signed claim or an unsigned refund. Its
+committed instances and actual SDK submissions have separate evidence; the
+constructor tests alone establish neither authorization nor a complete spend.
 
 ## Inspiration from Rue and the Rust wallet SDK
 

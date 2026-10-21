@@ -1,0 +1,42 @@
+// Original teaching comparison, not a canonical clawback module.
+// WIP prototype; not ready to secure real funds.
+type Terms = (PublicKey, (Bytes32, (Bytes32, (Int, (Int, nil)))));
+
+fn main(...environment: Any) -> List<Condition> {
+    // Validate every field on both paths, including the key on an unsigned refund.
+    assert environment is (Terms, (Bool, nil));
+    let terms = environment.first;
+    let recipient_key = terms.first;
+    let recipient = terms.rest.first;
+    let refund_to = terms.rest.rest.first;
+    let amount = canonical_u64(terms.rest.rest.rest.first);
+    let deadline = canonical_u64(terms.rest.rest.rest.rest.first);
+    let claim = environment.rest.first;
+
+    if claim {
+        [AssertBeforeSecondsAbsolute { seconds: deadline },
+         AssertMyAmount { amount },
+         CreateCoin { puzzle_hash: recipient, amount },
+         AggSigMe { public_key: recipient_key, message: CLAIM_INTENT }]
+    } else {
+        [AssertSecondsAbsolute { seconds: deadline },
+         AssertMyAmount { amount },
+         CreateCoin { puzzle_hash: refund_to, amount }]
+    }
+}
+
+// UTF-8 bytes of "chialisp-oxide/boomerang/claim:1", exactly 32 bytes.
+const CLAIM_INTENT: Bytes32 = 0x636869616c6973702d6f786964652f626f6f6d6572616e672f636c61696d3a31;
+
+// Rue Int is unbounded; explicitly retain the exact canonical Rust u64 ABI.
+// There is no positivity or future-time restriction beyond the chosen conditions.
+fn canonical_u64(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length <= 9;
+    assert value >= 0;
+    assert value <= 18446744073709551615;
+    assert encoded.length == 0
+        || substr(encoded, 0, 1) != 0x00
+        || (encoded.length > 1 && (substr(encoded, 1, 2) as Int) < 0);
+    value
+}

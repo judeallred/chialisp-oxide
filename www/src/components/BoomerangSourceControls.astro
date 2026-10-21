@@ -1,0 +1,48 @@
+---
+import { Code } from '@astrojs/starlight/components';
+import { href } from '../lib/data';
+import { readBoomerangControls } from '../lib/boomerang-source-controls.mjs';
+const evidence=await readBoomerangControls();
+const titles: Record<string,string> = {equivalent:'An equivalent source control',drop_claim_signature:'Construct a signature condition, then discard it',late_claim:'Construct the deadline condition, then discard it',early_refund:'Replace the refund deadline with the epoch'};
+---
+{evidence ? <section class="boomerang-source-controls" data-boomerang-source-controls
+  {...Object.fromEntries(Object.entries(evidence.counts).map(([key,value])=>[`data-boomerang-controls-${key.replace(/[A-Z]/g,letter=>'-'+letter.toLowerCase())}`,value]))}>
+  <h2 id="boomerang-source-controls">Policy mistakes Rust still permits</h2>
+  <p>These actual source edits pass ordinary Rust, Clippy and the subset checks. They are not errors Rust makes impossible: constructing a condition does not enforce it. Consensus checks the returned conditions. The source-equivalent control reverses a predicate and swaps its payout arms; three policy mutants instead omit authorization or weaken time conditions.</p>
+  <p>{evidence.counts.nativeGroups} native test group records {evidence.counts.native} native output observations over {evidence.counts.exports} source exports. Both Rust modes retain {evidence.counts.exportModes} export/mode artifacts, {evidence.counts.vm} primary VM observations and {evidence.counts.attempts} separate SDK submissions: {evidence.counts.accepted} accepted forbidden spends and {evidence.counts.rejected} typed consensus rejections. These counts are separate from the original policy’s coin-instance matrix and ordinary scenario groups.</p>
+  <p>The experiment funds each mutant’s own committed instance. Substituting its reveal on the original coin would only demonstrate a commitment mismatch. A valid signature accompanies the late-claim witness, isolating time from authorization. The public fixture key is known; this is not ready for real funds.</p>
+  {evidence.controls.slice(1).map(control=><details class="control-edit">
+    <summary>{titles[control.name]}</summary>
+    <div class="edits"><div><p>Original source</p><Code code={control.edits[0].before} lang="rust" wrap preserveIndent /></div><div><p>Actual compiled source edit</p><Code code={control.edits[0].after} lang="rust" wrap preserveIndent /></div></div>
+  </details>)}
+  {['off','on'].map(mode=><details class="control-mode" open>
+    <summary>Rust / {mode} · actual source controls</summary>
+    <div class="table-scroll"><table><caption>Native outputs and primary VM success are separate from SDK admission</caption><thead><tr><th scope="col">Policy / witness</th><th scope="col">Own committed hash</th><th scope="col">Exact native and VM outputs</th><th scope="col">Actual consensus result</th></tr></thead><tbody>
+      {evidence.rows.filter(row=>row.mode===mode).map(row=><tr data-boomerang-control={`${row.mode}:${row.name}:${row.witness}`}>
+        <th scope="row">{row.name}<small>{row.witness}</small><small>t={row.timestamp} · signing={row.signing}</small></th>
+        <td><code class="hash" data-pagefind-ignore>{row.instance.tree_hash}</code></td>
+        <td><small>Native accepted / <code class="hash" data-pagefind-ignore>{row.native.output_hex}</code></small><small>VM accepted / <code class="hash" data-pagefind-ignore>{row.execution.outcome.output_hex}</code></small></td>
+        <td><code>Consensus {row.code??'accepted'}</code>{row.ledger.outcome.status==='consensus_rejected'?<small>full SDK equality checked in memory</small>:<><small>child amount={row.ledger.outcome.child.amount} mojos</small><small>child <code class="hash" data-pagefind-ignore>{row.ledger.outcome.child.coin_id}</code></small><small>parent <code class="hash" data-pagefind-ignore>{row.ledger.outcome.child.parent_coin_id}</code></small><small>destination <code class="hash" data-pagefind-ignore>{row.ledger.outcome.child.puzzle_hash}</code></small></>}</td>
+      </tr>)}
+    </tbody></table></div>
+  </details>)}
+  <p>There are no Rue or Chialisp mutant runs. These finite source counterexamples are not compiler preservation, not a BLS proof, not an Optional or ledger theorem and not authenticated execution. Full SDK equality is checked in memory after each rejection; a retained Boolean is not a state proof. Primary VM and SDK versions retain their separate boundaries.</p>
+  <p><a href={href('reports/boomerang-source-controls/report.json')}>Download the exact source-control packet report</a> · <a href={href('reports/boomerang-source-controls/native.log')}>Exact native output log</a> · <a href={href('reports/boomerang-source-controls/ledger.json')}>Exact SDK transactions and outcomes</a> · <a href="https://github.com/judeallred/chialisp-oxide/blob/main/experiments/boomerang-controls/README.md">Reproduce the separate source-control phases</a>. Every report inventory path is downloadable under the same URL prefix, including exact sources, both IR bundles, artifacts and command logs.</p>
+  <p data-pagefind-ignore>Protocol <code>{evidence.protocol}</code> · report SHA-256 <code class="hash">{evidence.reportSHA}</code>.</p>
+</section>:<section class="boomerang-source-controls" data-boomerang-source-controls-pending>
+  <h2 id="boomerang-source-controls">Policy mistakes Rust still permits</h2>
+  <p><strong>Actual source-control packet pending.</strong> The <a href="https://github.com/judeallred/chialisp-oxide/blob/main/experiments/boomerang-controls/README.md">separate experiment</a> defines an equivalent control and three policy mutations. This view adds no source-mutation execution credit until the actual current packet is admitted.</p>
+</section>}
+<style is:global>
+  .boomerang-source-controls { margin-block: 2rem; }
+  .boomerang-source-controls details { margin-block: 1rem; }
+  .boomerang-source-controls summary { cursor: pointer; font-weight: 600; }
+  .boomerang-source-controls .edits { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,22rem),1fr)); gap: 1rem; }
+  .boomerang-source-controls .edits > div { min-width: 0; }
+  .boomerang-source-controls .table-scroll { overflow-x: auto; }
+  .boomerang-source-controls table { width: 100%; border-collapse: collapse; font-size: .72rem; }
+  .boomerang-source-controls th,.boomerang-source-controls td { text-align: left; vertical-align: top; padding: .6rem; border-bottom: 1px solid var(--oxide-line); }
+  .boomerang-source-controls caption { text-align: left; padding-block: .5rem; }
+  .boomerang-source-controls .hash { overflow-wrap: anywhere; font-size: .65rem; }
+  .boomerang-source-controls small { display: block; margin-block: .3rem; font-size: .66rem; font-weight: 400; }
+</style>

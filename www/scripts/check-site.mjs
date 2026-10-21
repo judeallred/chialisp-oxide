@@ -10,6 +10,9 @@ import { loadAcyclicProofEvidence, checkAcyclicDisplay } from '../src/lib/acycli
 import { loadP2CostEvidence } from '../src/lib/p2-costs.mjs';
 import { loadCompositionCostEvidence } from '../src/lib/composition-costs.mjs';
 import { checkDelegatedReport, checkDelegatedDisplay } from './p2dc-protocol.mjs';
+import { checkBoomerangReport, checkBoomerangDisplay } from './boomerang-protocol.mjs';
+import { readBoomerangControls, checkBoomerangControlsDisplay, controlPacketRoot } from '../src/lib/boomerang-source-controls.mjs';
+import { siteFiles } from '../src/lib/site-files.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const base = '/chialisp-oxide/';
@@ -30,12 +33,7 @@ for (const [name, pin] of Object.entries(historicalGuardedPins)) assert.equal(cr
 assert.equal(JSON.parse(await readFile(path.join(root,'reports/guarded-projection/profile.json'),'utf8')).status, 'pending_signed_checkpoint_and_capture_review', 'Historical guarded v1 was never promoted');
 
 
-async function files(directory) {
-  const contents = await readdir(directory, { withFileTypes: true });
-  return (await Promise.all(contents.map(entry => entry.isDirectory() ? files(path.join(directory, entry.name)) : [path.join(directory, entry.name)]))).flat();
-}
-
-const built = await files(root);
+const built = (await siteFiles(root)).map(file => path.join(root, file));
 const pages = built.filter(file => file.endsWith('.html'));
 assert(pages.length >= 31, 'Expected the full documentation and puzzle corpus');
 // A successful index command can still leave empty generated runtime assets.
@@ -112,6 +110,7 @@ checkCorpusExecutions(validation);
 checkLedgerReport(validation);
 const dedicatedCounts = checkProtocolReport(validation);
 const delegatedCounts = checkDelegatedReport(validation);
+const boomerangCounts = checkBoomerangReport(validation);
 const optimizationValidation = historicalOptimizationReport(validation);
 console.log(`Consensus rejection controls: ${testLedgerProtocol()} passed`);
 checkScalarProofReplays(proofs);
@@ -602,6 +601,31 @@ const delegatedPuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'p2-de
 assert(delegatedPuzzle,'Missing actual current delegated-conditions component');
 assert.deepEqual(JSON.parse(await readFile(path.join(root,'reports/p2-delegated-conditions.json'),'utf8')),delegatedPuzzle.protocol_validation,'Derived delegated endpoint must equal the exact embedded field');
 for(const route of ['tutorials/delegated-conditions','lab/p2-delegated-conditions'])checkDelegatedDisplay(await html(path.join(root,route,'index.html')),delegatedPuzzle);
+const boomerangPuzzle = validation.puzzles.find(puzzle => puzzle.slug === 'boomerang');
+assert(boomerangPuzzle, 'Missing actual boomerang capture');
+const boomerangControls=await readBoomerangControls();assert(boomerangControls,'Actual admitted source-control packet required');
+for (const route of ['tutorials/boomerang','lab/boomerang']) {
+  const filename=path.join(root,route,'index.html'), markup=await html(filename);
+  assert.deepEqual(checkBoomerangDisplay(markup,boomerangPuzzle),boomerangCounts);
+  assert.deepEqual(checkBoomerangControlsDisplay(markup,boomerangControls),boomerangControls.counts);
+  assert((await readFile(filename)).length<=512*1024,`${route}: source/evidence page exceeds its 512KiB HTML budget`);
+  assert(markup.includes('WIP prototype.')&&markup.includes('Not ready for use.'),'Missing boomerang prototype warning');
+  const copies=[...markup.matchAll(/\bdata-code="([^"]*)"/g)].map(match=>decodeAttribute(match[1]).replaceAll('\x7f','\n'));
+  for(const source of [boomerangPuzzle.source,boomerangPuzzle.reference,boomerangPuzzle.rue.source])assert(copies.includes(normalizedCode(source)),`${route}: exact Rust/Chialisp/Rue source-copy changed`);
+  // preserveIndent keeps the recipe's leading and internal source indentation;
+  // Expressive Code omits only its terminating newline from the copy payload.
+  for(const control of boomerangControls.controls.slice(1))for(const edit of control.edits)for(const source of [edit.before,edit.after])assert(copies.includes(source.trimEnd()),`${route}: actual compiled source-mutation copy changed`);
+}
+for(const file of ['report.json',...boomerangControls.report.files.map(row=>row.path)])assert.deepEqual(
+  await readFile(path.join(root,'reports/boomerang-source-controls',file)),await readFile(path.join(controlPacketRoot,file)),
+  'Published boomerang source-control packet bytes changed');
+assert.deepEqual(JSON.parse(await readFile(path.join(root,'reports/boomerang.json'),'utf8')),boomerangPuzzle.coin_instances,'Derived boomerang endpoint must equal the exact embedded field');
+const boomerangDownloads=boomerangPuzzle.coin_instances.examples[0].instances.map(({artifact})=>{
+  const filename=`boomerang--${artifact.backend}--${artifact.optimize_lir?'on':'off'}.clvm.hex`;
+  return [filename,artifact.clvm_hex+'\n'];
+});
+assert.deepEqual((await readdir(path.join(root,'reports/boomerang'))).sort(),boomerangDownloads.map(([filename])=>filename).sort());
+for(const [filename,expected]of boomerangDownloads)assert.equal(await readFile(path.join(root,'reports/boomerang',filename),'utf8'),expected,'Committed boomerang reveal download changed');
 const outerDownloads=[['profile.json','corpus/p2-delegated-conditions-append-baseline.json'],['before-validation.json','corpus/checkpoints/runtime-composition-validation.json'],['p2-costs.json','corpus/p2dc-append-existing-p2-costs.json'],['p2-controls.json','corpus/p2dc-append-existing-p2-controls.json']];
 for(const [basename,source]of outerDownloads)assert.deepEqual(await readFile(path.join(root,'reports/p2dc-append',basename)),await readFile(new URL(`../../${source}`,import.meta.url)),'Outer raw download bytes changed');
 assert.deepEqual((await readdir(path.join(root,'reports/p2dc-append'))).sort(),outerDownloads.map(([name])=>name).sort());
@@ -1182,7 +1206,7 @@ try {
     const matches = await Promise.all(result.results.map(row => row.data()));
     assert(matches.some(row => row.url === `${base}${route}`), `${route}: guide is not discoverable in the actual Pagefind index`);
   }
-  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail', 'compressed generators']) {
+  for (const term of ['recovery', 'canonical', 'AGG_SIG_ME', 'CoinId', 'from_mojos', 'create_coin', 'chialisp_oxide', 'impossible', 'currying', 'p2_conditions', 'equivalence', 'rightmost', 'recursion', 'last_inner', 'elision', 'prefix', 'Lean', 'inequality', 'nonvacuity', 'sysroot', 'insertion_sort_by_keys', 'bitvectors', 'sha256tree', 'launcher', 'sha256_parts', 'password', 'cost', 'facts', 'helper inlining', 'intervals', 'canonical integers', 'pay-to-singleton', 'lineage', 'reciprocal announcements', 'acyclic scalar', 'unused initializer', 'transaction costs', 'charged generator', 'guarded projections', 'wire pairs', 'unary frames', 'delegated conditions', 'owner key commitment', 'arbitrary tail', 'policy mistakes', 'atom hash prefix', 'proper outer tail', 'compressed generators', 'boomerang']) {
     const search = await pagefind.search(term);
     assert(search.results.length > 0, `No production search results for ${term}`);
     const result = await search.results[0].data();
@@ -1269,6 +1293,10 @@ try {
     if (term === 'guarded projections') {
       const matches = await Promise.all(search.results.map(row => row.data()));
       assert(matches.some(row => row.url === `${base}tutorials/guarded-projections/`), 'Guarded projection lesson is missing from actual built search results');
+    }
+    if (term === 'boomerang') {
+      const matches=await Promise.all(search.results.map(row=>row.data()));
+      for(const route of ['tutorials/boomerang/','lab/boomerang/'])assert(matches.some(row=>row.url===`${base}${route}`),'Boomerang lesson and committed-instance evidence must be searchable');
     }
     if (['delegated conditions','owner key commitment','arbitrary tail'].includes(term)) {
       const matches=await Promise.all(search.results.map(row=>row.data()));

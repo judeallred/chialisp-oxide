@@ -105,6 +105,40 @@ export interface CurriedExample {
     sdk_owned_curry_bytes_equal: boolean; sdk_hash_equal: boolean; page_result_equal?: boolean }[];
   cases: CaseReport[];
 }
+export interface InstanceCoin {
+  coin_id: string; parent_coin_id: string; puzzle_hash: string; amount: number;
+}
+export interface CoinInstanceAttempt {
+  label: string; timestamp: number; argument_hex: string; coin: InstanceCoin;
+  reveal_hex: string; reveal_tree_hash: string; solution: string; solution_hex: string;
+  signature_kind: 'empty' | 'recipient' | 'wrong_key' | 'wrong_intent' | 'other_coin';
+  signature_hex: string;
+  signature_context: null | { public_key: string; intent_hex: string; coin_id: string;
+    additional_data: string; message_hex: string };
+  signature_origin: null | { coin: InstanceCoin; reveal_hex: string; reveal_tree_hash: string;
+    solution: string; solution_hex: string };
+  vm_021: Execution;
+  consensus: InstanceAttempt['consensus'];
+  before: InstanceState & { height: number; next_timestamp: number };
+  after: InstanceState & { height: number; next_timestamp: number };
+  full_state_unchanged: boolean;
+}
+export interface CoinInstancesEvidence {
+  protocol: 'chialisp-oxide-boomerang-instances/v1';
+  role: 'original_teaching_coin_instances'; scheme: string; scope: string;
+  examples: CurriedExample[];
+  ledger: { backend: string; optimize_lir: boolean; instance_label: string;
+    module_tree_hash: string; instance_tree_hash: string; simulator: string;
+    consensus: string; vm: string; network: string; transaction_attempts: number;
+    attempts: CoinInstanceAttempt[] }[];
+}
+export function coinInstanceCounts(evidence: CoinInstancesEvidence) {
+  const attempts = evidence.ledger.flatMap(build => build.attempts);
+  return { builds: evidence.ledger.length, attempts: attempts.length,
+    accepted: attempts.filter(row => row.consensus.status === 'accepted').length,
+    rejected: attempts.filter(row => row.consensus.semantic_rejection_credit).length,
+    umbrellas: attempts.filter(row => row.consensus.status === 'runtime_umbrella').length };
+}
 export interface ProtocolCoin {
   amount: number; id: string; parent_id: string; puzzle_hash: string;
 }
@@ -184,6 +218,7 @@ export interface PuzzleReport {
   module_identity?: {upstream_hex:string;upstream_tree_hash:string;comparisons:{backend:string;optimize_lir:boolean;serialized_bytes_equal:boolean;tree_hash_equal:boolean}[]};
   curried_instances?: CurriedInstanceEvidence;
   curried_examples?: CurriedExample[];
+  coin_instances?: CoinInstancesEvidence;
   protocol_validation?: ProtocolValidation | DelegatedProtocol;
   validated: boolean;
 }
