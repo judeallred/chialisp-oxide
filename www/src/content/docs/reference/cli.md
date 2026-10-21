@@ -91,6 +91,15 @@ when lookup has multiple envelopes for that hash. The lock destination is explic
 this operation does not edit Cargo manifests or generate typed bindings. See the
 guide's local dependency and host consumer examples.
 
+`registry generate-rust --lock PATH --registry DIR --name payment --output src/payment_module.rs`
+resolves the complete lock and emits an ordinary local Rust helper from the
+selected admitted program bytes. Add `--check` to compare an existing source
+file without writing. New output is atomic and new-or-identical; differing
+existing content is a conflict. Generation runs no compiler or VM and supplies
+no nominal argument or solution ABI. The author includes the module, frames
+the complete `Tree` environment and runs native Rust, subset and both CLVM
+builds separately. See the guide's generated-source workflow and current limits.
+
 `registry inspect --clvm-hex-file PATH [--expected-puzzle-hash HASH] [--registry DIR]`
 checks a complete reveal and strictly inspects canonical curry structure. The
 optional store lookup uses the extracted module hash after checking the full

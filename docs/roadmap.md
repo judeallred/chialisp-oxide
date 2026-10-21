@@ -91,6 +91,11 @@ compiler preservation or production readiness.
   Coinset-reported mainnet standard puzzle checked through independent SDK
   codecs, and an explicit retrieved-byte standard host binding. Host VM
   conditions do not establish signatures, chain authentication or complete spends.
+- Explicit-lock generation of local Rust helpers that construct and apply the
+  retrieved program. These helpers use the ordinary checked source path and
+  preserve an opaque whole-tree environment. The bounded generation profile,
+  native Rust checks, subset checks and actual paired CLVM builds are separate;
+  generated comments and names grant no nominal ABI or compiler trust.
 - Searchable Astro/Starlight documentation generated from source and evidence,
   published-source discovery across 98 pinned repository trees, and seven
   upstream Rue regressions filed with fixes.
@@ -122,7 +127,8 @@ backlog; this ordering does not mark their acceptance criteria complete.
    structural ABI identities without running a compiler or VM. Complete
    [#21](https://github.com/judeallred/chialisp-oxide/issues/21) beyond local
    exact dependency locks and the first standard host binding with broader
-   reviewed bindings and an on-chain dependency-by-hash authoring example;
+   reviewed bindings and broader on-chain dependency authoring beyond the first
+   generated whole-tree helpers;
    source attachments and build declarations alone do not establish compilation
    or source authenticity. Then build the explicit-network CLI/GUI lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet

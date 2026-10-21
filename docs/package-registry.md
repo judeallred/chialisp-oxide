@@ -201,8 +201,9 @@ This example bounds the solution to 64 KiB, its depth to 256, atom heap to
 actual object/artifact identities, result bytes and cost. VM errors carry the
 pinned typed failure code; resource exhaustion is inconclusive. Running a
 module in a host VM does not validate a coin spend or supply a nominal solution
-schema. This is an opaque host dependency; generated typed bindings and genuine
-on-chain Rust dependency authoring remain work for issue #21.
+schema. This is an opaque host dependency. The generated-source workflow below
+adds an on-chain call through ordinary local Rust; reviewed nominal argument
+and solution bindings remain work for issue #21.
 
 To reproduce the actual host workflow from this checkout, build the tools and
 extract the corpus in both modes into fresh output directories:
@@ -222,6 +223,121 @@ resolution. Child tool commands run with an empty `PATH` and invalid
 Cargo/compiler overrides. The output directory must be new and retains the
 command results and report. This is an executable seed recipe for those two
 packages; it does not compile or seed the entire published-source catalog.
+
+## Generate local Rust that calls a locked program
+
+After pinning `payment`, generate a local module from its exact retrieved
+artifact. Run these commands from the consumer project with the unpublished
+Cargo subcommand installed from a reviewed checkout:
+
+```sh
+cargo chialisp-oxide registry generate-rust --lock chialisp-oxide.lock --registry .local-puzzles --name payment --output src/payment_module.rs --json
+```
+
+The command checks every locked dependency and every object in the selected
+bounded registry scan before selecting `payment`. It generates from the
+admitted program bytes, including unknown and already-curried programs. A
+catalog name, stored ABI description or source attachment does not grant
+compiler behavior. Generation runs no compiler or VM.
+
+Include the result as an ordinary local Rust module. The author decides which
+functions to export and how to frame the called program's environment:
+
+```rust
+use chialisp_oxide::Tree;
+
+mod payment_module;
+
+#[chialisp_oxide::puzzle(environment = "raw")]
+pub fn foreign_payment<'a>(environment: &'a Tree<'a>) -> Tree<'static> {
+    payment_module::run(environment)
+}
+```
+
+This raw export forwards the complete caller tree to the selected program.
+The generated helper constructs the exact program and calls the existing
+reviewed `apply` bridge. The Rust compiler checks its local functions and
+borrows; the CLVM subset checker lowers their actual bodies. Generated names
+and provenance comments receive no special trust.
+
+The helper accepts an opaque `Tree`, so the author must understand the selected
+program's input contract. The capped-payment corpus export, for example,
+expects its existing one-argument proper-list environment. A standard module
+instead needs its declared key and solution fields framed explicitly. The
+generator adds no argument decoder, key derivation, curry operation or nominal
+Rust parameter types. Malformed trees and improper tails reach the selected
+program unchanged. The enclosing Rust export has its own compiled artifact and
+puzzle hash; it is not interchangeable with the selected module or a previously
+funded canonical instance.
+
+Keep the generated source and exact dependency lock in version control. Check
+that they still agree before ordinary Rust tests and CLVM builds:
+
+```sh
+cargo chialisp-oxide registry generate-rust --lock chialisp-oxide.lock --registry .local-puzzles --name payment --output src/payment_module.rs --check --json
+cargo check --locked
+cargo test --locked
+cargo chialisp-oxide check --locked
+cargo chialisp-oxide build --locked --output-dir target/clvm-on
+cargo chialisp-oxide build --locked --no-optimize --output-dir target/clvm-off
+```
+
+Generated items carry formatter-only `#[rustfmt::skip]` attributes, so ordinary
+`cargo fmt` preserves their exact regeneration bytes. Edit the author wrapper
+normally; an edited generated body must fail the regeneration check.
+
+Use the facade's `vm` feature only in the native test/dev dependency when
+testing an application; ordinary extraction uses its reviewed VM-less body.
+For a local consumer, replace the checkout path in both dependency declarations:
+
+```toml
+[dependencies]
+chialisp-oxide = { path = "../chialisp-oxide/crates/chialisp-oxide" }
+
+[dev-dependencies]
+chialisp-oxide = { path = "../chialisp-oxide/crates/chialisp-oxide", features = ["vm"] }
+```
+
+The [application guide](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md) explains the reviewed native/compiler
+boundary. A successful generation or native build does not
+establish that either CLVM compilation mode succeeds. Test the actual emitted
+artifacts against the original program with valid and malformed environments.
+
+Output is new-or-identical: a different existing file returns a conflict rather
+than overwriting edits. `--check` only regenerates and compares. For an
+intentional dependency update, generate to a new explicit filename and review
+the source and exact pin changes. The POSIX writer stages, syncs and rechecks
+the complete bounded source before atomic no-replace publication. It rejects
+Cargo files, the supplied lock, registry descendants and nonregular or aliased
+outputs. A postcommit I/O error can leave the complete new source visible;
+this is not a hostile-directory or power-loss guarantee.
+
+The initial source profile admits at most 128 pairs, 128 distinct atoms,
+256 bytes per atom, 8 KiB of distinct atom payloads, tree depth 64 and five
+live pair references. It emits eight pairs per helper, at most 16 helpers and
+256 KiB of Rust source within a bounded work budget. These are generation
+limits, not consensus rules or a promise that every generated program fits an
+author's complete compiler call graph. A larger atom is explicitly unsupported
+by this route; splitting it would change the program. Nil, padded integers,
+non-UTF-8 atoms and improper tails retain their exact bytes and shape.
+
+To execute the checkout's end-to-end generated-source gate, use a new output
+directory after building the host tools:
+
+```sh
+cargo build --workspace --bins --examples --locked
+python3 scripts/check-registry-codegen.py --execute --output target/registry-codegen
+```
+
+The gate generates from four actual pinned packages and materializes an ordinary
+Cargo consumer with five annotated exports. It checks formatting, native tests,
+an independently compiled Chialisp multiplier, a retained standard module,
+255/256-byte atoms and a strict discarded application. Both Rust compilation
+modes retain complete source receipts and run against canonical outputs or
+typed failures. The report separates native tests, an ordinary Rust-valid
+source mutation, package admissions and VM observations. Failed or inconclusive
+runs retain their commands and partial reports; none adds signature, ledger,
+chain-authentication or compiler-preservation evidence.
 
 ## Keep the identities separate
 

@@ -28,6 +28,13 @@ host tooling. **These are file counts, not counts of distinct, valid, deployed,
 audited, ported, or verified puzzles.** Rust wallet builders and generated Rust
 bindings for existing CLVM do not demonstrate compilation of Rust puzzle logic.
 
+The [locked-source generator](package-registry.md#generate-local-rust-that-calls-a-locked-program)
+does compile actual local Rust constructors and an application of the retrieved
+program. It does not reimplement that foreign program's policy or operations in
+Rust. For example, calling CLVM arithmetic this way does not add arbitrary-width
+Rust integer arithmetic to the frontend. The helper's opaque input contract,
+generation bounds and separately compiled outer puzzle hash remain explicit.
+
 Important source families are pinned independently:
 
 - [Standard Chia puzzles](https://github.com/Chia-Network/chia_puzzles/tree/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles):

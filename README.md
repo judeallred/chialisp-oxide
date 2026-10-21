@@ -74,9 +74,15 @@ running a compiler or VM. It keeps envelope identity, blob digest and tree hash
 separate. Explicit dependency locks pin exact local packages; a host Rust example
 executes the actual retrieved bytes. Default builds attach their declared files automatically; explicit
 `--artifact-only` builds retain the older bundle format without source capture.
+The [generated-source workflow](docs/package-registry.md#generate-local-rust-that-calls-a-locked-program)
+emits bounded ordinary local Rust helpers from exact locked program bytes. Their
+opaque `Tree` inputs preserve the called environment; native Rust, subset and
+both CLVM compilation modes remain separate checks. Nominal typed bindings and
+broader dependency support remain unfinished.
+
 The [reveal inspector and standard host binding](docs/reveal-inspection.md)
 decode a retained mainnet observation and construct curries from retrieved bytes.
-Broader typed bindings and on-chain dependency authoring remain unfinished in
+Broader typed bindings and general dependency authoring remain unfinished in
 issue #21. See the guides for the precise capture and verification boundaries.
 
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc

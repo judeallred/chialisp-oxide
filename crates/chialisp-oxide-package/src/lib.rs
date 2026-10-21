@@ -4,6 +4,7 @@
 //! compiler preservation, authorization, an audit, or suitability for real funds.
 pub mod artifact;
 pub mod bundle;
+pub mod codegen;
 pub mod dependency;
 mod digest;
 mod error;

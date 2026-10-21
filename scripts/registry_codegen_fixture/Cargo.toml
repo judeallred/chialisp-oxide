@@ -1,0 +1,16 @@
+[package]
+name = "registry-generated-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide", version = "0.1.0" }
+
+[dev-dependencies]
+# Extraction uses the vm-less dependency above. Only ordinary native tests
+# and the independent Chialisp compiler example enable these host tools.
+chialisp-oxide = { path = "../../crates/chialisp-oxide", version = "0.1.0", features = ["vm"] }
+chialisp-oxide-reference = { path = "../../crates/chialisp-oxide-reference", version = "0.1.0" }

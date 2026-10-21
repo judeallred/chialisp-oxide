@@ -164,6 +164,10 @@ jobs:
       - name: Execute the retrieved standard binding around Rust inner programs
         run: |
           python3 scripts/check-registry-standard.py --cli target/debug/cargo-chialisp-oxide --consumer target/debug/examples/locked-standard --bundle-on "$RUNNER_TEMP/puzzles-on" --bundle-off "$RUNNER_TEMP/puzzles-off" --output "$RUNNER_TEMP/registry-standard"
+      - name: Generate and compile exact locked local Rust helpers
+        run: |
+          python3 -m unittest discover -s scripts -p test_registry_codegen_evidence.py
+          python3 scripts/check-registry-codegen.py --execute --output "$RUNNER_TEMP/registry-codegen"
       - name: Execute P2 raw-domain and separate resource controls
         run: |
           p2_ir=$(python3 - <<'PYTHON'
@@ -269,6 +273,11 @@ jobs:
         with:
           name: registry-standard
           path: ${{ runner.temp }}/registry-standard/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: registry-codegen
+          path: ${{ runner.temp }}/registry-codegen/
       - uses: actions/upload-artifact@v4
         with:
           name: acyclic-scalar-source-evidence

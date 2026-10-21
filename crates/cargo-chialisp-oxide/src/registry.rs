@@ -2,6 +2,7 @@
 use chialisp_oxide_package::{
     Digest32, Error, ErrorKind, Limits, Result,
     bundle::import_bundle,
+    codegen::{GenerationLimits, generate_locked_rust, output::write_generated_rust},
     dependency::{self, add_local},
     inspect,
     package::{VERIFICATION_SCOPE, verify_package_file},
@@ -18,13 +19,17 @@ const USAGE: &str = concat!(
     "cargo chialisp-oxide registry lookup --module-hash LOWERCASE_HEX --registry DIR [--json]\n",
     "cargo chialisp-oxide registry get --object-id LOWERCASE_HEX --registry DIR [--json]\n",
     "cargo chialisp-oxide registry add --name ASCII_ALIAS --module-hash LOWERCASE_HEX [--object-id LOWERCASE_HEX] --registry DIR --lock PATH [--json]\n",
-    "cargo chialisp-oxide registry inspect --clvm-hex-file PATH [--expected-puzzle-hash LOWERCASE_HEX] [--registry DIR] [--json]\n\n",
+    "cargo chialisp-oxide registry inspect --clvm-hex-file PATH [--expected-puzzle-hash LOWERCASE_HEX] [--registry DIR] [--json]\n",
+    "cargo chialisp-oxide registry generate-rust --lock PATH --registry DIR --name ASCII_ALIAS --output NEW_OR_IDENTICAL.rs [--check] [--json]\n\n",
     "Publish writes only the explicitly selected local registry. ",
     "Add pins one exact local object in the explicitly selected consumer lock; ambiguous hashes require --object-id. ",
     "Add writes are reviewed for macOS/Linux local POSIX filesystems; non-Unix add writes are unsupported. ",
     "Add does not create a registry, change Cargo.toml/Cargo.lock, infer a binding or affect build/check. ",
     "Inspect reads an explicit local reveal. An optional --registry looks up only its extracted or recognized module; no store is opened for an unclassified reveal without a module. ",
     "The full reveal puzzle hash and an extracted module hash are distinct; recognition does not verify a chain observation or spend. ",
+    "Generate-rust resolves the complete explicit lock and store, then emits an opaque whole-environment local Rust helper. ",
+    "Its output is new or byte-identical only; --check regenerates and compares read-only. Writes require a reviewed Unix filesystem. ",
+    "Generated source still requires native Rust and CLVM subset checks; generation does not recover a nominal ABI or prove source/CLVM equivalence. ",
     "No registry operation runs Cargo, rustup, a compiler, VM, build script or network client. ",
     "Bundle metadata and optional source attachments are declarations; identity checks do not prove source/IR/CLVM equivalence or security.",
 );
@@ -36,6 +41,7 @@ struct Options {
     command: String,
     values: BTreeMap<String, OsString>,
     json: bool,
+    check: bool,
 }
 impl Options {
     fn parse(args: &[OsString]) -> Result<Self> {
@@ -45,16 +51,34 @@ impl Options {
             .to_str()
             .ok_or_else(|| Error::new(ErrorKind::InvalidPath, "registry command must be UTF-8"))?
             .to_owned();
-        if !["publish", "verify", "lookup", "get", "add", "inspect"].contains(&command.as_str()) {
+        if ![
+            "publish",
+            "verify",
+            "lookup",
+            "get",
+            "add",
+            "inspect",
+            "generate-rust",
+        ]
+        .contains(&command.as_str())
+        {
             return Err(invalid(format!("unknown registry command {command}")));
         }
         let mut values = BTreeMap::new();
         let mut machine = false;
+        let mut check = false;
         let mut args = args.iter().skip(1);
         while let Some(raw_arg) = args.next() {
             let arg = raw_arg.to_str().ok_or_else(|| {
                 Error::new(ErrorKind::InvalidPath, "registry option name must be UTF-8")
             })?;
+            if arg == "--check" {
+                if check {
+                    return Err(invalid("--check supplied twice"));
+                }
+                check = true;
+                continue;
+            }
             if arg == "--json" {
                 if machine {
                     return Err(invalid("--json supplied twice"));
@@ -73,6 +97,7 @@ impl Options {
                 "--lock",
                 "--clvm-hex-file",
                 "--expected-puzzle-hash",
+                "--output",
             ]
             .contains(&arg)
             {
@@ -99,15 +124,19 @@ impl Options {
                 "--lock",
             ],
             "inspect" => &["--clvm-hex-file", "--expected-puzzle-hash", "--registry"],
+            "generate-rust" => &["--lock", "--registry", "--name", "--output"],
             _ => unreachable!(),
         };
-        if values.keys().any(|key| !allowed.contains(&key.as_str())) {
+        if (check && command != "generate-rust")
+            || values.keys().any(|key| !allowed.contains(&key.as_str()))
+        {
             return Err(invalid("option does not belong to this registry command"));
         }
         Ok(Self {
             command,
             values,
             json: machine,
+            check,
         })
     }
     fn value(&self, name: &str) -> Result<&str> {
@@ -132,6 +161,25 @@ impl Options {
 fn execute(options: &Options) -> Result<Value> {
     let limits = Limits::default();
     match options.command.as_str() {
+        "generate-rust" => {
+            let lock_path = options.path("--lock")?;
+            let output_path = options.path("--output")?;
+            let name = options.value("--name")?;
+            let lock = dependency::read_lock(&lock_path)?;
+            let registry = Registry::open(&options.path("--registry")?, limits)?;
+            // Resolve every pin and admit the complete store before touching an
+            // explicit output. The source generator has no filesystem effects.
+            let generated =
+                generate_locked_rust(&lock, &registry, name, &GenerationLimits::default())?;
+            let output = write_generated_rust(
+                &generated,
+                &output_path,
+                &lock_path,
+                &registry,
+                options.check,
+            )?;
+            Ok(json!({"status":output.status,"output":output,"generation":generated.record()}))
+        }
         "verify" => {
             let package = verify_package_file(&options.path("--package")?, &limits)?;
             Ok(json!({"status":"verified","package":package.summary()}))
@@ -303,6 +351,11 @@ mod tests {
             ],
             vec!["inspect", "--expected-puzzle-hash"],
             vec!["lookup", "--clvm-hex-file", "input.hex"],
+            vec!["lookup", "--check"],
+            vec!["generate-rust", "--check", "--check"],
+            vec!["generate-rust", "--module-hash", "00"],
+            vec!["generate-rust", "--output"],
+            vec!["generate-rust", "--entry", "guessed"],
         ] {
             assert!(Options::parse(&args(&values)).is_err(), "{values:?}");
         }
@@ -350,5 +403,25 @@ mod tests {
             PathBuf::from("input.hex")
         );
         assert!(!inspect.values.contains_key("--registry"));
+        let generated = Options::parse(&args(&[
+            "generate-rust",
+            "--lock",
+            "pins.json",
+            "--registry",
+            "local",
+            "--name",
+            "program",
+            "--output",
+            "module.rs",
+            "--check",
+            "--json",
+        ]))
+        .unwrap();
+        assert!(generated.check);
+        assert_eq!(
+            generated.path("--output").unwrap(),
+            PathBuf::from("module.rs")
+        );
+        assert_eq!(generated.value("--name").unwrap(), "program");
     }
 }

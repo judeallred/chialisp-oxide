@@ -1303,3 +1303,6 @@ mod inspect_cli_tests {
         assert!(!root.join("local").exists());
     }
 }
+
+#[path = "registry_offline/generate.rs"]
+mod generate_cli_tests;

@@ -28,6 +28,15 @@
   with complete source-produced bundles and the prebuilt Rust consumer.
 - Keep issue #21 open until its actual mainnet lookup/uncurry, reviewed typed
   bindings and dependency authoring requirements are fulfilled and verified.
+- Generate local Rust only from actual admitted artifacts after complete exact
+  lock resolution. Keep the generated helpers on the ordinary Rust/MIR path:
+  names, comments, package metadata and generated status grant no primitive or
+  nominal ABI. Preserve whole-tree environments and exact atom bytes; reject
+  atoms beyond the current 256-byte source route rather than splitting them.
+  Generation bounds do not prove acceptance by either compiler mode. Require
+  native checks, actual paired builds, source receipts and typed VM comparisons.
+  Keep new-or-identical source publication separate from lock replacement;
+  `--check` must remain read-only and detect edited generated code.
 - Reveal inspection verifies the full reveal hash before secondary module
   lookup. Preserve exact curry syntax/argument bytes, unknown-module opacity
   and explicit schema-invalid statuses. A Coinset observation is not chain
