@@ -41,6 +41,14 @@
   native checks, actual paired builds, source receipts and typed VM comparisons.
   Keep new-or-identical source publication separate from lock replacement;
   `--check` must remain read-only and detect edited generated code.
+- Keep witness generation explicit and separate from the static recipe. Resolve
+  all pins/store once with the caller's limits; emit only a lock-derived 32-byte
+  commitment and the ordinary local hash helper, then strict Apply. Do not infer
+  an ABI, embed large payloads, silently fall back, widen static limits or trust
+  generated names. The runtime commitment covers the logical tree under SHA
+  assumptions, not original wire/envelope/source identity. Witness framing changes
+  the solution ABI and puzzle hash. Run `scripts/check-registry-witness.py` with
+  actual generated-source mutants and keep native/subset/VM scopes distinct.
 - Reveal inspection verifies the full reveal hash before secondary module
   lookup. Preserve exact curry syntax/argument bytes, unknown-module opacity
   and explicit schema-invalid statuses. A Coinset observation is not chain

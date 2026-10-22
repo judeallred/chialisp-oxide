@@ -8,6 +8,9 @@ use crate::{
 };
 use serde_json::json;
 
+#[path = "tests/witness.rs"]
+mod witness;
+
 struct Fixture {
     _temporary: tempfile::TempDir,
     root: PathBuf,

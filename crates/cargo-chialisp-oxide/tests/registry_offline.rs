@@ -1309,3 +1309,6 @@ mod generate_cli_tests;
 
 #[path = "registry_offline/resolve.rs"]
 mod resolve_cli_tests;
+
+#[path = "registry_offline/witness.rs"]
+mod witness_cli_tests;

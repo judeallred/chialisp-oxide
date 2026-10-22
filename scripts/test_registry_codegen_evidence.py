@@ -35,6 +35,43 @@ def constructed_envelope(*, discarded=False):
 
 
 class RegistryCodegenReaderTests(unittest.TestCase):
+    def test_prelaunch_failures_retain_terminal_inconclusive_command_records(self):
+        # Constructed process/log failures only. Popen is replaced before it can
+        # launch anything; these controls add no real command execution credit.
+        script = Path(__file__).with_name("check-registry-codegen.py")
+        spec = importlib.util.spec_from_file_location("registry_codegen_launch_record_test", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for fault in ("popen", "stderr_open"):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                run = object.__new__(module.Run)
+                run.output, run.commands = root, []
+                run.environment, run.offline = {}, {}
+                original_open = Path.open
+
+                def controlled_open(path, *args, **kwargs):
+                    if fault == "stderr_open" and path == root / "constructed.stderr" and args == ("xb",):
+                        raise PermissionError("constructed log-open failure")
+                    return original_open(path, *args, **kwargs)
+
+                with patch.object(module.subprocess, "Popen", side_effect=FileNotFoundError("constructed missing tool")) as child, \
+                        patch.object(Path, "open", new=controlled_open):
+                    with self.assertRaises(Inconclusive):
+                        run.command("constructed", ["/nonexistent/never-executed"], offline=True)
+                self.assertEqual(child.call_count, 1 if fault == "popen" else 0)
+                self.assertEqual(len(run.commands), 1)
+                row = run.commands[0]
+                self.assertEqual(row["status"], "launch_error")
+                self.assertIsNone(row["exit_code"])
+                self.assertIn("FileNotFoundError" if fault == "popen" else "PermissionError", row["error"])
+                self.assertEqual(row["stdout"], file_identity(root / "constructed.stdout"))
+                if fault == "popen":
+                    self.assertEqual(row["stderr"], file_identity(root / "constructed.stderr"))
+                else:
+                    self.assertNotIn("stderr", row)
+                self.assertEqual(json.loads((root / "commands.json").read_bytes()), run.commands)
+
     def test_source_window_detects_changed_or_missing_imported_json_helper(self):
         # Constructed source inventory only. The fake tool files are never
         # executed, and no original checkout source is modified.

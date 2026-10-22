@@ -1,0 +1,18 @@
+[package]
+name = "registry-witness-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[lib]
+name = "registry_witness_fixture"
+
+[dependencies]
+chialisp-oxide = { path = "@FACADE_PATH@", version = "0.1.0" }
+
+[dev-dependencies]
+# Native tests alone enable the host VM and independent Chialisp compiler.
+chialisp-oxide = { path = "@FACADE_PATH@", version = "0.1.0", features = ["vm"] }
+chialisp-oxide-reference = { path = "@REFERENCE_PATH@", version = "0.1.0" }

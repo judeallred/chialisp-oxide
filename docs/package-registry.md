@@ -368,6 +368,96 @@ source mutation, package admissions and VM observations. Failed or inconclusive
 runs retain their commands and partial reports; none adds signature, ledger,
 chain-authentication or compiler-preservation evidence.
 
+## Supply a program witness instead of embedding its bytes
+
+Choose `generate-witness-rust` explicitly when the author should supply the
+called program in each solution. This route can handle a stored program with
+an atom larger than the static generator's 256-byte limit. It emits ordinary
+Rust with a fixed 32-byte tree-hash commitment and a local `sha256tree` helper;
+it does not embed the selected program's payload or widen the static profile.
+
+```sh
+cargo chialisp-oxide registry generate-witness-rust --lock chialisp-oxide.lock --registry .local-puzzles --name payment --output src/payment_witness.rs --json
+```
+
+The command resolves the complete lock and bounded store before selecting
+`payment`, just like the static route. Include the generated module in your
+normal Cargo library and frame the witness explicitly:
+
+```rust
+use chialisp_oxide::Tree;
+
+mod payment_witness;
+
+#[chialisp_oxide::puzzle(environment = "raw")]
+pub fn foreign_payment_witness<'a>(witness: &'a Tree<'a>) -> Tree<'static> {
+    match witness {
+        Tree::Pair(program, complete_environment) => {
+            payment_witness::run(program, complete_environment)
+        }
+        Tree::Atom(_) => panic!(),
+    }
+}
+```
+
+The raw solution is `(program . complete_environment)`: its first child is the
+decoded selected program, and its entire rest is that program's environment.
+Retrieve the program bytes through the exact lock using the host API above.
+If its environment is a proper list, preserve that list; if it is an atom or
+improper tree, preserve that instead. An extra argument-list wrapper changes
+the input. The generator supplies no serializer or inferred nominal ABI.
+
+The generated `run(program, environment)` first computes the supplied program's
+tree hash, checks it against the locked commitment, and then applies that
+program to the complete environment. Both trees pass unchanged. A discarded
+result still has to perform the guard and application, including their failures.
+Ordinary Rust and the additional CLVM checker inspect the actual local helper
+bodies; the generated function names grant no privileges.
+
+Keep this source and its lock in version control and check regeneration before
+the same native tests, subset check and two CLVM builds used above:
+
+```sh
+cargo chialisp-oxide registry generate-witness-rust --lock chialisp-oxide.lock --registry .local-puzzles --name payment --output src/payment_witness.rs --check --json
+```
+
+The same new-or-identical writer protections apply. The separate
+`chialisp-oxide-witness-rust/v1` generation record retains the exact raw lock
+digest, envelope ID, full artifact identity, source digest and host generation
+metrics. The v1 host profile admits at most 2 MiB of artifact bytes, 262,144
+expanded nodes and depth 4,096, and emits at most 8 KiB of source within a
+bounded work budget. These limits can be tightened through the library API;
+they are not runtime input guards or a promise of hashing/application completion.
+
+The runtime guard commits the **decoded logical tree**, under the usual
+SHA-256 collision and second-preimage assumptions. It does not check the
+original wire encoding, blob digest, envelope, source or authorship. Two
+envelopes or wire encodings for the same logical program can satisfy the same
+runtime commitment; their stronger host-side pins remain distinct.
+
+This wrapper has a different solution ABI and puzzle hash from the static
+wrapper and canonical program. Choose it before funding; generation does not
+migrate an existing coin. Program bytes move into the solution and hashing
+adds runtime work. Measure module bytes, witness/solution bytes and VM cost
+separately; a smaller module does not establish a cheaper complete spend.
+Calling foreign CLVM this way does not reimplement that program in Rust or
+prove that every Chialisp construct has a Rust counterpart. The current proof
+models reject SHA and Apply.
+
+The checkout's separate witness gate generates the actual modules in a normal
+Cargo fixture and exercises a multiplier and 257/8,192-byte quoted atoms:
+
+```sh
+python3 scripts/check-registry-witness.py --execute --output target/registry-witness
+```
+
+It retains native checks, canonical-first comparisons, both compilation modes,
+source receipts, exact long outputs, wrong-program failure ordering and
+source mutations. Matching-program rejection and discarded-application
+strictness use the multiplier; a quoted program ignores its environment and
+cannot supply that evidence. Resource failures remain inconclusive. These
+tests add no signature, complete-spend, authenticity or preservation proof.
+
 ## Keep the identities separate
 
 - **Object ID:** SHA-256 of the complete exact package-envelope bytes. There is

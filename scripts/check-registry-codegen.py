@@ -102,12 +102,13 @@ class Run:
                "status": "starting", "timeout_seconds": timeout, "output_limit_bytes_each": MAX_JSON}
         self.commands.append(row)
         write_json(self.output / "commands.json", self.commands)
-        started, failure = time.monotonic(), None
+        started, failure, child_started = time.monotonic(), None, False
         paths = [self.output / (label + ".stdout"), self.output / (label + ".stderr")]
         try:
             with paths[0].open("xb") as out, paths[1].open("xb") as err:
                 with subprocess.Popen(row["argv"], cwd=ROOT, env=self.offline if offline else self.environment,
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE) as child:
+                    child_started = True
                     selector = selectors.DefaultSelector()
                     counts = [0, 0]
                     for index, stream in enumerate((child.stdout, child.stderr)):
@@ -134,6 +135,10 @@ class Run:
                         selector.close()
         except Exception as error:
             failure = error
+            if row["status"] == "starting":
+                # No terminal child result is available on launch/setup failure.
+                # Preserve completed/terminated child codes from the inner path.
+                row.update(status="transport_error" if child_started else "launch_error", exit_code=None)
             row.update(error=f"{type(error).__name__}: {error}")
         row["seconds"] = round(time.monotonic() - started, 3)
         for key, path in zip(("stdout", "stderr"), paths, strict=True):

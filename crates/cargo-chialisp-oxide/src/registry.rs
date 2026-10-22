@@ -2,7 +2,11 @@
 use chialisp_oxide_package::{
     Digest32, Error, ErrorKind, Limits, Result,
     bundle::import_bundle,
-    codegen::{GenerationLimits, generate_locked_rust, output::write_generated_rust},
+    codegen::{
+        GenerationLimits, generate_locked_rust,
+        output::{write_generated_rust, write_generated_witness_rust},
+        witness::{WitnessGenerationLimits, generate_locked_witness_rust},
+    },
     dependency::{self, add_local},
     inspect,
     package::{VERIFICATION_SCOPE, verify_package_file},
@@ -21,7 +25,8 @@ const USAGE: &str = concat!(
     "cargo chialisp-oxide registry add --name ASCII_ALIAS --module-hash LOWERCASE_HEX [--object-id LOWERCASE_HEX] --registry DIR --lock PATH [--json]\n",
     "cargo chialisp-oxide registry resolve --lock PATH --registry DIR [--name ASCII_ALIAS] [--json]\n",
     "cargo chialisp-oxide registry inspect --clvm-hex-file PATH [--expected-puzzle-hash LOWERCASE_HEX] [--registry DIR] [--json]\n",
-    "cargo chialisp-oxide registry generate-rust --lock PATH --registry DIR --name ASCII_ALIAS --output NEW_OR_IDENTICAL.rs [--check] [--json]\n\n",
+    "cargo chialisp-oxide registry generate-rust --lock PATH --registry DIR --name ASCII_ALIAS --output NEW_OR_IDENTICAL.rs [--check] [--json]\n",
+    "cargo chialisp-oxide registry generate-witness-rust --lock PATH --registry DIR --name ASCII_ALIAS --output NEW_OR_IDENTICAL.rs [--check] [--json]\n\n",
     "Publish writes only the explicitly selected local registry. ",
     "Add pins one exact local object in the explicitly selected consumer lock; ambiguous hashes require --object-id. ",
     "Add writes are reviewed for macOS/Linux local POSIX filesystems; non-Unix add writes are unsupported. ",
@@ -32,6 +37,9 @@ const USAGE: &str = concat!(
     "Generate-rust resolves the complete explicit lock and store, then emits an opaque whole-environment local Rust helper. ",
     "Its output is new or byte-identical only; --check regenerates and compares read-only. Writes require a reviewed Unix filesystem. ",
     "Generated source still requires native Rust and CLVM subset checks; generation does not recover a nominal ABI or prove source/CLVM equivalence. ",
+    "Generate-witness-rust is an explicit separate recipe: supply a program tree and complete environment to its fixed tree-hash guard followed by Apply. ",
+    "It embeds a 32-byte commitment rather than the selected program; it changes the author wrapper ABI and puzzle hash. ",
+    "Runtime tree identity relies on SHA-256 assumptions and does not authenticate original wire bytes, source or envelope identity. Neither generator falls back to the other. ",
     "No registry operation runs Cargo, rustup, a compiler, VM, build script or network client. ",
     "Bundle metadata and optional source attachments are declarations; identity checks do not prove source/IR/CLVM equivalence or security.",
 );
@@ -62,6 +70,7 @@ impl Options {
             "resolve",
             "inspect",
             "generate-rust",
+            "generate-witness-rust",
         ]
         .contains(&command.as_str())
         {
@@ -129,9 +138,10 @@ impl Options {
             "inspect" => &["--clvm-hex-file", "--expected-puzzle-hash", "--registry"],
             "resolve" => &["--lock", "--registry", "--name"],
             "generate-rust" => &["--lock", "--registry", "--name", "--output"],
+            "generate-witness-rust" => &["--lock", "--registry", "--name", "--output"],
             _ => unreachable!(),
         };
-        if (check && command != "generate-rust")
+        if (check && !matches!(command.as_str(), "generate-rust" | "generate-witness-rust"))
             || values.keys().any(|key| !allowed.contains(&key.as_str()))
         {
             return Err(invalid("option does not belong to this registry command"));
@@ -165,6 +175,27 @@ impl Options {
 fn execute(options: &Options) -> Result<Value> {
     let limits = Limits::default();
     match options.command.as_str() {
+        "generate-witness-rust" => {
+            let lock_path = options.path("--lock")?;
+            let output_path = options.path("--output")?;
+            let name = options.value("--name")?;
+            let lock = dependency::read_lock(&lock_path)?;
+            let registry = Registry::open(&options.path("--registry")?, limits)?;
+            let generated = generate_locked_witness_rust(
+                &lock,
+                &registry,
+                name,
+                &WitnessGenerationLimits::default(),
+            )?;
+            let output = write_generated_witness_rust(
+                &generated,
+                &output_path,
+                &lock_path,
+                &registry,
+                options.check,
+            )?;
+            Ok(json!({"status":output.status,"output":output,"generation":generated.record()}))
+        }
         "resolve" => {
             let lock_path = options.path("--lock")?;
             let registry_path = options.path("--registry")?;
@@ -403,6 +434,10 @@ mod tests {
             vec!["generate-rust", "--module-hash", "00"],
             vec!["generate-rust", "--output"],
             vec!["generate-rust", "--entry", "guessed"],
+            vec!["generate-witness-rust", "--check", "--check"],
+            vec!["generate-witness-rust", "--module-hash", "00"],
+            vec!["generate-witness-rust", "--entry", "guessed"],
+            vec!["generate-witness-rust", "--output"],
         ] {
             assert!(Options::parse(&args(&values)).is_err(), "{values:?}");
         }

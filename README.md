@@ -79,6 +79,10 @@ emits bounded ordinary local Rust helpers from exact locked program bytes. Their
 opaque `Tree` inputs preserve the called environment; native Rust, subset and
 both CLVM compilation modes remain separate checks. Nominal typed bindings and
 broader dependency support remain unfinished.
+The explicit [program-witness route](docs/package-registry.md#supply-a-program-witness-instead-of-embedding-its-bytes)
+instead checks a supplied program against its locked tree hash before applying
+it. It supports larger stored payloads with a different solution ABI; measure
+witness bytes and runtime hashing as well as module size.
 
 The [reveal inspector and standard host binding](docs/reveal-inspection.md)
 decode a retained mainnet observation and construct curries from retrieved bytes.

@@ -108,6 +108,18 @@ no nominal argument or solution ABI. The author includes the module, frames
 the complete `Tree` environment and runs native Rust, subset and both CLVM
 builds separately. See the guide's generated-source workflow and current limits.
 
+`registry generate-witness-rust --lock PATH --registry DIR --name payment --output src/payment_witness.rs`
+is a separate explicit route. It emits ordinary local Rust that hashes a
+supplied program, checks its fixed lock-derived tree hash, then applies it to
+the complete supplied environment. It embeds a 32-byte commitment rather than
+the program payload and uses its own bounded host profile. It never retries a
+failed static generation implicitly. `--check` and `--json` work as above.
+The [witness workflow](/chialisp-oxide/reference/package-registry/#supply-a-program-witness-instead-of-embedding-its-bytes)
+shows the changed raw solution framing and puzzle-hash boundary. Runtime
+logical-tree commitment under SHA assumptions does not check original wire,
+envelope or source identity; generation guarantees no runtime completion or
+complete-spend savings.
+
 `registry inspect --clvm-hex-file PATH [--expected-puzzle-hash HASH] [--registry DIR]`
 checks a complete reveal and strictly inspects canonical curry structure. The
 optional store lookup uses the extracted module hash after checking the full

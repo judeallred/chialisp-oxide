@@ -7,6 +7,7 @@ mod index;
 mod limits;
 pub mod output;
 mod recipe;
+pub mod witness;
 
 use crate::{
     Digest32, Error, ErrorKind, Result, artifact::ArtifactIdentity,
