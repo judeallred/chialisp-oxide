@@ -1,7 +1,10 @@
 //! Reference execution calls the actual Rust sources also supplied to rustc-driver.
 #![allow(clippy::type_complexity)] // Heterogeneous condition tuples are the current teaching ABI.
 use anyhow::{Result, bail, ensure};
-use chialisp_oxide::{Amount, Cons, Message32, PublicKey, PuzzleHash, Timestamp, Tree};
+use chialisp_oxide::{
+    Amount, BlockAge, CoinAnnouncementId, CoinId, Cons, Message32, PublicKey, PuzzleHash,
+    Timestamp, Tree,
+};
 use chialisp_oxide_puzzles::{
     boolean_gate as gate, bounded_counter as counter, capped_payment as capped, currying_multiply,
     fixed_payment as fixed, intro_add, intro_conditional, intro_list, module_add, module_factorial,
@@ -110,6 +113,21 @@ impl<A: Encode, B: Encode, C: Encode, D: Encode> Encode for (A, B, C, D) {
         list(a, &[w, x, y, z])
     }
 }
+impl<A: Encode, B: Encode, C: Encode, D: Encode, E: Encode, F: Encode> Encode
+    for (A, B, C, D, E, F)
+{
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        let items = [
+            self.0.encode(a)?,
+            self.1.encode(a)?,
+            self.2.encode(a)?,
+            self.3.encode(a)?,
+            self.4.encode(a)?,
+            self.5.encode(a)?,
+        ];
+        list(a, &items)
+    }
+}
 // Encode domain values independently of the compiler's newtype erasure.
 impl Encode for Amount {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
@@ -134,6 +152,21 @@ impl Encode for PublicKey {
 impl Encode for Message32 {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
         self.0.encode(a)
+    }
+}
+impl Encode for CoinId {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+impl Encode for CoinAnnouncementId {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
+impl Encode for BlockAge {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        u64::from(self.blocks()).encode(a)
     }
 }
 
@@ -601,6 +634,36 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             "two-signature-payment" => {
                 ensure!(args.len() == 1, "arity");
                 output(multisig::puzzle(Message32(bytes32(&a, args[0])?)))
+            }
+            "precommit-claim" => {
+                ensure!(args.len() == 3, "arity");
+                let terms = self::args(&a, args[0])?;
+                ensure!(terms.len() == 3, "terms arity");
+                output(chialisp_oxide_puzzles::precommit_claim::puzzle(
+                    (
+                        CoinId(fixed_atom(&a, terms[0])?),
+                        Message32(fixed_atom(&a, terms[1])?),
+                        PuzzleHash(fixed_atom(&a, terms[2])?),
+                    ),
+                    boolean(&a, args[1])?,
+                    CoinId(fixed_atom(&a, args[2])?),
+                ))
+            }
+            "precommit-registry" => {
+                ensure!(args.len() == 5, "arity");
+                let opening = self::args(&a, args[4])?;
+                ensure!(opening.len() == 3, "opening arity");
+                output(chialisp_oxide_puzzles::precommit_registry::puzzle(
+                    PuzzleHash(fixed_atom(&a, args[0])?),
+                    CoinId(fixed_atom(&a, args[1])?),
+                    CoinId(fixed_atom(&a, args[2])?),
+                    PuzzleHash(fixed_atom(&a, args[3])?),
+                    (
+                        public_key(&a, opening[0])?,
+                        PuzzleHash(fixed_atom(&a, opening[1])?),
+                        fixed_atom(&a, opening[2])?,
+                    ),
+                ))
             }
             "curry-hash" => {
                 ensure!(args.len() == 2, "arity");

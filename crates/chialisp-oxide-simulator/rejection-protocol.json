@@ -12,7 +12,8 @@
     "MessageNotSentOrReceived",
     "InvalidPuzzleHash",
     "InvalidCoinAmount",
-    "AssertBeforeSecondsAbsoluteFailed"
+    "AssertBeforeSecondsAbsoluteFailed",
+    "AssertHeightRelativeFailed"
   ],
   "scenarios": {
     "missing signature rejected with rollback": [
@@ -63,6 +64,31 @@
     ],
     "different launcher coin cannot satisfy announcement": [
       "AssertCoinAnnouncementFailed"
+    ],
+    "claim one block before minimum age rejected": [
+      "AssertHeightRelativeFailed"
+    ],
+    "registry and precommit each require the other": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "changed destination, key or salt matches no precommit": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "owner signature required": [
+      "BadAggregateSignature"
+    ],
+    "refund before refund age rejected": [
+      "AssertHeightRelativeFailed"
+    ],
+    "mature signed claim pays treasury and owner receipt": [],
+    "spent registry slot cannot register again": [
+      "DoubleSpend"
+    ],
+    "permissionless refund only at refund age": [
+      "AssertHeightRelativeFailed"
     ]
   },
   "puzzles": {
@@ -302,6 +328,108 @@
         "name": "launcher replay rejected with rollback",
         "codes": [
           "DoubleSpend"
+        ]
+      }
+    ],
+    "precommit-claim": [
+      {
+        "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "registry and precommit each require the other",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "changed destination, key or salt matches no precommit",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "owner signature required",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "refund before refund age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "mature signed claim pays treasury and owner receipt",
+        "codes": []
+      },
+      {
+        "name": "spent registry slot cannot register again",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "permissionless refund only at refund age",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      }
+    ],
+    "precommit-registry": [
+      {
+        "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "registry and precommit each require the other",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "changed destination, key or salt matches no precommit",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "owner signature required",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "refund before refund age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "mature signed claim pays treasury and owner receipt",
+        "codes": []
+      },
+      {
+        "name": "spent registry slot cannot register again",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "permissionless refund only at refund age",
+        "codes": [
+          "AssertHeightRelativeFailed"
         ]
       }
     ]

@@ -54,7 +54,8 @@ class LedgerComponentDispatch(unittest.TestCase):
                 patch.object(singleton, 'validate_component', side_effect=checked('old', old_validator)) as old, \
                 patch.object(delegated, 'validate_component', side_effect=checked('new', new_validator)) as new:
             counts = self.check(self.actual)
-        self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40))
+        # 40 retained generic scenario groups plus 8 for each precommit slug.
+        self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40 + 2 * 8))
         self.assertEqual(old.call_count, 1)
         self.assertEqual(new.call_count, 1)
         self.assertIs(old.call_args.args[0], self.by_slug['p2-singleton'])

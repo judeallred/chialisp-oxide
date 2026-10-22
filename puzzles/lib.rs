@@ -1,6 +1,7 @@
 //! WIP teaching puzzles. Never use these fixtures with real funds.
 
 mod fixture_keys;
+mod precommit_recipe;
 
 #[path = "boomerang/puzzle.rs"]
 pub mod boomerang;
@@ -81,3 +82,8 @@ pub mod password_coin;
 
 #[path = "p2-singleton/puzzle.rs"]
 pub mod p2_singleton;
+
+#[path = "precommit-claim/puzzle.rs"]
+pub mod precommit_claim;
+#[path = "precommit-registry/puzzle.rs"]
+pub mod precommit_registry;

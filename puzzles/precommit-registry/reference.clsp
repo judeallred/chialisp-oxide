@@ -1,0 +1,103 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not ready for real funds.
+; Exact template environment:
+; (PRECOMMIT_MODULE ME PRECOMMIT_PARENT REFUND_TO (OWNER_KEY OWNER_DESTINATION SALT)).
+(mod environment
+  (defconstant AGG_SIG_ME 50)
+  (defconstant CREATE_COIN 51)
+  (defconstant CREATE_COIN_ANNOUNCEMENT 60)
+  (defconstant ASSERT_COIN_ANNOUNCEMENT 61)
+  (defconstant ASSERT_MY_COIN_ID 70)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant SLOT_AMOUNT 1)
+  ; Canonical CLVM payload of the 1000-mojo precommit amount, as coin IDs hash it.
+  (defconstant PRICE_BYTES 0x03e8)
+  (defconstant NAME "alice")
+  (defconstant OWNER_DOMAIN "chialisp-oxide/precommit/v1/owner")
+  (defconstant TARGET_DOMAIN "chialisp-oxide/precommit/v1/target")
+  (defconstant OPENING_DOMAIN "chialisp-oxide/precommit/v1/opening")
+  (defconstant COMMIT_DOMAIN "chialisp-oxide/precommit/v1/commit")
+  (defconstant READY_DOMAIN "chialisp-oxide/precommit/v1/ready")
+  (defconstant ACCEPT_DOMAIN "chialisp-oxide/precommit/v1/accept")
+  (defconstant AUTHORIZE_DOMAIN "chialisp-oxide/precommit/v1/authorize")
+
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun fixed_bytes (value width)
+    (if (l value) (x)
+      (if (= (strlen value) width) 1 (x))))
+
+  (defun atom_hash (value) (sha256 1 value))
+  (defun pair_hash (left right) (sha256 2 left right))
+
+  ; Standard curried form (a (q . MODULE) (c (q . TERMS) 1)), hashed from its parts.
+  (defun curried_hash (module_hash terms_hash)
+    (pair_hash (atom_hash 2)
+      (pair_hash (pair_hash (atom_hash 1) module_hash)
+        (pair_hash
+          (pair_hash (atom_hash 4)
+            (pair_hash (pair_hash (atom_hash 1) terms_hash)
+              (pair_hash (atom_hash 1) (atom_hash ()))))
+          (atom_hash ())))))
+
+  (defun commitment (registry refund_to owner_key owner_destination salt)
+    (sha256 COMMIT_DOMAIN
+      (sha256
+        (sha256 TARGET_DOMAIN registry NAME)
+        refund_to
+        (sha256 OPENING_DOMAIN (sha256 OWNER_DOMAIN owner_key owner_destination) salt))))
+
+  (defun accept (me refund_to owner_key owner_destination committed precommit)
+    (list
+      (list ASSERT_MY_COIN_ID me)
+      (list ASSERT_MY_AMOUNT SLOT_AMOUNT)
+      (list ASSERT_COIN_ANNOUNCEMENT
+        (sha256 precommit (sha256 READY_DOMAIN committed precommit)))
+      (list CREATE_COIN_ANNOUNCEMENT (sha256 ACCEPT_DOMAIN committed precommit))
+      (list AGG_SIG_ME owner_key (sha256 AUTHORIZE_DOMAIN committed))
+      (list CREATE_COIN owner_destination SLOT_AMOUNT)))
+
+  (defun terms_hash (registry committed refund_to)
+    (pair_hash (atom_hash registry)
+      (pair_hash (atom_hash committed)
+        (pair_hash (atom_hash refund_to) (atom_hash ())))))
+
+  (defun with_commitment (module me parent refund_to owner_key owner_destination committed)
+    (accept me refund_to owner_key owner_destination committed
+      (sha256 parent (curried_hash module (terms_hash me committed refund_to)) PRICE_BYTES)))
+
+  (defun register (module me parent refund_to owner_key owner_destination salt)
+    (with_commitment module me parent refund_to owner_key owner_destination
+      (commitment me refund_to owner_key owner_destination salt)))
+
+  (defun checked (module me parent refund_to (owner_key owner_destination salt))
+    (if (fixed_bytes module 32)
+      (if (fixed_bytes me 32)
+        (if (fixed_bytes parent 32)
+          (if (fixed_bytes refund_to 32)
+            (if (fixed_bytes owner_key 48)
+              (if (fixed_bytes owner_destination 32)
+                (if (fixed_bytes salt 32)
+                  (register module me parent refund_to owner_key owner_destination salt)
+                  (x))
+                (x))
+              (x))
+            (x))
+          (x))
+        (x))
+      (x)))
+
+  (if (exact_list environment 5)
+    (if (exact_list (f (r (r (r (r environment))))) 3)
+      (checked
+        (f environment)
+        (f (r environment))
+        (f (r (r environment)))
+        (f (r (r (r environment))))
+        (f (r (r (r (r environment))))))
+      (x))
+    (x))
+)

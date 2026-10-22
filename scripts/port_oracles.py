@@ -16,6 +16,11 @@ def _hashing():
     return hashing_vectors
 
 
+def _precommit():
+    import precommit_oracle
+    return precommit_oracle
+
+
 def _factories():
     return runpy.run_path(str(ROOT / "scripts/check-canonical-factories.py"))
 
@@ -28,4 +33,8 @@ PORTS = {
     "p2-conditions": {"expected": lambda solution: _factories()["expected"](solution)[0],
                       "generated": lambda: _hashing().raw_generated()},
     "curry-factory": {"expected": lambda solution: _factories()["expected_curry"](solution), "generated": lambda: []},
+    "precommit-claim": {"expected": lambda solution: _precommit().expected("precommit-claim", solution),
+                        "generated": lambda: []},
+    "precommit-registry": {"expected": lambda solution: _precommit().expected("precommit-registry", solution),
+                           "generated": lambda: []},
 }

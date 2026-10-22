@@ -132,6 +132,14 @@
     "boomerang": {
       "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
       "source": "puzzles/boomerang/puzzle.rs"
+    },
+    "precommit-claim": {
+      "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
+      "source": "puzzles/precommit-claim/puzzle.rs"
+    },
+    "precommit-registry": {
+      "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
+      "source": "puzzles/precommit-registry/puzzle.rs"
     }
   },
   "inputs": [
@@ -178,6 +186,7 @@
     "crates/chialisp-oxide-simulator/rejection-protocol.json",
     "crates/chialisp-oxide-simulator/src/lib.rs",
     "crates/chialisp-oxide/Cargo.toml",
+    "crates/chialisp-oxide/src/coin_context.rs",
     "crates/chialisp-oxide/src/apply.rs",
     "crates/chialisp-oxide/src/cons.rs",
     "crates/chialisp-oxide/src/curry.rs",
@@ -239,6 +248,16 @@
     "puzzles/boomerang/reference.clsp",
     "puzzles/boomerang/puzzle.rue",
     "crates/chialisp-oxide-corpus/src/boomerang.rs",
-    "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs"
+    "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs",
+    "puzzles/precommit_recipe.rs",
+    "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
+    "puzzles/precommit-claim/puzzle.rs",
+    "puzzles/precommit-claim/puzzle.json",
+    "puzzles/precommit-claim/reference.clsp",
+    "puzzles/precommit-claim/puzzle.rue",
+    "puzzles/precommit-registry/puzzle.rs",
+    "puzzles/precommit-registry/puzzle.json",
+    "puzzles/precommit-registry/reference.clsp",
+    "puzzles/precommit-registry/puzzle.rue"
   ]
 }

@@ -191,6 +191,18 @@ fn run(code: &[u8], environment: &[u8], budget: u64) -> std::result::Result<Vec<
 }
 
 fn attempt(program: &Program, optimize: bool, separate: bool) -> Result<Vec<u8>> {
+    decoder_attempt(
+        program,
+        optimize,
+        if separate {
+            Decoder::Separate
+        } else {
+            Decoder::Inline
+        },
+    )
+}
+
+fn decoder_attempt(program: &Program, optimize: bool, decoder: Decoder) -> Result<Vec<u8>> {
     emit_decoder_attempt(
         program,
         optimize,
@@ -198,7 +210,7 @@ fn attempt(program: &Program, optimize: bool, separate: bool) -> Result<Vec<u8>>
         false,
         false,
         false,
-        separate,
+        decoder,
     )
 }
 
@@ -413,18 +425,12 @@ fn successful_original_emitters_keep_exact_bytes_including_non_strict_policies()
 
 #[test]
 fn decoder_or_body_that_exceeds_existing_limits_still_rejects() {
-    let mut decoder = fixture(Shape::Flat, 0, 1);
-    decoder.parameters = (0..5).map(|index| parameter(index, uint_type())).collect();
-    decoder.parameters.push(parameter(5, Type::Bool));
-    decoder.result = Type::Optional {
-        item: Box::new(Type::Unit),
-    };
-    decoder.body = Expr::OptionalNone { item: Type::Unit };
-    decoder.validate().unwrap();
+    // Earlier emitters still reject a duplicated decoder; only the final
+    // sequenced retry admits it (see sequenced_retry_* below).
+    let decoder = wide_decoder(5);
     for separate in [false, true] {
         size_error(&attempt(&decoder, false, separate).unwrap_err());
     }
-    size_error(&compile(&decoder, false).unwrap_err());
 
     // A balanced tree reaches the existing four-million expansion budget
     // without deep native recursion or an oversized individual byte literal.
@@ -452,6 +458,7 @@ fn decoder_or_body_that_exceeds_existing_limits_still_rejects() {
     for separate in [false, true] {
         size_error(&attempt(&oversized, false, separate).unwrap_err());
     }
+    size_error(&decoder_attempt(&oversized, false, Decoder::Sequenced).unwrap_err());
     size_error(&compile(&oversized, false).unwrap_err());
 
     let mut deep = fixture(Shape::Flat, 0, 1);
@@ -477,6 +484,14 @@ fn decoder_or_body_that_exceeds_existing_limits_still_rejects() {
             "{error:?}"
         );
     }
+    let error = decoder_attempt(&deep, false, Decoder::Sequenced).unwrap_err();
+    assert!(
+        matches!(
+            error.downcast_ref::<limits::Limit>(),
+            Some(limits::Limit::ExpansionDepth)
+        ),
+        "{error:?}"
+    );
     let error = compile(&deep, false).unwrap_err();
     assert!(
         matches!(
@@ -501,5 +516,251 @@ fn retry_never_skips_validation_of_unused_invalid_metadata() {
         let error = attempt(&source, false, separate).unwrap_err();
         assert!(error.to_string().contains("invalid argument 99"));
         assert!(!error.is::<limits::Limit>());
+    }
+}
+
+// Scalar integers whose strict guards each duplicate their continuation.
+fn wide_decoder(integers: usize) -> Program {
+    let mut decoder = fixture(Shape::Flat, 0, 1);
+    decoder.parameters = (0..integers)
+        .map(|index| parameter(index, uint_type()))
+        .collect();
+    decoder.parameters.push(parameter(integers, Type::Bool));
+    decoder.result = Type::Tuple {
+        items: vec![uint_type(), Type::Bool],
+    };
+    decoder.body = Expr::Tuple {
+        items: vec![
+            Expr::Arg {
+                index: integers - 1,
+            },
+            Expr::Arg { index: integers },
+        ],
+    };
+    decoder.validate().unwrap();
+    decoder
+}
+
+fn wide_environment(values: &[Vec<u8>], flag: &[u8]) -> Vec<u8> {
+    let mut items = values.to_vec();
+    items.push(flag.to_vec());
+    list(&items)
+}
+
+#[test]
+fn sequenced_retry_admits_wide_integer_decoders_in_both_modes() {
+    // Twelve integers still exceed the existing nesting limit; no bound moved.
+    let error = compile(&wide_decoder(12), true).unwrap_err();
+    assert!(
+        matches!(
+            error.downcast_ref::<limits::Limit>(),
+            Some(limits::Limit::ExpansionDepth)
+        ),
+        "{error:?}"
+    );
+    for integers in [4, 5, 8, 10] {
+        let source = wide_decoder(integers);
+        for optimize in [false, true] {
+            let code = compile(&source, optimize).unwrap();
+            if !optimize {
+                // These sizes exhaust both earlier emitters in this mode.
+                size_error(&attempt(&source, optimize, false).unwrap_err());
+                size_error(&attempt(&source, optimize, true).unwrap_err());
+                assert_eq!(
+                    code,
+                    decoder_attempt(&source, optimize, Decoder::Sequenced).unwrap()
+                );
+            }
+            let values = (0..integers as u64)
+                .map(|index| [0, 127, 128, u64::MAX][index as usize % 4])
+                .collect::<Vec<_>>();
+            for flag in [false, true] {
+                let input = wide_environment(
+                    &values.iter().map(|v| uint(*v)).collect::<Vec<_>>(),
+                    &uint(u64::from(flag)),
+                );
+                assert_eq!(
+                    run(&code, &input, 10_000_000).unwrap(),
+                    list(&[uint(values[integers - 1]), uint(u64::from(flag))])
+                );
+            }
+            // Every position rejects padded, oversized and non-atom values
+            // as a typed program failure, never a resource failure.
+            for position in 0..integers {
+                for bad in [
+                    atom(&[0]),
+                    atom(&[0, 1]),
+                    atom(&[0xff]),
+                    atom(&[1, 0, 0, 0, 0, 0, 0, 0, 0]),
+                    list(&[uint(1)]),
+                ] {
+                    let mut fields = vec![uint(7); integers];
+                    fields[position] = bad;
+                    let input = wide_environment(&fields, &uint(1));
+                    assert_eq!(run(&code, &input, 1_000_000), Err(FailureCode::Raise));
+                }
+            }
+            let valid = vec![uint(7); integers];
+            for bad_flag in [uint(2), atom(&[0]), list(&[uint(1)])] {
+                let input = wide_environment(&valid, &bad_flag);
+                assert_eq!(run(&code, &input, 1_000_000), Err(FailureCode::Raise));
+            }
+            let mut short = valid.clone();
+            short.pop();
+            for input in [
+                list(&short),
+                wide_environment(&[valid.clone(), vec![uint(1)]].concat(), &uint(1)),
+                pair(&uint(7), &uint(7)),
+                atom(&[]),
+            ] {
+                let failure = run(&code, &input, 1_000_000).unwrap_err();
+                assert_eq!(failure.kind(), FailureKind::Program, "{failure:?}");
+            }
+        }
+    }
+}
+
+// Three integers still fit the original inline emitter, so the sequenced
+// emitter must reproduce its exact outputs and typed failure codes.
+#[test]
+fn sequenced_decoder_matches_inline_outcomes_where_both_fit() {
+    let source = wide_decoder(3);
+    let mut inputs = vec![
+        atom(&[]),
+        uint(1),
+        pair(&uint(7), &uint(7)),
+        list(&[uint(7), uint(7)]),
+        list(&[uint(7), uint(7), uint(7)]),
+        list(&[uint(7), uint(7), uint(7), uint(1), uint(1)]),
+        pair(
+            &uint(7),
+            &pair(&uint(7), &pair(&uint(7), &pair(&uint(1), &uint(1)))),
+        ),
+    ];
+    for position in 0..4 {
+        for bad in [
+            atom(&[]),
+            atom(&[0]),
+            atom(&[0, 1]),
+            atom(&[0xff]),
+            atom(&[0, 0x80]),
+            atom(&[0xff, 0x7f]),
+            atom(&[1, 0, 0, 0, 0, 0, 0, 0, 0]),
+            atom(&[0, 0x80, 0, 0, 0, 0, 0, 0, 0, 0]),
+            uint(2),
+            list(&[uint(1)]),
+            pair(&uint(1), &uint(1)),
+        ] {
+            let mut fields = vec![uint(127), uint(128), uint(u64::MAX), uint(1)];
+            fields[position] = bad;
+            inputs.push(list(&fields));
+        }
+    }
+    for optimize in [false, true] {
+        let inline = decoder_attempt(&source, optimize, Decoder::Inline).unwrap();
+        let sequenced = decoder_attempt(&source, optimize, Decoder::Sequenced).unwrap();
+        assert_ne!(inline, sequenced);
+        for input in &inputs {
+            assert_eq!(
+                run(&sequenced, input, 1_000_000),
+                run(&inline, input, 1_000_000),
+                "optimize={optimize}"
+            );
+        }
+    }
+}
+
+#[test]
+fn sequenced_retry_keeps_guard_order_before_divergence_and_strict_initializers() {
+    let mut diverging = wide_decoder(5);
+    diverging.functions.push(Function {
+        id: 0,
+        name: "spin".into(),
+        parameters: vec![],
+        result: Type::Unit,
+        body: Expr::Call {
+            function_id: 0,
+            arguments: vec![],
+        },
+    });
+    diverging.body = Expr::Sequence {
+        first: Box::new(Expr::Call {
+            function_id: 0,
+            arguments: vec![],
+        }),
+        then_value: Box::new(diverging.body),
+    };
+    let mut strict = wide_decoder(5);
+    strict.body = Expr::Let {
+        local_id: 0,
+        ty: Type::Unit,
+        value: Box::new(Expr::Reject {
+            message: "unused initializer still rejects".into(),
+        }),
+        body: Box::new(strict.body),
+    };
+    let valid = wide_environment(&vec![uint(7); 5], &uint(1));
+    let mut padded_last = vec![uint(7); 5];
+    padded_last[4] = atom(&[0]);
+    let padded_last = wide_environment(&padded_last, &uint(1));
+    for optimize in [false, true] {
+        let code = compile(&diverging, optimize).unwrap();
+        assert_eq!(run(&code, &valid, 50_000), Err(FailureCode::CostExceeded));
+        assert_eq!(run(&code, &padded_last, 50_000), Err(FailureCode::Raise));
+        let code = compile(&strict, optimize).unwrap();
+        assert_eq!(run(&code, &valid, 1_000_000), Err(FailureCode::Raise));
+    }
+}
+
+#[test]
+fn sequenced_nested_tuple_and_pair_decoders_keep_their_shapes() {
+    for explicit_pair in [false, true] {
+        let item = if explicit_pair {
+            (0..5).rev().fold(uint_type(), |rest, _| Type::Pair {
+                first: Box::new(uint_type()),
+                rest: Box::new(rest),
+            })
+        } else {
+            Type::Tuple {
+                items: vec![uint_type(); 6],
+            }
+        };
+        let source = Program {
+            name: "nested-wide-decoder".into(),
+            environment: Environment::Strict,
+            parameters: vec![parameter(0, item.clone())],
+            result: item,
+            body: Expr::Arg { index: 0 },
+            functions: vec![],
+        };
+        source.validate().unwrap();
+        let fields = (0..6u64).map(uint).collect::<Vec<_>>();
+        let value = if explicit_pair {
+            fields[..5]
+                .iter()
+                .rev()
+                .fold(fields[5].clone(), |rest, first| pair(first, &rest))
+        } else {
+            list(&fields)
+        };
+        let wrong = if explicit_pair {
+            list(&fields)
+        } else {
+            fields[..5]
+                .iter()
+                .rev()
+                .fold(fields[5].clone(), |rest, first| pair(first, &rest))
+        };
+        for optimize in [false, true] {
+            let code = compile(&source, optimize).unwrap();
+            assert_eq!(
+                run(&code, &list(std::slice::from_ref(&value)), 10_000_000).unwrap(),
+                value
+            );
+            assert_eq!(
+                run(&code, &list(std::slice::from_ref(&wrong)), 1_000_000),
+                Err(FailureCode::Raise)
+            );
+        }
     }
 }

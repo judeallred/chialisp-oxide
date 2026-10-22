@@ -38,6 +38,7 @@ pub enum ConsensusRejection {
     InvalidPuzzleHash,
     InvalidCoinAmount,
     AssertBeforeSecondsAbsoluteFailed,
+    AssertHeightRelativeFailed,
 }
 
 impl ConsensusRejection {
@@ -52,6 +53,7 @@ impl ConsensusRejection {
         Self::InvalidPuzzleHash,
         Self::InvalidCoinAmount,
         Self::AssertBeforeSecondsAbsoluteFailed,
+        Self::AssertHeightRelativeFailed,
     ];
 
     pub const fn as_str(self) -> &'static str {
@@ -66,6 +68,7 @@ impl ConsensusRejection {
             Self::InvalidPuzzleHash => "InvalidPuzzleHash",
             Self::InvalidCoinAmount => "InvalidCoinAmount",
             Self::AssertBeforeSecondsAbsoluteFailed => "AssertBeforeSecondsAbsoluteFailed",
+            Self::AssertHeightRelativeFailed => "AssertHeightRelativeFailed",
         }
     }
 
@@ -81,6 +84,7 @@ impl ConsensusRejection {
             Self::InvalidPuzzleHash => ErrorCode::InvalidPuzzleHash,
             Self::InvalidCoinAmount => ErrorCode::InvalidCoinAmount,
             Self::AssertBeforeSecondsAbsoluteFailed => ErrorCode::AssertBeforeSecondsAbsoluteFailed,
+            Self::AssertHeightRelativeFailed => ErrorCode::AssertHeightRelativeFailed,
         }
     }
 }

@@ -72,6 +72,26 @@ Height and relative-time conditions have different semantics. Do not translate
 a tutorial's absolute timestamp into an assumed number of seconds since coin
 creation.
 
+## Require height or coin age
+
+Block counts use two nominal types, so a swapped argument is a Rust type error:
+`BlockHeight` is an absolute block number and `BlockAge` counts blocks since
+the spent coin was created. Both wrap a `u32`.
+
+| Helper | Condition | Consensus meaning |
+|---|---|---|
+| `assert_height_relative(age)` | `(82 blocks)` | Coin age at least `age` |
+| `assert_before_height_relative(age)` | `(86 blocks)` | Coin age strictly below `age` |
+| `assert_height_absolute(height)` | `(83 height)` | Block height at least `height` |
+| `assert_before_height_absolute(height)` | `(87 height)` | Block height strictly below `height` |
+
+A driver integration test checks each helper's output against the pinned
+`chia-wallet-sdk` condition decoder in both compiler modes. It also captures
+the rustc errors for swapped units and identifiers. The ledger behaviour of
+`assert_height_relative` is exercised by the
+[precommit pair](https://github.com/judeallred/chialisp-oxide/blob/main/docs/precommit.md).
+The other three helpers have wire-format tests only.
+
 ## Coordinate spends
 
 New compositions should examine `SEND_MESSAGE` (66) and `RECEIVE_MESSAGE` (67).
@@ -80,7 +100,11 @@ regression uses mode 63 to bind both complete coin IDs and rejects a different
 sender.
 
 Legacy `CREATE_COIN_ANNOUNCEMENT` (60) and `ASSERT_COIN_ANNOUNCEMENT` (61) are also
-covered as consensus regressions. Hardcoding another coin's announcement into
+covered as consensus regressions. The helpers `create_coin_announcement`,
+`assert_coin_announcement`, `coin_announcement_id(origin, message)` and
+`assert_my_coin_id` emit them for fixed 32-byte messages. A computed
+`CoinAnnouncementId` authenticates nothing by itself: consensus must find a
+matching announcement from that exact origin coin in the same bundle. Hardcoding another coin's announcement into
 a puzzle can lock funds forever if that other coin is spent first. The current
 Chialisp reference recommends message conditions for new designs.
 

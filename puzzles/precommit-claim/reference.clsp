@@ -1,0 +1,68 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not ready for real funds.
+; Exact template environment: ((REGISTRY COMMITMENT REFUND_TO) CLAIM ME).
+(mod environment
+  (defconstant CREATE_COIN 51)
+  (defconstant CREATE_COIN_ANNOUNCEMENT 60)
+  (defconstant ASSERT_COIN_ANNOUNCEMENT 61)
+  (defconstant ASSERT_MY_COIN_ID 70)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant ASSERT_HEIGHT_RELATIVE 82)
+  (defconstant REGISTRATION_PRICE 1000)
+  (defconstant MINIMUM_AGE 2)
+  (defconstant REFUND_AGE 8)
+  (defconstant TREASURY 0x7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e)
+  (defconstant READY_DOMAIN "chialisp-oxide/precommit/v1/ready")
+  (defconstant REFUNDED_DOMAIN "chialisp-oxide/precommit/v1/refunded")
+  (defconstant ACCEPT_DOMAIN "chialisp-oxide/precommit/v1/accept")
+
+  ; Only fixed arities are used; nonempty zero/padded tails are not nil.
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun fixed_bytes (value width)
+    (if (l value) (x)
+      (if (= (strlen value) width) 1 (x))))
+
+  (defun boolean (value)
+    (if (l value) (x)
+      (if (any (= value ()) (= value 1)) 1 (x))))
+
+  (defun settle ((registry commitment refund_to) claim me)
+    (if claim
+      (list
+        (list ASSERT_MY_COIN_ID me)
+        (list ASSERT_MY_AMOUNT REGISTRATION_PRICE)
+        (list ASSERT_HEIGHT_RELATIVE MINIMUM_AGE)
+        (list CREATE_COIN TREASURY REGISTRATION_PRICE)
+        (list CREATE_COIN_ANNOUNCEMENT (sha256 READY_DOMAIN commitment me))
+        (list ASSERT_COIN_ANNOUNCEMENT
+          (sha256 registry (sha256 ACCEPT_DOMAIN commitment me))))
+      (list
+        (list ASSERT_MY_COIN_ID me)
+        (list ASSERT_MY_AMOUNT REGISTRATION_PRICE)
+        (list ASSERT_HEIGHT_RELATIVE REFUND_AGE)
+        (list CREATE_COIN refund_to REGISTRATION_PRICE)
+        (list CREATE_COIN_ANNOUNCEMENT (sha256 REFUNDED_DOMAIN commitment me)))))
+
+  (defun checked ((registry commitment refund_to) claim me)
+    (if (fixed_bytes registry 32)
+      (if (fixed_bytes commitment 32)
+        (if (fixed_bytes refund_to 32)
+          (if (boolean claim)
+            (if (fixed_bytes me 32)
+              (settle (list registry commitment refund_to) claim me)
+              (x))
+            (x))
+          (x))
+        (x))
+      (x)))
+
+  (if (exact_list environment 3)
+    (if (exact_list (f environment) 3)
+      (checked (f environment) (f (r environment)) (f (r (r environment))))
+      (x))
+    (x))
+)

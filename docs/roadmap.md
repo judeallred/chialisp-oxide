@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 32 annotated exports of the real
+The latest local capture covers 34 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -16,8 +16,9 @@ pinned upstream curry include, the canonical Currying page module with its
 page-argument instances cross-checked and executed in five builds, the
 compiled curry factory with second-stage applications, and the inner-puzzle
 commitment fixture whose curried instances run only the committed program, and
-the original boomerang payment with fixed terms committed before funding.
-Its repeated report records 688 named and 25,222 generated inputs across native Rust and five
+the original boomerang payment with fixed terms committed before funding,
+and the original precommit claim/registry pair.
+Its repeated report records 770 named and 25,222 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -25,8 +26,8 @@ corpus append root (`scripts/corpus_append.py`, profile
 byte-for-byte and projects the older history; new exports extend profile data
 instead of adding migration modules.
 
-Forty complete-spend scenario groups run separately for Rust, Chialisp and Rue
-through chia-wallet-sdk's simulator (120 ledger scenario runs), plus the
+Fifty-six complete-spend scenario groups run separately for Rust, Chialisp and Rue
+through chia-wallet-sdk's simulator (168 ledger scenario runs), plus the
 dedicated pay-to-singleton (110 submissions), delegated-conditions (60) and
 password-instance (21) and boomerang-instance (145) ledger suites, each with exact typed consensus
 rejections and in-memory rollback checks. A separate actual Rust source-control
@@ -61,6 +62,16 @@ compiler preservation or production readiness.
   separate constructor regressions. The original
   [boomerang payment](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
   uses the capability with its own committed-instance and ledger evidence.
+- An original [precommit pair](https://github.com/judeallred/chialisp-oxide/blob/main/docs/precommit.md)
+  (`precommit-claim`, `precommit-registry`) for
+  [#17](https://github.com/judeallred/chialisp-oxide/issues/17): a salted,
+  owner-bound commitment that a one-name registry slot can accept only after a
+  two-block age, with a permissionless refund after eight blocks. Each recorded
+  ledger build of one side runs eight scenarios against the independently compiled
+  Chialisp reference of the other side. Named `BlockHeight`/`BlockAge`,
+  announcement and own-coin-ID helpers make unit and identifier swaps Rust type
+  errors. A reusable `Precommit<T>` helper, a message-based variant and the
+  dynamic-registry case remain open.
 - Optimizations on by default, each with retained before/after baselines:
   checked constants, forward success facts, branch-aware intervals, bounded
   helper inlining, runtime frame elision, guarded projection forwarding and

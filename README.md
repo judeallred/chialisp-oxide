@@ -207,6 +207,17 @@ Separate source mutations submit 18 transactions, including six accepted
 counterexamples to intentionally broken policies. This is a teaching policy,
 not the canonical clawback module or a liveness guarantee.
 
+The original [precommit pair](docs/precommit.md) splits a contested
+registration into commit, wait and reveal. A one-name registry slot accepts an
+owner-signed opening only from a genuine precommit coin that is at least two
+blocks old. An abandoned precommit returns its full amount to a committed
+destination after eight blocks. Optimized Rust, Chialisp and optimized Rue
+builds of each side run eight ledger scenarios against the independent
+Chialisp build of the other side. These
+include immature claims, copied openings with a changed key, destination or
+salt, missing signatures and reuse of a spent slot. The pair is a teaching
+demo with explicit limits, not a name service or a fairness guarantee.
+
 The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
 to 1,685 bytes. In the recorded accepted joint transaction, total conditions
 cost falls from 48,752,720 to 45,309,974 (7.06%). Ordinary VM execution increases

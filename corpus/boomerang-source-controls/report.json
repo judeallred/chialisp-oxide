@@ -4,9 +4,9 @@
   "status": "actual_source_controls_captured",
   "scope": "WIP prototype, not ready for real funds. Five actual source-derived Rust exports in both compiler modes, one native test group with nine output observations, eighteen retained primary VM observations and eighteen separate SDK consensus attempts. Each mutant is funded under its own compiled curried reveal. No Rue or Chialisp mutant execution, generic ledger group, exhaustive security, authenticated execution, BLS/Optional/ledger model proof or compiler-preservation credit.",
   "context": {
-    "source_root": "/Users/judeallred/code/clispOx/target/witness-generation-worktree",
-    "package_root": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-package",
-    "capture_root": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture",
+    "source_root": "/Users/judeallred/code/clispOx",
+    "package_root": "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-package",
+    "capture_root": "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "toolchain": "nightly-2026-07-14",
     "source_window": {
@@ -143,6 +143,14 @@
           "boomerang": {
             "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
             "source": "puzzles/boomerang/puzzle.rs"
+          },
+          "precommit-claim": {
+            "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
+            "source": "puzzles/precommit-claim/puzzle.rs"
+          },
+          "precommit-registry": {
+            "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
+            "source": "puzzles/precommit-registry/puzzle.rs"
           }
         },
         "sources": [
@@ -152,7 +160,7 @@
           },
           {
             "path": "Cargo.lock",
-            "sha256": "b0d724f428a2c25cbc6bfb016a338ee8f98227fd5b15e8a0cd17aeaddcd4cc72"
+            "sha256": "610b51c57b38e6f3bb77d2511ca0ec950b7fb3d6957301ea4cd23d975172f7a2"
           },
           {
             "path": "Cargo.toml",
@@ -244,11 +252,11 @@
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-            "sha256": "20fbf2c73a24382c07e87ec8a95a7e540783a0a8449863e4e8b35c9d579c70a7"
+            "sha256": "e62e2cb8ab69fa243b91fe37eadaac142addcdf82f8380d2a53e7390dec742a8"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/native.rs",
-            "sha256": "dcd2d88773c3ecef35af323eef9f87df44f2207287644588dec48d22fce2b093"
+            "sha256": "a8810b0717178f7cb3b616a8e50eea097769c0cc167b68de41383b9ac6575ba4"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -288,7 +296,11 @@
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-            "sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7"
+            "sha256": "56b4ad0c45a2a1487cca3a68dd63c656e97b51ca4dabffa08f192e985fbe31f7"
+          },
+          {
+            "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
+            "sha256": "c5d66095d0db557c82fadb62313d2e9a29bcaa453791901367e99e62e4105c6e"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
@@ -316,11 +328,11 @@
           },
           {
             "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-            "sha256": "c74d8a1b4a9b5d989f73dc6a7b03317a2059be037c7f825935d54c5e7839f34c"
+            "sha256": "d1b732941282d7988ec4d5c43ece83a5a802a8ac688b3ae28fdbb1f1996fe153"
           },
           {
             "path": "crates/chialisp-oxide-simulator/src/lib.rs",
-            "sha256": "2defc27e90758756e2d2a90883cd3ae1b40f4041d38ee1c0eef56ac5fe03c7e2"
+            "sha256": "a4af9ada5c3e2bfa9c185f106769b9302273aef71504e5cf00ef278bcb7351d5"
           },
           {
             "path": "crates/chialisp-oxide/Cargo.toml",
@@ -329,6 +341,10 @@
           {
             "path": "crates/chialisp-oxide/src/apply.rs",
             "sha256": "04b4a4494f6917b124aafa32a02be72593d008520da716b3156eb7e23d3e9fcd"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/coin_context.rs",
+            "sha256": "e10de22565fbfe3914f44ce4687ae1140408169af9d7a6d4b02758e4077a3d9a"
           },
           {
             "path": "crates/chialisp-oxide/src/cons.rs",
@@ -348,7 +364,7 @@
           },
           {
             "path": "crates/chialisp-oxide/src/lib.rs",
-            "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c"
+            "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
           },
           {
             "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -372,7 +388,7 @@
           },
           {
             "path": "puzzles/authoring.json",
-            "sha256": "a4c982d69f65a30d726514ae6481d8fc222d3eac4bddbdc6af09b2afedb5820a"
+            "sha256": "221ccce68380db926d2976363a9d838c2a52cac4c779208ce97eea1b036bff57"
           },
           {
             "path": "puzzles/boolean-gate/puzzle.rs",
@@ -456,7 +472,7 @@
           },
           {
             "path": "puzzles/lib.rs",
-            "sha256": "1e5a441d201235e01639e90a286f832badee016961fc7b1b0c0b8fc239f7583a"
+            "sha256": "ebea6dd41a726f0865b1daf9ed7191ba400b21305349c9c76b93636472bb25e3"
           },
           {
             "path": "puzzles/module-add/puzzle.rs",
@@ -519,6 +535,42 @@
             "sha256": "4d33f13106b47379a2bbe45bb5b7441358c8ed7d8d83d9bc352d96877ab9966a"
           },
           {
+            "path": "puzzles/precommit-claim/puzzle.json",
+            "sha256": "d8a49c0133ac1fb560f21a157b054d06840dd3cc1fb3d8d3df1389ffd8f35c16"
+          },
+          {
+            "path": "puzzles/precommit-claim/puzzle.rs",
+            "sha256": "c7dad6c3afe5702f769214a0adddfc58a967add21b75d89c1ec928e0677f6434"
+          },
+          {
+            "path": "puzzles/precommit-claim/puzzle.rue",
+            "sha256": "b13aa51260bf8919da5078d5b029d65050d1348c09fb748e2e0a93b8418abc4e"
+          },
+          {
+            "path": "puzzles/precommit-claim/reference.clsp",
+            "sha256": "53cd6ba8857e7db659cf4ea2a80ddf903fb0cd21a18aac7e1c926551684f6e8b"
+          },
+          {
+            "path": "puzzles/precommit-registry/puzzle.json",
+            "sha256": "654304bd0c6fdd82210b53a73399f00e822ebc70ff30c3eac452387dca298d7f"
+          },
+          {
+            "path": "puzzles/precommit-registry/puzzle.rs",
+            "sha256": "8b92b346342a5be4b5d740f32c2bcc444c665659f8b1d1132a8e7af5daf3b2f5"
+          },
+          {
+            "path": "puzzles/precommit-registry/puzzle.rue",
+            "sha256": "7b3bcce4334953c37f99f7073f53b10d003c087bfc0db082f9880c1bd559233b"
+          },
+          {
+            "path": "puzzles/precommit-registry/reference.clsp",
+            "sha256": "88003fccae010381306254df42d54434e1598c9b6ff11fa56064c66b9c88fb93"
+          },
+          {
+            "path": "puzzles/precommit_recipe.rs",
+            "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
+          },
+          {
             "path": "puzzles/prefix-list/generated-cases.json",
             "sha256": "77586fa20be55bdae4dfad53b44786911c5da2835ca64221972da8d899779ba4"
           },
@@ -575,7 +627,7 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "b0d724f428a2c25cbc6bfb016a338ee8f98227fd5b15e8a0cd17aeaddcd4cc72"
+          "sha256": "610b51c57b38e6f3bb77d2511ca0ec950b7fb3d6957301ea4cd23d975172f7a2"
         },
         {
           "path": "Cargo.toml",
@@ -747,11 +799,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "20fbf2c73a24382c07e87ec8a95a7e540783a0a8449863e4e8b35c9d579c70a7"
+          "sha256": "e62e2cb8ab69fa243b91fe37eadaac142addcdf82f8380d2a53e7390dec742a8"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "dcd2d88773c3ecef35af323eef9f87df44f2207287644588dec48d22fce2b093"
+          "sha256": "a8810b0717178f7cb3b616a8e50eea097769c0cc167b68de41383b9ac6575ba4"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -799,7 +851,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-          "sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7"
+          "sha256": "56b4ad0c45a2a1487cca3a68dd63c656e97b51ca4dabffa08f192e985fbe31f7"
+        },
+        {
+          "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
+          "sha256": "c5d66095d0db557c82fadb62313d2e9a29bcaa453791901367e99e62e4105c6e"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
@@ -807,7 +863,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/Cargo.toml",
-          "sha256": "5373459633baa8243decd448ec3f5a3464d828833c29ccea50ab98259632e6dd"
+          "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
         },
         {
           "path": "crates/chialisp-oxide-driver/build.rs",
@@ -1166,6 +1222,26 @@
           "sha256": "9f6b08c791487920912b6dad6065cb8db2f8c7111d6f71e3e16da6efee82fb9f"
         },
         {
+          "path": "crates/chialisp-oxide-driver/tests/named_conditions.rs",
+          "sha256": "c846c89431de878f5f3ac26b88540e30180f056b57f32b0378a73f52e17ab7ca"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/named_conditions/library.rs",
+          "sha256": "65ce6a520505dd5f5066ad57f5b4bb968b5fe9b85074c6e3fbb04297959c5898"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/named_conditions/native.rs",
+          "sha256": "167bd09facf2ae97d1b0c051d72a817a3d795c715db12f93ceab0e708c63454d"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/named_conditions/oracle.rs",
+          "sha256": "33999596a287bfdcc50724c775426db980599292bc3a8d3837825c0e3a594214"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/named_conditions/type_errors.rs",
+          "sha256": "1492096ad74425451f0f27cf8083aa417d3e3c5901c608d499a48acfdf46460a"
+        },
+        {
           "path": "crates/chialisp-oxide-driver/tests/newtypes.rs",
           "sha256": "f48059c39deee1f945d1a9606af8e6c914915a18941f12dcede06a4ff26384b0"
         },
@@ -1255,11 +1331,11 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower.rs",
-          "sha256": "d356d8ae4e232c92249fdeb42bbdeea90ce75134930218e43eacd40fe1d42bd2"
+          "sha256": "08606cd0c918d2f80404c47bd1c8cbd1e3b989f7f57848314c58651ebf34ebc5"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/decoder_tests.rs",
-          "sha256": "7ec811bb180aee835aef05ce1621f2dadfe7068b0646156878a754320a881e77"
+          "sha256": "753228e0d0be288b558063fe0639f481da313338e22e3f3d0336d71b21acdcbf"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/limits.rs",
@@ -1723,11 +1799,11 @@
         },
         {
           "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-          "sha256": "c74d8a1b4a9b5d989f73dc6a7b03317a2059be037c7f825935d54c5e7839f34c"
+          "sha256": "d1b732941282d7988ec4d5c43ece83a5a802a8ac688b3ae28fdbb1f1996fe153"
         },
         {
           "path": "crates/chialisp-oxide-simulator/src/lib.rs",
-          "sha256": "2defc27e90758756e2d2a90883cd3ae1b40f4041d38ee1c0eef56ac5fe03c7e2"
+          "sha256": "a4af9ada5c3e2bfa9c185f106769b9302273aef71504e5cf00ef278bcb7351d5"
         },
         {
           "path": "crates/chialisp-oxide-simulator/tests/deadline_boundaries.rs",
@@ -1878,6 +1954,10 @@
           "sha256": "04b4a4494f6917b124aafa32a02be72593d008520da716b3156eb7e23d3e9fcd"
         },
         {
+          "path": "crates/chialisp-oxide/src/coin_context.rs",
+          "sha256": "e10de22565fbfe3914f44ce4687ae1140408169af9d7a6d4b02758e4077a3d9a"
+        },
+        {
           "path": "crates/chialisp-oxide/src/cons.rs",
           "sha256": "8e624e3d9f888b2de8d713bbe4ddfaa19bc9d08747ddd3e6c8cc2fda05cc99a2"
         },
@@ -1895,7 +1975,7 @@
         },
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "44f2eff1e93c085afc3658be3ca5c18085342b33daa76639565ef4c8e411128c"
+          "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -1987,7 +2067,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "a4c982d69f65a30d726514ae6481d8fc222d3eac4bddbdc6af09b2afedb5820a"
+          "sha256": "221ccce68380db926d2976363a9d838c2a52cac4c779208ce97eea1b036bff57"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -2071,7 +2151,7 @@
         },
         {
           "path": "puzzles/lib.rs",
-          "sha256": "1e5a441d201235e01639e90a286f832badee016961fc7b1b0c0b8fc239f7583a"
+          "sha256": "ebea6dd41a726f0865b1daf9ed7191ba400b21305349c9c76b93636472bb25e3"
         },
         {
           "path": "puzzles/module-add/puzzle.rs",
@@ -2132,6 +2212,42 @@
         {
           "path": "puzzles/password-coin/puzzle.rs",
           "sha256": "4d33f13106b47379a2bbe45bb5b7441358c8ed7d8d83d9bc352d96877ab9966a"
+        },
+        {
+          "path": "puzzles/precommit-claim/puzzle.json",
+          "sha256": "d8a49c0133ac1fb560f21a157b054d06840dd3cc1fb3d8d3df1389ffd8f35c16"
+        },
+        {
+          "path": "puzzles/precommit-claim/puzzle.rs",
+          "sha256": "c7dad6c3afe5702f769214a0adddfc58a967add21b75d89c1ec928e0677f6434"
+        },
+        {
+          "path": "puzzles/precommit-claim/puzzle.rue",
+          "sha256": "b13aa51260bf8919da5078d5b029d65050d1348c09fb748e2e0a93b8418abc4e"
+        },
+        {
+          "path": "puzzles/precommit-claim/reference.clsp",
+          "sha256": "53cd6ba8857e7db659cf4ea2a80ddf903fb0cd21a18aac7e1c926551684f6e8b"
+        },
+        {
+          "path": "puzzles/precommit-registry/puzzle.json",
+          "sha256": "654304bd0c6fdd82210b53a73399f00e822ebc70ff30c3eac452387dca298d7f"
+        },
+        {
+          "path": "puzzles/precommit-registry/puzzle.rs",
+          "sha256": "8b92b346342a5be4b5d740f32c2bcc444c665659f8b1d1132a8e7af5daf3b2f5"
+        },
+        {
+          "path": "puzzles/precommit-registry/puzzle.rue",
+          "sha256": "7b3bcce4334953c37f99f7073f53b10d003c087bfc0db082f9880c1bd559233b"
+        },
+        {
+          "path": "puzzles/precommit-registry/reference.clsp",
+          "sha256": "88003fccae010381306254df42d54434e1598c9b6ff11fa56064c66b9c88fb93"
+        },
+        {
+          "path": "puzzles/precommit_recipe.rs",
+          "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
         },
         {
           "path": "puzzles/prefix-list/generated-cases.json",
@@ -2347,7 +2463,7 @@
         },
         {
           "path": "scripts/corpus_append.py",
-          "sha256": "9b93bf2e3b686c1f67bc73bff65cd5f11d44513917b0b1cbb2ce92ff2394b1dc"
+          "sha256": "bd9e83c75d6945cc979405f4c9aada63303632a989f7c913bb9d4b6a86f4c034"
         },
         {
           "path": "scripts/corpus_compiler_transition.py",
@@ -2443,7 +2559,11 @@
         },
         {
           "path": "scripts/port_oracles.py",
-          "sha256": "e8dc2561c09bcb9f32e43884f54dbf4cfd69dcdea74d25cf3543225dba2e76d3"
+          "sha256": "8e6d2a79a5bfcf116975bf15e793aa055a12984de27c120e006c36e1bf87d638"
+        },
+        {
+          "path": "scripts/precommit_oracle.py",
+          "sha256": "0c31fa9b46b9cd57aee920f73c80a924dde2afa51b0b0ce590c7e662227d5d7f"
         },
         {
           "path": "scripts/raw_tree.py",
@@ -2555,7 +2675,7 @@
         },
         {
           "path": "scripts/test_ledger_components.py",
-          "sha256": "ac3cb8dfd1e01c9be0066e4d4d7e1283dfd999b84e821cb62c6db1855cf96470"
+          "sha256": "271f0fb3fa0392afa4a4ad84803a08a4c423d0ff9607f7d5dc84456070aa662f"
         },
         {
           "path": "scripts/test_p2_append_migration.py",
@@ -2701,25 +2821,25 @@
     },
     "tools": {
       "cargo-chialisp-oxide": {
-        "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/cargo-chialisp-oxide",
-        "sha256": "53c037c26754838714857b01f11869f08c4b9182be612df2fdf8f832a778da55"
+        "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+        "sha256": "e6d835725a8d46f91eec0d9e7977fc110a24ecedb90d6f089a77f02d1b8c9d6f"
       },
       "chialisp-oxide-driver": {
-        "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-driver",
-        "sha256": "bf9754005b6e320417af82a383cc09916155245ad0813f27e00bf6bf805b2396"
+        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
+        "sha256": "7f76df9d5751a69e67508a63743d32b88d242fd421cd13959d2f7ce7802b669f"
       },
       "chialisp-oxide": {
-        "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
-        "sha256": "0abd1dbf8fb42dc5d8b123d278efab2e623bc9e7a55481cbbe36f0bcba78f7fa"
+        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
+        "sha256": "26372d36c2e58ca95b16c340539e1f41f464f9f211e05a3a0dbcc6387b2fdaee"
       },
       "chialisp-oxide-verifier": {
-        "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "sha256": "ac7888d214db5c55ac3cc86953692fe3979d4342dea5c291f6b0af16e6fa268a"
+        "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "sha256": "b2da6240d1822716d4153e4ddd2e85a28e31b2461f3e8102ac72107406eb5e44"
       }
     },
     "last_host_window": {
-      "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-last-host.json",
-      "sha256": "287fa7c2fcea6268b2a8ff2a6044f0f2abf1c705240e09e6ad276c5df4d9c89e"
+      "path": "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-last-host.json",
+      "sha256": "0a2d0c27ae742ec8e21b535ccda04c55e75e613a474159717718a694ea87172f"
     }
   },
   "prepared": {
@@ -2788,7 +2908,7 @@
       },
       {
         "path": "Cargo.toml",
-        "sha256": "198f59aff38a8955af7def6c0c1cb43a31f96a87e2a7abafd621657150123a34"
+        "sha256": "4ef422d0db6f9fe4d402fe5d48b2d6a35b5d7431722bbbf250766dcca7abed08"
       },
       {
         "path": "examples/ledger.rs",
@@ -2992,7 +3112,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -3002,16 +3122,16 @@
     "native_test_groups": 1,
     "native_policy_observations": 9,
     "log": "native.log",
-    "log_sha256": "7f6fe4ac4772772f56ff884cd819f205ca1f5197878d7b5f9170ad3c23a330df",
+    "log_sha256": "f62c8485fd3cdac71d839c1df35ace09423679629076ebe8d4c389d957208fb5",
     "ledger_binary": {
-      "path": "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-native-target/debug/examples/ledger",
-      "sha256": "c4529ef7d53f156cf849db0d2d172dde232e659d29e8406062fb91e78e0f025e"
+      "path": "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-native-target/debug/examples/ledger",
+      "sha256": "f64174125eebc6ca22a506192fa55c3509617b368639c98655bb4008b796a2ea"
     }
   },
   "bundles": {
     "off": {
       "manifest": "bundles/off/manifest.json",
-      "manifest_sha256": "1860826b6f3ae561b9f578b13a273ebcc325ab1969cef215e525200f5b570774",
+      "manifest_sha256": "d3a14fa8d577f60952cf73e5a877d0be6617209c31107b91d2b297e9ed3ca67c",
       "recompiled": [
         {
           "entry": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
@@ -3107,7 +3227,7 @@
     },
     "on": {
       "manifest": "bundles/on/manifest.json",
-      "manifest_sha256": "34bee5ac1db3bd27d9c6eda9e136893312d8590b0988effcfed83c1525d697f4",
+      "manifest_sha256": "d0d9bfa75222dd1a08281c5f47281879abe3b06a2bfcdfb41cd503ee5f8559ec",
       "recompiled": [
         {
           "entry": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
@@ -4069,30 +4189,30 @@
     {
       "role": "export-off",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/cargo-chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-package/Cargo.toml",
         "--package",
         "chialisp-oxide-boomerang-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/fresh-off",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/fresh-off",
         "--no-optimize"
       ],
       "exit_code": 0,
       "stdout": "logs/00.stdout",
-      "stdout_sha256": "0ed7f4b528ef37c4a7849bca6fecb88c5b6262e12317a3625ac64684bcfd5c21",
+      "stdout_sha256": "b753de5c358494eccb6674a6d0f3765179cf38c013fefb6774e21f7cdac93f2e",
       "stderr": "logs/00.stderr",
-      "stderr_sha256": "a0afa4cecbbd0aef4b8399697507beed6d30271f6fbd11cbae9d565d0c7a0ad1"
+      "stderr_sha256": "28343ffe507b202d97c09afbb04852def3c7781284f123b3169bfe67b4c6f549"
     },
     {
       "role": "recompile-off-equivalent",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/off/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/off/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4104,8 +4224,8 @@
     {
       "role": "recompile-off-drop_claim_signature",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/off/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/off/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4117,8 +4237,8 @@
     {
       "role": "recompile-off-early_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/off/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/off/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4130,8 +4250,8 @@
     {
       "role": "recompile-off-late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/off/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/off/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4143,8 +4263,8 @@
     {
       "role": "recompile-off-original",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/off/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/off/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4156,11 +4276,11 @@
     {
       "role": "vm-off-original-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-original-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-original-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4173,11 +4293,11 @@
     {
       "role": "vm-off-original-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-original-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-original-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4190,11 +4310,11 @@
     {
       "role": "vm-off-original-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-original-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-original-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4207,11 +4327,11 @@
     {
       "role": "vm-off-equivalent-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-equivalent-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-equivalent-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4224,11 +4344,11 @@
     {
       "role": "vm-off-equivalent-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-equivalent-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-equivalent-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4241,11 +4361,11 @@
     {
       "role": "vm-off-equivalent-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-equivalent-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-equivalent-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4258,11 +4378,11 @@
     {
       "role": "vm-off-drop_claim_signature-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/drop_claim_signature.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/drop_claim_signature.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4275,11 +4395,11 @@
     {
       "role": "vm-off-late_claim-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/late_claim.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/late_claim.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-late_claim-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-late_claim-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4292,11 +4412,11 @@
     {
       "role": "vm-off-early_refund-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/off/early_refund.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/off/early_refund.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/off-early_refund-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/off-early_refund-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4309,29 +4429,29 @@
     {
       "role": "export-on",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/cargo-chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-package/Cargo.toml",
         "--package",
         "chialisp-oxide-boomerang-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/fresh-on"
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/fresh-on"
       ],
       "exit_code": 0,
       "stdout": "logs/15.stdout",
-      "stdout_sha256": "17b3aeab906c37af42ada017624fa41bddd1d015be55c2b54a7755d1fcfac322",
+      "stdout_sha256": "90ad479d7f8e26ad9da9f6e10180a323b84ba345091eaef929dab9bfd6e029d1",
       "stderr": "logs/15.stderr",
-      "stderr_sha256": "c02d34d9b79395c7017891e41f9ec40f97b55643e8c95ae261d5c77510bbe7c3"
+      "stderr_sha256": "47613b4c3c55d52ce5944f108bee5a788d9fa8bf20013e6a3d79a949b0ef06f3"
     },
     {
       "role": "recompile-on-equivalent",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4343,8 +4463,8 @@
     {
       "role": "recompile-on-drop_claim_signature",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/on/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/on/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4356,8 +4476,8 @@
     {
       "role": "recompile-on-early_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/on/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/on/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4369,8 +4489,8 @@
     {
       "role": "recompile-on-late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/on/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/on/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4382,8 +4502,8 @@
     {
       "role": "recompile-on-original",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/bundles/on/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/bundles/on/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4395,11 +4515,11 @@
     {
       "role": "vm-on-original-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-original-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-original-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4412,11 +4532,11 @@
     {
       "role": "vm-on-original-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-original-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-original-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4429,11 +4549,11 @@
     {
       "role": "vm-on-original-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-original-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-original-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4446,11 +4566,11 @@
     {
       "role": "vm-on-equivalent-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-equivalent-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-equivalent-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4463,11 +4583,11 @@
     {
       "role": "vm-on-equivalent-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-equivalent-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-equivalent-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4480,11 +4600,11 @@
     {
       "role": "vm-on-equivalent-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-equivalent-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-equivalent-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4497,11 +4617,11 @@
     {
       "role": "vm-on-drop_claim_signature-timely_unsigned_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/drop_claim_signature.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/drop_claim_signature.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-drop_claim_signature-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-drop_claim_signature-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4514,11 +4634,11 @@
     {
       "role": "vm-on-late_claim-signed_late_claim",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/late_claim.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/late_claim.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-late_claim-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-late_claim-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -4531,11 +4651,11 @@
     {
       "role": "vm-on-early_refund-early_unsigned_refund",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/debug/chialisp-oxide",
+        "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/instances/on/early_refund.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/instances/on/early_refund.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/inputs/on-early_refund-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/inputs/on-early_refund-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -4548,8 +4668,8 @@
     {
       "role": "sdk-ledger",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-native-target/debug/examples/ledger",
-        "/Users/judeallred/code/clispOx/target/witness-generation-worktree/target/capture-claude-2/boomerang-capture/ledger-request.json"
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-native-target/debug/examples/ledger",
+        "/Users/judeallred/code/clispOx/target/capture-precommit-4/boomerang-capture-resumed/ledger-request.json"
       ],
       "exit_code": 0,
       "stdout": "logs/30.stdout",
@@ -4601,7 +4721,7 @@
     },
     {
       "path": "bundles/off/manifest.json",
-      "sha256": "1860826b6f3ae561b9f578b13a273ebcc325ab1969cef215e525200f5b570774"
+      "sha256": "d3a14fa8d577f60952cf73e5a877d0be6617209c31107b91d2b297e9ed3ca67c"
     },
     {
       "path": "bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.clvm.hex",
@@ -4645,7 +4765,7 @@
     },
     {
       "path": "bundles/on/manifest.json",
-      "sha256": "34bee5ac1db3bd27d9c6eda9e136893312d8590b0988effcfed83c1525d697f4"
+      "sha256": "d0d9bfa75222dd1a08281c5f47281879abe3b06a2bfcdfb41cd503ee5f8559ec"
     },
     {
       "path": "inputs/off-drop_claim_signature-timely_unsigned_claim.json",
@@ -4761,7 +4881,7 @@
     },
     {
       "path": "last-host-window.json",
-      "sha256": "287fa7c2fcea6268b2a8ff2a6044f0f2abf1c705240e09e6ad276c5df4d9c89e"
+      "sha256": "0a2d0c27ae742ec8e21b535ccda04c55e75e613a474159717718a694ea87172f"
     },
     {
       "path": "ledger-request.json",
@@ -4773,11 +4893,11 @@
     },
     {
       "path": "logs/00.stderr",
-      "sha256": "a0afa4cecbbd0aef4b8399697507beed6d30271f6fbd11cbae9d565d0c7a0ad1"
+      "sha256": "28343ffe507b202d97c09afbb04852def3c7781284f123b3169bfe67b4c6f549"
     },
     {
       "path": "logs/00.stdout",
-      "sha256": "0ed7f4b528ef37c4a7849bca6fecb88c5b6262e12317a3625ac64684bcfd5c21"
+      "sha256": "b753de5c358494eccb6674a6d0f3765179cf38c013fefb6774e21f7cdac93f2e"
     },
     {
       "path": "logs/01.stderr",
@@ -4893,11 +5013,11 @@
     },
     {
       "path": "logs/15.stderr",
-      "sha256": "c02d34d9b79395c7017891e41f9ec40f97b55643e8c95ae261d5c77510bbe7c3"
+      "sha256": "47613b4c3c55d52ce5944f108bee5a788d9fa8bf20013e6a3d79a949b0ef06f3"
     },
     {
       "path": "logs/15.stdout",
-      "sha256": "17b3aeab906c37af42ada017624fa41bddd1d015be55c2b54a7755d1fcfac322"
+      "sha256": "90ad479d7f8e26ad9da9f6e10180a323b84ba345091eaef929dab9bfd6e029d1"
     },
     {
       "path": "logs/16.stderr",
@@ -5029,27 +5149,27 @@
     },
     {
       "path": "native-logs/2.log",
-      "sha256": "c448b8415781a00792972d7017dbd122483eca346e66c8bd698e9cd784f23604"
+      "sha256": "81a66eef91da70c9f99537f42b5cc76b7c42ed30bdba6ddf13ab39c09cb1c6a0"
     },
     {
       "path": "native-logs/3.log",
-      "sha256": "7f6fe4ac4772772f56ff884cd819f205ca1f5197878d7b5f9170ad3c23a330df"
+      "sha256": "f62c8485fd3cdac71d839c1df35ace09423679629076ebe8d4c389d957208fb5"
     },
     {
       "path": "native-logs/4.log",
-      "sha256": "f964568883e76b76c544ae8ba12402a2e8fc5c6cc9ac854db08aedc2852fefa5"
+      "sha256": "d628fdca840d9fa916f56c7c0d0d94e20f0ba315b67b15cb1d8b8ae13928aa44"
     },
     {
       "path": "native-logs/5.log",
-      "sha256": "4a6e66bbe890656a5ca831a4dfbb7296d4ce7d22ce63363371d945097aa6611a"
+      "sha256": "9a7b2d9af78adfdd05d4587735a945421f44ad4de6d27ac84a551c2378dd02de"
     },
     {
       "path": "native-receipt.json",
-      "sha256": "c8e5b669eaad15afb37e8746bafaa2cd0be803f07ca683d276e196f964770d99"
+      "sha256": "b18e8d1f8b6526e5e64b8956b2ce4e60ca59b8d35dfb707fec8d54871d332880"
     },
     {
       "path": "native.log",
-      "sha256": "7f6fe4ac4772772f56ff884cd819f205ca1f5197878d7b5f9170ad3c23a330df"
+      "sha256": "f62c8485fd3cdac71d839c1df35ace09423679629076ebe8d4c389d957208fb5"
     },
     {
       "path": "package/Cargo.lock",
@@ -5057,7 +5177,7 @@
     },
     {
       "path": "package/Cargo.toml",
-      "sha256": "198f59aff38a8955af7def6c0c1cb43a31f96a87e2a7abafd621657150123a34"
+      "sha256": "4ef422d0db6f9fe4d402fe5d48b2d6a35b5d7431722bbbf250766dcca7abed08"
     },
     {
       "path": "package/examples/ledger.rs",

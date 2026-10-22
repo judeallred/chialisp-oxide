@@ -4,6 +4,7 @@ use chialisp_oxide_simulator::{
     create_coin, partial_aggregate_signature, require_consensus_rejection, sign_transaction,
 };
 use serde::Serialize;
+mod precommit;
 mod singleton;
 #[derive(Serialize)]
 pub struct Scenario {
@@ -35,6 +36,9 @@ fn solution(text: &str) -> Result<Vec<u8>> {
 pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     if slug == "singleton-launcher" {
         return singleton::validate(code);
+    }
+    if matches!(slug, "precommit-claim" | "precommit-registry") {
+        return precommit::validate(slug, code);
     }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {

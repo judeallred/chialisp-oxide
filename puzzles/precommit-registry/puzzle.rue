@@ -1,0 +1,66 @@
+// Original teaching comparison of the one-name precommit registry slot.
+// WIP prototype; not ready to secure real funds.
+type Opening = (PublicKey, (Bytes32, (Bytes32, nil)));
+
+const SLOT_AMOUNT: Int = 1;
+// Canonical CLVM payload of the 1000-mojo precommit amount, as coin IDs hash it.
+const PRICE_BYTES: Bytes = 0x03e8;
+// UTF-8 "alice".
+const NAME: Bytes = 0x616c696365;
+// UTF-8 "chialisp-oxide/precommit/v1/" followed by owner, target, opening, commit, ready, accept, authorize.
+const OWNER_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f6f776e6572;
+const TARGET_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f746172676574;
+const OPENING_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f6f70656e696e67;
+const COMMIT_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f636f6d6d6974;
+const READY_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f7265616479;
+const ACCEPT_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f616363657074;
+const AUTHORIZE_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f617574686f72697a65;
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+const QUOTE: Bytes = 0x01;
+const APPLY: Bytes = 0x02;
+const CONS: Bytes = 0x04;
+const ONE: Bytes = 0x01;
+
+fn atom_hash(payload: Bytes) -> Bytes32 {
+    sha256(...[ATOM_DOMAIN, payload])
+}
+
+fn pair_hash(first: Bytes, rest: Bytes) -> Bytes32 {
+    sha256(...[PAIR_DOMAIN, first, rest])
+}
+
+// Standard curried form (a (q . MODULE) (c (q . TERMS) 1)), hashed from its parts.
+fn curried_hash(module_hash: Bytes, terms_hash: Bytes) -> Bytes32 {
+    let nil_hash = atom_hash(nil);
+    let quoted_terms = pair_hash(atom_hash(QUOTE), terms_hash);
+    let environment = pair_hash(atom_hash(CONS), pair_hash(quoted_terms, pair_hash(atom_hash(ONE), nil_hash)));
+    let quoted_module = pair_hash(atom_hash(QUOTE), module_hash);
+    pair_hash(atom_hash(APPLY), pair_hash(quoted_module, pair_hash(environment, nil_hash)))
+}
+
+fn main(...environment: Any) -> List<Condition> {
+    assert environment is (Bytes32, (Bytes32, (Bytes32, (Bytes32, (Opening, nil)))));
+    let module = environment.first;
+    let me = environment.rest.first;
+    let parent = environment.rest.rest.first;
+    let refund_to = environment.rest.rest.rest.first;
+    let opening = environment.rest.rest.rest.rest.first;
+    let owner_key = opening.first;
+    let owner_destination = opening.rest.first;
+    let salt = opening.rest.rest.first;
+
+    let owner = sha256(...[OWNER_DOMAIN, owner_key as Bytes, owner_destination]);
+    let opened = sha256(...[OPENING_DOMAIN, owner, salt]);
+    let target = sha256(...[TARGET_DOMAIN, me, NAME]);
+    let committed = sha256(...[COMMIT_DOMAIN, sha256(...[target, refund_to, opened])]);
+    let terms_hash = pair_hash(atom_hash(me), pair_hash(atom_hash(committed), pair_hash(atom_hash(refund_to), atom_hash(nil))));
+    let precommit = sha256(...[parent, curried_hash(module, terms_hash), PRICE_BYTES]);
+
+    [AssertMyCoinId { coin_id: me },
+     AssertMyAmount { amount: SLOT_AMOUNT },
+     AssertCoinAnnouncement { id: sha256(...[precommit, sha256(...[READY_DOMAIN, committed, precommit])]) },
+     CreateCoinAnnouncement { message: sha256(...[ACCEPT_DOMAIN, committed, precommit]) },
+     AggSigMe { public_key: owner_key, message: sha256(...[AUTHORIZE_DOMAIN, committed]) },
+     CreateCoin { puzzle_hash: owner_destination, amount: SLOT_AMOUNT }]
+}

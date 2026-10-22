@@ -15,7 +15,21 @@ struct Lower<'a> {
     program: &'a Program,
     args: Vec<LirId>,
     optimize_integer_decoder: bool,
+    sequence_decoder: bool,
 }
+
+/// Where the strict ABI decoder places its success continuation.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Decoder {
+    /// Each guard's success path is the remaining decoder and the body.
+    Inline,
+    /// Guards return the unchanged environment, then run the quoted body.
+    Separate,
+    /// As `Separate`, but each value's guards succeed with a constant and the
+    /// next value is checked only after it, so no continuation is duplicated.
+    Sequenced,
+}
+
 impl Lower<'_> {
     fn alloc(&mut self, lir: Lir) -> LirId {
         self.arena.alloc(lir)
@@ -152,19 +166,30 @@ impl Lower<'_> {
             Type::Pair { first, rest } => {
                 let head = self.alloc(Lir::First(value));
                 let tail = self.alloc(Lir::Rest(value));
-                let body = self.decode(tail, rest, yes)?;
-                let body = self.decode(head, first, body)?;
+                let body = self.decode_before(tail, rest, yes)?;
+                let body = self.decode_before(head, first, body)?;
                 let pair = self.alloc(Lir::Listp(value, true));
                 self.require(pair, body)
             }
         })
+    }
+    // Decode one value before `yes`. A sequenced decoder evaluates the value's
+    // complete guard chain first, with a constant success result, and then
+    // `yes`, so the guard order is unchanged and `yes` appears exactly once.
+    fn decode_before(&mut self, value: LirId, ty: &Type, yes: LirId) -> Result<LirId> {
+        if !self.sequence_decoder {
+            return self.decode(value, ty, yes);
+        }
+        let one = self.int(1);
+        let checked = self.decode(value, ty, one)?;
+        Ok(self.require(checked, yes))
     }
     fn decode_list(&mut self, value: LirId, items: &[Type], yes: LirId) -> Result<LirId> {
         if let Some((first, rest)) = items.split_first() {
             let head = self.alloc(Lir::First(value));
             let tail = self.alloc(Lir::Rest(value));
             let body = self.decode_list(tail, rest, yes)?;
-            let body = self.decode(head, first, body)?;
+            let body = self.decode_before(head, first, body)?;
             let pair = self.alloc(Lir::Listp(value, true));
             Ok(self.require(pair, body))
         } else {
@@ -338,19 +363,26 @@ impl Lower<'_> {
 }
 pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
     let result = compile_existing(program, optimize);
-    if program.environment == crate::Environment::Strict
-        && result.as_ref().is_err_and(|error| {
-            matches!(
-                error.downcast_ref::<limits::Limit>(),
-                Some(limits::Limit::ExpansionSize)
-            )
-        })
-    {
+    if program.environment == crate::Environment::Strict && is_expansion_size(&result) {
         // Retry only after the entire preceding pipeline, including optional
         // emitter and inlining fallbacks, has failed. A successful historical
         // fallback must retain its exact artifact. Use the original validated
         // program conservatively, preserving strict runtime evaluation and the
         // selected Rue mode without optional Rust IR/layout rewrites.
+        let separate = emit_decoder_attempt(
+            program,
+            optimize,
+            program.uses_runtime(),
+            false,
+            false,
+            false,
+            Decoder::Separate,
+        );
+        if !is_expansion_size(&separate) {
+            return separate;
+        }
+        // Only a decoder that still duplicates continuations past the budget
+        // reaches this last emitter, so successful artifacts are unchanged.
         return emit_decoder_attempt(
             program,
             optimize,
@@ -358,10 +390,19 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
             false,
             false,
             false,
-            true,
+            Decoder::Sequenced,
         );
     }
     result
+}
+
+fn is_expansion_size(result: &Result<Vec<u8>>) -> bool {
+    result.as_ref().is_err_and(|error| {
+        matches!(
+            error.downcast_ref::<limits::Limit>(),
+            Some(limits::Limit::ExpansionSize)
+        )
+    })
 }
 
 fn compile_existing(program: &Program, optimize: bool) -> Result<Vec<u8>> {
@@ -474,7 +515,7 @@ fn emit_layout_attempt(
         guarded_projections,
         atom_facts,
         compact_unary,
-        false,
+        Decoder::Inline,
     )
 }
 
@@ -485,7 +526,7 @@ fn emit_decoder_attempt(
     guarded_projections: bool,
     atom_facts: bool,
     compact_unary: bool,
-    separate_decoder: bool,
+    decoder: Decoder,
 ) -> Result<Vec<u8>> {
     program.validate()?;
     let mut lower = Lower {
@@ -493,6 +534,7 @@ fn emit_decoder_attempt(
         program,
         args: vec![],
         optimize_integer_decoder: optimize,
+        sequence_decoder: decoder == Decoder::Sequenced,
     };
     let env = lower.alloc(Lir::Path(1u8.into()));
     if program.environment == crate::Environment::Raw {
@@ -522,7 +564,7 @@ fn emit_decoder_attempt(
         .map(|p| p.ty.clone())
         .collect::<Vec<_>>();
     let mut root = match program.environment {
-        crate::Environment::Strict if separate_decoder => {
+        crate::Environment::Strict if decoder != Decoder::Inline => {
             // Every original guard runs in its original order before returning
             // the unchanged environment. Only then run immutable compiler code
             // on that environment; input data never selects the executable.

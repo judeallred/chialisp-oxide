@@ -231,6 +231,18 @@ translate the source or prove CLVM opcodes, width admission, complete ABI or
 compiler preservation. Actual VM boundary and strictness regressions are
 separate. `--no-optimize` retains the preceding decoder bytes.
 
+The unoptimized integer decoder copies its continuation five times, so a strict
+environment with four or more integers, whether separate parameters or tuple
+fields, exceeded the expansion budget in that mode. After both the inline
+decoder and the separate decoder fail with `ExpansionSize`, a final sequenced
+emitter checks each value's complete guard chain to a constant and only then the
+next value. The guard order is unchanged, the body runs once on the unchanged
+environment, and no compiler bound changed. Programs that compiled before never
+reach it, so their bytes stay the same. Decoder tests require identical outputs
+and typed failure codes from the inline and sequenced emitters wherever both
+fit, and exercise wide flat, tuple and explicit-pair inputs in both modes. Twelve
+integers still exceed the existing nesting limit in optimized mode.
+
 Bounded helper inlining removes small, closed, nonrecursive calls and direct
 identity-argument entry wrappers. Arguments become strict left-to-right lexical
 bindings even when the callee does not use them. Fresh local identities prevent

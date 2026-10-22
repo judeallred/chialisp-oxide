@@ -57,6 +57,8 @@ pub const PUZZLES: &[&str] = &[
     "curry-factory",
     "inner-puzzle",
     "boomerang",
+    "precommit-claim",
+    "precommit-registry",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
