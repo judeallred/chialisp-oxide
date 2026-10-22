@@ -107,13 +107,13 @@ and documentation ahead of further optimization. The
 [open issues](https://github.com/judeallred/chialisp-oxide/issues) are part of this
 backlog; this ordering does not mark their acceptance criteria complete.
 
-1. Finish the external-tool acceptance for agent discovery
-   ([#25](https://github.com/judeallred/chialisp-oxide/issues/25)): the
+1. Keep agent discovery
+   ([#25](https://github.com/judeallred/chialisp-oxide/issues/25)) current: the
    [authoring guide](https://judeallred.github.io/chialisp-oxide/reference/agent-guide/)
-   and generated Markdown now have deterministic freshness/discovery checks.
-   One actual Codex fresh-clone trial is recorded in
-   [the discovery report](https://github.com/judeallred/chialisp-oxide/blob/main/docs/agent-documentation.md);
-   a second genuine agent-tool trial remains outstanding. The new
+   and generated Markdown have deterministic freshness/discovery checks, and
+   actual Codex and Claude Code fresh-clone trials are recorded in
+   [the discovery report](https://github.com/judeallred/chialisp-oxide/blob/main/docs/agent-documentation.md).
+   Those trials are observations, not a guarantee for every tool. The new
    [input](https://judeallred.github.io/chialisp-oxide/validation/inputs/),
    [output](https://judeallred.github.io/chialisp-oxide/validation/outputs/)
    and [review](https://judeallred.github.io/chialisp-oxide/validation/review/)

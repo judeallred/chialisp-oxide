@@ -39,10 +39,12 @@ alongside the existing real Pagefind search and evidence checks.
 
 Issue #25 requests discovery trials from fresh clones in **two actual agent
 tools**. Deterministic file/link tests do not satisfy that manual acceptance
-criterion. One actual Codex trial is recorded below; a second genuine tool trial
-is still outstanding, so **#25 remains open**. An unavailable second tool is a
-limitation, not a passing trial. The facade's Rust crate documentation has not
-been changed by this documentation increment.
+criterion. The actual Codex and Claude Code trials below meet it: both tools
+reached `docs/llms.md` from standard entry points without being told the
+filename. These are observations of two sessions at two pinned commits, not a
+guarantee that every agent tool or future model reads the same files. The
+facade's Rust crate documentation has not been changed by this documentation
+increment.
 
 ## Actual Codex discovery trial
 
@@ -81,3 +83,73 @@ needed `chialisp-oxide-cli`, while the copied setup built only the Cargo
 subcommand and driver. The authoring guide, README, quickstart and CLI reference
 now build all three packages. The recorded trial remains a discovery observation
 at `db73a30`, not a rerun of that correction or an end-to-end authoring test.
+
+## Actual Claude Code trials
+
+On October 21, 2026, installed **Claude Code 2.1.306** (model `claude-opus-5-5`)
+ran two separate non-interactive sessions. Each had its own fresh clone of
+published commit
+[`779b156d09b5ee017242834f85de7a8ee8b69406`](https://github.com/judeallred/chialisp-oxide/commit/779b156d09b5ee017242834f85de7a8ee8b69406),
+placed outside any other checkout so that no parent `CLAUDE.md` could add
+context. Each session ran with project settings only, no MCP servers, no
+session persistence and an empty per-path memory directory. Neither resumed or
+inherited a chat. Neither prompt named the guide.
+
+**Discovery trial (read-only tools: Read, Grep, Glob).** It used the same prompt
+as the Codex trial above. The session ended successfully after 13 turns. The
+repository's `CLAUDE.md` is loaded automatically and points to `docs/llms.md`,
+which the agent read first. It then read the real Cargo consumer, the pinned
+toolchain, the README, both tool READMEs and the driver's supported-subset
+section. Its cited answer covered:
+
+- the facade and annotated exports;
+- native checks, the separate subset check and both compiler modes;
+- `chialisp-oxide run`, and that it does not validate a complete spend;
+- adversarial and simulator testing;
+- WIP status, public fixture keys, attacker-controlled solutions, unchecked SDK
+  types and the toolchain trust boundary.
+
+All **1,709 tracked file hashes** were unchanged afterwards.
+
+**Authoring trial (Read, Grep, Glob, Write, Edit; no shell).** The prompt was
+issue #25's acceptance task:
+
+> Write a chialisp-oxide puzzle that pays X if signed by Y. Put it in a new Cargo library in this repository, include native tests, and tell me which files you read and created and what remains unverified.
+
+The agent read `docs/llms.md`, the consumer example, `signature-payment` and
+the facade domain module. It then created an untracked
+`examples/signed-payment` library containing:
+
+- one `#[chialisp_oxide::puzzle]` export that returns `agg_sig_me` for a named
+  fixture key, `assert_my_amount(1000)` and a fixed `create_coin`;
+- three native tests;
+- a hand-copied lockfile.
+
+It changed no tracked file. It ran nothing, and it listed what remained
+unverified, including compilation, adversarial ABI cases, signed ledger spends,
+corpus evidence and CI.
+
+Afterwards, we ran that untouched output separately using tools built from the
+same source:
+
+| Check | Result |
+|---|---|
+| Native `cargo test --locked` | 3 passed (the copied lockfile was accepted) |
+| `cargo chialisp-oxide check` | Passed |
+| `cargo chialisp-oxide build`, optimization on | Built, 229 bytes |
+| `cargo chialisp-oxide build`, optimization off | Built, 287 bytes |
+| VM, one canonical 32-byte message | Accepted in both modes, identical output |
+| VM, four malformed solutions | Rejected in both modes with the typed program code `raise` |
+
+The four malformed solutions were nil, a 31-byte atom, an extra argument and a
+pair.
+
+The authored file is a trial observation, not a corpus port. No signature,
+simulator spend, independent Chialisp comparison, mutation control or complete
+ABI suite was run. A permissionless message choice under a fixed signer is the
+agent's own design and has not been reviewed as a payment policy.
+
+Raw prompts, versions, event streams, answers, exit statuses, the before
+inventories, both bundles and the VM records are retained locally in the
+ignored `target/agent-discovery-claude-20261021/` directory. They are not
+corpus execution evidence.

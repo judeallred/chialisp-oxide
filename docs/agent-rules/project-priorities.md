@@ -5,18 +5,16 @@
   over further compiler cost optimization.
 - Review the open GitHub issues alongside `docs/roadmap.md` before selecting the
   next milestone. Record dependencies and incomplete acceptance criteria honestly.
-- Validation guides (#24) and Chialisp syntax highlighting (#8) have shipped;
-  both issues are closed. Agent authoring/discovery (#25) has one actual Codex
-  fresh-clone trial recorded in `docs/agent-documentation.md`; a second genuine
-  agent tool is still required before its acceptance is complete.
+- Validation guides (#24), Chialisp syntax highlighting (#8) and agent
+  authoring/discovery (#25) have shipped. Actual Codex and Claude Code
+  fresh-clone trials are recorded in `docs/agent-documentation.md`.
 - The original boomerang puzzle (#9) shipped with five-build committed-instance
   and separate source-mutation evidence, exact-commit CI, Pages and live checks;
   the issue is closed. The next tooling slice is #21's offline package registry,
   with source-aware Cargo receipts and exact local dependency locks, followed by
   observed mainnet inspection, pinned bindings and #12's broader lifecycle;
   keep full issue acceptance and the later stateful-puzzle tracks explicit.
-  Complete the remaining #25 trial where feasible, and use issue dependencies
-  to order larger work.
+  Use issue dependencies to order larger work.
 - Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
   priority. Preserve measured regressions and existing optimization checks.
 - Publish coherent, verified increments. Do not close an issue until its actual
