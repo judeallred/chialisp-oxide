@@ -150,12 +150,14 @@ backlog; this ordering does not mark their acceptance criteria complete.
 2. Make the tooling useful end to end: the
    [offline registry prototype](https://judeallred.github.io/chialisp-oxide/reference/package-registry/)
    imports immutable Cargo bundles and verifies exact package, artifact and
-   structural ABI identities without running a compiler or VM. Complete
+   structural ABI identities without running a compiler or VM. Work on
    [#21](https://github.com/judeallred/chialisp-oxide/issues/21) now has reviewed
    standard/p2-puzzle-hash host bindings and a Cargo standard-wallet wrapper
    with actual local SDK spends. Arbitrary nominal dependency ABIs and broader
    registry integration remain open; source attachments and build declarations
-   alone do not establish compilation or source authenticity. Next build the explicit-network CLI/GUI lifecycle
+   alone do not establish compilation or source authenticity. The
+   [local lifecycle](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/)
+   now connects fresh checks to a shared simulator CLI/GUI. Continue the explicit-network lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
    demonstrations require actual testnet evidence, not simulated transaction IDs.
 3. Expand stateful composition with canonical CAT issuance

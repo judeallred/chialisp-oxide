@@ -80,6 +80,7 @@ export default defineConfig({
           { label: 'Puzzle ABI', slug: 'reference/abi' },
           { label: 'Optional output lists', slug: 'reference/optional-lists' },
           { label: 'Compiler commands', slug: 'reference/cli' },
+          { label: 'Local coin lifecycle', slug: 'reference/lifecycle' },
           { label: 'Offline package registry', slug: 'reference/package-registry' },
           { label: 'Reveal inspection & standard binding', slug: 'reference/reveal-inspection' },
           { label: 'Conditions & authorizations', slug: 'reference/conditions' },

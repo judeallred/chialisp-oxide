@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="oxide-session" content="__SESSION_CAPABILITY__">
+  <title>Coin puzzle lab · chialisp-oxide</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header class="masthead"><a href="/" class="wordmark"><span class="mark">◈</span> chialisp<span>oxide</span></a><span class="scope">LOCAL SIMULATOR</span></header>
+    <div class="warning"><strong>WIP prototype · not ready for use.</strong> This local exercise runs a fixed payment in a seeded SDK simulator. It does not deploy to a live chain.</div>
+    <section class="intro"><div><p class="eyebrow">COIN PUZZLE LAB</p><h1>One coin. Every step.</h1><p id="recipe-description" class="lede">Import a retained program, check its behavior, then follow a simulator coin through its spend and child output.</p></div><div class="recipe-label"><span class="status-dot"></span> Fixed payment<span class="muted">1,000 mojos → 1,000 mojos</span></div></section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section class="workspace">
+      <div class="flow-panel panel">
+        <div class="panel-heading"><h2>Lifecycle</h2><span class="revision">Saved revision <strong id="revision">—</strong></span></div>
+        <ol id="steps" class="steps">
+          <li data-at="0"><span class="step-number">1</span><div><h3 id="import-label">Import retained artifact</h3><p id="import-description">Optimized Rust CLVM from a pinned repository commit.</p></div><span class="step-state"></span></li>
+          <li data-at="1"><span class="step-number">2</span><div><h3>Check native and VM output</h3><p>Current Rust conditions and actual SDK program execution.</p></div><span class="step-state"></span></li>
+          <li data-at="2"><span class="step-number">3</span><div><h3>Create simulator coin</h3><p>Exactly 1,000 mojos locked to the imported program.</p></div><span class="step-state"></span></li>
+          <li data-at="3"><span class="step-number">4</span><div><h3>Prepare permissionless bundle</h3><p>This fixture emits no signature condition and needs no key.</p></div><span class="step-state"></span></li>
+          <li data-at="4"><span class="step-number">5</span><div><h3>Validate the complete bundle</h3><p>CLVM, conditions and aggregate validation under TESTNET11 rules.</p></div><span class="step-state"></span></li>
+          <li data-at="5"><span class="step-number">6</span><div><h3>Submit to the simulator</h3><p>The same trusted runner used by the command line.</p></div><span class="step-state"></span></li>
+          <li data-at="6"><span class="step-number">7</span><div><h3>Read the child coin</h3><p>Reconcile the exact spent input and complete child set.</p></div><span class="step-state"></span></li>
+        </ol>
+        <div class="actions"><button id="advance" class="primary" disabled>Loading saved state…</button><button id="reload" class="secondary">Reload saved state</button></div>
+        <p id="activity" class="activity" aria-live="polite">Connecting to this local simulator session.</p>
+      </div>
+      <aside class="details">
+        <section class="panel artifact"><div class="panel-heading"><h2>Program identity</h2><span id="artifact-badge" class="badge neutral">Retained</span></div><p id="artifact-origin" class="caption">Imported artifact, not a fresh compilation.</p><dl><dt>Module tree hash</dt><dd id="module-hash" class="hash">—</dd><dt id="source-label">Pinned source commit</dt><dd id="commit" class="hash">—</dd><dt>Funded reveal tree hash</dt><dd id="instance-hash" class="hash">—</dd><dt>Public recipient hash</dt><dd id="recipient-hash" class="hash">—</dd><dt>Selected reveal / solution bytes</dt><dd id="artifact-bytes" class="hash">—</dd><dt>Preflight SDK validation cost</dt><dd id="sdk-cost" class="hash">—</dd><dt>Plan fee</dt><dd id="plan-fee" class="hash">—</dd></dl></section>
+        <section class="panel"><div class="panel-heading"><h2>Execution scope</h2></div><ul class="lanes"><li><span>Current Rust condition output</span><span class="badge executed">Executed</span></li><li><span>Selected program in SDK VM</span><span class="badge executed">Executed</span></li><li><span>Fresh Cargo build</span><span id="fresh-cargo" class="badge neutral">Unavailable</span></li><li><span>Fresh subset extraction</span><span id="fresh-subset" class="badge neutral">Unavailable</span></li><li><span>Independent reference check</span><span id="fresh-reference" class="badge neutral">Unavailable</span></li><li><span>Live chain deployment</span><span class="badge neutral">Unavailable</span></li></ul><p class="caption"><span id="cost-scope">Preflight SDK validation uses consensus 0.36.1 / VM 0.16.2. Cost includes charged generator bytes, VM and conditions; it is not a primary VM cost or live fee quote.</span> Finite observations do not establish compiler preservation or production readiness.</p></section>
+      </aside>
+    </section>
+    <section class="panel coins"><div class="panel-heading"><h2>Coin monitor</h2><span id="stage" class="badge neutral">Loading</span></div><div class="coin-grid"><div><p class="eyebrow">INPUT COIN</p><h3 id="input-amount">Not created yet</h3><p id="input-id" class="hash subdued">The simulator will assign an exact coin ID.</p></div><div class="coin-arrow" aria-hidden="true">→</div><div><p class="eyebrow">OBSERVED CHILD</p><h3 id="child-amount">Waiting for a spend</h3><p id="child-id" class="hash subdued">A complete matching child set confirms this exercise.</p><p id="child-destination" class="hash" hidden></p></div></div><div class="monitor-actions"><button id="observe" class="secondary" disabled>Refresh simulator observation</button><button id="reorg" class="secondary" disabled>Restore unspent simulator checkpoint</button></div><p class="caption">Checkpoint restoration models a local simulator reorg. It is not a live network observation.</p></section>
+    <section class="control"><span class="control-symbol">↳</span><div><h2>Adversarial control</h2><p id="typed-control">An actual underfunded SDK submission is checked before this session opens.</p><p class="caption">Expected typed rejection; full simulator state must remain unchanged. This is separate from successful spends.</p></div></section>
+    <footer>chialisp-oxide · TESTNET11 simulator rules · No wallet connection · <span>Public journal, local session</span></footer>
+  </main>
+</body>
+</html>

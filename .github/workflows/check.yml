@@ -208,6 +208,50 @@ jobs:
           path: |
             ${{ runner.temp }}/registry-standard-wallet/
             !${{ runner.temp }}/registry-standard-wallet/project/target/**
+      - name: Execute fresh local lifecycle and resume through the shared core
+        run: |
+          pinned_cargo=$(rustup which --toolchain nightly-2026-07-14 cargo)
+          destination=2323232323232323232323232323232323232323232323232323232323232323
+          target/debug/chialisp-oxide-lifecycle fresh run \
+            --cargo "$pinned_cargo" --compiler "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" \
+            --destination-hex "$destination" --mode on \
+            --output "$RUNNER_TEMP/lifecycle-check-1" --journal "$RUNNER_TEMP/payment.lifecycle.json" \
+            --steps 3 > "$RUNNER_TEMP/lifecycle-partial.json"
+          target/debug/chialisp-oxide-lifecycle fresh resume \
+            --cargo "$pinned_cargo" --compiler "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" \
+            --destination-hex "$destination" --mode on \
+            --output "$RUNNER_TEMP/lifecycle-check-2" --journal "$RUNNER_TEMP/payment.lifecycle.json" \
+            > "$RUNNER_TEMP/lifecycle-complete.json"
+          python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          partial = json.loads((root / 'lifecycle-partial.json').read_text())
+          complete = json.loads((root / 'lifecycle-complete.json').read_text())
+          assert partial['stage'] == 'awaiting_signature' and partial['revision'] == 3
+          assert complete['stage'] == 'confirmed' and complete['revision'] == 7
+          assert complete['instance_tree_hash'] == partial['instance_tree_hash']
+          assert complete['recipe_scope']['mode'] == 'rust_on'
+          assert complete['checks']['fresh_cargo_build'] == 'executed_this_process'
+          assert complete['checks']['live_network'] == 'unavailable'
+          assert complete['input_coin'] == partial['input_coin']
+          assert complete['input_coin']['coin']['amount'] == 1000
+          assert len(complete['children']) == 1
+          child = complete['children'][0]
+          assert child['coin']['amount'] == 1000 and child['coin']['puzzle_hash'] == [0x23] * 32
+          assert bytes(child['coin']['parent']).hex() == complete['input_coin']['coin_id']
+          PYTHON
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: local-lifecycle
+          path: |
+            ${{ runner.temp }}/lifecycle-check-*/
+            !${{ runner.temp }}/lifecycle-check-*/native-target/**
+            !${{ runner.temp }}/lifecycle-check-*/compiler-target/**
+            ${{ runner.temp }}/lifecycle-partial.json
+            ${{ runner.temp }}/lifecycle-complete.json
+            ${{ runner.temp }}/payment.lifecycle.json
       - name: Execute P2 raw-domain and separate resource controls
         run: |
           p2_ir=$(python3 - <<'PYTHON'

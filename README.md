@@ -93,6 +93,11 @@ retrieved standard module from Rust and checks actual SDK spends with disposable
 fixture keys. Broader typed bindings and general dependency authoring remain
 unfinished in issue #21. See the guides for the precise verification boundaries.
 
+The [local coin lifecycle](docs/lifecycle.md) connects fresh Cargo/native,
+dual-mode Rust, independent Chialisp and simulator checks to a shared CLI and
+loopback GUI. It needs no wallet for the local flow. Live funding, submission
+and confirmed Testnet11 evidence remain unfinished in issue #12.
+
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 `--target clvm` implementation. A target configuration alone does not provide
 code generation, runtime layouts, linking, or a CLVM SDK. See the

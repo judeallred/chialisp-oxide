@@ -1,0 +1,11 @@
+; Original independent Chialisp teaching counterpart, not a canonical module.
+; Exact whole environment: one proper-list argument holding a 32-byte atom.
+(mod ENV
+  (if (l ENV)
+    (if (l (r ENV)) (x) (if (= (r ENV) ())
+      (if (l (f ENV)) (x)
+        (if (= (strlen (f ENV)) 32)
+          (list (list 73 1000) (list 51 (f ENV) 1000))
+          (x)))
+      (x)))
+    (x)))

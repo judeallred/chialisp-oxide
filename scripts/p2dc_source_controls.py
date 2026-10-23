@@ -36,6 +36,7 @@ TOOLS = ('cargo-chialisp-oxide','chialisp-oxide-driver','chialisp-oxide','chiali
 MEMBERS = ('experiments/backend','experiments/byte-proofs','crates/chialisp-oxide-ir',
     'crates/chialisp-oxide-reference','crates/chialisp-oxide-rue','crates/chialisp-oxide-driver',
     'crates/chialisp-oxide','crates/chialisp-oxide-macros','crates/cargo-chialisp-oxide','crates/chialisp-oxide-package',
+    'crates/chialisp-oxide-lifecycle','crates/chialisp-oxide-lifecycle/recipe',
     'crates/chialisp-oxide-simulator','crates/chialisp-oxide-verifier','crates/chialisp-oxide-corpus',
     'crates/chialisp-oxide-cli','crates/chialisp-oxide-vm','puzzles','vendor/rue-lir')
 CODE = ['scripts/'+n for n in ('p2dc_source_controls.py','check-p2dc-source-controls.py','run-p2dc-source-controls.py','test_p2dc_source_controls.py','p2_delegated_conditions_vectors.py','cargo_authoring.py','cargo_bundle.py','cargo_source_receipt.py','test_cargo_source_receipt.py','source_walk.py','test_source_walk.py','hashing_provenance.py','hashing_vectors.py','check-canonical-factories.py','vm_failures.py')]+[TEMPLATE,'corpus/validate_published_puzzles.py']

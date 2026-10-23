@@ -17,6 +17,10 @@
   shared CLI/GUI lifecycle and real testnet evidence, then the later stateful
   puzzle tracks; keep full issue acceptance explicit. Use issue dependencies to
   order larger work.
+- The local #12 companion shares fresh validated recipes, simulator journals and
+  commands between CLI and GUI; see `docs/lifecycle.md`. Its read-only HTTPS
+  observer remains separate from those adapters. Live funding, submission,
+  monitoring and Testnet11 acceptance remain open; local fixtures need no wallet.
 - Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
   priority. Preserve measured regressions and existing optimization checks.
 - Publish coherent, verified increments. Do not close an issue until its actual

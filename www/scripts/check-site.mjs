@@ -1201,6 +1201,7 @@ try {
     ['validate conditions authority', 'validation/outputs/'],
     ['review adversarial', 'validation/review/'],
     ['puzzle authoring agents', 'reference/agent-guide/'],
+    ['lifecycle simulator journal', 'reference/lifecycle/'],
   ]) {
     const result = await pagefind.search(term);
     const matches = await Promise.all(result.results.map(row => row.data()));
