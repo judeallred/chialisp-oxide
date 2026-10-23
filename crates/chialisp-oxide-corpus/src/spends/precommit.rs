@@ -1,7 +1,7 @@
 //! Precommit/registry complete-spend observations.
 //!
-//! Each build of one side runs against the independently compiled Chialisp
-//! reference of the other side, so every scenario composes two languages. The
+//! Paired scenarios compose each selected build with the other side's Chialisp
+//! reference. A separate Chialisp-only naive baseline repeats for each build. The
 //! host computes the commitment, curried puzzle hashes and coin IDs with its own
 //! SHA-256 spelling, not the puzzle sources' recipe. Finite ledger scenarios do
 //! not prove fairness, censorship resistance, salt entropy or the absence of
@@ -10,7 +10,7 @@ use super::{Scenario, rejection};
 use anyhow::{Result, ensure};
 use chialisp_oxide_simulator::{
     Coin, CoinSpend, ConsensusRejection, SecretKey, Signature, Simulator, SpendBundle, coin_spend,
-    puzzle_hash,
+    puzzle_hash, sign_transaction,
 };
 use clvmr::{Allocator, NodePtr, serde::node_to_bytes};
 use sha2::{Digest, Sha256};
@@ -220,6 +220,130 @@ fn advance_to_age(simulator: &mut Simulator, coin: &Coin, target: u32) -> Result
     Ok(())
 }
 
+/// Explicit simulator ordering control: no mempool, fee auction or RBF is run.
+fn naive_attacker_first(owner: &SecretKey, attacker: &SecretKey) -> Result<Scenario> {
+    let code = chialisp_oxide_reference::compile(include_str!(
+        "../../../../experiments/precommit-controls/naive.clsp"
+    ))?;
+    let mut simulator = Simulator::new();
+    let slot = simulator.new_coin(puzzle_hash(&code)?, SLOT);
+    let spend = |key: &SecretKey, destination: &[u8; 32]| -> Result<CoinSpend> {
+        coin_spend(
+            slot,
+            &code,
+            &atoms(&[NAME, &key.public_key().to_bytes(), destination])?,
+        )
+    };
+    // Both independently signed submissions name the same public registration
+    // intent. The attacker substitutes its own key/destination and is submitted
+    // first; its signature is genuine, rather than a stolen owner's signature.
+    let honest = spend(owner, &OWNER_DESTINATION)?;
+    let copied = spend(attacker, &ATTACKER_DESTINATION)?;
+    simulator.spend_coins(vec![copied], std::slice::from_ref(attacker))?;
+    let children = simulator.children(slot.coin_id());
+    ensure!(
+        children.len() == 1
+            && children[0].coin.puzzle_hash.to_bytes() == ATTACKER_DESTINATION
+            && children[0].coin.amount == SLOT,
+        "naive attacker-first registration did not pay the attacker"
+    );
+    let lost = rejected(
+        &mut simulator,
+        vec![honest],
+        std::slice::from_ref(owner),
+        ConsensusRejection::DoubleSpend,
+    )?;
+    Ok(scenario(
+        "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)",
+        vec![lost],
+    ))
+}
+
+/// One forbidden complete-spend attempt against a freshly funded source
+/// control. The caller retains the actual Cargo artifact identities and the
+/// independently compiled counterpart's source/artifact identity. Supplying
+/// bytes here never establishes their provenance or compiler preservation.
+pub fn validate_source_control(
+    claim_code: &[u8],
+    registry_code: &[u8],
+    control: &str,
+) -> Result<Vec<Scenario>> {
+    let (minimum_age, expected) = match control {
+        "minimum_age_original" => (true, Some(ConsensusRejection::AssertHeightRelativeFailed)),
+        "minimum_age_removed" => (true, None),
+        "owner_signature_original" => (false, Some(ConsensusRejection::BadAggregateSignature)),
+        "owner_signature_removed" => (false, None),
+        other => anyhow::bail!("unknown precommit source control {other}"),
+    };
+    let modules = Modules {
+        precommit: claim_code.to_vec(),
+        registry: registry_code.to_vec(),
+    };
+    let owner = SecretKey::from_seed(&[0x17; 32]);
+    let mut simulator = Simulator::new();
+    let instance = modules.launch(
+        &mut simulator,
+        &owner.public_key().to_bytes(),
+        &OWNER_DESTINATION,
+    )?;
+    advance_to_age(
+        &mut simulator,
+        &instance.precommit,
+        if minimum_age {
+            MINIMUM_AGE - 1
+        } else {
+            MINIMUM_AGE
+        },
+    )?;
+    let spends = vec![
+        instance.register(&owner.public_key().to_bytes(), &OWNER_DESTINATION, &SALT)?,
+        instance.claim()?,
+    ];
+    // The unsigned witness reaches consensus with an actual empty aggregate;
+    // the signer is never allowed to reject it before submission.
+    let signature = if minimum_age {
+        sign_transaction(&spends, std::slice::from_ref(&owner))?
+    } else {
+        Signature::default()
+    };
+    let before = simulator.clone();
+    let result = simulator.new_transaction(SpendBundle::new(spends, signature));
+    let rejections = if let Some(expected) = expected {
+        let observed = rejection(result, expected)?;
+        ensure!(
+            simulator == before,
+            "source-control rejection changed ledger"
+        );
+        vec![observed]
+    } else {
+        result?;
+        let mut children = simulator
+            .children(instance.registry.coin_id())
+            .into_iter()
+            .chain(simulator.children(instance.precommit.coin_id()))
+            .map(|state| (state.coin.puzzle_hash.to_bytes(), state.coin.amount))
+            .collect::<Vec<_>>();
+        children.sort();
+        ensure!(
+            children == vec![(OWNER_DESTINATION, SLOT), (TREASURY, PRICE)],
+            "source mutant did not create exactly the owner receipt and treasury payment"
+        );
+        for coin in [instance.registry, instance.precommit] {
+            ensure!(
+                simulator
+                    .coin_state(coin.coin_id())
+                    .is_some_and(|state| state.spent_height.is_some()),
+                "source mutant did not consume both protocol inputs"
+            );
+        }
+        vec![]
+    };
+    Ok(vec![scenario(
+        &format!("source control {control}: one complete-spend submission"),
+        rejections,
+    )])
+}
+
 pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     let modules = Modules::new(slug, code)?;
     let owner = SecretKey::from_seed(&[0x17; 32]);
@@ -227,6 +351,7 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     let attacker = SecretKey::from_seed(&[0x29; 32]);
     let attacker_key = attacker.public_key().to_bytes();
     let mut reports = vec![];
+    reports.push(naive_attacker_first(&owner, &attacker)?);
 
     let mut simulator = Simulator::new();
     let honest = modules.launch(&mut simulator, &owner_key, &OWNER_DESTINATION)?;
@@ -251,6 +376,43 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     ));
 
     advance_to_age(&mut simulator, &honest.precommit, MINIMUM_AGE)?;
+    // After learning the public opening, an attacker can commit its own key and
+    // destination to this same slot, but its newly funded coin is not mature.
+    // The registry counterpart is still independently compiled Chialisp when
+    // the tested artifact is the Rust/Rue claim module (and vice versa).
+    let copied_commitment = commitment(
+        &honest.registry.coin_id().to_bytes(),
+        &attacker_key,
+        &ATTACKER_DESTINATION,
+        &SALT,
+    );
+    let copied_reveal = super::super::curried::standard_form(
+        &modules.precommit,
+        &atoms(&[
+            honest.registry.coin_id().as_ref(),
+            &copied_commitment,
+            &REFUND_TO,
+        ])?,
+    )?;
+    let copied = Instance {
+        precommit: simulator.new_coin(puzzle_hash(&copied_reveal)?, PRICE),
+        precommit_reveal: copied_reveal,
+        registry: honest.registry,
+        registry_reveal: honest.registry_reveal.clone(),
+    };
+    let copied_early = rejected(
+        &mut simulator,
+        vec![
+            copied.register(&attacker_key, &ATTACKER_DESTINATION, &SALT)?,
+            copied.claim()?,
+        ],
+        std::slice::from_ref(&attacker),
+        ConsensusRejection::AssertHeightRelativeFailed,
+    )?;
+    reports.push(scenario(
+        "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)",
+        vec![copied_early],
+    ));
     // Each half alone lacks the other's announcement.
     let registry_alone = rejected(
         &mut simulator,
@@ -367,6 +529,21 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     reports.push(scenario(
         "spent registry slot cannot register again",
         vec![reused],
+    ));
+
+    // Even after its refund deadline, a completed claim cannot refund the same
+    // precommit a second time. Waiting avoids confusing a time failure with
+    // the intended consumed-coin rejection.
+    advance_to_age(&mut simulator, &honest.precommit, REFUND_AGE)?;
+    let completed_refund = rejected(
+        &mut simulator,
+        vec![honest.refund()?],
+        &[],
+        ConsensusRejection::DoubleSpend,
+    )?;
+    reports.push(scenario(
+        "refund after successful completion rejected even at refund age",
+        vec![completed_refund],
     ));
 
     // An abandoned precommit returns its full amount to the refund destination.

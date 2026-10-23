@@ -63,15 +63,21 @@ the payment.
 
 ## What the ledger scenarios show
 
-The corpus runs optimized Rust, Chialisp and optimized Rue builds of one side
-against the independently compiled Chialisp reference of the other side,
-using `chia-sdk-test` 0.36.0. Template VM vectors separately cover both Rust
-and Rue optimization modes.
+The paired scenarios run optimized Rust, Chialisp and optimized Rue builds of
+one side against the independently compiled Chialisp reference of the other,
+using `chia-sdk-test` 0.36.0. Each selected build also repeats a separate
+Chialisp-only naive baseline; that fixture is not a Rust or Rue naive-policy
+port. Across six language-side builds, the lane records 66 scenario groups and
+96 submissions: six naive baseline groups use 12 submissions, and the paired
+policies use the other 60 groups and 84 submissions. Template VM vectors
+separately cover both Rust and Rue optimization modes.
 Every rejected bundle must fail with its named consensus code and leave the
 complete simulator state unchanged:
 
 | Scenario | Expected result |
 |---|---|
+| Naive one-step copied intent submitted first | Attacker succeeds; honest follow-up gets `DoubleSpend` (simulator ordering only) |
+| Fresh genuine attacker precommit for copied intent | `AssertHeightRelativeFailed` |
 | Complete bundle one block before the minimum age | `AssertHeightRelativeFailed` |
 | Registry alone; precommit claim alone | `AssertCoinAnnouncementFailed` each |
 | Opening with a changed receipt destination, owner key or salt | `AssertCoinAnnouncementFailed`: no genuine precommit matches |
@@ -79,12 +85,36 @@ complete simulator state unchanged:
 | Refund before the refund age | `AssertHeightRelativeFailed` |
 | Mature signed bundle | Treasury receives 1000 mojos; owner receipt receives 1 |
 | Second mature precommit for the spent slot | `DoubleSpend` |
+| Refund after successful claim, at the refund age | `DoubleSpend` |
 | Refund at exactly the refund age | Full amount returns; registry slot stays unspent |
 
 The template vectors in each `puzzle.json` add exact-ABI rejections, such as
 wrong widths, pairs for atoms, padded booleans, arity errors and improper
 tails. An independent Python oracle (`scripts/precommit_oracle.py`) recomputes
 every expected output from `hashlib`.
+
+## Actual source mutations
+
+A separate `corpus/precommit-source-controls/report.json` packet retains four
+source-derived Cargo exports. The original modules are byte-identical copies
+of the puzzle sources. The age mutant constructs and discards the age
+condition, then returns a zero-age condition. The signature mutant constructs
+and discards the signature condition, then omits it from the result list.
+
+One native test group compares four exact output trees with the independent
+Python relation. Eight primary-VM observations replay the four policies in
+both Rust modes. Eight separate SDK submissions fund each candidate's own
+compiled module: the original early/unsigned bundles fail with exact typed
+codes and full simulator rollback, while the mutants complete the otherwise
+forbidden attempt and create exactly the owner receipt and treasury payment.
+These are ordinary compiling policy errors, not errors Rust makes impossible.
+
+Run `python3 scripts/check-precommit.py --self-test --replay`. Its recorded
+reader checks the complete paired Cargo bundles, actual source recipes, raw
+source attachments, native observations, distinguishing VM outputs and SDK
+records. Retained-byte replay executes the primary VM; reading the SDK record
+does not rerun the ledger or authenticate the original execution. None of this
+proves SHA/BLS security or compiler preservation.
 
 ## Sizes and costs
 
@@ -140,9 +170,16 @@ property of the policy.
   concrete pair, not before it.
 - Integration with the planned lifecycle CLI (#12), and a site tutorial built
   from recorded validation data.
-- A naive one-step front-run comparison, actual source-mutation controls, and
-  dedicated refund-after-completion replay. The current finite scenarios do
-  not complete all of issue #17's acceptance criteria.
-- XCHandles and CATalog precommit research has been recorded locally but is
-  not published. Their source is under the Prosperity Public License, and this
-  repository copies none of it.
+
+## Published source research
+
+The [pinned XCHandles and CATalog comparison](precommit-research.md) records
+commit/tree/file identities and the upstream license conflict. Both use a
+controller-authorized message protocol; their refund rules differ from this
+teaching pair's permissionless timeout refund. No upstream implementation is
+copied or claimed as an executed port.
+
+The [site tutorial](https://judeallred.github.io/chialisp-oxide/tutorials/precommit/)
+renders the actual source and recorded template/ledger evidence. The naive
+comparison submits the attacker first in the SDK simulator; it does not run a
+public mempool, fee competition or replace-by-fee experiment.

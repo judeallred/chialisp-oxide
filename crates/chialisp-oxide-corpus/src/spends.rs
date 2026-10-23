@@ -33,6 +33,13 @@ fn solution(text: &str) -> Result<Vec<u8>> {
     let node = rue_clvm::assemble(&mut a, text)?;
     Ok(clvmr::serde::node_to_bytes(&a, node)?)
 }
+pub fn validate_precommit_source_control(
+    claim_code: &[u8],
+    registry_code: &[u8],
+    control: &str,
+) -> Result<Vec<Scenario>> {
+    precommit::validate_source_control(claim_code, registry_code, control)
+}
 pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     if slug == "singleton-launcher" {
         return singleton::validate(code);

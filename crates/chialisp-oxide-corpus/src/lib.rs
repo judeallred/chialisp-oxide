@@ -78,6 +78,18 @@ pub fn root() -> PathBuf {
         .canonicalize()
         .expect("workspace root")
 }
+/// Execute one freshly funded precommit source-control ledger witness.
+/// Artifact provenance and the independently compiled counterpart are supplied
+/// and retained by the caller; this wrapper adds no source-authenticity claim.
+pub fn validate_precommit_source_control(
+    claim_code: &[u8],
+    registry_code: &[u8],
+    control: &str,
+) -> Result<serde_json::Value> {
+    Ok(serde_json::to_value(
+        spends::validate_precommit_source_control(claim_code, registry_code, control)?,
+    )?)
+}
 /// An independently specified result for a declared backend set. Only the
 /// original Chialisp and the authored Rue translation may diverge from the
 /// native Rust expectation; Rust CLVM must always match the actual Rust source.

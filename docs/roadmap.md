@@ -26,8 +26,8 @@ corpus append root (`scripts/corpus_append.py`, profile
 byte-for-byte and projects the older history; new exports extend profile data
 instead of adding migration modules.
 
-Fifty-six complete-spend scenario groups run separately for Rust, Chialisp and Rue
-through chia-wallet-sdk's simulator (168 ledger scenario runs), plus the
+Sixty-two complete-spend scenario groups run for each selected Rust, Chialisp or Rue build
+through chia-wallet-sdk's simulator (186 ledger scenario runs), plus the
 dedicated pay-to-singleton (110 submissions), delegated-conditions (60) and
 password-instance (21) and boomerang-instance (145) ledger suites, each with exact typed consensus
 rejections and in-memory rollback checks. A separate actual Rust source-control
@@ -40,6 +40,16 @@ eleven studies: seven native compile failures, one native overflow check, one
 compiled strict-ABI rejection and two negative controls that compile
 everywhere. None of these finite checks establishes full Chialisp parity,
 compiler preservation or production readiness.
+
+The separate precommit source-control lane records four native output
+observations, eight primary-VM observations and eight SDK submissions. Removing
+the minimum-age condition permits an early claim; removing the returned
+signature condition permits an unsigned claim. Each mutant is funded under its
+own reveal and paired with an independently compiled Chialisp counterpart.
+These observations remain separate from the base precommit pair's 66 grouped
+scenario runs and 96 transaction attempts. That lane includes six repetitions
+of the Chialisp-only naive baseline, accounting for 12 of those attempts; the
+paired policies account for the other 60 groups and 84 attempts.
 
 ## What works
 
@@ -67,7 +77,7 @@ compiler preservation or production readiness.
   [#17](https://github.com/judeallred/chialisp-oxide/issues/17): a salted,
   owner-bound commitment that a one-name registry slot can accept only after a
   two-block age, with a permissionless refund after eight blocks. Each recorded
-  ledger build of one side runs eight scenarios against the independently compiled
+  ledger build of one side runs eleven scenarios against the independently compiled
   Chialisp reference of the other side. Named `BlockHeight`/`BlockAge`,
   announcement and own-coin-ID helpers make unit and identifier swaps Rust type
   errors. A reusable `Precommit<T>` helper, a message-based variant and the

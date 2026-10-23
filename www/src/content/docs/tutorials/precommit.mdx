@@ -1,0 +1,160 @@
+---
+title: Commit, wait, then reveal
+description: Follow a two-coin teaching registry, its owner authorization, relative age, refund path and adversarial checks.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PrecommitEvidence from '../../../components/PrecommitEvidence.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+A one-step registration exposes its name and destination before confirmation.
+If an attacker copies that public request and their transaction is processed
+first, the registry can award them the name. This tutorial’s original one-name
+teaching pair separates a commitment from its opening. It is not an XCHandles
+or CATalog port, and it makes no canonical module-hash claim.
+
+The paired policies use ordinary Rust Cargo exports, nominal SDK values and
+named condition constructors. Native `cargo check` and `cargo test` check Rust;
+the additional `cargo chialisp-oxide check` checks this prototype’s supported
+CLVM subset. Neither establishes that the chosen policy is secure.
+
+## Read both policies in three languages
+
+<SourceComparison slug="precommit-claim" supporting="reference_includes" />
+
+<SourceComparison slug="precommit-registry" supporting="reference_includes" />
+
+The native oracle calls these same Rust Cargo exports. Chialisp and Rue sources
+are compiled independently. The shared Rust recipe lives in
+[`puzzles/precommit_recipe.rs`](https://github.com/judeallred/chialisp-oxide/blob/main/puzzles/precommit_recipe.rs);
+the Python oracle separately computes expected bytes with `hashlib`. Rust using
+Rue’s backend is distinct from executing the actual Rue source.
+The individual lab pages linked below retain the complete supporting-source drawers.
+
+## Commit the complete terms before funding
+
+The teaching policy fixes the name `alice`, a 1,000-mojo registration price,
+a treasury destination, a minimum age of 2 blocks and a refund age of 8 blocks.
+These small ages and public fixture keys are test parameters.
+
+The precommit template’s exact environment is:
+
+```text
+((REGISTRY_COIN_ID COMMITMENT REFUND_HASH) CLAIM MY_COIN_ID)
+```
+
+Curry the complete three-field terms tuple as **one argument** before funding
+the resulting instance hash. Its remaining solution is `(1 MY_COIN_ID)` to
+claim or `(() MY_COIN_ID)` to refund. Funding the bare template instead leaves
+the terms under the spender’s control.
+
+The commitment binds the registry coin ID, the fixed name, the refund
+destination and an opening `(OWNER_KEY RECEIPT_HASH SALT)`. Its hashes use
+named domain prefixes and fixed-width inputs. The 32-byte salt must come from
+an operating-system CSPRNG; the policy checks its width, not its entropy.
+
+The registry template takes this exact environment:
+
+```text
+(PRECOMMIT_MODULE_HASH MY_COIN_ID PRECOMMIT_PARENT REFUND_HASH (OWNER_KEY RECEIPT_HASH SALT))
+```
+
+Curry the **exact selected precommit module hash** into the registry before
+funding its slot. Each Rust, Chialisp and Rue build has its own module identity.
+The registry reconstructs the committed precommit instance and coin ID from
+that module, the complete terms, parent and fixed price. A mutant must therefore
+be funded under its own module and curried instance; substituting its reveal
+on an original coin only tests a puzzle-hash mismatch.
+
+## Join two spends with exact coin announcements
+
+The claim waits until `ASSERT_HEIGHT_RELATIVE 2`, pays the full 1,000 mojos
+to the treasury, announces `ready(C, me)` and requires the registry’s
+`accept(C, me)` announcement. It asserts its own coin ID and amount.
+
+The registry recomputes C and the genuine precommit coin ID, requires that
+coin’s ready announcement, emits its acceptance, requires the owner’s
+`AGG_SIG_ME` authorization and creates a one-mojo receipt at the opening’s
+destination. Consensus binds that signature to the actual registry coin and
+network. Neither half completes by itself.
+
+The refund waits until `ASSERT_HEIGHT_RELATIVE 8`, returns the full amount
+to the committed refund destination and announces the refund. Anyone may
+submit it; they cannot choose a replacement destination. A refund service,
+fee funding and liveness remain application responsibilities.
+
+## Read the adversarial witnesses precisely
+
+The naive comparison submits the attacker’s copied one-step request first
+in the simulator. It uses an independently compiled Chialisp fixture, repeated
+for each selected precommit build; it is not a Rust or Rue naive-policy port.
+It demonstrates **attacker-first simulator ordering**, not
+an actual mempool race, fee replacement, RBF or farmer behavior. Its observed
+winner follows the chosen submission order.
+
+For the two-step policy, an attacker who first creates a fresh precommit
+after seeing an opening still lacks its minimum age. The distinguishing
+fresh-precommit witness expects `AssertHeightRelativeFailed`. A mature signed
+claim can complete, and trying to refund that same consumed precommit afterward
+expects `DoubleSpend`. The evidence matrix below gives execution credit only
+to scenarios present in the current validation report.
+
+Changing the opening’s destination, key or salt breaks the exact announcement
+match. An empty owner signature fails with `BadAggregateSignature`. An early
+refund fails with `AssertHeightRelativeFailed`; refunding at age 8 returns
+the full payment while leaving the registry slot available.
+
+<PrecommitEvidence />
+
+## Conditions must be returned to be enforced
+
+Constructing `assert_height_relative(age)` and discarding it does not make
+consensus enforce that age. The same is true of a discarded `agg_sig_me(...)`.
+These are policy mistakes ordinary Rust and Clippy can accept, not errors
+Rust makes impossible.
+
+The independently admitted `chialisp-oxide-precommit-source-controls/v1` packet
+records four native output observations, eight primary VM observations and
+eight separate SDK submissions across both Rust modes. It runs the actual
+edited sources, compares exact native output bytes, retains both compiled modes
+and funds each mutant’s own committed instance. Template VM success does not
+verify a signature or admit a ledger spend. The matrix above preserves the
+originals’ typed rejections alongside the mutants’ accepted spends.
+
+## Keep the limits visible
+
+This is one slot for one fixed name, not a dynamic namespace, renewal or
+transfer service. Several independently funded slots would not make a name
+globally unique. A prepared mature competitor can still race, and the policy
+has no upper claim age before a refund consumes the coin. It establishes
+neither first-committer-wins nor fairness or censorship resistance.
+
+Observers see ancestry, amount and timing before the opening. Revealing the
+precommit puzzle reveals its registry ID, commitment and refund destination;
+registration reveals the complete opening. A guessable salt can expose a
+guessable name before registration.
+
+SHA-256 collision/preimage resistance and BLS security remain assumptions.
+Current proof models reject these SHA and optional-output exports. The
+announcement construction is specific to this teaching pair; a message-based
+variant and reusable `Precommit<T>` need separate contracts and evidence.
+
+Read the [pinned XCHandles and CATalog research](https://github.com/judeallred/chialisp-oxide/blob/main/docs/precommit-research.md)
+for source identities, licenses and search scope. Studying those published
+implementations does not establish a completed port or copy their guarantees.
+
+## Reproduce the distinct checks
+
+```sh
+cargo check --manifest-path puzzles/Cargo.toml --locked
+cargo test -p chialisp-oxide-corpus precommit --locked
+target/debug/cargo-chialisp-oxide check --manifest-path puzzles/Cargo.toml --locked
+python3 scripts/check-precommit.py --self-test --replay
+```
+
+Build the pinned workspace before driver execution. Contributors recording new
+evidence must follow the coordinated capture order in
+[AGENTS.md](https://github.com/judeallred/chialisp-oxide/blob/main/AGENTS.md).
+Retained-byte replay checks recorded artifacts; it does not resubmit historical
+SDK transactions or authenticate a previous execution.

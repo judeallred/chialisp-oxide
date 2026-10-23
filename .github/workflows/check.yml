@@ -142,6 +142,30 @@ jobs:
         run: |
           python3 scripts/check-boomerang.py --self-test --replay --source-controls corpus/boomerang-source-controls/report.json
           python3 scripts/check-boomerang.py --source-controls "$RUNNER_TEMP/boomerang-source-capture/report.json"
+      - name: Check precommit policies and retained actual-source controls
+        run: python3 scripts/check-precommit.py --self-test --replay
+      - name: Prepare and natively check fresh precommit mutations
+        run: |
+          python3 scripts/run-precommit-source-controls.py prepare --package "$RUNNER_TEMP/precommit-source-package" --receipt "$RUNNER_TEMP/precommit-source-prepare.json"
+          python3 scripts/run-precommit-source-controls.py native --package "$RUNNER_TEMP/precommit-source-package" --prepared "$RUNNER_TEMP/precommit-source-prepare.json" --target "$RUNNER_TEMP/precommit-source-native-target" --output "$RUNNER_TEMP/precommit-source-native"
+      - name: Finish host tools before precommit source-control extraction
+        run: |
+          cargo build --workspace --bins --examples --locked
+          python3 scripts/record-controls-quiet-window.py --kind precommit --package "$RUNNER_TEMP/precommit-source-package" --native-receipt "$RUNNER_TEMP/precommit-source-native/native-receipt.json" --output "$RUNNER_TEMP/precommit-source-last-host.json"
+      - name: Capture fresh Linux precommit source controls
+        run: |
+          python3 scripts/run-precommit-source-controls.py capture --package "$RUNNER_TEMP/precommit-source-package" --native-receipt "$RUNNER_TEMP/precommit-source-native/native-receipt.json" --last-host-window "$RUNNER_TEMP/precommit-source-last-host.json" --target "$GITHUB_WORKSPACE/target" --output "$RUNNER_TEMP/precommit-source-capture"
+          python3 scripts/check-precommit.py --source-controls-only --source-controls "$RUNNER_TEMP/precommit-source-capture/report.json" --replay
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: precommit-source-controls-linux
+          path: |
+            ${{ runner.temp }}/precommit-source-package/
+            ${{ runner.temp }}/precommit-source-prepare.json
+            ${{ runner.temp }}/precommit-source-native/
+            ${{ runner.temp }}/precommit-source-last-host.json
+            ${{ runner.temp }}/precommit-source-capture/
       - name: Check canonical pay-to-singleton and actual Rust policy mutations
         run: |
           python3 -m unittest discover -s scripts -p test_p2_append_migration.py

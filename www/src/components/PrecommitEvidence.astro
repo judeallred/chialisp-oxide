@@ -1,0 +1,53 @@
+---
+import { puzzles, backendLabel, href } from '../lib/data';
+import { readPrecommitControls } from '../lib/precommit-source-controls.mjs';
+const controls = await readPrecommitControls();
+const selected = ['precommit-claim', 'precommit-registry'].map(slug => {
+  const puzzle = puzzles.find(row => row.slug === slug);
+  if (!puzzle) throw new Error(`Missing precommit evidence: ${slug}`);
+  const builds = [
+    { backend: 'rust_mir', optimize_lir: true, scenarios: puzzle.simulator },
+    ...puzzle.simulator_comparisons,
+  ];
+  return { puzzle, builds, vectorRuns: puzzle.cases.reduce((sum, row) => sum + row.runs.length, 0),
+    groups: builds.reduce((sum, build) => sum + build.scenarios.length, 0) };
+});
+---
+<section data-precommit-evidence>
+  <h2 id="precommit-recorded-evidence">Inspect the recorded evidence</h2>
+  <p>The template vectors run native Rust and five compiled modes: Rust off/on, Chialisp and Rue off/on. For each selected optimized Rust, Chialisp or optimized Rue module, the paired ledger scenarios compose it with the other side’s independently compiled Chialisp reference. The naive attacker-first baseline uses a separate independently compiled Chialisp fixture, repeated for each selected build. Scenario groups are not transaction-attempt counts.</p>
+  {selected.map(({puzzle, builds, vectorRuns, groups}) => <section data-precommit-export={puzzle.slug}>
+    <h3>{puzzle.slug}</h3>
+    <p data-precommit-counts>{puzzle.cases.length} named template vectors · {vectorRuns} compiled template VM observations · {builds.length} ledger builds · {groups} ledger scenario groups.</p>
+    <p><a href={href(`lab/${puzzle.slug}/`)}>Inspect exact template inputs, outputs and costs</a>.</p>
+    {builds.map(build => {
+      const artifact = puzzle.artifacts.find(row => row.backend === build.backend && row.optimize_lir === build.optimize_lir);
+      if (!artifact) throw new Error(`Missing precommit module: ${puzzle.slug}/${build.backend}`);
+      return <details open data-precommit-build={`${puzzle.slug}:${build.backend}:${build.optimize_lir}`}>
+        <summary>{backendLabel(build.backend)} / {build.optimize_lir ? 'on' : 'off'} · {build.scenarios.length} ledger scenario groups</summary>
+        <p>Exact selected template module tree hash: <code class="hash" data-pagefind-ignore>{artifact.tree_hash}</code>.</p>
+        <ul>{build.scenarios.map(scenario => <li data-precommit-scenario={scenario.name}>
+          <strong>{scenario.name}</strong>: {scenario.passed ? 'passed' : 'failed'}.
+          {scenario.rejections.length > 0 ? <span> Typed consensus rejections: {scenario.rejections.map((row, index) => <Fragment>{index > 0 ? ', ' : ''}<code>{row.code}</code></Fragment>)}.</span> : <span> No rejected submission in this scenario group.</span>}
+        </li>)}</ul>
+      </details>;
+    })}
+  </section>)}
+  <p>Each rejection must match its intended typed consensus code and preserve full SDK simulator equality in memory. The retained report records outcomes; it is not a serialization or proof of simulator state. Resource failures cannot confirm policy rejection. These finite checks do not prove compiler preservation, SHA-256 or BLS security, fair ordering or production readiness.</p>
+  <section data-precommit-source-controls>
+    <h3>Actual source mutations: omitted age and owner authorization</h3>
+    <p data-precommit-control-counts>{controls.counts.nativeGroups} native test group · {controls.counts.native} native output observations · {controls.counts.vm} primary VM observations · {controls.counts.sdk} separate SDK submissions · {controls.counts.accepted} accepted mutant spends · {controls.counts.rejected} typed original-policy rejections.</p>
+    <p>Each mutant is funded under its own compiled reveal and composes with an independently compiled Chialisp counterpart. Both compiler modes run the original and its corresponding mutant. The age witness submits a fresh precommit; the owner witness omits the owner's signature. A scenario marked passed means its expected distinguishing outcome occurred, including an expected rejection.</p>
+    <ul>{controls.rows.map(row => <li data-precommit-control={`${row.mode}:${row.name}`}>
+      <strong>{row.mode} / {row.name}</strong>: witness <code>{row.control}</code>; scenario passed={String(row.passed)}; actual SDK outcome <code>{row.code ?? 'accepted'}</code>.
+      <p>Own module <code class="hash" data-pagefind-ignore>{row.module_tree_hash}</code>; independent counterpart module <code class="hash" data-pagefind-ignore>{row.reference_tree_hash}</code>.</p>
+      {row.code ? <p>Exact typed rejection; full SDK simulator equality checked in memory.</p> : <p>SDK assertions checked the owner's 1-mojo receipt and the treasury's 1,000-mojo payment.</p>}
+    </li>)}</ul>
+    <p><a href={href('reports/precommit-source-controls.json')}>Download the exact admitted source-control report</a>. Protocol <code>{controls.protocol}</code>. Its native and primary VM outputs are separate from SDK admission. This recorded reader does not authenticate execution or prove cryptographic security, fairness or compiler preservation.</p>
+  </section>
+</section>
+<style>
+  details { margin-block: 1rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  .hash { overflow-wrap: anywhere; }
+</style>

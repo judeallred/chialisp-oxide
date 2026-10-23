@@ -35,6 +35,7 @@ const report = JSON.parse(await read('corpus/validation.json'));
 execFileSync('python3', ['scripts/check-corpus-append.py'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-boomerang.py', '--self-test'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-boomerang.py', '--source-controls', 'corpus/boomerang-source-controls/report.json', '--source-controls-only'], { cwd: rootPath, stdio: 'inherit' });
+execFileSync('python3', ['scripts/check-precommit.py', '--source-controls-only'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-append.py'], { cwd: rootPath, stdio: 'inherit' });
 execFileSync('python3', ['scripts/check-p2dc-source-controls.py', 'corpus/p2dc-source-controls/report.json'], { cwd: rootPath, stdio: 'inherit' });
 await loadCompositionCostEvidence();

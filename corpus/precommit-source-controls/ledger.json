@@ -1,0 +1,150 @@
+{
+  "consensus": "chia-consensus 0.36.1",
+  "network": "TESTNET11",
+  "protocol": "chialisp-oxide-precommit-source-controls-ledger/v1",
+  "runs": [
+    {
+      "control": "minimum_age_original",
+      "mode": "off",
+      "module_tree_hash": "0fa8bf2126df8bae51f0e92aaf55ef088299ed15eb816e216614f6affbd8e29c",
+      "name": "claim_original",
+      "reference_tree_hash": "b6d41fbbf9844c4b1301f113fa2db6f7539d88c6924ce57bb720da904bda4d01",
+      "scenarios": [
+        {
+          "name": "source control minimum_age_original: one complete-spend submission",
+          "passed": true,
+          "rejections": [
+            {
+              "code": "AssertHeightRelativeFailed",
+              "stage": "consensus"
+            }
+          ],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "minimum_age_removed",
+      "mode": "off",
+      "module_tree_hash": "fe6093b60f6762de2b7c0856b6b432b5e2e5d08e9e511c238fc0cadb036eb7bb",
+      "name": "claim_drop_age",
+      "reference_tree_hash": "b6d41fbbf9844c4b1301f113fa2db6f7539d88c6924ce57bb720da904bda4d01",
+      "scenarios": [
+        {
+          "name": "source control minimum_age_removed: one complete-spend submission",
+          "passed": true,
+          "rejections": [],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "owner_signature_original",
+      "mode": "off",
+      "module_tree_hash": "82319a19f6d104dbe3c1ee4c25f135600fe0ce3a07925b8d7e5d51e2b72ed2f1",
+      "name": "registry_original",
+      "reference_tree_hash": "00a15b1aa0f632454d18f22ee6afa8bb38533b22e60140da0fadcbe243a5d118",
+      "scenarios": [
+        {
+          "name": "source control owner_signature_original: one complete-spend submission",
+          "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "owner_signature_removed",
+      "mode": "off",
+      "module_tree_hash": "e6f7813bcd85c730be00f27ad8def716ed5954dcbc52f542e73888036c906c63",
+      "name": "registry_drop_signature",
+      "reference_tree_hash": "00a15b1aa0f632454d18f22ee6afa8bb38533b22e60140da0fadcbe243a5d118",
+      "scenarios": [
+        {
+          "name": "source control owner_signature_removed: one complete-spend submission",
+          "passed": true,
+          "rejections": [],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "minimum_age_original",
+      "mode": "on",
+      "module_tree_hash": "06d595ab7fb86c47f2152cb7163cc820f39d969e71bc09d58de8f34694ff0ca9",
+      "name": "claim_original",
+      "reference_tree_hash": "b6d41fbbf9844c4b1301f113fa2db6f7539d88c6924ce57bb720da904bda4d01",
+      "scenarios": [
+        {
+          "name": "source control minimum_age_original: one complete-spend submission",
+          "passed": true,
+          "rejections": [
+            {
+              "code": "AssertHeightRelativeFailed",
+              "stage": "consensus"
+            }
+          ],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "minimum_age_removed",
+      "mode": "on",
+      "module_tree_hash": "54df41dc3cbc5fb0dedd5dbb05ea549a5d8cc323bf51ba7cf5abb22445132158",
+      "name": "claim_drop_age",
+      "reference_tree_hash": "b6d41fbbf9844c4b1301f113fa2db6f7539d88c6924ce57bb720da904bda4d01",
+      "scenarios": [
+        {
+          "name": "source control minimum_age_removed: one complete-spend submission",
+          "passed": true,
+          "rejections": [],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "owner_signature_original",
+      "mode": "on",
+      "module_tree_hash": "1208fc21f51b0d792e03a74457e64e4c7a343d79589b0942736826df354530b5",
+      "name": "registry_original",
+      "reference_tree_hash": "00a15b1aa0f632454d18f22ee6afa8bb38533b22e60140da0fadcbe243a5d118",
+      "scenarios": [
+        {
+          "name": "source control owner_signature_original: one complete-spend submission",
+          "passed": true,
+          "rejections": [
+            {
+              "code": "BadAggregateSignature",
+              "stage": "consensus"
+            }
+          ],
+          "scope": "ledger"
+        }
+      ]
+    },
+    {
+      "control": "owner_signature_removed",
+      "mode": "on",
+      "module_tree_hash": "1f8f25107f7e7a4dd708f7321244abfd0a25242fd5050dfaf450afbeb1061bd5",
+      "name": "registry_drop_signature",
+      "reference_tree_hash": "00a15b1aa0f632454d18f22ee6afa8bb38533b22e60140da0fadcbe243a5d118",
+      "scenarios": [
+        {
+          "name": "source control owner_signature_removed: one complete-spend submission",
+          "passed": true,
+          "rejections": [],
+          "scope": "ledger"
+        }
+      ]
+    }
+  ],
+  "sdk": "chia-sdk-test 0.36.0",
+  "transaction_attempts": 8,
+  "vm": "clvmr 0.16.2"
+}

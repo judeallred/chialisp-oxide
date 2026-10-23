@@ -14,7 +14,7 @@ import tomllib
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--kind", choices=("p2dc", "boomerang"), required=True)
+    parser.add_argument("--kind", choices=("p2dc", "boomerang", "precommit"), required=True)
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--native-receipt", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -53,6 +53,11 @@ def main():
         "compiler": compiler.stdout, "toolchain": toolchain, "source_window": window, "tools": tools,
         "native_receipt_sha256": controls.sha(native_path),
         "scope": "Sequential coordinator record after its successful workspace --bins --examples host build and before fresh capture. The caller keeps builds serialized. This receipt does not authenticate execution or prove compiler preservation."}
+    if args.kind == "precommit":
+        ledger = root / "target/debug/examples/precommit_controls"
+        receipt["ledger_runner"] = {"path": str(ledger), "sha256": controls.sha(ledger)}
+        controls.require(controls.source_window() == window and controls.sha(ledger) == receipt["ledger_runner"]["sha256"],
+                         "Ledger runner/source changed after terminal host build")
     destination.write_text(json.dumps(receipt, indent=2) + "\n")
 
 

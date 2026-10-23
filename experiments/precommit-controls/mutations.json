@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "classification": "actual_source_policy_controls",
+  "controls": [
+    {
+      "name": "claim_original",
+      "source": "puzzles/precommit-claim/puzzle.rs",
+      "role": "byte-identical claim source control",
+      "edits": []
+    },
+    {
+      "name": "claim_drop_age",
+      "source": "puzzles/precommit-claim/puzzle.rs",
+      "role": "ordinary compiling minimum-age policy error",
+      "edits": [
+        {
+          "before": "    Cons {\n        first: assert_my_coin_id(me),\n",
+          "after": "    let _unused_age = assert_height_relative(age);\n\n    Cons {\n        first: assert_my_coin_id(me),\n"
+        },
+        {
+          "before": "                first: assert_height_relative(age),\n",
+          "after": "                first: assert_height_relative(chialisp_oxide::BlockAge::from_blocks(0)),\n"
+        }
+      ]
+    },
+    {
+      "name": "registry_original",
+      "source": "puzzles/precommit-registry/puzzle.rs",
+      "role": "byte-identical registry source control",
+      "edits": []
+    },
+    {
+      "name": "registry_drop_signature",
+      "source": "puzzles/precommit-registry/puzzle.rs",
+      "role": "ordinary compiling owner-authorization policy error",
+      "edits": [
+        {
+          "before": "    AggSigMe, AssertCoinAnnouncement, AssertMyAmount, AssertMyCoinId, CoinId, CreateCoin,\n",
+          "after": "    AssertCoinAnnouncement, AssertMyAmount, AssertMyCoinId, CoinId, CreateCoin,\n"
+        },
+        {
+          "before": "    AggSigMe,\n",
+          "after": ""
+        },
+        {
+          "before": "    (\n        assert_my_coin_id(me),\n",
+          "after": "    let _unused_authorization = agg_sig_me(owner_key, authorization_message(committed));\n\n    (\n        assert_my_coin_id(me),\n"
+        },
+        {
+          "before": "        agg_sig_me(owner_key, authorization_message(committed)),\n",
+          "after": ""
+        }
+      ]
+    }
+  ],
+  "scope": "Constructing an age or signature condition and discarding it does not enforce that condition. These actual-source mutants demonstrate policy errors accepted by ordinary Rust and Clippy, not errors Rust makes impossible. Native and template VM observations are distinct from ledger submissions; each ledger mutant must be funded under its own curried reveal."
+}

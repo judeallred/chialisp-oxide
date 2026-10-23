@@ -89,6 +89,15 @@
     ],
     "permissionless refund only at refund age": [
       "AssertHeightRelativeFailed"
+    ],
+    "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)": [
+      "DoubleSpend"
+    ],
+    "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)": [
+      "AssertHeightRelativeFailed"
+    ],
+    "refund after successful completion rejected even at refund age": [
+      "DoubleSpend"
     ]
   },
   "puzzles": {
@@ -333,7 +342,19 @@
     ],
     "precommit-claim": [
       {
+        "name": "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
         "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)",
         "codes": [
           "AssertHeightRelativeFailed"
         ]
@@ -376,6 +397,12 @@
         ]
       },
       {
+        "name": "refund after successful completion rejected even at refund age",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
         "name": "permissionless refund only at refund age",
         "codes": [
           "AssertHeightRelativeFailed"
@@ -384,7 +411,19 @@
     ],
     "precommit-registry": [
       {
+        "name": "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
         "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)",
         "codes": [
           "AssertHeightRelativeFailed"
         ]
@@ -422,6 +461,12 @@
       },
       {
         "name": "spent registry slot cannot register again",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "refund after successful completion rejected even at refund age",
         "codes": [
           "DoubleSpend"
         ]

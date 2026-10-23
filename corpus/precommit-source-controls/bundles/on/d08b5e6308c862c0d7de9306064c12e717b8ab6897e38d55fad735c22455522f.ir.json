@@ -1,0 +1,3029 @@
+{
+  "ir_version": 4,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_precommit_controls::registry_original::puzzle",
+    "parameters": [
+      {
+        "name": "precommit_module",
+        "ty": {
+          "kind": "bytes",
+          "len": 32
+        }
+      },
+      {
+        "name": "me",
+        "ty": {
+          "kind": "bytes",
+          "len": 32
+        }
+      },
+      {
+        "name": "precommit_parent",
+        "ty": {
+          "kind": "bytes",
+          "len": 32
+        }
+      },
+      {
+        "name": "refund_to",
+        "ty": {
+          "kind": "bytes",
+          "len": 32
+        }
+      },
+      {
+        "name": "opening",
+        "ty": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        }
+      }
+    ],
+    "result": {
+      "kind": "tuple",
+      "items": [
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        }
+      ]
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        },
+        {
+          "op": "arg",
+          "index": 1
+        },
+        {
+          "op": "arg",
+          "index": 2
+        },
+        {
+          "op": "arg",
+          "index": 3
+        },
+        {
+          "op": "arg",
+          "index": 4
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_precommit_controls::registry_original::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg2",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg3",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg4",
+            "ty": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "bytes",
+                  "len": 48
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 48
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              ]
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 48
+          },
+          "value": {
+            "op": "field",
+            "value": {
+              "op": "arg",
+              "index": 4
+            },
+            "index": 0
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "field",
+              "value": {
+                "op": "arg",
+                "index": 4
+              },
+              "index": 1
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 1,
+                "arguments": [
+                  {
+                    "op": "arg",
+                    "index": 1
+                  },
+                  {
+                    "op": "arg",
+                    "index": 3
+                  },
+                  {
+                    "op": "arg",
+                    "index": 4
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "tuple",
+                  "items": [
+                    {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    {
+                      "kind": "bytes",
+                      "len": 32
+                    }
+                  ]
+                },
+                "value": {
+                  "op": "tuple",
+                  "items": [
+                    {
+                      "op": "arg",
+                      "index": 1
+                    },
+                    {
+                      "op": "local",
+                      "local_id": 2
+                    },
+                    {
+                      "op": "arg",
+                      "index": 3
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "bytes",
+                    "len": 32
+                  },
+                  "value": {
+                    "op": "call",
+                    "function_id": 2,
+                    "arguments": [
+                      {
+                        "op": "arg",
+                        "index": 0
+                      },
+                      {
+                        "op": "local",
+                        "local_id": 3
+                      }
+                    ]
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 3,
+                      "arguments": [
+                        {
+                          "op": "arg",
+                          "index": 2
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "tuple",
+                        "items": [
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": false
+                          },
+                          {
+                            "kind": "bytes",
+                            "len": 32
+                          }
+                        ]
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 4,
+                        "arguments": [
+                          {
+                            "op": "arg",
+                            "index": 1
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "tuple",
+                          "items": [
+                            {
+                              "kind": "int",
+                              "bits": 64,
+                              "signed": false
+                            },
+                            {
+                              "kind": "int",
+                              "bits": 64,
+                              "signed": false
+                            }
+                          ]
+                        },
+                        "value": {
+                          "op": "call",
+                          "function_id": 5,
+                          "arguments": [
+                            {
+                              "op": "int",
+                              "value": "1",
+                              "ty": {
+                                "kind": "int",
+                                "bits": 64,
+                                "signed": false
+                              }
+                            }
+                          ]
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "bytes",
+                            "len": 32
+                          },
+                          "value": {
+                            "op": "call",
+                            "function_id": 6,
+                            "arguments": [
+                              {
+                                "op": "local",
+                                "local_id": 2
+                              },
+                              {
+                                "op": "local",
+                                "local_id": 5
+                              }
+                            ]
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 9,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 7,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 5
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 8
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 10,
+                              "ty": {
+                                "kind": "tuple",
+                                "items": [
+                                  {
+                                    "kind": "int",
+                                    "bits": 64,
+                                    "signed": false
+                                  },
+                                  {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 8,
+                                "arguments": [
+                                  {
+                                    "op": "local",
+                                    "local_id": 9
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 11,
+                                "ty": {
+                                  "kind": "bytes",
+                                  "len": 32
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 9,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 2
+                                    },
+                                    {
+                                      "op": "local",
+                                      "local_id": 5
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 12,
+                                  "ty": {
+                                    "kind": "tuple",
+                                    "items": [
+                                      {
+                                        "kind": "int",
+                                        "bits": 64,
+                                        "signed": false
+                                      },
+                                      {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 10,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 11
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 13,
+                                    "ty": {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    "value": {
+                                      "op": "call",
+                                      "function_id": 11,
+                                      "arguments": [
+                                        {
+                                          "op": "local",
+                                          "local_id": 2
+                                        }
+                                      ]
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 14,
+                                      "ty": {
+                                        "kind": "tuple",
+                                        "items": [
+                                          {
+                                            "kind": "int",
+                                            "bits": 64,
+                                            "signed": false
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 48
+                                          },
+                                          {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          }
+                                        ]
+                                      },
+                                      "value": {
+                                        "op": "call",
+                                        "function_id": 12,
+                                        "arguments": [
+                                          {
+                                            "op": "local",
+                                            "local_id": 0
+                                          },
+                                          {
+                                            "op": "local",
+                                            "local_id": 13
+                                          }
+                                        ]
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 15,
+                                        "ty": {
+                                          "kind": "tuple",
+                                          "items": [
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            },
+                                            {
+                                              "kind": "bytes",
+                                              "len": 32
+                                            },
+                                            {
+                                              "kind": "int",
+                                              "bits": 64,
+                                              "signed": false
+                                            }
+                                          ]
+                                        },
+                                        "value": {
+                                          "op": "call",
+                                          "function_id": 13,
+                                          "arguments": [
+                                            {
+                                              "op": "local",
+                                              "local_id": 1
+                                            },
+                                            {
+                                              "op": "int",
+                                              "value": "1",
+                                              "ty": {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "body": {
+                                          "op": "let",
+                                          "local_id": 16,
+                                          "ty": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 48
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "bytes",
+                                                    "len": 32
+                                                  },
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          "value": {
+                                            "op": "tuple",
+                                            "items": [
+                                              {
+                                                "op": "local",
+                                                "local_id": 6
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 7
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 10
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 12
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 14
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 15
+                                              }
+                                            ]
+                                          },
+                                          "body": {
+                                            "op": "local",
+                                            "local_id": 16
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::commitment",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg2",
+            "ty": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "bytes",
+                  "len": 48
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 48
+          },
+          "value": {
+            "op": "field",
+            "value": {
+              "op": "arg",
+              "index": 2
+            },
+            "index": 0
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "field",
+              "value": {
+                "op": "arg",
+                "index": 2
+              },
+              "index": 1
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "field",
+                "value": {
+                  "op": "arg",
+                  "index": 2
+                },
+                "index": 2
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "atom"
+                },
+                "value": {
+                  "op": "tree_atom_value",
+                  "value": {
+                    "op": "tree_atom",
+                    "value": {
+                      "op": "local",
+                      "local_id": 0
+                    }
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "atom"
+                  },
+                  "value": {
+                    "op": "tree_atom_value",
+                    "value": {
+                      "op": "tree_atom",
+                      "value": {
+                        "op": "local",
+                        "local_id": 1
+                      }
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "sha256",
+                      "parts": [
+                        {
+                          "op": "atom",
+                          "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f6f776e6572"
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 3
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "atom"
+                      },
+                      "value": {
+                        "op": "tree_atom_value",
+                        "value": {
+                          "op": "tree_atom",
+                          "value": {
+                            "op": "local",
+                            "local_id": 5
+                          }
+                        }
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 2
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "bytes",
+                            "len": 32
+                          },
+                          "value": {
+                            "op": "sha256",
+                            "parts": [
+                              {
+                                "op": "atom",
+                                "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f6f70656e696e67"
+                              },
+                              {
+                                "op": "local",
+                                "local_id": 6
+                              },
+                              {
+                                "op": "local",
+                                "local_id": 7
+                              }
+                            ]
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 9,
+                            "ty": {
+                              "kind": "atom"
+                            },
+                            "value": {
+                              "op": "tree_atom_value",
+                              "value": {
+                                "op": "tree_atom",
+                                "value": {
+                                  "op": "arg",
+                                  "index": 0
+                                }
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 10,
+                              "ty": {
+                                "kind": "bytes",
+                                "len": 32
+                              },
+                              "value": {
+                                "op": "sha256",
+                                "parts": [
+                                  {
+                                    "op": "atom",
+                                    "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f746172676574"
+                                  },
+                                  {
+                                    "op": "local",
+                                    "local_id": 9
+                                  },
+                                  {
+                                    "op": "atom",
+                                    "hex": "616c696365"
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 11,
+                                "ty": {
+                                  "kind": "atom"
+                                },
+                                "value": {
+                                  "op": "tree_atom_value",
+                                  "value": {
+                                    "op": "tree_atom",
+                                    "value": {
+                                      "op": "local",
+                                      "local_id": 10
+                                    }
+                                  }
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 12,
+                                  "ty": {
+                                    "kind": "atom"
+                                  },
+                                  "value": {
+                                    "op": "tree_atom_value",
+                                    "value": {
+                                      "op": "tree_atom",
+                                      "value": {
+                                        "op": "arg",
+                                        "index": 1
+                                      }
+                                    }
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 13,
+                                    "ty": {
+                                      "kind": "atom"
+                                    },
+                                    "value": {
+                                      "op": "tree_atom_value",
+                                      "value": {
+                                        "op": "tree_atom",
+                                        "value": {
+                                          "op": "local",
+                                          "local_id": 8
+                                        }
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 14,
+                                      "ty": {
+                                        "kind": "bytes",
+                                        "len": 32
+                                      },
+                                      "value": {
+                                        "op": "sha256",
+                                        "parts": [
+                                          {
+                                            "op": "local",
+                                            "local_id": 11
+                                          },
+                                          {
+                                            "op": "local",
+                                            "local_id": 12
+                                          },
+                                          {
+                                            "op": "local",
+                                            "local_id": 13
+                                          }
+                                        ]
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 15,
+                                        "ty": {
+                                          "kind": "atom"
+                                        },
+                                        "value": {
+                                          "op": "tree_atom_value",
+                                          "value": {
+                                            "op": "tree_atom",
+                                            "value": {
+                                              "op": "local",
+                                              "local_id": 14
+                                            }
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "let",
+                                          "local_id": 16,
+                                          "ty": {
+                                            "kind": "bytes",
+                                            "len": 32
+                                          },
+                                          "value": {
+                                            "op": "sha256",
+                                            "parts": [
+                                              {
+                                                "op": "atom",
+                                                "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f636f6d6d6974"
+                                              },
+                                              {
+                                                "op": "local",
+                                                "local_id": 15
+                                              },
+                                              {
+                                                "op": "atom",
+                                                "hex": ""
+                                              }
+                                            ]
+                                          },
+                                          "body": {
+                                            "op": "local",
+                                            "local_id": 16
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::precommit_puzzle_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "field",
+            "value": {
+              "op": "arg",
+              "index": 1
+            },
+            "index": 0
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "field",
+              "value": {
+                "op": "arg",
+                "index": 1
+              },
+              "index": 1
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "field",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                },
+                "index": 2
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 14,
+                  "arguments": [
+                    {
+                      "op": "atom",
+                      "hex": ""
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "atom"
+                  },
+                  "value": {
+                    "op": "tree_atom_value",
+                    "value": {
+                      "op": "tree_atom",
+                      "value": {
+                        "op": "local",
+                        "local_id": 2
+                      }
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 14,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "bytes",
+                        "len": 32
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 15,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 5
+                          },
+                          {
+                            "op": "local",
+                            "local_id": 3
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 1
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "bytes",
+                            "len": 32
+                          },
+                          "value": {
+                            "op": "call",
+                            "function_id": 14,
+                            "arguments": [
+                              {
+                                "op": "local",
+                                "local_id": 7
+                              }
+                            ]
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 9,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 15,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 8
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 6
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 10,
+                              "ty": {
+                                "kind": "atom"
+                              },
+                              "value": {
+                                "op": "tree_atom_value",
+                                "value": {
+                                  "op": "tree_atom",
+                                  "value": {
+                                    "op": "local",
+                                    "local_id": 0
+                                  }
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 11,
+                                "ty": {
+                                  "kind": "bytes",
+                                  "len": 32
+                                },
+                                "value": {
+                                  "op": "call",
+                                  "function_id": 14,
+                                  "arguments": [
+                                    {
+                                      "op": "local",
+                                      "local_id": 10
+                                    }
+                                  ]
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 12,
+                                  "ty": {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 15,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 11
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 9
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 13,
+                                    "ty": {
+                                      "kind": "bytes",
+                                      "len": 32
+                                    },
+                                    "value": {
+                                      "op": "call",
+                                      "function_id": 16,
+                                      "arguments": [
+                                        {
+                                          "op": "arg",
+                                          "index": 0
+                                        },
+                                        {
+                                          "op": "local",
+                                          "local_id": 12
+                                        }
+                                      ]
+                                    },
+                                    "body": {
+                                      "op": "local",
+                                      "local_id": 13
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::precommit_coin_id",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "atom"
+            },
+            "value": {
+              "op": "tree_atom_value",
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "sha256",
+                "parts": [
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  },
+                  {
+                    "op": "atom",
+                    "hex": "03e8"
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "name": "chialisp_oxide::assert_my_coin_id",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "70",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 5,
+        "name": "chialisp_oxide::assert_my_amount",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "73",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 6,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::ready_message",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "atom"
+            },
+            "value": {
+              "op": "tree_atom_value",
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "sha256",
+                "parts": [
+                  {
+                    "op": "atom",
+                    "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f7265616479"
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "name": "chialisp_oxide::coin_announcement_id",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "atom"
+            },
+            "value": {
+              "op": "tree_atom_value",
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "sha256",
+                "parts": [
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  },
+                  {
+                    "op": "atom",
+                    "hex": ""
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "name": "chialisp_oxide::assert_coin_announcement",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "61",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 9,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::accept_message",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "atom"
+            },
+            "value": {
+              "op": "tree_atom_value",
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "sha256",
+                "parts": [
+                  {
+                    "op": "atom",
+                    "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f616363657074"
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "name": "chialisp_oxide::create_coin_announcement",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "60",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 11,
+        "name": "chialisp_oxide_precommit_controls::precommit_recipe::authorization_message",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "sha256",
+              "parts": [
+                {
+                  "op": "atom",
+                  "hex": "636869616c6973702d6f786964652f707265636f6d6d69742f76312f617574686f72697a65"
+                },
+                {
+                  "op": "local",
+                  "local_id": 0
+                },
+                {
+                  "op": "atom",
+                  "hex": ""
+                }
+              ]
+            },
+            "body": {
+              "op": "local",
+              "local_id": 1
+            }
+          }
+        }
+      },
+      {
+        "id": 12,
+        "name": "chialisp_oxide::agg_sig_me",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 48
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 48
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "50",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 13,
+        "name": "chialisp_oxide::create_coin",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            },
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              },
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "51",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 14,
+        "name": "chialisp_oxide::curry::atom_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "atom"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "sha256",
+            "parts": [
+              {
+                "op": "atom",
+                "hex": "01"
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "atom",
+                "hex": ""
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 15,
+        "name": "chialisp_oxide::curry::pair_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "atom"
+          },
+          "value": {
+            "op": "tree_atom_value",
+            "value": {
+              "op": "tree_atom",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "atom"
+            },
+            "value": {
+              "op": "tree_atom_value",
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "arg",
+                  "index": 1
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "sha256",
+                "parts": [
+                  {
+                    "op": "atom",
+                    "hex": "02"
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 16,
+        "name": "chialisp_oxide::curry::curried_puzzle_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 17,
+            "arguments": []
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "call",
+              "function_id": 18,
+              "arguments": [
+                {
+                  "op": "arg",
+                  "index": 1
+                },
+                {
+                  "op": "local",
+                  "local_id": 0
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 19,
+                "arguments": [
+                  {
+                    "op": "arg",
+                    "index": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 17,
+        "name": "chialisp_oxide::curry::solution_environment_hash",
+        "parameters": [],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 14,
+            "arguments": [
+              {
+                "op": "atom",
+                "hex": "01"
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 18,
+        "name": "chialisp_oxide::curry::curried_environment_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 20,
+            "arguments": [
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "call",
+              "function_id": 14,
+              "arguments": [
+                {
+                  "op": "atom",
+                  "hex": ""
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 15,
+                "arguments": [
+                  {
+                    "op": "arg",
+                    "index": 1
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 14,
+                  "arguments": [
+                    {
+                      "op": "atom",
+                      "hex": "04"
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "bytes",
+                    "len": 32
+                  },
+                  "value": {
+                    "op": "call",
+                    "function_id": 15,
+                    "arguments": [
+                      {
+                        "op": "local",
+                        "local_id": 0
+                      },
+                      {
+                        "op": "local",
+                        "local_id": 2
+                      }
+                    ]
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 15,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 3
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "local",
+                      "local_id": 5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 19,
+        "name": "chialisp_oxide::curry::applied_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 20,
+            "arguments": [
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "call",
+              "function_id": 14,
+              "arguments": [
+                {
+                  "op": "atom",
+                  "hex": ""
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 15,
+                "arguments": [
+                  {
+                    "op": "arg",
+                    "index": 1
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 14,
+                  "arguments": [
+                    {
+                      "op": "atom",
+                      "hex": "02"
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "bytes",
+                    "len": 32
+                  },
+                  "value": {
+                    "op": "call",
+                    "function_id": 15,
+                    "arguments": [
+                      {
+                        "op": "local",
+                        "local_id": 0
+                      },
+                      {
+                        "op": "local",
+                        "local_id": 2
+                      }
+                    ]
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 15,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 3
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "local",
+                      "local_id": 5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 20,
+        "name": "chialisp_oxide::curry::quoted_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 14,
+            "arguments": [
+              {
+                "op": "atom",
+                "hex": "01"
+              }
+            ]
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "call",
+              "function_id": 15,
+              "arguments": [
+                {
+                  "op": "local",
+                  "local_id": 0
+                },
+                {
+                  "op": "arg",
+                  "index": 0
+                }
+              ]
+            },
+            "body": {
+              "op": "local",
+              "local_id": 1
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -38,6 +38,7 @@ export default defineConfig({
           { label: 'Require signatures', slug: 'tutorials/signatures' },
           { label: 'Time & recovery', slug: 'tutorials/recovery' },
           { label: 'Claim a payment or return it', slug: 'tutorials/boomerang' },
+          { label: 'Commit, wait and reveal', slug: 'tutorials/precommit' },
           { label: 'Checked arithmetic', slug: 'tutorials/counter' },
           { label: 'Build a quoted program', slug: 'tutorials/p2-conditions' },
           { label: 'Run an untrusted inner puzzle', slug: 'tutorials/delegated-puzzle' },

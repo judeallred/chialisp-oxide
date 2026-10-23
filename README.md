@@ -156,11 +156,11 @@ original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-688 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
-builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Forty
-complete-spend scenario groups run separately in all three languages (120 ledger
-scenario runs). The eight condition-producing teaching fixtures and the singleton
-launcher have ledger scenarios; pure language results and program
+770 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
+builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Sixty-two
+complete-spend scenario groups run for each selected language build (186 ledger
+scenario runs). The eight original condition-producing teaching fixtures,
+singleton launcher and precommit pair have these generic ledger scenarios; pure language results and program
 factories are not direct spends. Factory validation separately executes the
 returned program on four environments for every successful named compiler run.
 The raw password module is also a pure-function comparison: its caller supplies
@@ -212,11 +212,16 @@ registration into commit, wait and reveal. A one-name registry slot accepts an
 owner-signed opening only from a genuine precommit coin that is at least two
 blocks old. An abandoned precommit returns its full amount to a committed
 destination after eight blocks. Optimized Rust, Chialisp and optimized Rue
-builds of each side run eight ledger scenarios against the independent
+builds of each side run eleven ledger scenarios against the independent
 Chialisp build of the other side. These
-include immature claims, copied openings with a changed key, destination or
-salt, missing signatures and reuse of a spent slot. The pair is a teaching
+include attacker-first naive registration, immature claims, copied openings
+with a changed key, destination or salt, missing signatures, reuse of a spent
+slot and refund after completion. Separate actual source mutations record four
+native outputs, eight primary-VM observations and eight SDK submissions: omitting
+a returned age or signature condition admits a forbidden claim. The pair is a teaching
 demo with explicit limits, not a name service or a fairness guarantee.
+The naive baseline is an independently compiled Chialisp fixture repeated for
+each selected build, rather than a naive-policy port in all three languages.
 
 The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
 to 1,685 bytes. In the recorded accepted joint transaction, total conditions

@@ -12,9 +12,11 @@
 #      LAST-host quiet receipt, capture, install);
 #   7. the separate boomerang source-control packet, with native policy checks,
 #      its own LAST-host quiet receipt, capture, independent check and install;
-#   8. derived reports: error study, IR/tree/byte proofs, acyclic-scalar and
+#   8. the separate precommit source-control packet, with native policy checks,
+#      its own LAST-host quiet receipt, capture, independent check and install;
+#   9. derived reports: error study, IR/tree/byte proofs, acyclic-scalar and
 #      Lean records (the Lean binary must be the pinned 4.35.0 release);
-#   9. a host rebuild, fresh bundles and the fresh-bundle gates, because the
+#  10. a host rebuild, fresh bundles and the fresh-bundle gates, because the
 #      derived-report producers relink the driver (CI runs them in this order).
 # The script stops at the first failure. It never pushes, never edits sources
 # beyond the recorded profiles, and establishes no execution authentication.
@@ -131,6 +133,24 @@ for row in report["files"]:
     shutil.copy2(source / row["path"], destination)
 PYTHON
 python3 scripts/check-boomerang.py --source-controls corpus/boomerang-source-controls/report.json --self-test > "$WORK/gate-boomerang-installed.log"
+
+step "precommit source-control packet"
+python3 scripts/run-precommit-source-controls.py prepare --package "$WORK/precommit-package" --receipt "$WORK/precommit-prepare.json"
+python3 scripts/run-precommit-source-controls.py native --package "$WORK/precommit-package" --prepared "$WORK/precommit-prepare.json" --target "$WORK/precommit-native-target" --output "$WORK/precommit-native"
+cargo build --workspace --bins --examples --locked
+python3 scripts/record-controls-quiet-window.py --kind precommit --package "$WORK/precommit-package" --native-receipt "$WORK/precommit-native/native-receipt.json" --output "$WORK/precommit-last-host.json"
+python3 scripts/run-precommit-source-controls.py capture --package "$WORK/precommit-package" --native-receipt "$WORK/precommit-native/native-receipt.json" --last-host-window "$WORK/precommit-last-host.json" --target "$ROOT/target" --output "$WORK/precommit-capture"
+WORK="$WORK" python3 - <<'PYTHON'
+import os, shutil
+from pathlib import Path
+source = Path(os.environ["WORK"]) / "precommit-capture"
+target = Path("corpus/precommit-source-controls")
+shutil.rmtree(target, ignore_errors=True)
+if target.exists():
+    raise SystemExit("Old precommit packet is busy; preserve the new capture and inspect ignored build output before installing")
+shutil.copytree(source, target)
+PYTHON
+python3 scripts/check-precommit.py --source-controls-only --self-test --replay > "$WORK/gate-precommit.log"
 
 step "derived reports"
 python3 scripts/check-error-study.py --write
