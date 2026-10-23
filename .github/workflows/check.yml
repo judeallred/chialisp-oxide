@@ -173,6 +173,10 @@ jobs:
           python3 scripts/check-cat-source-controls.py --self-test
       - name: Prepare and natively check fresh CAT source mutations
         run: |
+          # Full offline metadata admits every target's dependency graph,
+          # including sources a host-only workspace build never downloads.
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path experiments/cat-genesis-tail/Cargo.toml
           python3 -B experiments/cat-genesis-tail/rust_capture.py prepare --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target"
           python3 -B experiments/cat-genesis-tail/rust_capture.py native --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target"
       - name: Finish host tools before CAT source-control extraction
