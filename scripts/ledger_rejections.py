@@ -70,7 +70,7 @@ def check_ledger_report(report, *, require_typed=True):
     if require_typed or "rejection_protocol" in header:
         require(header.get("rejection_protocol") == PROTOCOL, "Missing/unsupported ledger rejection protocol")
     components = set()
-    component_slugs = {"p2-singleton", "p2-delegated-conditions"}
+    component_slugs = {"p2-singleton", "p2-delegated-conditions", "cat-genesis-by-coin-id"}
     for puzzle in report["puzzles"]:
         comparisons = puzzle.get("simulator_comparisons", [])
         require(isinstance(comparisons, list) and all(isinstance(row, dict)
@@ -105,6 +105,8 @@ def check_ledger_report(report, *, require_typed=True):
                 components.add(puzzle["slug"])
                 if puzzle["slug"] == "p2-singleton":
                     from p2_singleton_evidence import validate_component
+                elif puzzle["slug"] == "cat-genesis-by-coin-id":
+                    from cat_genesis_evidence import validate_component
                 else:
                     from p2_delegated_conditions_evidence import validate_component
                 validate_component(puzzle)

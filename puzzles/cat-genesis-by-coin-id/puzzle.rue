@@ -1,0 +1,28 @@
+// Raw canonical TAIL translation. Finite execution evidence is recorded separately.
+// Whole pre-curry environment; preserve every unused tail.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let after_genesis = environment.rest;
+    assert after_genesis is (Any, Any);
+    let after_truths = after_genesis.rest;
+    assert after_truths is (Any, Any);
+    let after_parent_is_cat = after_truths.rest;
+    assert after_parent_is_cat is (Any, Any);
+    let after_lineage = after_parent_is_cat.rest;
+    assert after_lineage is (Any, Any);
+    let delta = after_lineage.first;
+    // Nil first, before inspecting Truths/equality operands. No integer decode.
+    assert delta is nil;
+    let genesis = environment.first;
+    let truths = after_genesis.first;
+    assert truths is (Any, Any);
+    let after_truth_first = truths.rest;
+    assert after_truth_first is (Any, Any);
+    let after_truth_second = after_truth_first.rest;
+    assert after_truth_second is (Any, Any);
+    let parent = after_truth_second.first;
+    assert parent is Bytes;
+    assert genesis is Bytes;
+    assert parent == genesis;
+    nil
+}

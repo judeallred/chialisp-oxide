@@ -166,6 +166,29 @@ jobs:
             ${{ runner.temp }}/precommit-source-native/
             ${{ runner.temp }}/precommit-source-last-host.json
             ${{ runner.temp }}/precommit-source-capture/
+      - name: Check retained CAT source controls and bounded capture transport
+        run: |
+          python3 -m unittest discover -s scripts -p test_cat_source_controls.py
+          python3 -B experiments/cat-genesis-tail/test_rust_capture.py
+          python3 scripts/check-cat-source-controls.py --self-test
+      - name: Prepare and natively check fresh CAT source mutations
+        run: |
+          python3 -B experiments/cat-genesis-tail/rust_capture.py prepare --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target"
+          python3 -B experiments/cat-genesis-tail/rust_capture.py native --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target"
+      - name: Finish host tools before CAT source-control extraction
+        run: cargo build --workspace --bins --examples --locked
+      - name: Execute fresh Linux CAT source controls and exact repeat
+        run: |
+          python3 -B experiments/cat-genesis-tail/rust_capture.py extract --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target" --compiler-target "$GITHUB_WORKSPACE/target" --compiler-root "$GITHUB_WORKSPACE" --driver "$GITHUB_WORKSPACE/target/debug/chialisp-oxide-driver" --registry-cli "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" --cli "$GITHUB_WORKSPACE/target/debug/chialisp-oxide"
+          python3 -B experiments/cat-genesis-tail/rust_capture.py execute --output "$RUNNER_TEMP/cat-source-capture" --native-target "$GITHUB_WORKSPACE/target"
+          python3 scripts/check-cat-source-controls.py --install-capture "$RUNNER_TEMP/cat-source-capture" --packet "$RUNNER_TEMP/cat-source-packet" --self-test
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: cat-source-controls-linux
+          path: |
+            ${{ runner.temp }}/cat-source-capture/
+            ${{ runner.temp }}/cat-source-packet/
       - name: Check canonical pay-to-singleton and actual Rust policy mutations
         run: |
           python3 -m unittest discover -s scripts -p test_p2_append_migration.py
@@ -318,6 +341,7 @@ jobs:
           python3 scripts/check-canonical-factories.py
           python3 scripts/check-canonical-factories.py --self-test
           python3 scripts/check-port-evidence.py --self-test --replay --cli target/debug/chialisp-oxide
+          python3 scripts/cat_genesis_evidence.py --self-test
           python3 scripts/check-canonical-helpers.py
           python3 scripts/check-canonical-helpers.py --self-test
           python3 scripts/check-insertion-sort.py

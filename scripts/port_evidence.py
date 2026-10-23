@@ -380,7 +380,8 @@ def self_test_port(report, slug, validate, *, reader=read_source):
         report_mutations += [
             ("flipped native outcome", lambda p: p["cases"][accepted_case].update(native={"status": "rejected"})),
             ("flipped VM outcome", lambda p: p["cases"][accepted_case]["runs"][1]["execution"].update(outcome={"status": "rejected"}, failure={"kind": "program", "code": "raise"})),
-            ("changed VM output", lambda p: p["cases"][accepted_case]["runs"][2]["execution"]["outcome"].update(output_hex="80")),
+            ("changed VM output", lambda p: p["cases"][accepted_case]["runs"][2]["execution"]["outcome"].update(
+                output_hex="01" if p["cases"][accepted_case]["runs"][2]["execution"]["outcome"]["output_hex"] == "80" else "80")),
             ("cost over budget", lambda p: p["cases"][accepted_case]["runs"][1]["execution"].update(cost=MAX_BUDGET + 1)),
             ("undeclared divergence", lambda p: p["cases"][accepted_case].update(declared_divergence={"backends": ["chialisp"], "outcome": {"status": "rejected"}, "reason": "invented"})),
         ]

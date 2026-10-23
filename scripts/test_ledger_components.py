@@ -1,6 +1,6 @@
 """Recorded component dispatch regressions; no compiler, VM or SDK execution.
 
-The corpus input must contain the actual two dedicated components. Generic
+The corpus input must contain the actual three dedicated components. Generic
 checks and component-only validators do not grant current aggregate admission
 or promote any pending profile. Historical22 is checked as historical data.
 """
@@ -15,6 +15,7 @@ from unittest.mock import patch
 import ledger_rejections as ledger
 import p2_delegated_conditions_evidence as delegated
 import p2_singleton_evidence as singleton
+import cat_genesis_evidence as cat
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('readable_component_regression', ROOT / 'scripts/check-readable-puzzles.py')
@@ -28,21 +29,23 @@ class LedgerComponentDispatch(unittest.TestCase):
         cls.actual = json.loads((ROOT / 'corpus/validation.json').read_text())
         cls.historical = json.loads((ROOT / 'corpus/checkpoints/runtime-composition-validation.json').read_text())
         cls.by_slug = {p['slug']: p for p in cls.actual['puzzles']}
-        if len(cls.by_slug) != len(cls.actual['puzzles']) or not {'p2-singleton', 'p2-delegated-conditions'} <= cls.by_slug.keys():
-            raise ValueError('Actual corpus with both unique dedicated components required')
+        known = {'p2-singleton', 'p2-delegated-conditions', cat.SLUG}
+        components = [p['slug'] for p in cls.actual['puzzles'] if p.get('kind') == 'protocol_component' or 'protocol_validation' in p]
+        if len(cls.by_slug) != len(cls.actual['puzzles']) or len(components) != 3 or set(components) != known:
+            raise ValueError('Actual corpus with exactly three unique known dedicated components required')
 
     def check(self, value):
         with patch.object(subprocess, 'run', side_effect=AssertionError('metadata checks cannot execute processes')), \
                 patch.object(subprocess, 'Popen', side_effect=AssertionError('metadata checks cannot execute processes')):
             return readable.check_report(value)
 
-    def test_actual23_calls_both_component_only_validators_once(self):
+    def test_actual_calls_three_component_only_validators_once(self):
         # Real recorded/source component checks run; current/outer admission must
         # not recurse from the generic checker into itself.
         import runtime_cost_migration as cost
         import p2dc_append_migration as outer
         results = {}
-        old_validator, new_validator = singleton.validate_component, delegated.validate_component
+        old_validator, new_validator, cat_validator = singleton.validate_component, delegated.validate_component, cat.validate_component
         def checked(name, validator):
             def validate(puzzle):
                 results[name] = validator(puzzle)
@@ -52,41 +55,48 @@ class LedgerComponentDispatch(unittest.TestCase):
                 patch.object(outer, 'validate_current', side_effect=AssertionError('outer current recursion')), \
                 patch.object(delegated, 'validate_current', side_effect=AssertionError('whole current from component dispatch')), \
                 patch.object(singleton, 'validate_component', side_effect=checked('old', old_validator)) as old, \
-                patch.object(delegated, 'validate_component', side_effect=checked('new', new_validator)) as new:
+                patch.object(delegated, 'validate_component', side_effect=checked('new', new_validator)) as new, \
+                patch.object(cat, 'validate_component', side_effect=checked('cat', cat_validator)) as cat_checked:
             counts = self.check(self.actual)
         # 40 retained generic scenario groups plus 11 for each precommit slug.
         self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40 + 2 * 11))
         self.assertEqual(old.call_count, 1)
         self.assertEqual(new.call_count, 1)
+        self.assertEqual(cat_checked.call_count, 1)
         self.assertIs(old.call_args.args[0], self.by_slug['p2-singleton'])
         self.assertIs(new.call_args.args[0], self.by_slug['p2-delegated-conditions'])
+        self.assertIs(cat_checked.call_args.args[0], self.by_slug[cat.SLUG])
         self.assertEqual([results['old'][key] for key in ('groups', 'actual_recorded_submissions', 'accepted', 'typed_rejected_with_recorded_full_rollback')], [5, 110, 15, 95])
         self.assertEqual([results['new'][key] for key in ('SDK_attempts', 'accepted', 'typed_full_Eq_rejected')], [60, 20, 40])
+        self.assertEqual([results['cat'][key] for key in ('groups', 'attempts', 'accepted', 'rejected', 'runtime_umbrellas', 'vm')], [5, 75, 20, 35, 20, 75])
 
     def test_exact_historical22_still_checks_singleton_without_new_current_checks(self):
-        with patch.object(delegated, 'validate_component', side_effect=AssertionError('new component on historical22')):
+        with patch.object(delegated, 'validate_component', side_effect=AssertionError('delegated component on historical22')), \
+                patch.object(cat, 'validate_component', side_effect=AssertionError('CAT component on historical22')):
             self.assertEqual(self.check(self.historical), (22, 439, 40))
         ledger.check_ledger_report(self.historical, require_typed=False)
 
     def test_known_component_dispatch_is_independent_of_position(self):
         changed = copy.deepcopy(self.actual)
-        changed['puzzles'][-2:] = reversed(changed['puzzles'][-2:])
+        known = {'p2-singleton', 'p2-delegated-conditions', cat.SLUG}
+        selected = [row for row in changed['puzzles'] if row['slug'] in known]
+        changed['puzzles'] = list(reversed(selected)) + [row for row in changed['puzzles'] if row['slug'] not in known]
         self.assertEqual(self.check(changed), self.check(self.actual))
 
     def test_unknown_and_duplicate_components_reject(self):
-        for name in ('unknown', 'duplicate-singleton', 'duplicate-delegated'):
+        for name in ('unknown', 'duplicate-singleton', 'duplicate-delegated', 'duplicate-cat'):
             changed = copy.deepcopy(self.actual)
             if name == 'unknown':
                 next(p for p in changed['puzzles'] if p['slug'] == 'p2-delegated-conditions')['slug'] = 'unknown-component'
             else:
-                slug = 'p2-singleton' if name == 'duplicate-singleton' else 'p2-delegated-conditions'
+                slug = {'duplicate-singleton': 'p2-singleton', 'duplicate-delegated': 'p2-delegated-conditions', 'duplicate-cat': cat.SLUG}[name]
                 changed['puzzles'].append(copy.deepcopy(self.by_slug[slug]))
             self.assertNotEqual(changed, self.actual)
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'unknown protocol component|duplicate protocol component'):
                 self.check(changed)
 
     def test_known_slug_cannot_hide_as_a_pure_function(self):
-        for slug in ('p2-singleton', 'p2-delegated-conditions'):
+        for slug in ('p2-singleton', 'p2-delegated-conditions', cat.SLUG):
             changed = copy.deepcopy(self.actual)
             row = next(p for p in changed['puzzles'] if p['slug'] == slug)
             row['kind'] = 'pure_function'

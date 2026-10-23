@@ -500,7 +500,9 @@ for (const puzzle of validation.puzzles) {
   assert(detail.includes(validation.authoring.exports[puzzle.slug].entry), `${puzzle.slug}: missing actual Cargo export identity`);
   const copied = [...detail.matchAll(/\bdata-code="([^"]*)"/g)].map(match => decodeAttribute(match[1]).replaceAll('\x7f', '\n'));
   for (const [label, source] of [['Rust', puzzle.source], ['Chialisp', puzzle.reference], ['Rue', puzzle.rue.source], ...[...puzzle.source_dependencies, ...puzzle.rue.dependencies].filter(dependency => !sourceDataDownloads.some(download => download.path === dependency.path)).map(dependency => [dependency.path, dependency.source])]) {
-    assert(copied.includes(normalizedCode(source)), `${puzzle.slug}: copy payload changed ${label} source`);
+    // Apply the same display whitespace policy to both sides; preserveIndent
+    // keeps leading license indentation in the actual copy payload.
+    assert(copied.some(copy => normalizedCode(copy) === normalizedCode(source)), `${puzzle.slug}: copy payload changed ${label} source`);
     checkedSourceCopies++;
   }
   for (const dependency of [...puzzle.source_dependencies, ...puzzle.rue.dependencies]) {
@@ -1202,6 +1204,7 @@ try {
     ['review adversarial', 'validation/review/'],
     ['puzzle authoring agents', 'reference/agent-guide/'],
     ['lifecycle simulator journal', 'reference/lifecycle/'],
+    ['genesis TAIL lifecycle', 'tutorials/cat-genesis-tail/'],
   ]) {
     const result = await pagefind.search(term);
     const matches = await Promise.all(result.results.map(row => row.data()));

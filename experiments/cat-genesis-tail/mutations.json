@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "executed_in_isolated_capture",
+  "source": "../../puzzles/cat-genesis-by-coin-id/puzzle.rs",
+  "controls": [
+    {
+      "name": "original",
+      "role": "byte-identical source control",
+      "edits": []
+    },
+    {
+      "name": "drop_delta_guard",
+      "role": "ordinary Rust policy mistake that admits non-nil delta",
+      "distinguishing_witness": "non-nil-delta-one",
+      "edits": [
+        {
+          "before": "    match delta {\n        Tree::Atom([]) => {}\n        Tree::Atom(_) | Tree::Pair(_, _) => panic!(),\n    }\n",
+          "after": "    let _discarded_delta = delta;\n"
+        }
+      ]
+    },
+    {
+      "name": "drop_genesis_equality",
+      "role": "ordinary Rust policy mistake that computes equality without enforcing it",
+      "distinguishing_witness": "mismatched-parent",
+      "edits": [
+        {
+          "before": "    assert!(parent_bytes == genesis_bytes);\n",
+          "after": "    let _discarded_comparison = parent_bytes == genesis_bytes;\n"
+        }
+      ]
+    }
+  ],
+  "scope": "Exact source recipes executed as generated ordinary Cargo modules: original37native vectors and one distinguishing native witness per mutant, both-mode compiled artifacts and raw VM witnesses, independently funded own-asset canonical CAT2 SDK controls. Per-attempt retained reports bind actual finite coverage; no corpus, source authentication or compiler-preservation credit."
+}

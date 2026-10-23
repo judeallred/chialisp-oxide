@@ -140,6 +140,10 @@
     "precommit-registry": {
       "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
       "source": "puzzles/precommit-registry/puzzle.rs"
+    },
+    "cat-genesis-by-coin-id": {
+      "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
+      "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
     }
   },
   "inputs": [
@@ -158,6 +162,15 @@
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_top_layer_v1_1.clsp.hex",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_truths.clib",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/LICENSE",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/curry-and-treehash.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/utility_macros.clib",
     "crates/chialisp-oxide-corpus/Cargo.toml",
     "crates/chialisp-oxide-corpus/build.rs",
     "crates/chialisp-oxide-corpus/examples/p2_singleton/codec.rs",
@@ -167,6 +180,8 @@
     "crates/chialisp-oxide-corpus/examples/p2_singleton_probe.rs",
     "crates/chialisp-oxide-corpus/src/boomerang.rs",
     "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail/lifecycle.rs",
     "crates/chialisp-oxide-corpus/src/lib.rs",
     "crates/chialisp-oxide-corpus/src/native.rs",
     "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -210,6 +225,10 @@
     "puzzles/boomerang/reference.clsp",
     "puzzles/bounded-counter/puzzle.rs",
     "puzzles/capped-payment/puzzle.rs",
+    "puzzles/cat-genesis-by-coin-id/puzzle.json",
+    "puzzles/cat-genesis-by-coin-id/puzzle.rs",
+    "puzzles/cat-genesis-by-coin-id/puzzle.rue",
+    "puzzles/cat-genesis-by-coin-id/reference.clsp",
     "puzzles/curry-factory/puzzle.rs",
     "puzzles/curry-hash/puzzle.rs",
     "puzzles/currying-multiply/puzzle.rs",

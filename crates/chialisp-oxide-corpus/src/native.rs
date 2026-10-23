@@ -393,6 +393,18 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             Err(_) => Ok(None),
         };
     }
+    if slug == "cat-genesis-by-coin-id" {
+        let arena = bumpalo::Bump::new();
+        // Preflight every attacker-controlled input outside the policy catch.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "p2-singleton" {
         let arena = bumpalo::Bump::new();
         // Complete input preflight precedes the policy catch, including ignored tails.

@@ -1,0 +1,18 @@
+---
+title: Genesis-by-coin-ID CAT TAIL
+description: Follow a raw-tree Rust TAIL through independent references and a canonical CAT2 simulator lifecycle.
+---
+
+import CatGenesisValidation from '../../../components/CatGenesisValidation.astro';
+import { puzzles } from '../../../lib/data';
+export const cat = (() => {
+  const value = puzzles.find(puzzle => puzzle.slug === 'cat-genesis-by-coin-id');
+  if (!value) throw new Error('Missing actual paired CAT capture');
+  return value;
+})();
+
+import { Content as CatGenesisTail } from '../../../../../docs/cat-genesis-tail.md';
+
+<CatGenesisTail />
+
+<CatGenesisValidation puzzle={cat} />

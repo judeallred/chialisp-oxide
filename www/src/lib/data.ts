@@ -193,6 +193,23 @@ export interface DelegatedProtocol {
     native_evaluations: number; VM_evaluations: number; scope: string;
     cases: (CaseReport & { environment_hex: string; expected: Outcome; canonical_failure_code: string | null })[] };
 }
+export interface CatProtocol {
+  schema_version: number; protocol: 'chialisp-oxide-cat-genesis-by-coin-id/v1'; status: string;
+  sdk: string; consensus: string; sdk_vm: string; network: string; primary_vm: string;
+  primary_protocol: string; primary_flags: number; primary_max_cost: number;
+  sdk_max_block_cost_clvm: number; sdk_transaction_max_cost: number;
+  cat_module_hex: string; cat_module_tree_hash: string; canonical_tail_hex: string;
+  canonical_tail_tree_hash: string; owner_public_key: string; recipient_public_key: string;
+  sdk_transaction_attempts: number; accepted: number; typed_rejected: number;
+  runtime_umbrellas: number; component_primary_vm_runs: number; scope: string;
+  builds: { backend: string; optimize_lir: boolean; module_tree_hash: string;
+    lifecycle: { asset_id: string; attempts: { name: string; outcome: { status: string; code?: string } }[] } }[];
+}
+export function catProtocol(puzzle: PuzzleReport): CatProtocol | undefined {
+  if (puzzle.slug !== 'cat-genesis-by-coin-id' || !puzzle.protocol_validation) return undefined;
+  if (puzzle.protocol_validation.protocol !== 'chialisp-oxide-cat-genesis-by-coin-id/v1') throw new Error('Wrong CAT protocol');
+  return puzzle.protocol_validation as CatProtocol;
+}
 export interface PuzzleReport {
   slug: string;
   title: string;
@@ -219,7 +236,7 @@ export interface PuzzleReport {
   curried_instances?: CurriedInstanceEvidence;
   curried_examples?: CurriedExample[];
   coin_instances?: CoinInstancesEvidence;
-  protocol_validation?: ProtocolValidation | DelegatedProtocol;
+  protocol_validation?: ProtocolValidation | DelegatedProtocol | CatProtocol;
   validated: boolean;
 }
 export function singletonProtocol(puzzle: PuzzleReport): ProtocolValidation | undefined {

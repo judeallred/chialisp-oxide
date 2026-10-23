@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "source_language": "Chialisp",
+  "source": "upstream/genesis_by_coin_id.clsp",
+  "classification": "actual_source_policy_controls",
+  "recipes": [
+    {
+      "name": "drop_genesis",
+      "before": "(if (= (my_parent_cat_truth Truths) GENESIS_ID)",
+      "after": "(if 1",
+      "baseline": "original_wrong_genesis",
+      "mutant": "drop_genesis_wrong_genesis",
+      "witness": "The actual parent is the funded genesis input; both runs curry a different fixed genesis ID. Only the source equality guard changes."
+    },
+    {
+      "name": "drop_delta",
+      "before": "(if delta",
+      "after": "(if ()",
+      "baseline": "original_nonzero_delta",
+      "mutant": "drop_delta_nonzero_delta",
+      "witness": "CAT input1000/output1001/extra_delta1 balance the ring; a separate actual1-mojo standard input preserves aggregate XCH conservation. Only the source delta guard changes."
+    }
+  ],
+  "scope": "Actual independently compiled Chialisp controls, separate from proposed Rust mutations. Each run funds its own curried TAIL/asset ID. Captured SDK and primary-VM results belong in the execution report, not this source recipe."
+}

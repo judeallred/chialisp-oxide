@@ -1,0 +1,45 @@
+
+running 1 test
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-32-byte-parent"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-0"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-1"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-31"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-33"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-256"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-257"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-arbitrary-width-1024"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-parent-single-zero"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-parent-padded-zero"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"equal-parent-signed-looking"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"mismatched-parent"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"nil-parent-is-not-zero-byte"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"zero-byte-parent-is-not-padded-zero"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"non-nil-delta-one"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"non-nil-delta-zero-byte"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"non-nil-delta-padded-zero"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"non-nil-delta-signed-looking"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"non-nil-delta-pair"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"five-fields-no-final-arguments"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"improper-unused-environment-tail"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"original","name":"arbitrary-unused-values"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"malformed-truths-nil"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"malformed-truths-atom"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"malformed-truths-one-cell"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"malformed-truths-two-cells"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"malformed-truths-improper-second-tail"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"parent-is-pair"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"genesis-is-pair"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"both-equality-operands-pairs"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"delta-guard-precedes-malformed-truths"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"parent-projection-precedes-genesis-atom-check"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"environment-nil"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"environment-atom"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"environment-one-cell"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"environment-missing-delta"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"status":"rejected"},"control":"original","name":"environment-improper-before-delta"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"drop_delta_guard","name":"non-nil-delta-one"}
+CAT_GENESIS_RUST_NATIVE {"actual":{"output_hex":"80","status":"accepted"},"control":"drop_genesis_equality","name":"mismatched-parent"}
+test actual_source_native_vectors_and_mutant_witnesses ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

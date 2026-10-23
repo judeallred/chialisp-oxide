@@ -1,0 +1,33 @@
+[package]
+name = "chialisp-oxide-cat-genesis-tail"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide" }
+
+[dev-dependencies]
+chialisp-oxide-corpus = { path = "../../crates/chialisp-oxide-corpus" }
+bumpalo = "3"
+clvmr = "=0.21.0"
+hex = "0.4"
+serde_json = "1"
+chialisp-oxide-reference = { path = "../../crates/chialisp-oxide-reference" }
+chialisp-oxide-vm = { path = "../../crates/chialisp-oxide-vm" }
+chialisp-oxide-simulator = { path = "../../crates/chialisp-oxide-simulator" }
+anyhow = "1"
+chia-bls = "=0.36.1"
+chia-puzzle-types = "=0.36.1"
+chia-puzzles = "=0.20.3"
+chia-sdk-types = "=0.36.0"
+clvm-traits = { version = "=0.36.1", features = ["derive"] }
+clvm-utils = "=0.36.1"
+clvmr-sdk = { package = "clvmr", version = "=0.16.2" }
+sha2 = "0.10"
+
+
+[patch."https://github.com/xch-dev/rue"]
+rue-lir = { path = "../../vendor/rue-lir" }

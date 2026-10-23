@@ -1,6 +1,7 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
 mod authoring;
 mod boomerang;
+pub mod cat_genesis_tail;
 mod curried;
 mod factories;
 mod native;
@@ -59,6 +60,7 @@ pub const PUZZLES: &[&str] = &[
     "boomerang",
     "precommit-claim",
     "precommit-registry",
+    "cat-genesis-by-coin-id",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -809,6 +811,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
     let protocol_validation = if manifest.kind == "protocol_component" {
         Some(match slug {
             "p2-singleton" => p2_singleton::validate(&programs)?,
+            "cat-genesis-by-coin-id" => cat_genesis_tail::validate(&programs)?,
             "p2-delegated-conditions" => p2_delegated_conditions::validate(&programs)?,
             _ => anyhow::bail!("protocol component needs a dedicated validated harness"),
         })

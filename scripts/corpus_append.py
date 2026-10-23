@@ -26,7 +26,7 @@ import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = 'caafec51af49e53c357a7e3e401a5c06cadf8ec6adc33e500852eab6728f06ea'
+PIN = '3add41b106a9a9bdea127d9c8b5ca165bf504ffc670398f4590e38383229b1c6'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
@@ -366,6 +366,12 @@ def validate_current(report):
     delegated = [p for p in report['puzzles'] if p['slug'] == outer.SLUG]
     require(len(delegated) == 1, 'unique delegated-conditions component required')
     component.validate_component(delegated[0], root=ROOT)
+    from cat_genesis_evidence import validate_component as validate_cat
+    cats = [p for p in report["puzzles"] if p["slug"] == "cat-genesis-by-coin-id"]
+    require(len(cats) == 1, "unique current CAT component required")
+    validate_cat(cats[0])
+    from cat_source_controls import validate as validate_cat_controls
+    validate_cat_controls(ROOT / "corpus/cat-genesis-source-controls")
     check_sidecars(report)
     return counts
 

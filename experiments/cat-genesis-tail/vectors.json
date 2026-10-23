@@ -1,0 +1,433 @@
+{
+  "protocol": "chialisp-oxide-cat-genesis-tail-vectors/v1",
+  "status": "specified_not_executed",
+  "source_role": "raw whole-environment translation of unchanged canonical genesis_by_coin_id",
+  "scope": "Finite independent native/reference specifications only; no compiler, VM, CAT issuance, complete spend, source authenticity or compiler-preservation claim.",
+  "cases": [
+    {
+      "name": "equal-32-byte-parent",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Normal nil-delta genesis check."
+    },
+    {
+      "name": "equal-arbitrary-width-0",
+      "environment_hex": "ff80ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff8090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-1",
+      "environment_hex": "ff81a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff81a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-31",
+      "environment_hex": "ff9fa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff9fa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-33",
+      "environment_hex": "ffa1a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa1a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-256",
+      "environment_hex": "ffc100a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffc100a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-257",
+      "environment_hex": "ffc101a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffc101a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-arbitrary-width-1024",
+      "environment_hex": "ffc400a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffc400a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a590756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Canonical equality is byte equality, not a Bytes32 ABI."
+    },
+    {
+      "name": "equal-parent-single-zero",
+      "environment_hex": "ff00ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff0090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Parent/genesis atom bytes retain all padding and signs."
+    },
+    {
+      "name": "equal-parent-padded-zero",
+      "environment_hex": "ff820000ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff82000090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Parent/genesis atom bytes retain all padding and signs."
+    },
+    {
+      "name": "equal-parent-signed-looking",
+      "environment_hex": "ff82ff80ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff82ff8090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Parent/genesis atom bytes retain all padding and signs."
+    },
+    {
+      "name": "mismatched-parent",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0222222222222222222222222222222222222222222222222222222222222222290756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Unequal atoms fail the genesis check.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "nil-parent-is-not-zero-byte",
+      "environment_hex": "ff80ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff0090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Byte equality does not normalize integers.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "zero-byte-parent-is-not-padded-zero",
+      "environment_hex": "ff00ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ff82000090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Padded atom payloads remain distinct.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "non-nil-delta-one",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff01ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Only the nil atom takes the equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "non-nil-delta-zero-byte",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff00ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Only the nil atom takes the equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "non-nil-delta-padded-zero",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff820000ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Only the nil atom takes the equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "non-nil-delta-signed-looking",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff81ffff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Only the nil atom takes the equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "non-nil-delta-pair",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ffff8080ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Only the nil atom takes the equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "five-fields-no-final-arguments",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff8080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Unused final arguments are not required by compiled paths."
+    },
+    {
+      "name": "improper-unused-environment-tail",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff8082ff00",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "No exact tuple or proper-tail decoder may be introduced."
+    },
+    {
+      "name": "arbitrary-unused-values",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffffff8081ffffff0001ffa01111111111111111111111111111111111111111111111111111111111111111ff0081ffffff8081ffff82ff00ff80ff81ff00",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      },
+      "why": "Unused Truths fields, arguments and tails remain opaque trees."
+    },
+    {
+      "name": "malformed-truths-nil",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ff80ff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The needed parent projection must exist, irrespective of unused fields.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "malformed-truths-atom",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ff81ffff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The needed parent projection must exist, irrespective of unused fields.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "malformed-truths-one-cell",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff8080ff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The needed parent projection must exist, irrespective of unused fields.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "malformed-truths-two-cells",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff80ff8080ff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The needed parent projection must exist, irrespective of unused fields.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "malformed-truths-improper-second-tail",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff80ff8081ffff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The needed parent projection must exist, irrespective of unused fields.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "parent-is-pair",
+      "environment_hex": "ffa01111111111111111111111111111111111111111111111111111111111111111ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffff808090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "CLVM equality requires scalar operands after projection.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "invalid_op_arg",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "genesis-is-pair",
+      "environment_hex": "ffff8080ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffa0111111111111111111111111111111111111111111111111111111111111111190756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The genesis operand must be an atom, with no width restriction.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "invalid_op_arg",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "both-equality-operands-pairs",
+      "environment_hex": "ffff8080ffff91756e757365642d6361742d737472756374ff8c756e757365642d6d792d6964ffff808090756e757365642d636f696e2d7461696cff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Pair structure is not structural equality here.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "invalid_op_arg",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "delta-guard-precedes-malformed-truths",
+      "environment_hex": "ffff8080ff80ff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff00ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Non-nil delta raises before either equality operand or malformed Truths is inspected.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "raise",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "parent-projection-precedes-genesis-atom-check",
+      "environment_hex": "ffff8080ff80ff94756e757365642d706172656e742d69732d636174ff8e756e757365642d6c696e65616765ff80ff97756e757365642d696e6e65722d636f6e646974696f6e73ff90756e757365642d66696e616c2d61726780",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "Both equality arguments are evaluated before scalar validation: malformed parent path fails first.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "environment-nil",
+      "environment_hex": "80",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The delta projection fails before the policy's equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "environment-atom",
+      "environment_hex": "81ff",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The delta projection fails before the policy's equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "environment-one-cell",
+      "environment_hex": "ff8080",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The delta projection fails before the policy's equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "environment-missing-delta",
+      "environment_hex": "ff80ff80ff80ff8080",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The delta projection fails before the policy's equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    },
+    {
+      "name": "environment-improper-before-delta",
+      "environment_hex": "ff80ff80ff80ff8081ff",
+      "expected": {
+        "status": "rejected"
+      },
+      "why": "The delta projection fails before the policy's equality branch.",
+      "reference_failure_specification": {
+        "kind": "program",
+        "code": "path_into_atom",
+        "scope": "Independent specification, not an executed VM observation; Rust panic codes may differ."
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+---
+import { backendLabel, catProtocol, href, type PuzzleReport } from '../lib/data';
+const { puzzle } = Astro.props as { puzzle: PuzzleReport };
+const evidence = catProtocol(puzzle);
+if (!evidence) throw new Error('Missing actual CAT lifecycle evidence');
+---
+<section id="cat-genesis-lifecycle" data-cat-validation data-cat-protocol={evidence.protocol}>
+  <h2>Validate the CAT lifecycle locally</h2>
+  <p>Five independently compiled TAILs each fund their own asset, issue it through canonical CAT2, transfer it to a recipient, and spend its next lineage. The canonical CAT2 outer puzzle and standard wallet are host counterparts. These are local simulator observations; Sage and live Testnet11 acceptance remain pending.</p>
+  <p><strong data-cat-attempts>{evidence.sdk_transaction_attempts}</strong> actual SDK submissions across <strong data-cat-groups>{evidence.builds.length}</strong> builds: <span data-cat-accepted>{evidence.accepted}</span> accepted, <span data-cat-rejected>{evidence.typed_rejected}</span> exact typed consensus rejections with full in-memory rollback, and <span data-cat-umbrellas>{evidence.runtime_umbrellas}</span> runtime umbrellas. Umbrellas carry no exact consensus rejection credit. The <span data-cat-component-runs>{evidence.component_primary_vm_runs}</span> component VM observations are separate from the {puzzle.cases.length * puzzle.artifacts.length} named raw vector runs and {puzzle.generated_cases * puzzle.artifacts.length} generated raw vector runs.</p>
+  {evidence.builds.map(build => <details data-cat-build={`${build.backend}/${build.optimize_lir}`}>
+    <summary>{backendLabel(build.backend)} / {build.optimize_lir ? 'on' : 'off'} · 15 submissions</summary>
+    <p>Module hash: <code data-cat-module>{build.module_tree_hash}</code>. Committed asset ID: <code data-cat-asset>{build.lifecycle.asset_id}</code>.</p>
+    <ol>{build.lifecycle.attempts.map(attempt => <li data-cat-attempt={attempt.name}><code>{attempt.name}</code>: <span data-cat-status>{attempt.outcome.status}</span>{attempt.outcome.code && <> · <code data-cat-code>{attempt.outcome.code}</code></>}</li>)}</ol>
+  </details>)}
+  <p>Primary VM: <code>{evidence.primary_vm}</code>; SDK VM: <code>{evidence.sdk_vm}</code>. Their protocols and limits are checked separately.</p>
+  <p><a href={href('reports/cat-genesis-by-coin-id.json')}>Download all five lifecycle journals</a>. Retained receipts are consistency evidence, not execution authentication, a BLS theorem or a compiler-preservation proof.</p>
+</section>
+<style>
+  code { overflow-wrap: anywhere; }
+  details { margin-block: 1rem; }
+</style>

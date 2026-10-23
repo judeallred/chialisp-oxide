@@ -52,6 +52,7 @@ export default defineConfig({
           { label: 'Bind a password hash to a coin', slug: 'tutorials/password-coin' },
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
+          { label: 'Write a CAT TAIL in Rust', slug: 'tutorials/cat-genesis-tail' },
           { label: 'Delegate conditions with an explicit tail', slug: 'tutorials/delegated-conditions' },
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },

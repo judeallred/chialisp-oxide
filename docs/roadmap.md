@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 34 annotated exports of the real
+The latest local capture covers 35 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -17,8 +17,8 @@ page-argument instances cross-checked and executed in five builds, the
 compiled curry factory with second-stage applications, and the inner-puzzle
 commitment fixture whose curried instances run only the committed program, and
 the original boomerang payment with fixed terms committed before funding,
-and the original precommit claim/registry pair.
-Its repeated report records 770 named and 25,222 generated inputs across native Rust and five
+the original precommit claim/registry pair, and the canonical genesis-by-coin-ID CAT TAIL.
+Its repeated report records 807 named and 27,281 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -50,6 +50,14 @@ These observations remain separate from the base precommit pair's 66 grouped
 scenario runs and 96 transaction attempts. That lane includes six repetitions
 of the Chialisp-only naive baseline, accounting for 12 of those attempts; the
 paired policies account for the other 60 groups and 84 attempts.
+
+The [CAT TAIL tutorial](https://judeallred.github.io/chialisp-oxide/tutorials/cat-genesis-tail/)
+adds five local CAT2 lifecycle groups and 75 SDK submissions: 20 accepted,
+35 exact typed consensus rejections and 20 runtime umbrellas. Each build funds
+its own TAIL asset. Its separate actual Rust source-control packet records
+39 native witnesses, 115 raw VM observations, 46 SDK submissions and 50
+component VM observations. Neither lane establishes Sage or live Testnet11
+acceptance; the canonical CAT2 outer layer remains a host counterpart.
 
 ## What works
 
@@ -92,7 +100,8 @@ paired policies account for the other 60 groups and 84 attempts.
 - Canonical ports with pinned provenance: three Intro expressions, three Using
   Modules programs, the Currying module, `p2_conditions`, five published
   helpers through explicit adapters, the singleton launcher, the password
-  module, pay-to-singleton and delegated conditions. Original teaching
+  module, pay-to-singleton, delegated conditions and the genesis-by-coin-ID CAT
+  TAIL. Original teaching
   fixtures are labeled as such and never count as protocol ports.
 - Source-derived SMT models with independent specifications, nonvacuity,
   counterexample replay and mutation controls; Lean algorithm theorems with a
@@ -160,8 +169,10 @@ backlog; this ordering does not mark their acceptance criteria complete.
    now connects fresh checks to a shared simulator CLI/GUI. Continue the explicit-network lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
    demonstrations require actual testnet evidence, not simulated transaction IDs.
-3. Expand stateful composition with canonical CAT issuance
-   ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)), action-layer
+3. The local CAT issuance and transfer workflow
+   ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)) now has paired
+   Cargo exports and five-build CAT2 lifecycle evidence. Funded Testnet11
+   issuance and Sage send/receive evidence remain open. Continue with action-layer
    demonstrations ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)),
    the XCHandles case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
    then authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).

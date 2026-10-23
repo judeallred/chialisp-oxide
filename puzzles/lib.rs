@@ -87,3 +87,6 @@ pub mod p2_singleton;
 pub mod precommit_claim;
 #[path = "precommit-registry/puzzle.rs"]
 pub mod precommit_registry;
+
+#[path = "cat-genesis-by-coin-id/puzzle.rs"]
+pub mod cat_genesis_by_coin_id;

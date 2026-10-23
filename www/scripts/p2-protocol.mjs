@@ -7,6 +7,8 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { checkDelegatedComponent, delegatedSlug } from './p2dc-protocol.mjs';
 
+import { checkCatComponent, catSlug } from './cat-protocol.mjs';
+
 const tableBytes = readFileSync(new URL('../../crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json', import.meta.url));
 assert.equal(createHash('sha256').update(tableBytes).digest('hex'), '174c6321e5e8fc3c246fb65a12e596decb545ec9d5aba74c13a0347f71297192', 'Scoped P2 protocol table changed');
 const table = JSON.parse(tableBytes.toString('utf8'));
@@ -19,6 +21,7 @@ const fields = (value, names, label) => {
 };
 
 export function checkProtocolComponent(puzzle) {
+  if (puzzle.slug === catSlug) return checkCatComponent(puzzle);
   if (puzzle.slug === delegatedSlug) return checkDelegatedComponent(puzzle);
   assert.equal(puzzle.slug, 'p2-singleton', 'Unknown protocol component');
   assert.equal(puzzle.kind, 'protocol_component');
@@ -77,8 +80,11 @@ export function checkProtocolComponent(puzzle) {
 
 export function checkProtocolReport(report) {
   const selected = report.puzzles.filter(puzzle => puzzle.slug === 'p2-singleton');
-  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
+  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug,catSlug].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
   assert.deepEqual(otherComponents, [], 'Unknown dedicated protocol evidence requires its own reviewed reader.');
+  const cat = report.puzzles.filter(puzzle => puzzle.slug === catSlug);
+  assert(cat.length <= 1, 'Duplicate CAT component');
+  if (cat.length) checkCatComponent(cat[0]);
   const delegated = report.puzzles.filter(puzzle => puzzle.slug === delegatedSlug);
   assert(delegated.length <= 1, 'Duplicate delegated-conditions component');
   if (delegated.length) checkDelegatedComponent(delegated[0]);

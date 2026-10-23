@@ -13,7 +13,7 @@ const sourceData = new Map(sourceDataArtifacts(report).map(entry => [entry.path,
 // Focused lessons still retain the exact dataset download cards and hashes.
 // Only supporting source-code drawers are limited to reference includes.
 const dependencies = [...puzzle.source_dependencies, ...puzzle.rue.dependencies].filter(dependency => sourceData.has(dependency.path) || Astro.props.supporting !== 'reference_includes' || Object.values(puzzle.reference_includes ?? {}).includes(dependency.path));
-const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'json' : filename.endsWith('.hex') ? 'text' : /\.(?:clsp|clinc|clib)$/.test(filename) ? 'clsp' : 'rust';
+const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'json' : filename.endsWith('.hex') || filename.endsWith('/LICENSE') ? 'text' : /\.(?:clsp|clinc|clib)$/.test(filename) ? 'clsp' : 'rust';
 ---
 <div class="source-comparison">
   <div class="split-source">

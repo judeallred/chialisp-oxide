@@ -592,6 +592,64 @@ def execution_paths():
         "www/scripts/check-evidence.mjs",
         "www/scripts/p2dc-protocol.mjs"
 ]
+    # CAT protocol/source-control boundaries are retained consistency inputs;
+    # their trees and SHA nodes remain outside the scalar proof model.
+    paths += [
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/LICENSE',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/commit.git',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp.hex',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/condition_codes.clib',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/curry-and-treehash.clib',
+        'corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/utility_macros.clib',
+        'corpus/upstream/published-puzzles/Chia-Network--chia_puzzles/d122456feeef55708d354a065623037bfa010714/tree.json',
+        'crates/chialisp-oxide-corpus/src/cat_genesis_tail.rs',
+        'crates/chialisp-oxide-corpus/src/cat_genesis_tail/lifecycle.rs',
+        'experiments/cat-genesis-tail/Cargo.lock',
+        'experiments/cat-genesis-tail/Cargo.toml',
+        'experiments/cat-genesis-tail/README.md',
+        'experiments/cat-genesis-tail/compiled_codec.py',
+        'experiments/cat-genesis-tail/examples/canonical_lifecycle.rs',
+        'experiments/cat-genesis-tail/examples/rust_lifecycle.rs',
+        'experiments/cat-genesis-tail/lifecycle-controls.json',
+        'experiments/cat-genesis-tail/lifecycle-provenance.json',
+        'experiments/cat-genesis-tail/lifecycle.py',
+        'experiments/cat-genesis-tail/mutations.json',
+        'experiments/cat-genesis-tail/provenance.json',
+        'experiments/cat-genesis-tail/rust-native.rs',
+        'experiments/cat-genesis-tail/rust_capture.py',
+        'experiments/cat-genesis-tail/rust_lifecycle.py',
+        'experiments/cat-genesis-tail/src/lib.rs',
+        'experiments/cat-genesis-tail/test_rust_capture.py',
+        'experiments/cat-genesis-tail/tests/native.rs',
+        'experiments/cat-genesis-tail/upstream/LICENSE',
+        'experiments/cat-genesis-tail/upstream/cat_truths.clib',
+        'experiments/cat-genesis-tail/upstream/cat_v2.clsp',
+        'experiments/cat-genesis-tail/upstream/cat_v2.clsp.hex',
+        'experiments/cat-genesis-tail/upstream/condition_codes.clib',
+        'experiments/cat-genesis-tail/upstream/curry-and-treehash.clib',
+        'experiments/cat-genesis-tail/upstream/genesis_by_coin_id.clsp',
+        'experiments/cat-genesis-tail/upstream/genesis_by_coin_id.clsp.hex',
+        'experiments/cat-genesis-tail/upstream/utility_macros.clib',
+        'experiments/cat-genesis-tail/vectors.json',
+        'experiments/cat-genesis-tail/vectors.py',
+        'puzzles/cat-genesis-by-coin-id/puzzle.json',
+        'puzzles/cat-genesis-by-coin-id/puzzle.rs',
+        'puzzles/cat-genesis-by-coin-id/puzzle.rue',
+        'puzzles/cat-genesis-by-coin-id/reference.clsp',
+        'scripts/cat_genesis_evidence.py',
+        'scripts/cat_source_controls.py',
+        'scripts/test_cat_source_controls.py',
+        'scripts/check-cat-source-controls.py',
+        'www/scripts/cat-protocol.mjs',
+        'www/scripts/test-cat-protocol.mjs',
+    ]
+    from cat_source_controls import recorded_packet_paths
+    paths += ["corpus/cat-genesis-source-controls/" + name
+              for name in recorded_packet_paths(ROOT / "corpus/cat-genesis-source-controls")]
     paths += _source_control_artifact_paths()
     paths += _boomerang_control_artifact_paths()
     from p2_singleton_evidence import RUNTIME_INPUTS
