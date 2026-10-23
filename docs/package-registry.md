@@ -368,6 +368,82 @@ source mutation, package admissions and VM observations. Failed or inconclusive
 runs retain their commands and partial reports; none adds signature, ledger,
 chain-authentication or compiler-preservation evidence.
 
+## Spend through a retrieved standard module
+
+[`examples/registry-standard-wallet`](https://github.com/judeallred/chialisp-oxide/tree/main/examples/registry-standard-wallet)
+is a normal, unpublished Cargo library with an annotated Rust export. Its
+preparation command admits the pinned retained mainnet standard-module fixture,
+publishes the actual 227 module bytes into a fresh local registry, selects the
+exact envelope and module hash in an explicit lock, and generates local Rust.
+Preparation performs no Cargo build, VM execution or network request.
+
+The authored export passes its complete raw environment to the retrieved
+module through the ordinary generated helper:
+
+```rust
+#[chialisp_oxide::puzzle(environment = "raw")]
+pub fn standard_wallet<'a>(environment: &'a Tree<'a>) -> Tree<'static> {
+    generated_standard::run(environment)
+}
+```
+
+The author explicitly chooses the standard module's contract. Before funding,
+the SDK harness curries a disposable synthetic public key into each compiled
+wrapper. Its remaining solution is `(ORIGINAL_KEY DELEGATED_PUZZLE SOLUTION)`;
+this example chooses nil `ORIGINAL_KEY`, a quoted `CREATE_COIN` program and nil
+delegated solution. It does not implement the hidden-puzzle path. The canonical
+module hash, Rust wrapper hashes and key-curried funding targets are distinct.
+Every coin commits its own selected reveal before signing. The public fixture
+secret key is unrelated to ownership of the retained mainnet coin.
+
+After finishing the shared compiler build, run these checkout commands with a
+fresh output directory:
+
+```sh
+python3 examples/registry-standard-wallet/prepare.py --registry-cli "$PWD/target/debug/cargo-chialisp-oxide" --output "$PWD/target/registry-standard-wallet"
+python3 examples/registry-standard-wallet/check.py --self-test
+python3 examples/registry-standard-wallet/check.py --execute --output "$PWD/target/registry-standard-wallet" --registry-cli "$PWD/target/debug/cargo-chialisp-oxide" --driver "$PWD/target/debug/chialisp-oxide-driver"
+```
+
+The execution gate runs native formatting/check/test/Clippy and finishes its
+host harness build before the subset check and both compiler-mode extractions.
+It admits the complete schema-2 bundles, binds actual compiler-read generated
+and authored source, then executes the already built harness. No host build
+follows extraction. Full source/tool windows must stay unchanged throughout
+each phase; retained declarations do not authenticate earlier execution.
+
+The fixed scenario has one native output observation and six primary-VM
+observations. Its 18 SDK submissions span Rust off/on and a separately executed
+canonical reference: three accepted spends create the intended 1,000-mojo
+child; nine empty/wrong-key/wrong-message signatures fail with
+`BadAggregateSignature`; three consumed-input replays fail with `DoubleSpend`.
+Each rejected submission preserves the complete simulator in memory. Three
+additional malformed submissions produce `GeneratorRuntimeError`, recorded
+separately as runtime umbrellas rather than semantic rejection evidence; their
+primary-VM observations have the exact `path_into_atom` code. These are finite
+local simulator observations, with no live network submission, general typed
+dependency ABI or compiler-preservation proof. CI runs this gate and retains
+its source, bundles, command logs and reports as an artifact.
+
+## Construct a reviewed p2_puzzle_hash instance on the host
+
+The package library's explicit
+[`p2_puzzle_hash` binding](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-package/docs/p2-puzzle-hash.md)
+adds a second reviewed outer schema. Resolve the complete lock/store first,
+then choose `P2PuzzleHashModule::from_package` explicitly. It requires the
+pinned canonical retrieved module, curries a nominal `InnerPuzzleHash` as one
+32-byte atom, and constructs `(inner_program inner_environment)` from the
+actual admitted trees. Binary atoms and improper inner tails remain intact.
+It never infers an inner ABI or substitutes embedded fallback bytes.
+
+The inspector recognizes that exact module and decodes its one 32-byte
+commitment argument; malformed known curries retain an explicit invalid-schema
+status. Version-1 locks still carry `binding: null`. Choosing a constructor is
+a reviewed host operation, not automatic nominal typing or a newly admitted
+external Rust frontend call. The binding's focused tests independently compile
+the pinned canonical source and compare exact curries, solutions, VM outcomes
+and one-under resource bounds. They add no complete-spend or signature credit.
+
 ## Supply a program witness instead of embedding its bytes
 
 Choose `generate-witness-rust` explicitly when the author should supply the
@@ -688,9 +764,10 @@ not exist.
 This local registry does not complete the broader package tooling goal.
 The [reveal inspection and standard binding guide](https://judeallred.github.io/chialisp-oxide/reference/reveal-inspection/)
 covers the retained mainnet observation, local standard-curry decoding and the
-first reviewed host binding. Broader nominal bindings and an on-chain
-dependency-by-hash authoring example remain unfinished.
-Local exact pins and host VM consumers do not complete those requirements. Broader ecosystem
-coverage and issue acceptance also remain open. Package identity checks add
+first reviewed host binding. The `p2_puzzle_hash` binding and Cargo standard-wallet
+example above extend reviewed construction and actual dependency-by-hash
+authoring/spending coverage. They do not infer arbitrary typed inner ABIs.
+Broader nominal bindings, ecosystem coverage, remote hosting, names/versions and
+registry trust integration remain open. Package identity checks add
 no native execution, VM execution, simulator spending, model proof or
 compiler-preservation evidence by themselves.

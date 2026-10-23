@@ -174,5 +174,7 @@ The binding uses reviewed `chia-puzzle-types` 0.36.1 schemas and the SDK's
 0.16.2 tree codecs. Artifact admission and explicit example VM execution use
 the project's separate 0.21.0 boundary. All are pinned dependencies. This
 interop check does not prove universal codec equivalence, compiler preservation
-or production safety. Broader bindings, on-chain authoring integration and the
-remaining package-manager work stay tracked in issue #21.
+or production safety. The registry guide also covers the explicit
+[`p2_puzzle_hash` host binding](https://judeallred.github.io/chialisp-oxide/reference/package-registry/#construct-a-reviewed-p2_puzzle_hash-instance-on-the-host)
+and a separate [on-chain Cargo wrapper with SDK spends](https://judeallred.github.io/chialisp-oxide/reference/package-registry/#spend-through-a-retrieved-standard-module).
+Broader bindings and the remaining package-manager work stay tracked in issue #21.

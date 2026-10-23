@@ -2,6 +2,10 @@
 //! admission only; no CLVM, signature, authorization or coin-spend execution.
 use super::*;
 use crate::verify_package;
+use clvmr_sdk::{
+    Allocator,
+    serde::{node_from_bytes, node_to_bytes_limit},
+};
 use serde_json::{Value, json};
 
 fn fixture_binding() -> (StandardModule, SyntheticPublicKey, [u8; 48]) {

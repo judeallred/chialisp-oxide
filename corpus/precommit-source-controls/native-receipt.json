@@ -3,7 +3,7 @@
   "protocol": "chialisp-oxide-precommit-controls-native/v1",
   "status": "native_phase_passed_before_LAST_host_build",
   "source_root": "/Users/judeallred/code/clispOx",
-  "package_root": "/Users/judeallred/code/clispOx/target/capture-precommit-followup-2/precommit-package",
+  "package_root": "/Users/judeallred/code/clispOx/target/capture-registry21-1/precommit-package",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
     "authoring": {
@@ -156,7 +156,7 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "610b51c57b38e6f3bb77d2511ca0ec950b7fb3d6957301ea4cd23d975172f7a2"
+          "sha256": "b7282fa568a9fb9adfec7f924ac5d6701f1bcb93aab023e8773f50d5e3ff7a1a"
         },
         {
           "path": "Cargo.toml",
@@ -627,7 +627,7 @@
       },
       {
         "path": "Cargo.lock",
-        "sha256": "610b51c57b38e6f3bb77d2511ca0ec950b7fb3d6957301ea4cd23d975172f7a2"
+        "sha256": "b7282fa568a9fb9adfec7f924ac5d6701f1bcb93aab023e8773f50d5e3ff7a1a"
       },
       {
         "path": "Cargo.toml",
@@ -1515,7 +1515,7 @@
       },
       {
         "path": "crates/chialisp-oxide-package/Cargo.toml",
-        "sha256": "3f5ec3d8f38e1fb2885c42dbf030115f9a0384e8d00a630a32ae9117ca87fa1d"
+        "sha256": "c326f4b684874c39c30f42015ed7e20bb33ebc27dc2485591748245882b1713d"
       },
       {
         "path": "crates/chialisp-oxide-package/examples/locked-artifact.rs",
@@ -1614,6 +1614,10 @@
         "sha256": "08da4a20c498fbfecc69ce3693a7e8c45599dafeb373758cee855870a9502713"
       },
       {
+        "path": "crates/chialisp-oxide-package/src/construction.rs",
+        "sha256": "255e5fd04b29b04bb523dd603fbf986c6f5860f8ee351408688b6818364817ee"
+      },
+      {
         "path": "crates/chialisp-oxide-package/src/dependency.rs",
         "sha256": "1bef1e7e256390cf14f039d72ef568a95fd8ad265298ddea59eda7a169efbe92"
       },
@@ -1667,11 +1671,11 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/inspect.rs",
-        "sha256": "1b763de38d64f7e7829351178db2f9ed7ed20169c0d43f6cd7863490aa2b5ac8"
+        "sha256": "794c347ae9e5843d50c921bd3ee617c9c3fa9a04a6af3a74f2b5076f383483c9"
       },
       {
         "path": "crates/chialisp-oxide-package/src/inspect/catalog.rs",
-        "sha256": "52529f9ae478f55a8c8451bed307d97603bba7d4b9d20e80b3bdb5e92598a06d"
+        "sha256": "d49cd505843feff3dcad0b37890ce24a539888dc061fb629b66873e33ca2d788"
       },
       {
         "path": "crates/chialisp-oxide-package/src/inspect/index.rs",
@@ -1699,11 +1703,15 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/lib.rs",
-        "sha256": "ec750b3c57a4250920dbd123473e28fcb24f5bf67f8797ab7ff0162170d8288b"
+        "sha256": "fc700345c45ac7d1d62f33bfcce63823fccf9c298c344a15b67b2a5129e16dcf"
       },
       {
         "path": "crates/chialisp-oxide-package/src/limits.rs",
         "sha256": "8c8198d94ebf7914540b979fd521415e6e1490af60f3b450c0b300efc62d01cf"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/src/p2_puzzle_hash.rs",
+        "sha256": "421f1df2ef6745fabfc53fe9dcbd2842e655c7ae87f2fcd80daf1d9e5af2b32c"
       },
       {
         "path": "crates/chialisp-oxide-package/src/package.rs",
@@ -1723,11 +1731,11 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/standard.rs",
-        "sha256": "4c167e0f5d4d03fa86460d14de8cc2cf6ce3e4ab153bd94af674d0dc90f85918"
+        "sha256": "2c292e6e4b41aaf5b4b68998a89001c96881603ec66b9354ed796b804fedf75d"
       },
       {
         "path": "crates/chialisp-oxide-package/src/standard/tests.rs",
-        "sha256": "cf4bde61f702e0f8b551ad324a4360d0ece0507dc3865e1c3ceb2b3e46ee0be5"
+        "sha256": "59bf37449a284682bfdf39f5fc6de2df39c0c59127dafc8a8bd11ae95006c62a"
       },
       {
         "path": "crates/chialisp-oxide-package/src/store.rs",
@@ -1744,6 +1752,14 @@
       {
         "path": "crates/chialisp-oxide-package/tests/inspect_boundaries.rs",
         "sha256": "cec858eb646328d09e082e915c59cdf066a8d40a1a7c19d188a57ce45062cae5"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/tests/p2_puzzle_hash.rs",
+        "sha256": "c73bfb375e7103106e3c97d72216a604863d9870dc8ef26a87a47fbe8d7cefdd"
+      },
+      {
+        "path": "crates/chialisp-oxide-package/tests/p2_puzzle_hash/bounds.rs",
+        "sha256": "acce13fc9e51eaafb9254e6aa4ddf570f7afe200461196baf8be42ff625cb8a6"
       },
       {
         "path": "crates/chialisp-oxide-package/tests/standard_inspection.rs",
@@ -2471,7 +2487,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "7e438c9929b40cb224558237cdd6b4e679adff94c8115314b667145b0deb4741"
+        "sha256": "ed5396ce0cea4ec38293df056e78866806d8b001de5e3aecf2afa1fc007c65b5"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -2914,7 +2930,7 @@
         "cargo",
         "generate-lockfile",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-precommit-followup-2/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-registry21-1/precommit-package/Cargo.toml",
         "--offline"
       ],
       "exit_code": 0,
@@ -2929,14 +2945,14 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-precommit-followup-2/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-registry21-1/precommit-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline"
       ],
       "exit_code": 0,
       "log": "native-logs/1.log",
-      "log_sha256": "3eeb41f5c911e8e9887cda0f10f953fa1372932deb506545d68b99cb0ced4ec8"
+      "log_sha256": "d409429e56cc589d4069428dfccfa82287f1a79240ed470ffcc53607fc474b29"
     },
     {
       "argv": [
@@ -2946,7 +2962,7 @@
         "cargo",
         "test",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-precommit-followup-2/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-registry21-1/precommit-package/Cargo.toml",
         "--locked",
         "--offline",
         "--",
@@ -2954,7 +2970,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/2.log",
-      "log_sha256": "7a2f88cbf9b6cdadf5881de41d1e8a0ac03f5108e9ca3ed8814d59c34913a9d2"
+      "log_sha256": "c461094c07939c4f4faa1e47479183d9ec575a79e58dc32e5a4ab7a7de0f530a"
     },
     {
       "argv": [
@@ -2964,7 +2980,7 @@
         "cargo",
         "clippy",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-precommit-followup-2/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-registry21-1/precommit-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline",
@@ -2974,7 +2990,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/3.log",
-      "log_sha256": "eef47f720d36267f5cc75bcb674c1ed291cc1d7c09f240405a8fc996f01f5dae"
+      "log_sha256": "4a8a9748e77a4f68224bed5876ddbe789ba84f248d529fa2c376ab9d8531482f"
     }
   ]
 }

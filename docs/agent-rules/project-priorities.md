@@ -10,11 +10,13 @@
   fresh-clone trials are recorded in `docs/agent-documentation.md`.
 - The original boomerang puzzle (#9) shipped with five-build committed-instance
   and separate source-mutation evidence, exact-commit CI, Pages and live checks;
-  the issue is closed. The next tooling slice is #21's offline package registry,
-  with source-aware Cargo receipts and exact local dependency locks, followed by
-  observed mainnet inspection, pinned bindings and #12's broader lifecycle;
-  keep full issue acceptance and the later stateful-puzzle tracks explicit.
-  Use issue dependencies to order larger work.
+  the issue is closed. #21 now includes source-aware Cargo receipts, exact local
+  locks, observed mainnet inspection, reviewed standard/p2-puzzle-hash host
+  bindings and a normal Cargo dependency-by-hash spend example. Broader nominal
+  dependency support and registry integration remain open. Continue with #12's
+  shared CLI/GUI lifecycle and real testnet evidence, then the later stateful
+  puzzle tracks; keep full issue acceptance explicit. Use issue dependencies to
+  order larger work.
 - Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
   priority. Preserve measured regressions and existing optimization checks.
 - Publish coherent, verified increments. Do not close an issue until its actual

@@ -1,0 +1,22 @@
+[package]
+name = "registry-standard-wallet"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide", version = "0.1.0" }
+
+[dev-dependencies]
+# Ordinary native tests and host examples enable VM support. Extraction does not.
+chialisp-oxide = { path = "../../crates/chialisp-oxide", version = "0.1.0", features = ["vm"] }
+chialisp-oxide-simulator = { path = "../../crates/chialisp-oxide-simulator", version = "0.1.0" }
+chialisp-oxide-backend-experiment = { path = "../../experiments/backend", version = "0.1.0" }
+anyhow = "1"
+chia-bls = "=0.36.1"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+

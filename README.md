@@ -86,8 +86,12 @@ witness bytes and runtime hashing as well as module size.
 
 The [reveal inspector and standard host binding](docs/reveal-inspection.md)
 decode a retained mainnet observation and construct curries from retrieved bytes.
-Broader typed bindings and general dependency authoring remain unfinished in
-issue #21. See the guides for the precise capture and verification boundaries.
+An explicit [`p2_puzzle_hash` host binding](crates/chialisp-oxide-package/docs/p2-puzzle-hash.md)
+also constructs the canonical commitment and solution framing. The normal Cargo
+[`registry-standard-wallet` example](examples/registry-standard-wallet) calls the
+retrieved standard module from Rust and checks actual SDK spends with disposable
+fixture keys. Broader typed bindings and general dependency authoring remain
+unfinished in issue #21. See the guides for the precise verification boundaries.
 
 This is a Cargo-driven MIR extractor and CLVM backend adapter, **not** a rustc
 `--target clvm` implementation. A target configuration alone does not provide

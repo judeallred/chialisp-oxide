@@ -196,6 +196,18 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts -p test_registry_witness_evidence.py
           python3 scripts/check-registry-witness.py --execute --output "$RUNNER_TEMP/registry-witness"
+      - name: Spend through the retrieved standard module from a Cargo Rust wrapper
+        run: |
+          python3 examples/registry-standard-wallet/check.py --self-test
+          python3 examples/registry-standard-wallet/prepare.py --registry-cli "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" --output "$RUNNER_TEMP/registry-standard-wallet"
+          python3 examples/registry-standard-wallet/check.py --execute --output "$RUNNER_TEMP/registry-standard-wallet" --registry-cli "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" --driver "$GITHUB_WORKSPACE/target/debug/chialisp-oxide-driver"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: registry-standard-wallet
+          path: |
+            ${{ runner.temp }}/registry-standard-wallet/
+            !${{ runner.temp }}/registry-standard-wallet/project/target/**
       - name: Execute P2 raw-domain and separate resource controls
         run: |
           p2_ir=$(python3 - <<'PYTHON'

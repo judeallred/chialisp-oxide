@@ -55,3 +55,11 @@
   authentication. The reviewed standard host binding uses retrieved module and
   inner bytes, an actual parsed synthetic-key role and the pinned SDK schema;
   it supplies no inferred inner ABI, signature or newly supported frontend call.
+- The explicit `p2_puzzle_hash` host binding admits the exact pinned retrieved
+  module and encodes `InnerPuzzleHash` as one 32-byte atom, never the SDK's
+  generic integer-array list. Preserve opaque inner environments and all caller
+  construction limits. Version-1 pins retain `binding: null`; metadata does not
+  select this nominal schema automatically. Run its independent canonical/VM
+  tests and the ordinary Cargo registry-standard-wallet gate when changing
+  these bindings. Keep that gate's native, primary-VM, typed SDK rejection and
+  runtime-umbrella counts separate; no live-network credit follows from it.

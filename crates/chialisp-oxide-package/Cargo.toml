@@ -13,10 +13,11 @@ chialisp-oxide-ir = { path = "../chialisp-oxide-ir" }
 chia-bls = "=0.36.1"
 chia-puzzle-types = "=0.36.1"
 chia-puzzles = "=0.20.3"
-clvm-traits = "=0.36.1"
+clvm-traits = { version = "=0.36.1", features = ["derive"] }
 clvm-utils = "=0.36.1"
 clvmr-sdk = { package = "clvmr", version = "=0.16.2" }
 [dev-dependencies]
+chialisp-oxide-reference = { path = "../chialisp-oxide-reference" }
 tempfile = "3"
 chialisp-oxide-vm = { path = "../chialisp-oxide-vm" }
 chia-protocol = "=0.36.1"

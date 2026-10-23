@@ -42,6 +42,22 @@ around a subset rejection by disabling policy assertions. See
 [quickstart](https://judeallred.github.io/chialisp-oxide/start/quickstart/) and
 [CLI](https://judeallred.github.io/chialisp-oxide/reference/cli/).
 
+## Call an exact registry dependency
+
+For an ordinary Cargo example that applies a retrieved on-chain standard
+module, start with
+[`examples/registry-standard-wallet`](https://github.com/judeallred/chialisp-oxide/tree/main/examples/registry-standard-wallet)
+and the [registry walkthrough](https://judeallred.github.io/chialisp-oxide/reference/package-registry/#spend-through-a-retrieved-standard-module).
+Its offline preparation pins an exact envelope, serialized module and tree hash,
+then generates ordinary local Rust. Native tests, both CLVM modes and SDK spends
+are separate execution phases. The author supplies the standard module's
+whole-tree contract; generated metadata does not infer a nominal ABI.
+
+The package library also has explicit host bindings for the standard wallet and
+canonical `p2_puzzle_hash`. Host curry/solution construction does not grant a new
+cross-crate call inside an on-chain Rust export. Keep package object IDs, blob
+digests, module hashes and curried coin puzzle hashes distinct.
+
 ## Use readable, typed policy
 
 This complete export is copied verbatim from

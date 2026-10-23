@@ -110,13 +110,18 @@ paired policies account for the other 60 groups and 84 attempts.
   capture a complete build graph or prove source/IR/CLVM equivalence.
 - Bounded offline reveal inspection with exact canonical uncurry, a retained
   Coinset-reported mainnet standard puzzle checked through independent SDK
-  codecs, and an explicit retrieved-byte standard host binding. Host VM
+  codecs, and explicit retrieved-byte standard and `p2_puzzle_hash` host bindings. Host VM
   conditions do not establish signatures, chain authentication or complete spends.
 - Explicit-lock generation of local Rust helpers that construct and apply the
   retrieved program. These helpers use the ordinary checked source path and
   preserve an opaque whole-tree environment. The bounded generation profile,
   native Rust checks, subset checks and actual paired CLVM builds are separate;
   generated comments and names grant no nominal ABI or compiler trust.
+- A normal Cargo standard-wallet wrapper applying the exact registry-retrieved
+  module, with source-aware bundles in both compiler modes. Its separate SDK
+  scenario records 18 submissions: three accepted spends, twelve exact typed
+  rejections and three runtime umbrellas; one native output and six primary-VM
+  observations stay separate. These are local simulator runs, not live spends.
 - Searchable Astro/Starlight documentation generated from source and evidence,
   published-source discovery across 98 pinned repository trees, and seven
   upstream Rue regressions filed with fixes.
@@ -146,21 +151,21 @@ backlog; this ordering does not mark their acceptance criteria complete.
    [offline registry prototype](https://judeallred.github.io/chialisp-oxide/reference/package-registry/)
    imports immutable Cargo bundles and verifies exact package, artifact and
    structural ABI identities without running a compiler or VM. Complete
-   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) beyond local
-   exact dependency locks and the first standard host binding with broader
-   reviewed bindings and broader on-chain dependency authoring beyond the first
-   generated whole-tree helpers;
-   source attachments and build declarations alone do not establish compilation
-   or source authenticity. Then build the explicit-network CLI/GUI lifecycle
+   [#21](https://github.com/judeallred/chialisp-oxide/issues/21) now has reviewed
+   standard/p2-puzzle-hash host bindings and a Cargo standard-wallet wrapper
+   with actual local SDK spends. Arbitrary nominal dependency ABIs and broader
+   registry integration remain open; source attachments and build declarations
+   alone do not establish compilation or source authenticity. Next build the explicit-network CLI/GUI lifecycle
    ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
    demonstrations require actual testnet evidence, not simulated transaction IDs.
 3. Expand stateful composition with canonical CAT issuance
-   ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)), the XCHandles
-   case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
-   authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)),
-   precommit/wait/reveal ([#17](https://github.com/judeallred/chialisp-oxide/issues/17))
-   and action-layer demonstrations
-   ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)). Derive new
+   ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)), action-layer
+   demonstrations ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)),
+   the XCHandles case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
+   then authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
+   Build on the original precommit/wait/reveal demo
+   ([#17](https://github.com/judeallred/chialisp-oxide/issues/17)) while retaining
+   its canonical-port and reusable-abstraction gaps. Derive new
    capabilities from these concrete ports; preserve honest gaps and model scope.
 4. Use that foundation for the pot game
    ([#10](https://github.com/judeallred/chialisp-oxide/issues/10)), raffle

@@ -6,7 +6,7 @@ mod catalog;
 mod index;
 
 pub use catalog::KnownModule;
-pub(crate) use catalog::standard_module_matches;
+pub(crate) use catalog::{p2_puzzle_hash_module_matches, standard_module_matches};
 
 use crate::{
     Digest32, Error, ErrorKind, Limits, Result,
@@ -17,7 +17,7 @@ use serde::Serialize;
 use std::path::Path;
 
 pub const MAX_CURRY_ARGUMENTS: usize = 128;
-pub const INSPECTION_SCOPE: &str = "Offline bounded canonical-plain artifact identities, exact canonical curry shape and reviewed standard argument decoding only; no CLVM execution, source/IR equivalence, authenticated chain inclusion, owner identity, hidden-puzzle choice, signature or spend validation, or suitability for real funds.";
+pub const INSPECTION_SCOPE: &str = "Offline bounded canonical-plain artifact identities, exact canonical curry shape and reviewed standard/inner-puzzle-hash argument decoding only; no CLVM execution, source/IR equivalence, authenticated chain inclusion, owner identity, hidden-puzzle choice, signature or spend validation, or suitability for real funds.";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -54,6 +54,26 @@ pub enum StandardArguments {
         key_is_infinity: bool,
     },
 }
+/// Errors in the manually reviewed canonical p2_puzzle_hash curry schema.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PuzzleHashArgumentError {
+    WrongArity,
+    ExpectedAtom,
+    WrongHashLength,
+}
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "status", rename_all = "snake_case")]
+pub enum PuzzleHashArguments {
+    NotCurried,
+    Invalid {
+        reason: PuzzleHashArgumentError,
+    },
+    Decoded {
+        inner_puzzle_hash: Digest32,
+        role: &'static str,
+    },
+}
 #[derive(Clone, Debug, Serialize)]
 pub struct InspectionReport {
     pub schema_version: u32,
@@ -64,6 +84,8 @@ pub struct InspectionReport {
     pub module_recognized: bool,
     pub known_module: Option<KnownModule>,
     pub standard_arguments: StandardArguments,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub p2_puzzle_hash_arguments: Option<PuzzleHashArguments>,
     pub scope: &'static str,
 }
 pub struct Inspection {
@@ -230,7 +252,8 @@ pub fn inspect_reveal(
         }
     }
     budget.charge(catalog::CATALOG_MATCH_WORK)?;
-    let raw_known = standard_module_matches(&reveal);
+    let raw_module = catalog::known_module(&reveal);
+    let raw_known = raw_module.is_some();
     let tree = index::Index::new(reveal.bytes(), reveal.stats(), limits, &mut budget)?;
     // A published compiled module can itself have curry-shaped implementation
     // code. Exact catalog identity takes precedence over interpreting that
@@ -244,22 +267,26 @@ pub fn inspect_reveal(
     let mut arguments = Vec::new();
     let mut argument_reports = Vec::new();
     let mut module_report = None;
-    let mut recognized = raw_known;
+    let mut known_module = raw_module;
     let mut form = if raw_known {
         RevealForm::RecognizedRawModule
     } else {
         RevealForm::Unclassified
     };
-    let mut standard_arguments = if raw_known {
+    let mut standard_arguments = if raw_module == Some(catalog::Module::Standard) {
         StandardArguments::NotCurried
     } else {
         StandardArguments::NotApplicable
     };
+    let mut p2_puzzle_hash_arguments = (raw_module == Some(catalog::Module::PuzzleHash))
+        .then_some(PuzzleHashArguments::NotCurried);
     if let Some(shape) = shape {
         form = RevealForm::CanonicalCurry;
         let admitted = budget.admit(tree.bytes(shape.module), limits)?;
         budget.charge(catalog::CATALOG_MATCH_WORK)?;
-        recognized = standard_module_matches(&admitted);
+        known_module = catalog::known_module(&admitted);
+        let standard = known_module == Some(catalog::Module::Standard);
+        let puzzle_hash = known_module == Some(catalog::Module::PuzzleHash);
         module_report = Some(budget.subtree(&admitted)?);
         module = Some(admitted);
         // The shape collector bounded these collections before reserving.
@@ -275,8 +302,15 @@ pub fn inspect_reveal(
             argument_reports.push(budget.subtree(&admitted)?);
             arguments.push(admitted);
         }
-        if recognized {
+        if standard {
             standard_arguments = catalog::decode_arguments(&tree, &shape.arguments, &mut budget)?;
+        }
+        if puzzle_hash {
+            p2_puzzle_hash_arguments = Some(catalog::decode_puzzle_hash_arguments(
+                &tree,
+                &shape.arguments,
+                &mut budget,
+            )?);
         }
     } else if raw_known {
         module_report = Some(budget.subtree(&reveal)?);
@@ -288,9 +322,10 @@ pub fn inspect_reveal(
         reveal: reveal.identity().clone(),
         module: module_report,
         arguments: argument_reports,
-        module_recognized: recognized,
-        known_module: recognized.then_some(catalog::STANDARD_MODULE),
+        module_recognized: known_module.is_some(),
+        known_module: known_module.map(catalog::Module::description),
         standard_arguments,
+        p2_puzzle_hash_arguments,
         scope: INSPECTION_SCOPE,
     };
     Ok(Inspection {
