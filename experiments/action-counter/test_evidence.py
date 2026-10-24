@@ -260,6 +260,44 @@ class CaptureRelationCorruptionControls(unittest.TestCase):
                     check_receipt(bad,argv,target=target,rustc=args.rustc,driver=driver)
 
 
+class ProtocolExecutableIdentity(unittest.TestCase):
+    def test_protocol_state_uses_existing_executable_bound_not_data_bound(self):
+        import hashlib
+        import protocol_capture as protocol
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            args=SimpleNamespace(output=root,native_target=root/'native')
+            binary=protocol.binary(args);binary.parent.mkdir(parents=True)
+            size=protocol.support.MAX_FILE+1
+            with binary.open('wb') as stream:stream.truncate(size)
+            (root/'artifacts.json').write_bytes(b'{}\n')
+            # The generic data limit stays 16MiB. Only the production state's
+            # executable role gets the same 512MiB limit as native/tools.
+            with self.assertRaisesRegex(ValueError,'bounded regular file'):
+                protocol.support.identity(binary)
+            with patch.object(protocol.capture,'tools',return_value=()), \
+                 patch.object(protocol.capture,'quiet',return_value={}):
+                state=protocol.state(args)
+            self.assertEqual(state['protocol_binary'],
+                {'path':str(binary),'bytes':size,'sha256':hashlib.sha256(bytes(size)).hexdigest()})
+            self.assertEqual(protocol.support.MAX_FILE,16*1024*1024)
+
+    def test_oversized_protocol_executable_rejects_before_read_or_hash(self):
+        import protocol_capture as protocol
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            args=SimpleNamespace(output=root,native_target=root/'native')
+            binary=protocol.binary(args);binary.parent.mkdir(parents=True)
+            with binary.open('wb') as stream:stream.truncate(512*1024*1024+1)
+            with patch.object(protocol.capture,'tools',return_value=()), \
+                 patch.object(protocol.capture,'quiet',return_value={}), \
+                 patch.object(Path,'open',side_effect=AssertionError('payload opened')) as opened, \
+                 patch.object(protocol.support,'digest',side_effect=AssertionError('payload hashed')) as hashed:
+                with self.assertRaisesRegex(ValueError,'bounded regular file'):
+                    protocol.state(args)
+            opened.assert_not_called();hashed.assert_not_called()
+
+
 class NativeZeroTestControl(unittest.TestCase):
     def test_native_success_with_zero_actual_tests_cannot_confirm_hardcoded_counts(self):
         import capture

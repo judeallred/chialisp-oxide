@@ -28,7 +28,7 @@ def binary(args):
 def state(args):
     tools = capture.tools(args)
     return {'raw_source_tools': capture.quiet(args, tools),
-            'protocol_binary': support.identity(binary(args)),
+            'protocol_binary': support.identity(binary(args),512*1024*1024),
             'artifact_packet': support.identity(args.output/'artifacts.json'),
             'capture_python': support.identity(Path(sys.executable).resolve())}
 
