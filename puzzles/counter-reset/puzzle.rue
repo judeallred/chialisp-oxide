@@ -1,0 +1,24 @@
+// Original teaching counter action, independently authored Rue source.
+// Curry owner as one48-byte atom; validate even the discarded old state.
+fn main(...environment: Any) -> Any {
+    assert environment is (PublicKey, ((Any, Int), nil));
+    let owner = environment.first;
+    let truth = environment.rest.first;
+    let state = canonical_u64(truth.rest);
+    // Keep validation strict even though reset discards the old numeric value.
+    assert state >= 0;
+    ((truth.first, 0), [AggSigMe { public_key: owner, message: RESET_INTENT }])
+}
+
+const RESET_INTENT: Bytes = 0x636869616c6973702d6f786964652f636f756e7465722f72657365743a763121;
+
+fn canonical_u64(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length <= 9;
+    assert value >= 0;
+    assert value <= 18446744073709551615;
+    assert encoded.length == 0
+        || substr(encoded, 0, 1) != 0x00
+        || (encoded.length > 1 && (substr(encoded, 1, 2) as Int) < 0);
+    value
+}

@@ -1,0 +1,406 @@
+{
+  "ir_version": 5,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_action_counter::counter_reset::puzzle",
+    "parameters": [
+      {
+        "name": "owner",
+        "ty": {
+          "kind": "bytes",
+          "len": 48
+        }
+      },
+      {
+        "name": "truth",
+        "ty": {
+          "kind": "pair",
+          "first": {
+            "kind": "tree"
+          },
+          "rest": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        }
+      }
+    ],
+    "result": {
+      "kind": "pair",
+      "first": {
+        "kind": "pair",
+        "first": {
+          "kind": "tree"
+        },
+        "rest": {
+          "kind": "int",
+          "bits": 64,
+          "signed": false
+        }
+      },
+      "rest": {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 48
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        },
+        {
+          "op": "arg",
+          "index": 1
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_action_counter::counter_reset::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 48
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "pair",
+              "first": {
+                "kind": "tree"
+              },
+              "rest": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            }
+          }
+        ],
+        "result": {
+          "kind": "pair",
+          "first": {
+            "kind": "pair",
+            "first": {
+              "kind": "tree"
+            },
+            "rest": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "rest": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "tuple",
+                "items": [
+                  {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  },
+                  {
+                    "kind": "bytes",
+                    "len": 48
+                  },
+                  {
+                    "kind": "bytes",
+                    "len": 32
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "pair_first",
+            "value": {
+              "op": "arg",
+              "index": 1
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "pair",
+              "first": {
+                "kind": "tree"
+              },
+              "rest": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "value": {
+              "op": "pair",
+              "first": {
+                "op": "local",
+                "local_id": 0
+              },
+              "rest": {
+                "op": "int",
+                "value": "0",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "tuple",
+                "items": [
+                  {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  },
+                  {
+                    "kind": "bytes",
+                    "len": 48
+                  },
+                  {
+                    "kind": "bytes",
+                    "len": 32
+                  }
+                ]
+              },
+              "value": {
+                "op": "call",
+                "function_id": 1,
+                "arguments": [
+                  {
+                    "op": "arg",
+                    "index": 0
+                  },
+                  {
+                    "op": "bytes",
+                    "hex": "636869616c6973702d6f786964652f636f756e7465722f72657365743a763121"
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "tuple",
+                  "items": [
+                    {
+                      "kind": "tuple",
+                      "items": [
+                        {
+                          "kind": "int",
+                          "bits": 64,
+                          "signed": false
+                        },
+                        {
+                          "kind": "bytes",
+                          "len": 48
+                        },
+                        {
+                          "kind": "bytes",
+                          "len": 32
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "value": {
+                  "op": "tuple",
+                  "items": [
+                    {
+                      "op": "local",
+                      "local_id": 2
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "pair",
+                    "first": {
+                      "kind": "pair",
+                      "first": {
+                        "kind": "tree"
+                      },
+                      "rest": {
+                        "kind": "int",
+                        "bits": 64,
+                        "signed": false
+                      }
+                    },
+                    "rest": {
+                      "kind": "tuple",
+                      "items": [
+                        {
+                          "kind": "tuple",
+                          "items": [
+                            {
+                              "kind": "int",
+                              "bits": 64,
+                              "signed": false
+                            },
+                            {
+                              "kind": "bytes",
+                              "len": 48
+                            },
+                            {
+                              "kind": "bytes",
+                              "len": 32
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "value": {
+                    "op": "pair",
+                    "first": {
+                      "op": "local",
+                      "local_id": 1
+                    },
+                    "rest": {
+                      "op": "local",
+                      "local_id": 3
+                    }
+                  },
+                  "body": {
+                    "op": "local",
+                    "local_id": 4
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide::agg_sig_me",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 48
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 48
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 48
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "50",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      }
+    ]
+  }
+}

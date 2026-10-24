@@ -1,7 +1,13 @@
 //! WIP teaching puzzles. Never use these fixtures with real funds.
 
+pub mod counter_types;
 mod fixture_keys;
 mod precommit_recipe;
+
+#[path = "counter-increment/puzzle.rs"]
+pub mod counter_increment;
+#[path = "counter-reset/puzzle.rs"]
+pub mod counter_reset;
 
 #[path = "boomerang/puzzle.rs"]
 pub mod boomerang;

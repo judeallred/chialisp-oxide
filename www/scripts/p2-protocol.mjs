@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { checkDelegatedComponent, delegatedSlug } from './p2dc-protocol.mjs';
 
 import { checkCatComponent, catSlug } from './cat-protocol.mjs';
+import { checkCounterComponent, checkCounterPair, checkCounterDisplay, counterCounts, counterSlugs } from '../src/lib/counter-protocol.mjs';
 
 const tableBytes = readFileSync(new URL('../../crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json', import.meta.url));
 assert.equal(createHash('sha256').update(tableBytes).digest('hex'), '174c6321e5e8fc3c246fb65a12e596decb545ec9d5aba74c13a0347f71297192', 'Scoped P2 protocol table changed');
@@ -20,9 +21,13 @@ const fields = (value, names, label) => {
   assert.deepEqual(Object.keys(value).sort(), [...names].sort(), `${label}: missing/unknown fields`);
 };
 
-export function checkProtocolComponent(puzzle) {
+export function checkProtocolComponent(puzzle, counterpart) {
   if (puzzle.slug === catSlug) return checkCatComponent(puzzle);
   if (puzzle.slug === delegatedSlug) return checkDelegatedComponent(puzzle);
+  if (counterSlugs.includes(puzzle.slug)) {
+    assert(counterpart, 'Counter component requires its actual independently compiled Chialisp counterpart entry');
+    return checkCounterComponent(puzzle, counterpart);
+  }
   assert.equal(puzzle.slug, 'p2-singleton', 'Unknown protocol component');
   assert.equal(puzzle.kind, 'protocol_component');
   assert.deepEqual(puzzle.simulator, [], 'Dedicated composition does not add generic scenario groups');
@@ -79,8 +84,11 @@ export function checkProtocolComponent(puzzle) {
 }
 
 export function checkProtocolReport(report) {
+  // Counter lifecycle evidence binds each selected action to the other entry's
+  // actual Chialisp artifact. Admit the complete pair once, never one row alone.
+  if (report.puzzles.some(puzzle => counterSlugs.includes(puzzle.slug))) checkCounterPair(report.puzzles);
   const selected = report.puzzles.filter(puzzle => puzzle.slug === 'p2-singleton');
-  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug,catSlug].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
+  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug,catSlug,...counterSlugs].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
   assert.deepEqual(otherComponents, [], 'Unknown dedicated protocol evidence requires its own reviewed reader.');
   const cat = report.puzzles.filter(puzzle => puzzle.slug === catSlug);
   assert(cat.length <= 1, 'Duplicate CAT component');
@@ -107,7 +115,15 @@ export function historicalOptimizationReport(report) {
   return baseline;
 }
 
-export function checkProtocolDisplay(markup, puzzle) {
+export function checkProtocolDisplay(markup, puzzle, counterpart) {
+  if (counterSlugs.includes(puzzle.slug)) {
+    assert(counterpart, 'Counter display requires its actual counterpart entry');
+    checkCounterDisplay(markup, [puzzle, counterpart], puzzle.slug);
+    return counterCounts(puzzle.slug);
+  }
+  // This HTML schema is specifically P2. CAT and delegated-conditions callers
+  // use their own display readers rather than falling through P2 field names.
+  assert.equal(puzzle.slug, 'p2-singleton', 'Use the dedicated component display reader');
   const counts = checkProtocolComponent(puzzle);
   const section = markup.match(/<section\b[^>]*data-protocol-validation[^>]*>[\s\S]*?<\/section>/)?.[0];
   assert(section, 'Missing dedicated protocol section');

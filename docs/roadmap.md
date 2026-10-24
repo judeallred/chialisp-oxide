@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 35 annotated exports of the real
+The latest local capture covers 37 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -17,8 +17,9 @@ page-argument instances cross-checked and executed in five builds, the
 compiled curry factory with second-stage applications, and the inner-puzzle
 commitment fixture whose curried instances run only the committed program, and
 the original boomerang payment with fixed terms committed before funding,
-the original precommit claim/registry pair, and the canonical genesis-by-coin-ID CAT TAIL.
-Its repeated report records 807 named and 27,281 generated inputs across native Rust and five
+the original precommit claim/registry pair, the canonical genesis-by-coin-ID CAT TAIL,
+and two original counter actions.
+Its repeated report records 906 named and 27,281 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -58,6 +59,15 @@ its own TAIL asset. Its separate actual Rust source-control packet records
 39 native witnesses, 115 raw VM observations, 46 SDK submissions and 50
 component VM observations. Neither lane establishes Sage or live Testnet11
 acceptance; the canonical CAT2 outer layer remains a host counterpart.
+
+The [counter action lesson](https://judeallred.github.io/chialisp-oxide/tutorials/action-counter/)
+adds two original typed Cargo exports with 99 independent named vectors across
+five builds. Its paired main lane selects one action and uses the other action's
+independently compiled Chialisp reference: ten selected-side builds, 60 SDK
+submissions (30 accepted, 20 typed rejections, ten runtime umbrellas), and 70
+primary component VM observations. Canonical host layers remain separate from
+the Rust actions. Registry slots and an actual slot double-spend are still
+required for issue #14; counter bundle replay does not complete that milestone.
 
 ## What works
 
@@ -172,8 +182,10 @@ backlog; this ordering does not mark their acceptance criteria complete.
 3. The local CAT issuance and transfer workflow
    ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)) now has paired
    Cargo exports and five-build CAT2 lifecycle evidence. Funded Testnet11
-   issuance and Sage send/receive evidence remain open. Continue with action-layer
-   demonstrations ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)),
+   issuance and Sage send/receive evidence remain open. The action-layer
+   demonstrations ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)) now
+   include the finite counter; continue with the registry/slot lifecycle and
+   actual slot double-spend, followed by
    the XCHandles case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
    then authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
    Build on the original precommit/wait/reveal demo

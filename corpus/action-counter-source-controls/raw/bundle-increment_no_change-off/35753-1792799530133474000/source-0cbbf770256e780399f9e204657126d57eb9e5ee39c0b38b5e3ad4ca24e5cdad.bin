@@ -1,0 +1,43 @@
+[package]
+name = "chialisp-oxide-action-counter"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+chialisp-oxide = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide" }
+
+[dev-dependencies]
+anyhow = "1"
+bumpalo = "3"
+chia-bls = "=0.36.1"
+chia-puzzle-types = "=0.36.1"
+chia-puzzles = "=0.20.3"
+chia-sdk-types = { version = "=0.36.0", features = ["action-layer"] }
+chialisp-oxide-reference = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide-reference" }
+chialisp-oxide-rue = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide-rue" }
+chialisp-oxide-simulator = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide-simulator" }
+chialisp-oxide-vm = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide-vm" }
+chialisp-oxide-package = { path = "/Users/judeallred/code/clispOx/crates/chialisp-oxide-package" }
+clvm-traits = { version = "=0.36.1", features = ["derive"] }
+clvm-utils = "=0.36.1"
+clvmr-sdk = { package = "clvmr", version = "=0.16.2" }
+clvmr = "=0.21.0"
+serde_json = "1"
+sha2 = "0.10"
+hex = "0.4"
+
+[[example]]
+name = "raw-vm"
+path = "raw-vm.rs"
+
+[profile.dev]
+overflow-checks = true
+
+[profile.release]
+overflow-checks = true
+
+[patch."https://github.com/xch-dev/rue"]
+rue-lir = { path = "/Users/judeallred/code/clispOx/vendor/rue-lir" }

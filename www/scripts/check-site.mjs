@@ -610,7 +610,9 @@ for (const route of ['tutorials/boomerang','lab/boomerang']) {
   const filename=path.join(root,route,'index.html'), markup=await html(filename);
   assert.deepEqual(checkBoomerangDisplay(markup,boomerangPuzzle),boomerangCounts);
   assert.deepEqual(checkBoomerangControlsDisplay(markup,boomerangControls),boomerangControls.counts);
-  assert((await readFile(filename)).length<=512*1024,`${route}: source/evidence page exceeds its 512KiB HTML budget`);
+  // The lab includes the current 169-row provenance inventory; this bounds HTML only.
+  const pageLimit = (route === 'lab/boomerang' ? 640 : 512) * 1024;
+  assert((await readFile(filename)).length<=pageLimit,`${route}: source/evidence page exceeds its ${pageLimit/1024}KiB HTML display budget`);
   assert(markup.includes('WIP prototype.')&&markup.includes('Not ready for use.'),'Missing boomerang prototype warning');
   const copies=[...markup.matchAll(/\bdata-code="([^"]*)"/g)].map(match=>decodeAttribute(match[1]).replaceAll('\x7f','\n'));
   for(const source of [boomerangPuzzle.source,boomerangPuzzle.reference,boomerangPuzzle.rue.source])assert(copies.includes(normalizedCode(source)),`${route}: exact Rust/Chialisp/Rue source-copy changed`);
@@ -1205,6 +1207,7 @@ try {
     ['puzzle authoring agents', 'reference/agent-guide/'],
     ['lifecycle simulator journal', 'reference/lifecycle/'],
     ['genesis TAIL lifecycle', 'tutorials/cat-genesis-tail/'],
+    ['counter reset state', 'tutorials/action-counter/'],
   ]) {
     const result = await pagefind.search(term);
     const matches = await Promise.all(result.results.map(row => row.data()));

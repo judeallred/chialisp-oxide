@@ -1,0 +1,85 @@
+; factor_pricing.clsp by yakuhito
+;; Price a handle based on the number of characters it has. Inspired by ENS.
+
+;; This is a pricing program and will return (price . registered_time) where 
+;;  price is the total price of the handle and registered_time is the time
+;;  that the user will own the handle for (e.g., 1 year, 2 years, and so on).
+
+;; The price is determined by multiplying the base price by a factor. The factor is as follows:
+;; - 6+ characters with no numbers: 2
+;; - 5 characters with no numbers: 16
+;; - 4 characters with no numbers: 64
+;; - 3 characters with no numbers: 128
+;; If the handle contains a number, the price is halved.
+
+;; Note: Truths (Buy_Time, Current_Expiration, Handle) are trusted and should be verified by the outer puzzle.
+
+(mod (
+    BASE_PRICE ; base price = price per month of a 6+ character handle with at least one number
+    REGISTRATION_PERIOD ; number of seconds to register a handle for, in seconds
+                        ; most likely 31622400 = 366 days * 24 hours/day * 60 minutes/hour * 60 seconds/minute
+    Buy_Time ; 'time now' - assumes user is interested in passing in a value as late as possible
+             ; This Truth is unused in this puzzle, but can be used to price handles differently
+             ; Generally, the outer puzzle will just verify it with an ASSERT_SECONDS_ABSOLUTE
+             ;   but with no matching ASSERT_BEFORE_SECONDS_ABSOLUTE & delay
+    Current_Expiration ; 0 if the handle is being registered, != 0 if extension
+                       ; this Truth is unused in this puzzle, but can be used to price renewals differently
+                       ;   in custom ones
+    Handle .
+    num_periods ; number of periods to register the handle for (e.g., 1 year, 2 years, and so on)
+)
+    (defun get_price_factor (length number_of_numbers)
+        (/
+            (if (> length 2)
+                (i (> length 4)
+                    (i (= length 5)
+                        16
+                        ; else length >= 6
+                        (if (> length 63) (x) 2)
+                    )
+                    ; else 2 < length < 5
+                    (i (= length 3)
+                        128
+                        ; else length = 4
+                        (q . 64)
+                    )
+                )
+                ; else length <= 2
+                (x)
+            )
+            (i number_of_numbers 2 1) ; halve the price if handle contains numbers
+        )
+    )
+
+    (defun single_char_helper (ch rest)
+        (if (all (> ch (- "a" 1)) (> (+ "z" 1) ch)) ; letter (a-z)
+            (count_numbers_plus_validate rest)
+            ; else
+            (if (all (> ch (- "0" 1)) (> (+ "9" 1) ch)) ; digit (0-9)
+                (+ 1 (count_numbers_plus_validate rest))
+                ; else
+                (x) ; invalid character in handle
+            )
+        )
+    )
+
+    ;; this function will return the number of numbers in a handle
+    ;; PLUS it will (x) if the handle contains invalid characters
+    (defun count_numbers_plus_validate (handle)
+        (if handle
+            (single_char_helper (substr handle 0 1) (substr handle 1))
+            ; else
+            0
+        )
+    )
+
+    ; main
+    (if (> num_periods 0)
+        (c 
+            (* num_periods BASE_PRICE (get_price_factor (strlen Handle) (count_numbers_plus_validate Handle)))
+            (* num_periods REGISTRATION_PERIOD)
+        )
+        ; else
+        (x)
+    )
+)

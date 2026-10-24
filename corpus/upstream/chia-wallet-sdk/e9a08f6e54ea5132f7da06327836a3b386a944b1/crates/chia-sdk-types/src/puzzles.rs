@@ -1,0 +1,58 @@
+mod augmented_condition;
+mod everything_with_singleton;
+mod mips;
+mod mods;
+mod option_contract;
+mod p2_curried;
+mod p2_delegated_conditions;
+mod p2_one_of_many;
+mod p2_parent;
+mod p2_singleton;
+mod revocation;
+
+pub use augmented_condition::*;
+pub use everything_with_singleton::*;
+pub use mips::*;
+pub use mods::*;
+pub use option_contract::*;
+pub use p2_curried::*;
+pub use p2_delegated_conditions::*;
+pub use p2_one_of_many::*;
+pub use p2_parent::*;
+pub use p2_singleton::*;
+pub use revocation::*;
+
+#[cfg(feature = "chip-0035")]
+mod datalayer;
+
+#[cfg(feature = "chip-0035")]
+pub use datalayer::*;
+
+#[cfg(feature = "chip-0037")]
+mod p2_controller_puzzle;
+#[cfg(feature = "chip-0037")]
+mod p2_eip712_message;
+
+#[cfg(feature = "chip-0037")]
+pub use p2_controller_puzzle::*;
+#[cfg(feature = "chip-0037")]
+pub use p2_eip712_message::*;
+
+#[cfg(feature = "action-layer")]
+mod action_layer;
+
+#[cfg(feature = "action-layer")]
+pub use action_layer::*;
+
+#[cfg(test)]
+mod tests {
+    #[macro_export]
+    macro_rules! assert_puzzle_hash {
+        ($puzzle:ident => $puzzle_hash:ident) => {
+            let mut a = clvmr::Allocator::new();
+            let ptr = clvmr::serde::node_from_bytes(&mut a, &$puzzle)?;
+            let hash = clvm_utils::tree_hash(&mut a, ptr);
+            assert_eq!($puzzle_hash, hash);
+        };
+    }
+}

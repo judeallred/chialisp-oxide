@@ -210,6 +210,23 @@ export function catProtocol(puzzle: PuzzleReport): CatProtocol | undefined {
   if (puzzle.protocol_validation.protocol !== 'chialisp-oxide-cat-genesis-by-coin-id/v1') throw new Error('Wrong CAT protocol');
   return puzzle.protocol_validation as CatProtocol;
 }
+export interface CounterProtocolData {
+  schema_version: number; protocol: 'chialisp-oxide-action-counter/v1'; status: string;
+  selected_action: string; sdk: string; consensus: string; sdk_vm: string; network: string;
+  primary_vm: string; primary_protocol: string; primary_flags: number; primary_max_cost: number;
+  sdk_max_block_cost_clvm: number; sdk_transaction_max_cost: number; owner_public_key: string;
+  canonical_components: { name: string; module_hex: string; bytes: number; module_tree_hash: string }[];
+  sdk_transaction_attempts: number; accepted: number; typed_rejected: number;
+  runtime_umbrellas: number; component_primary_vm_runs: number; scope: string;
+  builds: { backend: string; optimize_lir: boolean; selected_action: string; module_tree_hash: string;
+    counterpart: { action: string; backend: string; optimize_lir: boolean; module_hex: string; module_tree_hash: string };
+    lifecycle: Record<string, unknown> }[];
+}
+export function counterProtocol(puzzle: PuzzleReport): CounterProtocolData | undefined {
+  if (!['counter-increment', 'counter-reset'].includes(puzzle.slug) || !puzzle.protocol_validation) return undefined;
+  if (puzzle.protocol_validation.protocol !== 'chialisp-oxide-action-counter/v1') throw new Error('Wrong counter protocol');
+  return puzzle.protocol_validation as CounterProtocolData;
+}
 export interface PuzzleReport {
   slug: string;
   title: string;
@@ -236,7 +253,7 @@ export interface PuzzleReport {
   curried_instances?: CurriedInstanceEvidence;
   curried_examples?: CurriedExample[];
   coin_instances?: CoinInstancesEvidence;
-  protocol_validation?: ProtocolValidation | DelegatedProtocol | CatProtocol;
+  protocol_validation?: ProtocolValidation | DelegatedProtocol | CatProtocol | CounterProtocolData;
   validated: boolean;
 }
 export function singletonProtocol(puzzle: PuzzleReport): ProtocolValidation | undefined {

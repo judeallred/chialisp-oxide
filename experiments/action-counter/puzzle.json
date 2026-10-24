@@ -1,0 +1,21 @@
+{
+  "protocol": "chialisp-oxide-action-counter-harness/v2",
+  "status": "source_preparation_requires_fresh_integrated_capture",
+  "kind": "protocol_component_demo",
+  "actual_original_exports": {
+    "increment": "chialisp_oxide_puzzles::counter_increment::puzzle",
+    "reset": "chialisp_oxide_puzzles::counter_reset::puzzle"
+  },
+  "shared_types": "puzzles/counter_types.rs",
+  "original_native": "src/lib.rs aliases actual paired Cargo library exports; no copied original policy",
+  "original_compilation": "Full puzzles/Cargo.toml schema2 bundle admitted in both modes, all exports admitted before selecting the two actions",
+  "source_controls": "mutations.json exact fresh root source edits, own materialized crates/bundles/native witnesses/funded Merkle roots",
+  "vectors": {
+    "path": "vectors.json",
+    "count": 99,
+    "expected_original_accepted": 55,
+    "expected_original_abi_rejected": 40,
+    "expected_original_policy_rejected": 4
+  },
+  "scope": "Counter slice only; registry/slots/reward distributor, live Testnet11 and complete issue14 remain separate."
+}

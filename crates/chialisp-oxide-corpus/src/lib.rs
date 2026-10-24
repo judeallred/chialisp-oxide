@@ -1,4 +1,5 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
+mod action_counter;
 mod authoring;
 mod boomerang;
 pub mod cat_genesis_tail;
@@ -61,6 +62,8 @@ pub const PUZZLES: &[&str] = &[
     "precommit-claim",
     "precommit-registry",
     "cat-genesis-by-coin-id",
+    "counter-increment",
+    "counter-reset",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -812,6 +815,7 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         Some(match slug {
             "p2-singleton" => p2_singleton::validate(&programs)?,
             "cat-genesis-by-coin-id" => cat_genesis_tail::validate(&programs)?,
+            "counter-increment" | "counter-reset" => action_counter::validate(slug, &programs)?,
             "p2-delegated-conditions" => p2_delegated_conditions::validate(&programs)?,
             _ => anyhow::bail!("protocol component needs a dedicated validated harness"),
         })

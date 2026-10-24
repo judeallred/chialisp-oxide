@@ -3,7 +3,7 @@
   "protocol": "chialisp-oxide-boomerang-controls-native/v1",
   "status": "native_phase_passed_before_LAST_host_build",
   "source_root": "/Users/judeallred/code/clispOx",
-  "package_root": "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package",
+  "package_root": "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
     "authoring": {
@@ -151,6 +151,14 @@
         "cat-genesis-by-coin-id": {
           "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
           "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
+        },
+        "counter-increment": {
+          "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
+          "source": "puzzles/counter-increment/puzzle.rs"
+        },
+        "counter-reset": {
+          "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
+          "source": "puzzles/counter-reset/puzzle.rs"
         }
       },
       "sources": [
@@ -251,8 +259,108 @@
           "sha256": "f58331cdceeb52133d780bc3adc9b4d1154277510f39be9d4fa78a4d9acd2d4a"
         },
         {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+          "sha256": "857c4192434aa7c1a05244640a6796166988196bb47369f378611bc3c2436736"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/commit.git",
+          "sha256": "eaa079043a175105f5f34442b6392cab553bcf36bb782b3ef294adb1487cf83f"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+          "sha256": "ac80dd567cc6786214f987d6087d6da24ed5ee83c8550fdd0a03c0893ae0196c"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+          "sha256": "aa1d0875707caf735e19da8fe3371b50604bfd5ee5be93da62e54565e7376d5b"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+          "sha256": "f4c18d28afc7c03b2b2daefd6a78f1acabd0c282561c50aa7a356c948da690f1"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+          "sha256": "2dd3e97ec1fb6e4c5ec401fc75444bd8b62db9e266ea38b19ca6519b082b6f42"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/source-inventory.json",
+          "sha256": "ba1371ac658f835f5efacf43c92069afab1cd0a94cfb5a266461eddaed879904"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/tree.json",
+          "sha256": "6bf441b3a0833787421bed711e65b03b7e008780c863a6589921352946d5005a"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Cargo.toml",
+          "sha256": "bf3c2623040dbca64873c0af794ad875b81f4dd556b78256f7a0908176585fa3"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+          "sha256": "257f43a5c0407fb3a90f3c0771aecdd77a1160dee1ee2be8250ac629dcac1962"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
+          "sha256": "1b14bdcbaa13b65202dceed56ce52abce8b6a687e1b4c353ea6a16ced87d8633"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/commit.git",
+          "sha256": "201367e58547713b6602b3e4bdc13e2cb6d9a130233407773934132d3e721009"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+          "sha256": "aed0e6fe3fb9049be92b3efd832e4d33dce7b45c4f9a6066233e608f3894f50d"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
+          "sha256": "efc12243d2cfdb76d3048b992b2a1ea5bbf4fd5adc2698a599955fe3cc546f0b"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hash",
+          "sha256": "6073565bc74c1a22cd65d56c2783037abe4e8dfd74e2e6b5504158343f75ae23"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
+          "sha256": "456ccfde0c6101dd14a3ee01b204ceffd2421969ecb62f4e7777a28e47140820"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue",
+          "sha256": "d83f3c3266f3f936e229a284580f65d93ebc2e72fc26729dab403cd97cdc3d04"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hash",
+          "sha256": "8738af8e641c45b66b45dfaa7d583040e36e0eab2906da084b8e8ffb6756c875"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hex",
+          "sha256": "a97eaefd90ffa04da6917bb8d80bbc33bacc5bca32ab57404072d3340e61c726"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/merkle_utils.rue",
+          "sha256": "c8a01f70bf9fb1ccc37654baf53b22c5d7763360b43dbb28174a4837fc9fc8a8"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue",
+          "sha256": "883da41e35deea7d68c2acaedc700534f792d130fa08975b173fe5c3b6d7d3db"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hash",
+          "sha256": "339605cabd575312946c5266dfcddbc0cba20e5d278c08c711aa2dab492913ea"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hex",
+          "sha256": "76fda8942c827d7296f643b1ec4c22cd6c82859e8205fa09d07adf3402445c79"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/source-inventory.json",
+          "sha256": "261a9d5a448f203ede4eb01f478269b2237a49b31b8471ad2eff5640794c7e86"
+        },
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/tree.json",
+          "sha256": "40f5ef00c7a541c7eae72d5360e4fe6001327ce2f4caf36b02fedcb439ed9682"
+        },
+        {
           "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-          "sha256": "97ca32de268b269f1e898134e630d4d40238267ee683eccbfee3e7b317b8b0fe"
+          "sha256": "86a4244a819300f86c7a213c6720490a6861702df507c127f1833a7ba49a567b"
         },
         {
           "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -279,6 +387,18 @@
           "sha256": "94a4e75c6e09cd167690678abb3e666cc5021853305cb1c0c052ceb337e1a533"
         },
         {
+          "path": "crates/chialisp-oxide-corpus/src/action_counter.rs",
+          "sha256": "037581447295c0d48ac30998e81859d2ca60b231e75dfdc39ef522a9ac81926c"
+        },
+        {
+          "path": "crates/chialisp-oxide-corpus/src/action_counter/lifecycle.rs",
+          "sha256": "2ed72c4dac40f5da28e6127cf1eef2d06744dc54ecdd23c6e5e4a109b351d8ec"
+        },
+        {
+          "path": "crates/chialisp-oxide-corpus/src/action_counter/wire.rs",
+          "sha256": "1da819f55ffda1962519bf5e61ced0cdbfb6b736efbb0a29174d832deaacc336"
+        },
+        {
           "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
           "sha256": "9ee57b19a30491708cfcc56283686e97905c4eb2df70f02799cbdb455dd732ed"
         },
@@ -296,11 +416,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "e8ecb9b1738a906c06283bebf47740c11515fa387a10fa6051c1a365d35358d0"
+          "sha256": "f9f868d9fdfb29ffdc34541b90dba769f13542577d006fd2c5c21ce5ac63659e"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "47128ae2438a1135c8ad9f0bc6c0468200deb5bb5cb9b3085fa93b495254a205"
+          "sha256": "fa4f8278251e2742776c3f777ddfcd9d93fdc54dfbc4a8d91277456f3422d29f"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -436,7 +556,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "8e4e2f744c6c7e1e2fb87f0a4ecaef6d695f6a1724fd2e939581ae1fccf14407"
+          "sha256": "77da7653671a2e61321c7cf48923f001d7662ab8acef9bb9df5818ffac9b8788"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -481,6 +601,42 @@
         {
           "path": "puzzles/cat-genesis-by-coin-id/reference.clsp",
           "sha256": "1914e2d935d0b8d8b514e0d9c07098ce488000a7bcf1b826266cab5e3a265d82"
+        },
+        {
+          "path": "puzzles/counter-increment/puzzle.json",
+          "sha256": "4c0fa2984cf13d6fb1a345ddad58f53ff9a1519770efd717e700d7e6912d0681"
+        },
+        {
+          "path": "puzzles/counter-increment/puzzle.rs",
+          "sha256": "7aa5dc5cc725256ea15024b43a1cd1d38a2babce595c9f469866756e0e25fbcf"
+        },
+        {
+          "path": "puzzles/counter-increment/puzzle.rue",
+          "sha256": "24d5e3338975112243e32b68c89116ee92baca9cdb99fcf3c664bb66670bc3a5"
+        },
+        {
+          "path": "puzzles/counter-increment/reference.clsp",
+          "sha256": "7bd23a38b708f29be958cb5bd8da6858c00352e1ecc5a218a0a708879f0cb502"
+        },
+        {
+          "path": "puzzles/counter-reset/puzzle.json",
+          "sha256": "73841f34ff19a0ce3cab25a852469c358c5f6a6b12725f94496ee4c9a20a6cce"
+        },
+        {
+          "path": "puzzles/counter-reset/puzzle.rs",
+          "sha256": "4b6d214205d796a704f374b7499b376ca2130f0236b3e154d0ea43b6f54ee022"
+        },
+        {
+          "path": "puzzles/counter-reset/puzzle.rue",
+          "sha256": "2c1821d42886b5dd1c1b18c131b3e4ec78b80787fa1a1bad70089826bed03403"
+        },
+        {
+          "path": "puzzles/counter-reset/reference.clsp",
+          "sha256": "8c352fab820112f287dbe154ca81e4e9bcd33e2b9226ed5ca13265000275b83f"
+        },
+        {
+          "path": "puzzles/counter_types.rs",
+          "sha256": "001f365390f40f54b36b7490d0608f555f811f72deccb78949f323c0e0d0bef1"
         },
         {
           "path": "puzzles/curry-factory/puzzle.rs",
@@ -536,7 +692,7 @@
         },
         {
           "path": "puzzles/lib.rs",
-          "sha256": "ad313539e01eb7b5ba003ce02799ca000d12b081bd46bb606971f4ca28e3c577"
+          "sha256": "a22c00c7228d5abcbca188f2d4876e6c3acd31fe32b07b656df075f970b37a52"
         },
         {
           "path": "puzzles/module-add/puzzle.rs",
@@ -782,6 +938,106 @@
         "sha256": "f58331cdceeb52133d780bc3adc9b4d1154277510f39be9d4fa78a4d9acd2d4a"
       },
       {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+        "sha256": "857c4192434aa7c1a05244640a6796166988196bb47369f378611bc3c2436736"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/commit.git",
+        "sha256": "eaa079043a175105f5f34442b6392cab553bcf36bb782b3ef294adb1487cf83f"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+        "sha256": "ac80dd567cc6786214f987d6087d6da24ed5ee83c8550fdd0a03c0893ae0196c"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+        "sha256": "aa1d0875707caf735e19da8fe3371b50604bfd5ee5be93da62e54565e7376d5b"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+        "sha256": "f4c18d28afc7c03b2b2daefd6a78f1acabd0c282561c50aa7a356c948da690f1"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+        "sha256": "2dd3e97ec1fb6e4c5ec401fc75444bd8b62db9e266ea38b19ca6519b082b6f42"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/source-inventory.json",
+        "sha256": "ba1371ac658f835f5efacf43c92069afab1cd0a94cfb5a266461eddaed879904"
+      },
+      {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/tree.json",
+        "sha256": "6bf441b3a0833787421bed711e65b03b7e008780c863a6589921352946d5005a"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Cargo.toml",
+        "sha256": "bf3c2623040dbca64873c0af794ad875b81f4dd556b78256f7a0908176585fa3"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+        "sha256": "257f43a5c0407fb3a90f3c0771aecdd77a1160dee1ee2be8250ac629dcac1962"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
+        "sha256": "1b14bdcbaa13b65202dceed56ce52abce8b6a687e1b4c353ea6a16ced87d8633"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/commit.git",
+        "sha256": "201367e58547713b6602b3e4bdc13e2cb6d9a130233407773934132d3e721009"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+        "sha256": "aed0e6fe3fb9049be92b3efd832e4d33dce7b45c4f9a6066233e608f3894f50d"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
+        "sha256": "efc12243d2cfdb76d3048b992b2a1ea5bbf4fd5adc2698a599955fe3cc546f0b"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hash",
+        "sha256": "6073565bc74c1a22cd65d56c2783037abe4e8dfd74e2e6b5504158343f75ae23"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
+        "sha256": "456ccfde0c6101dd14a3ee01b204ceffd2421969ecb62f4e7777a28e47140820"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue",
+        "sha256": "d83f3c3266f3f936e229a284580f65d93ebc2e72fc26729dab403cd97cdc3d04"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hash",
+        "sha256": "8738af8e641c45b66b45dfaa7d583040e36e0eab2906da084b8e8ffb6756c875"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hex",
+        "sha256": "a97eaefd90ffa04da6917bb8d80bbc33bacc5bca32ab57404072d3340e61c726"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/merkle_utils.rue",
+        "sha256": "c8a01f70bf9fb1ccc37654baf53b22c5d7763360b43dbb28174a4837fc9fc8a8"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue",
+        "sha256": "883da41e35deea7d68c2acaedc700534f792d130fa08975b173fe5c3b6d7d3db"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hash",
+        "sha256": "339605cabd575312946c5266dfcddbc0cba20e5d278c08c711aa2dab492913ea"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hex",
+        "sha256": "76fda8942c827d7296f643b1ec4c22cd6c82859e8205fa09d07adf3402445c79"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/source-inventory.json",
+        "sha256": "261a9d5a448f203ede4eb01f478269b2237a49b31b8471ad2eff5640794c7e86"
+      },
+      {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/tree.json",
+        "sha256": "40f5ef00c7a541c7eae72d5360e4fe6001327ce2f4caf36b02fedcb439ed9682"
+      },
+      {
         "path": "crates/cargo-chialisp-oxide/Cargo.toml",
         "sha256": "79440881fa1d95043dfa378c0ca3fa38314468032167f040c48e1e624b953dd1"
       },
@@ -851,7 +1107,7 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/Cargo.toml",
-        "sha256": "97ca32de268b269f1e898134e630d4d40238267ee683eccbfee3e7b317b8b0fe"
+        "sha256": "86a4244a819300f86c7a213c6720490a6861702df507c127f1833a7ba49a567b"
       },
       {
         "path": "crates/chialisp-oxide-corpus/build.rs",
@@ -880,6 +1136,18 @@
       {
         "path": "crates/chialisp-oxide-corpus/examples/precommit_controls.rs",
         "sha256": "57230ef25c78ef46f019d19b4a7c90e5a327dd2cc4248f18ee1defa4b6806a68"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_counter.rs",
+        "sha256": "037581447295c0d48ac30998e81859d2ca60b231e75dfdc39ef522a9ac81926c"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_counter/lifecycle.rs",
+        "sha256": "2ed72c4dac40f5da28e6127cf1eef2d06744dc54ecdd23c6e5e4a109b351d8ec"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_counter/wire.rs",
+        "sha256": "1da819f55ffda1962519bf5e61ced0cdbfb6b736efbb0a29174d832deaacc336"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
@@ -911,11 +1179,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "e8ecb9b1738a906c06283bebf47740c11515fa387a10fa6051c1a365d35358d0"
+        "sha256": "f9f868d9fdfb29ffdc34541b90dba769f13542577d006fd2c5c21ce5ac63659e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "47128ae2438a1135c8ad9f0bc6c0468200deb5bb5cb9b3085fa93b495254a205"
+        "sha256": "fa4f8278251e2742776c3f777ddfcd9d93fdc54dfbc4a8d91277456f3422d29f"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -2315,7 +2583,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "8e4e2f744c6c7e1e2fb87f0a4ecaef6d695f6a1724fd2e939581ae1fccf14407"
+        "sha256": "77da7653671a2e61321c7cf48923f001d7662ab8acef9bb9df5818ffac9b8788"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -2360,6 +2628,42 @@
       {
         "path": "puzzles/cat-genesis-by-coin-id/reference.clsp",
         "sha256": "1914e2d935d0b8d8b514e0d9c07098ce488000a7bcf1b826266cab5e3a265d82"
+      },
+      {
+        "path": "puzzles/counter-increment/puzzle.json",
+        "sha256": "4c0fa2984cf13d6fb1a345ddad58f53ff9a1519770efd717e700d7e6912d0681"
+      },
+      {
+        "path": "puzzles/counter-increment/puzzle.rs",
+        "sha256": "7aa5dc5cc725256ea15024b43a1cd1d38a2babce595c9f469866756e0e25fbcf"
+      },
+      {
+        "path": "puzzles/counter-increment/puzzle.rue",
+        "sha256": "24d5e3338975112243e32b68c89116ee92baca9cdb99fcf3c664bb66670bc3a5"
+      },
+      {
+        "path": "puzzles/counter-increment/reference.clsp",
+        "sha256": "7bd23a38b708f29be958cb5bd8da6858c00352e1ecc5a218a0a708879f0cb502"
+      },
+      {
+        "path": "puzzles/counter-reset/puzzle.json",
+        "sha256": "73841f34ff19a0ce3cab25a852469c358c5f6a6b12725f94496ee4c9a20a6cce"
+      },
+      {
+        "path": "puzzles/counter-reset/puzzle.rs",
+        "sha256": "4b6d214205d796a704f374b7499b376ca2130f0236b3e154d0ea43b6f54ee022"
+      },
+      {
+        "path": "puzzles/counter-reset/puzzle.rue",
+        "sha256": "2c1821d42886b5dd1c1b18c131b3e4ec78b80787fa1a1bad70089826bed03403"
+      },
+      {
+        "path": "puzzles/counter-reset/reference.clsp",
+        "sha256": "8c352fab820112f287dbe154ca81e4e9bcd33e2b9226ed5ca13265000275b83f"
+      },
+      {
+        "path": "puzzles/counter_types.rs",
+        "sha256": "001f365390f40f54b36b7490d0608f555f811f72deccb78949f323c0e0d0bef1"
       },
       {
         "path": "puzzles/curry-factory/puzzle.rs",
@@ -2415,7 +2719,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "ad313539e01eb7b5ba003ce02799ca000d12b081bd46bb606971f4ca28e3c577"
+        "sha256": "a22c00c7228d5abcbca188f2d4876e6c3acd31fe32b07b656df075f970b37a52"
       },
       {
         "path": "puzzles/module-add/puzzle.rs",
@@ -2566,6 +2870,22 @@
         "sha256": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c"
       },
       {
+        "path": "scripts/action_counter_packet.py",
+        "sha256": "4f4210e823a60ffe4c18d9bc449feb635c765b031b0ec1068d3bb0ccc9a24645"
+      },
+      {
+        "path": "scripts/action_counter_packet_controls.py",
+        "sha256": "f9eeedce1eaaa271ad7f7c175ba48b101f58ae2f90d73169245653bacab926d8"
+      },
+      {
+        "path": "scripts/action_counter_provenance.py",
+        "sha256": "f42093728048729ba5c30122339766d93966a33e78f9bf75fa8cde3f0a29b9f5"
+      },
+      {
+        "path": "scripts/action_counter_replay.py",
+        "sha256": "ffaa6b67c64daac65760b0299d8b4e8635f21d87ddbcaf635b9e7f14cb30a79c"
+      },
+      {
         "path": "scripts/acyclic_source_bridge.py",
         "sha256": "d8c328f2f0df03dd00a90585f0b8de6c515aa30862fc5d107ced7e32bd4cd830"
       },
@@ -2604,6 +2924,10 @@
       {
         "path": "scripts/cat_source_controls.py",
         "sha256": "6fd1cdbededf8a7b166f4cd6fd913036a11f983e65cc2a2a74d757efcc625268"
+      },
+      {
+        "path": "scripts/check-action-counter.py",
+        "sha256": "61c895aaf217694beea30f52b913d865c88b736e1b99ab0e8c4ca30acc31dec8"
       },
       {
         "path": "scripts/check-acyclic-source.py",
@@ -2743,7 +3067,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "5dbf46633b99d560c891c7b5060a91b1d53d9363d18a08bf96b715b05d1ef4b8"
+        "sha256": "6981239b4bdf9f64c4d42c3dfe820f9fe021a7c527c5bdd89c0702c6f066566f"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -2752,6 +3076,10 @@
       {
         "path": "scripts/cost_controls.py",
         "sha256": "5474db2346464d76e2dfd0dfa79190f84bde27a386b3fc796aae0f7d97e31b8d"
+      },
+      {
+        "path": "scripts/counter_protocol.py",
+        "sha256": "3978d8b6b4f1b65f182f7c4b7c8b50b1246534a3c617f98c6b9ca9115f765603"
       },
       {
         "path": "scripts/hashing_controls.py",
@@ -2771,7 +3099,7 @@
       },
       {
         "path": "scripts/ledger_rejections.py",
-        "sha256": "742c3192ad3a920a75da03355ff42324c43c05e7d7ed62a76226c6d5ae7f73ce"
+        "sha256": "c62c9a2cc8fcdc87b021a833c62854070d7a1bc102e779e0584e2e5b3c76f7e8"
       },
       {
         "path": "scripts/p2_append_migration.py",
@@ -2926,6 +3254,10 @@
         "sha256": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423"
       },
       {
+        "path": "scripts/test_action_counter_packet.py",
+        "sha256": "eb2aa2ed88f2d072b750879b69417e8a1481a3b97a8a10a3be8fddece0fd712a"
+      },
+      {
         "path": "scripts/test_acyclic_source.py",
         "sha256": "f6b251d80c3e1252d92b6fe7cef3b502c52198c9d976a6a3f0fa0638e115742c"
       },
@@ -2954,6 +3286,10 @@
         "sha256": "e35e645a62e7bae9cb0ac0f25e1a012424bad5a83647d746a75e23edf9274037"
       },
       {
+        "path": "scripts/test_counter_protocol.py",
+        "sha256": "190d4d197f9c4b0054a971240d8f794a558b131a571dbf3ccd93906d071b109e"
+      },
+      {
         "path": "scripts/test_hashing_puzzles.py",
         "sha256": "256144cb2d9faa1c2c37ea2ec71b977cdfdae7af09f9ec04e339e0c2fd111d34"
       },
@@ -2967,7 +3303,7 @@
       },
       {
         "path": "scripts/test_ledger_components.py",
-        "sha256": "a7c28fca62d58ca3e7b4b40ce322db5b201bf56c4e06d7eacee7f3b545fe17e6"
+        "sha256": "cae9d9863c8f48f81443117ae6baa58682e5340db7b1991dd75172a633ab457f"
       },
       {
         "path": "scripts/test_p2_append_migration.py",
@@ -3177,7 +3513,7 @@
     "source_files": [
       {
         "path": "Cargo.lock",
-        "sha256": "570b98368a260b4f21a7e3c3d3e5c0bacea5ea2c03dda6b729e8262d02135252"
+        "sha256": "156599cb5895eefb6580b4bfdea4b6d077fe5653a59421d019415ca1fa4ddf3c"
       },
       {
         "path": "Cargo.toml",
@@ -3385,7 +3721,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -3395,10 +3731,10 @@
     "native_test_groups": 1,
     "native_policy_observations": 9,
     "log": "native.log",
-    "log_sha256": "1a9ba75f296e07890e3f15d6ad58d4147c85905b35d072d27dd2236de015fa28",
+    "log_sha256": "bd07ee2549d28fed8d34e846e4682c4629948fda5b573ba4f572868987471d8f",
     "ledger_binary": {
-      "path": "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-native-target/debug/examples/ledger",
-      "sha256": "7f9726d2d28bccc145118e599d2ef61903e35900753865b25f23b2cab9e14051"
+      "path": "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-native-target/debug/examples/ledger",
+      "sha256": "c23ca642601a0a67aada3968c7e253f9f9ceff1ad2960d22e958fe839285eea2"
     }
   },
   "commands": [
@@ -3411,11 +3747,11 @@
         "generate-lockfile",
         "--offline",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml"
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml"
       ],
       "exit_code": 0,
       "log": "native-logs/0.log",
-      "log_sha256": "24f310d2d1f49cdd022e01b2179084a833a1530f97a71ecd174203638e3eb472"
+      "log_sha256": "33bb456de04d2391425e1ce9257fed02f50f676bf52798f4a84a69481b647c1a"
     },
     {
       "argv": [
@@ -3425,7 +3761,7 @@
         "cargo",
         "fmt",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
         "--all",
         "--check"
       ],
@@ -3441,14 +3777,14 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline"
       ],
       "exit_code": 0,
       "log": "native-logs/2.log",
-      "log_sha256": "40d98892a9a5a2d704bc38938f21336e0bb93c4b0004232c99ec38b0ab3d246e"
+      "log_sha256": "2f973fd00af16b88ab5bcc256be1b26e10e7d755c45cc12082ea17cf6c8f1cf3"
     },
     {
       "argv": [
@@ -3458,7 +3794,7 @@
         "cargo",
         "test",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
         "--locked",
         "--offline",
         "--",
@@ -3466,7 +3802,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/3.log",
-      "log_sha256": "1a9ba75f296e07890e3f15d6ad58d4147c85905b35d072d27dd2236de015fa28"
+      "log_sha256": "bd07ee2549d28fed8d34e846e4682c4629948fda5b573ba4f572868987471d8f"
     },
     {
       "argv": [
@@ -3476,7 +3812,7 @@
         "cargo",
         "clippy",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline",
@@ -3486,7 +3822,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/4.log",
-      "log_sha256": "30af4d4602dc004a5bdf418896b63ccffb31d77749550d804d8b2f94ff7fa666"
+      "log_sha256": "2d39d6ebb440a9780bcc8d1f71adc279c5aa43c24ad3cb542f33f2f8d11c5452"
     },
     {
       "argv": [
@@ -3496,7 +3832,7 @@
         "cargo",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-cat13-2/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-action14-4/boomerang-package/Cargo.toml",
         "--example",
         "ledger",
         "--locked",
@@ -3504,7 +3840,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/5.log",
-      "log_sha256": "beed191cf5cd39a57477a6d66e9acb53f3b4efe7566a30e0ada805357a0fe6ff"
+      "log_sha256": "9d892c5778d0c975f64a671e66ea5a753502353da3addd1dfdf3825225e406a2"
     }
   ]
 }

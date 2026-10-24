@@ -113,7 +113,9 @@ display(render());
 if(built) {
   for(const route of ['tutorials/boomerang','lab/boomerang']) {
     const bytes=await readFile(new URL(`../dist/${route}/index.html`,import.meta.url));
-    assert(bytes.length<=512*1024,`${route}: HTML exceeds its 512KiB budget`);
+    // The lab includes the current 169-row provenance inventory; this bounds HTML only.
+    const pageLimit = (route === 'lab/boomerang' ? 640 : 512) * 1024;
+    assert(bytes.length<=pageLimit,`${route}: HTML exceeds its ${pageLimit/1024}KiB display budget`);
     display(bytes.toString('utf8'));
   }
   assert.deepEqual(JSON.parse(await readFile(new URL('../dist/reports/boomerang.json',import.meta.url))),puzzle.coin_instances);

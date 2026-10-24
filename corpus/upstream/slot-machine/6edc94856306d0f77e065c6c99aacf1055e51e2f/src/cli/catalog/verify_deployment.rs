@@ -1,0 +1,430 @@
+use chia_protocol::{Bytes32, Coin};
+use chia_puzzle_types::nft::{
+    NftOwnershipLayerArgs, NftRoyaltyTransferPuzzleArgs, NftStateLayerArgs,
+};
+use chia_puzzle_types::singleton::SingletonArgs;
+use chia_puzzle_types::Memos;
+use chia_puzzle_types::{LineageProof, Proof};
+use chia_puzzles::{NFT_STATE_LAYER_HASH, SINGLETON_LAUNCHER_HASH};
+use chia_wallet_sdk::driver::DriverError;
+use chia_wallet_sdk::types::Mod;
+use chia_wallet_sdk::{
+    coinset::ChiaRpcClient,
+    driver::{
+        CatalogRegistry, CatalogRegistryConstants, CatalogRegistryInfo, CatalogRegistryState,
+        Layer, Puzzle, SingletonLayer, Slot, SpendContext, UniquenessPrelauncher,
+    },
+    types::{
+        puzzles::{CatalogSlotValue, DefaultCatMakerArgs, SlotInfo, ANY_METADATA_UPDATER_HASH},
+        Condition, Conditions,
+    },
+};
+use clvm_utils::{CurriedProgram, ToTreeHash, TreeHash};
+use clvmr::serde::node_from_bytes;
+use clvmr::NodePtr;
+
+use crate::{
+    get_coinset_client, initial_cat_inner_puzzle_ptr, load_catalog_premine_csv,
+    load_catalog_state_schedule_csv, print_medieval_vault_configuration,
+    CatalogStateScheduleRecord, CliError, MultisigSingleton,
+};
+
+use crate::sync_multisig_singleton;
+
+/// Compares a trusted CSV schedule to the on-chain scheduler schedule end-to-end.
+pub fn catalog_trusted_schedule_matches(
+    trusted: &[CatalogStateScheduleRecord],
+    on_chain: &[(u64, CatalogRegistryState)],
+) -> bool {
+    if trusted.len() != on_chain.len() {
+        return false;
+    }
+
+    for (record, (timestamp, state)) in trusted.iter().zip(on_chain.iter()) {
+        if record.timestamp != *timestamp
+            || record.registration_price != state.registration_price
+            || state.cat_maker_puzzle_hash
+                != DefaultCatMakerArgs::new(record.asset_id.tree_hash().into())
+                    .curry_tree_hash()
+                    .into()
+        {
+            return false;
+        }
+    }
+
+    true
+}
+
+pub async fn catalog_verify_deployment(testnet11: bool) -> Result<(), CliError> {
+    let mut ctx = SpendContext::new();
+    let cli = get_coinset_client(testnet11);
+    let catalog_constants = CatalogRegistryConstants::get(testnet11);
+
+    println!("Verifying CATalog deployment (testnet: {})...", testnet11);
+
+    let premine_csv_filename = if testnet11 {
+        "catalog_premine_testnet11.csv"
+    } else {
+        "catalog_premine_mainnet.csv"
+    };
+
+    println!("Let's start with the CATalog registry.");
+    println!("It should have the right constants (defined in this lib; TRUSTED SOURCE).");
+    println!(
+        "It should also have a premine that matches the one defined in '{}'(TRUSTED SOURCE).",
+        premine_csv_filename
+    );
+
+    let cats_to_launch = load_catalog_premine_csv(premine_csv_filename)?;
+
+    let Some(launcher_coin_record) = cli
+        .get_coin_record_by_name(catalog_constants.launcher_id)
+        .await?
+        .coin_record
+    else {
+        return Err(CliError::CoinNotFound(catalog_constants.launcher_id));
+    };
+
+    let Some(launcher_coin_solution) = cli
+        .get_puzzle_and_solution(
+            catalog_constants.launcher_id,
+            Some(launcher_coin_record.spent_block_index),
+        )
+        .await?
+        .coin_solution
+    else {
+        return Err(CliError::CoinNotSpent(catalog_constants.launcher_id));
+    };
+
+    let launcher_puzzle_ptr = node_from_bytes(&mut ctx, &launcher_coin_solution.puzzle_reveal)?;
+    let launcher_solution_ptr = node_from_bytes(&mut ctx, &launcher_coin_solution.solution)?;
+
+    let output_conds = ctx.run(launcher_puzzle_ptr, launcher_solution_ptr)?;
+    let output_conds = ctx.extract::<Conditions<NodePtr>>(output_conds)?;
+    let create_coin_cond = output_conds
+        .into_iter()
+        .find_map(|cond| {
+            if let Condition::CreateCoin(create_coin_cond) = cond {
+                if create_coin_cond.amount == 1 {
+                    Some(create_coin_cond)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .unwrap();
+
+    let eve_catalog_coin = Coin::new(
+        catalog_constants.launcher_id,
+        create_coin_cond.puzzle_hash,
+        1,
+    );
+
+    let Some(eve_coin_record) = cli
+        .get_coin_record_by_name(eve_catalog_coin.coin_id())
+        .await?
+        .coin_record
+    else {
+        return Err(CliError::CoinNotFound(eve_catalog_coin.coin_id()));
+    };
+
+    let Some(eve_coin_spend) = cli
+        .get_puzzle_and_solution(
+            eve_catalog_coin.coin_id(),
+            Some(eve_coin_record.spent_block_index),
+        )
+        .await?
+        .coin_solution
+    else {
+        return Err(CliError::CoinNotSpent(eve_catalog_coin.coin_id()));
+    };
+
+    let eve_puzzle = node_from_bytes(&mut ctx, &eve_coin_spend.puzzle_reveal)?;
+    let eve_singleton_layer = Puzzle::parse(&ctx, eve_puzzle);
+    let eve_singleton_layer =
+        SingletonLayer::<NodePtr>::parse_puzzle(&ctx, eve_singleton_layer)?.unwrap();
+    let (_, conditions) =
+        ctx.extract::<(u64, Conditions<NodePtr>)>(eve_singleton_layer.inner_puzzle)?;
+
+    let conditions: Vec<Condition<NodePtr>> = conditions.into_iter().collect();
+    let [Condition::CreateCoin(left_slot_cc), Condition::CreateCoin(right_slot_cc), Condition::CreateCoin(catalog_cc)] =
+        conditions.as_slice()
+    else {
+        return Err(CliError::Custom(
+            "Eve puzzle does not have the right conditions".to_string(),
+        ));
+    };
+
+    let left_slot_info = SlotInfo::from_value(
+        catalog_constants.launcher_id,
+        0,
+        CatalogSlotValue::initial_left_end(),
+    );
+    let right_slot_info = SlotInfo::from_value(
+        catalog_constants.launcher_id,
+        0,
+        CatalogSlotValue::initial_right_end(),
+    );
+
+    if left_slot_cc.puzzle_hash != Slot::puzzle_hash(&left_slot_info).into()
+        || right_slot_cc.puzzle_hash != Slot::puzzle_hash(&right_slot_info).into()
+    {
+        return Err(CliError::Custom(
+            "Left/right end slot puzzle hashes do not match expected values".to_string(),
+        ));
+    }
+
+    let Memos::Some(memos) = catalog_cc.memos else {
+        return Err(CliError::Driver(DriverError::MissingHint));
+    };
+    let (hinted_launcher_id, (initial_registration_asset_id, (initial_state, ()))) =
+        ctx.extract::<(Bytes32, (Bytes32, (CatalogRegistryState, ())))>(memos)?;
+
+    let catalog_info = CatalogRegistryInfo::new(initial_state, catalog_constants);
+    let catalog_full_ph = SingletonArgs::curry_tree_hash(
+        catalog_constants.launcher_id,
+        catalog_info.inner_puzzle_hash(),
+    );
+    let mut catalog = CatalogRegistry::new(
+        Coin::new(eve_catalog_coin.coin_id(), catalog_full_ph.into(), 1),
+        Proof::Lineage(LineageProof {
+            parent_parent_coin_info: eve_catalog_coin.parent_coin_info,
+            parent_inner_puzzle_hash: ctx.tree_hash(eve_singleton_layer.inner_puzzle).into(),
+            parent_amount: 1,
+        }),
+        catalog_info,
+    );
+
+    if hinted_launcher_id != catalog_constants.launcher_id
+        || initial_state.registration_price != 1
+        || initial_state.cat_maker_puzzle_hash
+            != DefaultCatMakerArgs::new(initial_registration_asset_id.tree_hash().into())
+                .curry_tree_hash()
+                .into()
+        || launcher_coin_record.coin.puzzle_hash != SINGLETON_LAUNCHER_HASH.into()
+        || catalog_cc.amount != 1
+        || catalog_cc.puzzle_hash != catalog_info.inner_puzzle_hash().into()
+    {
+        return Err(CliError::Custom(
+            "Eve coin CATalog create_coin not ok".to_string(),
+        ));
+    }
+
+    println!(
+        "Registry launched at height {} with a premine registration CAT asset id of {}.",
+        launcher_coin_record.spent_block_index,
+        hex::encode(initial_registration_asset_id)
+    );
+
+    let mut cat_index = 0;
+
+    while cat_index < cats_to_launch.len() {
+        let Some(coin_record) = cli
+            .get_coin_record_by_name(catalog.coin.coin_id())
+            .await?
+            .coin_record
+        else {
+            return Err(CliError::CoinNotFound(catalog.coin.coin_id()));
+        };
+
+        let Some(coin_spend) = cli
+            .get_puzzle_and_solution(catalog.coin.coin_id(), Some(coin_record.spent_block_index))
+            .await?
+            .coin_solution
+        else {
+            break;
+        };
+
+        catalog = CatalogRegistry::from_spend(
+            &mut ctx,
+            &coin_spend,
+            catalog.info.constants,
+            chia_bls::Signature::default(),
+        )?
+        .unwrap();
+        let new_slot_values = &catalog.pending_spend.created_slots;
+
+        while cat_index < cats_to_launch.len() {
+            let top_cat = &cats_to_launch[cat_index];
+            let found = new_slot_values
+                .iter()
+                .find(|slot_value| slot_value.asset_id == top_cat.asset_id);
+            if found.is_some() {
+                cat_index += 1;
+
+                let eve_nft_inner_puzzle = initial_cat_inner_puzzle_ptr(&mut ctx, top_cat)?;
+                let eve_nft_inner_puzzle_hash = ctx.tree_hash(eve_nft_inner_puzzle);
+
+                let uniqueness_prelauncher_coin = Coin::new(
+                    catalog.coin.coin_id(),
+                    UniquenessPrelauncher::<()>::puzzle_hash(top_cat.asset_id.tree_hash()).into(),
+                    0,
+                );
+                let cat_nft_launcher = Coin::new(
+                    uniqueness_prelauncher_coin.coin_id(),
+                    SINGLETON_LAUNCHER_HASH.into(),
+                    1,
+                );
+                let cat_nft_launcher_id = cat_nft_launcher.coin_id();
+
+                let cat_nft_puzzle_hash = SingletonArgs::curry_tree_hash(
+                    cat_nft_launcher_id,
+                    CurriedProgram::<TreeHash, _> {
+                        program: NFT_STATE_LAYER_HASH.into(),
+                        args: NftStateLayerArgs {
+                            mod_hash: NFT_STATE_LAYER_HASH.into(),
+                            metadata: (),
+                            metadata_updater_puzzle_hash: ANY_METADATA_UPDATER_HASH.into(),
+                            inner_puzzle: NftOwnershipLayerArgs::curry_tree_hash(
+                                None,
+                                NftRoyaltyTransferPuzzleArgs::curry_tree_hash(
+                                    cat_nft_launcher_id,
+                                    catalog_constants.royalty_address,
+                                    catalog_constants.royalty_basis_points,
+                                ),
+                                eve_nft_inner_puzzle_hash,
+                            ),
+                        },
+                    }
+                    .tree_hash(),
+                );
+
+                let eve_cat_nft_coin =
+                    Coin::new(cat_nft_launcher_id, cat_nft_puzzle_hash.into(), 1);
+                let Some(eve_cat_nft_record) = cli
+                    .get_coin_record_by_name(eve_cat_nft_coin.coin_id())
+                    .await?
+                    .coin_record
+                else {
+                    return Err(CliError::CoinNotFound(eve_cat_nft_coin.coin_id()));
+                };
+                if !eve_cat_nft_record.spent {
+                    return Err(CliError::CoinNotSpent(eve_cat_nft_coin.coin_id()));
+                }
+            } else {
+                break;
+            }
+        }
+
+        // this coin's confirmed, move to the child
+        catalog = catalog.child(catalog.pending_spend.latest_state.1);
+    }
+
+    if cat_index < cats_to_launch.len() {
+        return Err(CliError::Custom(
+            "CATalog not completely unrolled".to_string(),
+        ));
+    } else {
+        println!("All premined CATs were distributed correctly.");
+    }
+
+    println!("Now let's analyze the price singleton.");
+    let (MultisigSingleton::Vault(my_vault), Some(state_scheduler_info)) =
+        sync_multisig_singleton::<CatalogRegistryState>(
+            &cli,
+            &mut ctx,
+            catalog_constants.price_singleton_launcher_id,
+            None,
+        )
+        .await?
+    else {
+        return Err(CliError::Custom(
+            "Price singleton was not created correctly or is still in its state scheduler phase."
+                .to_string(),
+        ));
+    };
+
+    let price_schedule_csv_filename = if testnet11 {
+        "catalog_price_schedule_testnet11.csv"
+    } else {
+        "catalog_price_schedule_mainnet.csv"
+    };
+    print!(
+        "Checking executed price schedule against '{}' (TRUSTED SOURCE)... ",
+        price_schedule_csv_filename
+    );
+
+    let price_schedule = load_catalog_state_schedule_csv(price_schedule_csv_filename)?;
+    let price_schedule_ok =
+        catalog_trusted_schedule_matches(&price_schedule, &state_scheduler_info.state_schedule);
+
+    if price_schedule_ok {
+        println!("OK");
+    } else {
+        println!("FAILED");
+        return Err(CliError::Custom(
+            "Price schedule does not match the one defined in the csv.".to_string(),
+        ));
+    }
+
+    println!("Current (latest unspent) vault info:");
+    print_medieval_vault_configuration(my_vault.info.m, &my_vault.info.public_key_list)?;
+
+    println!("\nEverything seems OK");
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chia_protocol::Bytes32;
+    use chia_wallet_sdk::types::Mod;
+    use clvm_utils::ToTreeHash;
+
+    fn sample_asset_id() -> Bytes32 {
+        Bytes32::new(
+            hex::decode("d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad")
+                .unwrap()
+                .try_into()
+                .unwrap(),
+        )
+    }
+
+    fn record(timestamp: u64, price: u64) -> CatalogStateScheduleRecord {
+        CatalogStateScheduleRecord {
+            timestamp,
+            asset_id: sample_asset_id(),
+            registration_price: price,
+        }
+    }
+
+    fn state(price: u64) -> CatalogRegistryState {
+        CatalogRegistryState {
+            cat_maker_puzzle_hash: DefaultCatMakerArgs::new(sample_asset_id().tree_hash().into())
+                .curry_tree_hash()
+                .into(),
+            registration_price: price,
+        }
+    }
+
+    #[test]
+    fn trusted_schedule_matches_full_length_timestamps_and_states() {
+        let trusted = vec![record(1, 3), record(2, 2), record(3, 1)];
+        let on_chain = vec![(1, state(3)), (2, state(2)), (3, state(1))];
+        assert!(catalog_trusted_schedule_matches(&trusted, &on_chain));
+    }
+
+    #[test]
+    fn trusted_schedule_rejects_length_mismatch() {
+        let trusted = vec![record(1, 3), record(2, 2)];
+        let on_chain = vec![(1, state(3)), (2, state(2)), (3, state(1))];
+        assert!(!catalog_trusted_schedule_matches(&trusted, &on_chain));
+    }
+
+    #[test]
+    fn trusted_schedule_rejects_timestamp_mismatch() {
+        let trusted = vec![record(1, 3), record(2, 2), record(3, 1)];
+        let on_chain = vec![(1, state(3)), (9, state(2)), (3, state(1))];
+        assert!(!catalog_trusted_schedule_matches(&trusted, &on_chain));
+    }
+
+    #[test]
+    fn trusted_schedule_rejects_state_mismatch() {
+        let trusted = vec![record(1, 3), record(2, 2), record(3, 1)];
+        let on_chain = vec![(1, state(3)), (2, state(99)), (3, state(1))];
+        assert!(!catalog_trusted_schedule_matches(&trusted, &on_chain));
+    }
+}

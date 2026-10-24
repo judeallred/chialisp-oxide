@@ -53,6 +53,7 @@ export default defineConfig({
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
           { label: 'Write a CAT TAIL in Rust', slug: 'tutorials/cat-genesis-tail' },
+          { label: 'Thread state through counter actions', slug: 'tutorials/action-counter' },
           { label: 'Delegate conditions with an explicit tail', slug: 'tutorials/delegated-conditions' },
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },

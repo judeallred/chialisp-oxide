@@ -10,11 +10,13 @@ import CurriedExamples from '../../components/CurriedExamples.astro';
 import CoinInstances from '../../components/CoinInstances.astro';
 import BoomerangSourceControls from '../../components/BoomerangSourceControls.astro';
 import CatGenesisValidation from '../../components/CatGenesisValidation.astro';
+import CounterProtocol from '../../components/CounterProtocol.astro';
+import CounterSourceControls from '../../components/CounterSourceControls.astro';
 import ProtocolValidation from '../../components/ProtocolValidation.astro';
 import CompositionCosts from '../../components/CompositionCosts.astro';
 import DelegatedConditionsValidation from '../../components/DelegatedConditionsValidation.astro';
 import DelegatedSourceControls from '../../components/DelegatedSourceControls.astro';
-import { declaredDivergences, puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, singletonProtocol, delegatedProtocol, catProtocol, type PuzzleReport } from '../../lib/data';
+import { declaredDivergences, puzzles, report, authoring, canonicalExample, canonicalPuzzle, canonicalHelper, helperContract, kindLabel, format, href, backendLabel, singletonProtocol, delegatedProtocol, catProtocol, counterProtocol, type PuzzleReport } from '../../lib/data';
 export function getStaticPaths() { return puzzles.map(puzzle => ({ params: { slug: puzzle.slug }, props: { puzzle } })); }
 const { puzzle } = Astro.props as { puzzle: PuzzleReport };
 const canonical = canonicalExample(puzzle);
@@ -24,6 +26,7 @@ const helper = helperContract(puzzle);
 const singleton = singletonProtocol(puzzle);
 const delegated = delegatedProtocol(puzzle);
 const cat = catProtocol(puzzle);
+const counter = counterProtocol(puzzle);
 const generatedScope = helper?.generated ?? (puzzle.environment === 'ignored' || puzzle.environment === 'raw' ? 'over bounded atom and pair trees' : 'around the scalar policy boundary');
 const sourceContract = canonical || canonicalModule
   ? 'The original Chialisp source is independently compiled without adding a wrapper or argument check.'
@@ -41,6 +44,8 @@ if (puzzle.slug === 'p2-singleton') headings.splice(2, 0, {depth:2,slug:'composi
 if (puzzle.resource_controls) headings.splice(3,0,{depth:2,slug:'resource-controls',text:'What happens with a smaller budget?'});
 if (puzzle.kind === 'program_factory') headings.splice(3,0,{depth:2,slug:'factory',text:'Apply the produced programs'});
 if (cat) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'cat-genesis-lifecycle',text:'Validate the CAT lifecycle locally'});
+if (counter) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'counter-lifecycle',text:'Thread state through actual children'});
+if (counter) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'counter-source-controls',text:'Test independently funded mutations'});
 if (singleton) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'protocol-composition',text:'Validate canonical singleton composition'});
 if (delegated) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'delegated-owner-instances',text:'Validate owner-key instances'});
 if (delegated) headings.splice(headings.findIndex(heading => heading.slug === 'ledger'), 0, {depth:2,slug:'delegated-source-controls',text:'Policy mistakes that still compile'});
@@ -118,6 +123,8 @@ if (puzzle.curried_examples) headings.splice(headings.findIndex(heading => headi
   {puzzle.coin_instances && <CoinInstances puzzle={puzzle} />}
   {puzzle.coin_instances && <BoomerangSourceControls />}
   {cat && <CatGenesisValidation puzzle={puzzle} />}
+  {counter && <CounterProtocol puzzle={puzzle} />}
+  {counter && <CounterSourceControls puzzle={puzzle} />}
   {singleton && <ProtocolValidation evidence={singleton} />}
   {delegated && <DelegatedConditionsValidation puzzle={puzzle} />}
   {delegated && <DelegatedSourceControls puzzle={puzzle} />}
@@ -132,7 +139,7 @@ if (puzzle.curried_examples) headings.splice(headings.findIndex(heading => headi
         {scenario.rejections.length ? <ul class="rejections" aria-label="Actual consensus rejection observations">{scenario.rejections.map(rejection => <li><code data-ledger-rejection={rejection.code}>{rejection.stage}/{rejection.code}</code></li>)}</ul> : <small class="accepted-spend">Accepted spend; no rejection expected.</small>}
       </li>)}</ul>
     </details>)}
-  </div> : <div class="callout-note">{puzzle.coin_instances ? 'This payment template uses the separate committed-instance evidence above. Its five-build transaction attempts do not add ordinary ledger scenario groups. A successful template VM output alone does not establish a valid claim or refund.' : delegated ? 'This raw template uses the separate owner-instance evidence above. Its raw evaluations, actual SDK submissions and intentionally unsafe uncurried successes do not add ordinary scenario groups.' : cat ? 'This TAIL uses the separate five-build CAT2 lifecycle above. Its actual SDK submissions and component VM runs add no ordinary ledger scenario groups. Returning nil from the raw TAIL alone is not a complete CAT spend.' : singleton ? 'This component uses the separate canonical-counterpart composition evidence above. Its actual transaction submissions do not add to the ordinary ledger scenario-group totals. A successful raw module execution alone is not a complete spend.' : puzzle.curried_instances ? 'The ordinary comparisons cover the reusable raw module. The separate fixed-hash instance section above contains its actual spend observations; the raw module alone receives no password-locked spend credit.' : puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
+  </div> : <div class="callout-note">{puzzle.coin_instances ? 'This payment template uses the separate committed-instance evidence above. Its five-build transaction attempts do not add ordinary ledger scenario groups. A successful template VM output alone does not establish a valid claim or refund.' : delegated ? 'This raw template uses the separate owner-instance evidence above. Its raw evaluations, actual SDK submissions and intentionally unsafe uncurried successes do not add ordinary scenario groups.' : counter ? 'This action uses the separate selected-side counter lifecycle above. Its SDK submissions and component VM runs add no ordinary ledger scenario groups. The other action is independently compiled Chialisp; standalone action output is not a complete spend.' : cat ? 'This TAIL uses the separate five-build CAT2 lifecycle above. Its actual SDK submissions and component VM runs add no ordinary ledger scenario groups. Returning nil from the raw TAIL alone is not a complete CAT spend.' : singleton ? 'This component uses the separate canonical-counterpart composition evidence above. Its actual transaction submissions do not add to the ordinary ledger scenario-group totals. A successful raw module execution alone is not a complete spend.' : puzzle.curried_instances ? 'The ordinary comparisons cover the reusable raw module. The separate fixed-hash instance section above contains its actual spend observations; the raw module alone receives no password-locked spend credit.' : puzzle.kind === 'program_factory' ? 'This factory returns a program, not direct spend conditions. The second-stage VM checks above do not claim ledger admission or authorization.' : 'This pure function returns a CLVM value for a language example. Ledger validation is not applicable; successful evaluation is not presented as a valid coin spend.'}</div>}
   <h2 id="provenance">Provenance and versions</h2>
   <p><strong>{puzzle.provenance.classification}.</strong> {canonical ? `This ports one exact tutorial ${puzzle.reference_mode === 'expression' ? 'expression' : 'module'}. It does not complete its parent page, a canonical protocol module, or a CHIP migration.` : canonicalModule ? 'This ports one exact pinned canonical module. It does not complete its repository, a tutorial, or a CHIP; module identity and finite execution evidence have their own explicit scope.' : helperAdapter ? 'This ports one published helper through an explicit module adapter. It does not complete the source library, its macros, a protocol, or a CHIP. It makes no published module-hash compatibility claim.' : 'This original teaching fixture is not claimed as a canonical protocol replacement or completed CHIP migration.'}</p>
   {helper && <p><a href={href(`tutorials/${puzzle.slug}/`)}>Read the helper’s source span, license, input contract and reproduction steps.</a></p>}

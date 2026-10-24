@@ -1,0 +1,109 @@
+---
+import { href, type PuzzleReport } from '../lib/data';
+import { counterSlugs } from '../lib/counter-protocol.mjs';
+import { readCounterSourceControls } from '../lib/counter-source-controls.mjs';
+
+interface Props { puzzle?: PuzzleReport }
+interface CoinView { coin_id: string }
+interface AttemptView {
+  id: string;
+  outcome: { status: 'accepted' | 'rejected'; code?: string; stage?: 'consensus' | 'runtime_umbrella' };
+}
+interface OrderView {
+  name: 'increment_then_reset' | 'reset_then_increment';
+  initial_state: number;
+  next_state: number;
+  continued_state: number;
+  child: CoinView;
+  continued_child: CoinView;
+}
+interface BuildView {
+  mode: 'off' | 'on' | 'chialisp' | 'rue-off' | 'rue-on';
+  incrementHash: string;
+  resetHash: string;
+  merkle_root: string;
+  increment_child: CoinView;
+  orders: OrderView[];
+  all: AttemptView[];
+}
+interface MutantView {
+  control: 'increment_no_change' | 'reset_drop_signature';
+  mode: 'off' | 'on';
+  initial_state: number;
+  original_policy_expected_state: number;
+  observed_state: number;
+  original_policy_requires_signature: boolean;
+  moduleHash: string;
+  companionHash: string;
+  merkle_root: string;
+  eve: CoinView;
+  child: CoinView;
+  unsignedSignature: string;
+}
+type CountName = 'nativeGroups' | 'nativeCalls' | 'nativeAdapters' | 'raw' | 'rawOriginal' | 'rawMutant'
+  | 'originalGroups' | 'originalAttempts' | 'originalAccepted' | 'originalTyped' | 'originalRuntime' | 'originalPrimary'
+  | 'mutantGroups' | 'mutantAttempts' | 'mutantFunding' | 'mutantTransitions' | 'mutantPrimary'
+  | 'attempts' | 'accepted' | 'typed' | 'runtime' | 'primary';
+interface CounterControlView {
+  counts: Record<CountName, number>;
+  builds: BuildView[];
+  mutants: MutantView[];
+  primary: { version: string };
+  sdk: { vm: string; consensus: string; network: string };
+  downloads: { sdk: string; raw: string };
+  packetSHA: string;
+}
+const { puzzle } = Astro.props as Props;
+if (puzzle && !counterSlugs.includes(puzzle.slug)) throw new Error('Counter controls need a counter action');
+// The reader validates the packet and projects these display fields before
+// this view narrows its JavaScript return value to the fields rendered below.
+const evidence = await readCounterSourceControls() as CounterControlView | null;
+const labels: Record<string, string> = { off: 'Rust / off', on: 'Rust / on', chialisp: 'Chialisp', 'rue-off': 'Rue / off', 'rue-on': 'Rue / on' };
+---
+{evidence ? <section id="counter-source-controls" data-counter-source-controls aria-label="Separate counter lifecycle and source mutations">
+  <h2>Test policy changes on independently funded instances</h2>
+  <p><strong>WIP prototype; not ready for real funds.</strong> This dedicated capture is separate from the paired main corpus. It uses both selected action artifacts together in each language build. The main corpus instead selects one action and uses the other’s Chialisp reference; its 60 submissions are not included below.</p>
+  <p><span data-counter-controls-native-groups>{evidence.counts.nativeGroups}</span> native test groups record <strong data-counter-controls-native-calls>{evidence.counts.nativeCalls}</strong> actual export calls. Another <span data-counter-controls-native-adapters>{evidence.counts.nativeAdapters}</span> rows are host ABI adapter rejections; those rows never call the Rust export. Native panic categories are separate from typed VM failures.</p>
+  <p>The raw action lane has <strong data-counter-controls-raw>{evidence.counts.raw}</strong> primary VM observations: <span data-counter-controls-raw-original>{evidence.counts.rawOriginal}</span> original observations and <span data-counter-controls-raw-mutant>{evidence.counts.rawMutant}</span> mutant observations. These are separate from complete SDK submissions.</p>
+  <p><span data-counter-controls-original-groups>{evidence.counts.originalGroups}</span> original builds each make 37 SDK submissions: 16 accepted, 15 exact typed consensus rejections and six runtime umbrellas. Together: <strong data-counter-controls-original-attempts>{evidence.counts.originalAttempts}</strong> submissions, <span data-counter-controls-original-accepted>{evidence.counts.originalAccepted}</span> accepted, <span data-counter-controls-original-typed>{evidence.counts.originalTyped}</span> typed rejections and <span data-counter-controls-original-runtime>{evidence.counts.originalRuntime}</span> runtime umbrellas, with <span data-counter-controls-original-primary>{evidence.counts.originalPrimary}</span> separate component VM observations.</p>
+  <p><span data-counter-controls-mutant-groups>{evidence.counts.mutantGroups}</span> independently funded mutant groups add <span data-counter-controls-mutant-attempts>{evidence.counts.mutantAttempts}</span> accepted SDK submissions: <span data-counter-controls-mutant-funding>{evidence.counts.mutantFunding}</span> funding bundles and <span data-counter-controls-mutant-transitions>{evidence.counts.mutantTransitions}</span> mutant transitions. Their <span data-counter-controls-mutant-primary>{evidence.counts.mutantPrimary}</span> component VM observations remain separate.</p>
+  <p>Combined dedicated capture: <strong data-counter-controls-attempts>{evidence.counts.attempts}</strong> SDK submissions, <span data-counter-controls-accepted>{evidence.counts.accepted}</span> accepted, <span data-counter-controls-typed>{evidence.counts.typed}</span> typed rejections, <span data-counter-controls-runtime>{evidence.counts.runtime}</span> runtime umbrellas and <span data-counter-controls-primary>{evidence.counts.primary}</span> component VM observations. A byte-identical repeat adds no scenarios. Resource and infrastructure failures carry no rejection credit.</p>
+  {evidence.builds.map(build => <details data-counter-packet-build={build.mode}>
+    <summary>{labels[build.mode]} · both selected actions · 37 SDK submissions</summary>
+    <p>Increment module: <code data-counter-packet-increment>{build.incrementHash}</code>. Reset template: <code data-counter-packet-reset>{build.resetHash}</code>.</p>
+    <p>Committed Merkle root: <code data-counter-packet-root>{build.merkle_root}</code>. The first increment’s actual child coin ID is <code data-counter-packet-initial>{build.increment_child.coin_id}</code>.</p>
+    {build.orders.map(order => <article data-counter-packet-order={order.name}>
+      <h3>{order.name === 'increment_then_reset' ? 'Increment, then reset' : 'Reset, then increment'}</h3>
+      <p>These are alternative ledgers cloned from the same unspent child. Initial count <strong data-counter-order-initial>{order.initial_state}</strong> → selected batch <strong data-counter-order-next>{order.next_state}</strong> → actual child increment <strong data-counter-order-continued>{order.continued_state}</strong>. The reset signature does not authorize an exact batch or action order.</p>
+      <p>Batch child: <code data-counter-order-child>{order.child.coin_id}</code>. Continued child: <code data-counter-order-continuation>{order.continued_child.coin_id}</code>.</p>
+    </article>)}
+    <ol>{build.all.map(attempt => <li data-counter-packet-attempt={attempt.id}>
+      <code data-counter-packet-name>{attempt.id}</code>: <span data-counter-packet-status>{attempt.outcome.status}</span>{attempt.outcome.code && <> · <code data-counter-packet-code>{attempt.outcome.code}</code> · <span data-counter-packet-stage>{attempt.outcome.stage}</span></>}
+    </li>)}</ol>
+  </details>)}
+  <h3>Valid Rust can still express the wrong policy</h3>
+  <p>Each mutant uses its own committed root and funded reveal, with the other action’s independently compiled Chialisp reference. Constructing and discarding a condition does not enforce it. These accepted policy violations are not compiler failures or errors that Rust makes impossible.</p>
+  {evidence.mutants.map(mutant => <article class="mutant" data-counter-packet-mutant={`${mutant.control}/${mutant.mode}`}>
+    <h3>{mutant.control === 'increment_no_change' ? 'Keep the old count' : 'Discard the reset signature condition'} · Rust / {mutant.mode}</h3>
+    <p>Initial count <strong data-counter-mutant-initial>{mutant.initial_state}</strong>. The original policy expects <strong data-counter-mutant-expected>{mutant.original_policy_expected_state}</strong>; this mutant produces <strong data-counter-mutant-observed>{mutant.observed_state}</strong> in an accepted unsigned transition. {mutant.control === 'reset_drop_signature' ? 'The original reset would require an owner signature.' : 'Consensus does not know that this original lesson intended to increment.'}</p>
+    <p>Original signature required: <strong data-counter-mutant-original-signature>{mutant.original_policy_requires_signature ? 'yes' : 'no'}</strong>.</p>
+    <p>Mutant module: <code data-counter-mutant-module>{mutant.moduleHash}</code>. Chialisp companion: <code data-counter-mutant-companion>{mutant.companionHash}</code>.</p>
+    <p>Own committed root: <code data-counter-mutant-root>{mutant.merkle_root}</code>. Own funded Eve: <code data-counter-mutant-eve>{mutant.eve.coin_id}</code>. Actual child: <code data-counter-mutant-child>{mutant.child.coin_id}</code>.</p>
+    <p>Actual empty aggregate signature: <code data-counter-mutant-signature>{mutant.unsignedSignature}</code>.</p>
+  </article>)}
+  <p>The primary VM is <code>{evidence.primary.version}</code>; the SDK VM is <code>{evidence.sdk.vm}</code>, using <code>{evidence.sdk.consensus}</code> and <code>{evidence.sdk.network}</code> rules. Every rejected SDK submission checks full in-memory simulator equality; runtime umbrellas are resolved separately to typed primary program failures.</p>
+  <p>The Python packet gate performs complete current-source, actual native witness, source-recipe and schema-2 bundle admission. This view checks recorded metadata and visible wire relations. It is not execution authentication, not a BLS proof and not compiler preservation. The registry and slot work remains pending, as does live-network acceptance; these finite runs establish no general security or production readiness.</p>
+  <p><a href={href('reports/counter-source-controls/report.json')}>Download the exact packet index</a>, <a href={href(`reports/counter-source-controls/${evidence.downloads.sdk}`)}>SDK journal</a>, or <a href={href(`reports/counter-source-controls/${evidence.downloads.raw}`)}>raw VM journal</a>. Every physical payload is listed in the index. Repeat aliases stay in the index; they create no extra files or coverage.</p>
+  <p>Retained index SHA-256: <code data-counter-packet-sha>{evidence.packetSHA}</code>.</p>
+</section> : <section id="counter-source-controls" data-counter-source-controls-pending aria-label="Counter source-control capture pending">
+  <h2>Test policy changes on independently funded instances</h2>
+  <p><strong>Current portable counter packet pending.</strong> This view adds no source-control execution claim until the full current-source Python packet gate admits an installed capture. Historical local research is separate from public current evidence.</p>
+</section>}
+<style>
+  section { margin-block: 2rem; }
+  details, .mutant { margin-block: 1rem; padding: .85rem; border: 1px solid var(--oxide-line); border-radius: .35rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  article { margin-block: 1rem; }
+  li { margin-block: .5rem; }
+  code { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+</style>

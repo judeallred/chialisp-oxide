@@ -1,0 +1,104 @@
+use chia_protocol::{Bytes32, CoinSpend};
+use chia_wallet_sdk::{
+    coinset::{ChiaRpcClient, CoinsetClient},
+    driver::{SpendContext, XchandlesRegistry},
+};
+
+use crate::{CliError, Db};
+
+pub async fn quick_sync_xchandles(
+    client: &CoinsetClient,
+    db: &mut Db,
+    ctx: &mut SpendContext,
+    launcher_id: Bytes32,
+) -> Result<XchandlesRegistry, CliError> {
+    let constants = if let Some(c) = db.get_xchandles_configuration(ctx, launcher_id).await? {
+        c
+    } else {
+        let coin_record = client
+            .get_coin_record_by_name(launcher_id)
+            .await?
+            .coin_record
+            .ok_or(CliError::CoinNotFound(launcher_id))?;
+
+        let coin_spend = client
+            .get_puzzle_and_solution(launcher_id, Some(coin_record.spent_block_index))
+            .await?
+            .coin_solution
+            .ok_or(CliError::CoinNotSpent(launcher_id))?;
+
+        let launcher_solution = ctx.alloc(&coin_spend.solution)?;
+        let Some((eve_registry, _initial_slots, _initial_asset_id, _initial_base_price)) =
+            XchandlesRegistry::from_launcher_solution(ctx, coin_record.coin, launcher_solution)?
+        else {
+            return Err(CliError::Custom(
+                "Could not parse XCHandles launcher spend".to_string(),
+            ));
+        };
+
+        let c = eve_registry.info.constants;
+        db.save_xchandles_configuration(ctx, c).await?;
+
+        c
+    };
+
+    let records = client
+        .get_coin_records_by_hint(launcher_id, None, None, Some(false), None)
+        .await?
+        .coin_records
+        .ok_or(CliError::Custom(
+            "No unspent XCHandles records found".to_string(),
+        ))?
+        .into_iter();
+
+    let mut coin_spend: Option<CoinSpend> = None;
+    for coin_record in records {
+        if coin_record.spent_block_index > 0 {
+            continue;
+        }
+
+        let spend = client
+            .get_puzzle_and_solution(
+                coin_record.coin.parent_coin_info,
+                Some(coin_record.confirmed_block_index),
+            )
+            .await?
+            .coin_solution
+            .ok_or(CliError::CoinNotSpent(coin_record.coin.parent_coin_info))?;
+
+        let mut temp_ctx = SpendContext::new();
+        if let Ok(Some(_xchandles_maybe)) =
+            XchandlesRegistry::from_parent_spend(&mut temp_ctx, &spend, constants)
+        {
+            coin_spend = Some(spend);
+            break;
+        }
+    }
+
+    let coin_spend = coin_spend.ok_or(CliError::Custom(
+        "Could not find XCHandles registry".to_string(),
+    ))?;
+
+    if let Some(mempool_items) = client
+        .get_mempool_items_by_coin_name(coin_spend.coin.coin_id())
+        .await?
+        .mempool_items
+    {
+        if !mempool_items.is_empty() {
+            if let Some(new_registry) = XchandlesRegistry::from_mempool_item(
+                ctx,
+                mempool_items[0].spend_bundle.clone(),
+                constants,
+            )? {
+                return Ok(new_registry);
+            }
+        }
+    }
+
+    let on_chain_registry = XchandlesRegistry::from_parent_spend(ctx, &coin_spend, constants)?
+        .ok_or(CliError::Custom(
+            "Could not parse latest XCHandles registry".to_string(),
+        ))?;
+
+    Ok(on_chain_registry)
+}

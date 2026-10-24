@@ -1,0 +1,206 @@
+{
+  "status": "raw_vm_executed_repeat_identical",
+  "summary": {
+    "original_observations": 495,
+    "mutant_observations": 396,
+    "primary_vm_observations": 891,
+    "accepted": 503,
+    "program_rejections": 388,
+    "by_control_mode_status": [
+      {
+        "control": "increment_no_change",
+        "mode": "off",
+        "status": "accepted",
+        "count": 59
+      },
+      {
+        "control": "increment_no_change",
+        "mode": "off",
+        "status": "rejected",
+        "count": 40
+      },
+      {
+        "control": "increment_no_change",
+        "mode": "on",
+        "status": "accepted",
+        "count": 59
+      },
+      {
+        "control": "increment_no_change",
+        "mode": "on",
+        "status": "rejected",
+        "count": 40
+      },
+      {
+        "control": "original",
+        "mode": "chialisp",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "original",
+        "mode": "chialisp",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "off",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "original",
+        "mode": "off",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "on",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "original",
+        "mode": "on",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "rue-off",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "original",
+        "mode": "rue-off",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "rue-on",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "original",
+        "mode": "rue-on",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "off",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "off",
+        "status": "rejected",
+        "count": 44
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "on",
+        "status": "accepted",
+        "count": 55
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "on",
+        "status": "rejected",
+        "count": 44
+      }
+    ],
+    "observed_failure_codes": [
+      {
+        "control": "increment_no_change",
+        "mode": "off",
+        "code": "invalid_op_arg",
+        "count": 2
+      },
+      {
+        "control": "increment_no_change",
+        "mode": "off",
+        "code": "raise",
+        "count": 38
+      },
+      {
+        "control": "increment_no_change",
+        "mode": "on",
+        "code": "raise",
+        "count": 40
+      },
+      {
+        "control": "original",
+        "mode": "chialisp",
+        "code": "raise",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "off",
+        "code": "invalid_op_arg",
+        "count": 2
+      },
+      {
+        "control": "original",
+        "mode": "off",
+        "code": "raise",
+        "count": 42
+      },
+      {
+        "control": "original",
+        "mode": "on",
+        "code": "raise",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "rue-off",
+        "code": "raise",
+        "count": 44
+      },
+      {
+        "control": "original",
+        "mode": "rue-on",
+        "code": "raise",
+        "count": 44
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "off",
+        "code": "invalid_op_arg",
+        "count": 2
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "off",
+        "code": "raise",
+        "count": 42
+      },
+      {
+        "control": "reset_drop_signature",
+        "mode": "on",
+        "code": "raise",
+        "count": 44
+      }
+    ],
+    "scope": "Finite consistency only; source/native panic categories do not establish exact cross-language VM failure identity; no SDK/live or compiler-preservation credit."
+  },
+  "first": {
+    "path": "/Users/judeallred/code/clispOx/target/action14-integrated-capture-a04/raw-attempt1.stdout",
+    "bytes": 268310,
+    "sha256": "25e6f9c6441f520db7e9800ebf785df737862700d6952b817f8c8f8f96ab3ea8"
+  },
+  "repeat": {
+    "path": "/Users/judeallred/code/clispOx/target/action14-integrated-capture-a04/raw-attempt2.stdout",
+    "bytes": 268310,
+    "sha256": "25e6f9c6441f520db7e9800ebf785df737862700d6952b817f8c8f8f96ab3ea8"
+  },
+  "scope": "Finite original Rust off/on, independently compiled Chialisp/Rue off/on actions plus actual-source Rust mutants. No outer/singleton/SDK/live or compiler-preservation credit."
+}

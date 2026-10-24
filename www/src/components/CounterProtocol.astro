@@ -1,0 +1,87 @@
+---
+import { backendLabel, href, puzzles, type PuzzleReport } from '../lib/data';
+import { checkCounterComponent, checkCounterPair, counterCounts, counterProtocol, counterSlugs } from '../lib/counter-protocol.mjs';
+
+interface Coin { coin_id: string; parent_coin_id: string; puzzle_hash: string; amount: number }
+interface Attempt { name: string; outcome: { status: string; stage?: string; code?: string } }
+interface Build {
+  backend: string;
+  optimize_lir: boolean;
+  module_tree_hash: string;
+  counterpart: { action: string; backend: string; module_tree_hash: string };
+  lifecycle: {
+    initial_state: number;
+    selected_child_state: number;
+    continued_child_state: number;
+    merkle_root: string;
+    launcher: Coin;
+    eve: Coin;
+    selected_child: Coin;
+    continued_child: Coin;
+    attempts: Attempt[];
+    sdk_transaction_attempts: number;
+  };
+}
+interface Evidence { builds: Build[]; primary_vm: string; sdk_vm: string; consensus: string; network: string }
+interface Props { puzzle?: PuzzleReport }
+
+const { puzzle } = Astro.props as Props;
+const checked = checkCounterPair(puzzles);
+if (puzzle && !counterSlugs.includes(puzzle.slug)) throw new Error('CounterProtocol needs a counter action');
+if (puzzle) checkCounterComponent(puzzle, checked.rows.find(row => row.slug !== puzzle.slug));
+const rows = (puzzle ? [puzzle] : checked.rows) as PuzzleReport[];
+const totals = rows.map(row => counterCounts(row.slug)).reduce((sum, value) => ({
+  groups: sum.groups + value.groups,
+  attempts: sum.attempts + value.attempts,
+  accepted: sum.accepted + value.accepted,
+  rejected: sum.rejected + value.rejected,
+  runtime_umbrellas: sum.runtime_umbrellas + value.runtime_umbrellas,
+  vm: sum.vm + value.vm,
+}), { groups: 0, attempts: 0, accepted: 0, rejected: 0, runtime_umbrellas: 0, vm: 0 });
+const sides = rows.map(row => ({ puzzle: row, evidence: row.protocol_validation as unknown as Evidence }));
+---
+<section id="counter-lifecycle" data-counter-protocol={counterProtocol} aria-label="Local counter action composition">
+  <h2>Validate the counter’s state transitions</h2>
+  <p><strong>WIP prototype; not ready for real funds.</strong> Each selected action has five compiled builds. Every build uses the other action’s independently compiled Chialisp reference, funds its own committed singleton at state five, executes the selected action, and increments the actual child coin.</p>
+  <p><strong data-counter-attempts>{totals.attempts}</strong> actual SDK submissions across <strong data-counter-groups>{totals.groups}</strong> selected-side builds: <span data-counter-accepted>{totals.accepted}</span> accepted, <span data-counter-rejected>{totals.rejected}</span> exact typed consensus rejections with full in-memory state equality, and <span data-counter-umbrellas>{totals.runtime_umbrellas}</span> runtime umbrellas. The <span data-counter-vm>{totals.vm}</span> component primary VM observations are separate from raw action vectors. An umbrella is resolved separately to a typed primary program failure; it carries no exact semantic consensus rejection credit.</p>
+  <p>The Rust, Chialisp and Rue counter actions are original teaching policies. This is <strong>not a Rust port of the outer action layer</strong>, default finalizer or singleton. The fixed reset signature authorizes a coin-bound capability, not an exact action batch or order. The registry and slots remain pending for issue #14; live Testnet11 acceptance remains pending.</p>
+  {sides.map(({ puzzle: row, evidence }) => <div class="counter-side" data-counter-side={row.slug}>
+    <h3>{row.title}</h3>
+    <p><a href={href(`lab/${row.slug}/`)}>Inspect this action’s sources, vectors and artifacts</a>. Its companion action is separately compiled Chialisp in every build below.</p>
+    {evidence.builds.map(build => <details data-counter-build={`${build.backend}/${build.optimize_lir}`}>
+      <summary>{backendLabel(build.backend)} / {build.optimize_lir ? 'on' : 'off'} · {build.lifecycle.sdk_transaction_attempts} submissions</summary>
+      <p class="state-path">State <strong data-counter-state-initial>{build.lifecycle.initial_state}</strong> → selected child <strong data-counter-state-selected>{build.lifecycle.selected_child_state}</strong> → continued child <strong data-counter-state-continued>{build.lifecycle.continued_child_state}</strong>.</p>
+      <dl>
+        <dt>Selected action module</dt><dd><code data-counter-module>{build.module_tree_hash}</code></dd>
+        <dt>Chialisp companion module</dt><dd><code data-counter-counterpart>{build.counterpart.module_tree_hash}</code></dd>
+        <dt>Committed action Merkle root</dt><dd><code data-counter-root>{build.lifecycle.merkle_root}</code></dd>
+        <dt>Launcher coin ID</dt><dd><code data-counter-launcher>{build.lifecycle.launcher.coin_id}</code></dd>
+        <dt>Eve coin ID</dt><dd><code data-counter-eve>{build.lifecycle.eve.coin_id}</code></dd>
+        <dt>Selected child coin ID</dt><dd><code data-counter-child>{build.lifecycle.selected_child.coin_id}</code></dd>
+        <dt>Continued child coin ID</dt><dd><code data-counter-continuation>{build.lifecycle.continued_child.coin_id}</code></dd>
+      </dl>
+      <ol>{build.lifecycle.attempts.map(attempt => <li data-counter-attempt={attempt.name}>
+        <code data-counter-name>{attempt.name}</code>: <span data-counter-status>{attempt.outcome.status}</span>{attempt.outcome.code && <> · <code data-counter-code>{attempt.outcome.code}</code></>}
+      </li>)}</ol>
+    </details>)}
+    <p class="versions">Primary VM: <code>{evidence.primary_vm}</code>; simulator VM: <code>{evidence.sdk_vm}</code>; consensus: <code>{evidence.consensus}</code>; network rules: <code>{evidence.network}</code>. Local simulator rules are separate from live network acceptance.</p>
+  </div>)}
+  <details class="counter-scope">
+    <summary>Canonical host source and license scope</summary>
+    <p>The published 630-byte action-layer and 494-byte finalizer programs match the SDK literals and pinned Rue counterparts. The retained slot-machine repository declares Prosperity Public License 3.0.0 in its root license and MIT in Cargo metadata; that conflict remains unresolved. The SDK’s Apache-2.0 license does not establish an upstream relicense. The canonical launcher and singleton top layer have their separate Chia source provenance.</p>
+    <p>The broader five-build two-action lifecycle and actual-source mutation packet is a separate evidence lane, with 193 submissions specified for its independent capture. Those submissions are not included in these paired-main counts. Retained readers do not authenticate execution, prove BLS or compiler preservation, establish exhaustive security, or make the prototype production ready.</p>
+  </details>
+</section>
+<style>
+  section { margin-block: 2rem; }
+  .counter-side { margin-block: 1.5rem; }
+  details { margin-block: 1rem; border: 1px solid var(--oxide-line); border-radius: .35rem; padding: .85rem; }
+  summary { cursor: pointer; font-weight: 600; }
+  code { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+  dl { margin-block: 1rem; }
+  dt { font-size: .8rem; font-weight: 600; margin-top: .7rem; }
+  dd { margin-inline-start: 0; min-width: 0; font-size: .75rem; }
+  li { margin-block: .5rem; }
+  .versions { font-size: .85rem; }
+  .state-path { line-height: 1.7; }
+</style>

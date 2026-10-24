@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "classification": "retained published canonical host sources",
+  "repository": "https://github.com/xch-dev/chia-wallet-sdk",
+  "revision": "e9a08f6e54ea5132f7da06327836a3b386a944b1",
+  "root_tree_sha1": "45f3a22736cd4bc1b9913a5a9ed77bb94e195d09",
+  "commit": {
+    "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/commit.git",
+    "bytes": 1036,
+    "sha256": "eaa079043a175105f5f34442b6392cab553bcf36bb782b3ef294adb1487cf83f",
+    "git_commit_sha1": "e9a08f6e54ea5132f7da06327836a3b386a944b1",
+    "root_tree_sha1": "45f3a22736cd4bc1b9913a5a9ed77bb94e195d09",
+    "scope": "Raw Git commit identity checked. No signature trust or source-authorship claim."
+  },
+  "tree": {
+    "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/tree.json",
+    "bytes": 136438,
+    "sha256": "6bf441b3a0833787421bed711e65b03b7e008780c863a6589921352946d5005a",
+    "root_tree_sha1": "45f3a22736cd4bc1b9913a5a9ed77bb94e195d09",
+    "complete_entries": 657,
+    "scope": "Complete nontruncated Git tree; every directory object independently reconstructed."
+  },
+  "inventory": {
+    "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/source-inventory.json",
+    "bytes": 6725,
+    "sha256": "ba1371ac658f835f5efacf43c92069afab1cd0a94cfb5a266461eddaed879904",
+    "tracked_source_files": 23,
+    "source_bytes": 217727,
+    "complete_source_snapshot": false
+  },
+  "scope": "Source and artifact identity for canonical host composition. Retention does not make the action layer, finalizer, singleton or slots Rust frontend ports, authenticate installed binaries, or prove compiler preservation. Original finite counter actions are separate original Rust/Chialisp/Rue teaching implementations.",
+  "license": {
+    "declared_root_license": "Apache-2.0",
+    "snapshot": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+    "sha256": "857c4192434aa7c1a05244640a6796166988196bb47369f378611bc3c2436736",
+    "git_blob_sha1": "e4a1a8b23f7e0ac3f4d948fcf466b5163827358b",
+    "scope": "Exact repository license alongside original tracked Cargo manifests. No conclusion about the distinct slot-machine license conflict."
+  },
+  "artifacts": [
+    {
+      "module": "action",
+      "encoding": "clvm-legacy-plain/v1",
+      "serialized_bytes": 630,
+      "blob_sha256": "849e048c276a39f05b68f78ba2d3a3b5924f5e8b8944a7c8ca923119eb442a7a",
+      "module_tree_hash": "afa03f2903f9e4a293523237799074b13ab2361f250df10de5df884b0b09a22b",
+      "source": {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+        "bytes": 3290,
+        "sha256": "ac80dd567cc6786214f987d6087d6da24ed5ee83c8550fdd0a03c0893ae0196c",
+        "git_blob_sha1": "fad6592088f16f69dab77cb0c17b7bd682ed1c0e"
+      },
+      "constant": "ACTION_LAYER_PUZZLE",
+      "retained_rue_hex": {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
+        "bytes": 1280,
+        "sha256": "456ccfde0c6101dd14a3ee01b204ceffd2421969ecb62f4e7777a28e47140820",
+        "git_blob_sha1": "17b390aae84985cb2221f2369429b7fa0c330336"
+      },
+      "retained_rue_bytes_equal": true
+    },
+    {
+      "module": "finalizer",
+      "encoding": "clvm-legacy-plain/v1",
+      "serialized_bytes": 494,
+      "blob_sha256": "7561d066e49565e123e800c03898fe3739576d204060371c27ab3aed5b35ef19",
+      "module_tree_hash": "9d274de59aeaa128d1b0a802b52911838420ef9720d605c78942e8dadfc0810b",
+      "source": {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+        "bytes": 3063,
+        "sha256": "aa1d0875707caf735e19da8fe3371b50604bfd5ee5be93da62e54565e7376d5b",
+        "git_blob_sha1": "372f376bee1a9b7ebd972c8a9c4e093c37796392"
+      },
+      "constant": "DEFAULT_FINALIZER_PUZZLE",
+      "retained_rue_hex": {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hex",
+        "bytes": 1004,
+        "sha256": "a97eaefd90ffa04da6917bb8d80bbc33bacc5bca32ab57404072d3340e61c726",
+        "git_blob_sha1": "221a80f9aaddff00a87dec9b4088e3d853dcbcdd"
+      },
+      "retained_rue_bytes_equal": true
+    },
+    {
+      "module": "slot",
+      "encoding": "clvm-legacy-plain/v1",
+      "serialized_bytes": 311,
+      "blob_sha256": "cd9da6f90ecc2f4cac326d94b19f2f58f13f4d96d71a1b9410c86a2f64130408",
+      "module_tree_hash": "8ab9f3b57a65d7f7a0810f79f7bc1e96bda680d16dd6f51d51e868e13fc7bbb3",
+      "source": {
+        "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+        "bytes": 2604,
+        "sha256": "f4c18d28afc7c03b2b2daefd6a78f1acabd0c282561c50aa7a356c948da690f1",
+        "git_blob_sha1": "d42edb68cdf05f97acbc4bfc03084f2438728ac0"
+      },
+      "constant": "SLOT_PUZZLE",
+      "retained_rue_hex": {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hex",
+        "bytes": 632,
+        "sha256": "76fda8942c827d7296f643b1ec4c22cd6c82859e8205fa09d07adf3402445c79",
+        "git_blob_sha1": "d0a6124642a32858884c1d693ab93d04150bd8b3"
+      },
+      "retained_rue_bytes_equal": true
+    }
+  ],
+  "source_retention": "Selected23 original Git blobs retain action-layer/default-finalizer/slot schemas and literals, Merkle/compact proof and constants helpers, related driver source references, manifests, lock, README and license. The complete repository tree is retained, but this is not a complete SDK source snapshot or build graph. The driver source is a reference; it does not add chia-sdk-driver to the project dependency graph."
+}

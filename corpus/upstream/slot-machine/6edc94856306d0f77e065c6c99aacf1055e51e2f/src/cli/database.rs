@@ -1,0 +1,1304 @@
+use chia_protocol::Bytes32;
+use chia_puzzle_types::LineageProof;
+use chia_wallet_sdk::{
+    coinset::CoinRecord,
+    driver::{DriverError, RewardDistributorConstants, Slot, XchandlesConstants},
+    types::puzzles::{SlotInfo, XchandlesSlotNonce},
+};
+use clvm_traits::{FromClvm, ToClvm};
+use clvm_utils::ToTreeHash;
+use clvmr::{
+    serde::{node_from_bytes, node_to_bytes},
+    Allocator,
+};
+use sqlx::{
+    sqlite::{SqlitePoolOptions, SqliteRow},
+    Pool, Row, Sqlite,
+};
+use std::time::Duration;
+
+use super::CliError;
+pub struct Db {
+    pool: Pool<Sqlite>,
+}
+
+impl Db {
+    pub async fn new(skip_create_tables: bool) -> Result<Self, CliError> {
+        let pool = SqlitePoolOptions::new()
+            .idle_timeout(Duration::from_secs(5))
+            .acquire_timeout(Duration::from_secs(5))
+            .connect("sqlite://data.db?mode=rwc")
+            .await?;
+
+        if !skip_create_tables {
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS slots (
+                    singleton_launcher_id BLOB NOT NULL,
+                    nonce INTEGER NOT NULL,
+                    slot_value_hash BLOB NOT NULL,
+                    spent_block_height INTEGER NOT NULL,
+                    slot_value BLOB NOT NULL,
+                    parent_parent_coin_info BLOB NOT NULL,
+                    parent_inner_puzzle_hash BLOB NOT NULL,
+                    parent_amount INTEGER NOT NULL,
+                    PRIMARY KEY (singleton_launcher_id, nonce, slot_value_hash, parent_parent_coin_info, parent_amount)
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS catalog_indexed_slot_values (
+                    asset_id BLOB PRIMARY KEY,
+                    slot_value_hash BLOB NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS xchandles_indexed_slot_values (
+                    launcher_id BLOB NOT NULL,
+                    handle_hash BLOB NOT NULL,
+                    slot_value_hash BLOB NOT NULL,
+                    PRIMARY KEY (launcher_id, handle_hash)
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS singleton_coins (
+                    launcher_id BLOB NOT NULL,
+                    coin_id BLOB NOT NULL PRIMARY KEY,
+                    parent_coin_id BLOB,
+                    spent_block_height NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE INDEX IF NOT EXISTS idx_singleton_coins_launcher_spent 
+                ON singleton_coins(launcher_id, spent_block_height)
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE INDEX IF NOT EXISTS idx_slots_neighbors 
+                ON slots(singleton_launcher_id, nonce, spent_block_height, slot_value_hash)
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS reward_distributor_configurations (
+                    launcher_id BLOB PRIMARY KEY,
+                    constants BLOB NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS xchandles_configurations (
+                    launcher_id BLOB PRIMARY KEY,
+                    constants BLOB NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS followed_singletons (
+                    launcher_id BLOB PRIMARY KEY,
+                    record_json TEXT NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS handle_slot_records (
+                    registry_launcher_id BLOB NOT NULL,
+                    handle_hash BLOB NOT NULL,
+                    record_json TEXT NOT NULL,
+                    expiration INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (registry_launcher_id, handle_hash)
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE INDEX IF NOT EXISTS idx_handle_slots_expiring
+                ON handle_slot_records (registry_launcher_id, expiration)
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS registration_records (
+                    registry_launcher_id BLOB NOT NULL,
+                    handle_hash BLOB NOT NULL,
+                    record_json TEXT NOT NULL,
+                    PRIMARY KEY (registry_launcher_id, handle_hash)
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS registration_registry_stats (
+                    registry_launcher_id BLOB PRIMARY KEY,
+                    state_json TEXT NOT NULL
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+
+            sqlx::query(
+                "
+                CREATE TABLE IF NOT EXISTS pending_update_records (
+                    registry_launcher_id BLOB NOT NULL,
+                    handle_hash BLOB NOT NULL,
+                    record_json TEXT NOT NULL,
+                    PRIMARY KEY (registry_launcher_id, handle_hash)
+                )
+                ",
+            )
+            .execute(&pool)
+            .await?;
+        }
+
+        Ok(Self { pool })
+    }
+
+    pub async fn save_slot<SV>(
+        &self,
+        allocator: &mut Allocator,
+        slot: Slot<SV>,
+        spent_block_height: u32,
+    ) -> Result<(), CliError>
+    where
+        SV: ToClvm<Allocator> + FromClvm<Allocator> + Clone,
+    {
+        let slot_value_ptr = slot
+            .info
+            .value
+            .to_clvm(allocator)
+            .map_err(|err| CliError::Driver(DriverError::ToClvm(err)))?;
+        let slot_value_bytes = node_to_bytes(allocator, slot_value_ptr)?;
+
+        sqlx::query(
+            "
+            INSERT INTO slots (
+                singleton_launcher_id, nonce, slot_value_hash, spent_block_height,
+                slot_value, parent_parent_coin_info, parent_inner_puzzle_hash, parent_amount
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+            ON CONFLICT(singleton_launcher_id, nonce, slot_value_hash, parent_parent_coin_info, parent_amount) DO UPDATE SET spent_block_height = excluded.spent_block_height
+            ",
+        )
+        .bind(slot.info.launcher_id.to_vec())
+        .bind(slot.info.nonce as i64)
+        .bind(slot.info.value_hash.to_vec())
+        .bind(spent_block_height)
+        .bind(slot_value_bytes)
+        .bind(slot.proof.parent_parent_coin_info.to_vec())
+        .bind(slot.proof.parent_inner_puzzle_hash.to_vec())
+        .bind(slot.proof.parent_amount as i64)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    fn row_to_slot<SV>(allocator: &mut Allocator, row: &SqliteRow) -> Result<Slot<SV>, CliError>
+    where
+        SV: FromClvm<Allocator> + ToTreeHash,
+    {
+        let launcher_id = column_to_bytes32(row.get::<&[u8], _>("singleton_launcher_id"))?;
+        let nonce = row.get::<i64, _>("nonce") as u64;
+        let parent_parent_coin_info =
+            column_to_bytes32(row.get::<&[u8], _>("parent_parent_coin_info"))?;
+        let parent_inner_puzzle_hash =
+            column_to_bytes32(row.get::<&[u8], _>("parent_inner_puzzle_hash"))?;
+        let parent_amount = row.get::<i64, _>("parent_amount") as u64;
+
+        let value = node_from_bytes(allocator, row.get::<&[u8], _>("slot_value"))?;
+        let value = SV::from_clvm(allocator, value)
+            .map_err(|err| CliError::Driver(DriverError::FromClvm(err)))?;
+
+        Ok(Slot::new(
+            LineageProof {
+                parent_parent_coin_info,
+                parent_inner_puzzle_hash,
+                parent_amount,
+            },
+            SlotInfo::<SV>::from_value(launcher_id, nonce, value),
+        ))
+    }
+
+    pub async fn get_slot<SV>(
+        &self,
+        allocator: &mut Allocator,
+        singleton_launcher_id: Bytes32,
+        nonce: u64,
+        slot_value_hash: Bytes32,
+        spent_block_height: u32,
+    ) -> Result<Option<Slot<SV>>, CliError>
+    where
+        SV: FromClvm<Allocator> + Clone + ToTreeHash,
+    {
+        let row = sqlx::query(
+            "
+            SELECT * FROM slots 
+            WHERE singleton_launcher_id = ?1 AND nonce = ?2 AND slot_value_hash = ?3 AND spent_block_height = ?4
+            ",
+        )
+        .bind(singleton_launcher_id.to_vec())
+        .bind(nonce as i64)
+        .bind(slot_value_hash.to_vec())
+        .bind(spent_block_height)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        Ok(Some(Self::row_to_slot(allocator, &row)?))
+    }
+
+    pub async fn get_slot_value<SV>(
+        &self,
+        allocator: &mut Allocator,
+        singleton_launcher_id: Bytes32,
+        nonce: u64,
+        slot_value_hash: Bytes32,
+    ) -> Result<Option<SV>, CliError>
+    where
+        SV: FromClvm<Allocator> + ToTreeHash,
+    {
+        let row = sqlx::query(
+            "
+            SELECT * FROM slots 
+            WHERE singleton_launcher_id = ?1 AND nonce = ?2 AND slot_value_hash = ?3
+            ",
+        )
+        .bind(singleton_launcher_id.to_vec())
+        .bind(nonce as i64)
+        .bind(slot_value_hash.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        Ok(Some(Self::row_to_slot(allocator, &row)?.info.value))
+    }
+
+    pub async fn get_slots<SV>(
+        &self,
+        allocator: &mut Allocator,
+        singleton_launcher_id: Bytes32,
+        nonce: u64,
+        spent_block_height: u32,
+    ) -> Result<Vec<Slot<SV>>, CliError>
+    where
+        SV: FromClvm<Allocator> + Copy + ToTreeHash,
+    {
+        let rows =
+            sqlx::query("SELECT * FROM slots WHERE singleton_launcher_id = ?1 AND nonce = ?2 AND spent_block_height = ?3")
+                .bind(singleton_launcher_id.to_vec())
+                .bind(nonce as i64)
+                .bind(spent_block_height)
+                .fetch_all(&self.pool)
+                .await
+                .map_err(CliError::Sqlx)?;
+
+        rows.into_iter()
+            .map(|row| Self::row_to_slot(allocator, &row))
+            .collect::<Result<Vec<_>, _>>()
+    }
+
+    pub async fn remove_slot(
+        &self,
+        singleton_launcher_id: Bytes32,
+        nonce: u64,
+        slot_value_hash: Bytes32,
+        spent_block_height: u32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM slots WHERE singleton_launcher_id = ?1 AND nonce = ?2 AND slot_value_hash = ?3 AND spent_block_height = ?4 LIMIT 1
+            ",
+        )
+        .bind(singleton_launcher_id.to_vec())
+        .bind(nonce as i64)
+        .bind(slot_value_hash.to_vec())
+        .bind(spent_block_height)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_all_slots_for_singleton(
+        &self,
+        singleton_launcher_id: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM slots WHERE singleton_launcher_id = ?1
+            ",
+        )
+        .bind(singleton_launcher_id.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_all_catalog_indexed_slot_values(&self) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM catalog_indexed_slot_values
+            ",
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_all_xchandles_indexed_slot_values(
+        &self,
+        launcher_id: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM xchandles_indexed_slot_values
+            WHERE launcher_id = ?1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn mark_slot_as_spent(
+        &self,
+        singleton_launcher_id: Bytes32,
+        nonce: u64,
+        slot_value_hash: Bytes32,
+        spent_block_height: u32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            UPDATE slots SET spent_block_height = ?1 WHERE singleton_launcher_id = ?2 AND nonce = ?3 AND slot_value_hash = ?4 AND spent_block_height=0
+            ",
+        )
+        .bind(spent_block_height)
+        .bind(singleton_launcher_id.to_vec())
+        .bind(nonce as i64)
+        .bind(slot_value_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn save_catalog_indexed_slot_value(
+        &self,
+        asset_id: Bytes32,
+        slot_value_hash: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO catalog_indexed_slot_values (asset_id, slot_value_hash) 
+            VALUES (?1, ?2)
+            ON CONFLICT(asset_id) DO UPDATE SET slot_value_hash = excluded.slot_value_hash
+            ",
+        )
+        .bind(asset_id.to_vec())
+        .bind(slot_value_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn save_xchandles_indexed_slot_value(
+        &self,
+        launcher_id: Bytes32,
+        handle_hash: Bytes32,
+        slot_value_hash: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO xchandles_indexed_slot_values (launcher_id, handle_hash, slot_value_hash) 
+            VALUES (?1, ?2, ?3)
+            ON CONFLICT(launcher_id, handle_hash) DO UPDATE SET slot_value_hash = excluded.slot_value_hash
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .bind(slot_value_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn get_catalog_indexed_slot_value(
+        &self,
+        asset_id: Bytes32,
+    ) -> Result<Option<Bytes32>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT slot_value_hash FROM catalog_indexed_slot_values WHERE asset_id = ?1
+            ",
+        )
+        .bind(asset_id.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        Ok(Some(column_to_bytes32(
+            row.get::<&[u8], _>("slot_value_hash"),
+        )?))
+    }
+
+    pub async fn get_xchandles_indexed_slot_value(
+        &self,
+        launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<Option<Bytes32>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT slot_value_hash FROM xchandles_indexed_slot_values WHERE launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        Ok(Some(column_to_bytes32(
+            row.get::<&[u8], _>("slot_value_hash"),
+        )?))
+    }
+
+    pub async fn list_xchandles_indexed_slots(
+        &self,
+        launcher_id: Bytes32,
+    ) -> Result<Vec<(Bytes32, Bytes32)>, CliError> {
+        let rows = sqlx::query(
+            "
+            SELECT handle_hash, slot_value_hash
+            FROM xchandles_indexed_slot_values
+            WHERE launcher_id = ?1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .fetch_all(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        rows.iter()
+            .map(|r| {
+                Ok((
+                    column_to_bytes32(r.get::<&[u8], _>("handle_hash"))?,
+                    column_to_bytes32(r.get::<&[u8], _>("slot_value_hash"))?,
+                ))
+            })
+            .collect()
+    }
+
+    pub async fn get_catalog_neighbors<SV>(
+        &self,
+        allocator: &mut Allocator,
+        launcher_id: Bytes32,
+        asset_id: Bytes32,
+    ) -> Result<(Slot<SV>, Slot<SV>), CliError>
+    where
+        SV: FromClvm<Allocator> + Copy + ToTreeHash,
+    {
+        let query = sqlx::query(
+            "
+            SELECT 'left' AS side, s.* 
+            FROM slots s
+            WHERE s.singleton_launcher_id = ?1
+              AND s.nonce = 0
+              AND s.spent_block_height = 0
+              AND s.slot_value_hash = (
+                  SELECT slot_value_hash 
+                  FROM catalog_indexed_slot_values 
+                  WHERE asset_id < ?2 
+                  ORDER BY asset_id DESC 
+                  LIMIT 1
+              )
+            UNION ALL
+            SELECT 'right' AS side, s.* 
+            FROM slots s
+            WHERE s.singleton_launcher_id = ?1
+              AND s.nonce = 0
+              AND s.spent_block_height = 0
+              AND s.slot_value_hash = (
+                  SELECT slot_value_hash 
+                  FROM catalog_indexed_slot_values 
+                  WHERE asset_id > ?2 
+                  ORDER BY asset_id ASC 
+                  LIMIT 1
+              )
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(asset_id.to_vec());
+
+        let rows = query.fetch_all(&self.pool).await.map_err(CliError::Sqlx)?;
+
+        let mut left_slots = Vec::new();
+        let mut right_slots = Vec::new();
+
+        for row in rows {
+            let side: String = row.get("side");
+            let slot = Self::row_to_slot(allocator, &row)?;
+            if side == "left" {
+                left_slots.push(slot);
+            } else if side == "right" {
+                right_slots.push(slot);
+            }
+        }
+
+        if left_slots.is_empty() || right_slots.is_empty() {
+            return Err(CliError::DbColumnNotFound());
+        }
+
+        Ok((left_slots[0].clone(), right_slots[0].clone()))
+    }
+
+    pub async fn get_xchandles_neighbors<SV>(
+        &self,
+        allocator: &mut Allocator,
+        launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<(Slot<SV>, Slot<SV>), CliError>
+    where
+        SV: FromClvm<Allocator> + Clone + ToTreeHash,
+    {
+        let query = sqlx::query(
+            "
+            SELECT 'left' AS side, s.* 
+            FROM slots s
+            WHERE s.singleton_launcher_id = ?1
+              AND s.nonce = ?3
+              AND s.spent_block_height = 0
+              AND s.slot_value_hash = (
+                  SELECT slot_value_hash 
+                  FROM xchandles_indexed_slot_values 
+                  WHERE launcher_id = ?1 AND handle_hash < ?2 
+                  ORDER BY handle_hash DESC 
+                  LIMIT 1
+              )
+            UNION ALL
+            SELECT 'right' AS side, s.* 
+            FROM slots s
+            WHERE s.singleton_launcher_id = ?1
+              AND s.nonce = ?3
+              AND s.spent_block_height = 0
+              AND s.slot_value_hash = (
+                  SELECT slot_value_hash 
+                  FROM xchandles_indexed_slot_values 
+                  WHERE launcher_id = ?1 AND handle_hash > ?2 
+                  ORDER BY handle_hash ASC 
+                  LIMIT 1
+              )
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .bind(XchandlesSlotNonce::HANDLE.to_u64() as i64);
+
+        let rows = query.fetch_all(&self.pool).await.map_err(CliError::Sqlx)?;
+
+        let mut left_slots = Vec::new();
+        let mut right_slots = Vec::new();
+
+        for row in rows {
+            let side: String = row.get("side");
+            let slot = Self::row_to_slot(allocator, &row)?;
+            if side == "left" {
+                left_slots.push(slot);
+            } else if side == "right" {
+                right_slots.push(slot);
+            }
+        }
+
+        if left_slots.is_empty() || right_slots.is_empty() {
+            return Err(CliError::DbColumnNotFound());
+        }
+
+        Ok((left_slots.remove(0), right_slots.remove(0)))
+    }
+
+    pub async fn delete_slots_spent_before(
+        &self,
+        spent_block_height_threshold: u32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM slots WHERE spent_block_height>0 AND spent_block_height < ?1
+            ",
+        )
+        .bind(spent_block_height_threshold)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_all_singleton_coins(&self, launcher_id: Bytes32) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM singleton_coins WHERE launcher_id = ?1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn delete_singleton_coins_spent_before(
+        &self,
+        spent_block_height_threshold: u32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM singleton_coins WHERE spent_block_height>0 AND spent_block_height < ?1
+            ",
+        )
+        .bind(spent_block_height_threshold)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn save_singleton_coin(
+        &self,
+        launcher_id: Bytes32,
+        coin_record: CoinRecord,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            UPDATE singleton_coins 
+            SET spent_block_height = ?1 
+            WHERE coin_id = ?2 AND spent_block_height=0
+            ",
+        )
+        .bind(coin_record.confirmed_block_index)
+        .bind(coin_record.coin.parent_coin_info.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        sqlx::query(
+            "
+            INSERT INTO singleton_coins (launcher_id, coin_id, parent_coin_id, spent_block_height) 
+            VALUES (?1, ?2, ?3, ?4)
+            ON CONFLICT(coin_id) DO NOTHING
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(coin_record.coin.coin_id().to_vec())
+        .bind(coin_record.coin.parent_coin_info.to_vec())
+        .bind(coin_record.spent_block_index)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn get_last_unspent_singleton_coin(
+        &self,
+        launcher_id: Bytes32,
+    ) -> Result<Option<(Bytes32, Bytes32)>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT coin_id, parent_coin_id FROM singleton_coins WHERE launcher_id = ?1 AND spent_block_height=0 LIMIT 1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        let coin_id = column_to_bytes32(row.get::<&[u8], _>("coin_id"))?;
+        let parent_coin_id = column_to_bytes32(row.get::<&[u8], _>("parent_coin_id"))?;
+
+        Ok(Some((coin_id, parent_coin_id)))
+    }
+
+    pub async fn save_reward_distributor_configuration(
+        &self,
+        allocator: &mut Allocator,
+        launcher_id: Bytes32,
+        constants: RewardDistributorConstants,
+    ) -> Result<(), CliError> {
+        let constants_ptr = constants.to_clvm(allocator).map_err(DriverError::ToClvm)?;
+        let constants_bytes = node_to_bytes(allocator, constants_ptr)?;
+
+        sqlx::query(
+            "
+            INSERT INTO reward_distributor_configurations (launcher_id, constants) VALUES (?1, ?2)
+            ON CONFLICT(launcher_id) DO UPDATE SET constants = excluded.constants
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(constants_bytes)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn save_xchandles_configuration(
+        &self,
+        allocator: &mut Allocator,
+        constants: XchandlesConstants,
+    ) -> Result<(), CliError> {
+        let constants_ptr = constants.to_clvm(allocator).map_err(DriverError::ToClvm)?;
+        let constants_bytes = node_to_bytes(allocator, constants_ptr)?;
+
+        sqlx::query(
+            "
+            INSERT INTO xchandles_configurations (launcher_id, constants) VALUES (?1, ?2)
+            ON CONFLICT(launcher_id) DO UPDATE SET constants = excluded.constants
+            ",
+        )
+        .bind(constants.launcher_id.to_vec())
+        .bind(constants_bytes)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        Ok(())
+    }
+
+    pub async fn get_reward_distributor_configuration(
+        &self,
+        allocator: &mut Allocator,
+        launcher_id: Bytes32,
+    ) -> Result<Option<RewardDistributorConstants>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT constants FROM reward_distributor_configurations WHERE launcher_id = ?1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        let constants = node_from_bytes(allocator, row.get::<&[u8], _>("constants"))?;
+        let constants = RewardDistributorConstants::from_clvm(allocator, constants)
+            .map_err(DriverError::FromClvm)?;
+
+        Ok(Some(constants))
+    }
+
+    pub async fn get_xchandles_configuration(
+        &self,
+        allocator: &mut Allocator,
+        launcher_id: Bytes32,
+    ) -> Result<Option<XchandlesConstants>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT constants FROM xchandles_configurations WHERE launcher_id = ?1
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let Some(row) = row else {
+            return Ok(None);
+        };
+
+        let constants = node_from_bytes(allocator, row.get::<&[u8], _>("constants"))?;
+        let constants =
+            XchandlesConstants::from_clvm(allocator, constants).map_err(DriverError::FromClvm)?;
+
+        Ok(Some(constants))
+    }
+
+    pub async fn get_followed_singleton_json(
+        &self,
+        launcher_id: Bytes32,
+    ) -> Result<Option<String>, CliError> {
+        let row = sqlx::query("SELECT record_json FROM followed_singletons WHERE launcher_id = ?1")
+            .bind(launcher_id.to_vec())
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(CliError::Sqlx)?;
+        Ok(row.map(|r| r.get::<String, _>("record_json")))
+    }
+
+    pub async fn upsert_followed_singleton_json(
+        &self,
+        launcher_id: Bytes32,
+        record_json: &str,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO followed_singletons (launcher_id, record_json)
+            VALUES (?1, ?2)
+            ON CONFLICT(launcher_id) DO UPDATE SET record_json = excluded.record_json
+            ",
+        )
+        .bind(launcher_id.to_vec())
+        .bind(record_json)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn delete_followed_singleton(&self, launcher_id: Bytes32) -> Result<(), CliError> {
+        sqlx::query("DELETE FROM followed_singletons WHERE launcher_id = ?1")
+            .bind(launcher_id.to_vec())
+            .execute(&self.pool)
+            .await
+            .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn all_followed_singleton_ids(&self) -> Result<Vec<Bytes32>, CliError> {
+        let rows = sqlx::query("SELECT launcher_id FROM followed_singletons")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(CliError::Sqlx)?;
+        rows.iter()
+            .map(|r| column_to_bytes32(r.get::<&[u8], _>("launcher_id")))
+            .collect()
+    }
+
+    pub async fn get_handle_slot_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<Option<String>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT record_json FROM handle_slot_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(row.map(|r| r.get::<String, _>("record_json")))
+    }
+
+    pub async fn upsert_handle_slot_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+        record_json: &str,
+        expiration: u64,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO handle_slot_records (
+                registry_launcher_id, handle_hash, record_json, expiration
+            )
+            VALUES (?1, ?2, ?3, ?4)
+            ON CONFLICT(registry_launcher_id, handle_hash)
+            DO UPDATE SET
+                record_json = excluded.record_json,
+                expiration = excluded.expiration
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .bind(record_json)
+        .bind(expiration as i64)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn list_named_handle_slots_in_expiration_window(
+        &self,
+        registry_launcher_id: Bytes32,
+        min_expiration: u64,
+        max_expiration: u64,
+        after: Option<(u64, String)>,
+        limit: usize,
+    ) -> Result<Vec<(String, String)>, CliError> {
+        let (after_expiration, after_handle) = match after {
+            Some((expiration, handle)) => (expiration, handle),
+            None => (0, String::new()),
+        };
+        let rows = sqlx::query(
+            "
+            SELECT h.record_json AS record_json,
+                   json_extract(r.record_json, '$.current.handle') AS handle
+            FROM handle_slot_records h
+            JOIN registration_records r
+              ON h.registry_launcher_id = r.registry_launcher_id
+             AND h.handle_hash = r.handle_hash
+            WHERE h.registry_launcher_id = ?1
+              AND h.expiration >= ?2 AND h.expiration <= ?3
+              AND json_extract(r.record_json, '$.current.handle') IS NOT NULL
+              AND json_extract(r.record_json, '$.current.handle') != ''
+              AND (
+                    h.expiration > ?4
+                    OR (
+                        h.expiration = ?4
+                        AND json_extract(r.record_json, '$.current.handle') > ?5
+                    )
+                  )
+            ORDER BY h.expiration ASC,
+                     json_extract(r.record_json, '$.current.handle') ASC
+            LIMIT ?6
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(min_expiration as i64)
+        .bind(max_expiration as i64)
+        .bind(after_expiration as i64)
+        .bind(after_handle)
+        .bind(limit as i64)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+
+        let mut out = Vec::with_capacity(rows.len());
+        for row in rows {
+            let Ok(json) = row.try_get::<String, _>("record_json") else {
+                continue;
+            };
+            let Ok(handle) = row.try_get::<String, _>("handle") else {
+                continue;
+            };
+            out.push((json, handle));
+        }
+        Ok(out)
+    }
+
+    pub async fn delete_handle_slot_record(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM handle_slot_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn all_handle_slot_keys(&self) -> Result<Vec<(Bytes32, Bytes32)>, CliError> {
+        let rows = sqlx::query("SELECT registry_launcher_id, handle_hash FROM handle_slot_records")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(CliError::Sqlx)?;
+        rows.iter()
+            .map(|r| {
+                Ok((
+                    column_to_bytes32(r.get::<&[u8], _>("registry_launcher_id"))?,
+                    column_to_bytes32(r.get::<&[u8], _>("handle_hash"))?,
+                ))
+            })
+            .collect()
+    }
+
+    pub async fn get_registration_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<Option<String>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT record_json FROM registration_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(row.map(|r| r.get::<String, _>("record_json")))
+    }
+
+    pub async fn upsert_registration_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+        record_json: &str,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO registration_records (registry_launcher_id, handle_hash, record_json)
+            VALUES (?1, ?2, ?3)
+            ON CONFLICT(registry_launcher_id, handle_hash) DO UPDATE SET
+                record_json = excluded.record_json
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .bind(record_json)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn delete_registration_record(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM registration_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn all_registration_keys(&self) -> Result<Vec<(Bytes32, Bytes32)>, CliError> {
+        let rows =
+            sqlx::query("SELECT registry_launcher_id, handle_hash FROM registration_records")
+                .fetch_all(&self.pool)
+                .await
+                .map_err(CliError::Sqlx)?;
+        rows.iter()
+            .map(|r| {
+                Ok((
+                    column_to_bytes32(r.get::<&[u8], _>("registry_launcher_id"))?,
+                    column_to_bytes32(r.get::<&[u8], _>("handle_hash"))?,
+                ))
+            })
+            .collect()
+    }
+
+    pub async fn get_registration_stats_json(
+        &self,
+        registry_launcher_id: Bytes32,
+    ) -> Result<Option<String>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT state_json FROM registration_registry_stats
+            WHERE registry_launcher_id = ?1
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(row.map(|r| r.get::<String, _>("state_json")))
+    }
+
+    pub async fn upsert_registration_stats_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        state_json: &str,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO registration_registry_stats (registry_launcher_id, state_json)
+            VALUES (?1, ?2)
+            ON CONFLICT(registry_launcher_id) DO UPDATE SET
+                state_json = excluded.state_json
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(state_json)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn all_registration_stats_registry_ids(&self) -> Result<Vec<Bytes32>, CliError> {
+        let rows = sqlx::query("SELECT registry_launcher_id FROM registration_registry_stats")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(CliError::Sqlx)?;
+        rows.iter()
+            .map(|r| column_to_bytes32(r.get::<&[u8], _>("registry_launcher_id")))
+            .collect()
+    }
+
+    pub async fn get_pending_update_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<Option<String>, CliError> {
+        let row = sqlx::query(
+            "
+            SELECT record_json FROM pending_update_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(row.map(|r| r.get::<String, _>("record_json")))
+    }
+
+    pub async fn upsert_pending_update_record_json(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+        record_json: &str,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            INSERT INTO pending_update_records (registry_launcher_id, handle_hash, record_json)
+            VALUES (?1, ?2, ?3)
+            ON CONFLICT(registry_launcher_id, handle_hash)
+            DO UPDATE SET record_json = excluded.record_json
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .bind(record_json)
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn delete_pending_update_record(
+        &self,
+        registry_launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<(), CliError> {
+        sqlx::query(
+            "
+            DELETE FROM pending_update_records
+            WHERE registry_launcher_id = ?1 AND handle_hash = ?2
+            ",
+        )
+        .bind(registry_launcher_id.to_vec())
+        .bind(handle_hash.to_vec())
+        .execute(&self.pool)
+        .await
+        .map_err(CliError::Sqlx)?;
+        Ok(())
+    }
+
+    pub async fn all_pending_update_keys(&self) -> Result<Vec<(Bytes32, Bytes32)>, CliError> {
+        let rows =
+            sqlx::query("SELECT registry_launcher_id, handle_hash FROM pending_update_records")
+                .fetch_all(&self.pool)
+                .await
+                .map_err(CliError::Sqlx)?;
+        rows.iter()
+            .map(|r| {
+                Ok((
+                    column_to_bytes32(r.get::<&[u8], _>("registry_launcher_id"))?,
+                    column_to_bytes32(r.get::<&[u8], _>("handle_hash"))?,
+                ))
+            })
+            .collect()
+    }
+}
+
+pub fn column_to_bytes32(column_value: &[u8]) -> Result<Bytes32, CliError> {
+    Ok(Bytes32::new(
+        column_value
+            .try_into()
+            .map_err(|_| CliError::DbColumnParse())?,
+    ))
+}

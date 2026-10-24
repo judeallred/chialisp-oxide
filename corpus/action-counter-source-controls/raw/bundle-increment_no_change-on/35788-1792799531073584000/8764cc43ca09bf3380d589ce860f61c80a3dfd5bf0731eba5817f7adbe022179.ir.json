@@ -1,0 +1,180 @@
+{
+  "ir_version": 5,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_action_counter::counter_increment::puzzle",
+    "parameters": [
+      {
+        "name": "truth",
+        "ty": {
+          "kind": "pair",
+          "first": {
+            "kind": "tree"
+          },
+          "rest": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        }
+      }
+    ],
+    "result": {
+      "kind": "pair",
+      "first": {
+        "kind": "pair",
+        "first": {
+          "kind": "tree"
+        },
+        "rest": {
+          "kind": "int",
+          "bits": 64,
+          "signed": false
+        }
+      },
+      "rest": {
+        "kind": "unit"
+      }
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_action_counter::counter_increment::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "pair",
+              "first": {
+                "kind": "tree"
+              },
+              "rest": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            }
+          }
+        ],
+        "result": {
+          "kind": "pair",
+          "first": {
+            "kind": "pair",
+            "first": {
+              "kind": "tree"
+            },
+            "rest": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "rest": {
+            "kind": "unit"
+          }
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          "value": {
+            "op": "pair_rest",
+            "value": {
+              "op": "arg",
+              "index": 0
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "tree"
+            },
+            "value": {
+              "op": "pair_first",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "pair",
+                "first": {
+                  "kind": "tree"
+                },
+                "rest": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              "value": {
+                "op": "pair",
+                "first": {
+                  "op": "local",
+                  "local_id": 1
+                },
+                "rest": {
+                  "op": "local",
+                  "local_id": 0
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "pair",
+                  "first": {
+                    "kind": "pair",
+                    "first": {
+                      "kind": "tree"
+                    },
+                    "rest": {
+                      "kind": "int",
+                      "bits": 64,
+                      "signed": false
+                    }
+                  },
+                  "rest": {
+                    "kind": "unit"
+                  }
+                },
+                "value": {
+                  "op": "pair",
+                  "first": {
+                    "op": "local",
+                    "local_id": 2
+                  },
+                  "rest": {
+                    "op": "unit"
+                  }
+                },
+                "body": {
+                  "op": "local",
+                  "local_id": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

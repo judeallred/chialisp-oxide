@@ -70,7 +70,17 @@ def check_ledger_report(report, *, require_typed=True):
     if require_typed or "rejection_protocol" in header:
         require(header.get("rejection_protocol") == PROTOCOL, "Missing/unsupported ledger rejection protocol")
     components = set()
-    component_slugs = {"p2-singleton", "p2-delegated-conditions", "cat-genesis-by-coin-id"}
+    counter_slugs = {"counter-increment", "counter-reset"}
+    component_slugs = {"p2-singleton", "p2-delegated-conditions", "cat-genesis-by-coin-id", *counter_slugs}
+    if require_typed and any(puzzle.get("slug") in counter_slugs for puzzle in report["puzzles"]):
+        for puzzle in report["puzzles"]:
+            require(puzzle.get("slug") not in counter_slugs or puzzle.get("kind") == "protocol_component",
+                    f"{puzzle.get('slug')}: dedicated component requires its protocol_component contract")
+        # Counter journals bind their peer to the other entry's independently
+        # compiled Chialisp artifact. Validate that relation once as a pair.
+        # Historical projections never reopen today's component/source gates.
+        from counter_protocol import validate_report as validate_counter_pair
+        validate_counter_pair(report)
     for puzzle in report["puzzles"]:
         comparisons = puzzle.get("simulator_comparisons", [])
         require(isinstance(comparisons, list) and all(isinstance(row, dict)
@@ -107,6 +117,8 @@ def check_ledger_report(report, *, require_typed=True):
                     from p2_singleton_evidence import validate_component
                 elif puzzle["slug"] == "cat-genesis-by-coin-id":
                     from cat_genesis_evidence import validate_component
+                elif puzzle["slug"] in counter_slugs:
+                    continue  # Complete paired validation ran above.
                 else:
                     from p2_delegated_conditions_evidence import validate_component
                 validate_component(puzzle)
@@ -134,6 +146,20 @@ def check_ledger_report(report, *, require_typed=True):
 
 
 class LedgerProtocolTests(unittest.TestCase):
+    def test_counter_pair_dispatch_runs_once_and_never_for_untyped_history(self):
+        from unittest.mock import patch
+        report = {"simulator": {"rejection_protocol": PROTOCOL}, "puzzles": [
+            {"slug": slug, "kind": "protocol_component", "simulator": [],
+             "simulator_comparisons": [], "protocol_validation": {"scope": "constructed dispatch fixture"}}
+            for slug in ("counter-increment", "counter-reset")
+        ]}
+        with patch("counter_protocol.validate_report") as paired:
+            check_ledger_report(report)
+            paired.assert_called_once_with(report)
+            paired.reset_mock()
+            check_ledger_report(report, require_typed=False)
+            paired.assert_not_called()
+
     def test_boomerang_current_gate_is_not_reopened_for_historical_projection(self):
         from unittest.mock import patch
         report = {"simulator": {"rejection_protocol": PROTOCOL}, "puzzles": [{

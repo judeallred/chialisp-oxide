@@ -1,0 +1,997 @@
+{
+  "protocol": "chialisp-oxide-action-counter-vector-spec/v1",
+  "status": "specified_not_executed",
+  "scope": "Independent finite whole-environment acceptance and exact outputs only; expected stages distinguish typed ABI from body overflow. No observed typed VM failure, BLS validation, action-layer or complete SDK spend credit.",
+  "cases": [
+    {
+      "export": "increment",
+      "name": "nil-count-0",
+      "environment": "((() . ()) . ())",
+      "environment_hex": "ffff808080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-1",
+      "environment": "((() . 0x01) . ())",
+      "environment_hex": "ffff800180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff800180"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-127",
+      "environment": "((() . 0x7f) . ())",
+      "environment_hex": "ffff807f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff807f80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-128",
+      "environment": "((() . 0x0080) . ())",
+      "environment_hex": "ffff8082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8082008080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-9223372036854775808",
+      "environment": "((() . 0x008000000000000000) . ())",
+      "environment_hex": "ffff808900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808900800000000000000080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-18446744073709551614",
+      "environment": "((() . 0x00fffffffffffffffe) . ())",
+      "environment_hex": "ffff808900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808900fffffffffffffffe80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nil-count-18446744073709551615",
+      "environment": "((() . 0x00ffffffffffffffff) . ())",
+      "environment_hex": "ffff808900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808900ffffffffffffffff80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-0",
+      "environment": "((0x00 . ()) . ())",
+      "environment_hex": "ffff008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-1",
+      "environment": "((0x00 . 0x01) . ())",
+      "environment_hex": "ffff000180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff000180"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-127",
+      "environment": "((0x00 . 0x7f) . ())",
+      "environment_hex": "ffff007f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff007f80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-128",
+      "environment": "((0x00 . 0x0080) . ())",
+      "environment_hex": "ffff0082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0082008080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-9223372036854775808",
+      "environment": "((0x00 . 0x008000000000000000) . ())",
+      "environment_hex": "ffff008900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008900800000000000000080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-18446744073709551614",
+      "environment": "((0x00 . 0x00fffffffffffffffe) . ())",
+      "environment_hex": "ffff008900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008900fffffffffffffffe80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "zero-byte-count-18446744073709551615",
+      "environment": "((0x00 . 0x00ffffffffffffffff) . ())",
+      "environment_hex": "ffff008900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008900ffffffffffffffff80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-0",
+      "environment": "(((0x61 . 0x7461696c) . ()) . ())",
+      "environment_hex": "ffffff61847461696c8080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-1",
+      "environment": "(((0x61 . 0x7461696c) . 0x01) . ())",
+      "environment_hex": "ffffff61847461696c0180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c0180"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-127",
+      "environment": "(((0x61 . 0x7461696c) . 0x7f) . ())",
+      "environment_hex": "ffffff61847461696c7f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c7f80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-128",
+      "environment": "(((0x61 . 0x7461696c) . 0x0080) . ())",
+      "environment_hex": "ffffff61847461696c82008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c82008080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-9223372036854775808",
+      "environment": "(((0x61 . 0x7461696c) . 0x008000000000000000) . ())",
+      "environment_hex": "ffffff61847461696c8900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8900800000000000000080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-18446744073709551614",
+      "environment": "(((0x61 . 0x7461696c) . 0x00fffffffffffffffe) . ())",
+      "environment_hex": "ffffff61847461696c8900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8900fffffffffffffffe80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "improper-pair-count-18446744073709551615",
+      "environment": "(((0x61 . 0x7461696c) . 0x00ffffffffffffffff) . ())",
+      "environment_hex": "ffffff61847461696c8900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8900ffffffffffffffff80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-0",
+      "environment": "(((() . (0x00 . ())) . ()) . ())",
+      "environment_hex": "ffffff80ff00808080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-1",
+      "environment": "(((() . (0x00 . ())) . 0x01) . ())",
+      "environment_hex": "ffffff80ff00800180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00800180"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-127",
+      "environment": "(((() . (0x00 . ())) . 0x7f) . ())",
+      "environment_hex": "ffffff80ff00807f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00807f80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-128",
+      "environment": "(((() . (0x00 . ())) . 0x0080) . ())",
+      "environment_hex": "ffffff80ff008082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008082008080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-9223372036854775808",
+      "environment": "(((() . (0x00 . ())) . 0x008000000000000000) . ())",
+      "environment_hex": "ffffff80ff00808900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808900800000000000000080"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-18446744073709551614",
+      "environment": "(((() . (0x00 . ())) . 0x00fffffffffffffffe) . ())",
+      "environment_hex": "ffffff80ff00808900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808900fffffffffffffffe80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "nested-list-count-18446744073709551615",
+      "environment": "(((() . (0x00 . ())) . 0x00ffffffffffffffff) . ())",
+      "environment_hex": "ffffff80ff00808900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808900ffffffffffffffff80"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-zero-byte",
+      "environment": "((() . 0x00) . ())",
+      "environment_hex": "ffff800080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-padded-zero",
+      "environment": "((() . 0x0000) . ())",
+      "environment_hex": "ffff8082000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-padded-one",
+      "environment": "((() . 0x0001) . ())",
+      "environment_hex": "ffff8082000180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-negative",
+      "environment": "((() . 0xff) . ())",
+      "environment_hex": "ffff8081ff80",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-u64-plus-one",
+      "environment": "((() . 0x010000000000000000) . ())",
+      "environment_hex": "ffff808901000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-nine-byte-high",
+      "environment": "((() . 0x010000000000000000) . ())",
+      "environment_hex": "ffff808901000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-wide-padded",
+      "environment": "((() . 0x0000000000000000000000000000000000000000000000000000000000000000) . ())",
+      "environment_hex": "ffff80a0000000000000000000000000000000000000000000000000000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-pair",
+      "environment": "((() . (() . ())) . ())",
+      "environment_hex": "ffff80ff808080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-count-list",
+      "environment": "((() . (0x01 . ())) . ())",
+      "environment_hex": "ffff80ff018080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-truth-nil",
+      "environment": "(() . ())",
+      "environment_hex": "ff8080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-truth-atom",
+      "environment": "(0x78 . ())",
+      "environment_hex": "ff7880",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-truth-proper-two-list",
+      "environment": "((() . (0x01 . ())) . ())",
+      "environment_hex": "ffff80ff018080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-environment-nil",
+      "environment": "()",
+      "environment_hex": "80",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-environment-atom",
+      "environment": "0x78",
+      "environment_hex": "78",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-environment-missing",
+      "environment": "()",
+      "environment_hex": "80",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-environment-extra",
+      "environment": "((() . 0x01) . (() . ()))",
+      "environment_hex": "ffff8001ff8080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "invalid-environment-improper-tail",
+      "environment": "((() . 0x01) . 0x6261642d7461696c)",
+      "environment_hex": "ffff8001886261642d7461696c",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "increment",
+      "name": "opaque-1024-byte-ephemeral",
+      "environment": "((0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 . 0x01) . ())",
+      "environment_hex": "ffffc400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffc400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000180"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-0",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . ()) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-1",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x01) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff800180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-127",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x7f) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff807f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-128",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x0080) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff8082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-9223372036854775808",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x008000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-18446744073709551614",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x00fffffffffffffffe) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nil-count-18446744073709551615",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x00ffffffffffffffff) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-0",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . ()) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-1",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x01) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff000180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-127",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x7f) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff007f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-128",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x0080) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff0082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-9223372036854775808",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x008000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff008900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-18446744073709551614",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x00fffffffffffffffe) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff008900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "zero-byte-count-18446744073709551615",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00 . 0x00ffffffffffffffff) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff008900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-0",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . ()) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c8080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-1",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x01) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c0180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-127",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x7f) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c7f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-128",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x0080) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c82008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-9223372036854775808",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x008000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c8900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-18446744073709551614",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x00fffffffffffffffe) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c8900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "improper-pair-count-18446744073709551615",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((0x61 . 0x7461696c) . 0x00ffffffffffffffff) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff61847461696c8900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c80ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-0",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . ()) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00808080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-1",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x01) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00800180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-127",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x7f) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00807f80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-128",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x0080) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff008082008080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-9223372036854775808",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x008000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00808900800000000000000080",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-18446744073709551614",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x00fffffffffffffffe) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00808900fffffffffffffffe80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "nested-list-count-18446744073709551615",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (((() . (0x00 . ())) . 0x00ffffffffffffffff) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffff80ff00808900ffffffffffffffff80",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-zero-byte",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x00) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff800080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-padded-zero",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x0000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff8082000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-padded-one",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x0001) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff8082000180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-negative",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0xff) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff8081ff80",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-u64-plus-one",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x010000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808901000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-nine-byte-high",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x010000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff808901000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-wide-padded",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x0000000000000000000000000000000000000000000000000000000000000000) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff80a0000000000000000000000000000000000000000000000000000000000000000080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-pair",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . (() . ())) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff80ff808080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-count-list",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . (0x01 . ())) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff80ff018080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-truth-nil",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (() . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ff8080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-truth-atom",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . (0x78 . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ff7880",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-truth-proper-two-list",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . (0x01 . ())) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff80ff018080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-environment-nil",
+      "environment": "()",
+      "environment_hex": "80",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-environment-atom",
+      "environment": "0x78",
+      "environment_hex": "78",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-environment-missing",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ())",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e580",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-environment-extra",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((() . 0x01) . (() . ())))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffff8001ff8080",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-environment-improper-tail",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . 0x6261642d7461696c)",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5886261642d7461696c",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "opaque-1024-byte-ephemeral",
+      "environment": "(0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ((0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 . 0x01) . ()))",
+      "environment_hex": "ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffffc400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffc4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080ffff32ffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-width-0",
+      "environment": "(() . ((() . 0x01) . ()))",
+      "environment_hex": "ff80ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-width-1",
+      "environment": "(0x77 . ((() . 0x01) . ()))",
+      "environment_hex": "ff77ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-width-47",
+      "environment": "(0x7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777 . ((() . 0x01) . ()))",
+      "environment_hex": "ffaf7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-width-49",
+      "environment": "(0x77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777 . ((() . 0x01) . ()))",
+      "environment_hex": "ffb177777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-width-96",
+      "environment": "(0x777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777 . ((() . 0x01) . ()))",
+      "environment_hex": "ffc060777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "invalid-owner-pair",
+      "environment": "((0x8bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e5 . ()) . ((() . 0x01) . ()))",
+      "environment_hex": "ffffb08bc61e93380f3427ed2ace813fdff67504f55268a99a72cea57133c2b32a1d836fd52381ae9ca10957557b80064059e580ffff800180",
+      "expected": {
+        "status": "rejected",
+        "stage": "abi"
+      }
+    },
+    {
+      "export": "reset",
+      "name": "owner-zero48-is-width-valid-not-curve-proof",
+      "environment": "(0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 . ((() . 0x01) . ()))",
+      "environment_hex": "ffb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffff800180",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8080ffff32ffb0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a7631218080"
+      }
+    }
+  ]
+}

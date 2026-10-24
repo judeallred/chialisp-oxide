@@ -1,0 +1,370 @@
+use chia_bls::PublicKey;
+use chia_protocol::{Bytes, Bytes32};
+use chia_wallet_sdk::utils::Address;
+use csv::ReaderBuilder;
+use hex::FromHex;
+use serde::Deserialize;
+use std::collections::HashMap;
+use std::fs::File;
+use std::path::Path;
+
+use super::utils::CliError;
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct CatalogPremineRecord {
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub asset_id: Bytes32,
+    #[serde(deserialize_with = "hex_string_to_bytes")]
+    pub tail: Bytes,
+    #[serde(deserialize_with = "decode_bech32m")]
+    pub owner: Bytes32,
+    pub code: String,
+    pub name: String,
+    pub precision: u8,
+    #[serde(deserialize_with = "deserialize_string_array")]
+    pub image_uris: Vec<String>,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub image_hash: Bytes32,
+}
+
+fn decode_bech32m<'de, D>(deserializer: D) -> Result<Bytes32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let address = Address::decode(s).map_err(serde::de::Error::custom)?;
+
+    if address.prefix != "xch" && address.prefix != "txch" {
+        return Err(serde::de::Error::custom("Invalid bech32m prefix"));
+    }
+
+    Ok(address.puzzle_hash)
+}
+
+fn deserialize_string_array<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let s = s.trim_matches(&['[', ']'][..]); // trim square brackets
+    let strs: Vec<String> = s
+        .split(',')
+        .map(|s| s.trim().trim_matches(&['\'', '"'][..]).to_string())
+        .collect();
+    Ok(strs)
+}
+
+fn hex_string_to_bytes32<'de, D>(deserializer: D) -> Result<Bytes32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let bytes = <[u8; 32]>::from_hex(s.replace("0x", "")).map_err(serde::de::Error::custom)?;
+    Ok(Bytes32::new(bytes))
+}
+
+fn hex_string_to_bytes<'de, D>(deserializer: D) -> Result<Bytes, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let bytes = Vec::<u8>::from_hex(s.replace("0x", "")).map_err(serde::de::Error::custom)?;
+    Ok(Bytes::new(bytes))
+}
+
+pub fn load_catalog_premine_csv<P: AsRef<Path>>(
+    path: P,
+) -> Result<Vec<CatalogPremineRecord>, CliError> {
+    let file = File::open(path)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let record: CatalogPremineRecord = result.map_err(CliError::Csv)?;
+        records.push(record);
+    }
+
+    Ok(records)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AliasRecord {
+    #[serde(deserialize_with = "hex_string_to_pubkey")]
+    pub pubkey: PublicKey,
+    pub alias: String,
+}
+
+fn hex_string_to_pubkey<'de, D>(deserializer: D) -> Result<PublicKey, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let pubkey = PublicKey::from_bytes(
+        &<[u8; 48]>::from_hex(s.replace("0x", "")).map_err(serde::de::Error::custom)?,
+    )
+    .map_err(serde::de::Error::custom)?;
+    Ok(pubkey)
+}
+
+const ALIASES_CSV_PATH: &str = "aliases.csv";
+
+pub fn get_alias_map() -> Result<HashMap<PublicKey, String>, CliError> {
+    let file = File::open(ALIASES_CSV_PATH)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut alias_map = HashMap::new();
+    for result in rdr.deserialize() {
+        let record: AliasRecord = result.map_err(CliError::Csv)?;
+        alias_map.insert(record.pubkey, record.alias);
+    }
+
+    Ok(alias_map)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CatalogStateScheduleRecord {
+    pub timestamp: u64,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub asset_id: Bytes32,
+    pub registration_price: u64,
+}
+
+pub fn load_catalog_state_schedule_csv<P: AsRef<Path>>(
+    path: P,
+) -> Result<Vec<CatalogStateScheduleRecord>, CliError> {
+    let file = File::open(path)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let record: CatalogStateScheduleRecord = result.map_err(CliError::Csv)?;
+        records.push(record);
+    }
+
+    Ok(records)
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+pub struct XchandlesStateScheduleRecord {
+    pub timestamp: u64,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub asset_id: Bytes32,
+    pub registration_price: u64,
+    pub registration_period: u64,
+}
+
+pub fn load_xchandles_state_schedule_csv<P: AsRef<Path>>(
+    path: P,
+) -> Result<Vec<XchandlesStateScheduleRecord>, CliError> {
+    let file = File::open(path)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let record: XchandlesStateScheduleRecord = result.map_err(CliError::Csv)?;
+        records.push(record);
+    }
+
+    Ok(records)
+}
+
+/// Enriched launch CSV row produced by `xchandles-nfts enrich-premine`.
+///
+/// Columns:
+/// `handle,recipient,expiration,image_uris,image_hash,metadata_uris,metadata_hash,license_uris,license_hash`
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+pub struct XchandlesLaunchRecord {
+    pub handle: String,
+    #[serde(deserialize_with = "decode_bech32m")]
+    pub recipient: Bytes32,
+    pub expiration: u64,
+    #[serde(deserialize_with = "deserialize_string_array")]
+    pub image_uris: Vec<String>,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub image_hash: Bytes32,
+    #[serde(deserialize_with = "deserialize_string_array")]
+    pub metadata_uris: Vec<String>,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub metadata_hash: Bytes32,
+    #[serde(deserialize_with = "deserialize_string_array")]
+    pub license_uris: Vec<String>,
+    #[serde(deserialize_with = "hex_string_to_bytes32")]
+    pub license_hash: Bytes32,
+}
+
+/// Load a trusted enriched launch CSV (with per-row `expiration`).
+pub fn load_xchandles_launch_csv<P: AsRef<Path>>(
+    path: P,
+) -> Result<Vec<XchandlesLaunchRecord>, CliError> {
+    let file = File::open(path)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let record: XchandlesLaunchRecord = result.map_err(CliError::Csv)?;
+        records.push(record);
+    }
+
+    Ok(records)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DatastoreNftRecord {
+    pub nft_id: Bytes32,
+    pub weight: u64,
+}
+
+fn decode_nft_id<'de, D>(deserializer: D) -> Result<Bytes32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: &str = Deserialize::deserialize(deserializer)?;
+    let address = Address::decode(s).map_err(serde::de::Error::custom)?;
+
+    if address.prefix != "nft" {
+        return Err(serde::de::Error::custom(
+            "Invalid bech32m prefix: expected nft",
+        ));
+    }
+
+    Ok(address.puzzle_hash)
+}
+
+#[derive(Debug, Deserialize)]
+struct DatastoreNftCsvRow {
+    #[serde(deserialize_with = "decode_nft_id")]
+    nft_id: Bytes32,
+    weight: u64,
+}
+
+pub fn load_datastore_nft_csv<P: AsRef<Path>>(
+    path: P,
+) -> Result<Vec<DatastoreNftRecord>, CliError> {
+    let file = File::open(path)?;
+    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let row: DatastoreNftCsvRow = result.map_err(CliError::Csv)?;
+        records.push(DatastoreNftRecord {
+            nft_id: row.nft_id,
+            weight: row.weight,
+        });
+    }
+
+    Ok(records)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn write_temp_csv(contents: &str) -> std::path::PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("catalog_schedule_{nanos}.csv"));
+        fs::write(&path, contents).unwrap();
+        path
+    }
+
+    #[test]
+    fn catalog_schedule_csv_uses_timestamp_u64() {
+        let path = write_temp_csv(
+            "timestamp,asset_id,registration_price\n\
+             1,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",3\n\
+             2,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",2\n\
+             3,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",1\n",
+        );
+
+        let records = load_catalog_state_schedule_csv(&path).unwrap();
+        let _ = fs::remove_file(&path);
+
+        assert_eq!(records.len(), 3);
+        assert_eq!(records[0].timestamp, 1);
+        assert_eq!(records[1].timestamp, 2);
+        assert_eq!(records[2].timestamp, 3);
+        assert_eq!(records[0].registration_price, 3);
+    }
+
+    #[test]
+    fn catalog_schedule_csv_rejects_block_height_header() {
+        let path = write_temp_csv(
+            "block_height,asset_id,registration_price\n\
+             1,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",3\n",
+        );
+
+        let err = load_catalog_state_schedule_csv(&path);
+        let _ = fs::remove_file(&path);
+
+        assert!(err.is_err());
+    }
+
+    #[test]
+    fn xchandles_schedule_csv_uses_timestamp_u64() {
+        let path = write_temp_csv(
+            "timestamp,asset_id,registration_price,registration_period\n\
+             1,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",3,31557600\n\
+             2,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",2,31557600\n\
+             3,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",1,31557600\n",
+        );
+
+        let records = load_xchandles_state_schedule_csv(&path).unwrap();
+        let _ = fs::remove_file(&path);
+
+        assert_eq!(records.len(), 3);
+        assert_eq!(records[0].timestamp, 1);
+        assert_eq!(records[1].timestamp, 2);
+        assert_eq!(records[2].timestamp, 3);
+        assert_eq!(records[0].registration_price, 3);
+        assert_eq!(records[0].registration_period, 31557600);
+    }
+
+    #[test]
+    fn xchandles_schedule_csv_rejects_block_height_header() {
+        let path = write_temp_csv(
+            "block_height,asset_id,registration_price,registration_period\n\
+             1,\"d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad\",3,31557600\n",
+        );
+
+        let err = load_xchandles_state_schedule_csv(&path);
+        let _ = fs::remove_file(&path);
+
+        assert!(err.is_err());
+    }
+
+    #[test]
+    fn launch_csv_loads_expiration_and_media_columns() {
+        let path = write_temp_csv(
+            "handle,recipient,expiration,image_uris,image_hash,metadata_uris,metadata_hash,license_uris,license_hash\n\
+             \"alice\",\"txch1we8f6e6d97jyru8klr79uay6zlw7x30tuj3n2d4060h5z73l3jgqg5g78p\",1818752400,\"['https://example.com/a.png']\",\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"['https://example.com/a.json']\",\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"['https://example.com/l.pdf']\",\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"\n\
+             \"bob\",\"txch1we8f6e6d97jyru8klr79uay6zlw7x30tuj3n2d4060h5z73l3jgqg5g78p\",1797757200,\"['https://example.com/b.png']\",\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"['https://example.com/b.json']\",\"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"['https://example.com/l.pdf']\",\"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\"\n",
+        );
+
+        let records = load_xchandles_launch_csv(&path).unwrap();
+        let _ = fs::remove_file(&path);
+
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[0].handle, "alice");
+        assert_eq!(records[0].expiration, 1_818_752_400);
+        assert_eq!(records[0].image_uris, vec!["https://example.com/a.png"]);
+        assert_eq!(records[1].handle, "bob");
+        assert_eq!(records[1].expiration, 1_797_757_200);
+        assert_eq!(records[1].metadata_uris, vec!["https://example.com/b.json"]);
+    }
+
+    #[test]
+    fn launch_csv_rejects_missing_expiration_column() {
+        let path = write_temp_csv(
+            "handle,recipient,image_uris,image_hash,metadata_uris,metadata_hash,license_uris,license_hash\n\
+             \"alice\",\"txch1we8f6e6d97jyru8klr79uay6zlw7x30tuj3n2d4060h5z73l3jgqg5g78p\",\"['https://example.com/a.png']\",\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"['https://example.com/a.json']\",\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"['https://example.com/l.pdf']\",\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"\n",
+        );
+
+        let err = load_xchandles_launch_csv(&path);
+        let _ = fs::remove_file(&path);
+        assert!(err.is_err());
+    }
+}

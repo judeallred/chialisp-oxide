@@ -1,0 +1,156 @@
+use chia_protocol::{Bytes32, SpendBundle};
+use chia_wallet_sdk::{
+    coinset::ChiaRpcClient,
+    driver::{
+        create_security_coin, decode_offer, spend_security_coin, CatalogRegistryConstants,
+        CatalogRegistryState, DelegatedStateAction, Offer, SpendContext,
+    },
+    types::{Conditions, MAINNET_CONSTANTS, TESTNET11_CONSTANTS},
+};
+
+use crate::{
+    assets_xch_only, confirm_pushed_transaction, get_coinset_client, get_last_onchain_timestamp,
+    no_assets, parse_amount, print_spend_bundle_to_file, sync_multisig_singleton, yes_no_prompt,
+    CliError, Db, MultisigSingleton, SageClient,
+};
+
+use super::sync_catalog;
+
+/// True when the latest confirmed transaction-block timestamp has reached activation.
+pub fn scheduler_activation_reached(
+    latest_onchain_timestamp: u64,
+    required_timestamp: u64,
+) -> bool {
+    latest_onchain_timestamp >= required_timestamp
+}
+
+pub async fn catalog_unroll_state_scheduler(
+    testnet11: bool,
+    fee_str: String,
+) -> Result<(), CliError> {
+    let constants = CatalogRegistryConstants::get(testnet11);
+
+    if constants.price_singleton_launcher_id == Bytes32::default()
+        || constants.launcher_id == Bytes32::default()
+    {
+        return Err(CliError::ConstantsNotSet);
+    }
+
+    let cli = get_coinset_client(testnet11);
+    let mut ctx = SpendContext::new();
+
+    let (MultisigSingleton::StateScheduler(state_scheduler), _) =
+        sync_multisig_singleton::<CatalogRegistryState>(
+            &cli,
+            &mut ctx,
+            constants.price_singleton_launcher_id,
+            None,
+        )
+        .await?
+    else {
+        return Err(CliError::Custom(
+            "Price singleton is not (or no longer) a state scheduler".to_string(),
+        ));
+    };
+
+    let mut db = Db::new(false).await?;
+
+    let mut catalog = sync_catalog(&cli, &mut db, &mut ctx, constants).await?;
+
+    let sage = SageClient::new()?;
+    let fee = parse_amount(&fee_str, false)?;
+
+    let (required_timestamp, new_state) =
+        state_scheduler.info.state_schedule[state_scheduler.info.generation];
+
+    let latest_onchain_timestamp = get_last_onchain_timestamp(&cli).await?;
+    if !scheduler_activation_reached(latest_onchain_timestamp, required_timestamp) {
+        return Err(CliError::Custom(format!(
+            "Latest confirmed transaction-block timestamp is {}, but required timestamp for new state is {}",
+            latest_onchain_timestamp, required_timestamp
+        )));
+    }
+
+    println!(
+        "Next state sets a price of {} mojos with CAT maker puzzle hash={}",
+        new_state.registration_price,
+        hex::encode(new_state.cat_maker_puzzle_hash)
+    );
+
+    println!("An offer will be generated offering:");
+    println!(" - 1 mojo");
+    println!(" - {} XCH ({} mojos) as fee", fee_str, fee);
+    yes_no_prompt("The state scheduler and the CATalog registry have been synced. This is the last check - do you wish to continue?")?;
+
+    // spend state scheduler & CATalog
+
+    // no need to include security conditions as we assert the state scheduler is spent
+    // which means the right message is consumed
+    let (_action_secure_conds, catalog_action_spend) = catalog
+        .new_action::<DelegatedStateAction>()
+        .spend::<CatalogRegistryState>(
+            &mut ctx,
+            catalog.coin,
+            new_state,
+            state_scheduler.info.inner_puzzle_hash().into(),
+        )?;
+    catalog.insert_action_spend(&mut ctx, catalog_action_spend)?;
+
+    let catalog_inner_ph = catalog.info.inner_puzzle_hash();
+    let (_new_catalog, pending_sig) = catalog.finish_spend(&mut ctx)?;
+
+    let offer_resp = sage
+        .make_offer(no_assets(), assets_xch_only(1), fee, None, None, false)
+        .await?;
+    println!("Offer with id {} generated.", offer_resp.offer_id);
+
+    let offer = Offer::from_spend_bundle(&mut ctx, &decode_offer(&offer_resp.offer)?)?;
+    let (security_coin_sk, security_coin) =
+        create_security_coin(&mut ctx, offer.offered_coins().xch[0])?;
+
+    let security_coin_conditions = Conditions::new()
+        .assert_concurrent_spend(state_scheduler.coin.coin_id())
+        .reserve_fee(1);
+
+    let security_coin_sig = spend_security_coin(
+        &mut ctx,
+        security_coin,
+        security_coin_conditions,
+        &security_coin_sk,
+        if testnet11 {
+            &TESTNET11_CONSTANTS
+        } else {
+            &MAINNET_CONSTANTS
+        },
+    )?;
+
+    state_scheduler.spend(&mut ctx, catalog_inner_ph.into())?;
+
+    let sb = offer.take(SpendBundle::new(
+        ctx.take(),
+        security_coin_sig + &pending_sig,
+    ));
+
+    println!("Submitting transaction...");
+    let _ = print_spend_bundle_to_file(&sb, "sb.debug");
+    let resp = cli.push_tx(sb).await?;
+
+    if confirm_pushed_transaction(&cli, &resp, security_coin.coin_id(), true).await? {
+        println!("Confirmed!");
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn activation_uses_onchain_timestamp_not_height() {
+        assert!(!scheduler_activation_reached(0, 1));
+        assert!(scheduler_activation_reached(1, 1));
+        assert!(scheduler_activation_reached(2, 1));
+        assert!(!scheduler_activation_reached(2, 3));
+    }
+}

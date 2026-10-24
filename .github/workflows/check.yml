@@ -193,6 +193,36 @@ jobs:
           path: |
             ${{ runner.temp }}/cat-source-capture/
             ${{ runner.temp }}/cat-source-packet/
+      - name: Check counter journals, canonical provenance and retained source controls
+        run: |
+          python3 -B scripts/counter_protocol.py --self-test
+          python3 -B -m unittest discover -s scripts -p test_counter_protocol.py
+          python3 -B -m unittest discover -s scripts -p test_action_counter_packet.py
+          python3 -B -m unittest discover -s experiments/action-counter -p 'test_*.py'
+          python3 -B scripts/check-action-counter.py --self-test --replay
+      - name: Prepare and natively check fresh counter source mutations
+        run: |
+          cargo fetch --locked --manifest-path experiments/action-counter/Cargo.toml
+          counter_args=(--output "$RUNNER_TEMP/counter-source-capture" --native-target "$GITHUB_WORKSPACE/target/action-counter-native" --compiler-target "$GITHUB_WORKSPACE/target" --compiler-root "$GITHUB_WORKSPACE" --rustc "$(rustup which --toolchain nightly-2026-07-14 rustc)" --driver "$GITHUB_WORKSPACE/target/debug/chialisp-oxide-driver" --cargo-cli "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide")
+          python3 -B experiments/action-counter/capture.py prepare "${counter_args[@]}"
+          python3 -B experiments/action-counter/capture.py native "${counter_args[@]}"
+      - name: Finish host tools before counter source-control extraction
+        run: cargo build --workspace --bins --examples --locked
+      - name: Execute fresh Linux counter sources, five-build lifecycle and exact repeats
+        run: |
+          counter_args=(--output "$RUNNER_TEMP/counter-source-capture" --native-target "$GITHUB_WORKSPACE/target/action-counter-native" --compiler-target "$GITHUB_WORKSPACE/target" --compiler-root "$GITHUB_WORKSPACE" --rustc "$(rustup which --toolchain nightly-2026-07-14 rustc)" --driver "$GITHUB_WORKSPACE/target/debug/chialisp-oxide-driver" --cargo-cli "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide")
+          python3 -B experiments/action-counter/capture.py extract "${counter_args[@]}"
+          python3 -B experiments/action-counter/capture.py replay "${counter_args[@]}"
+          python3 -B experiments/action-counter/protocol_capture.py run --protocol-output "$RUNNER_TEMP/counter-protocol-capture" "${counter_args[@]}"
+          python3 -B scripts/check-action-counter.py --install "$RUNNER_TEMP/counter-source-packet" --raw-capture "$RUNNER_TEMP/counter-source-capture" --protocol-capture "$RUNNER_TEMP/counter-protocol-capture" --self-test
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: counter-source-controls-linux
+          path: |
+            ${{ runner.temp }}/counter-source-capture/
+            ${{ runner.temp }}/counter-protocol-capture/
+            ${{ runner.temp }}/counter-source-packet/
       - name: Check canonical pay-to-singleton and actual Rust policy mutations
         run: |
           python3 -m unittest discover -s scripts -p test_p2_append_migration.py

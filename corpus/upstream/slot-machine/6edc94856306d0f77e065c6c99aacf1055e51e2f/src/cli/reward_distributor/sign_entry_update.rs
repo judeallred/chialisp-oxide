@@ -1,0 +1,91 @@
+use chia_protocol::Bytes;
+use chia_wallet_sdk::driver::{
+    MedievalVault, RewardDistributorReceivedMessagePrefix, RewardDistributorType,
+};
+use clvmr::Allocator;
+
+use crate::{
+    get_constants, hex_string_to_bytes32, multisig_sign_thing_finish, multisig_sign_thing_start,
+    CliError, Db,
+};
+
+pub async fn reward_distributor_sign_entry_update(
+    launcher_id_str: String,
+    entry_payout_puzzle_hash_str: String,
+    entry_shares: u64,
+    my_pubkey_str: String,
+    remove_entry: bool,
+    testnet11: bool,
+    debug: bool,
+) -> Result<(), CliError> {
+    let launcher_id = hex_string_to_bytes32(&launcher_id_str)?;
+    let entry_payout_puzzle_hash = hex_string_to_bytes32(&entry_payout_puzzle_hash_str)?;
+
+    println!("\nGetting distributor constants... ");
+    let db = Db::new(true).await?;
+
+    let mut temp_allocator = Allocator::new();
+    let distributor_constants = db
+        .get_reward_distributor_configuration(&mut temp_allocator, launcher_id)
+        .await?
+        .ok_or(CliError::Custom(
+            "Could not get reward distributor constants - try running another command to sync it first".to_string(),
+        ))?;
+
+    let manager_launcher_id = match distributor_constants.reward_distributor_type {
+        RewardDistributorType::Managed {
+            manager_singleton_launcher_id,
+        } => manager_singleton_launcher_id,
+        _ => {
+            return Err(CliError::Custom(
+                "Entry updates require a managed reward distributor".to_string(),
+            ));
+        }
+    };
+
+    let (my_pubkey, mut ctx, _client, medieval_vault) =
+        multisig_sign_thing_start(my_pubkey_str, hex::encode(manager_launcher_id), testnet11)
+            .await?;
+
+    if remove_entry {
+        println!("\nYou'll *REMOVE* the following entry from the reward list:");
+    } else {
+        println!("\nYou'll *ADD* a new entry with the following parameters:");
+    }
+    println!(
+        "  Entry payout puzzle hash: {}",
+        hex::encode(entry_payout_puzzle_hash)
+    );
+    println!("  Entry shares: {}", entry_shares);
+
+    let delegated_puzzle = MedievalVault::delegated_puzzle_for_flexible_send_message::<Bytes>(
+        &mut ctx,
+        if remove_entry {
+            RewardDistributorReceivedMessagePrefix::remove_entry(
+                entry_payout_puzzle_hash,
+                entry_shares,
+            )
+        } else {
+            RewardDistributorReceivedMessagePrefix::add_entry(
+                entry_payout_puzzle_hash,
+                entry_shares,
+            )
+        }
+        .into(),
+        launcher_id,
+        medieval_vault.coin,
+        &medieval_vault.info,
+        get_constants(testnet11).genesis_challenge,
+    )
+    .map_err(CliError::Driver)?;
+
+    multisig_sign_thing_finish(
+        &mut ctx,
+        delegated_puzzle,
+        &medieval_vault,
+        my_pubkey,
+        testnet11,
+        debug,
+    )
+    .await
+}

@@ -1,0 +1,195 @@
+use chia_protocol::Bytes32;
+use chia_puzzle_types::LineageProof;
+use chia_wallet_sdk::driver::Slot;
+use chia_wallet_sdk::types::puzzles::{SlotInfo, XchandlesHandleSlotValue, XchandlesSlotNonce};
+use reqwest::Client;
+use std::time::Duration;
+
+use crate::{hex_string_to_bytes32, CliError};
+
+use super::XchandlesNeighborsResponse;
+
+pub struct XchandlesApiClient {
+    client: Client,
+    base_url: String,
+}
+
+impl XchandlesApiClient {
+    pub fn new(base_url: &str) -> Self {
+        let client = Client::builder()
+            .timeout(Duration::from_secs(30))
+            .build()
+            .unwrap_or_default();
+
+        Self {
+            client,
+            base_url: base_url.to_string(),
+        }
+    }
+
+    pub fn mainnet() -> Self {
+        Self::new("https://api.xchandles.com")
+    }
+
+    pub fn testnet() -> Self {
+        Self::new("http://localhost:8080")
+    }
+
+    pub fn get(testnet11: bool) -> Self {
+        if testnet11 {
+            Self::testnet()
+        } else {
+            Self::mainnet()
+        }
+    }
+
+    pub async fn health_check(&self) -> Result<(), CliError> {
+        let response = self
+            .client
+            .get(format!("{}/", self.base_url))
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            Ok(())
+        } else {
+            Err(CliError::Custom(format!(
+                "Health check failed with status: {}",
+                response.status()
+            )))
+        }
+    }
+
+    pub async fn get_neighbors(
+        &self,
+        launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<
+        (
+            Slot<XchandlesHandleSlotValue>,
+            Slot<XchandlesHandleSlotValue>,
+        ),
+        CliError,
+    > {
+        let url = format!(
+            "{}/neighbors?launcher_id={}&handle_hash={}",
+            self.base_url,
+            hex::encode(launcher_id),
+            hex::encode(handle_hash)
+        );
+        let response = self.client.get(&url).send().await?;
+
+        let neighbors_resp = response.json::<XchandlesNeighborsResponse>().await?;
+
+        let left_handle_hash = hex_string_to_bytes32(&neighbors_resp.left_handle_hash)?;
+        let right_handle_hash = hex_string_to_bytes32(&neighbors_resp.right_handle_hash)?;
+
+        let left_left_handle_hash = hex_string_to_bytes32(&neighbors_resp.left_left_handle_hash)?;
+        let left_expiration = neighbors_resp.left_expiration;
+        let left_owner_launcher_id = hex_string_to_bytes32(&neighbors_resp.left_owner_launcher_id)?;
+        let left_resolved_launcher_id =
+            hex_string_to_bytes32(&neighbors_resp.left_resolved_launcher_id)?;
+        let left_value = XchandlesHandleSlotValue::new(
+            neighbors_resp.left_counter,
+            left_handle_hash,
+            left_left_handle_hash,
+            right_handle_hash,
+            left_expiration,
+            left_owner_launcher_id,
+            left_resolved_launcher_id,
+        );
+
+        let right_right_handle_hash =
+            hex_string_to_bytes32(&neighbors_resp.right_right_handle_hash)?;
+        let right_expiration = neighbors_resp.right_expiration;
+        let right_owner_launcher_id =
+            hex_string_to_bytes32(&neighbors_resp.right_owner_launcher_id)?;
+        let right_resolved_launcher_id =
+            hex_string_to_bytes32(&neighbors_resp.right_resolved_launcher_id)?;
+        let right_value = XchandlesHandleSlotValue::new(
+            neighbors_resp.right_counter,
+            right_handle_hash,
+            left_handle_hash,
+            right_right_handle_hash,
+            right_expiration,
+            right_owner_launcher_id,
+            right_resolved_launcher_id,
+        );
+
+        let left_parent_parent_info = hex_string_to_bytes32(&neighbors_resp.left_parent_parent_id)?;
+        let left_parent_inner_puzzle_hash =
+            hex_string_to_bytes32(&neighbors_resp.left_parent_inner_puzzle_hash)?;
+        let left_proof = LineageProof {
+            parent_parent_coin_info: left_parent_parent_info,
+            parent_inner_puzzle_hash: left_parent_inner_puzzle_hash,
+            parent_amount: 1,
+        };
+
+        let right_parent_parent_info =
+            hex_string_to_bytes32(&neighbors_resp.right_parent_parent_id)?;
+        let right_parent_inner_puzzle_hash =
+            hex_string_to_bytes32(&neighbors_resp.right_parent_inner_puzzle_hash)?;
+        let right_proof = LineageProof {
+            parent_parent_coin_info: right_parent_parent_info,
+            parent_inner_puzzle_hash: right_parent_inner_puzzle_hash,
+            parent_amount: 1,
+        };
+
+        let left_info = SlotInfo::<XchandlesHandleSlotValue>::from_value(
+            launcher_id,
+            XchandlesSlotNonce::HANDLE.to_u64(),
+            left_value,
+        );
+        let left = Slot::<XchandlesHandleSlotValue>::new(left_proof, left_info);
+
+        let right_info = SlotInfo::<XchandlesHandleSlotValue>::from_value(
+            launcher_id,
+            XchandlesSlotNonce::HANDLE.to_u64(),
+            right_value,
+        );
+        let right = Slot::<XchandlesHandleSlotValue>::new(right_proof, right_info);
+
+        Ok((left, right))
+    }
+
+    pub async fn get_slot_value(
+        &self,
+        launcher_id: Bytes32,
+        handle_hash: Bytes32,
+    ) -> Result<Slot<XchandlesHandleSlotValue>, CliError> {
+        let mut handle_hash_minus_one = handle_hash.to_bytes();
+        let mut index = 31;
+        while handle_hash_minus_one[index] == 0 {
+            index -= 1;
+        }
+        handle_hash_minus_one[index] -= 1;
+        let handle_hash_minus_one = Bytes32::from(handle_hash_minus_one);
+
+        Ok(self
+            .get_neighbors(launcher_id, handle_hash_minus_one)
+            .await?
+            .1)
+    }
+
+    pub async fn get_singleton(
+        &self,
+        launcher_id: Bytes32,
+        include_metadata: bool,
+    ) -> Result<crate::SingletonResponse, CliError> {
+        let url = format!(
+            "{}/singletons/{}?include_metadata={}",
+            self.base_url,
+            hex::encode(launcher_id),
+            include_metadata
+        );
+        let response = self.client.get(&url).send().await?;
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            return Err(CliError::Custom(format!(
+                "get_singleton failed ({status}): {body}"
+            )));
+        }
+        Ok(response.json().await?)
+    }
+}

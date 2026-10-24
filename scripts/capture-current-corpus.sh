@@ -41,6 +41,9 @@ step "full corpus validation, twice"
 target/debug/chialisp-oxide validate --output corpus/validation.json
 target/debug/chialisp-oxide validate --output "$WORK/validation-repeat.json"
 cmp corpus/validation.json "$WORK/validation-repeat.json"
+python3 scripts/counter_protocol.py --report corpus/validation.json --self-test > "$WORK/gate-counter-protocol.log"
+python3 scripts/check-port-evidence.py --report corpus/validation.json --slug counter-increment --slug counter-reset --self-test --replay > "$WORK/gate-counter-ports.log"
+python3 -B -m unittest discover -s scripts -p test_ledger_components.py > "$WORK/gate-ledger-components.log" 2>&1
 
 step "fresh bundles"
 target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --package chialisp-oxide-puzzles --locked --output-dir "$WORK/puzzles-on"

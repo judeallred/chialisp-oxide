@@ -1,0 +1,56 @@
+{
+  "protocol": "chialisp-oxide-action-counter-source-recipes/v2",
+  "status": "specified_not_executed",
+  "sources": [
+    "puzzles/counter_types.rs",
+    "puzzles/counter-increment/puzzle.rs",
+    "puzzles/counter-reset/puzzle.rs"
+  ],
+  "controls": [
+    {
+      "name": "original",
+      "edits": []
+    },
+    {
+      "name": "increment_no_change",
+      "edits": [
+        {
+          "source": "puzzles/counter-increment/puzzle.rs",
+          "before": "let next = truth.rest + 1;",
+          "after": "let next = truth.rest;"
+        }
+      ],
+      "witness": {
+        "export": "increment",
+        "name": "nil-count-1"
+      },
+      "expected_difference": "original count2 vs mutant count1; both own-root spends may be accepted"
+    },
+    {
+      "name": "reset_drop_signature",
+      "edits": [
+        {
+          "source": "puzzles/counter_types.rs",
+          "before": "use chialisp_oxide::{AggSigMe, Cons, Message32, Tree};",
+          "after": "use chialisp_oxide::{Cons, Message32, Tree};"
+        },
+        {
+          "source": "puzzles/counter_types.rs",
+          "before": "pub type ResetOutput<'a> = Cons<StateTruth<'a>, (AggSigMe,)>;",
+          "after": "pub type ResetOutput<'a> = Cons<StateTruth<'a>, ()>;"
+        },
+        {
+          "source": "puzzles/counter-reset/puzzle.rs",
+          "before": "rest: (agg_sig_me(owner, RESET_INTENT),),",
+          "after": "rest: {\n            let _discarded_signature = agg_sig_me(owner, RESET_INTENT);\n        },"
+        }
+      ],
+      "witness": {
+        "export": "reset",
+        "name": "nil-count-1"
+      },
+      "expected_difference": "computing/discarding a signature condition does not enforce it; own funded mutant accepts unsigned reset"
+    }
+  ],
+  "scope": "Actual source recipes applied to the fresh paired root sources, never original policy copies. Native/VM/SDK source-control captures required."
+}

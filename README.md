@@ -138,7 +138,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records thirty-two
+The locally validated [corpus report](corpus/validation.json) records thirty-seven
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -158,14 +158,15 @@ module adapters, the singleton launcher module, and the exact password tutorial
 module with separate curried-instance observations, plus canonical pay-to-singleton
 with dedicated counterpart composition evidence, and canonical delegated
 conditions with owner-key and signature/reveal checks, and an original boomerang
-payment with terms committed before funding. The
+payment with terms committed before funding, the original precommit claim/registry
+pair, a canonical genesis-by-coin-ID CAT TAIL, and two original counter actions. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The Using Modules ports compile the
 original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-770 explicit vectors and 25,222 generated integer/tree/byte cases against five CLVM
+906 explicit vectors and 27,281 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Sixty-two
 complete-spend scenario groups run for each selected language build (186 ledger
 scenario runs). The eight original condition-producing teaching fixtures,
@@ -231,6 +232,19 @@ a returned age or signature condition admits a forbidden claim. The pair is a te
 demo with explicit limits, not a name service or a fairness guarantee.
 The naive baseline is an independently compiled Chialisp fixture repeated for
 each selected build, rather than a naive-policy port in all three languages.
+
+The [local CAT TAIL lesson](docs/cat-genesis-tail.md) composes each of five
+compiled TAILs with canonical CAT2 and signed funding. Its 75 SDK submissions
+remain separate from raw vectors and ordinary ledger groups; Sage and live
+Testnet11 acceptance remain open.
+
+The [counter actions](docs/action-counter.md) preserve an opaque ephemeral tree
+and thread a canonical `u64` count through checked increment and signed reset.
+Their paired main lane selects one action in five builds with an independently
+compiled Chialisp counterpart: 60 SDK submissions and 70 primary component VM
+observations. Canonical host layers, dedicated source mutations, registry/slot
+work and live-network evidence have separate scopes. Counter bundle replay does
+not satisfy issue #14's actual slot double-spend requirement.
 
 The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
 to 1,685 bytes. In the recorded accepted joint transaction, total conditions

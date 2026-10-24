@@ -272,6 +272,34 @@ fn fixed_atom<const N: usize>(a: &Allocator, n: NodePtr) -> Result<[u8; N]> {
 fn public_key(a: &Allocator, n: NodePtr) -> Result<PublicKey> {
     Ok(PublicKey(fixed_atom(a, n)?))
 }
+
+fn counter_truth<'a>(tree: &Tree<'a>) -> Option<Cons<Tree<'a>, u64>> {
+    let Tree::Pair(ephemeral, count) = tree else {
+        return None;
+    };
+    let Tree::Atom(bytes) = count else {
+        return None;
+    };
+    let bytes = *bytes;
+    // Width is checked before constructing an arbitrary-precision integer.
+    if bytes.len() > 9 {
+        return None;
+    }
+    let integer = BigInt::from_signed_bytes_be(bytes);
+    let value: u64 = integer.try_into().ok()?;
+    let canonical = if value == 0 {
+        vec![]
+    } else {
+        BigInt::from(value).to_signed_bytes_be()
+    };
+    if bytes != canonical {
+        return None;
+    }
+    Some(Cons {
+        first: **ephemeral,
+        rest: value,
+    })
+}
 fn boomerang_arguments(
     a: &Allocator,
     env: NodePtr,
@@ -332,6 +360,52 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if matches!(slug, "counter-increment" | "counter-reset") {
+        let arena = bumpalo::Bump::new();
+        // Bound and decode the complete environment before ABI rejection or
+        // the policy catch, including both branches of opaque ephemeral trees.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let Tree::Pair(first, tail) = tree else {
+            return Ok(None);
+        };
+        if slug == "counter-increment" {
+            if !matches!(tail, Tree::Atom([])) {
+                return Ok(None);
+            }
+            let Some(truth) = counter_truth(first) else {
+                return Ok(None);
+            };
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                chialisp_oxide_puzzles::counter_increment::puzzle(truth)
+            }));
+            return match result {
+                Ok(value) => Ok(Some(output(value)?)),
+                Err(_) => Ok(None),
+            };
+        }
+        let Tree::Atom(key) = first else {
+            return Ok(None);
+        };
+        let Ok(key) = (*key).try_into() else {
+            return Ok(None);
+        };
+        let Tree::Pair(truth, end) = tail else {
+            return Ok(None);
+        };
+        if !matches!(end, Tree::Atom([])) {
+            return Ok(None);
+        }
+        let Some(truth) = counter_truth(truth) else {
+            return Ok(None);
+        };
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::counter_reset::puzzle(PublicKey(key), truth)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
     if slug == "boomerang" {
         // Invalid typed arguments reject before source execution. This closed
         // decoder bounds every copied scalar; assembly errors still propagate.
@@ -718,6 +792,55 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn counter_actions_preserve_opaque_trees_and_validate_unused_old_counts() {
+        fn assembled(source: &str) -> Vec<u8> {
+            let mut allocator = clvmr::Allocator::new();
+            let value = rue_clvm::assemble(&mut allocator, source).unwrap();
+            clvmr::serde::node_to_bytes(&allocator, value).unwrap()
+        }
+        let ephemeral = "(0x0001 . 0x00)";
+        assert_eq!(
+            super::execute("counter-increment", &format!("(({ephemeral} . 7))"))
+                .unwrap()
+                .unwrap(),
+            assembled(&format!("(({ephemeral} . 8))"))
+        );
+        let key = format!("0x{}", "11".repeat(48));
+        let intent = format!(
+            "0x{}",
+            hex::encode(chialisp_oxide_puzzles::counter_types::RESET_INTENT.0)
+        );
+        assert_eq!(
+            super::execute(
+                "counter-reset",
+                &format!("({key} ({ephemeral} . 18446744073709551615))")
+            )
+            .unwrap()
+            .unwrap(),
+            assembled(&format!("(({ephemeral} . ()) (50 {key} {intent}))"))
+        );
+        for count in ["0x00", "0x0001", "-1", "18446744073709551616", "(1 . 2)"] {
+            assert_eq!(
+                super::execute("counter-increment", &format!("(({ephemeral} . {count}))")).unwrap(),
+                None
+            );
+            assert_eq!(
+                super::execute("counter-reset", &format!("({key} ({ephemeral} . {count}))"))
+                    .unwrap(),
+                None
+            );
+        }
+        assert_eq!(
+            super::execute("counter-increment", "((() . 18446744073709551615))").unwrap(),
+            None
+        );
+        assert_eq!(
+            super::execute("counter-increment", "((() . 1) . 0x00)").unwrap(),
+            None
+        );
+    }
+
     use super::{Encode, boomerang_arguments, execute, output, public_key};
     use chialisp_oxide::Cons;
     use clvmr::{Allocator, NodePtr};

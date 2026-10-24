@@ -1,0 +1,161 @@
+{
+  "name": "chialisp_oxide_puzzles::module_times_ten::puzzle",
+  "parameters": [
+    {
+      "name": "value",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": true
+      }
+    }
+  ],
+  "result": {
+    "kind": "int",
+    "bits": 64,
+    "signed": true
+  },
+  "body": {
+    "op": "sequence",
+    "first": {
+      "op": "sequence",
+      "first": {
+        "op": "tuple",
+        "items": [
+          {
+            "op": "binary",
+            "kind": "mul",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "10",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": true
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          },
+          {
+            "op": "bool",
+            "value": false
+          }
+        ]
+      },
+      "then_value": {
+        "op": "if",
+        "condition": {
+          "op": "not",
+          "value": {
+            "op": "bool",
+            "value": false
+          }
+        },
+        "then_value": {
+          "op": "binary",
+          "kind": "mul",
+          "left": {
+            "op": "arg",
+            "index": 0
+          },
+          "right": {
+            "op": "int",
+            "value": "10",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          },
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": true
+          }
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/module-times-ten/puzzle.rs:10:5: 10:31: Rust assertion failed"
+        }
+      }
+    },
+    "then_value": {
+      "op": "sequence",
+      "first": {
+        "op": "tuple",
+        "items": [
+          {
+            "op": "binary",
+            "kind": "mul",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "10",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": true
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          },
+          {
+            "op": "bool",
+            "value": false
+          }
+        ]
+      },
+      "then_value": {
+        "op": "if",
+        "condition": {
+          "op": "not",
+          "value": {
+            "op": "bool",
+            "value": false
+          }
+        },
+        "then_value": {
+          "op": "binary",
+          "kind": "mul",
+          "left": {
+            "op": "arg",
+            "index": 0
+          },
+          "right": {
+            "op": "int",
+            "value": "10",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          },
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": true
+          }
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/module-times-ten/puzzle.rs:10:5: 10:31: Rust assertion failed"
+        }
+      }
+    }
+  }
+}
