@@ -296,6 +296,11 @@ def full_sources(root):
     paths.update(source_files(root, ["crates", "puzzles", "experiments/backend", "experiments/byte-proofs",
         "vendor", DIRECTORY], suffixes=None, limits=WalkLimits(sources=4096, directories=4096, entries=16384)))
     paths.update(("Cargo.toml", "Cargo.lock", "rust-toolchain.toml", ".cargo/config.toml"))
+    # Bytecode is interpreter output, not a portable source input. Fail before
+    # hashing or running commands so an ignored local cache cannot enter a
+    # retained native/LAST window and disappear from a clean checkout.
+    require(not any(Path(name).suffix in (".pyc", ".pyo") for name in paths),
+            "remove generated Python bytecode before registry source capture")
     require(len(paths) <= 4096, "complete native source count")
     rows, remaining = [], 64 * 1024 * 1024
     for name in sorted(paths):

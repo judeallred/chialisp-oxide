@@ -8,9 +8,40 @@ import unittest
 from unittest.mock import patch
 
 import registry_control_capture as capture
+import precommit_source_controls
 
 
 class CapturePreflight(unittest.TestCase):
+    def test_bytecode_cannot_enter_native_window_or_start_a_command(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            for filename in ('puzzles/__pycache__/vectors.cpython-314.pyc', 'puzzles/vectors.pyo'):
+                with self.subTest(filename=filename), \
+                     patch.object(precommit_source_controls, 'ROOT', root), \
+                     patch.object(precommit_source_controls, 'source_window', return_value={'sources':[]}), \
+                     patch.object(capture, 'source_files', return_value=[filename]), \
+                     patch.object(capture, 'read') as read, \
+                     patch.object(capture.subprocess, 'Popen') as command:
+                    with self.assertRaisesRegex(ValueError, 'generated Python bytecode'):
+                        capture.full_sources(root)
+                    read.assert_not_called()
+                    command.assert_not_called()
+
+    def test_source_inside_a_cache_named_directory_is_still_hashed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            name = 'puzzles/__pycache__/policy.rs'
+            for filename in (name, 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml'):
+                path = root / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'actual declared source\n')
+            with patch.object(precommit_source_controls, 'ROOT', root), \
+                 patch.object(precommit_source_controls, 'source_window', return_value={'sources':[]}), \
+                 patch.object(capture, 'source_files', return_value=[name]):
+                rows = capture.full_sources(root)
+                retained = next(row for row in rows if row['path'] == name)
+                self.assertEqual(retained['sha256'], capture.digest((root / name).read_bytes()))
+
     def test_exact_regular_file_bound(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'input'
