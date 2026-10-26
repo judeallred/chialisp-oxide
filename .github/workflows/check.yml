@@ -223,6 +223,25 @@ jobs:
             ${{ runner.temp }}/counter-source-capture/
             ${{ runner.temp }}/counter-protocol-capture/
             ${{ runner.temp }}/counter-source-packet/
+      - name: Check registry slots and retained Rust omission controls
+        run: |
+          python3 -B scripts/registry_protocol.py --self-test
+          python3 -B -m unittest discover -s scripts -p 'test_registry*.py'
+          python3 -B scripts/check-registry-source-controls.py --packet corpus/registry-source-controls --report corpus/validation.json --self-test --replay --cli target/debug/chialisp-oxide
+      - name: Execute fresh Linux registry Rust source controls and repeats
+        run: |
+          registry_work="$GITHUB_WORKSPACE/target/registry-source-linux-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python3 -B scripts/run-registry-source-controls.py native --execute --target "$GITHUB_WORKSPACE/target/registry-controls-native" --output "$registry_work/native"
+          python3 -B scripts/run-registry-source-controls.py last --execute --target "$GITHUB_WORKSPACE/target" --native-dir "$registry_work/native" --output "$registry_work/last"
+          target/debug/chialisp-oxide validate --only registry-initialize,registry-set-alpha,registry-set-beta --output "$registry_work/base/report.json"
+          python3 -B scripts/run-registry-source-controls.py capture --execute --native-dir "$registry_work/native" --last-dir "$registry_work/last" --base-report "$registry_work/base/report.json" --output "$registry_work/capture"
+          python3 -B scripts/check-registry-source-controls.py --install-capture "$registry_work/capture" --native-dir "$registry_work/native" --last-dir "$registry_work/last" --base-dir "$registry_work/base" --packet "$registry_work/packet" --report corpus/validation.json --self-test --replay --cli target/debug/chialisp-oxide
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: registry-source-controls-linux
+          path: |
+            target/registry-source-linux-${{ github.run_id }}-${{ github.run_attempt }}/
       - name: Check canonical pay-to-singleton and actual Rust policy mutations
         run: |
           python3 -m unittest discover -s scripts -p test_p2_append_migration.py

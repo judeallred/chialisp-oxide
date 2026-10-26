@@ -1,0 +1,449 @@
+{
+  "builds": [
+    {
+      "artifacts": [
+        {
+          "blob_sha256": "d95b0998bc69a8b2bd3a56b534d77e924b6daec1fbfa36c6276fc0fa6f6cd8e8",
+          "bytes": 9229,
+          "module_tree_hash": "bb3b857a94c2fe7c4d2b3ac0c9ef3abcee0fb4c8e9fb080de1774c5c50ee0ec9",
+          "slug": "registry-initialize"
+        },
+        {
+          "blob_sha256": "c9563b7ee2cdec3b7247bc88848a9734a5950a52cec739ee71ec07a1807f7929",
+          "bytes": 12251,
+          "module_tree_hash": "e8bc9bf5cdbcb235d23b03cccfc3fe7ae2771eb0a816972f4149e0bb25a0f8bd",
+          "slug": "registry-set-alpha"
+        },
+        {
+          "blob_sha256": "465321ebda8fed761482cb2e0a98a6baeb1e6f0c50c77173b20d4b873e096187",
+          "bytes": 12251,
+          "module_tree_hash": "3ffbcc0c7b19a2db7eae40b83759bd92e3508527eeb6a310a3509a8f6d74052f",
+          "slug": "registry-set-beta"
+        }
+      ],
+      "backend": "rust_mir",
+      "counts": {
+        "adversarial": {
+          "accepted": 2,
+          "component_primary_observations": 18,
+          "runtime_umbrellas": 5,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 10,
+          "typed_consensus_rejections": 3
+        },
+        "adversarial_setup": {
+          "accepted": 2,
+          "component_primary_observations": 3,
+          "sdk_transaction_attempts": 2
+        },
+        "causal_primary": {
+          "accepted": 2,
+          "primary_observations": 3,
+          "typed_program_rejections": 1
+        },
+        "ordinary": {
+          "accepted": 6,
+          "component_primary_observations": 19,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 11,
+          "typed_consensus_rejections": 5
+        }
+      },
+      "journals": {
+        "adversarial": {
+          "bytes": 410640,
+          "path": "registry-slot-protocol/rust-off-adversarial.json",
+          "sha256": "2c5309d8eb23ee0ad4ad22e22a58de97fc5f038676db1b79f08c1c17d8c7e6dc"
+        },
+        "ordinary": {
+          "bytes": 379090,
+          "path": "registry-slot-protocol/rust-off-ordinary.json",
+          "sha256": "03d5ab42e0e1a97de5ebe614bf8d9d7bcf5068cea6a9ba7be15aed221caeafe7"
+        }
+      },
+      "mode": "rust-off",
+      "optimize_lir": false
+    },
+    {
+      "artifacts": [
+        {
+          "blob_sha256": "f061a7a9bad77fe5f87f0a91a5489473adb6c329ec3dcad556a5a7377a2cb0cc",
+          "bytes": 4345,
+          "module_tree_hash": "eb4fcfadd92a81b3226040f8d908956c2a6b7708b41af4624308439cb2f51389",
+          "slug": "registry-initialize"
+        },
+        {
+          "blob_sha256": "0ef86922346ff24e5d0cbec3d3d2fbff9199fc11c1e671f5b0b37dc12fc1fbff",
+          "bytes": 5477,
+          "module_tree_hash": "c4675f43c28a4da92f1c659cd465ea2967e55eaa7a17cfe89b90bddf19db548c",
+          "slug": "registry-set-alpha"
+        },
+        {
+          "blob_sha256": "d4d61e4f1a797b3bd0aee4e2dc4eb7368b1f87d6a7378232da8e651a603d99b8",
+          "bytes": 5477,
+          "module_tree_hash": "3da8e93f313c2d3cdbd5eaaea6a3f4998aa352923015124f53f33cfae11c0b32",
+          "slug": "registry-set-beta"
+        }
+      ],
+      "backend": "rust_mir",
+      "counts": {
+        "adversarial": {
+          "accepted": 2,
+          "component_primary_observations": 18,
+          "runtime_umbrellas": 5,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 10,
+          "typed_consensus_rejections": 3
+        },
+        "adversarial_setup": {
+          "accepted": 2,
+          "component_primary_observations": 3,
+          "sdk_transaction_attempts": 2
+        },
+        "causal_primary": {
+          "accepted": 2,
+          "primary_observations": 3,
+          "typed_program_rejections": 1
+        },
+        "ordinary": {
+          "accepted": 6,
+          "component_primary_observations": 19,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 11,
+          "typed_consensus_rejections": 5
+        }
+      },
+      "journals": {
+        "adversarial": {
+          "bytes": 242070,
+          "path": "registry-slot-protocol/rust-on-adversarial.json",
+          "sha256": "9864463080fcf13239656e63f9c1f60526d94f329c14801c9e451ce31372fc0d"
+        },
+        "ordinary": {
+          "bytes": 224064,
+          "path": "registry-slot-protocol/rust-on-ordinary.json",
+          "sha256": "4a788fe28a045dab7d6d9db2f048b3070b0733e6bc1446685be875d729d78778"
+        }
+      },
+      "mode": "rust-on",
+      "optimize_lir": true
+    },
+    {
+      "artifacts": [
+        {
+          "blob_sha256": "c9e7fbd697110146dd0efcaf1c468c0a7751c6ce07d286e51c160a25d7800aa5",
+          "bytes": 1349,
+          "module_tree_hash": "e23691ffcd097f6ff1796e4aedd8c3266aa5066dcb2baf6401fcdd23492540d2",
+          "slug": "registry-initialize"
+        },
+        {
+          "blob_sha256": "c460889665475452a66a18da4f7e94c7592332ac22f980b5a804be43ef03067c",
+          "bytes": 1656,
+          "module_tree_hash": "e94cfed8f73689ff96f0278ba639d81271fa41e2c00a80232ab959ccda9fed44",
+          "slug": "registry-set-alpha"
+        },
+        {
+          "blob_sha256": "a53c78c6e710063b6c8dd23b919b45926ed341807afca7738d974424b3256f22",
+          "bytes": 1656,
+          "module_tree_hash": "b1b82be7d30125bdf297f79b5bb1bd0fef2afa767dd75a13307d7be50c28c4c0",
+          "slug": "registry-set-beta"
+        }
+      ],
+      "backend": "chialisp",
+      "counts": {
+        "adversarial": {
+          "accepted": 2,
+          "component_primary_observations": 18,
+          "runtime_umbrellas": 5,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 10,
+          "typed_consensus_rejections": 3
+        },
+        "adversarial_setup": {
+          "accepted": 2,
+          "component_primary_observations": 3,
+          "sdk_transaction_attempts": 2
+        },
+        "causal_primary": {
+          "accepted": 2,
+          "primary_observations": 3,
+          "typed_program_rejections": 1
+        },
+        "ordinary": {
+          "accepted": 6,
+          "component_primary_observations": 19,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 11,
+          "typed_consensus_rejections": 5
+        }
+      },
+      "journals": {
+        "adversarial": {
+          "bytes": 145976,
+          "path": "registry-slot-protocol/chialisp-adversarial.json",
+          "sha256": "a45cc13da13448aa545bab7a18b80d15016415a56b84e8e2910279047bd19be6"
+        },
+        "ordinary": {
+          "bytes": 135642,
+          "path": "registry-slot-protocol/chialisp-ordinary.json",
+          "sha256": "568238828b1ce611adc08107029c87b67f84ef0201de77dca92d693aefad0524"
+        }
+      },
+      "mode": "chialisp",
+      "optimize_lir": true
+    },
+    {
+      "artifacts": [
+        {
+          "blob_sha256": "9f4630a35094c0f8262d242970e25b0a922df26179fd1ec5bb4b618068b1a9b8",
+          "bytes": 1709,
+          "module_tree_hash": "3433f0a2d570dc944c84ebdc377da1e1d6dc30a98d1a2b6fb4b269a6a5c97651",
+          "slug": "registry-initialize"
+        },
+        {
+          "blob_sha256": "f83e271c1651bd81a2dde5e11f09ca94dca0b301cbedcf4cfd22de8732a9a671",
+          "bytes": 2427,
+          "module_tree_hash": "a33615de9bfe04f5459ec5201ad662549943d1f2917b42c1d07df0afc13ed2dc",
+          "slug": "registry-set-alpha"
+        },
+        {
+          "blob_sha256": "e633826dbfa2e7c9e719bedd2ece212f0aecdddf987669718820f9f8c51ba636",
+          "bytes": 2427,
+          "module_tree_hash": "3b8a30e71fe20c74031c859393c5a38bbf57e386830b93168244618446fa8a7c",
+          "slug": "registry-set-beta"
+        }
+      ],
+      "backend": "rue_source",
+      "counts": {
+        "adversarial": {
+          "accepted": 2,
+          "component_primary_observations": 18,
+          "runtime_umbrellas": 5,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 10,
+          "typed_consensus_rejections": 3
+        },
+        "adversarial_setup": {
+          "accepted": 2,
+          "component_primary_observations": 3,
+          "sdk_transaction_attempts": 2
+        },
+        "causal_primary": {
+          "accepted": 2,
+          "primary_observations": 3,
+          "typed_program_rejections": 1
+        },
+        "ordinary": {
+          "accepted": 6,
+          "component_primary_observations": 19,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 11,
+          "typed_consensus_rejections": 5
+        }
+      },
+      "journals": {
+        "adversarial": {
+          "bytes": 164379,
+          "path": "registry-slot-protocol/rue-off-adversarial.json",
+          "sha256": "fb348ed1f4156b4b4837f39ff3d05620b465746f65b336da0fc3b19abea1eef9"
+        },
+        "ordinary": {
+          "bytes": 152501,
+          "path": "registry-slot-protocol/rue-off-ordinary.json",
+          "sha256": "d8a5feb2dc93842528fa5e71fddfc7b04e5fa7bb818267de8c9932b65ebc13aa"
+        }
+      },
+      "mode": "rue-off",
+      "optimize_lir": false
+    },
+    {
+      "artifacts": [
+        {
+          "blob_sha256": "b4efaef71a46481cb365afee4273a0ba4910de96ba20f703db09fb3258f92992",
+          "bytes": 1331,
+          "module_tree_hash": "81fac07bd02fbfc2b9bf869ff41b99f9fa7f88f375c2083e72d5772f058b1e1a",
+          "slug": "registry-initialize"
+        },
+        {
+          "blob_sha256": "8502967391bb82d9444e3bc449acacf9c107c9e3af31d51700d0901ff7f54ea4",
+          "bytes": 1788,
+          "module_tree_hash": "65d0e32a2ee8c87fe1759f60254952085416935ec8a94788148e7587d81c3299",
+          "slug": "registry-set-alpha"
+        },
+        {
+          "blob_sha256": "6fce40d57b8c4c0c14842594c3f10e5453834625f99e950a538b22e578863602",
+          "bytes": 1788,
+          "module_tree_hash": "e72a3408e93c8b847cb7882e288a4a58f904873d8834185f2cbfb6ecd9719e2d",
+          "slug": "registry-set-beta"
+        }
+      ],
+      "backend": "rue_source",
+      "counts": {
+        "adversarial": {
+          "accepted": 2,
+          "component_primary_observations": 18,
+          "runtime_umbrellas": 5,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 10,
+          "typed_consensus_rejections": 3
+        },
+        "adversarial_setup": {
+          "accepted": 2,
+          "component_primary_observations": 3,
+          "sdk_transaction_attempts": 2
+        },
+        "causal_primary": {
+          "accepted": 2,
+          "primary_observations": 3,
+          "typed_program_rejections": 1
+        },
+        "ordinary": {
+          "accepted": 6,
+          "component_primary_observations": 19,
+          "scenario_runs": 1,
+          "sdk_transaction_attempts": 11,
+          "typed_consensus_rejections": 5
+        }
+      },
+      "journals": {
+        "adversarial": {
+          "bytes": 148806,
+          "path": "registry-slot-protocol/rue-on-adversarial.json",
+          "sha256": "f0d4fd797553ef400e38ecad4271be72a04eee151f6fc17a3a25ee35fd6873ae"
+        },
+        "ordinary": {
+          "bytes": 138208,
+          "path": "registry-slot-protocol/rue-on-ordinary.json",
+          "sha256": "0327053d0f29aca9d732b4cf9e954b90714bb4318ccccc17ee166b9747aed2e2"
+        }
+      },
+      "mode": "rue-on",
+      "optimize_lir": true
+    }
+  ],
+  "header": {
+    "canonical_components": [
+      {
+        "blob_sha256": "849e048c276a39f05b68f78ba2d3a3b5924f5e8b8944a7c8ca923119eb442a7a",
+        "bytes": 630,
+        "module_hex": "ff02ffff01ff02ffff03ff5fffff01ff02ff05ffff04ffff04ff0bff1780ffff04ffff02ff1effff04ff1effff04ffff04ffff02ff0cffff04ffff04ff04ffff04ff0aff168080ffff04ffff04ff80ff5f80ffff04ff0bff2f80808080ff2f80ffff04ff80ffff04ffff04ffff04ff80ff1780ff8080ff81bf8080808080ff81ff808080ffff01ff088080ff0180ffff04ffff04ffff04ffff01ff02ffff03ffff07ff0380ffff01ff0bffff0102ffff02ff02ffff04ff02ff058080ffff02ff02ffff04ff02ff07808080ffff01ff0bffff0101ff038080ff0180ffff01ff02ffff03ff0dffff01ff02ffff03ffff02ffff03ff35ffff01ff09ff0bffff02ff0affff04ff0affff04ff35ffff0bffff0101ffff02ff08ffff04ff08ffff02ff25ff0f8080808080808080ffff01ff02ff0effff04ff0effff04ff25ff0980808080ff0180ffff01ff02ff0cffff04ff02ffff04ffff04ffff04ff25ff0980ff1d80ff07808080ffff01ff088080ff0180ffff010980ff018080ffff04ffff01ff02ffff03ff0dffff01ff02ff02ffff04ff02ffff04ffff04ffff17ff09ffff0181ff80ff1d80ffff0bffff0102ffff03ffff18ff09ffff010180ff15ff0780ffff03ffff18ff09ffff010180ff07ff158080808080ffff010780ff0180ffff04ffff01ff02ffff03ffff09ff0bff0580ffff01ff0101ffff01ff02ff02ffff04ff02ffff04ff05ff0f80808080ff0180ffff01ff02ffff03ff09ffff01ff02ff02ffff04ff02ffff04ffff04ff19ff0d80ffff04ffff04ff37ff0b80ffff04ffff02ffff02ff11ff0d80ffff04ff27ff2f8080ff3f8080808080ffff01ff04ff27ffff04ff37ff0b808080ff0180808080ff018080",
+        "module_tree_hash": "afa03f2903f9e4a293523237799074b13ab2361f250df10de5df884b0b09a22b",
+        "name": "action_layer"
+      },
+      {
+        "blob_sha256": "7561d066e49565e123e800c03898fe3739576d204060371c27ab3aed5b35ef19",
+        "bytes": 494,
+        "module_hex": "ff02ffff01ff04ffff04ffff0133ffff04ffff02ff0affff04ff0effff04ff05ffff04ffff02ff0affff04ff0effff04ff17ffff04ffff0bffff0101ff1780ff8080808080ffff04ffff0bffff0101ff4f80ffff04ffff02ff0cffff04ff0cff82019f8080ff80808080808080ffff04ffff0101ffff04ffff04ff0bff8080ff8080808080ffff02ff08ffff04ff08ff81df808080ffff04ffff04ffff04ffff01ff02ffff03ff05ffff01ff04ff09ffff02ff02ffff04ff02ffff04ff0dff0780808080ffff01ff02ffff03ff07ffff01ff02ff02ffff04ff02ff078080ffff018080ff018080ff0180ffff01ff02ffff03ffff07ff0380ffff01ff0bffff0102ffff02ff02ffff04ff02ff058080ffff02ff02ffff04ff02ff07808080ffff01ff0bffff0101ff038080ff018080ffff04ffff01ff0bffff0102ffff0bffff0182010280ffff0bffff0102ffff0bffff0102ffff0bffff0182010180ff0580ffff0bffff0102ffff02ff02ffff04ff02ff078080ffff0bffff010180808080ffff01ff02ffff03ff03ffff01ff0bffff0102ffff0bffff0182010480ffff0bffff0102ffff0bffff0102ffff0bffff0182010180ff0580ffff0bffff0102ffff02ff02ffff04ff02ff078080ffff0bffff010180808080ffff01ff0bffff018201018080ff01808080ff018080",
+        "module_tree_hash": "9d274de59aeaa128d1b0a802b52911838420ef9720d605c78942e8dadfc0810b",
+        "name": "default_finalizer"
+      },
+      {
+        "blob_sha256": "bcaf4089ed7e750f746e8cc0d3c52e69742673edab4d954db4e03919263e7bcb",
+        "bytes": 175,
+        "module_hex": "ff02ffff01ff04ffff04ff04ffff04ff05ffff04ff0bff80808080ffff04ffff04ff0affff04ffff02ff0effff04ff02ffff04ffff04ff05ffff04ff0bffff04ff17ff80808080ff80808080ff808080ff808080ffff04ffff01ff33ff3cff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff0effff04ff02ffff04ff09ff80808080ffff02ff0effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080",
+        "module_tree_hash": "eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9",
+        "name": "singleton_launcher"
+      },
+      {
+        "blob_sha256": "10f81c86b279ed9c31a79d40867c0390ddceacd78c025b6363706232328822c2",
+        "bytes": 967,
+        "module_hex": "ff02ffff01ff02ffff03ffff18ff2fff3480ffff01ff04ffff04ff20ffff04ff2fff808080ffff04ffff02ff3effff04ff02ffff04ff05ffff04ffff02ff2affff04ff02ffff04ff27ffff04ffff02ffff03ff77ffff01ff02ff36ffff04ff02ffff04ff09ffff04ff57ffff04ffff02ff2effff04ff02ffff04ff05ff80808080ff808080808080ffff011d80ff0180ffff04ffff02ffff03ff77ffff0181b7ffff015780ff0180ff808080808080ffff04ff77ff808080808080ffff02ff3affff04ff02ffff04ff05ffff04ffff02ff0bff5f80ffff01ff8080808080808080ffff01ff088080ff0180ffff04ffff01ffffffff4947ff0233ffff0401ff0102ffffff20ff02ffff03ff05ffff01ff02ff32ffff04ff02ffff04ff0dffff04ffff0bff3cffff0bff34ff2480ffff0bff3cffff0bff3cffff0bff34ff2c80ff0980ffff0bff3cff0bffff0bff34ff8080808080ff8080808080ffff010b80ff0180ffff02ffff03ffff22ffff09ffff0dff0580ff2280ffff09ffff0dff0b80ff2280ffff15ff17ffff0181ff8080ffff01ff0bff05ff0bff1780ffff01ff088080ff0180ff02ffff03ff0bffff01ff02ffff03ffff02ff26ffff04ff02ffff04ff13ff80808080ffff01ff02ffff03ffff20ff1780ffff01ff02ffff03ffff09ff81b3ffff01818f80ffff01ff02ff3affff04ff02ffff04ff05ffff04ff1bffff04ff34ff808080808080ffff01ff04ffff04ff23ffff04ffff02ff36ffff04ff02ffff04ff09ffff04ff53ffff04ffff02ff2effff04ff02ffff04ff05ff80808080ff808080808080ff738080ffff02ff3affff04ff02ffff04ff05ffff04ff1bffff04ff34ff8080808080808080ff0180ffff01ff088080ff0180ffff01ff04ff13ffff02ff3affff04ff02ffff04ff05ffff04ff1bffff04ff17ff8080808080808080ff0180ffff01ff02ffff03ff17ff80ffff01ff088080ff018080ff0180ffffff02ffff03ffff09ff09ff3880ffff01ff02ffff03ffff18ff2dffff010180ffff01ff0101ff8080ff0180ff8080ff0180ff0bff3cffff0bff34ff2880ffff0bff3cffff0bff3cffff0bff34ff2c80ff0580ffff0bff3cffff02ff32ffff04ff02ffff04ff07ffff04ffff0bff34ff3480ff8080808080ffff0bff34ff8080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff02ffff03ffff21ff17ffff09ff0bff158080ffff01ff04ff30ffff04ff0bff808080ffff01ff088080ff0180ff018080",
+        "module_tree_hash": "7faa3253bfddd1e0decb0906b2dc6247bbc4cf608f58345d173adb63e8b47c9f",
+        "name": "singleton_top_layer_v1_1"
+      },
+      {
+        "blob_sha256": "cd9da6f90ecc2f4cac326d94b19f2f58f13f4d96d71a1b9410c86a2f64130408",
+        "bytes": 311,
+        "module_hex": "ff02ffff01ff04ffff04ffff0147ffff04ffff30ff4fffff02ff04ffff04ff06ffff04ff05ff81af808080ff81ef80ff808080ffff04ffff04ffff0143ffff04ffff0112ffff04ff80ffff04ffff02ff04ffff04ff06ffff04ff05ff3f808080ff8080808080ff808080ffff04ffff04ffff01ff0bffff0102ffff0bffff0182010280ffff0bffff0102ffff0bffff0102ffff0bffff0182010180ff0980ffff0bffff0102ffff02ff02ffff04ff02ffff04ff0dffff04ff07ff8080808080ffff0bffff010180808080ffff01ff02ffff03ff03ffff01ff0bffff0102ffff0bffff0182010480ffff0bffff0102ffff0bffff0102ffff0bffff0182010180ff0580ffff0bffff0102ffff02ff02ffff04ff02ff078080ffff0bffff010180808080ffff01ff0bffff018201018080ff018080ff018080",
+        "module_tree_hash": "8ab9f3b57a65d7f7a0810f79f7bc1e96bda680d16dd6f51d51e868e13fc7bbb3",
+        "name": "slot"
+      },
+      {
+        "blob_sha256": "21747ef070376012f22f7b426edaa36a244a77f8825d13d5529963b921ad1da7",
+        "bytes": 227,
+        "module_hex": "ff02ffff01ff02ffff03ff0bffff01ff02ffff03ffff09ff05ffff1dff0bffff1effff0bff0bffff02ff06ffff04ff02ffff04ff17ff8080808080808080ffff01ff02ff17ff2f80ffff01ff088080ff0180ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff17ff80808080ff80808080ffff02ff17ff2f808080ff0180ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080",
+        "module_tree_hash": "e9aaa49f45bad5c889b86ee3341550c155cfdd10c3a6757de618d20612fffd52",
+        "name": "standard_wallet"
+      }
+    ],
+    "independently_compiled_chialisp": [
+      {
+        "artifact": {
+          "blob_sha256": "c9e7fbd697110146dd0efcaf1c468c0a7751c6ce07d286e51c160a25d7800aa5",
+          "bytes": 1349,
+          "module_tree_hash": "e23691ffcd097f6ff1796e4aedd8c3266aa5066dcb2baf6401fcdd23492540d2",
+          "slug": "registry-initialize"
+        },
+        "source_sha256": "cf86358caa33f192972593e4eaac26595ebd11c94c38489134a8657e781fbdeb"
+      },
+      {
+        "artifact": {
+          "blob_sha256": "c460889665475452a66a18da4f7e94c7592332ac22f980b5a804be43ef03067c",
+          "bytes": 1656,
+          "module_tree_hash": "e94cfed8f73689ff96f0278ba639d81271fa41e2c00a80232ab959ccda9fed44",
+          "slug": "registry-set-alpha"
+        },
+        "source_sha256": "a2638e1d8d2b00ced7c582d0faadf7e886e9d83a40f493503a62d2fbce1a4cb5"
+      },
+      {
+        "artifact": {
+          "blob_sha256": "a53c78c6e710063b6c8dd23b919b45926ed341807afca7738d974424b3256f22",
+          "bytes": 1656,
+          "module_tree_hash": "b1b82be7d30125bdf297f79b5bb1bd0fef2afa767dd75a13307d7be50c28c4c0",
+          "slug": "registry-set-beta"
+        },
+        "source_sha256": "2f72899633ba271cea57103006cb4e8f142d104416773ed2a5e85d7d31007c12"
+      }
+    ],
+    "owner_public_key": "b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4",
+    "primary_vm": {
+      "allocator_limit_bytes": 33554432,
+      "failure_protocol": "clvmr-0.21.0/v1",
+      "flags": 535,
+      "max_cost": 250000000,
+      "version": "clvmr 0.21.0"
+    },
+    "protocol": "chialisp-oxide-action-registry/v1",
+    "schema_version": 1,
+    "scope": "Original fixed two-name teaching actions, all three selected artifacts in each of five builds. Exact primary outputs and typed SDK rejection/full in-memory Simulator equality. Runtime umbrellas have separate independent primary program failures; resources/infrastructure are inconclusive. Native calls, generic five-mode VM vectors, source controls and this composed SDK record remain distinct. No canonical registry port, BLS/general security/uniqueness/compiler-preservation proof, authenticated execution, production readiness, live Testnet11 or complete issue14 claim.",
+    "sdk": {
+      "consensus": "chia-consensus 0.36.1",
+      "max_block_cost_clvm": 11000000000,
+      "network": "TESTNET11",
+      "simulator": "chia-sdk-test 0.36.0",
+      "transaction_max_cost": 5500000000,
+      "vm": "clvmr 0.16.2"
+    },
+    "source_control_scope": "No source controls are included in this base producer. Research Chialisp controls and actual Rust source-mutant observations belong to separate captures and receive no credit from this record.",
+    "status": "validated",
+    "totals": {
+      "adversarial": {
+        "accepted": 10,
+        "component_primary_observations": 90,
+        "runtime_umbrellas": 25,
+        "scenario_runs": 5,
+        "sdk_transaction_attempts": 50,
+        "typed_consensus_rejections": 15
+      },
+      "adversarial_setup": {
+        "accepted": 10,
+        "component_primary_observations": 15,
+        "sdk_transaction_attempts": 10
+      },
+      "causal_primary": {
+        "accepted": 10,
+        "primary_observations": 15,
+        "typed_program_rejections": 5
+      },
+      "ordinary": {
+        "accepted": 30,
+        "component_primary_observations": 95,
+        "scenario_runs": 5,
+        "sdk_transaction_attempts": 55,
+        "typed_consensus_rejections": 25
+      }
+    }
+  },
+  "schema_version": 1,
+  "transport": "registry-slot-sidecars/v1"
+}

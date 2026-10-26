@@ -1,0 +1,27 @@
+[package]
+name = "chialisp-oxide-registry-controls"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# This testing package is deliberately outside the production workspace/corpus.
+[workspace]
+
+[features]
+default = []
+# Ordinary native tests only; extraction must retain the empty default profile.
+native-vm = ["chialisp-oxide/vm"]
+
+[dependencies]
+chialisp-oxide = { path = "../../crates/chialisp-oxide", version = "0.1.0", default-features = false }
+
+[dev-dependencies]
+# Baseline calls link the real unmodified puzzle exports; not used by extraction.
+chialisp-oxide-puzzles = { path = "../../puzzles", version = "0.1.0" }
+serde_json = "1"
+
+[profile.dev]
+overflow-checks = true
+
+[profile.test]
+overflow-checks = true

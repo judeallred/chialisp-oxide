@@ -13,8 +13,17 @@ import { checkDelegatedReport, checkDelegatedDisplay } from './p2dc-protocol.mjs
 import { checkBoomerangReport, checkBoomerangDisplay } from './boomerang-protocol.mjs';
 import { readBoomerangControls, checkBoomerangControlsDisplay, controlPacketRoot } from '../src/lib/boomerang-source-controls.mjs';
 import { siteFiles } from '../src/lib/site-files.mjs';
+import { readRegistryProtocol, checkRegistryDisplay, registryRoutes, registryHTMLLimit, readRegistryBytes } from '../src/lib/registry-protocol.mjs';
+import { readRegistrySourceControls, checkRegistryControlsDisplay } from '../src/lib/registry-source-controls.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
+const registryView = await readRegistryProtocol();
+assert(registryView, 'Complete current registry sidecars required before publication');
+for (const route of registryRoutes) checkRegistryDisplay(readRegistryBytes(path.join(root,route,'index.html'),registryHTMLLimit(route)).toString('utf8'),registryView,{route});
+const registryControls = await readRegistrySourceControls();
+assert(registryControls, 'Complete current registry Rust source controls required before publication');
+for (const route of registryRoutes) checkRegistryControlsDisplay(await readFile(path.join(root,route,'index.html'),'utf8'),registryControls);
+for (const file of registryControls.downloads) assert.deepEqual(await readFile(path.join(root,'reports/registry-source-controls',file.path)),registryControls.payloads.get(file.path),'Registry control download differs from the admitted complete packet');
 const base = '/chialisp-oxide/';
 const origin = 'https://judeallred.github.io';
 const compositionCosts = await loadCompositionCostEvidence();
@@ -1208,6 +1217,8 @@ try {
     ['lifecycle simulator journal', 'reference/lifecycle/'],
     ['genesis TAIL lifecycle', 'tutorials/cat-genesis-tail/'],
     ['counter reset state', 'tutorials/action-counter/'],
+    ['registry slots creator spender', 'tutorials/action-registry/'],
+    ['registry condition omission', 'tutorials/action-registry/'],
   ]) {
     const result = await pagefind.search(term);
     const matches = await Promise.all(result.results.map(row => row.data()));

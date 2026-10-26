@@ -1,0 +1,36 @@
+// Original independent finite alpha action; no canonical module claim.
+type State = (Int, (Bytes32, Bytes32));
+type Truth = (Any, State);
+fn canonical_bool(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length == 0 || encoded == 0x01;
+    value
+}
+fn entry_hash(name: Bytes32, value: Bytes32) -> Bytes32 {
+    sha256(0x02 + sha256(0x01 + name) + sha256(0x01 + value))
+}
+fn slot_hash(first: Bytes32, entry: Bytes32) -> Bytes32 {
+    curry_tree_hash(first, [tree_hash_atom(entry)])
+}
+
+const NAME: Bytes32 = 0x9489db9a064d172982734919528b3a7f5e204b93e55f277866c51ee50c6ce500;
+const DOMAIN: Bytes32 = 0xc7e42247b30f280c30dc303da3aa4f0d9bb26ca0535bd0b8cc3684355e8d69ae;
+fn main(...environment: Any) -> Any {
+    assert environment is (PublicKey, (Bytes32, (Truth, (Bytes32, (Bytes32, nil)))));
+    let owner = environment.first;
+    let first = environment.rest.first;
+    let truth = environment.rest.rest.first;
+    let old_value = environment.rest.rest.rest.first;
+    let new_value = environment.rest.rest.rest.rest.first;
+    let initialized = canonical_bool(truth.rest.first);
+    assert truth.first is nil;
+    assert initialized == 1;
+    let old_entry = entry_hash(NAME, old_value);
+    assert truth.rest.rest.first == old_entry;
+    let new_entry = entry_hash(NAME, new_value);
+    ((0x01, (1, (new_entry, truth.rest.rest.rest))), [
+        SendMessage { mode: 18, message: nil, receiver: [slot_hash(first, old_entry)] },
+        CreateCoin { puzzle_hash: slot_hash(first, new_entry), amount: 0, memos: Memos { value: [first] } },
+        AggSigMe { public_key: owner, message: sha256(DOMAIN + old_value + new_value) },
+    ])
+}

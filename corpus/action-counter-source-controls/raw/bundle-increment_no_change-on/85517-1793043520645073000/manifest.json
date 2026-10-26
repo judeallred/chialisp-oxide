@@ -1,0 +1,157 @@
+{
+  "analysis_target": "aarch64-apple-darwin",
+  "cargo_options": [
+    "--manifest-path",
+    "/Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change/Cargo.toml",
+    "--locked"
+  ],
+  "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+  "driver_sha256": "abaff4ba2215390db911609e86a4de1e93b04e319f263992eb561699360eeb58",
+  "entries": [
+    {
+      "artifact": {
+        "backend": "rust_mir",
+        "bytes": 591,
+        "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff02ffff03ffff07ff0680ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dff068080ffff01ff02ffff03ff06ffff01ff02ffff03ffff0affff01820080ff0680ffff01ff0880ffff01ff02ffff03ffff0affff0182ff80ff0680ffff01ff02ffff03ffff15ff06ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0680ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff8080ffff04ff02ffff04ffff04ff05ff0b80ff03808080ffff04ff02ffff04ff13ff03808080ffff04ff02ffff04ff0dff03808080ff8080ffff04ff02ff8080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff15ff06ffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0680ffff01ff02ffff03ff03ffff01ff0880ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ff80808080ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff05ff8080ffff04ff02ffff04ffff04ff05ff0b80ff03808080ffff04ff02ffff04ff13ff03808080ffff04ff02ffff04ff0dff03808080ff8080ffff04ff02ff8080808080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180",
+        "disassembly": "(a (i (l 1) (q 2 (i (l 2) (q 2 (i (l 6) (q 8) (q 2 (i (> (q . 10) (strlen 6)) (q 2 (i 6 (q 2 (i (>s (q . 128) 6) (q 8) (q 2 (i (>s (q . 0xff80) 6) (q 2 (i (> 6 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 6) (q 2 (i 3 (q 8) (q 2 (q 2 4 (c 2 (c 5 ()))) (c (c (q 2 (q 2 (q 2 (q 4 5 ()) (c 2 (c (c 5 11) 3))) (c 2 (c 19 3))) (c 2 (c 13 3))) ()) (c 2 ())))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (> 6 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 6) (q 2 (i 3 (q 8) (q 2 (q 2 4 (c 2 (c 5 ()))) (c (c (q 2 (q 2 (q 2 (q 4 5 ()) (c 2 (c (c 5 11) 3))) (c 2 (c 19 3))) (c 2 (c 13 3))) ()) (c 2 ())))) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1)",
+        "optimize_lir": true,
+        "tree_hash": "f02032bf9a73f7aef6d30ee5caff761d6aa0fc0d4de637574883ed3672c70744"
+      },
+      "clvm": "8764cc43ca09bf3380d589ce860f61c80a3dfd5bf0731eba5817f7adbe022179.clvm.hex",
+      "entry": "chialisp_oxide_action_counter::counter_increment::puzzle",
+      "ir": "8764cc43ca09bf3380d589ce860f61c80a3dfd5bf0731eba5817f7adbe022179.ir.json"
+    },
+    {
+      "artifact": {
+        "backend": "rust_mir",
+        "bytes": 911,
+        "clvm_hex": "ff02ffff03ffff07ff0180ffff01ff02ffff03ffff07ff0280ffff01ff0880ffff01ff02ffff03ffff09ffff0dff0280ffff013080ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0580ffff01ff02ffff03ffff07ff0d80ffff01ff0880ffff01ff02ffff03ffff15ffff010affff0dff0d8080ffff01ff02ffff03ff0dffff01ff02ffff03ffff0affff01820080ff0d80ffff01ff0880ffff01ff02ffff03ffff0affff0182ff80ff0d80ffff01ff02ffff03ffff15ff0dffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0d80ffff01ff02ffff03ff07ffff01ff0880ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bff8080808080ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ff0580ffff04ff02ffff04ffff04ff05ff8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff17ffff01ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a76312180808080ff03808080ffff04ff02ffff04ffff04ff05ff8080ff03808080ffff04ff02ffff04ff13ff03808080ffff04ffff01ff04ffff0132ffff04ff05ffff04ff0bff80808080ff808080ffff04ff02ffff04ff05ff808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff02ffff03ffff15ff0dffff0181ff80ffff01ff02ffff03ffff15ffff0189010000000000000000ff0d80ffff01ff02ffff03ff07ffff01ff0880ffff01ff02ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bff8080808080ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ff0580ffff04ff02ffff04ffff04ff05ff8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ffff04ff17ffff01ffa0636869616c6973702d6f786964652f636f756e7465722f72657365743a76312180808080ff03808080ffff04ff02ffff04ffff04ff05ff8080ff03808080ffff04ff02ffff04ff13ff03808080ffff04ffff01ff04ffff0132ffff04ff05ffff04ff0bff80808080ff808080ffff04ff02ffff04ff05ff808080808080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff018080ff0180ffff01ff088080ff0180",
+        "disassembly": "(a (i (l 1) (q 2 (i (l 2) (q 8) (q 2 (i (= (strlen 2) (q . 48)) (q 2 (i (l 3) (q 2 (i (l 5) (q 2 (i (l 13) (q 8) (q 2 (i (> (q . 10) (strlen 13)) (q 2 (i 13 (q 2 (i (>s (q . 128) 13) (q 8) (q 2 (i (>s (q . 0xff80) 13) (q 2 (i (> 13 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 13) (q 2 (i 7 (q 8) (q 2 (q 2 4 (c 2 (c 5 (c 11 ())))) (c (c (q 2 (q 2 (q 2 (q 2 (q 4 23 5) (c 2 (c (c 5 ()) 3))) (c 2 (c (a 10 (c 2 (c 23 (q \"chialisp-oxide/counter/reset:v1!\")))) 3))) (c 2 (c (c 5 ()) 3))) (c 2 (c 19 3))) (c (q 4 (q . 50) (c 5 (c 11 ()))) ())) (c 2 (c 5 ()))))) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 2 (i (> 13 (q . -1)) (q 2 (i (> (q . 0x010000000000000000) 13) (q 2 (i 7 (q 8) (q 2 (q 2 4 (c 2 (c 5 (c 11 ())))) (c (c (q 2 (q 2 (q 2 (q 2 (q 4 23 5) (c 2 (c (c 5 ()) 3))) (c 2 (c (a 10 (c 2 (c 23 (q \"chialisp-oxide/counter/reset:v1!\")))) 3))) (c 2 (c (c 5 ()) 3))) (c 2 (c 19 3))) (c (q 4 (q . 50) (c 5 (c 11 ()))) ())) (c 2 (c 5 ()))))) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1)) 1) (q 8)) 1)",
+        "optimize_lir": true,
+        "tree_hash": "2b3e97b35114b7b719fc32a6526ceb6c761bf9182092162bc6ea3841ab9d22db"
+      },
+      "clvm": "b16448d811d7e4272689dc6c6872ebf593cc73c3d002b5f3d5be5bd6f29db3cb.clvm.hex",
+      "entry": "chialisp_oxide_action_counter::counter_reset::puzzle",
+      "ir": "b16448d811d7e4272689dc6c6872ebf593cc73c3d002b5f3d5be5bd6f29db3cb.ir.json"
+    }
+  ],
+  "manifest_path": "/Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change/Cargo.toml",
+  "package": "chialisp-oxide-action-counter",
+  "package_id": "path+file:///Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change#chialisp-oxide-action-counter@0.0.0",
+  "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
+  "schema_version": 2,
+  "source_receipt": {
+    "build": {
+      "analysis_target": "aarch64-apple-darwin",
+      "cargo_options": [
+        "--manifest-path",
+        "/Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change/Cargo.toml",
+        "--locked"
+      ],
+      "compiler_sha256": "ca3c9664fd8f0aeff129afbc2eb652e98d0f851b3fb7e1a3df1506b19246dc51",
+      "driver_sha256": "abaff4ba2215390db911609e86a4de1e93b04e319f263992eb561699360eeb58",
+      "optimize_lir": true,
+      "package": "chialisp-oxide-action-counter",
+      "package_id": "path+file:///Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change#chialisp-oxide-action-counter@0.0.0",
+      "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
+      "toolchain": "nightly-2026-07-14"
+    },
+    "exports": [
+      {
+        "bytes": 4060,
+        "entry": "chialisp_oxide_action_counter::counter_increment::puzzle",
+        "ir": "8764cc43ca09bf3380d589ce860f61c80a3dfd5bf0731eba5817f7adbe022179.ir.json",
+        "sha256": "3e760636a55b5a81c3ab31d8a26021d859ef9833026237984bd620dd91c08d03"
+      },
+      {
+        "bytes": 9731,
+        "entry": "chialisp_oxide_action_counter::counter_reset::puzzle",
+        "ir": "b16448d811d7e4272689dc6c6872ebf593cc73c3d002b5f3d5be5bd6f29db3cb.ir.json",
+        "sha256": "fb7225a6d3520203add19b0e77f23e7fd28417f3954971577a3f860b1a7b9151"
+      }
+    ],
+    "files": [
+      {
+        "blob": "source-45374a5cb0a3509c97901041159e9548c6dd2d0ccee5cf3d85db54b7367edb99.bin",
+        "bytes": 89772,
+        "compiler_read_count": 0,
+        "kinds": [
+          "launcher_lockfile_post_cargo"
+        ],
+        "path": "package/Cargo.lock",
+        "sha256": "45374a5cb0a3509c97901041159e9548c6dd2d0ccee5cf3d85db54b7367edb99"
+      },
+      {
+        "blob": "source-0cbbf770256e780399f9e204657126d57eb9e5ee39c0b38b5e3ad4ca24e5cdad.bin",
+        "bytes": 1329,
+        "compiler_read_count": 0,
+        "kinds": [
+          "launcher_manifest"
+        ],
+        "path": "package/Cargo.toml",
+        "sha256": "0cbbf770256e780399f9e204657126d57eb9e5ee39c0b38b5e3ad4ca24e5cdad"
+      },
+      {
+        "blob": "source-fa5cc74ae11b9af282a62eb6af3b25035c7c222a2512112699bba39f916fe6fc.bin",
+        "bytes": 595,
+        "compiler_read_count": 1,
+        "kinds": [
+          "compiler_text"
+        ],
+        "path": "package/src/counter_increment.rs",
+        "sha256": "fa5cc74ae11b9af282a62eb6af3b25035c7c222a2512112699bba39f916fe6fc"
+      },
+      {
+        "blob": "source-4b6d214205d796a704f374b7499b376ca2130f0236b3e154d0ea43b6f54ee022.bin",
+        "bytes": 722,
+        "compiler_read_count": 1,
+        "kinds": [
+          "compiler_text"
+        ],
+        "path": "package/src/counter_reset.rs",
+        "sha256": "4b6d214205d796a704f374b7499b376ca2130f0236b3e154d0ea43b6f54ee022"
+      },
+      {
+        "blob": "source-001f365390f40f54b36b7490d0608f555f811f72deccb78949f323c0e0d0bef1.bin",
+        "bytes": 710,
+        "compiler_read_count": 1,
+        "kinds": [
+          "compiler_text"
+        ],
+        "path": "package/src/counter_types.rs",
+        "sha256": "001f365390f40f54b36b7490d0608f555f811f72deccb78949f323c0e0d0bef1"
+      },
+      {
+        "blob": "source-d7c150e409bccc5fe7758782422f8d670690ad065718cae82c0b60b26790e05d.bin",
+        "bytes": 242,
+        "compiler_read_count": 1,
+        "kinds": [
+          "compiler_text"
+        ],
+        "path": "package/src/lib.rs",
+        "sha256": "d7c150e409bccc5fe7758782422f8d670690ad065718cae82c0b60b26790e05d"
+      }
+    ],
+    "omitted": {
+      "outside_roots_bytes": 0,
+      "outside_roots_reads": 0
+    },
+    "protocol": "chialisp-oxide-declared-source/v1",
+    "scope": "selected_unit_reads_and_launcher_snapshots",
+    "snapshots": {
+      "build_script": null,
+      "lockfile": "package/Cargo.lock",
+      "package_manifest": "package/Cargo.toml",
+      "workspace_manifest": "package/Cargo.toml"
+    },
+    "unit": {
+      "analysis_target": "aarch64-apple-darwin",
+      "crate_name": "chialisp_oxide_action_counter",
+      "features": [],
+      "library_source": "package/src/lib.rs"
+    }
+  },
+  "status": "wip_prototype_not_ready_for_use",
+  "toolchain": "nightly-2026-07-14",
+  "workspace_root": "/Users/judeallred/code/clispOx/target/action14-registry-counter-refresh-a01/raw/projects/increment_no_change"
+}

@@ -1,0 +1,177 @@
+{
+  "protocol": "chialisp-oxide-registry-Rust-control-sources/v1",
+  "status": "formatted_source_scaffold_not_compiled_or_executed",
+  "recipe_original": {
+    "path": "puzzles/registry_recipe.rs",
+    "bytes": 3151,
+    "sha256": "237ebd130bfdd1900cc8b91eee83e5da82408cd1f9db19850d8aaf406e3296b3"
+  },
+  "recipe_copy": {
+    "path": "experiments/action-registry-source-controls/src/registry_recipe.rs",
+    "bytes": 3151,
+    "sha256": "237ebd130bfdd1900cc8b91eee83e5da82408cd1f9db19850d8aaf406e3296b3"
+  },
+  "variants": [
+    {
+      "id": "alpha-drop-send",
+      "entry": "chialisp_oxide_registry_controls::alpha_drop_send::puzzle",
+      "original": {
+        "path": "puzzles/registry-set-alpha/puzzle.rs",
+        "bytes": 1636,
+        "sha256": "5931cdb138f1c25984282ede319ddeecf67274db16334c15fbae313b77d35334"
+      },
+      "variant": {
+        "path": "experiments/action-registry-source-controls/src/alpha_drop_send.rs",
+        "bytes": 1714,
+        "sha256": "923ada00882238e166cd7ca854d95a659e1d2c44766cf02981bc591e57717eea"
+      },
+      "source_edits": [
+        {
+          "before": "            send_puzzle_message(slot_puzzle_hash(slot_first, old_entry)),\n",
+          "after": "",
+          "matches": 1
+        },
+        {
+          "before": ") -> SetOutput<'a> {",
+          "after": ") -> ControlOutput<'a> {",
+          "matches": 1
+        },
+        {
+          "before": "use crate::registry_recipe::{\n    ALPHA_NAME, RegistryTruth, SET_ALPHA_DOMAIN, SLOT_AMOUNT, SetOutput, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "after": "use crate::registry_recipe::{\n    ALPHA_NAME, RegistryTruth, SET_ALPHA_DOMAIN, SLOT_AMOUNT, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "matches": 1
+        },
+        {
+          "before": "use chialisp_oxide::{\n    Cons, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint, send_puzzle_message,\n};",
+          "after": "use chialisp_oxide::{\n    AggSigMe, Cons, CreateCoinWithHint, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint,\n};\n\npub type ControlOutput<'a> = Cons<RegistryTruth<'a>, (CreateCoinWithHint, AggSigMe)>;",
+          "matches": 1
+        }
+      ],
+      "additional_doc_prefix": "//! Testing variant: omit exactly the returned SEND condition.\n",
+      "input_ABI": "unchanged strict five-argument setter",
+      "output_ABI": "Cons<RegistryTruth<'a>, (CreateCoinWithHint, AggSigMe)>",
+      "limitation": "Original shared SetOutput untouched. Source transformation does not establish compilation or behavior; all execution phases pending."
+    },
+    {
+      "id": "alpha-drop-create",
+      "entry": "chialisp_oxide_registry_controls::alpha_drop_create::puzzle",
+      "original": {
+        "path": "puzzles/registry-set-alpha/puzzle.rs",
+        "bytes": 1636,
+        "sha256": "5931cdb138f1c25984282ede319ddeecf67274db16334c15fbae313b77d35334"
+      },
+      "variant": {
+        "path": "experiments/action-registry-source-controls/src/alpha_drop_create.rs",
+        "bytes": 1609,
+        "sha256": "3d345745618fdbf7552796cc463a5f71e2282883ebb50f46ed8ab0c48796ae39"
+      },
+      "source_edits": [
+        {
+          "before": "            create_coin_with_hint(\n                slot_puzzle_hash(slot_first, new_entry),\n                SLOT_AMOUNT,\n                slot_first,\n            ),\n",
+          "after": "",
+          "matches": 1
+        },
+        {
+          "before": ") -> SetOutput<'a> {",
+          "after": ") -> ControlOutput<'a> {",
+          "matches": 1
+        },
+        {
+          "before": "use crate::registry_recipe::{\n    ALPHA_NAME, RegistryTruth, SET_ALPHA_DOMAIN, SLOT_AMOUNT, SetOutput, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "after": "use crate::registry_recipe::{\n    ALPHA_NAME, RegistryTruth, SET_ALPHA_DOMAIN, entry_commitment, require_unused_ephemeral,\n    returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "matches": 1
+        },
+        {
+          "before": "use chialisp_oxide::{\n    Cons, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint, send_puzzle_message,\n};",
+          "after": "use chialisp_oxide::{\n    AggSigMe, Cons, PublicKey, PuzzleHash, SendPuzzleMessage, agg_sig_me, send_puzzle_message,\n};\n\npub type ControlOutput<'a> = Cons<RegistryTruth<'a>, (SendPuzzleMessage, AggSigMe)>;",
+          "matches": 1
+        }
+      ],
+      "additional_doc_prefix": "//! Testing variant: omit exactly the returned CREATE condition.\n",
+      "input_ABI": "unchanged strict five-argument setter",
+      "output_ABI": "Cons<RegistryTruth<'a>, (SendPuzzleMessage, AggSigMe)>",
+      "limitation": "Original shared SetOutput untouched. Source transformation does not establish compilation or behavior; all execution phases pending."
+    },
+    {
+      "id": "beta-drop-send",
+      "entry": "chialisp_oxide_registry_controls::beta_drop_send::puzzle",
+      "original": {
+        "path": "puzzles/registry-set-beta/puzzle.rs",
+        "bytes": 1475,
+        "sha256": "3ca55ba9cdbb605a4eddea581f041d9aa80dfb9881a010fb32f4d3d95476f25d"
+      },
+      "variant": {
+        "path": "experiments/action-registry-source-controls/src/beta_drop_send.rs",
+        "bytes": 1553,
+        "sha256": "7629d24c6fc82a234b1e76710f156ecb55d0ae5e77371c08ddb32e2efb0cb1c7"
+      },
+      "source_edits": [
+        {
+          "before": "            send_puzzle_message(slot_puzzle_hash(slot_first, old_entry)),\n",
+          "after": "",
+          "matches": 1
+        },
+        {
+          "before": ") -> SetOutput<'a> {",
+          "after": ") -> ControlOutput<'a> {",
+          "matches": 1
+        },
+        {
+          "before": "use crate::registry_recipe::{\n    BETA_NAME, RegistryTruth, SET_BETA_DOMAIN, SLOT_AMOUNT, SetOutput, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "after": "use crate::registry_recipe::{\n    BETA_NAME, RegistryTruth, SET_BETA_DOMAIN, SLOT_AMOUNT, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "matches": 1
+        },
+        {
+          "before": "use chialisp_oxide::{\n    Cons, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint, send_puzzle_message,\n};",
+          "after": "use chialisp_oxide::{\n    AggSigMe, Cons, CreateCoinWithHint, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint,\n};\n\npub type ControlOutput<'a> = Cons<RegistryTruth<'a>, (CreateCoinWithHint, AggSigMe)>;",
+          "matches": 1
+        }
+      ],
+      "additional_doc_prefix": "//! Testing variant: omit exactly the returned SEND condition.\n",
+      "input_ABI": "unchanged strict five-argument setter",
+      "output_ABI": "Cons<RegistryTruth<'a>, (CreateCoinWithHint, AggSigMe)>",
+      "limitation": "Original shared SetOutput untouched. Source transformation does not establish compilation or behavior; all execution phases pending."
+    },
+    {
+      "id": "beta-drop-create",
+      "entry": "chialisp_oxide_registry_controls::beta_drop_create::puzzle",
+      "original": {
+        "path": "puzzles/registry-set-beta/puzzle.rs",
+        "bytes": 1475,
+        "sha256": "3ca55ba9cdbb605a4eddea581f041d9aa80dfb9881a010fb32f4d3d95476f25d"
+      },
+      "variant": {
+        "path": "experiments/action-registry-source-controls/src/beta_drop_create.rs",
+        "bytes": 1448,
+        "sha256": "931eb3ce073442dfec4ff8f96db87ab2291b16c72f4d461f74a8c64e851dddda"
+      },
+      "source_edits": [
+        {
+          "before": "            create_coin_with_hint(\n                slot_puzzle_hash(slot_first, new_entry),\n                SLOT_AMOUNT,\n                slot_first,\n            ),\n",
+          "after": "",
+          "matches": 1
+        },
+        {
+          "before": ") -> SetOutput<'a> {",
+          "after": ") -> ControlOutput<'a> {",
+          "matches": 1
+        },
+        {
+          "before": "use crate::registry_recipe::{\n    BETA_NAME, RegistryTruth, SET_BETA_DOMAIN, SLOT_AMOUNT, SetOutput, entry_commitment,\n    require_unused_ephemeral, returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "after": "use crate::registry_recipe::{\n    BETA_NAME, RegistryTruth, SET_BETA_DOMAIN, entry_commitment, require_unused_ephemeral,\n    returned_truth, slot_puzzle_hash, update_intent,\n};",
+          "matches": 1
+        },
+        {
+          "before": "use chialisp_oxide::{\n    Cons, PublicKey, PuzzleHash, agg_sig_me, create_coin_with_hint, send_puzzle_message,\n};",
+          "after": "use chialisp_oxide::{\n    AggSigMe, Cons, PublicKey, PuzzleHash, SendPuzzleMessage, agg_sig_me, send_puzzle_message,\n};\n\npub type ControlOutput<'a> = Cons<RegistryTruth<'a>, (SendPuzzleMessage, AggSigMe)>;",
+          "matches": 1
+        }
+      ],
+      "additional_doc_prefix": "//! Testing variant: omit exactly the returned CREATE condition.\n",
+      "input_ABI": "unchanged strict five-argument setter",
+      "output_ABI": "Cons<RegistryTruth<'a>, (SendPuzzleMessage, AggSigMe)>",
+      "limitation": "Original shared SetOutput untouched. Source transformation does not establish compilation or behavior; all execution phases pending."
+    }
+  ],
+  "scope": "Exact source recipes for tests; not semantic trust, successful compilation, VM or SDK evidence."
+}

@@ -1,0 +1,76 @@
+---
+import { href, type PuzzleReport } from '../lib/data';
+import { readRegistryProtocol, registryAttr, registrySlugs } from '../lib/registry-protocol.mjs';
+
+interface Artifact { slug: string; bytes: number; moduleHash: string; curriedHash: string }
+interface Progress { name: string; initialized: boolean; alphaHash: string; betaHash: string; coinId: string; parentId: string; puzzleHash: string }
+interface Slot { name: string; coinId: string; parentId: string; puzzleHash: string; creatorId: string; entryHash: string; amount: number }
+interface Attempt { lane: string; name: string; status: string; stage: string; code: string; fullEquality: string; costs: string[] }
+interface Causal { name: string; ephemeral: string; oldValue: string; newValue: string; environment: string; status: string; code: string; cost: string }
+interface Signature { name: string; signature: string; status: string; stage: string; code: string }
+interface Build { mode: string; label: string; artifacts: Artifact[]; root: string; progress: Progress[]; slots: Slot[]; binding: Record<string,string|number>; isolation: Record<string,string|boolean>; signatures: Signature[]; attempts: Attempt[]; causal: Causal[]; mutations: { name: string; values: { key: string; value: string }[] }[]; cost: Record<string,number> }
+interface View { counts: Record<string,number>; builds: Build[]; canonical: { name: string; bytes: number; moduleHash: string; blobSHA: string }[]; sourceControlScope: string; owner: string; nonce: string; versions: Record<string,string|number>; scope: string[]; indexSHA: string; downloads: { path: string; filename: string; bytes: number; sha256: string }[] }
+interface Props { puzzle?: PuzzleReport }
+const { puzzle } = Astro.props as Props;
+if (puzzle && !registrySlugs.includes(puzzle.slug)) throw new Error('RegistryProtocol requires a registry action');
+const evidence = await readRegistryProtocol() as View | null;
+---
+{evidence ? <section id="registry-slot-lifecycle" data-registry-protocol="registry-slot-sidecars/v1" aria-label="Local two-name registry and canonical slot lifecycle">
+  <h2>Read and replace actual singleton slots</h2>
+  <p><strong>WIP prototype; not ready for real funds.</strong> Original fixed two-name teaching actions use all three selected actions in each build. This is the same five-build group on every view; do not add the views together. It is separate from ordinary ledger scenario groups and raw vectors.</p>
+  <p>Python owns complete wire and causal admission: the gate checks all fifteen artifacts and eleven physical files before this view. This is not an independently complete JS validator. These are recorded local observations, not execution authentication or compiler preservation; there is no BLS or general uniqueness proof and no live Testnet11 acceptance or complete issue #14 claim. Separately, this base view adds no Rust source-mutant credit.</p>
+  <p data-registry-source-controls-scope>{evidence.sourceControlScope}</p>
+  <div class="registry-counts"><dl>{Object.entries(evidence.counts).map(([key,value])=><div><dt>{key.replace(/[A-Z]/g,letter=>' '+letter.toLowerCase())}</dt><dd><strong data-registry-count={key}>{value}</strong></dd></div>)}</dl></div>
+  <p>The base ordinary lane has 55 SDK submissions and 95 primary component VM observations. The separate adversarial lane has 50 submissions and 90 observations; its setup has ten submissions and fifteen observations. Fifteen further causal primary observations isolate the ephemeral guard and are not SDK attempts. Runtime umbrellas are independently resolved as typed primary program failures; they earn no exact semantic consensus-rejection credit.</p>
+  <p>Public fixture owner: <code data-registry-owner>{evidence.owner}</code>. Opaque nonce decimal string: <code data-registry-nonce>{evidence.nonce}</code>; preserve atom hex <code>434f5852454731</code>, rather than a JavaScript Number.</p>
+  <p class="registry-versions">{Object.entries(evidence.versions).map(([key,value])=><><strong>{key}</strong>: <code>{value}</code>; </>)}</p>
+  {evidence.builds.map(build=><details data-registry-build={build.mode}>
+    <summary>{build.label} · 11 ordinary + 10 adversarial + 2 separate setup submissions</summary>
+    <p>Committed action Merkle root: <code data-registry-root>{build.root}</code>. All three module identities below belong to this build.</p>
+    <div class="registry-scroll"><table><caption>Actual selected modules</caption><thead><tr><th>Action</th><th>Bytes</th><th>Uncurried module tree hash</th><th>Curried action leaf tree hash</th></tr></thead><tbody>{build.artifacts.map(artifact=><tr data-registry-module={artifact.slug}><th><a href={href(`lab/${artifact.slug}/`)}>{artifact.slug}</a></th><td data-registry-module-bytes>{artifact.bytes}</td><td><code data-registry-module-hash>{artifact.moduleHash}</code></td><td><code data-registry-leaf-hash>{artifact.curriedHash}</code></td></tr>)}</tbody></table></div>
+    <h3>State and actual controller children</h3>
+    <p>Initialize both zero values, set alpha to <code>11</code> repeated 32 bytes, set beta to <code>22</code> repeated 32 bytes, then perform two alpha no-ops. A no-op preserves the reveal hash while changing the actual coin ID.</p>
+    <div class="registry-scroll"><table><caption>Controller state progression: exact commitments and coin relations</caption><thead><tr><th>Coin</th><th>Initialized</th><th>Alpha hash</th><th>Beta hash</th><th>Coin ID</th><th>Parent ID</th><th>Puzzle hash</th></tr></thead><tbody>{build.progress.map(row=><tr data-registry-progress={row.name}>{Object.entries(row).map(([key,value])=><td><code {...{[`data-registry-state-${registryAttr(key)}`]:''}}>{String(value)}</code></td>)}</tr>)}</tbody></table></div>
+    <div class="registry-scroll"><table><caption>Separate zero-mojo slots and their actual creators</caption><thead><tr><th>Slot</th><th>Coin ID</th><th>Parent ID</th><th>Puzzle hash</th><th>Creator ID</th><th>Entry hash</th><th>Amount</th></tr></thead><tbody>{build.slots.map(row=><tr data-registry-slot={row.name}>{Object.entries(row).map(([key,value])=><td><code {...{[`data-registry-slot-${registryAttr(key)}`]:''}}>{String(value)}</code></td>)}</tr>)}</tbody></table></div>
+    <h3>Older creator, current spender</h3>
+    <p>Beta's slot was created by Eve and consumed by C2. Its creator proof is not current singleton lineage. SLOT emits ASSERT_MY_PARENT_ID for the creator and RECEIVE_MESSAGE from the current full controller puzzle hash. Mode 18 binds puzzle hashes, not coin IDs. Zero amount is this policy's construction, not an extra canonical SLOT guard.</p>
+    <dl class="registry-witnesses">{Object.entries(build.binding).map(([key,value])=><div><dt>{key}</dt><dd><code {...{[`data-registry-binding-${registryAttr(key)}`]:''}}>{String(value)}</code></dd></div>)}</dl>
+    <h3>One fresh controller, consumed slot versus live replacement</h3>
+    <p>The negative and positive use the same C4 controller spend and signature. Only the slot coin and its own correct creator proof change. The consumed A1 produces exact <code>DoubleSpend</code> with full simulator equality; live A2 succeeds. This isolates slot spentness from replaying a consumed controller.</p>
+    <dl class="registry-witnesses">{Object.entries(build.isolation).map(([key,value])=><div><dt>{key}</dt><dd><code {...{[`data-registry-isolation-${registryAttr(key)}`]:''}}>{String(value)}</code></dd></div>)}</dl>
+    <h3>Actual signature controls</h3>
+    <p>Missing and nonempty wrong-key signatures submit the valid controller/slot pair. The SDK's consensus result is separate from a signer's preflight.</p>
+    {build.signatures.map(row=><article data-registry-signature={row.name}><h4>{row.name}</h4><dl class="registry-witnesses">{Object.entries(row).map(([key,value])=><div><dt>{key}</dt><dd><code {...{[`data-registry-signature-${registryAttr(key)}`]:''}}>{value}</code></dd></div>)}</dl></article>)}
+    <h3>Every named submission and its primary costs</h3>
+    <div class="registry-scroll"><table><caption>Separate ordinary, adversarial and setup lanes</caption><thead><tr><th>Lane</th><th>Name</th><th>Outcome</th><th>Class</th><th>Code</th><th>Full state equality after rejection</th><th>Primary costs, in component order</th></tr></thead><tbody>{build.attempts.map(row=><tr data-registry-attempt={`${row.lane}/${row.name}`}><td data-registry-attempt-lane>{row.lane}</td><th><code data-registry-attempt-name>{row.name}</code></th><td data-registry-attempt-status>{row.status}</td><td data-registry-attempt-stage>{row.stage}</td><td><code data-registry-attempt-code>{row.code}</code></td><td data-registry-attempt-full-equality>{row.fullEquality}</td><td data-registry-attempt-costs>{row.costs.join(' / ')}</td></tr>)}</tbody></table></div>
+    <h3>Membership, creator and old-value mutations</h3>
+    {build.mutations.map(row=><article data-registry-mutation={row.name}><h4>{row.name}</h4><dl class="registry-witnesses">{row.values.map(({key,value})=><div><dt>{key}</dt><dd><code {...{[`data-registry-mutation-${registryAttr(key)}`]:''}}>{value}</code></dd></div>)}</dl></article>)}
+    <h3>Isolate the one-action ephemeral guard</h3>
+    <p>The second-action pair keeps the post-first-action state and old/new values equal. Only ephemeral <code>01</code> versus nil changes. The used tag raises; nil accepts. These three observations are primary VM runs, not SDK submissions.</p>
+    <div class="registry-scroll"><table><caption>Actual causal action environments and outcomes</caption><tbody>{build.causal.map(row=><tr data-registry-causal={row.name}>{Object.entries(row).map(([key,value])=><td><small>{key}</small><code {...{[`data-registry-causal-${registryAttr(key)}`]:''}}>{value}</code></td>)}</tr>)}</tbody></table></div>
+    <p>Primary VM cost totals below sum successful components only; rejected components have unavailable costs. SDK condition and charged generator costs are not recorded by this journal and are not included.</p>
+    <dl>{Object.entries(build.cost).map(([key,value])=><div><dt>{key} successful primary cost</dt><dd><code {...{[`data-registry-cost-${key}`]:''}}>{value}</code></dd></div>)}</dl>
+  </details>)}
+  <h3>Canonical hosts, exact provenance and license boundaries</h3>
+  <p>The action layer, default finalizer, singleton launcher/top layer, SLOT and standard wallet are separate canonical hosts. The original actions are not Rust ports of those hosts. Pinned <a href="https://github.com/Yakuhito/slot-machine/tree/6edc94856306d0f77e065c6c99aacf1055e51e2f">Slot Machine source</a> retains Prosperity Public License 3.0.0 while Cargo metadata says MIT. The <a href="https://github.com/xch-dev/chia-wallet-sdk/tree/e9a08f6e54ea5132f7da06327836a3b386a944b1">SDK</a>'s Apache-2.0 does not establish an upstream relicense. Original policy source inherits no upstream grant.</p>
+  <div class="registry-scroll"><table><caption>Exact canonical module identities in the admitted index</caption><thead><tr><th>Name</th><th>Bytes</th><th>Tree hash</th><th>Serialized SHA-256</th></tr></thead><tbody>{evidence.canonical.map(row=><tr data-registry-canonical={row.name}>{Object.entries(row).map(([key,value])=><td><code {...{[`data-registry-canonical-${registryAttr(key)}`]:''}}>{value}</code></td>)}</tr>)}</tbody></table></div>
+  <h3>All eleven exact physical journal files</h3>
+  <p>Index SHA-256: <code data-registry-index-sha>{evidence.indexSHA}</code>. Full transactions, solutions and outputs stay in these bounded downloads rather than being embedded in this page. Missing or stale data fails the built evidence gate.</p>
+  <ul class="registry-downloads">{evidence.downloads.map(file=><li><a data-registry-download={file.path} href={href(`reports/${file.path}`)}>{file.filename}</a> · <code data-registry-download-bytes={file.path}>{file.bytes}</code> bytes · SHA-256 <code data-registry-download-sha={file.path}>{file.sha256}</code></li>)}</ul>
+</section> : <section id="registry-slot-lifecycle" data-registry-pending><h2>Registry and slot evidence is pending</h2><p><strong>WIP prototype; not ready for real funds.</strong> Fresh complete integration evidence is not installed. Earlier target-only research does not establish current execution. This local pending view adds no SDK, Rust source-mutant, live-network or whole issue #14 credit. The built publication gate requires the complete admitted triplet and all eleven physical files.</p></section>}
+<style>
+  section { margin-block: 2rem; }
+  details { border: 1px solid var(--oxide-line); border-radius: .35rem; margin-block: 1rem; padding: .8rem; }
+  summary { cursor: pointer; font-weight: 650; line-height: 1.6; }
+  code { white-space: normal; overflow-wrap: anywhere; word-break: break-word; font-size: .76rem; }
+  .registry-scroll { overflow-x: auto; max-width: 100%; }
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  td, th { vertical-align: top; border-bottom: 1px solid var(--oxide-line); padding: .45rem; min-width: 6rem; }
+  td code { display: block; }
+  .registry-witnesses { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap: .75rem; }
+  dt { font-size: .8rem; font-weight: 650; } dd { margin-inline-start: 0; min-width: 0; }
+  .registry-counts dl { display: grid; grid-template-columns: repeat(auto-fit,minmax(8rem,1fr)); gap: .65rem; }
+  .registry-versions { line-height: 1.8; }
+  .registry-downloads li { margin-block: .8rem; }
+  article { border-top: 1px solid var(--oxide-line); margin-block: .7rem; }
+</style>

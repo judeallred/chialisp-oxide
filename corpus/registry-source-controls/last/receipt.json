@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "target": "/Users/judeallred/code/clispOx/target",
+  "toolchain": "nightly-2026-07-14",
+  "jobs": 2,
+  "scope": "Native/build phase only; no frontend, ABI, VM, SDK, live or proof credit.",
+  "gates": [
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--workspace",
+        "--bins",
+        "--examples",
+        "--locked",
+        "--offline",
+        "-j",
+        "2"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.2845329999981914
+    }
+  ],
+  "source_and_tool_window_quiet": true,
+  "source_members": 849
+}

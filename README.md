@@ -138,7 +138,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records thirty-seven
+The locally validated [corpus report](corpus/validation.json) records forty
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -159,14 +159,14 @@ module with separate curried-instance observations, plus canonical pay-to-single
 with dedicated counterpart composition evidence, and canonical delegated
 conditions with owner-key and signature/reveal checks, and an original boomerang
 payment with terms committed before funding, the original precommit claim/registry
-pair, a canonical genesis-by-coin-ID CAT TAIL, and two original counter actions. The
+pair, a canonical genesis-by-coin-ID CAT TAIL, two original counter actions, and three original fixed two-name registry actions. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The Using Modules ports compile the
 original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-906 explicit vectors and 27,281 generated integer/tree/byte cases against five CLVM
+941 explicit vectors and 27,281 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Sixty-two
 complete-spend scenario groups run for each selected language build (186 ledger
 scenario runs). The eight original condition-producing teaching fixtures,
@@ -245,6 +245,17 @@ compiled Chialisp counterpart: 60 SDK submissions and 70 primary component VM
 observations. Canonical host layers, dedicated source mutations, registry/slot
 work and live-network evidence have separate scopes. Counter bundle replay does
 not satisfy issue #14's actual slot double-spend requirement.
+
+The [registry actions](docs/action-registry.md) initialize two zero-value slots
+and update their commitments through actual canonical SLOT spends. Five-build
+base evidence has 35 named vectors, 115 SDK submissions and 215 component VM
+observations in separately counted ordinary, adversarial, setup and causal lanes.
+A freshly signed live controller is paired with a consumed slot and then its
+replacement to isolate typed double-spend rejection. Four Rust condition-omission
+variants have separate native outputs, eight template executions and eight
+own-root SDK groups (24 submissions, 36 primaries); their repeat adds no coverage.
+These are original teaching policies, not CATalog or XCHandles ports, live chain
+acceptance, production readiness or compiler-preservation proofs.
 
 The retained unsigned source-only checkpoint reduces the optimized Rust module from 1,972
 to 1,685 bytes. In the recorded accepted joint transaction, total conditions

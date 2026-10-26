@@ -202,6 +202,11 @@ fn main() -> Result<()> {
                 chialisp_oxide_corpus::authoring()? == authoring,
                 "Cargo inputs changed during corpus validation"
             );
+            let sidecars = chialisp_oxide_corpus::registry_sidecars(&mut reports)?;
+            ensure!(
+                chialisp_oxide_corpus::authoring()? == authoring,
+                "Cargo inputs changed during registry protocol validation"
+            );
             let report = json!({
                 "schema_version": 1, "authoring": authoring,
                 "toolchain": compiler.trim(), "rue_revision": RUE_REV,
@@ -218,7 +223,56 @@ fn main() -> Result<()> {
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
             }
-            std::fs::write(&path, serde_json::to_string_pretty(&report)? + "\n")?;
+            if let Some(sidecars) = sidecars {
+                let parent = path.parent().unwrap_or_else(|| Path::new("."));
+                let directory = parent.join("registry-slot-protocol");
+                if let Ok(metadata) = std::fs::symlink_metadata(&directory) {
+                    ensure!(
+                        metadata.file_type().is_dir(),
+                        "registry sidecar destination must be a real directory"
+                    );
+                    let mut existing = std::collections::BTreeSet::new();
+                    for (index, entry) in std::fs::read_dir(&directory)?.enumerate() {
+                        ensure!(
+                            index < 11,
+                            "registry sidecar destination exceeds eleven entries"
+                        );
+                        existing.insert(entry?.file_name());
+                    }
+                    let expected = sidecars
+                        .files
+                        .keys()
+                        .map(|name| Path::new(name).file_name().unwrap().to_os_string())
+                        .collect::<std::collections::BTreeSet<_>>();
+                    ensure!(
+                        existing == expected,
+                        "registry sidecar destination has an unexpected inventory"
+                    );
+                } else {
+                    std::fs::create_dir(&directory)?;
+                }
+                for (name, bytes) in sidecars.files {
+                    let destination = parent.join(name);
+                    if let Ok(metadata) = std::fs::symlink_metadata(&destination) {
+                        ensure!(
+                            metadata.file_type().is_file(),
+                            "registry sidecar must be a regular file"
+                        );
+                    }
+                    use std::io::Write;
+                    let mut staged = tempfile::NamedTempFile::new_in(&directory)?;
+                    staged.write_all(&bytes)?;
+                    staged.persist(destination)?;
+                }
+            }
+            // Keep every evidence value while avoiding repeated indentation
+            // consuming the bounded report transport as the corpus grows.
+            let mut encoded = Vec::new();
+            let formatter = serde_json::ser::PrettyFormatter::with_indent(b" ");
+            let mut serializer = serde_json::Serializer::with_formatter(&mut encoded, formatter);
+            serde::Serialize::serialize(&report, &mut serializer)?;
+            encoded.push(b'\n');
+            std::fs::write(&path, encoded)?;
             eprintln!(
                 "Validated {} fixtures; report {}",
                 reports.len(),

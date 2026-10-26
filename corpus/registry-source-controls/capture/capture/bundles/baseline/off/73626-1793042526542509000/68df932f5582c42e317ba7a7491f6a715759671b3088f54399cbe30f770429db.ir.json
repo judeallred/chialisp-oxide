@@ -1,0 +1,2135 @@
+{
+  "ir_version": 4,
+  "environment": "raw",
+  "program": {
+    "name": "chialisp_oxide_puzzles::p2_singleton::puzzle",
+    "parameters": [
+      {
+        "name": "environment",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tuple",
+      "items": [
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 1
+            }
+          ]
+        },
+        {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "tree"
+            }
+          ]
+        }
+      ]
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_puzzles::p2_singleton::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 1
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "tree"
+                }
+              ]
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "reject",
+              "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "let",
+                "local_id": 1,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_first",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_rest",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "int",
+                      "bits": 8,
+                      "signed": false
+                    },
+                    "value": {
+                      "op": "if",
+                      "condition": {
+                        "op": "tree_is_pair",
+                        "value": {
+                          "op": "local",
+                          "local_id": 2
+                        }
+                      },
+                      "then_value": {
+                        "op": "int",
+                        "value": "1",
+                        "ty": {
+                          "kind": "int",
+                          "bits": 8,
+                          "signed": false
+                        }
+                      },
+                      "else_value": {
+                        "op": "int",
+                        "value": "0",
+                        "ty": {
+                          "kind": "int",
+                          "bits": 8,
+                          "signed": false
+                        }
+                      }
+                    },
+                    "body": {
+                      "op": "if",
+                      "condition": {
+                        "op": "not",
+                        "value": {
+                          "op": "tree_is_pair",
+                          "value": {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        }
+                      },
+                      "then_value": {
+                        "op": "reject",
+                        "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+                      },
+                      "else_value": {
+                        "op": "if",
+                        "condition": {
+                          "op": "tree_is_pair",
+                          "value": {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        },
+                        "then_value": {
+                          "op": "let",
+                          "local_id": 4,
+                          "ty": {
+                            "kind": "tree"
+                          },
+                          "value": {
+                            "op": "tree_first",
+                            "value": {
+                              "op": "local",
+                              "local_id": 2
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 5,
+                            "ty": {
+                              "kind": "tree"
+                            },
+                            "value": {
+                              "op": "tree_rest",
+                              "value": {
+                                "op": "local",
+                                "local_id": 2
+                              }
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 6,
+                              "ty": {
+                                "kind": "int",
+                                "bits": 8,
+                                "signed": false
+                              },
+                              "value": {
+                                "op": "if",
+                                "condition": {
+                                  "op": "tree_is_pair",
+                                  "value": {
+                                    "op": "local",
+                                    "local_id": 5
+                                  }
+                                },
+                                "then_value": {
+                                  "op": "int",
+                                  "value": "1",
+                                  "ty": {
+                                    "kind": "int",
+                                    "bits": 8,
+                                    "signed": false
+                                  }
+                                },
+                                "else_value": {
+                                  "op": "int",
+                                  "value": "0",
+                                  "ty": {
+                                    "kind": "int",
+                                    "bits": 8,
+                                    "signed": false
+                                  }
+                                }
+                              },
+                              "body": {
+                                "op": "if",
+                                "condition": {
+                                  "op": "not",
+                                  "value": {
+                                    "op": "tree_is_pair",
+                                    "value": {
+                                      "op": "local",
+                                      "local_id": 5
+                                    }
+                                  }
+                                },
+                                "then_value": {
+                                  "op": "reject",
+                                  "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+                                },
+                                "else_value": {
+                                  "op": "if",
+                                  "condition": {
+                                    "op": "tree_is_pair",
+                                    "value": {
+                                      "op": "local",
+                                      "local_id": 5
+                                    }
+                                  },
+                                  "then_value": {
+                                    "op": "let",
+                                    "local_id": 7,
+                                    "ty": {
+                                      "kind": "tree"
+                                    },
+                                    "value": {
+                                      "op": "tree_first",
+                                      "value": {
+                                        "op": "local",
+                                        "local_id": 5
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 8,
+                                      "ty": {
+                                        "kind": "tree"
+                                      },
+                                      "value": {
+                                        "op": "tree_rest",
+                                        "value": {
+                                          "op": "local",
+                                          "local_id": 5
+                                        }
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 9,
+                                        "ty": {
+                                          "kind": "int",
+                                          "bits": 8,
+                                          "signed": false
+                                        },
+                                        "value": {
+                                          "op": "if",
+                                          "condition": {
+                                            "op": "tree_is_pair",
+                                            "value": {
+                                              "op": "local",
+                                              "local_id": 8
+                                            }
+                                          },
+                                          "then_value": {
+                                            "op": "int",
+                                            "value": "1",
+                                            "ty": {
+                                              "kind": "int",
+                                              "bits": 8,
+                                              "signed": false
+                                            }
+                                          },
+                                          "else_value": {
+                                            "op": "int",
+                                            "value": "0",
+                                            "ty": {
+                                              "kind": "int",
+                                              "bits": 8,
+                                              "signed": false
+                                            }
+                                          }
+                                        },
+                                        "body": {
+                                          "op": "if",
+                                          "condition": {
+                                            "op": "not",
+                                            "value": {
+                                              "op": "tree_is_pair",
+                                              "value": {
+                                                "op": "local",
+                                                "local_id": 8
+                                              }
+                                            }
+                                          },
+                                          "then_value": {
+                                            "op": "reject",
+                                            "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+                                          },
+                                          "else_value": {
+                                            "op": "if",
+                                            "condition": {
+                                              "op": "tree_is_pair",
+                                              "value": {
+                                                "op": "local",
+                                                "local_id": 8
+                                              }
+                                            },
+                                            "then_value": {
+                                              "op": "let",
+                                              "local_id": 10,
+                                              "ty": {
+                                                "kind": "tree"
+                                              },
+                                              "value": {
+                                                "op": "tree_first",
+                                                "value": {
+                                                  "op": "local",
+                                                  "local_id": 8
+                                                }
+                                              },
+                                              "body": {
+                                                "op": "let",
+                                                "local_id": 11,
+                                                "ty": {
+                                                  "kind": "tree"
+                                                },
+                                                "value": {
+                                                  "op": "tree_rest",
+                                                  "value": {
+                                                    "op": "local",
+                                                    "local_id": 8
+                                                  }
+                                                },
+                                                "body": {
+                                                  "op": "let",
+                                                  "local_id": 12,
+                                                  "ty": {
+                                                    "kind": "int",
+                                                    "bits": 8,
+                                                    "signed": false
+                                                  },
+                                                  "value": {
+                                                    "op": "if",
+                                                    "condition": {
+                                                      "op": "tree_is_pair",
+                                                      "value": {
+                                                        "op": "local",
+                                                        "local_id": 11
+                                                      }
+                                                    },
+                                                    "then_value": {
+                                                      "op": "int",
+                                                      "value": "1",
+                                                      "ty": {
+                                                        "kind": "int",
+                                                        "bits": 8,
+                                                        "signed": false
+                                                      }
+                                                    },
+                                                    "else_value": {
+                                                      "op": "int",
+                                                      "value": "0",
+                                                      "ty": {
+                                                        "kind": "int",
+                                                        "bits": 8,
+                                                        "signed": false
+                                                      }
+                                                    }
+                                                  },
+                                                  "body": {
+                                                    "op": "if",
+                                                    "condition": {
+                                                      "op": "not",
+                                                      "value": {
+                                                        "op": "tree_is_pair",
+                                                        "value": {
+                                                          "op": "local",
+                                                          "local_id": 11
+                                                        }
+                                                      }
+                                                    },
+                                                    "then_value": {
+                                                      "op": "reject",
+                                                      "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+                                                    },
+                                                    "else_value": {
+                                                      "op": "if",
+                                                      "condition": {
+                                                        "op": "tree_is_pair",
+                                                        "value": {
+                                                          "op": "local",
+                                                          "local_id": 11
+                                                        }
+                                                      },
+                                                      "then_value": {
+                                                        "op": "let",
+                                                        "local_id": 13,
+                                                        "ty": {
+                                                          "kind": "tree"
+                                                        },
+                                                        "value": {
+                                                          "op": "tree_first",
+                                                          "value": {
+                                                            "op": "local",
+                                                            "local_id": 11
+                                                          }
+                                                        },
+                                                        "body": {
+                                                          "op": "let",
+                                                          "local_id": 14,
+                                                          "ty": {
+                                                            "kind": "tuple",
+                                                            "items": [
+                                                              {
+                                                                "kind": "tuple",
+                                                                "items": [
+                                                                  {
+                                                                    "kind": "int",
+                                                                    "bits": 64,
+                                                                    "signed": false
+                                                                  },
+                                                                  {
+                                                                    "kind": "bytes",
+                                                                    "len": 32
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "kind": "tuple",
+                                                                "items": [
+                                                                  {
+                                                                    "kind": "int",
+                                                                    "bits": 64,
+                                                                    "signed": false
+                                                                  },
+                                                                  {
+                                                                    "kind": "bytes",
+                                                                    "len": 1
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "kind": "tuple",
+                                                                "items": [
+                                                                  {
+                                                                    "kind": "int",
+                                                                    "bits": 64,
+                                                                    "signed": false
+                                                                  },
+                                                                  {
+                                                                    "kind": "tree"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          "value": {
+                                                            "op": "call",
+                                                            "function_id": 1,
+                                                            "arguments": [
+                                                              {
+                                                                "op": "local",
+                                                                "local_id": 1
+                                                              },
+                                                              {
+                                                                "op": "local",
+                                                                "local_id": 4
+                                                              },
+                                                              {
+                                                                "op": "local",
+                                                                "local_id": 7
+                                                              },
+                                                              {
+                                                                "op": "local",
+                                                                "local_id": 10
+                                                              },
+                                                              {
+                                                                "op": "local",
+                                                                "local_id": 13
+                                                              }
+                                                            ]
+                                                          },
+                                                          "body": {
+                                                            "op": "local",
+                                                            "local_id": 14
+                                                          }
+                                                        }
+                                                      },
+                                                      "else_value": {
+                                                        "op": "reject",
+                                                        "message": "no-location: unreachable Rust path"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "else_value": {
+                                              "op": "reject",
+                                              "message": "no-location: unreachable Rust path"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "else_value": {
+                                    "op": "reject",
+                                    "message": "no-location: unreachable Rust path"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "else_value": {
+                          "op": "reject",
+                          "message": "no-location: unreachable Rust path"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "no-location: unreachable Rust path"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide_puzzles::p2_singleton::claim_rewards",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg2",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg3",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg4",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 32
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "bytes",
+                  "len": 1
+                }
+              ]
+            },
+            {
+              "kind": "tuple",
+              "items": [
+                {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                },
+                {
+                  "kind": "tree"
+                }
+              ]
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "tree_pair",
+            "first": {
+              "op": "arg",
+              "index": 1
+            },
+            "rest": {
+              "op": "arg",
+              "index": 2
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "tree"
+            },
+            "value": {
+              "op": "tree_pair",
+              "first": {
+                "op": "arg",
+                "index": 0
+              },
+              "rest": {
+                "op": "local",
+                "local_id": 0
+              }
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 2,
+                "arguments": [
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 3,
+                  "arguments": [
+                    {
+                      "op": "atom",
+                      "hex": "01"
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "atom"
+                  },
+                  "value": {
+                    "op": "call",
+                    "function_id": 4,
+                    "arguments": [
+                      {
+                        "op": "arg",
+                        "index": 3
+                      }
+                    ]
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "atom"
+                    },
+                    "value": {
+                      "op": "tree_atom_value",
+                      "value": {
+                        "op": "tree_atom",
+                        "value": {
+                          "op": "local",
+                          "local_id": 3
+                        }
+                      }
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "bytes",
+                        "len": 32
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 5,
+                        "arguments": [
+                          {
+                            "op": "atom",
+                            "hex": "04"
+                          },
+                          {
+                            "op": "local",
+                            "local_id": 4
+                          },
+                          {
+                            "op": "local",
+                            "local_id": 5
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 2
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "atom"
+                          },
+                          "value": {
+                            "op": "tree_atom_value",
+                            "value": {
+                              "op": "tree_atom",
+                              "value": {
+                                "op": "local",
+                                "local_id": 6
+                              }
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 9,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 5,
+                              "arguments": [
+                                {
+                                  "op": "atom",
+                                  "hex": "04"
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 7
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 8
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 10,
+                              "ty": {
+                                "kind": "atom"
+                              },
+                              "value": {
+                                "op": "call",
+                                "function_id": 4,
+                                "arguments": [
+                                  {
+                                    "op": "arg",
+                                    "index": 0
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 11,
+                                "ty": {
+                                  "kind": "atom"
+                                },
+                                "value": {
+                                  "op": "tree_atom_value",
+                                  "value": {
+                                    "op": "tree_atom",
+                                    "value": {
+                                      "op": "local",
+                                      "local_id": 9
+                                    }
+                                  }
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 12,
+                                  "ty": {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 5,
+                                    "arguments": [
+                                      {
+                                        "op": "atom",
+                                        "hex": "02"
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 10
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 11
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "let",
+                                    "local_id": 13,
+                                    "ty": {
+                                      "kind": "atom"
+                                    },
+                                    "value": {
+                                      "op": "tree_atom_value",
+                                      "value": {
+                                        "op": "tree_atom",
+                                        "value": {
+                                          "op": "local",
+                                          "local_id": 12
+                                        }
+                                      }
+                                    },
+                                    "body": {
+                                      "op": "let",
+                                      "local_id": 14,
+                                      "ty": {
+                                        "kind": "atom"
+                                      },
+                                      "value": {
+                                        "op": "call",
+                                        "function_id": 4,
+                                        "arguments": [
+                                          {
+                                            "op": "arg",
+                                            "index": 4
+                                          }
+                                        ]
+                                      },
+                                      "body": {
+                                        "op": "let",
+                                        "local_id": 15,
+                                        "ty": {
+                                          "kind": "bytes",
+                                          "len": 32
+                                        },
+                                        "value": {
+                                          "op": "sha256",
+                                          "parts": [
+                                            {
+                                              "op": "local",
+                                              "local_id": 13
+                                            },
+                                            {
+                                              "op": "local",
+                                              "local_id": 14
+                                            },
+                                            {
+                                              "op": "atom",
+                                              "hex": ""
+                                            }
+                                          ]
+                                        },
+                                        "body": {
+                                          "op": "let",
+                                          "local_id": 16,
+                                          "ty": {
+                                            "kind": "tuple",
+                                            "items": [
+                                              {
+                                                "kind": "int",
+                                                "bits": 64,
+                                                "signed": false
+                                              },
+                                              {
+                                                "kind": "bytes",
+                                                "len": 32
+                                              }
+                                            ]
+                                          },
+                                          "value": {
+                                            "op": "call",
+                                            "function_id": 6,
+                                            "arguments": [
+                                              {
+                                                "op": "local",
+                                                "local_id": 15
+                                              }
+                                            ]
+                                          },
+                                          "body": {
+                                            "op": "let",
+                                            "local_id": 17,
+                                            "ty": {
+                                              "kind": "tuple",
+                                              "items": [
+                                                {
+                                                  "kind": "int",
+                                                  "bits": 64,
+                                                  "signed": false
+                                                },
+                                                {
+                                                  "kind": "bytes",
+                                                  "len": 1
+                                                }
+                                              ]
+                                            },
+                                            "value": {
+                                              "op": "call",
+                                              "function_id": 7,
+                                              "arguments": [
+                                                {
+                                                  "op": "bytes",
+                                                  "hex": "24"
+                                                }
+                                              ]
+                                            },
+                                            "body": {
+                                              "op": "let",
+                                              "local_id": 18,
+                                              "ty": {
+                                                "kind": "tuple",
+                                                "items": [
+                                                  {
+                                                    "kind": "int",
+                                                    "bits": 64,
+                                                    "signed": false
+                                                  },
+                                                  {
+                                                    "kind": "tree"
+                                                  }
+                                                ]
+                                              },
+                                              "value": {
+                                                "op": "call",
+                                                "function_id": 8,
+                                                "arguments": [
+                                                  {
+                                                    "op": "arg",
+                                                    "index": 4
+                                                  }
+                                                ]
+                                              },
+                                              "body": {
+                                                "op": "let",
+                                                "local_id": 19,
+                                                "ty": {
+                                                  "kind": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "kind": "tuple",
+                                                      "items": [
+                                                        {
+                                                          "kind": "int",
+                                                          "bits": 64,
+                                                          "signed": false
+                                                        },
+                                                        {
+                                                          "kind": "bytes",
+                                                          "len": 32
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "tuple",
+                                                      "items": [
+                                                        {
+                                                          "kind": "int",
+                                                          "bits": 64,
+                                                          "signed": false
+                                                        },
+                                                        {
+                                                          "kind": "bytes",
+                                                          "len": 1
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "tuple",
+                                                      "items": [
+                                                        {
+                                                          "kind": "int",
+                                                          "bits": 64,
+                                                          "signed": false
+                                                        },
+                                                        {
+                                                          "kind": "tree"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                "value": {
+                                                  "op": "tuple",
+                                                  "items": [
+                                                    {
+                                                      "op": "local",
+                                                      "local_id": 16
+                                                    },
+                                                    {
+                                                      "op": "local",
+                                                      "local_id": 17
+                                                    },
+                                                    {
+                                                      "op": "local",
+                                                      "local_id": 18
+                                                    }
+                                                  ]
+                                                },
+                                                "body": {
+                                                  "op": "local",
+                                                  "local_id": 19
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "chialisp_oxide_puzzles::p2_singleton::tree_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "let",
+              "local_id": 8,
+              "ty": {
+                "kind": "atom"
+              },
+              "value": {
+                "op": "tree_atom_value",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 9,
+                "ty": {
+                  "kind": "bytes",
+                  "len": 32
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 3,
+                  "arguments": [
+                    {
+                      "op": "local",
+                      "local_id": 8
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "local",
+                  "local_id": 9
+                }
+              }
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "let",
+                "local_id": 1,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_first",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_rest",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "bytes",
+                      "len": 32
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 2,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 1
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 4,
+                      "ty": {
+                        "kind": "bytes",
+                        "len": 32
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 2,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 5,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 3
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 6,
+                          "ty": {
+                            "kind": "atom"
+                          },
+                          "value": {
+                            "op": "tree_atom_value",
+                            "value": {
+                              "op": "tree_atom",
+                              "value": {
+                                "op": "local",
+                                "local_id": 4
+                              }
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 7,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 9,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 5
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 6
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "local",
+                              "local_id": 7
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "puzzles/p2-singleton/puzzle.rs:110:11: 110:15: unreachable Rust path"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "name": "chialisp_oxide_puzzles::p2_singleton::atom_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "atom"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "sha256",
+            "parts": [
+              {
+                "op": "atom",
+                "hex": "01"
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "atom",
+                "hex": ""
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 4,
+        "name": "chialisp_oxide_puzzles::p2_singleton::atom_bytes",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "atom"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "let",
+              "local_id": 1,
+              "ty": {
+                "kind": "atom"
+              },
+              "value": {
+                "op": "tree_atom_value",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "body": {
+                "op": "local",
+                "local_id": 1
+              }
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "reject",
+                "message": "/rustc/daf2e5e18b3abc4311d9da3d96fd64138f43d508/library/core/src/panic.rs:53:9: 53:51: Rust panic/assertion rejects the puzzle"
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "puzzles/p2-singleton/puzzle.rs:78:11: 78:15: unreachable Rust path"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "name": "chialisp_oxide_puzzles::p2_singleton::quoted_call_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "atom"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "atom"
+            }
+          },
+          {
+            "name": "arg2",
+            "ty": {
+              "kind": "atom"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "call",
+            "function_id": 3,
+            "arguments": [
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            },
+            "value": {
+              "op": "call",
+              "function_id": 3,
+              "arguments": [
+                {
+                  "op": "atom",
+                  "hex": "01"
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "bytes",
+                "len": 32
+              },
+              "value": {
+                "op": "call",
+                "function_id": 3,
+                "arguments": [
+                  {
+                    "op": "atom",
+                    "hex": ""
+                  }
+                ]
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "atom"
+                },
+                "value": {
+                  "op": "tree_atom_value",
+                  "value": {
+                    "op": "tree_atom",
+                    "value": {
+                      "op": "local",
+                      "local_id": 1
+                    }
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "bytes",
+                    "len": 32
+                  },
+                  "value": {
+                    "op": "call",
+                    "function_id": 9,
+                    "arguments": [
+                      {
+                        "op": "local",
+                        "local_id": 3
+                      },
+                      {
+                        "op": "arg",
+                        "index": 1
+                      }
+                    ]
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "atom"
+                    },
+                    "value": {
+                      "op": "tree_atom_value",
+                      "value": {
+                        "op": "tree_atom",
+                        "value": {
+                          "op": "local",
+                          "local_id": 2
+                        }
+                      }
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "bytes",
+                        "len": 32
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 9,
+                        "arguments": [
+                          {
+                            "op": "arg",
+                            "index": 2
+                          },
+                          {
+                            "op": "local",
+                            "local_id": 5
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "atom"
+                        },
+                        "value": {
+                          "op": "tree_atom_value",
+                          "value": {
+                            "op": "tree_atom",
+                            "value": {
+                              "op": "local",
+                              "local_id": 4
+                            }
+                          }
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "atom"
+                          },
+                          "value": {
+                            "op": "tree_atom_value",
+                            "value": {
+                              "op": "tree_atom",
+                              "value": {
+                                "op": "local",
+                                "local_id": 6
+                              }
+                            }
+                          },
+                          "body": {
+                            "op": "let",
+                            "local_id": 9,
+                            "ty": {
+                              "kind": "bytes",
+                              "len": 32
+                            },
+                            "value": {
+                              "op": "call",
+                              "function_id": 9,
+                              "arguments": [
+                                {
+                                  "op": "local",
+                                  "local_id": 7
+                                },
+                                {
+                                  "op": "local",
+                                  "local_id": 8
+                                }
+                              ]
+                            },
+                            "body": {
+                              "op": "let",
+                              "local_id": 10,
+                              "ty": {
+                                "kind": "atom"
+                              },
+                              "value": {
+                                "op": "tree_atom_value",
+                                "value": {
+                                  "op": "tree_atom",
+                                  "value": {
+                                    "op": "local",
+                                    "local_id": 0
+                                  }
+                                }
+                              },
+                              "body": {
+                                "op": "let",
+                                "local_id": 11,
+                                "ty": {
+                                  "kind": "atom"
+                                },
+                                "value": {
+                                  "op": "tree_atom_value",
+                                  "value": {
+                                    "op": "tree_atom",
+                                    "value": {
+                                      "op": "local",
+                                      "local_id": 9
+                                    }
+                                  }
+                                },
+                                "body": {
+                                  "op": "let",
+                                  "local_id": 12,
+                                  "ty": {
+                                    "kind": "bytes",
+                                    "len": 32
+                                  },
+                                  "value": {
+                                    "op": "call",
+                                    "function_id": 9,
+                                    "arguments": [
+                                      {
+                                        "op": "local",
+                                        "local_id": 10
+                                      },
+                                      {
+                                        "op": "local",
+                                        "local_id": 11
+                                      }
+                                    ]
+                                  },
+                                  "body": {
+                                    "op": "local",
+                                    "local_id": 12
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "name": "chialisp_oxide_puzzles::p2_singleton::assert_puzzle_announcement",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 32
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 32
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 32
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "63",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 7,
+        "name": "chialisp_oxide_puzzles::p2_singleton::create_coin_announcement",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "bytes",
+              "len": 1
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "bytes",
+              "len": 1
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "bytes",
+                "len": 1
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "60",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 8,
+        "name": "chialisp_oxide_puzzles::p2_singleton::assert_my_coin_id_tree",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tuple",
+          "items": [
+            {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            },
+            {
+              "kind": "tree"
+            }
+          ]
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tuple",
+            "items": [
+              {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              },
+              {
+                "kind": "tree"
+              }
+            ]
+          },
+          "value": {
+            "op": "tuple",
+            "items": [
+              {
+                "op": "int",
+                "value": "70",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 9,
+        "name": "chialisp_oxide_puzzles::p2_singleton::pair_hash",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "atom"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "atom"
+            }
+          }
+        ],
+        "result": {
+          "kind": "bytes",
+          "len": 32
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bytes",
+            "len": 32
+          },
+          "value": {
+            "op": "sha256",
+            "parts": [
+              {
+                "op": "atom",
+                "hex": "02"
+              },
+              {
+                "op": "arg",
+                "index": 0
+              },
+              {
+                "op": "arg",
+                "index": 1
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      }
+    ]
+  }
+}

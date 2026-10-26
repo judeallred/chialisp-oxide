@@ -21,6 +21,12 @@
   commands between CLI and GUI; see `docs/lifecycle.md`. Its read-only HTTPS
   observer remains separate from those adapters. Live funding, submission,
   monitoring and Testnet11 acceptance remain open; local fixtures need no wallet.
+- Keep #14's counter and fixed two-name registry demonstrations separate from
+  canonical protocol ports. The registry adds actual SLOT creator/current-spender
+  bindings, isolated consumed-slot rejection and own-root Rust omission controls;
+  see `docs/action-registry.md`. Count its base, native, template and mutation SDK
+  lanes separately. Review exact-commit verification and publication before issue
+  completion, then continue with #15 XCHandles and #16 authenticated continuations.
 - Keep optimization (#6) and chain/node space studies (#22, #23) active at a lower
   priority. Preserve measured regressions and existing optimization checks.
 - Publish coherent, verified increments. Do not close an issue until its actual

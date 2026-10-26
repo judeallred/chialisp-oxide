@@ -149,6 +149,11 @@ impl Encode for PublicKey {
         self.0.encode(a)
     }
 }
+impl Encode for chialisp_oxide_puzzles::registry_recipe::EntryCommitment {
+    fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
+        self.0.encode(a)
+    }
+}
 impl Encode for Message32 {
     fn encode(&self, a: &mut Allocator) -> Result<NodePtr> {
         self.0.encode(a)
@@ -300,6 +305,117 @@ fn counter_truth<'a>(tree: &Tree<'a>) -> Option<Cons<Tree<'a>, u64>> {
         rest: value,
     })
 }
+fn registry_arguments<'a>(mut tree: &'a Tree<'a>, count: usize) -> Option<Vec<&'a Tree<'a>>> {
+    let mut arguments = Vec::with_capacity(count);
+    for _ in 0..count {
+        let Tree::Pair(first, rest) = tree else {
+            return None;
+        };
+        arguments.push(*first);
+        tree = rest;
+    }
+    matches!(tree, Tree::Atom([])).then_some(arguments)
+}
+fn registry_fixed<const N: usize>(tree: &Tree<'_>) -> Option<[u8; N]> {
+    match tree {
+        Tree::Atom(bytes) => (*bytes).try_into().ok(),
+        _ => None,
+    }
+}
+fn registry_truth<'a>(
+    tree: &Tree<'a>,
+) -> Option<chialisp_oxide_puzzles::registry_recipe::RegistryTruth<'a>> {
+    use chialisp_oxide_puzzles::registry_recipe::EntryCommitment;
+    let Tree::Pair(ephemeral, state) = tree else {
+        return None;
+    };
+    let Tree::Pair(initialized, entries) = state else {
+        return None;
+    };
+    let initialized = match initialized {
+        Tree::Atom([]) => false,
+        Tree::Atom([1]) => true,
+        _ => return None,
+    };
+    let Tree::Pair(alpha, beta) = entries else {
+        return None;
+    };
+    Some(Cons {
+        first: **ephemeral,
+        rest: Cons {
+            first: initialized,
+            rest: Cons {
+                first: EntryCommitment(registry_fixed(alpha)?),
+                rest: EntryCommitment(registry_fixed(beta)?),
+            },
+        },
+    })
+}
+fn registry_policy<T: Encode>(invoke: impl FnOnce() -> T) -> Result<Option<Vec<u8>>> {
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(invoke));
+    match result {
+        // Encoding/resource failures stay outside the policy panic adapter.
+        Ok(value) => Ok(Some(output(value)?)),
+        Err(payload) => {
+            ensure!(
+                payload
+                    .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                    .is_none(),
+                "registry native policy exhausted its host ceiling"
+            );
+            Ok(None)
+        }
+    }
+}
+fn registry_execute(slug: &str, tree: &Tree<'_>) -> Result<Option<Vec<u8>>> {
+    if slug == "registry-initialize" {
+        let Some(arguments) = registry_arguments(tree, 2) else {
+            return Ok(None);
+        };
+        let (Some(slot_first), Some(truth)) =
+            (registry_fixed(arguments[0]), registry_truth(arguments[1]))
+        else {
+            return Ok(None);
+        };
+        return registry_policy(|| {
+            chialisp_oxide_puzzles::registry_initialize::puzzle(PuzzleHash(slot_first), truth)
+        });
+    }
+    let Some(arguments) = registry_arguments(tree, 5) else {
+        return Ok(None);
+    };
+    let (Some(owner), Some(slot_first), Some(truth), Some(old), Some(new)) = (
+        registry_fixed(arguments[0]),
+        registry_fixed(arguments[1]),
+        registry_truth(arguments[2]),
+        registry_fixed(arguments[3]),
+        registry_fixed(arguments[4]),
+    ) else {
+        return Ok(None);
+    };
+    match slug {
+        "registry-set-alpha" => registry_policy(|| {
+            chialisp_oxide_puzzles::registry_set_alpha::puzzle(
+                PublicKey(owner),
+                PuzzleHash(slot_first),
+                truth,
+                old,
+                new,
+            )
+        }),
+        "registry-set-beta" => registry_policy(|| {
+            chialisp_oxide_puzzles::registry_set_beta::puzzle(
+                PublicKey(owner),
+                PuzzleHash(slot_first),
+                truth,
+                old,
+                new,
+            )
+        }),
+        _ => bail!("unknown registry action {slug}"),
+    }
+}
+
 fn boomerang_arguments(
     a: &Allocator,
     env: NodePtr,
@@ -360,6 +476,16 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if matches!(
+        slug,
+        "registry-initialize" | "registry-set-alpha" | "registry-set-beta"
+    ) {
+        let arena = bumpalo::Bump::new();
+        // Inspect both branches and the aggregate complete environment before
+        // allocating native Trees, rejecting malformed ABI or catching policy panics.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        return registry_execute(slug, tree);
+    }
     if matches!(slug, "counter-increment" | "counter-reset") {
         let arena = bumpalo::Bump::new();
         // Bound and decode the complete environment before ABI rejection or
@@ -792,6 +918,61 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn registry_actual_library_matches_independent_full_environment_cases() {
+        for (slug, manifest) in [
+            (
+                "registry-initialize",
+                include_str!("../../../puzzles/registry-initialize/puzzle.json"),
+            ),
+            (
+                "registry-set-alpha",
+                include_str!("../../../puzzles/registry-set-alpha/puzzle.json"),
+            ),
+            (
+                "registry-set-beta",
+                include_str!("../../../puzzles/registry-set-beta/puzzle.json"),
+            ),
+        ] {
+            let manifest: serde_json::Value = serde_json::from_str(manifest).unwrap();
+            for case in manifest["cases"].as_array().unwrap() {
+                let actual = super::execute(slug, case["solution"].as_str().unwrap()).unwrap();
+                match case["expected"]["status"].as_str().unwrap() {
+                    "accepted" => assert_eq!(
+                        hex::encode(actual.unwrap()),
+                        case["expected"]["output_hex"].as_str().unwrap(),
+                        "{slug}/{}",
+                        case["label"]
+                    ),
+                    "rejected" => assert!(actual.is_none(), "{slug}/{}", case["label"]),
+                    status => panic!("unexpected independent status {status}"),
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn registry_resource_preflight_precedes_even_invalid_fixed_arguments() {
+        // Each fixed argument below would reject ABI immediately if its decoder
+        // ran before complete-tree preflight. Deep payloads on either branch
+        // must instead remain inconclusive host errors, never policy rejection.
+        for right in [false, true] {
+            let mut ephemeral = "()".to_owned();
+            for _ in 0..260 {
+                ephemeral = if right {
+                    format!("(() . {ephemeral})")
+                } else {
+                    format!("({ephemeral} . ())")
+                };
+            }
+            let solution = format!("(0x00 ({ephemeral} . (() . (0x00 . 0x00))))");
+            assert!(super::execute("registry-initialize", &solution).is_err());
+            let solution = format!("(0x00 0x00 ({ephemeral} . (1 . (0x00 . 0x00))) 0x00 0x00)");
+            assert!(super::execute("registry-set-alpha", &solution).is_err());
+            assert!(super::execute("registry-set-beta", &solution).is_err());
+        }
+    }
+
     #[test]
     fn counter_actions_preserve_opaque_trees_and_validate_unused_old_counts() {
         fn assembled(source: &str) -> Vec<u8> {

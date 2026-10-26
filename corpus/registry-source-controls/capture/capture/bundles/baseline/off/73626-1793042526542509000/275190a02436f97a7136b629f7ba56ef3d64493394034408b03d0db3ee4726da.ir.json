@@ -1,0 +1,214 @@
+{
+  "ir_version": 2,
+  "environment": "ignored",
+  "program": {
+    "name": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+    "parameters": [],
+    "result": {
+      "kind": "int",
+      "bits": 64,
+      "signed": false
+    },
+    "body": {
+      "op": "if",
+      "condition": {
+        "op": "binary",
+        "kind": "eq",
+        "left": {
+          "op": "binary",
+          "kind": "gt",
+          "left": {
+            "op": "int",
+            "value": "3",
+            "ty": {
+              "kind": "int",
+              "bits": 32,
+              "signed": true
+            }
+          },
+          "right": {
+            "op": "int",
+            "value": "2",
+            "ty": {
+              "kind": "int",
+              "bits": 32,
+              "signed": true
+            }
+          },
+          "ty": {
+            "kind": "int",
+            "bits": 32,
+            "signed": true
+          }
+        },
+        "right": {
+          "op": "bool",
+          "value": false
+        },
+        "ty": {
+          "kind": "bool"
+        }
+      },
+      "then_value": {
+        "op": "sequence",
+        "first": {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "binary",
+              "kind": "mul",
+              "left": {
+                "op": "int",
+                "value": "5",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              "right": {
+                "op": "int",
+                "value": "10",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            {
+              "op": "bool",
+              "value": false
+            }
+          ]
+        },
+        "then_value": {
+          "op": "if",
+          "condition": {
+            "op": "not",
+            "value": {
+              "op": "bool",
+              "value": false
+            }
+          },
+          "then_value": {
+            "op": "binary",
+            "kind": "mul",
+            "left": {
+              "op": "int",
+              "value": "5",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "right": {
+              "op": "int",
+              "value": "10",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "else_value": {
+            "op": "reject",
+            "message": "puzzles/intro-conditional/puzzle.rs:5:5: 5:18: Rust assertion failed"
+          }
+        }
+      },
+      "else_value": {
+        "op": "sequence",
+        "first": {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "binary",
+              "kind": "mul",
+              "left": {
+                "op": "int",
+                "value": "10",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              "right": {
+                "op": "int",
+                "value": "10",
+                "ty": {
+                  "kind": "int",
+                  "bits": 64,
+                  "signed": false
+                }
+              },
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            {
+              "op": "bool",
+              "value": false
+            }
+          ]
+        },
+        "then_value": {
+          "op": "if",
+          "condition": {
+            "op": "not",
+            "value": {
+              "op": "bool",
+              "value": false
+            }
+          },
+          "then_value": {
+            "op": "binary",
+            "kind": "mul",
+            "left": {
+              "op": "int",
+              "value": "10",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "right": {
+              "op": "int",
+              "value": "10",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "else_value": {
+            "op": "reject",
+            "message": "puzzles/intro-conditional/puzzle.rs:5:5: 5:18: Rust assertion failed"
+          }
+        }
+      }
+    }
+  }
+}

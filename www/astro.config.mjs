@@ -54,6 +54,7 @@ export default defineConfig({
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
           { label: 'Write a CAT TAIL in Rust', slug: 'tutorials/cat-genesis-tail' },
           { label: 'Thread state through counter actions', slug: 'tutorials/action-counter' },
+          { label: 'Replace singleton registry slots', slug: 'tutorials/action-registry' },
           { label: 'Delegate conditions with an explicit tail', slug: 'tutorials/delegated-conditions' },
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },

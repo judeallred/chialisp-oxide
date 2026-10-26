@@ -65,13 +65,17 @@ def check_scenario(value, label="ledger scenario", *, require_typed=True, expect
     return value
 
 
-def check_ledger_report(report, *, require_typed=True):
+def check_ledger_report(report, *, require_typed=True, sidecar_root=ROOT / "corpus"):
     header = report.get("simulator", {})
     if require_typed or "rejection_protocol" in header:
         require(header.get("rejection_protocol") == PROTOCOL, "Missing/unsupported ledger rejection protocol")
     components = set()
     counter_slugs = {"counter-increment", "counter-reset"}
-    component_slugs = {"p2-singleton", "p2-delegated-conditions", "cat-genesis-by-coin-id", *counter_slugs}
+    registry_slugs = {"registry-initialize", "registry-set-alpha", "registry-set-beta"}
+    component_slugs = {"p2-singleton", "p2-delegated-conditions", "cat-genesis-by-coin-id", *counter_slugs, *registry_slugs}
+    if require_typed and any(puzzle.get("slug") in registry_slugs for puzzle in report["puzzles"]):
+        from registry_protocol import validate_report as validate_registry_group
+        validate_registry_group(report, sidecar_root=sidecar_root)
     if require_typed and any(puzzle.get("slug") in counter_slugs for puzzle in report["puzzles"]):
         for puzzle in report["puzzles"]:
             require(puzzle.get("slug") not in counter_slugs or puzzle.get("kind") == "protocol_component",
@@ -117,6 +121,8 @@ def check_ledger_report(report, *, require_typed=True):
                     from p2_singleton_evidence import validate_component
                 elif puzzle["slug"] == "cat-genesis-by-coin-id":
                     from cat_genesis_evidence import validate_component
+                elif puzzle["slug"] in registry_slugs:
+                    continue  # Complete sidecar triplet was admitted above.
                 elif puzzle["slug"] in counter_slugs:
                     continue  # Complete paired validation ran above.
                 else:

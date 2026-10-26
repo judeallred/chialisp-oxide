@@ -379,7 +379,7 @@ def admit_bundle(args, c, mode, compiler, driver_hash):
     authoring = snapshot(p)
     result = []
     # load_declared_export admits the entire immutable bundle inventory before
-    # returning a selected entry, including all37 original paired exports.
+    # returning a selected entry, including all current original paired exports.
     for export_name in EXPORTS:
         entry = ('chialisp_oxide_puzzles' if c == 'original' else CRATE)+'::counter_'+export_name+'::puzzle'
         export = cargo_bundle.load_declared_export(bundle, root=p, authoring=authoring,selected_entry=entry,

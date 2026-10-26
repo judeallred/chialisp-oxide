@@ -13,6 +13,10 @@
       "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
       "source": "puzzles/boolean-gate/puzzle.rs"
     },
+    "boomerang": {
+      "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
+      "source": "puzzles/boomerang/puzzle.rs"
+    },
     "bounded-counter": {
       "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
       "source": "puzzles/bounded-counter/puzzle.rs"
@@ -20,6 +24,18 @@
     "capped-payment": {
       "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
       "source": "puzzles/capped-payment/puzzle.rs"
+    },
+    "cat-genesis-by-coin-id": {
+      "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
+      "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
+    },
+    "counter-increment": {
+      "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
+      "source": "puzzles/counter-increment/puzzle.rs"
+    },
+    "counter-reset": {
+      "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
+      "source": "puzzles/counter-reset/puzzle.rs"
     },
     "curry-factory": {
       "entry": "chialisp_oxide_puzzles::curry_factory::puzzle",
@@ -93,6 +109,14 @@
       "entry": "chialisp_oxide_puzzles::password_coin::puzzle",
       "source": "puzzles/password-coin/puzzle.rs"
     },
+    "precommit-claim": {
+      "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
+      "source": "puzzles/precommit-claim/puzzle.rs"
+    },
+    "precommit-registry": {
+      "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
+      "source": "puzzles/precommit-registry/puzzle.rs"
+    },
     "prefix-list": {
       "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
       "source": "puzzles/prefix-list/puzzle.rs"
@@ -100,6 +124,18 @@
     "recovery-payment": {
       "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
       "source": "puzzles/recovery-payment/puzzle.rs"
+    },
+    "registry-initialize": {
+      "entry": "chialisp_oxide_puzzles::registry_initialize::puzzle",
+      "source": "puzzles/registry-initialize/puzzle.rs"
+    },
+    "registry-set-alpha": {
+      "entry": "chialisp_oxide_puzzles::registry_set_alpha::puzzle",
+      "source": "puzzles/registry-set-alpha/puzzle.rs"
+    },
+    "registry-set-beta": {
+      "entry": "chialisp_oxide_puzzles::registry_set_beta::puzzle",
+      "source": "puzzles/registry-set-beta/puzzle.rs"
     },
     "rightmost-tree": {
       "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
@@ -128,30 +164,6 @@
     "two-signature-payment": {
       "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
       "source": "puzzles/two-signature-payment/puzzle.rs"
-    },
-    "boomerang": {
-      "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
-      "source": "puzzles/boomerang/puzzle.rs"
-    },
-    "precommit-claim": {
-      "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
-      "source": "puzzles/precommit-claim/puzzle.rs"
-    },
-    "precommit-registry": {
-      "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
-      "source": "puzzles/precommit-registry/puzzle.rs"
-    },
-    "cat-genesis-by-coin-id": {
-      "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
-      "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
-    },
-    "counter-increment": {
-      "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
-      "source": "puzzles/counter-increment/puzzle.rs"
-    },
-    "counter-reset": {
-      "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
-      "source": "puzzles/counter-reset/puzzle.rs"
     }
   },
   "inputs": [
@@ -192,6 +204,7 @@
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/commit.git",
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/common_types.rue",
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hash",
     "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
@@ -214,6 +227,12 @@
     "crates/chialisp-oxide-corpus/src/action_counter.rs",
     "crates/chialisp-oxide-corpus/src/action_counter/lifecycle.rs",
     "crates/chialisp-oxide-corpus/src/action_counter/wire.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/adversarial.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/fixtures.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/lifecycle.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/source_controls.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/wire.rs",
     "crates/chialisp-oxide-corpus/src/boomerang.rs",
     "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs",
     "crates/chialisp-oxide-corpus/src/cat_genesis_tail.rs",
@@ -229,6 +248,7 @@
     "crates/chialisp-oxide-corpus/src/p2_singleton/modules.rs",
     "crates/chialisp-oxide-corpus/src/password.rs",
     "crates/chialisp-oxide-corpus/src/password/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
     "crates/chialisp-oxide-corpus/src/spends.rs",
     "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
     "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
@@ -315,6 +335,19 @@
     "puzzles/prefix-list/generated-cases.json",
     "puzzles/prefix-list/puzzle.rs",
     "puzzles/recovery-payment/puzzle.rs",
+    "puzzles/registry-initialize/puzzle.json",
+    "puzzles/registry-initialize/puzzle.rs",
+    "puzzles/registry-initialize/puzzle.rue",
+    "puzzles/registry-initialize/reference.clsp",
+    "puzzles/registry-set-alpha/puzzle.json",
+    "puzzles/registry-set-alpha/puzzle.rs",
+    "puzzles/registry-set-alpha/puzzle.rue",
+    "puzzles/registry-set-alpha/reference.clsp",
+    "puzzles/registry-set-beta/puzzle.json",
+    "puzzles/registry-set-beta/puzzle.rs",
+    "puzzles/registry-set-beta/puzzle.rue",
+    "puzzles/registry-set-beta/reference.clsp",
+    "puzzles/registry_recipe.rs",
     "puzzles/rightmost-tree/puzzle.rs",
     "puzzles/sha256tree/generated-cases.json",
     "puzzles/sha256tree/puzzle.rs",

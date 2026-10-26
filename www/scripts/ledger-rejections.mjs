@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { checkProtocolComponent } from './p2-protocol.mjs';
 import { checkBoomerangComponent } from './boomerang-protocol.mjs';
+import { checkRegistryReport, registrySlugs } from './registry-protocol.mjs';
 import { checkCounterPair, counterSlugs } from '../src/lib/counter-protocol.mjs';
 
 const table = JSON.parse(readFileSync(new URL('../../crates/chialisp-oxide-simulator/rejection-protocol.json', import.meta.url), 'utf8'));
@@ -40,19 +41,20 @@ export function checkScenario(row, label = 'ledger scenario', expectedCodes) {
   assert.deepEqual(row.rejections, (expectedCodes ?? table.scenarios[row.name]).map(code => ({ stage: 'consensus', code })), `${label}: wrong/missing expected consensus sequence`);
 }
 
-export function checkLedgerReport(report) {
+export function checkLedgerReport(report, options = {}) {
   assert.equal(report.simulator?.rejection_protocol, ledgerProtocol, 'Missing/unsupported ledger rejection protocol');
   // The selected counter side needs the opposite entry's actual Chialisp
   // artifact. Validate both once before iterating the ordinary ledger groups.
   const hasCounter = report.puzzles.some(puzzle => counterSlugs.includes(puzzle.slug));
   if (hasCounter) checkCounterPair(report.puzzles);
+  if (report.puzzles.some(puzzle => registrySlugs.includes(puzzle.slug))) checkRegistryReport(report, options);
   for (const puzzle of report.puzzles) {
     assert(Array.isArray(puzzle.simulator), `${puzzle.slug}: malformed scenario list`);
     assert.equal(new Set(puzzle.simulator.map(row => row.name)).size, puzzle.simulator.length, `${puzzle.slug}: duplicate scenario grouping`);
     if (puzzle.slug === 'boomerang') { checkBoomerangComponent(puzzle); continue; }
     assert(!Object.hasOwn(puzzle, 'coin_instances'), `${puzzle.slug}: unexpected coin-instance protocol`);
     if (puzzle.kind === 'protocol_component') {
-      if (!counterSlugs.includes(puzzle.slug)) checkProtocolComponent(puzzle);
+      if (![...counterSlugs,...registrySlugs].includes(puzzle.slug)) checkProtocolComponent(puzzle);
       continue;
     }
     assert(!Object.hasOwn(puzzle, 'protocol_validation'), `${puzzle.slug}: unexpected dedicated protocol evidence`);

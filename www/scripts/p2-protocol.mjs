@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { checkDelegatedComponent, delegatedSlug } from './p2dc-protocol.mjs';
 
+import { checkRegistryComponent, checkRegistryReport, registrySlugs } from './registry-protocol.mjs';
 import { checkCatComponent, catSlug } from './cat-protocol.mjs';
 import { checkCounterComponent, checkCounterPair, checkCounterDisplay, counterCounts, counterSlugs } from '../src/lib/counter-protocol.mjs';
 
@@ -21,7 +22,8 @@ const fields = (value, names, label) => {
   assert.deepEqual(Object.keys(value).sort(), [...names].sort(), `${label}: missing/unknown fields`);
 };
 
-export function checkProtocolComponent(puzzle, counterpart) {
+export function checkProtocolComponent(puzzle, counterpart, options = {}) {
+  if (registrySlugs.includes(puzzle.slug)) return checkRegistryComponent(puzzle, counterpart, options);
   if (puzzle.slug === catSlug) return checkCatComponent(puzzle);
   if (puzzle.slug === delegatedSlug) return checkDelegatedComponent(puzzle);
   if (counterSlugs.includes(puzzle.slug)) {
@@ -83,12 +85,13 @@ export function checkProtocolComponent(puzzle, counterpart) {
   return counts;
 }
 
-export function checkProtocolReport(report) {
+export function checkProtocolReport(report, options = {}) {
+  if (report.puzzles.some(puzzle => registrySlugs.includes(puzzle.slug))) checkRegistryReport(report, options);
   // Counter lifecycle evidence binds each selected action to the other entry's
   // actual Chialisp artifact. Admit the complete pair once, never one row alone.
   if (report.puzzles.some(puzzle => counterSlugs.includes(puzzle.slug))) checkCounterPair(report.puzzles);
   const selected = report.puzzles.filter(puzzle => puzzle.slug === 'p2-singleton');
-  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug,catSlug,...counterSlugs].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
+  const otherComponents = report.puzzles.filter(puzzle => !['p2-singleton',delegatedSlug,catSlug,...counterSlugs,...registrySlugs].includes(puzzle.slug) && (puzzle.kind === 'protocol_component' || Object.hasOwn(puzzle, 'protocol_validation')));
   assert.deepEqual(otherComponents, [], 'Unknown dedicated protocol evidence requires its own reviewed reader.');
   const cat = report.puzzles.filter(puzzle => puzzle.slug === catSlug);
   assert(cat.length <= 1, 'Duplicate CAT component');
@@ -116,6 +119,7 @@ export function historicalOptimizationReport(report) {
 }
 
 export function checkProtocolDisplay(markup, puzzle, counterpart) {
+  assert(!registrySlugs.includes(puzzle.slug), 'Registry display requires its dedicated complete sidecar view reader');
   if (counterSlugs.includes(puzzle.slug)) {
     assert(counterpart, 'Counter display requires its actual counterpart entry');
     checkCounterDisplay(markup, [puzzle, counterpart], puzzle.slug);

@@ -41,6 +41,8 @@ step "full corpus validation, twice"
 target/debug/chialisp-oxide validate --output corpus/validation.json
 target/debug/chialisp-oxide validate --output "$WORK/validation-repeat.json"
 cmp corpus/validation.json "$WORK/validation-repeat.json"
+python3 scripts/registry_protocol.py --report corpus/validation.json --repeat-report "$WORK/validation-repeat.json" --self-test > "$WORK/gate-registry-protocol.log"
+python3 scripts/check-port-evidence.py --report corpus/validation.json --slug registry-initialize --slug registry-set-alpha --slug registry-set-beta --self-test --replay > "$WORK/gate-registry-ports.log"
 python3 scripts/counter_protocol.py --report corpus/validation.json --self-test > "$WORK/gate-counter-protocol.log"
 python3 scripts/check-port-evidence.py --report corpus/validation.json --slug counter-increment --slug counter-reset --self-test --replay > "$WORK/gate-counter-ports.log"
 python3 -B -m unittest discover -s scripts -p test_ledger_components.py > "$WORK/gate-ledger-components.log" 2>&1
@@ -51,6 +53,26 @@ target/debug/cargo-chialisp-oxide build --manifest-path puzzles/Cargo.toml --pac
 
 step "pay-to-singleton control sidecar"
 python3 scripts/capture-p2-controls.py --bundle "$WORK/p2-controls-bundle" --replay "$WORK/p2-controls-replay.json" --driver "$DRIVER"
+
+step "fresh CAT source controls before current append admission"
+python3 -B experiments/cat-genesis-tail/rust_capture.py prepare --output "$WORK/cat-source-capture" --native-target "$ROOT/target"
+python3 -B experiments/cat-genesis-tail/rust_capture.py native --output "$WORK/cat-source-capture" --native-target "$ROOT/target"
+cargo build --workspace --bins --examples --locked
+python3 -B experiments/cat-genesis-tail/rust_capture.py extract --output "$WORK/cat-source-capture" --native-target "$ROOT/target" --compiler-target "$ROOT/target" --compiler-root "$ROOT" --driver "$ROOT/target/debug/chialisp-oxide-driver" --registry-cli "$ROOT/target/debug/cargo-chialisp-oxide" --cli "$ROOT/target/debug/chialisp-oxide"
+python3 -B experiments/cat-genesis-tail/rust_capture.py execute --output "$WORK/cat-source-capture" --native-target "$ROOT/target"
+python3 scripts/check-cat-source-controls.py --install-capture "$WORK/cat-source-capture" --packet "$WORK/cat-source-packet" --self-test > "$WORK/gate-cat-source-capture.log"
+WORK="$WORK" python3 - <<'PYTHON'
+import os, shutil
+from pathlib import Path
+work = Path(os.environ["WORK"])
+destination = Path("corpus/cat-genesis-source-controls")
+if destination.is_symlink():
+    raise SystemExit("CAT packet destination must not be a symlink")
+if destination.exists():
+    destination.rename(work / "previous-cat-source-packet")
+shutil.copytree(work / "cat-source-packet", destination)
+PYTHON
+python3 scripts/check-cat-source-controls.py > "$WORK/gate-cat-source-installed.log"
 
 step "generic corpus append capture"
 python3 scripts/check-corpus-append.py --record --fresh-on "$WORK/puzzles-on" --fresh-off "$WORK/puzzles-off" --driver "$DRIVER" | tee "$WORK/record.json"
@@ -154,6 +176,26 @@ if target.exists():
 shutil.copytree(source, target)
 PYTHON
 python3 scripts/check-precommit.py --source-controls-only --self-test --replay > "$WORK/gate-precommit.log"
+
+step "registry Rust source-control native checks and LAST host build"
+python3 scripts/run-registry-source-controls.py native --execute --target "$WORK/registry-native-target" --output "$WORK/registry-native"
+python3 scripts/run-registry-source-controls.py last --execute --target "$ROOT/target" --native-dir "$WORK/registry-native" --output "$WORK/registry-last"
+step "actual registry triplet base and own-root source controls"
+target/debug/chialisp-oxide validate --only registry-initialize,registry-set-alpha,registry-set-beta --output "$WORK/registry-base/report.json"
+python3 scripts/run-registry-source-controls.py capture --execute --native-dir "$WORK/registry-native" --last-dir "$WORK/registry-last" --base-report "$WORK/registry-base/report.json" --output "$WORK/registry-capture"
+python3 scripts/check-registry-source-controls.py --install-capture "$WORK/registry-capture" --native-dir "$WORK/registry-native" --last-dir "$WORK/registry-last" --base-dir "$WORK/registry-base" --packet "$WORK/registry-packet" --report corpus/validation.json > "$WORK/gate-registry-capture.log"
+WORK="$WORK" python3 - <<'PYTHON'
+import os, shutil
+from pathlib import Path
+work = Path(os.environ["WORK"])
+destination = Path("corpus/registry-source-controls")
+if destination.is_symlink():
+    raise SystemExit("Registry packet destination must not be a symlink")
+if destination.exists():
+    destination.rename(work / "previous-registry-packet")
+shutil.copytree(work / "registry-packet", destination)
+PYTHON
+python3 scripts/check-registry-source-controls.py --packet corpus/registry-source-controls --report corpus/validation.json --self-test --replay --cli target/debug/chialisp-oxide > "$WORK/gate-registry-installed.log"
 
 step "derived reports"
 python3 scripts/check-error-study.py --write

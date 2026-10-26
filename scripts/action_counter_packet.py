@@ -419,7 +419,7 @@ def install(raw_capture,protocol_directory,destination):
     require(metadata['raw_capture']==str(raw_capture),"actual matching raw capture")
     args=SimpleNamespace(output=raw_capture,**{name:Path(metadata[name]) for name in
         ('native_target','compiler_target','compiler_root','rustc','driver','cargo_cli')})
-    # No captured-reader bypass: fresh complete root37 and mutant bundle/source
+    # No captured-reader bypass: fresh complete current root and mutant bundle/source
     # admission and exact native/VM/SDK readback must succeed on the origin host.
     protocol_capture.recorded(args,protocol_directory)
     source_paths=[(p,'raw/'+p.relative_to(raw_capture).as_posix()) for p in files(raw_capture)]

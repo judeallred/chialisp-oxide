@@ -1,0 +1,93 @@
+{
+  "ir_version": 2,
+  "environment": "ignored",
+  "program": {
+    "name": "chialisp_oxide_puzzles::intro_add::puzzle",
+    "parameters": [],
+    "result": {
+      "kind": "int",
+      "bits": 64,
+      "signed": false
+    },
+    "body": {
+      "op": "sequence",
+      "first": {
+        "op": "tuple",
+        "items": [
+          {
+            "op": "binary",
+            "kind": "add",
+            "left": {
+              "op": "int",
+              "value": "2",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "right": {
+              "op": "int",
+              "value": "3",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          {
+            "op": "bool",
+            "value": false
+          }
+        ]
+      },
+      "then_value": {
+        "op": "if",
+        "condition": {
+          "op": "not",
+          "value": {
+            "op": "bool",
+            "value": false
+          }
+        },
+        "then_value": {
+          "op": "binary",
+          "kind": "add",
+          "left": {
+            "op": "int",
+            "value": "2",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "right": {
+            "op": "int",
+            "value": "3",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/intro-add/puzzle.rs:4:5: 4:10: Rust assertion failed"
+        }
+      }
+    }
+  }
+}

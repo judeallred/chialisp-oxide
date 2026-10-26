@@ -247,6 +247,7 @@ fn real_rust_sources_match_native_chialisp_and_consensus_corpus() {
     let bundle = cargo_chialisp_oxide::load_bundle(&scratch.0).unwrap();
     assert_eq!(bundle.manifest["package"], "chialisp-oxide-puzzles");
     assert_eq!(bundle.programs.len(), chialisp_oxide_corpus::PUZZLES.len());
+    let mut reports = Vec::new();
     for slug in chialisp_oxide_corpus::PUZZLES {
         let name = format!("chialisp_oxide_puzzles::{}::puzzle", slug.replace('-', "_"));
         let program = bundle
@@ -255,10 +256,18 @@ fn real_rust_sources_match_native_chialisp_and_consensus_corpus() {
             .unwrap_or_else(|| panic!("missing Cargo export {name}"));
         let report = chialisp_oxide_corpus::validate(slug, program)
             .unwrap_or_else(|error| panic!("{slug}: {error:#}"));
+        reports.push(report);
+    }
+    // Registry entries become validated only after the complete triplet's
+    // five-build lifecycle and bounded sidecar serialization have succeeded.
+    let _registry = chialisp_oxide_corpus::registry_sidecars(&mut reports)
+        .expect("validate complete registry protocol group");
+    for report in reports {
         assert!(report.validated);
         assert!(!report.cases.is_empty());
         eprintln!(
-            "{slug}: {} vectors, {} generated cases, {} ledger scenarios",
+            "{}: {} vectors, {} generated cases, {} ledger scenarios",
+            report.slug,
             report.cases.len(),
             report.generated_cases,
             report.simulator.len()

@@ -1,0 +1,34 @@
+---
+import { readRegistrySourceControls } from '../lib/registry-source-controls.mjs';
+interface Download { path: string; bytes: number; sha256: string }
+interface Build { id: string; name: string; mode: string; entry: string; artifact: {module_tree_hash: string}; fields: Record<string,string|number> }
+interface Evidence { packetSHA: string; counts: Record<string,number>; builds: Build[]; downloads: Download[]; componentVm: string; componentFailureProtocol: string; primary: string; consensus: string; network: string }
+const evidence=await readRegistrySourceControls() as Evidence | null;
+const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
+const countLabels: Record<string,string>={groups:'Independently funded SDK groups',setup_sdk_attempts:'Setup SDK submissions',setup_primary_observations:'Setup component VM observations',mutation_sdk_attempts:'Mutation SDK submissions',mutation_primary_observations:'Mutation component VM observations',accepted_sdk_attempts:'Accepted SDK submissions in total'};
+const fieldLabels: Record<string,string>={root:'Funded mutant Merkle root',old_slot:'Old slot coin ID',peer_slot:'Peer slot coin ID',old_slot_spent:'Actual old slot spent',peer_slot_unspent:'Actual peer slot unspent',replacement_count:'Actual replacement children',replacement_hash:'Replacement puzzle hash',controller_child:'Actual controller child ID'};
+const shown=evidence?.downloads.filter(file=>file.path==='report.json'||file.path.endsWith('/sdk-1.json')||file.path.endsWith('/sdk-2.json')||file.path.endsWith('/source-recipes.json')||file.path.endsWith('/native-vectors.json')||file.path==='native/test.stdout');
+---
+{evidence ? <section id="registry-source-controls" data-registry-source-controls>
+  <h2>Remove one condition and observe the broken policy</h2>
+  <p><strong>WIP prototype; not ready for real funds.</strong> These are accepted policy mistakes in our original teaching actions. Each action set is funded under its own mutant root before initialization. The unchanged initializer and peer action are independently compiled Chialisp partners.</p>
+  <p>There are four baseline and four mutant native calls, eight retained template VM executions, and eight separately funded SDK groups in the two Rust modes. A repeat adds no coverage. Template and component observations use <code>{evidence.componentVm}</code> with <code>{evidence.componentFailureProtocol}</code>. SDK admission uses <code>{evidence.primary}</code>, <code>{evidence.consensus}</code> and <code>{evidence.network}</code>. These results are not execution authentication, not compiler preservation, and do not establish a BLS or general registry security proof.</p>
+  <dl class="counts">{Object.entries(evidence.counts).map(([key,value])=><div><dt>{countLabels[key]}</dt><dd {...{[`data-registry-controls-${key.replaceAll('_','-')}`]:''}}>{value}</dd></div>)}</dl>
+  <p>Omitting SEND allows the controller to change state while its old slot stays unspent. Omitting CREATE consumes that slot without producing a replacement. The peer slot stays unspent in both cases. The producer queries actual simulator state and children; the independent reader checks the retained transcripts. These counts are separate from the base five-build lifecycle above.</p>
+  <div class="groups">{evidence.builds.map(build=><article data-registry-control={build.id}>
+    <h3>{build.name} · Rust <span data-registry-control-mode>{build.mode}</span></h3>
+    <p>Export: <code data-registry-control-entry>{build.entry}</code></p>
+    <p>Uncurried module hash: <code data-registry-control-artifact>{build.artifact.module_tree_hash}</code></p>
+    <dl>{Object.entries(build.fields).map(([key,value])=><div><dt>{fieldLabels[key]}</dt><dd><code {...{[`data-registry-control-${key.replaceAll('_','-')}`]:''}}>{value}</code></dd></div>)}</dl>
+  </article>)}</div>
+  <h3>Retain the complete evidence</h3>
+  <p>The index binds all {evidence.downloads.length} physical files, including complete paired Cargo bundles, source recipes, native logs, retained VM observations and both SDK journals. Index SHA-256: <code data-registry-controls-index>{evidence.packetSHA}</code>.</p>
+  <ul>{shown?.map(file=><li><a data-registry-controls-download={file.path} href={`${base}reports/registry-source-controls/${file.path}`}>{file.path}</a> · {file.bytes} bytes · <code>{file.sha256}</code></li>)}</ul>
+</section> : <section id="registry-source-controls" data-registry-controls-pending><h2>Rust mutation evidence is pending</h2><p>Fresh complete source-control evidence must pass before publication. Target-only research adds no current packet credit.</p></section>}
+<style>
+  section { margin-block: 2rem; } .counts { display: grid; grid-template-columns: repeat(auto-fit,minmax(9rem,1fr)); gap: 1rem; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,23rem),1fr)); gap: 1rem; }
+  article { border: 1px solid var(--oxide-line); padding: 1rem; border-radius: .35rem; min-width: 0; }
+  dt { font-weight: 650; font-size: .8rem; } dd { margin-inline-start: 0; margin-bottom: .6rem; }
+  code { font-size: .75rem; white-space: normal; overflow-wrap: anywhere; word-break: break-word; } li { margin-block: .7rem; }
+</style>

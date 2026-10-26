@@ -39,6 +39,10 @@
         "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
         "source": "puzzles/boolean-gate/puzzle.rs"
       },
+      "boomerang": {
+        "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
+        "source": "puzzles/boomerang/puzzle.rs"
+      },
       "bounded-counter": {
         "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
         "source": "puzzles/bounded-counter/puzzle.rs"
@@ -46,6 +50,18 @@
       "capped-payment": {
         "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
         "source": "puzzles/capped-payment/puzzle.rs"
+      },
+      "cat-genesis-by-coin-id": {
+        "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
+        "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
+      },
+      "counter-increment": {
+        "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
+        "source": "puzzles/counter-increment/puzzle.rs"
+      },
+      "counter-reset": {
+        "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
+        "source": "puzzles/counter-reset/puzzle.rs"
       },
       "curry-factory": {
         "entry": "chialisp_oxide_puzzles::curry_factory::puzzle",
@@ -119,6 +135,14 @@
         "entry": "chialisp_oxide_puzzles::password_coin::puzzle",
         "source": "puzzles/password-coin/puzzle.rs"
       },
+      "precommit-claim": {
+        "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
+        "source": "puzzles/precommit-claim/puzzle.rs"
+      },
+      "precommit-registry": {
+        "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
+        "source": "puzzles/precommit-registry/puzzle.rs"
+      },
       "prefix-list": {
         "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
         "source": "puzzles/prefix-list/puzzle.rs"
@@ -126,6 +150,18 @@
       "recovery-payment": {
         "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
         "source": "puzzles/recovery-payment/puzzle.rs"
+      },
+      "registry-initialize": {
+        "entry": "chialisp_oxide_puzzles::registry_initialize::puzzle",
+        "source": "puzzles/registry-initialize/puzzle.rs"
+      },
+      "registry-set-alpha": {
+        "entry": "chialisp_oxide_puzzles::registry_set_alpha::puzzle",
+        "source": "puzzles/registry-set-alpha/puzzle.rs"
+      },
+      "registry-set-beta": {
+        "entry": "chialisp_oxide_puzzles::registry_set_beta::puzzle",
+        "source": "puzzles/registry-set-beta/puzzle.rs"
       },
       "rightmost-tree": {
         "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
@@ -154,30 +190,6 @@
       "two-signature-payment": {
         "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
         "source": "puzzles/two-signature-payment/puzzle.rs"
-      },
-      "boomerang": {
-        "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
-        "source": "puzzles/boomerang/puzzle.rs"
-      },
-      "precommit-claim": {
-        "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
-        "source": "puzzles/precommit-claim/puzzle.rs"
-      },
-      "precommit-registry": {
-        "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
-        "source": "puzzles/precommit-registry/puzzle.rs"
-      },
-      "cat-genesis-by-coin-id": {
-        "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
-        "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
-      },
-      "counter-increment": {
-        "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
-        "source": "puzzles/counter-increment/puzzle.rs"
-      },
-      "counter-reset": {
-        "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
-        "source": "puzzles/counter-reset/puzzle.rs"
       }
     },
     "sources": [
@@ -330,6 +342,10 @@
         "sha256": "aed0e6fe3fb9049be92b3efd832e4d33dce7b45c4f9a6066233e608f3894f50d"
       },
       {
+        "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/common_types.rue",
+        "sha256": "9abe900c733d03c711e07b537687dd25fbc35fd94950c35d002db566c558f122"
+      },
+      {
         "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
         "sha256": "efc12243d2cfdb76d3048b992b2a1ea5bbf4fd5adc2698a599955fe3cc546f0b"
       },
@@ -418,6 +434,30 @@
         "sha256": "1da819f55ffda1962519bf5e61ced0cdbfb6b736efbb0a29174d832deaacc336"
       },
       {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry.rs",
+        "sha256": "49d2d625b5f3709448afc88f1356305821411c259c21dd773824cf3e683f6fb0"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry/adversarial.rs",
+        "sha256": "0d18ec968ec8ad971f0b2f2a85f47570bb445070addceb2c128281bf2f450af6"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry/fixtures.rs",
+        "sha256": "3f2b01b9e922822cc320291dea37f7072bf55cfbc840070389c713cd72f5b501"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry/lifecycle.rs",
+        "sha256": "d625490c7f4eac10c5034aa855744ab5bf7d51e0a568ec4c2419277cd99e81b2"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry/source_controls.rs",
+        "sha256": "7f21c836ef6a3cd052ba74d37f0f5170b65d1e57b8a0564a9f1844c2a073a375"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/action_registry/wire.rs",
+        "sha256": "a832fc300f622c3fd051d6d7f7845ad57ae91ab3e0d13af7d2403e98e8a6a9b8"
+      },
+      {
         "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
         "sha256": "9ee57b19a30491708cfcc56283686e97905c4eb2df70f02799cbdb455dd732ed"
       },
@@ -435,11 +475,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "f9f868d9fdfb29ffdc34541b90dba769f13542577d006fd2c5c21ce5ac63659e"
+        "sha256": "66b4eafe9d05ce83ed05512f2414bd284232736154ed77726f88cbb92654a5ae"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "fa4f8278251e2742776c3f777ddfcd9d93fdc54dfbc4a8d91277456f3422d29f"
+        "sha256": "e156636319321661eb89738156d430e2accc32311ecb81e0a405664bf62dd96c"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -476,6 +516,10 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/password/ledger.rs",
         "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
+        "sha256": "7decfb55d54bb26cef0965021f8da88edbb49f8d08cc7d2e0628ed2972144744"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
@@ -539,7 +583,7 @@
       },
       {
         "path": "crates/chialisp-oxide/src/domain.rs",
-        "sha256": "c42c289d60783a7c90d77430b83bca6117f3f6d41e702ce36f08d4b354fcd884"
+        "sha256": "3b274177c88a1b9583e242fb30d3f875a2a72b869ca3a48200a2e09b1542ab09"
       },
       {
         "path": "crates/chialisp-oxide/src/hashing.rs",
@@ -575,7 +619,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "77da7653671a2e61321c7cf48923f001d7662ab8acef9bb9df5818ffac9b8788"
+        "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -711,7 +755,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "a22c00c7228d5abcbca188f2d4876e6c3acd31fe32b07b656df075f970b37a52"
+        "sha256": "8a80a044124ac5c29d07d4e8afd8c4133890dc68d016e8bb29bc7d58ba682ee9"
       },
       {
         "path": "puzzles/module-add/puzzle.rs",
@@ -822,6 +866,58 @@
         "sha256": "edbf48beb1d6817e70f6ff1c2f0c9f2ee50f608f1238ce8747b25099d5c5d5e6"
       },
       {
+        "path": "puzzles/registry-initialize/puzzle.json",
+        "sha256": "5ce28348b3c5e1e4633d612e7ad46fc28591343347c78bfe117a5b107e882d62"
+      },
+      {
+        "path": "puzzles/registry-initialize/puzzle.rs",
+        "sha256": "fab5029d6ece3008b453227f1e2fe05ea37dea03ae0f5e8563c86575c870c374"
+      },
+      {
+        "path": "puzzles/registry-initialize/puzzle.rue",
+        "sha256": "3b7695891bfb9e9a2b94a4f887c88322869b04c00cdbf7f90be8921dff8b341e"
+      },
+      {
+        "path": "puzzles/registry-initialize/reference.clsp",
+        "sha256": "cf86358caa33f192972593e4eaac26595ebd11c94c38489134a8657e781fbdeb"
+      },
+      {
+        "path": "puzzles/registry-set-alpha/puzzle.json",
+        "sha256": "49aa8bde2b0b393767ce561e6f51eb57bbb4913ac3277371946658f833a2c506"
+      },
+      {
+        "path": "puzzles/registry-set-alpha/puzzle.rs",
+        "sha256": "5931cdb138f1c25984282ede319ddeecf67274db16334c15fbae313b77d35334"
+      },
+      {
+        "path": "puzzles/registry-set-alpha/puzzle.rue",
+        "sha256": "6ab8b7681e81793112fa76738319b72f6e440e77365e8af5b84b57217a801276"
+      },
+      {
+        "path": "puzzles/registry-set-alpha/reference.clsp",
+        "sha256": "a2638e1d8d2b00ced7c582d0faadf7e886e9d83a40f493503a62d2fbce1a4cb5"
+      },
+      {
+        "path": "puzzles/registry-set-beta/puzzle.json",
+        "sha256": "ced561e2e151c9035eb8df5978df0131feb4e761d350e8de52e2e899da8c0f3e"
+      },
+      {
+        "path": "puzzles/registry-set-beta/puzzle.rs",
+        "sha256": "3ca55ba9cdbb605a4eddea581f041d9aa80dfb9881a010fb32f4d3d95476f25d"
+      },
+      {
+        "path": "puzzles/registry-set-beta/puzzle.rue",
+        "sha256": "99fbdfa8d9cfb55e690eda210f4e1450a2d5c9e3358911119cf76cbea5b65535"
+      },
+      {
+        "path": "puzzles/registry-set-beta/reference.clsp",
+        "sha256": "2f72899633ba271cea57103006cb4e8f142d104416773ed2a5e85d7d31007c12"
+      },
+      {
+        "path": "puzzles/registry_recipe.rs",
+        "sha256": "237ebd130bfdd1900cc8b91eee83e5da82408cd1f9db19850d8aaf406e3296b3"
+      },
+      {
         "path": "puzzles/rightmost-tree/puzzle.rs",
         "sha256": "2d523221c500cb4b8d5748369b949e22c7dee68dbc20c8b3e73bb7d8c14009d2"
       },
@@ -930,7 +1026,7 @@
       },
       {
         "path": "crates/chialisp-oxide/src/domain.rs",
-        "sha256": "c42c289d60783a7c90d77430b83bca6117f3f6d41e702ce36f08d4b354fcd884"
+        "sha256": "3b274177c88a1b9583e242fb30d3f875a2a72b869ca3a48200a2e09b1542ab09"
       },
       {
         "path": "crates/chialisp-oxide/src/hashing.rs",
@@ -1156,7 +1252,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/off/manifest.json",
-      "sha256": "0598039b5a19c76c4e2beb6585eedf018eb81b3f39c3046c2049949db19c745b"
+      "sha256": "269191021463cea80178f7dc556420b111fe6493bdb93a775b732cac974be45f"
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.clvm.hex",
@@ -1200,7 +1296,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/on/manifest.json",
-      "sha256": "281535883454878532388685f06f8b2ff22e49944b5f88cd99c6b648c4f69558"
+      "sha256": "529d55e36498cfcd201a98980746df5c7863ff98adbd1e5908177be00787c0d5"
     },
     {
       "path": "corpus/boomerang-source-controls/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
@@ -1316,7 +1412,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/last-host-window.json",
-      "sha256": "4b41fb39009d42c0e42893d11f2d86d8ffb79ff3f24ec22bf1fb663a595950c7"
+      "sha256": "be964c99f0cf756acd7bad91a035908c22718f74eaac0794524f436a728f07e7"
     },
     {
       "path": "corpus/boomerang-source-controls/ledger-request.json",
@@ -1328,11 +1424,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/logs/00.stderr",
-      "sha256": "7cc5220712eb74492f599154c7777ac10e145af5e292fc516e5e93c48c8d8062"
+      "sha256": "915918cda462d3c35f78485bbcf0bb01afb8d7b6e14bc75492650969159a4f84"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/00.stdout",
-      "sha256": "9f6d9c0c9e1320013cce8106a5328c7a409336e9eb0d526fdafcd58b47dd04c6"
+      "sha256": "3b013b2dc68d612b45fbca5b5d22435a88078787da20e7b1a846cfbfaab6a0d9"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/01.stderr",
@@ -1448,11 +1544,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/logs/15.stderr",
-      "sha256": "ec658e04a4306a136bd8e4f7146ca4c18b250b0194c7ebaabc97fe9524182c06"
+      "sha256": "8f23b4b042127023e3e0a94f94208f7fe9a826fb388ef6ffa512e360ef7864a1"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/15.stdout",
-      "sha256": "b5dbe2eba4d9ceeccaa3e50f6215422140704f7616fa08eb48b7e1da8826b021"
+      "sha256": "56ef7e6280f62d2fcf82aab2f639e64184f6158c060c2e3683dcd3d8a1770141"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/16.stderr",
@@ -1584,27 +1680,27 @@
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/2.log",
-      "sha256": "2f973fd00af16b88ab5bcc256be1b26e10e7d755c45cc12082ea17cf6c8f1cf3"
+      "sha256": "77e6a9f55fefd664c38d3912de59b64f21caa2d51c1b05fa1bf43f13b7aa21f9"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/3.log",
-      "sha256": "bd07ee2549d28fed8d34e846e4682c4629948fda5b573ba4f572868987471d8f"
+      "sha256": "08311c1375ebbed9b5ebdb17e2f1bf594ccd6dcd4381fcd7732c7d4f9deb210b"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/4.log",
-      "sha256": "2d39d6ebb440a9780bcc8d1f71adc279c5aa43c24ad3cb542f33f2f8d11c5452"
+      "sha256": "bb02f2a2a4be34eb41710f6914a40774655bd4d4cd6a67ddddf8fb0ac1a61246"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/5.log",
-      "sha256": "9d892c5778d0c975f64a671e66ea5a753502353da3addd1dfdf3825225e406a2"
+      "sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec"
     },
     {
       "path": "corpus/boomerang-source-controls/native-receipt.json",
-      "sha256": "544927809cdfb04f25ca0b12ac056fd83c25bf40338b0a631a218ec410e4d844"
+      "sha256": "38e281a66b6029573f61c38cd767b0f5722897100244a300bb3fcdf66dfb950b"
     },
     {
       "path": "corpus/boomerang-source-controls/native.log",
-      "sha256": "bd07ee2549d28fed8d34e846e4682c4629948fda5b573ba4f572868987471d8f"
+      "sha256": "08311c1375ebbed9b5ebdb17e2f1bf594ccd6dcd4381fcd7732c7d4f9deb210b"
     },
     {
       "path": "corpus/boomerang-source-controls/package/Cargo.lock",
@@ -1656,11 +1752,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/report.json",
-      "sha256": "663b96d2f279bed1db2c4dadaeb1c92e8b19d5cd4cb979fe0608254793205144"
+      "sha256": "804e27f28f60440f95fa4911d01784c8498ed10e6f94a2263bb8236bab484c67"
     },
     {
       "path": "corpus/cat-genesis-source-controls/artifacts.json",
-      "sha256": "bc0eb262d4e9c3f8b5a58bb5ed51abe8cd2d73c0917aaa30f27083ca7b06e38f"
+      "sha256": "8a6f1bffb32325f9fd06a1d7072a66068e6d4a725c698d6b2e3f85ccac5f2f87"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/b1f2f325a4f75483f6cc7b7efb32944875ca17b79fd0e0302e91fd0dbc9da3f4.clvm.hex",
@@ -1688,7 +1784,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/manifest.json",
-      "sha256": "b82e0b7c00b678b71951df6bee307cc87825d8a3d6ccb867c67a4199615e183f"
+      "sha256": "2c4a92f76efff3ae7aaf9abd6002c2ec04bafa478ffeb948dbd2b7812e23e295"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/source-1a28a3633cfa9d3e3d40784ac0e5977bd056a490be663a2b90e0e1ce74ca03a8.bin",
@@ -1740,7 +1836,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-on/manifest.json",
-      "sha256": "f8a64e798d295c8bbe321a981c42277a235346911fb81e3012a7c5a332e2e472"
+      "sha256": "1b69069a5040a8e40cf9283841e03892c0bd8bab81fb059fdf05c93af95e1fcc"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-on/source-1a28a3633cfa9d3e3d40784ac0e5977bd056a490be663a2b90e0e1ce74ca03a8.bin",
@@ -1768,11 +1864,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/capture.json",
-      "sha256": "4318bd02905c538403581b9a33b128db0da925e1f6deaf1ad9ab59fc39208750"
+      "sha256": "70cd5da8da659cfeb0e767cd79a34de250000a2a151ececa81ce92955933d328"
     },
     {
       "path": "corpus/cat-genesis-source-controls/compiler-query.command.json",
-      "sha256": "a094debd97eaf260e199ecd94d149deb1a19eac555b6dfe3c0853e83a70fdfab"
+      "sha256": "41b38a81d170579ffcba86c1ca83453500f193e1f41b00c11385686c3b2f0939"
     },
     {
       "path": "corpus/cat-genesis-source-controls/compiler-query.stderr",
@@ -1784,7 +1880,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/driver-query.command.json",
-      "sha256": "62983cc9a23c5b10454891d6cdc112ceaefb0c1a67fb07977244b7214644d8a8"
+      "sha256": "631a962728a076aa1bcf9992a545d3f147324bf64c51d3f66cd95c575e74bbcf"
     },
     {
       "path": "corpus/cat-genesis-source-controls/driver-query.stderr",
@@ -1796,47 +1892,47 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/execution.json",
-      "sha256": "fa719a90502b1055b6fb320816d44cf8f2ec3ed7476478be363086021f0e4144"
+      "sha256": "f6e867eb1ca742ea7f8c3faaf65594092d4ebeb45dc5065af6aa078d69772350"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.command.json",
-      "sha256": "94a13c0ec8e9f24e2064d0d0dedac379d5f5930574ac580aa24d1d725959874f"
+      "sha256": "114f13fae5312aa521e7a5f04e8937dc3aff2b564ca3a07d62e70a2354c32c0b"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.stderr",
-      "sha256": "9ee40fbbd4165558d38cdd503683d590ce201d450d1c7695bb04a5648ac16d54"
+      "sha256": "7cb04fc710b0b21ff87661d41d6b4768226e08b4b274898ff0409d23c48906f8"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.stdout",
-      "sha256": "8bd929f7eb5f6cf85a952ef55e1476baa53cae19a2cf6838b859c03fcf4f86da"
+      "sha256": "26e8cc167569353706fc3e0dac8b81eaf6e23ebe578b22f82cad171f3261eb7e"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.command.json",
-      "sha256": "cfc600681c1b61d6ced8d67291e2f0b0c8884b0abb67e4f1e714d06ecc5c452c"
+      "sha256": "954aa61b69fb1e5ebb8f182f5982868d1c501ae36f238e91e19db0c980739196"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.stderr",
-      "sha256": "9ee40fbbd4165558d38cdd503683d590ce201d450d1c7695bb04a5648ac16d54"
+      "sha256": "2d02b05aca4164874a06a22a945fa334696f6654975cf4fd51b116fb9fc30483"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.stdout",
-      "sha256": "0ae51355d440fa2e83189daa84758fec834470bde2902d6057c5712c0b8e3b75"
+      "sha256": "96ac069570869b10f13304eae58077fd31255191b183ebc08bbb386565d7447c"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-window-after.json",
-      "sha256": "e6385309da9c2959dbd3ac8999c6c821a74221d19e87bc93f46116f24cc33f08"
+      "sha256": "f1619f2deae7a521bbb018607cad30fdac91c215145f92195e288c3853775d80"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-window-before.json",
-      "sha256": "e6385309da9c2959dbd3ac8999c6c821a74221d19e87bc93f46116f24cc33f08"
+      "sha256": "f1619f2deae7a521bbb018607cad30fdac91c215145f92195e288c3853775d80"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.command.json",
-      "sha256": "97ddb30dd3f885b60eab111c43f720b19d26a680e23cab36dcc3a79dd6b1c9b2"
+      "sha256": "58838f1a4561899f5776572bf431ddff6c9993764cc800c6103b08e41e6978f6"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.stderr",
-      "sha256": "eb3fd6780920d91eda23c574c693a23ad0d5337a8817b9ec64671704ac2feee8"
+      "sha256": "5e9ab585d1ced56123d8d8e664dfdcada91abe327ddcf201c15157eacee670ab"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.stdout",
@@ -1844,11 +1940,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.command.json",
-      "sha256": "19e5d19e06db6f7b5e9df04ed5edfe759b0d64a081cd74a3419e229d7196ac0f"
+      "sha256": "48629e71b8de2a45204f9b320d9089e6c9e1f259b55ce667fcd239841b9481ab"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.stderr",
-      "sha256": "247bb6e69c9102ec34a75e06c05e301e544d463722e7c6966e47368989527d41"
+      "sha256": "d8950e0f51524536fcce784692035aeaf2580a297c5de6dc656aa8036448b84f"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.stdout",
@@ -1856,7 +1952,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-fmt.command.json",
-      "sha256": "eb838d511d12128d2cc198344187af2ae91a390cd5f7504a5b80db6bfa4ef602"
+      "sha256": "751bab861e3645ec515c3797380fe0006e40e2f6cb4c96154fe3d7c9fcc73d01"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-fmt.stderr",
@@ -1868,11 +1964,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.command.json",
-      "sha256": "c2df54dc58023a9f99f17ea0ba724774156ac9fee6594e104bb5266e0131f5d4"
+      "sha256": "315ef40aff429e6d6644b1fe42d4a9a0219c9f921ede863c5542634404580b5d"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.stderr",
-      "sha256": "d9bb1a291f0478b386630a8ea2f09e4a2f7583edeff25611f803d7350a282d7e"
+      "sha256": "bcbe50ba68f75499ebb9793d73868384494da84b417d1dce7249699ae63ab907"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.stdout",
@@ -1880,7 +1976,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-fmt.command.json",
-      "sha256": "58cbbe7dc4be1942f8083a843334ddf04729c7cec9683d9fae8b3c19ad4ff61a"
+      "sha256": "3545b6a32c1d4f69f27eda0362d1f96e78d3dd3b4e24cee4d3f7b903c906b4cb"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-fmt.stderr",
@@ -1892,11 +1988,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.command.json",
-      "sha256": "fdd42ce95a40bd20e2fee0e153bd70e8239903786696c601e3c890c2f76167d9"
+      "sha256": "7d3ae06bf46f5416fe18caaee390170ee4a52ed9c3780ed6fe68a110d4a7b93b"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.stderr",
-      "sha256": "13ec0653c2ba8c970cc9f7cc50e81b81ad925dca35b16addc30ce1b26ca5216a"
+      "sha256": "ab723380315101fdacd0e2f510aa5d88e900e456a3f92b76d2cc34c6af0d607c"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.stdout",
@@ -1904,19 +2000,19 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-window-after.json",
-      "sha256": "23c0131d86b71a0f58c6c044d0baf967aa82fc3ddfd5a10d228b53e264f6476e"
+      "sha256": "eeae2a93a4650e096a5a86705c139638c8597de8fa1c2da935a83bd726eb2a4a"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-window-before.json",
-      "sha256": "23c0131d86b71a0f58c6c044d0baf967aa82fc3ddfd5a10d228b53e264f6476e"
+      "sha256": "eeae2a93a4650e096a5a86705c139638c8597de8fa1c2da935a83bd726eb2a4a"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native.json",
-      "sha256": "aa83b448cfd852af20bd649da54abcf554aed4a1a06f7f17fe45623d199731db"
+      "sha256": "ce72a2535ec5b965715213d60990e765622c220869d064b5e612f572581d76c9"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.command.json",
-      "sha256": "c593d16eca76aa70ddc7f32427206033975690371e0f3b336fa1fcd395bf9ece"
+      "sha256": "5f475be854787ac5be7770b4a4e69cf7aec1d513287c6a3621c0f72565847046"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.stderr",
@@ -1924,11 +2020,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.stdout",
-      "sha256": "877f6e1a01f26fe40e6abaad18a06f8429de2f38f8f7960b54c79d6a7fb56e39"
+      "sha256": "0f1586b1da63d5ef4845f267703c78213074ed97e3fdd1fd5b8715c59dfdb523"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepared.json",
-      "sha256": "d65647749586ea89dffd78165422379dddc1f9dbd622d14fc44488f799b8466e"
+      "sha256": "5ff0942b5d4e38e99fedc2934edea767e33db215bcb69e7f805208f386260254"
     },
     {
       "path": "corpus/cat-genesis-source-controls/project/Cargo.lock",
@@ -1964,7 +2060,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/recorded-reader.command.json",
-      "sha256": "aa0d42b53f193793cc2e0f036fb05135b589ed7ed55869aa08f95ae44d114abf"
+      "sha256": "0c5339cf2e72d7d2623ae57b60fd8183ca5faf3362cc4a85aa68fd55bae8f5f1"
     },
     {
       "path": "corpus/cat-genesis-source-controls/recorded-reader.stderr",
@@ -1976,11 +2072,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/report.json",
-      "sha256": "8a4a7293b48faaa4f480d8aa37ce9ef293ddb76fb73999e8808973651efabca1"
+      "sha256": "f11ad3f92e8fc3b4322777f76914e42d625ad8b954c6f5635ac16d74ef03b57e"
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt1.command.json",
-      "sha256": "6d195b7aba590530ed878ac40b1343391b5d2daa3f9a9c47b295ae0c9d3841d2"
+      "sha256": "700f44736a0ea93a357e4813d19da7114f84956282d8970ed53b187c387e3a58"
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt1.stderr",
@@ -1988,23 +2084,23 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt2.command.json",
-      "sha256": "ab576f00c588b268f6574f61f8e5afcb23452a13162ca8212837ef2a527b8242"
+      "sha256": "0592f05fe8bd9e1756917199a7836b50b2c52f4e5fff7a12e2061b677a59a5bf"
     },
     {
       "path": "corpus/cat-genesis-source-controls/sdk-window-after.json",
-      "sha256": "cbe2524e011b726b27b480baa7e9d100f57c4e3b0b0a4a457cf86fe33ca04d16"
+      "sha256": "fb529e454522d4698e5bf366552f7d02e5f48684d3889dc54e64433511cf4dcc"
     },
     {
       "path": "corpus/cat-genesis-source-controls/sdk-window-before.json",
-      "sha256": "cbe2524e011b726b27b480baa7e9d100f57c4e3b0b0a4a457cf86fe33ca04d16"
+      "sha256": "fb529e454522d4698e5bf366552f7d02e5f48684d3889dc54e64433511cf4dcc"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.command.json",
-      "sha256": "e81c4452786e559496a9cf4359aba72b86bbefcf8f498d2f1fa375f8aff87b25"
+      "sha256": "e56eb577c8bdd86c05ac9b7e7de3c61e0b36e4e03d70c057af3753248c811dc0"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.stderr",
-      "sha256": "0ff4271ee131ee5defa0f4d3872c137c49a3d95253a3a0142fea2af64656f578"
+      "sha256": "5075685226347a3d55d1554b1f3757791c58680a9b9c2204afc07398faaea8da"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.stdout",
@@ -2024,7 +2120,7 @@
     },
     {
       "path": "corpus/corpus-append-existing-p2-controls.json",
-      "sha256": "ea04946b07910f58047527245b7447fbf71e8f9f9b6131190c03e75331d0d325"
+      "sha256": "c7b0b898e210e015a0d14009f09328b407bb387e4eb92b0aedce07157f7241bf"
     },
     {
       "path": "corpus/corpus-append-existing-p2-costs.json",
@@ -2032,7 +2128,7 @@
     },
     {
       "path": "corpus/corpus-append.json",
-      "sha256": "a1d8a778fc7821f3352669619ee80338837f0b7dfd03ebbadb6bddb1ed011933"
+      "sha256": "2c63f6b437b0766e6001b450a99043a4ff214dcb2497ddfce67941b8683abee4"
     },
     {
       "path": "corpus/cost-optimization-baseline.json",
@@ -2128,7 +2224,7 @@
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/off/manifest.json",
-      "sha256": "e6421a5327ab6b33cf1ee3c1c9e049b67ce0af48cee90064a6206c90c285f4f5"
+      "sha256": "8918656551842e8d919db5061538be87c8d6edc0de3657cf24aff265cb41dec4"
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
@@ -2164,19 +2260,19 @@
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/on/manifest.json",
-      "sha256": "876c48b0f7635cdd35ff5c6eeb67daa0a624a6eb1e3c18b4880f2c531aa89cfc"
+      "sha256": "f595cda0f49fd4871917442b59ab15e45a67864a5122e3c0f9236200462eb6ad"
     },
     {
       "path": "corpus/p2dc-source-controls/last-host-window.json",
-      "sha256": "5e462b3aa1b924e81f40be33be040fa0d2378301342e5f0bd9dcb5f25b8dd005"
+      "sha256": "602e9a30c8ca24588a1752d9ebd1d48b6c38636a971fe73315271a34f76a367b"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/00.stderr",
-      "sha256": "bb35b8f72395bdc135241e381e1241b0fa796f9e3682f0be4a3a5214eb760b4d"
+      "sha256": "ded63b4d364e158e42da28ca334783eb627e6857b0fc630832054f57b3398ae4"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/00.stdout",
-      "sha256": "1430922e5fbf438b07c51e70e08a94c8211e6b3a2d4aeda46c15fb21adadc6a6"
+      "sha256": "9188f3d783e3947991fe388c3bb037f6377f4c133fd8b89b56e79df1b3a77ea1"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/01.stderr",
@@ -2260,11 +2356,11 @@
     },
     {
       "path": "corpus/p2dc-source-controls/logs/11.stderr",
-      "sha256": "8edca62ec3a6df259b30851a8cca72aa6625aeaddc6bf716f14b3e4854e6d7d4"
+      "sha256": "704954636f9a56dc55f6014c40b66dafe59a2b0b6bd74c74f231fa268b14e08d"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/11.stdout",
-      "sha256": "e715508bbe9c0a199c4d41c1c1d3dece25ade7a614ca71a1a5f0edade6c5f8d4"
+      "sha256": "ce3422d13a33238ab1c2e3aa67319c7c0407456757ca2df71e5957dfbbc1cbc3"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/12.stderr",
@@ -2348,11 +2444,11 @@
     },
     {
       "path": "corpus/p2dc-source-controls/native-receipt.json",
-      "sha256": "21fe2671bb8df58546e003b50cb3ba42096c03e289679192efc3a5732d0f59ce"
+      "sha256": "b23cf0a3a79ed3c67172f45f207a399c09b5739a4c1351039289871dc165b8cf"
     },
     {
       "path": "corpus/p2dc-source-controls/native.log",
-      "sha256": "1140f819380236f027cc595c88e1cad801322b400d0b17f38b60f79723687e0f"
+      "sha256": "3e8cd823ec0f084911c0322d58be00f888ab6904d399d4b505489e8fc2250b00"
     },
     {
       "path": "corpus/p2dc-source-controls/off-baseline-reject_ignored_improper_tail-solution.json",
@@ -2440,7 +2536,7 @@
     },
     {
       "path": "corpus/p2dc-source-controls/report.json",
-      "sha256": "041e951f280d2c474db1a5708daaf0d85d77546e0aaba36d26215028ea3473f2"
+      "sha256": "97ee5c0575127857937087fb2f569da5a089ab9ef9eaea58a6fb359e01bdc92e"
     },
     {
       "path": "corpus/runtime-composition-baseline.json",
@@ -2648,7 +2744,7 @@
     },
     {
       "path": "corpus/validation.json",
-      "sha256": "9a7d4615183249ca2bcdbba5a2695429b3d9c00bfcb0c6c44852701f7e999714"
+      "sha256": "fa58673855b5788e8d011e042eb40819693e64c2c8e25629c816dda530d4dfca"
     },
     {
       "path": "crates/cargo-chialisp-oxide/Cargo.toml",
@@ -2712,7 +2808,7 @@
     },
     {
       "path": "crates/chialisp-oxide-cli/src/main.rs",
-      "sha256": "b34324647a4b59eb2629a69fc411a3809a36ebe807c34ceeec13d71a9055cee4"
+      "sha256": "d96e9f48121f9965775710169ee0db6d69c0579763d36b5f1c7ed86e7d6811ad"
     },
     {
       "path": "crates/chialisp-oxide-cli/tests/batch.rs",
@@ -2759,6 +2855,30 @@
       "sha256": "1da819f55ffda1962519bf5e61ced0cdbfb6b736efbb0a29174d832deaacc336"
     },
     {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry.rs",
+      "sha256": "49d2d625b5f3709448afc88f1356305821411c259c21dd773824cf3e683f6fb0"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry/adversarial.rs",
+      "sha256": "0d18ec968ec8ad971f0b2f2a85f47570bb445070addceb2c128281bf2f450af6"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry/fixtures.rs",
+      "sha256": "3f2b01b9e922822cc320291dea37f7072bf55cfbc840070389c713cd72f5b501"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry/lifecycle.rs",
+      "sha256": "d625490c7f4eac10c5034aa855744ab5bf7d51e0a568ec4c2419277cd99e81b2"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry/source_controls.rs",
+      "sha256": "7f21c836ef6a3cd052ba74d37f0f5170b65d1e57b8a0564a9f1844c2a073a375"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/action_registry/wire.rs",
+      "sha256": "a832fc300f622c3fd051d6d7f7845ad57ae91ab3e0d13af7d2403e98e8a6a9b8"
+    },
+    {
       "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
       "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
     },
@@ -2788,11 +2908,11 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-      "sha256": "f9f868d9fdfb29ffdc34541b90dba769f13542577d006fd2c5c21ce5ac63659e"
+      "sha256": "66b4eafe9d05ce83ed05512f2414bd284232736154ed77726f88cbb92654a5ae"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native.rs",
-      "sha256": "fa4f8278251e2742776c3f777ddfcd9d93fdc54dfbc4a8d91277456f3422d29f"
+      "sha256": "e156636319321661eb89738156d430e2accc32311ecb81e0a405664bf62dd96c"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -2837,6 +2957,10 @@
     {
       "path": "crates/chialisp-oxide-corpus/src/password/ledger.rs",
       "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
+      "sha256": "7decfb55d54bb26cef0965021f8da88edbb49f8d08cc7d2e0628ed2972144744"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/spends.rs",
@@ -3200,7 +3324,7 @@
     },
     {
       "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-      "sha256": "dd154c90cc0a9dc99291d982d1c1f4619e77853d57c30b7d8b393a42c40b6413"
+      "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
     },
     {
       "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -3948,7 +4072,7 @@
     },
     {
       "path": "crates/chialisp-oxide/src/domain.rs",
-      "sha256": "c42c289d60783a7c90d77430b83bca6117f3f6d41e702ce36f08d4b354fcd884"
+      "sha256": "3b274177c88a1b9583e242fb30d3f875a2a72b869ca3a48200a2e09b1542ab09"
     },
     {
       "path": "crates/chialisp-oxide/src/hashing.rs",
@@ -4216,7 +4340,7 @@
     },
     {
       "path": "puzzles/authoring.json",
-      "sha256": "77da7653671a2e61321c7cf48923f001d7662ab8acef9bb9df5818ffac9b8788"
+      "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
     },
     {
       "path": "puzzles/boolean-gate/puzzle.json",
@@ -4404,7 +4528,7 @@
     },
     {
       "path": "puzzles/lib.rs",
-      "sha256": "a22c00c7228d5abcbca188f2d4876e6c3acd31fe32b07b656df075f970b37a52"
+      "sha256": "8a80a044124ac5c29d07d4e8afd8c4133890dc68d016e8bb29bc7d58ba682ee9"
     },
     {
       "path": "puzzles/p2-conditions/puzzle.json",
@@ -4748,7 +4872,7 @@
     },
     {
       "path": "scripts/check-readable-puzzles.py",
-      "sha256": "acfc02d96aaf6ee22a70e3969b8b8e121794a79d48fbe26fbfe0ce12fa1b695e"
+      "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
     },
     {
       "path": "scripts/check-runtime-composition.py",
@@ -4760,7 +4884,7 @@
     },
     {
       "path": "scripts/corpus_append.py",
-      "sha256": "6981239b4bdf9f64c4d42c3dfe820f9fe021a7c527c5bdd89c0702c6f066566f"
+      "sha256": "01f69c5a075c23a28c12f9519929a0494ba476cb6c4835924fc78a53ff607007"
     },
     {
       "path": "scripts/hashing_provenance.py",
@@ -4772,7 +4896,7 @@
     },
     {
       "path": "scripts/ledger_rejections.py",
-      "sha256": "c62c9a2cc8fcdc87b021a833c62854070d7a1bc102e779e0584e2e5b3c76f7e8"
+      "sha256": "c14acdb00088ce0f4fb9fa97588bb342ca2949e1d84faca85ee23f4c9b9b025f"
     },
     {
       "path": "scripts/p2_append_migration.py",
@@ -4840,7 +4964,7 @@
     },
     {
       "path": "scripts/runtime_cost_migration.py",
-      "sha256": "f265c16725a8fee23325fa7ec08475f9df1fe5cdfd5b9bba39cbe034f668b74b"
+      "sha256": "dfd966e8d146b5b93cffaa4fd8aaeff40df9a7ad53042681602a0d8acb98fee2"
     },
     {
       "path": "scripts/runtime_guarded_projection_migration.py",
@@ -4960,7 +5084,7 @@
     },
     {
       "path": "www/package.json",
-      "sha256": "e8aef16c901ffa6ee66d7f6dbc11f97bdc0fec2de69ad01b13f7d83e1cd6ab54"
+      "sha256": "1ccda62626e0d6f7b73d70206cd0f9997e30a2854c3b4aa43e5dec882b531290"
     },
     {
       "path": "www/scripts/boomerang-protocol.mjs",
@@ -4972,15 +5096,15 @@
     },
     {
       "path": "www/scripts/check-evidence.mjs",
-      "sha256": "7c1f1552715c943c6569684b7184f56d02735f234dfe774892bc4153c1e32442"
+      "sha256": "c58884def6d62a7da77687ee17938fd5eafeeaac47be1c7bfaa3a48771b72f93"
     },
     {
       "path": "www/scripts/ledger-rejections.mjs",
-      "sha256": "31fe44bb503c32a044e683edec8c9c6b186f78af37e4732a848e52a2574ea734"
+      "sha256": "ed8ea4a9db94ee54e337d44c07106052503e8d2f248c325239d9b51d985db007"
     },
     {
       "path": "www/scripts/p2-protocol.mjs",
-      "sha256": "23eb9746adaeac7c6f549a2ef299dad20802ede70b73d4016c7800abe9ba5dd5"
+      "sha256": "6f18fc241d46c379adb29a834509fc52a69e7bf3c14f754a7b8542fec616d3f1"
     },
     {
       "path": "www/scripts/p2dc-protocol.mjs",

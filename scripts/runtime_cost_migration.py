@@ -147,10 +147,10 @@ def verify_current22_bundles(report, on, off, **identities):
     return current22_migration(report).verify_fresh_bundles(report, on, off, **identities)
 
 
-def validate_current(report):
+def validate_current(report, *, sidecar_root=ROOT / 'corpus'):
     """Validate this root's complete actual current corpus, never restored/sliced history."""
     import corpus_append as selected
-    return selected.validate_current(report)
+    return selected.validate_current(report, sidecar_root=sidecar_root)
 
 
 def composition_checkpoint(report):

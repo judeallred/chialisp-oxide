@@ -3,11 +3,19 @@
 pub mod counter_types;
 mod fixture_keys;
 mod precommit_recipe;
+pub mod registry_recipe;
 
 #[path = "counter-increment/puzzle.rs"]
 pub mod counter_increment;
 #[path = "counter-reset/puzzle.rs"]
 pub mod counter_reset;
+
+#[path = "registry-initialize/puzzle.rs"]
+pub mod registry_initialize;
+#[path = "registry-set-alpha/puzzle.rs"]
+pub mod registry_set_alpha;
+#[path = "registry-set-beta/puzzle.rs"]
+pub mod registry_set_beta;
 
 #[path = "boomerang/puzzle.rs"]
 pub mod boomerang;

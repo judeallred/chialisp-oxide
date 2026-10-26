@@ -1,5 +1,6 @@
 //! Reproducible cross-language and ledger validation of the teaching corpus.
 mod action_counter;
+mod action_registry;
 mod authoring;
 mod boomerang;
 pub mod cat_genesis_tail;
@@ -14,7 +15,13 @@ mod native_tree;
 mod p2_delegated_conditions;
 mod p2_singleton;
 mod password;
+mod registry_sidecar;
 mod spends;
+pub use action_registry::{
+    RegistryControlBuild, RegistryControlJournal, RegistryControlKind, RegistryControlReferences,
+    RegistryControlSide, RegistrySourceControlRecord,
+    validate_source_controls as validate_registry_source_controls,
+};
 use anyhow::{Context, Result, ensure};
 pub use authoring::{Authoring, Export, authoring};
 use chialisp_oxide_backend_experiment::{
@@ -22,6 +29,7 @@ use chialisp_oxide_backend_experiment::{
 };
 use chialisp_oxide_ir::{Environment, Program};
 pub use chialisp_oxide_simulator::REJECTION_PROTOCOL as SIMULATOR_REJECTION_PROTOCOL;
+pub use registry_sidecar::{RegistrySidecars, registry_sidecars};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, path::PathBuf};
@@ -64,6 +72,9 @@ pub const PUZZLES: &[&str] = &[
     "cat-genesis-by-coin-id",
     "counter-increment",
     "counter-reset",
+    "registry-initialize",
+    "registry-set-alpha",
+    "registry-set-beta",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -817,6 +828,10 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
             "cat-genesis-by-coin-id" => cat_genesis_tail::validate(&programs)?,
             "counter-increment" | "counter-reset" => action_counter::validate(slug, &programs)?,
             "p2-delegated-conditions" => p2_delegated_conditions::validate(&programs)?,
+            "registry-initialize" | "registry-set-alpha" | "registry-set-beta" => {
+                // The complete group is executed after all three raw reports exist.
+                serde_json::json!({"status":"pending_complete_registry_group"})
+            }
             _ => anyhow::bail!("protocol component needs a dedicated validated harness"),
         })
     } else {
@@ -871,7 +886,10 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         curried_examples,
         coin_instances,
         protocol_validation,
-        validated: true,
+        validated: !matches!(
+            slug,
+            "registry-initialize" | "registry-set-alpha" | "registry-set-beta"
+        ),
     })
 }
 // A deterministic bounded set of atom, proper-list and improper-pair environments.

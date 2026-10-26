@@ -26,7 +26,7 @@ import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = 'a1d8a778fc7821f3352669619ee80338837f0b7dfd03ebbadb6bddb1ed011933'
+PIN = '2c63f6b437b0766e6001b450a99043a4ff214dcb2497ddfce67941b8683abee4'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
@@ -352,11 +352,11 @@ def validate_added(report, profile):
         require(manifest['slug'] == puzzle['slug'] and manifest['provenance'] == puzzle['provenance'], f"{puzzle['slug']}: manifest provenance differs from the report")
 
 
-def validate_current(report):
+def validate_current(report, *, sidecar_root=ROOT / 'corpus'):
     """Explicit current root; pending/missing/malformed never falls back to the retained checkpoint."""
     profile, _ = reviewed_after(report)
     require([p.get('slug') for p in report['puzzles']] == current_slugs(profile), 'current exact coverage')
-    counts = cost.READABLE['check_report'](report)
+    counts = cost.READABLE['check_report'](report, sidecar_root=sidecar_root)
     cost.READABLE['check_sources'](report, ROOT, require_rue=True)
     current_native_sources(report, profile)
     validate_added(report, profile)

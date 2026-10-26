@@ -128,7 +128,7 @@ def check_divergence(divergence, native, label):
     return outcome
 
 
-def check_report(report, *, require_typed_failures=True):
+def check_report(report, *, require_typed_failures=True, sidecar_root=ROOT / "corpus"):
     require(type(report.get("schema_version")) is int and report["schema_version"] == 1,
             "Expected corpus schema_version 1")
     if require_typed_failures:
@@ -136,7 +136,7 @@ def check_report(report, *, require_typed_failures=True):
         require(report.get("optimization_pipeline") in KNOWN_PIPELINES, "Missing or unsupported recorded optimization pipeline")
     elif "optimization_pipeline" in report:
         require(report["optimization_pipeline"] in (*KNOWN_PIPELINES, PREVIOUS_PIPELINE), "Unsupported historical optimization pipeline")
-    check_ledger_report(report, require_typed=require_typed_failures)
+    check_ledger_report(report, require_typed=require_typed_failures, sidecar_root=sidecar_root)
     puzzles = report["puzzles"]
     require(isinstance(puzzles, list) and puzzles, "Expected a nonempty puzzle corpus")
     slugs = set()
@@ -329,14 +329,15 @@ def runtime_frames_behavior(report):
     return result
 
 
-def comparison_projection(baseline, current, comparison, *, allow_added=False):
+def comparison_projection(baseline, current, comparison, *, allow_added=False,
+                          sidecar_root=ROOT / "corpus"):
     """Validate current failures before dropping any comparison-only metadata.
 
     Historical reports predate typed failures. Omit only the newly introduced
     failure field at matching old VM envelopes; retain it when the baseline has
     typed metadata, and never use the baseline exemption to validate current data.
     """
-    check_report(current)
+    check_report(current, sidecar_root=sidecar_root)
     check_report(baseline, require_typed_failures=False)
     if comparison == "runtime-frames":
         require(not allow_added, "Runtime-frame comparison cannot add puzzles")
@@ -843,9 +844,9 @@ def main():
             from runtime_cost_migration import check_report_bytes, validate_current
             require(args.source_root.resolve() == ROOT.resolve(), "Current22 native/source checks require this executing repository as --source-root")
             check_report_bytes(args.current.read_bytes(), current)
-            counts = validate_current(current)
+            counts = validate_current(current, sidecar_root=args.current.parent)
         else:
-            counts = check_report(current)
+            counts = check_report(current, sidecar_root=args.current.parent)
             check_sources(current, args.source_root, require_rue=True)
             check_recorded(current.get("authoring"), args.source_root, [puzzle["slug"] for puzzle in current["puzzles"]])
         if args.baseline:
@@ -857,7 +858,8 @@ def main():
                         "add-rue comparison requires a baseline without Rue source evidence")
             compared = retained_puzzles(baseline, current) if args.allow_added_puzzles else current
             before, after = comparison_projection(baseline, current, args.comparison,
-                                                 allow_added=args.allow_added_puzzles)
+                                                 allow_added=args.allow_added_puzzles,
+                                                 sidecar_root=args.current.parent)
             difference = first_difference(before, after)
             require(difference is None, f"{args.comparison.capitalize()} baseline changed: {difference}")
             changes = codegen_changes(baseline, compared)

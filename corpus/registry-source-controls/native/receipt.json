@@ -1,0 +1,111 @@
+{
+  "status": "passed",
+  "target": "/Users/judeallred/code/clispOx/target/capture-action14-registry-a03/registry-native-target",
+  "toolchain": "nightly-2026-07-14",
+  "jobs": 2,
+  "scope": "Native/build phase only; no frontend, ABI, VM, SDK, live or proof credit.",
+  "gates": [
+    {
+      "name": "recipe-before",
+      "command": [
+        "python3",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/verify_sources.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.2634000839898363
+    },
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+        "-p",
+        "chialisp-oxide-registry-controls",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.26240141701418906
+    },
+    {
+      "name": "check",
+      "command": [
+        "cargo",
+        "check",
+        "--manifest-path",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--features",
+        "native-vm",
+        "-j",
+        "2"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.175009334023343
+    },
+    {
+      "name": "test",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--features",
+        "native-vm",
+        "-j",
+        "2",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.405347332998645
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--features",
+        "native-vm",
+        "-j",
+        "2",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.7702706249838229
+    },
+    {
+      "name": "recipe-after",
+      "command": [
+        "python3",
+        "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/verify_sources.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.263795625010971
+    }
+  ],
+  "source_and_tool_window_quiet": true,
+  "source_members": 849,
+  "native_counts": {
+    "baseline_policy_calls": 4,
+    "variant_policy_calls": 4,
+    "abi_observations": 0,
+    "VM_executions": 0,
+    "SDK_submissions": 0
+  }
+}
