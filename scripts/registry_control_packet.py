@@ -14,6 +14,10 @@ PRODUCTION_PROTOCOL = 'chialisp-oxide-registry-controls-packet/v2'
 MAX_FILES = 1024
 MAX_FILE = 2 * 1024 * 1024
 MAX_TOTAL = 16 * 1024 * 1024
+# Explicit caller-selected host executables are not transport members. Cargo
+# legitimately hardlinks its built binaries; retain the already reviewed host
+# executable ceiling without changing any packet/member/aggregate allowance.
+MAX_EXECUTABLE = 512 * 1024 * 1024
 PROFILE = {'max_files': MAX_FILES, 'max_file_bytes': MAX_FILE, 'max_total_bytes': MAX_TOTAL}
 SCOPE = 'Recorded consistency only. Origins are opaque metadata, never paths followed by the recorded reader. Partial base captures and repeat aliases add no whole-corpus, execution-authentication, compiler-preservation or production-readiness credit.'
 ORIGINS = {'source_root', 'capture', 'native', 'last', 'base', 'controls', 'drafts'}
@@ -43,6 +47,43 @@ def regular_read(path, maximum=MAX_FILE):
         raw = f.read(maximum + 1)
     require(len(raw) == s.st_size and len(raw) <= maximum, 'file changed during bounded read')
     return raw
+
+def executable_identity(path, maximum=MAX_EXECUTABLE):
+    """Hash one explicitly selected host binary without packet-file policy.
+
+    The replay caller canonicalizes its explicit CLI selection once, preserving
+    existing alias-selection semantics. This descriptor open rejects a leaf
+    symlink introduced afterward. Parent-directory mutation is outside the
+    trusted local build-directory assumption, not a filesystem sandbox claim.
+    Hardlinks are admitted only in this host role, never by regular_read.
+    """
+    path = Path(path)
+    require(type(maximum) is int and 0 < maximum <= MAX_EXECUTABLE,
+            'fixed host executable byte ceiling')
+    require(hasattr(os, 'O_NOFOLLOW') and hasattr(os, 'O_NONBLOCK'),
+            'host executable hashing requires nofollow/nonblocking descriptors')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        before = os.fstat(descriptor)
+        require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= maximum,
+                'bounded regular host executable before hashing')
+        hasher = hashlib.sha256()
+        count = 0
+        while True:
+            block = os.read(descriptor, min(64 * 1024, maximum - count + 1))
+            if not block:
+                break
+            require(len(block) <= maximum - count, 'host executable grew beyond byte ceiling')
+            count += len(block)
+            hasher.update(block)
+        after = os.fstat(descriptor)
+        metadata = lambda info: (info.st_dev, info.st_ino, info.st_size,
+                                 info.st_mtime_ns, info.st_ctime_ns)
+        require(stat.S_ISREG(after.st_mode) and metadata(before) == metadata(after)
+                and count == before.st_size, 'host executable changed during bounded hashing')
+        return {'path': str(path), 'bytes': count, 'sha256': hasher.hexdigest()}
+    finally:
+        os.close(descriptor)
 
 def discover(root):
     require(root.is_dir() and (not root.is_symlink()), 'regular packet root')
@@ -778,8 +819,7 @@ def replay_templates(root, cli):
     capture = packet.load('capture/capture/capture.json')
     vectors = packet.load('controls/fixtures/native-vectors.json')
     cli = Path(cli).resolve(strict=True)
-    require(cli.is_file(), 'explicit VM replay executable')
-    executable_identity = {'path': str(cli), **identity(regular_read(cli, 512 * 1024 * 1024))}
+    executable_before = executable_identity(cli)
     results = []
     with tempfile.TemporaryDirectory(prefix='registry-retained-template-replay-') as temporary:
         temporary = Path(temporary)
@@ -816,5 +856,5 @@ def replay_templates(root, cli):
             require(strict_equal(execution, row['execution']) and strict_equal(execution['outcome'], expected), 'actual retained VM cost/failure/output differs from captured template and independent fixture')
             results.append({'name': row['name'], 'optimize_lir': row['optimize_lir'], 'cost': execution['cost']})
     require(len(results) == 8, 'eight retained template replays')
-    require(identity(regular_read(cli, 512 * 1024 * 1024)) == {key: executable_identity[key] for key in ('bytes', 'sha256')}, 'VM replay executable changed during observations')
-    return {'retained_template_vm_replays': len(results), 'executable': executable_identity, 'runs': results, 'scope': 'Actual retained-template VM replay only; no new extraction/native/SDK/live/proof credit.'}
+    require(executable_identity(cli) == executable_before, 'VM replay executable changed during observations')
+    return {'retained_template_vm_replays': len(results), 'executable': executable_before, 'runs': results, 'scope': 'Actual retained-template VM replay only; no new extraction/native/SDK/live/proof credit.'}
