@@ -5,6 +5,26 @@ wallet.** This describes the narrow live CLI implementation and its first
 executed funding/payment cycle below. The loopback GUI remains a simulator interface.
 Live CAT issuance, CAT transfer and Sage integration are not implemented here.
 
+`live cat-check` is a separate local CAT validation gate. It
+uses the public wallet identity, `--network testnet11`, pinned `--cargo` and
+`--compiler` executables, `--mode off|on` and a new `--output` directory. It
+rejects outbox and fee options. It executes native paired Rust,
+both complete Cargo bundles, independent canonical Chialisp, adversarial VM
+vectors and local SDK lifecycles before producing a public report. It does not
+query a provider, prompt for a key, fund a coin or submit a bundle. Saved reports
+cannot authorize signing. This local gate and the private CAT signer are not a
+completed live CAT workflow or Sage acceptance test.
+
+The local capture `target/actual-fresh-cat-check-a02/cat-check.json` passed
+complete admission and recompilation of all 40 exports in both Rust modes,
+37 actual native observations and 111 primary VM observations. Its separate
+SDK lane executed 57 transaction attempts: 24 accepted, 21 exact typed
+consensus rejections with full simulator equality, and 12 runtime umbrella
+results that add no specific semantic-rejection credit. These are public-fixture
+local checks, not live CAT transactions. The capture path is not a published
+evidence download. Package tests and strict Clippy also passed; full workspace
+and publication gates remain separate.
+
 The workflow funds one checked Rust payment with exactly 1,000 mojos, then
 spends it back to the same wallet. The payment recipient is committed by curry
 before funding. The source recipe is the ordinary Cargo library in

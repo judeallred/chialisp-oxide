@@ -2,6 +2,7 @@
 //! A current-process fresh recipe and current provider observations are required;
 //! retained JSON is an intent/history record, never execution authentication.
 mod bundle;
+pub(crate) mod cat;
 use bundle::decode_bundle;
 mod journal;
 pub use journal::*;

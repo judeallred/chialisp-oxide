@@ -31,6 +31,8 @@ use clvmr_sdk::{
 };
 use std::fmt;
 
+#[path = "wallet/cat_signer.rs"]
+pub(in crate::live) mod cat_signer;
 #[path = "wallet/tty.rs"]
 mod tty;
 

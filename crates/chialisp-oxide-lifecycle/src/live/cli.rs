@@ -6,11 +6,12 @@ use std::{collections::BTreeMap, ffi::OsString, path::Path};
 
 pub fn run(arguments: &[OsString]) -> Result<()> {
     let operation = arguments.first().and_then(|value| value.to_str()).context(
-        "usage: live plan|status|prepare-funding|submit-funding|monitor-funding|prepare-payment|submit-payment|monitor-payment --network testnet11 --cargo FILE --compiler FILE --wallet-puzzle-hash HEX --master-public-key HEX --mode off|on --output NEWDIR --outbox FILE.live.json [--fee-mojos N] [--payment-fee-mojos N]")?;
+        "usage: live cat-check|plan|status|prepare-funding|submit-funding|monitor-funding|prepare-payment|submit-payment|monitor-payment --network testnet11 --cargo FILE --compiler FILE --wallet-puzzle-hash HEX --master-public-key HEX --mode off|on --output NEWDIR [--outbox FILE.live.json] [--fee-mojos N] [--payment-fee-mojos N]")?;
     ensure!(
         matches!(
             operation,
-            "plan"
+            "cat-check"
+                | "plan"
                 | "status"
                 | "prepare-funding"
                 | "submit-funding"
@@ -72,6 +73,27 @@ pub fn run(arguments: &[OsString]) -> Result<()> {
         Some("on") => PaymentMode::On,
         _ => anyhow::bail!("live mode must be off or on"),
     };
+    if operation == "cat-check" {
+        ensure!(
+            ["--outbox", "--fee-mojos", "--payment-fee-mojos"]
+                .iter()
+                .all(|key| !options.contains_key(key)),
+            "cat-check takes no outbox or transaction fee options"
+        );
+        crate::fresh::require_native_environment()?;
+        let tools = FreshTools::new(
+            Path::new(required("--cargo")?),
+            Path::new(required("--compiler")?),
+        )?;
+        let selected = match mode {
+            PaymentMode::Off => super::cat::CatMode::RustOff,
+            PaymentMode::On => super::cat::CatMode::RustOn,
+        };
+        let report =
+            crate::fresh::cat::check_cat(&tools, Path::new(required("--output")?), selected)?;
+        println!("{}", serde_json::to_string_pretty(&report)?);
+        return Ok(());
+    }
     let fee = parse_fee(options.get("--fee-mojos").copied())?;
     let payment_fee = parse_fee(options.get("--payment-fee-mojos").copied())?;
     let store = LiveStore::new(Path::new(required("--outbox")?))?;
