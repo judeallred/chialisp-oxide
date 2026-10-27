@@ -49,6 +49,21 @@ pub struct ValidatedRecipe {
 }
 
 impl ValidatedRecipe {
+    /// Only a freshly executed process-local recipe may enter the live adapter.
+    /// Public journal/report bytes cannot manufacture this capability.
+    pub(crate) fn live_material(&self) -> Result<(Plan, Artifact, CheckRecord)> {
+        ensure!(
+            self.scope["fresh_execution"] == "executed_this_process",
+            "live workflow requires fresh checks executed in this process"
+        );
+        self.require_current()?;
+        Ok((
+            self.plan.clone(),
+            self.artifact.clone(),
+            self.checks.clone(),
+        ))
+    }
+
     fn retained() -> Result<Self> {
         let (plan, artifact) = recipe()?;
         let checks = preflight(&plan, &artifact)?;

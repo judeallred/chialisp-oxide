@@ -81,7 +81,7 @@ request may finish committing; reload durable state before retrying. Storage
 checks cover cooperating writers, not hostile directories or power-loss safety.
 Keep all journals and receipts public: never put wallet secrets in them.
 
-## Prepare for later Testnet11 use
+## Separate Testnet11 CLI prototype
 
 The library also provides a read-only, fixed-origin HTTPS observer with finite
 deadlines and streamed body limits. Its tests use local mocks and loopback HTTP.
@@ -90,11 +90,27 @@ already-spent children. Partial scans remain inconclusive. Equal bracketing tips
 are a provider consistency heuristic, not authenticated chain inclusion or
 finality. This observer is not connected to the CLI/GUI and exposes no push API.
 
-Live work still needs a real public recipient, external wallet funding,
-network-specific dry-run/submission and monitoring integration, and executed
-Testnet11 evidence. The permissionless payment emits no owner signature
-condition; a wallet signs funding separately. No key or mnemonic is collected.
-Issue #12 remains open, and CAT/Sage work in #13 has its own acceptance criteria.
+A separate [live CLI prototype](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-lifecycle/docs/live.md)
+now connects a private freshly checked recipe to narrow Testnet11 funding,
+hidden-terminal signing, explicit submission and exact-effect monitoring. It
+uses its own public `.live.json` outbox; the simulator journal and GUI above
+retain their contracts. The new client checks provider labels and pins local
+signing constants, without inventing a remote genesis assertion or changing
+this older read-only observer.
+
+The payment returns all 1,000 mojos to the same wallet. Funding and an optional
+separate payment fee sponsor use the standard wallet; the permissionless payment
+itself emits no owner-signature condition. The current signer accepts a
+disposable master secret only through a local macOS hidden terminal prompt,
+never through CLI arguments, environment variables, files or journals.
+
+The [first executed CLI cycle](../crates/chialisp-oxide-lifecycle/docs/live.md#first-executed-cli-cycle)
+used two Testnet11 submissions, returned all 1,000 mojos to the same wallet and
+paid 20,000 mojos in total fees. Its exact-spend and expected-child observations
+are provider consistency evidence, not authenticated inclusion or finality.
+The GUI remains simulator-only; live GUI operations, live CAT issuance/transfer
+and Sage integration remain unimplemented. Issue #12 stays open, and CAT/Sage
+work in #13 has its own acceptance criteria.
 
 See the [crate implementation and detailed contracts](https://github.com/judeallred/chialisp-oxide/tree/main/crates/chialisp-oxide-lifecycle)
 and [provider boundaries](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-lifecycle/docs/provider.md).

@@ -21,6 +21,13 @@ chialisp-oxide-puzzles = { path = "../../puzzles" }
 chialisp-oxide-simulator = { path = "../chialisp-oxide-simulator" }
 chia-consensus = "=0.36.1"
 chia-sdk-types = "=0.36.0"
+chia-sdk-signer = "=0.36.0"
+chia-puzzle-types = "=0.36.1"
+chia-puzzles = "=0.20.3"
+clvm-traits = { version = "=0.36.1", features = ["derive"] }
+clvm-utils = "=0.36.1"
+clvmr-sdk = { package = "clvmr", version = "=0.16.2" }
+zeroize = "=1.9.1"
 hex = "0.4"
 bytes = "=1.12.1"
 getrandom = { version = "=0.4.3", features = ["std"] }
@@ -38,6 +45,7 @@ sha2 = "0.10"
 sha2 = "0.10"
 
 [dev-dependencies]
+chia-sdk-test = "=0.36.0"
 tempfile = "3"
 hyper = { version = "=1.11.1", features = ["client", "http1"] }
 

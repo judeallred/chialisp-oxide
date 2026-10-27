@@ -1,4 +1,4 @@
-//! Thin simulator CLI; all state transitions use the shared trusted runner.
+//! Thin command adapters; shared runners own the validated state transitions.
 use anyhow::{Context, Result, ensure};
 use chialisp_oxide_lifecycle::{
     Stage,
@@ -9,6 +9,9 @@ use std::path::PathBuf;
 
 fn main() -> Result<()> {
     let arguments = std::env::args_os().skip(1).collect::<Vec<_>>();
+    if arguments.first().is_some_and(|argument| argument == "live") {
+        return chialisp_oxide_lifecycle::live::cli::run(&arguments[1..]);
+    }
     if arguments
         .first()
         .is_some_and(|argument| argument == "fresh")
