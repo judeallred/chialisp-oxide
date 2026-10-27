@@ -113,6 +113,26 @@ checksum="1234"
                         c.capture.check_project_inputs(project, "/opaque/source-origin")
                     (project / name).write_bytes(raw)
 
+    def test_corruption_controls_reach_validator_near_aggregate_bound(self):
+        # Use the retained packet's real nested report shape. Only the semantic
+        # validator is replaced: inventory construction and every mutation run.
+        # The original pretty rewrites overflow this admitted-size budget.
+        root = c.ROOT / "corpus/cat-genesis-source-controls"
+        original_bytes = sum(path.stat().st_size for path in c.files(root))
+        calls = []
+        def semantic_validator(candidate):
+            calls.append(candidate)
+            if len(calls) == 1:
+                return {}
+            self.assertLessEqual(sum(path.stat().st_size for path in c.files(candidate)),
+                                 original_bytes + 1024)
+            raise ValueError("constructed semantic rejection")
+        with patch.object(c, "MAX_TOTAL", original_bytes + 1024), \
+                patch.object(c, "validate", side_effect=semantic_validator):
+            controls = c.self_test(root)
+        self.assertEqual(controls, 29)
+        self.assertEqual(len(calls), controls + 1)
+
     def test_unknown_index_fields_are_refused(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

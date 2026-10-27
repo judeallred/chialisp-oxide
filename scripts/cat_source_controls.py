@@ -505,16 +505,21 @@ def install(source, destination):
 
 def self_test(root):
     """Coherent inventory refresh ensures controls reach content checks too."""
+    # Mutation packets must spend their byte budget on evidence, not added
+    # whitespace. Re-encoding large nested reports with indent=2 can overflow
+    # an otherwise admitted Linux capture before its semantic control runs.
+    def encoded(value):
+        return (json.dumps(value, separators=(",", ":")) + "\n").encode()
     root = Path(root).resolve()
     validate(root)
     def change(name, function):
         def mutate(base):
             value = load(base, name)
             function(value)
-            (base / name).write_text(json.dumps(value, indent=2) + "\n")
+            (base / name).write_bytes(encoded(value))
         return mutate
     def write_manifest(base, mode, manifest):
-        raw = (json.dumps(manifest, indent=2) + "\n").encode()
+        raw = encoded(manifest)
         (base / ("bundle-" + mode) / "manifest.json").write_bytes(raw)
         def update(value):
             if isinstance(value, dict):
@@ -528,7 +533,7 @@ def self_test(root):
         for name in ("artifacts.json", "capture.json"):
             document = load(base, name)
             update(document)
-            (base / name).write_text(json.dumps(document, indent=2) + "\n")
+            (base / name).write_bytes(encoded(document))
     def coherent_target(base):
         manifest = load(base, "bundle-off/manifest.json")
         target = "unreviewed-host-target"
@@ -562,7 +567,7 @@ def self_test(root):
             for record in records:
                 value = load(base, record)
                 rebind(value)
-                (base / record).write_text(json.dumps(value, indent=2) + "\n")
+                (base / record).write_bytes(encoded(value))
             if name in ("Cargo.toml", "src/lib.rs"):
                 for mode in ("off", "on"):
                     directory = base / ("bundle-" + mode)
@@ -609,7 +614,7 @@ def self_test(root):
             mutate(candidate)
             packet = load(candidate, "report.json")
             packet["files"] = inventory([p for p in files(candidate) if p != candidate / "report.json"], candidate)
-            (candidate / "report.json").write_text(json.dumps(packet, indent=2) + "\n")
+            (candidate / "report.json").write_bytes(encoded(packet))
             try:
                 validate(candidate)
             except (ValueError, KeyError, IndexError, StopIteration):
