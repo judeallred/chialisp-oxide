@@ -36,6 +36,7 @@ pub struct StoredOutbox {
     pub byte_digest: Digest,
 }
 
+#[derive(Clone)]
 pub struct LiveStore {
     path: PathBuf,
 }

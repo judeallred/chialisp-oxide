@@ -54,6 +54,7 @@ fn fixture(payment_fee: u64) -> (LiveRecipe, WalletIdentity) {
     };
     (
         LiveRecipe {
+            mode: "reference_control",
             plan,
             artifact,
             binding,
@@ -472,4 +473,70 @@ fn future_confirmation_height_is_rejected_before_the_funding_signer() {
     assert!(error.to_string().contains("future confirmation height"));
     assert_eq!(session.outbox, before);
     assert!(network.pushed.is_empty());
+}
+
+#[test]
+fn exact_revision_rejects_even_semantically_identical_external_bytes_until_reload() {
+    let (directory, mut session, mut network) = session(0);
+    let revision = session.revision();
+    session.require_revision(&revision).unwrap();
+    let path = directory.path().join("fixture.live.json");
+    let mut bytes = std::fs::read(&path).unwrap();
+    bytes.push(b'\n');
+    std::fs::write(&path, &bytes).unwrap();
+    assert!(session.require_revision(&revision).is_err());
+    let previous = session.outbox.clone();
+    session.reload_current(&mut network).unwrap();
+    assert_eq!(session.outbox, previous);
+    assert_eq!(session.revision(), digest(&bytes));
+    assert_ne!(session.revision(), revision);
+    session.require_revision(&session.revision()).unwrap();
+    assert!(session.require_revision(&revision).is_err());
+    assert!(network.pushed.is_empty());
+}
+
+#[test]
+fn reload_rejects_coherently_rehashed_bad_signature_without_replacing_ram_state() {
+    let (directory, mut session, mut network) = session(0);
+    let before = session.outbox.clone();
+    let revision = session.revision();
+    let mut tampered = before.clone();
+    let LiveEvent::Prepared { transfer } = &mut tampered.events[0] else {
+        panic!("fixture prepared")
+    };
+    let mut bundle = decode_bundle(&hex::decode(&transfer.bundle_hex).unwrap()).unwrap();
+    bundle.aggregated_signature = chia_bls::Signature::default();
+    let bytes = bundle.to_bytes().unwrap();
+    transfer.bundle_hex = hex::encode(&bytes);
+    transfer.bundle_sha256 = digest(&bytes);
+    transfer.bundle_id = bundle.name().to_bytes();
+    tampered.validate_shape().unwrap();
+    std::fs::write(
+        directory.path().join("fixture.live.json"),
+        serde_json::to_vec(&tampered).unwrap(),
+    )
+    .unwrap();
+    assert!(session.reload_current(&mut network).is_err());
+    assert_eq!(session.outbox, before);
+    assert_eq!(session.revision(), revision);
+    assert!(network.pushed.is_empty());
+}
+
+#[test]
+fn gui_projection_omits_signed_payloads_and_marks_constructed_controls() {
+    let (_directory, session, _) = session(0);
+    let view = crate::live::LiveView::from_session(&session).unwrap();
+    let value = serde_json::to_value(view).unwrap();
+    assert_eq!(value["fresh_execution"], "constructed_test_control");
+    assert_eq!(value["funding"]["inputs"][0]["amount_mojos"], "1000000");
+    assert!(value["funding"]["bundle_id"].as_str().is_some());
+    let encoded = serde_json::to_string(&value).unwrap();
+    for omitted in [
+        "bundle_hex",
+        "master_public_key_hex",
+        "native_receipt",
+        "aggregated_signature",
+    ] {
+        assert!(!encoded.contains(omitted));
+    }
 }

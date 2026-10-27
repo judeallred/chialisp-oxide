@@ -1,8 +1,9 @@
-# Testnet11 CLI prototype
+# Testnet11 CLI and loopback GUI prototype
 
 **WIP prototype. Not ready for use or real funds. Use a disposable Testnet11
-wallet.** This describes the narrow live CLI implementation and its first
-executed funding/payment cycle below. The loopback GUI remains a simulator interface.
+wallet.** This describes the narrow live CLI and loopback GUI implementation,
+and the first executed CLI funding/payment cycle below. The older simulator GUI
+remains a separate interface.
 Live CAT issuance, CAT transfer and Sage integration are not implemented here.
 
 The workflow funds one checked Rust payment with exactly 1,000 mojos, then
@@ -128,6 +129,32 @@ zero-fee transaction. Choose this fee policy when creating the outbox and keep
 the same options on resume. Both fee options default to 10,000 mojos and each is
 capped at 1,000,000 mojos.
 
+## Open the live loopback GUI
+
+With the public variables and `live_step` function above, start a new checked
+process with `live_step serve gui-check-1`. Open the printed loopback URL while
+keeping its terminal available for hidden signing prompts. Startup performs
+the same fresh checks as the CLI. A new process requires a new check directory;
+resume the same outbox with unchanged wallet, mode and fees.
+
+The seven closed actions reload checked state, prepare/submit/monitor funding,
+and prepare/submit/monitor payment. Preparing a signed transaction prompts only
+in the terminal; the page has no key field. Submit sends the exact saved bundle.
+The public page shows exact input/output amounts, costs, hashes and saved
+provider observations without exposing the signed bundle payload.
+
+Actions run one at a time on an ordinary worker thread. The page remains
+responsive while a signing prompt or provider call is pending. Polling reads
+cached local state; it neither queries the provider nor submits. Monitor is an
+explicit provider query. Each action carries the exact outbox revision, checked
+before network or key access. A failed action requires an explicit checked
+reload. Closing the page does not cancel an already accepted local action.
+
+The listener uses IPv4 loopback, exact Host/Origin checks, a process-local
+session capability, bounded requests and deadlines. These are local prototype
+controls, not a hostile-host sandbox. Use the existing simulator `serve`
+command for the separate non-live flow; `live serve` operates real test coins.
+
 ## Reconcile before retrying
 
 Preparation persists the exact signed bundle, bundle ID, input and child IDs,
@@ -221,3 +248,33 @@ locally signed bundles; block aggregation need not preserve their boundaries,
 so this observation is not an on-chain bundle-boundary proof. The cost figures
 are local bundle preflight measurements, not whole-block costs. This cycle adds
 no GUI, CAT or Sage execution credit.
+
+## First executed live GUI cycle
+
+The separate local capture `target/testnet11-gui-completed-a01/receipt.json`
+records the actual loopback page at desktop and mobile sizes, fresh startup
+checks, hidden-terminal signing and exact provider observations. It is not a
+published download. Its funding bundle
+`72d25be5333e14ae6e7229548f93cfee7138aca08b0987a7ec33ab6b0c8994b7`
+was observed spent at height **4,883,389**. Its payment bundle
+`e147afd51fae5daee43e2d427fac1605a3f764caf0e0163819024be35edec57a`
+was observed spent at **4,883,443**, returning the full **1,000 mojos** to the
+same wallet. The two fees totaled **20,000 mojos**; local costs matched the CLI
+cycle above.
+
+Two GUI attempts to submit that payment received inconclusive responses. Their
+body digests were retained, but the original bodies were not, so the cause is
+unknown. A separate diagnostic rechecked the current network labels, exact
+unspent inputs, signature and costs, then resent the byte-identical saved
+request once. The provider accepted it, reported the matching mempool entry,
+and the GUI subsequently confirmed the exact spent programs and expected
+children. This is a GUI lifecycle trial with one separate diagnostic submission,
+not a claim that every push in the trial came from a browser action. Retries
+created no replacement signature, transaction or fee policy.
+
+The page stayed responsive during terminal signing, contained no secret-entry
+field and had no horizontal overflow at 1,280×900 or 390×844. Prepare and submit
+buttons were disabled after confirmation. The page preserves the last saved
+submission response separately from the later confirmed observation; an earlier
+inconclusive response does not disappear. The same provider-consistency and
+local-evidence limits above apply. This cycle adds no CAT or Sage credit.

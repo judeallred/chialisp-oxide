@@ -5,8 +5,11 @@ mod bundle;
 use bundle::decode_bundle;
 mod journal;
 pub use journal::*;
+pub mod http;
 mod outbox;
+mod view;
 pub use outbox::{CommitError, LiveStore, StoredOutbox};
+pub use view::LiveView;
 pub mod cli;
 mod workflow;
 pub use workflow::{LiveNetwork, LiveSession, MonitoringEvidence, observe_state};
@@ -63,10 +66,12 @@ fn decode_hex(value: &str, maximum: usize) -> Result<Vec<u8>> {
 }
 
 /// Process-local capability copied only from actual fresh execution.
+#[derive(Clone)]
 pub struct LiveRecipe {
     plan: Plan,
     artifact: Artifact,
     binding: LiveBinding,
+    mode: &'static str,
 }
 impl LiveRecipe {
     pub fn from_fresh(
@@ -77,6 +82,7 @@ impl LiveRecipe {
         payment_fee: u64,
     ) -> Result<Self> {
         let (plan, artifact, checks) = recipe.live_material()?;
+        let mode = recipe.live_mode()?;
         ensure!(
             plan.network == crate::provider::testnet11_network()
                 && plan.amount == 1000
@@ -103,6 +109,7 @@ impl LiveRecipe {
             plan,
             artifact,
             binding,
+            mode,
         })
     }
     pub fn new_outbox(&self) -> LiveOutbox {

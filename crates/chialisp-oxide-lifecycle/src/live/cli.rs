@@ -6,11 +6,12 @@ use std::{collections::BTreeMap, ffi::OsString, path::Path};
 
 pub fn run(arguments: &[OsString]) -> Result<()> {
     let operation = arguments.first().and_then(|value| value.to_str()).context(
-        "usage: live plan|status|prepare-funding|submit-funding|monitor-funding|prepare-payment|submit-payment|monitor-payment --network testnet11 --cargo FILE --compiler FILE --wallet-puzzle-hash HEX --master-public-key HEX --mode off|on --output NEWDIR --outbox FILE.live.json [--fee-mojos N] [--payment-fee-mojos N]")?;
+        "usage: live serve|plan|status|prepare-funding|submit-funding|monitor-funding|prepare-payment|submit-payment|monitor-payment --network testnet11 --cargo FILE --compiler FILE --wallet-puzzle-hash HEX --master-public-key HEX --mode off|on --output NEWDIR --outbox FILE.live.json [--fee-mojos N] [--payment-fee-mojos N]")?;
     ensure!(
         matches!(
             operation,
-            "plan"
+            "serve"
+                | "plan"
                 | "status"
                 | "prepare-funding"
                 | "submit-funding"
@@ -74,10 +75,12 @@ pub fn run(arguments: &[OsString]) -> Result<()> {
     };
     let fee = parse_fee(options.get("--fee-mojos").copied())?;
     let payment_fee = parse_fee(options.get("--payment-fee-mojos").copied())?;
-    let store = LiveStore::new(Path::new(required("--outbox")?))?;
+    let outbox_path = Path::new(required("--outbox")?);
+    let store = LiveStore::new(outbox_path)?;
+    let create = operation == "plan" || (operation == "serve" && !outbox_path.try_exists()?);
     // Validate malformed/unknown/aliased outbox bytes before expensive fresh
     // execution or network use. Fresh recipe binding is checked again below.
-    if operation != "plan" {
+    if !create {
         store.load()?;
     }
     let tools = FreshTools::new(
@@ -92,11 +95,27 @@ pub fn run(arguments: &[OsString]) -> Result<()> {
         fee,
         payment_fee,
     )?;
-    let mut session = if operation == "plan" {
+    let mut session = if create {
         LiveSession::create(recipe, store)?
     } else {
         LiveSession::load(recipe, store)?
     };
+    if operation == "serve" {
+        return tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(2)
+            .enable_all()
+            .build()?
+            .block_on(async move {
+                let server = super::http::LiveLoopbackServer::bind(session).await?;
+                println!("{}", server.url());
+                std::io::Write::flush(&mut std::io::stdout())?;
+                server
+                    .run_until(async {
+                        let _ = tokio::signal::ctrl_c().await;
+                    })
+                    .await
+            });
+    }
     if operation != "plan" {
         let mut client = network::Testnet11Client::new()?;
         match operation {

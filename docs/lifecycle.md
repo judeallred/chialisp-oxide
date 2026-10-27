@@ -108,9 +108,12 @@ The [first executed CLI cycle](../crates/chialisp-oxide-lifecycle/docs/live.md#f
 used two Testnet11 submissions, returned all 1,000 mojos to the same wallet and
 paid 20,000 mojos in total fees. Its exact-spend and expected-child observations
 are provider consistency evidence, not authenticated inclusion or finality.
-The GUI remains simulator-only; live GUI operations, live CAT issuance/transfer
-and Sage integration remain unimplemented. Issue #12 stays open, and CAT/Sage
-work in #13 has its own acceptance criteria.
+A separate `live serve` loopback GUI now exposes the live workflow's seven
+closed actions with exact outbox revisions, one background job at a time and
+cached public observations. Signing stays in the server's hidden terminal;
+the browser has no secret-entry field. See the [live GUI instructions](../crates/chialisp-oxide-lifecycle/docs/live.md#open-the-live-loopback-gui).
+Live CAT issuance/transfer and Sage integration remain unimplemented here.
+Issue #12 stays open, and CAT/Sage work in #13 has its own acceptance criteria.
 
 See the [crate implementation and detailed contracts](https://github.com/judeallred/chialisp-oxide/tree/main/crates/chialisp-oxide-lifecycle)
 and [provider boundaries](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-lifecycle/docs/provider.md).

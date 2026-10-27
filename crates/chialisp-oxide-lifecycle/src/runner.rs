@@ -64,6 +64,15 @@ impl ValidatedRecipe {
         ))
     }
 
+    pub(crate) fn live_mode(&self) -> Result<&'static str> {
+        self.live_material()?;
+        match self.scope["mode"].as_str() {
+            Some("rust_on") => Ok("on"),
+            Some("rust_off") => Ok("off"),
+            _ => anyhow::bail!("fresh live optimization mode is unavailable"),
+        }
+    }
+
     fn retained() -> Result<Self> {
         let (plan, artifact) = recipe()?;
         let checks = preflight(&plan, &artifact)?;

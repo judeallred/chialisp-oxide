@@ -214,6 +214,44 @@ impl LiveSession {
     pub fn outbox(&self) -> &LiveOutbox {
         &self.outbox
     }
+    /// Exact durable bytes, never a reserialized semantic approximation.
+    pub fn revision(&self) -> Digest {
+        self.revision
+    }
+
+    pub fn require_revision(&self, expected: &Digest) -> Result<()> {
+        ensure!(*expected == self.revision, "stale live view revision");
+        let stored = self.store.load()?;
+        self.recipe.require_binding(&stored.outbox)?;
+        ensure!(
+            stored.byte_digest == self.revision,
+            "durable outbox changed; reload required"
+        );
+        Ok(())
+    }
+
+    pub fn reload_current<N: LiveNetwork>(&mut self, network: &mut N) -> Result<()> {
+        let stored = self.store.load()?;
+        self.recipe.require_binding(&stored.outbox)?;
+        let candidate = Self {
+            recipe: self.recipe.clone(),
+            store: self.store.clone(),
+            outbox: stored.outbox,
+            revision: stored.byte_digest,
+        };
+        let identity = network.verify_network()?;
+        let tip = network.synced_tip()?;
+        candidate.verify_retained(&identity, tip.height)?;
+        self.outbox = candidate.outbox;
+        self.revision = candidate.revision;
+        Ok(())
+    }
+
+    pub(super) fn view_material(&self) -> Result<(&LiveRecipe, &LiveOutbox, Digest)> {
+        self.recipe.require_binding(&self.outbox)?;
+        Ok((&self.recipe, &self.outbox, self.revision))
+    }
+
     pub fn funding_puzzle_hash(&self) -> Result<Digest> {
         self.recipe.funding_puzzle_hash()
     }
