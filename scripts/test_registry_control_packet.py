@@ -106,8 +106,15 @@ class TransportBoundaries(unittest.TestCase):
                                      'sha256': hashlib.sha256(expected).hexdigest()})
             with self.assertRaisesRegex(ValueError, 'unaliased'):
                 packet.regular_read(hardlink, packet.MAX_EXECUTABLE)
+            # Host Python binaries can exceed MAX_FILE. Use a bounded payload
+            # so packet admission reaches the independent hardlink check.
+            hardlink.unlink()
+            payload = parent / 'bounded-payload'
+            payload_bytes = b'bounded packet payload'
+            payload.write_bytes(payload_bytes)
+            os.link(payload, hardlink)
             index = self.minimal(directory)
-            index['files'] = [{'path': 'member', **packet.identity(expected)}]
+            index['files'] = [{'path': 'member', **packet.identity(payload_bytes)}]
             (directory / 'report.json').write_bytes(packet.encode(index))
             with self.assertRaisesRegex(ValueError, 'unaliased packet member'):
                 packet.Packet(directory)

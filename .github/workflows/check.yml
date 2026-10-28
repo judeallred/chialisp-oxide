@@ -39,6 +39,15 @@ jobs:
             target
           key: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}-
+      - name: Populate dependencies for fresh offline Cargo consumers
+        run: |
+          # These disposable consumers resolve separately from the workspace lock.
+          # Populate their registry cache before the actual offline evidence/tests.
+          python3 -B scripts/run-precommit-source-controls.py prepare \
+            --package "$RUNNER_TEMP/offline-consumer-dependencies" \
+            --receipt "$RUNNER_TEMP/offline-consumer-dependencies-prepare.json"
+          cargo generate-lockfile --manifest-path "$RUNNER_TEMP/offline-consumer-dependencies/Cargo.toml"
+          cargo fetch --locked --manifest-path "$RUNNER_TEMP/offline-consumer-dependencies/Cargo.toml"
       - run: cargo fmt --all --check
       - run: cargo build --workspace --locked
       - name: Check retained delegated policy source controls
@@ -481,6 +490,14 @@ jobs:
             proofs/atom-not-equal/
             proofs/bounded-counter/
             target/debug/chialisp-oxide
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: offline-consumer-dependencies-compiler
+          path: |
+            ${{ runner.temp }}/offline-consumer-dependencies-prepare.json
+            ${{ runner.temp }}/offline-consumer-dependencies/Cargo.toml
+            ${{ runner.temp }}/offline-consumer-dependencies/Cargo.lock
   tree-theorems:
     needs: compiler
     runs-on: ubuntu-latest
@@ -554,6 +571,15 @@ jobs:
             target
           key: ${{ runner.os }}-rust-tests-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: ${{ runner.os }}-rust-tests-${{ hashFiles('rust-toolchain.toml') }}-
+      - name: Populate dependencies for fresh offline Cargo consumers
+        run: |
+          # These disposable consumers resolve separately from the workspace lock.
+          # Populate their registry cache before the actual offline evidence/tests.
+          python3 -B scripts/run-precommit-source-controls.py prepare \
+            --package "$RUNNER_TEMP/offline-consumer-dependencies" \
+            --receipt "$RUNNER_TEMP/offline-consumer-dependencies-prepare.json"
+          cargo generate-lockfile --manifest-path "$RUNNER_TEMP/offline-consumer-dependencies/Cargo.toml"
+          cargo fetch --locked --manifest-path "$RUNNER_TEMP/offline-consumer-dependencies/Cargo.toml"
       - run: cargo fmt --all --check
       - run: cargo test --workspace --locked
       - name: Check ordinary Cargo consumer crates
@@ -564,6 +590,14 @@ jobs:
       - name: Test patched upstream optimizer
         run: cargo test --locked -p rue-lir@0.11.0
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: offline-consumer-dependencies-tests
+          path: |
+            ${{ runner.temp }}/offline-consumer-dependencies-prepare.json
+            ${{ runner.temp }}/offline-consumer-dependencies/Cargo.toml
+            ${{ runner.temp }}/offline-consumer-dependencies/Cargo.lock
   docs:
     runs-on: ubuntu-latest
     steps:
