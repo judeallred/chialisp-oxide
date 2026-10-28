@@ -5,6 +5,13 @@ use crate::fresh::{FreshTools, PaymentMode, check_fresh_recipe};
 use std::{collections::BTreeMap, ffi::OsString, path::Path};
 
 pub fn run(arguments: &[OsString]) -> Result<()> {
+    if arguments
+        .first()
+        .and_then(|s| s.to_str())
+        .is_some_and(|s| s.starts_with("cat-") && s != "cat-check")
+    {
+        return super::cat_live::cli::run(arguments);
+    }
     let operation = arguments.first().and_then(|value| value.to_str()).context(
         "usage: live cat-check|plan|status|prepare-funding|submit-funding|monitor-funding|prepare-payment|submit-payment|monitor-payment --network testnet11 --cargo FILE --compiler FILE --wallet-puzzle-hash HEX --master-public-key HEX --mode off|on --output NEWDIR [--outbox FILE.live.json] [--fee-mojos N] [--payment-fee-mojos N]")?;
     ensure!(

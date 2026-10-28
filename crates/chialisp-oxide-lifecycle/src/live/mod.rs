@@ -3,6 +3,7 @@
 //! retained JSON is an intent/history record, never execution authentication.
 mod bundle;
 pub(crate) mod cat;
+mod cat_live;
 use bundle::decode_bundle;
 mod journal;
 pub use journal::*;

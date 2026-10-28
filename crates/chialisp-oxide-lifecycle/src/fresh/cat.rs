@@ -1,6 +1,6 @@
 //! Actual-process CAT source admission. Retained reports cannot enter this gate.
 use super::*;
-use crate::live::cat::{CatMode, CatSdkCheckReport, certify_fresh_source};
+use crate::live::cat::{CatMode, CatSdkCheckReport, CatTailAuthority, certify_fresh_source};
 #[path = "cat_bundle.rs"]
 mod bundle;
 #[path = "cat_provenance.rs"]
@@ -66,6 +66,18 @@ pub(crate) fn check_cat(
     output: &Path,
     selected: CatMode,
 ) -> Result<FreshCatReport> {
+    let (authority, report) = certify_cat(tools, output, selected)?;
+    drop(authority);
+    Ok(report)
+}
+
+/// Actual current-process checks retain the sealed authority only for the closed
+/// CAT live coordinator. No report or persisted artifact is accepted as input.
+pub(crate) fn certify_cat(
+    tools: &FreshTools,
+    output: &Path,
+    selected: CatMode,
+) -> Result<(CatTailAuthority, FreshCatReport)> {
     require_native_inputs()?;
     let fingerprints = tools.fingerprints()?;
     let frozen = || -> Result<()> {
@@ -168,9 +180,20 @@ pub(crate) fn check_cat(
     }
     frozen()?;
     let native_input_sha256 = hex::encode(crate::digest(&serde_json::to_vec(NATIVE_INPUTS)?));
+    // Durable identity excludes output paths, manifest launcher snapshots and
+    // process logs/timings. Exact manifests remain in the retained report.
+    let stable_bundles = bundles.iter().map(|lane| serde_json::json!({
+        "lane":lane.lane,"complete_inventory_sha256":lane.complete_inventory_sha256,
+        "exports_admitted":lane.exports_admitted,"exports_recompiled":lane.exports_recompiled,
+        "source_attachments_checked":lane.source_attachments_checked,
+        "selected_ir_sha256":lane.selected_ir_sha256,
+        "selected_module_sha256":lane.selected_module_sha256,
+        "selected_module_tree_hash":lane.selected_module_tree_hash
+    })).collect::<Vec<_>>();
     let identity = crate::digest(&serde_json::to_vec(&serde_json::json!({
-        "protocol":"chialisp-oxide-fresh-cat-material/v1", "native_inputs":native_input_sha256,
-        "installed_tools":fingerprints,"bundles":bundles,"canonical":canonical_report,
+        "protocol":"chialisp-oxide-fresh-cat-material/v2", "native_inputs":native_input_sha256,
+        "installed_tools":fingerprints,"compiler_identity":compiler_text,
+        "bundles":stable_bundles,"canonical":canonical_report,
         "native":native,"primary_vm":primary_vm
     }))?);
     let rust_on = modules.pop().context("checked Rust-on module")?;
@@ -196,7 +219,6 @@ pub(crate) fn check_cat(
         "selected fresh Rust authority mode"
     );
     frozen()?;
-    drop(authority);
     let report = FreshCatReport {
         protocol: "chialisp-oxide-fresh-cat-check/v1",
         status: "passed",
@@ -224,7 +246,7 @@ pub(crate) fn check_cat(
         .open(output.join("cat-check.json"))?;
     file.write_all(&bytes)?;
     file.sync_all()?;
-    Ok(report)
+    Ok((authority, report))
 }
 
 #[cfg(test)]

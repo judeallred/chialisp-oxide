@@ -21,6 +21,7 @@ pub(super) fn options(manifest: &Path) -> Vec<String> {
 pub(super) struct BundleObservation {
     pub lane: String,
     pub manifest_sha256: String,
+    pub complete_inventory_sha256: String,
     pub exports_admitted: usize,
     pub exports_recompiled: usize,
     pub source_attachments_checked: usize,
@@ -143,6 +144,7 @@ pub(super) fn admit(
     );
     // Recompile all40 independently of the selected export. This is executed
     // IR/artifact consistency, not a compiler-preservation or nominal-type proof.
+    let mut inventory = BTreeMap::new();
     for (name, export) in bundle.entries() {
         ensure!(
             export.program().name == *name,
@@ -152,6 +154,17 @@ pub(super) fn admit(
         ensure!(
             bytes == export.artifact().bytes(),
             "full40 IR/artifact recompile mismatch"
+        );
+        inventory.insert(
+            name.as_str(),
+            (
+                hex::encode(crate::digest(export.ir_json().as_bytes())),
+                hex::encode(crate::digest(export.artifact().bytes())),
+                inspect(export.artifact().bytes())?
+                    .identity()
+                    .module_tree_hash
+                    .to_hex(),
+            ),
         );
     }
     let selected = bundle
@@ -173,6 +186,7 @@ pub(super) fn admit(
     let report = BundleObservation {
         lane: if optimize { "rust_on" } else { "rust_off" }.into(),
         manifest_sha256: hex::encode(crate::digest(bundle.manifest_json().as_bytes())),
+        complete_inventory_sha256: hex::encode(crate::digest(&serde_json::to_vec(&inventory)?)),
         exports_admitted: 40,
         exports_recompiled: 40,
         source_attachments_checked: source_count,
