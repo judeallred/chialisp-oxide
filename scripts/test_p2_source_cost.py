@@ -209,10 +209,10 @@ class CurrentBeforeHistory(unittest.TestCase):
     def test_actual23_generic_checks_finish_without_any_historical_projection(self):
         calls = []
         original = cost.READABLE["check_report"]
-        def checked(report):
+        def checked(report, **kwargs):
             self.assertIs(report, self.report)
             calls.append("actual23")
-            return original(report)
+            return original(report, **kwargs)
         with bind_review(self.profile), patch.dict(cost.READABLE, {"check_report": checked}), \
                 patch.object(outer, "project_validated", side_effect=AssertionError("23 history during current validation")), \
                 patch.object(composition, "project_validated", side_effect=AssertionError("22 history during current validation")), \
