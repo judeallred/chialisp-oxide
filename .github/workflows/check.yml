@@ -598,6 +598,49 @@ jobs:
             ${{ runner.temp }}/offline-consumer-dependencies-prepare.json
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.toml
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.lock
+  continuations:
+    name: "Continuation prototype: native, compiler, VM and SDK"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CARGO_BUILD_JOBS: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the dated Rust toolchain and matching components
+        run: rustup show active-toolchain
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/continuations-ci/host
+          key: ${{ runner.os }}-continuations-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock', 'experiments/authenticated-continuations/**/Cargo.lock') }}
+      - name: Fetch exact locked host, prototype and SDK dependencies
+        run: |
+          cargo fetch --locked
+          cargo fetch --locked --manifest-path experiments/authenticated-continuations/Cargo.toml
+          cargo fetch --locked --manifest-path experiments/authenticated-continuations/ledger/Cargo.toml
+      - name: Finish independent host tools before any driver execution
+        run: |
+          cargo build --locked --target-dir target/continuations-ci/host \
+            -p cargo-chialisp-oxide -p chialisp-oxide-driver \
+            -p chialisp-oxide-cli -p chialisp-oxide-verifier
+      - name: Execute current Linux continuation evidence and retain historical context separately
+        run: |
+          python3 -B experiments/authenticated-continuations/ci.py \
+            --tools "$GITHUB_WORKSPACE/target/continuations-ci/host/debug" \
+            --expected-host x86_64-unknown-linux-gnu \
+            --output "$GITHUB_WORKSPACE/target/continuations-ci/run"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: continuation-current-linux
+          path: |
+            target/continuations-ci/run/
+            !target/continuations-ci/run/native-target/**
+            !target/continuations-ci/run/ledger-target/**
+            !target/continuations-ci/run/source-target/**
+            !target/continuations-ci/run/mutation-target/**
   docs:
     runs-on: ubuntu-latest
     steps:

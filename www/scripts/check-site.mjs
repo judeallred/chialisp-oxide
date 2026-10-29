@@ -1,4 +1,5 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
+import { checkBuiltContinuation } from './test-continuations.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -17,6 +18,7 @@ import { readRegistryProtocol, checkRegistryDisplay, registryRoutes, registryHTM
 import { readRegistrySourceControls, checkRegistryControlsDisplay } from '../src/lib/registry-source-controls.mjs';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
+checkBuiltContinuation(root);
 const registryView = await readRegistryProtocol();
 assert(registryView, 'Complete current registry sidecars required before publication');
 for (const route of registryRoutes) checkRegistryDisplay(readRegistryBytes(path.join(root,route,'index.html'),registryHTMLLimit(route)).toString('utf8'),registryView,{route});

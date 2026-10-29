@@ -1,0 +1,48 @@
+---
+import { readContinuationEvidence } from '../lib/continuations.mjs';
+const evidence = await readContinuationEvidence();
+---
+<section data-continuations-evidence aria-labelledby="continuation-observations">
+  <h2 id="continuation-observations">Inspect the finite observations</h2>
+  {evidence.scopes.map(scope => <p data-continuation-scope>{scope}</p>)}
+  <p>Historical capture host: <code data-continuation-host>{evidence.host}</code>.
+    CI builds and records its own current tools and fresh Linux observations;
+    it does not claim those executables have the recorded macOS hashes.</p>
+  <dl class="continuation-fields">
+    {evidence.counts.map(item => <div><dt>{item.label}</dt><dd><strong data-continuation-count={item.id}>{item.value}</strong></dd></div>)}
+    {evidence.context.map(item => <div><dt>{item.label}</dt><dd><code data-continuation-context={item.id}>{item.value}</code></dd></div>)}
+  </dl>
+  <p>These are separate lanes. Source native and primary-VM observations do not
+    substitute for SDK submissions. Fresh and retained reruns repeat fixed
+    case sets and add no distinct coverage.</p>
+  <h3>Three actual SDK successor chains</h3>
+  {evidence.base.map(lane => <details data-continuation-lane={lane.id}>
+    <summary>{lane.label}: four accepted steps, three successor coins</summary>
+    <dl data-continuation-header="root" class="continuation-fields">{lane.fields.map(item => <div><dt>{item.label}</dt><dd><code data-continuation-field={item.id}>{item.value}</code></dd></div>)}</dl>
+    {lane.steps.map(step => <section data-continuation-step={step.id}>
+      <h4>Accepted step {Number(step.id) + 1}</h4>
+      <dl class="continuation-fields">{step.fields.map(item => <div><dt>{item.label}</dt><dd><code data-continuation-field={item.id}>{item.value}</code></dd></div>)}</dl>
+    </section>)}
+    <details><summary>Exact typed rejected submissions</summary>{lane.rejections.map(row => <dl data-continuation-rejection={row.id} class="continuation-fields">{row.fields.map(item => <div><dt>{item.label}</dt><dd><code data-continuation-field={item.id}>{item.value}</code></dd></div>)}</dl>)}</details>
+  </details>)}
+  <h3>Actual-source omissions, each with its own reveal</h3>
+  {evidence.controls.map(control => <details data-continuation-control={control.id}>
+    <summary>{control.label}</summary>
+    {control.roles.map(role => <section data-continuation-role={role.id}>
+      <h4>{role.id === 'original' ? 'Original source' : 'Mutated source'}</h4>
+      <dl class="continuation-fields">{role.fields.map(item => <div><dt>{item.label}</dt><dd><code data-continuation-field={item.id}>{item.value}</code></dd></div>)}</dl>
+    </section>)}
+  </details>)}
+  <p>The prototype has no reserve, abort or fee-sponsorship branch. Its in-process
+    cursor demonstration is separate from durable CLI/GUI recovery. Issue #16
+    remains open for those interfaces, funding-plan admission, another batch size
+    and cost planning.</p>
+  <p><a href="https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations">Read the Rust, independent reference, oracle and complete retained packets</a>.</p>
+</section>
+<style>
+  .continuation-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: .6rem 1rem; }
+  .continuation-fields > div { margin: 0; min-width: 0; }
+  .continuation-fields dt { font-size: .9rem; color: var(--sl-color-gray-2); }
+  .continuation-fields dd { margin: .15rem 0 0; }
+  .continuation-fields code { overflow-wrap: anywhere; white-space: normal; }
+</style>

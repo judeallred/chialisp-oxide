@@ -3,7 +3,7 @@
 **WIP design, not an implemented feature. Not ready for use or real funds.**
 This records a proposed first experiment for
 [#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type, automatic splitting and shared
-deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](../experiments/authenticated-continuations/README.md)
+deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
 now supplies a concrete annotated export, independent host oracle and native
 adversarial tests. Its actual subset check, both-mode builds and 108 finite
 primary-VM observations pass. A separate finite ledger milestone now mines
@@ -37,7 +37,7 @@ Use an explicit state machine in an ordinary Cargo library, depending on the
 unpublished `chialisp-oxide` facade and exporting a concrete annotated step
 function. Native `cargo check` and `cargo test` check Rust; the additional
 `cargo chialisp-oxide check` and `build` check the reachable CLVM subset. Start
-with the [authoring guide](llms.md).
+with the [authoring guide](https://judeallred.github.io/chialisp-oxide/reference/agent-guide/).
 
 Three possible interfaces have different costs:
 
@@ -58,7 +58,7 @@ It is not a supported `Step<State>` enum API. General enums and iterator
 lowering are not admitted by this design. The prototype must first check a
 concrete state/solution/output representation against the actual compiler.
 Existing tuples, nominal wrappers, explicit `Cons` pairs and output-only
-`Option<T>` have separate contracts; see [optional lists](optional-lists.md).
+`Option<T>` have separate contracts; see [optional lists](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/).
 
 ## First prototype: an ordered payout queue
 
@@ -116,7 +116,7 @@ queue can derive a successor puzzle hash and emit `CREATE_COIN`; it need not
 apply a dynamic program or wrap every step in a singleton. Those larger
 protocols should be dependencies only when the chosen example needs them.
 
-The [concrete ABI/hash spike](../experiments/authenticated-continuations/README.md)
+The [concrete ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
 fixes one payout at 1,000 mojos, a finite count of 1..=8, no reserve or abort,
 fixed byte-domain queue hashes, and a one-parameter standard curry. It includes
 original independent Chialisp source, retained both-mode/reference template VM
@@ -148,7 +148,7 @@ Keep these acceptance checks separate:
   fees separately from whole-block observations.
 - CLI/GUI planning, submission, interruption recovery and monitoring must use
   the same checked recipe. This in-process continuation fixture is separate
-  from the [wallet lifecycle](lifecycle.md); deployment through CLI/GUI on
+  from the [wallet lifecycle](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/); deployment through CLI/GUI on
   Testnet11 requires its own executed network integration.
 
 The concrete experiment records 45 base SDK submissions and a separate 16

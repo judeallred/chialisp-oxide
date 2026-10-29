@@ -3,6 +3,7 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const titles = new Map([
+  [realpathSync(new URL('../../../docs/continuations.md', import.meta.url)), 'Authenticated continuations: exploration design'],
   [realpathSync(new URL('../../../docs/package-registry.md', import.meta.url)), 'Offline package registry'],
   [realpathSync(new URL('../../../docs/lifecycle.md', import.meta.url)), 'Local coin puzzle lifecycle'],
   [realpathSync(new URL('../../../docs/cat-genesis-tail.md', import.meta.url)), 'Genesis-by-coin-ID CAT TAIL: local Rust lifecycle'],

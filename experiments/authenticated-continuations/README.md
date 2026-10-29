@@ -234,3 +234,47 @@ submission/monitoring with durable interruption recovery. This original demo
 requires neither singleton support nor dynamic apply. Larger generators,
 iterators, automatic suspension or general enum support would need separately
 specified compiler semantics and evidence.
+
+## Publication and current-host CI
+
+The reference site imports `docs/continuations.md` and displays the retained
+native, primary-VM and SDK lanes separately. Its mandatory built-page gate runs
+through the existing `www/scripts/check-site.mjs` entrypoint used by `test:site`
+and Pages. It checks visible module/coin/payout/successor identities, costs,
+fees, typed outcomes and bounded claims, with display corruption controls.
+
+The independent `continuations` workflow job first builds its own four host
+tools, then invokes `ci.py`. The recipe runs normal Cargo fmt/test/Clippy for
+both unpublished libraries, all 28 Python controls, complete portable packet
+admission, actual retained VM/IR/SDK replays, and fresh current-host source,
+reference and mutation executions. It records this runner's independently
+queried compiler and tool hashes under `current_execution`; the original
+macOS compiler and tool hashes remain under `historical_capture`. A Linux
+execution never claims to have the recorded macOS executable identity.
+
+The historical packet's closed declared inputs cover its policy, Cargo files,
+reader and oracle code. README text, the shared guide, the new CI observer and
+site wiring are publication inputs, not retroactively captured compiler inputs.
+`ci.py` binds those files separately in a before/after current source window and
+records the exact clean checkout commit in GitHub Actions. This wiring changes
+none of the three automatic selected-library source attachments or retained
+program bytes, so it does not regenerate historical execution records. A real
+change to a declared input must pass its corresponding fresh capture again.
+
+To run the CI recipe locally, finish an isolated host build before invoking any
+driver. Select the actual local host explicitly; the workflow selects Linux:
+
+```sh
+cargo build --locked --target-dir target/continuations-host \
+  -p cargo-chialisp-oxide -p chialisp-oxide-driver \
+  -p chialisp-oxide-cli -p chialisp-oxide-verifier
+python3 -B experiments/authenticated-continuations/ci.py \
+  --tools target/continuations-host/debug \
+  --expected-host x86_64-unknown-linux-gnu --output target/continuations-ci-new
+```
+
+The source window is a declared observation boundary, not a complete Cargo
+build graph, source authentication or installed-binary authentication. The
+pinned installed compiler/standard library and consistent mutable build inputs
+remain assumptions. Fresh and retained reruns repeat fixed observations and do
+not add new distinct coverage or a compiler-preservation proof.
