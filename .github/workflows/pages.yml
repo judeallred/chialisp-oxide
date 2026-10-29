@@ -48,6 +48,8 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: www/dist
+          # Retained evidence includes provenance dotfiles such as .cargo_vcs_info.json.
+          include-hidden-files: true
   deploy:
     environment:
       name: github-pages
