@@ -300,7 +300,9 @@ def prepare(args):
     for name, expected in expected_project_inputs(str(ROOT)).items():
         (project/name).write_bytes(expected)
     (project/"Cargo.lock").write_bytes(read(ROOT/"Cargo.lock"))
-    command(output,"prepare-lock",["rustup","run",TOOLCHAIN,"cargo","metadata","--format-version","1","--manifest-path",project/"Cargo.toml","--offline"],target=args.native_target)
+    # Resolve the generated workspace while preserving existing external pins.
+    # Full metadata repeats an unused dependency graph in the bounded packet.
+    command(output,"prepare-lock",["rustup","run",TOOLCHAIN,"cargo","update","--workspace","--manifest-path",project/"Cargo.toml","--offline"],target=args.native_target)
     validate_lock(read(ROOT/"Cargo.lock"), read(project/"Cargo.lock"))
     write(output/"prepared.json",{"protocol":"chialisp-oxide-cat-genesis-rust-prepared/v1","root_lock":identity(ROOT/"Cargo.lock"),"templates":[identity(p) for p in (POLICY_SOURCE, *(HERE/n for n in ("src/lib.rs","mutations.json","rust-native.rs","vectors.json")))],"materialized":materialized(project),"scope":"Exact generated ordinary Cargo source recipes, no compilation/execution credit."})
     print("prepared",project)

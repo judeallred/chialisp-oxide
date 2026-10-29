@@ -303,7 +303,12 @@ def check_command_role(label, command, origin, extraction, native, compiler_targ
     elif label == "driver-query": expected = [tools[0]["path"], "--compiler-version"]
     elif label == "compiler-query": expected = ["rustup", "run", capture.TOOLCHAIN, "rustc", "-vV"]
     elif label == "subset-check": expected = [tools[1]["path"], "check", "--manifest-path", project, "--locked"]
-    elif label == "prepare-lock": expected = cargo + ["metadata", "--format-version", "1", "--manifest-path", project, "--offline"]
+    elif label == "prepare-lock":
+        expected = cargo + ["update", "--workspace", "--manifest-path", project, "--offline"]
+        historical = cargo + ["metadata", "--format-version", "1", "--manifest-path", project, "--offline"]
+        # Retain the exact older command, without admitting arbitrary updates.
+        if command["argv"] == historical:
+            expected = historical
     elif label == "recorded-reader":
         require(type(command["argv"][0]) is str and command["argv"][0].startswith("/"), "opaque Python interpreter origin")
         expected = [command["argv"][0], source + "/experiments/cat-genesis-tail/rust_lifecycle.py", "--report", origin + "/rust-lifecycle-attempt1.stdout", "--capture", origin, "--self-test"]

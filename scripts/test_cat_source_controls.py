@@ -10,6 +10,20 @@ import cat_source_controls as c
 
 
 class TransportTests(unittest.TestCase):
+    def test_lock_preparation_commands_are_closed(self):
+        origin = "/capture"
+        extraction = {"source_root": "/source", "tools": []}
+        native = {"runner": {"path": "/native/debug/examples/runner"}}
+        cargo = ["rustup", "run", c.capture.TOOLCHAIN, "cargo"]
+        suffix = ["--manifest-path", "/capture/project/Cargo.toml", "--offline"]
+        for role in (["update", "--workspace"], ["metadata", "--format-version", "1"]):
+            command = {"cwd": "/source", "target": "/native", "argv": cargo + role + suffix}
+            c.check_command_role("prepare-lock", command, origin, extraction, native, "/compiler")
+        for role in (["update"], ["generate-lockfile"], ["update", "--workspace", "--aggressive"]):
+            command = {"cwd": "/source", "target": "/native", "argv": cargo + role + suffix}
+            with self.subTest(role=role), self.assertRaises(ValueError):
+                c.check_command_role("prepare-lock", command, origin, extraction, native, "/compiler")
+
     def test_relative_paths_are_closed_ascii(self):
         for name in ("../x", "/x", "a//b", "a\\b", "é", "a/./b", "a:b", ""):
             with self.subTest(name=name), self.assertRaises(ValueError): c.relative(name)

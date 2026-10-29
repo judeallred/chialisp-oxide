@@ -26,7 +26,7 @@ import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = '3490dc57d3245bcae079eb5bfb1066564b9c3308ec33ec5b9593f9ffd1dfaae5'
+PIN = '85e34faaac1245594292877af04fca0f7ed7a340beede16e44d13190060fefca'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
