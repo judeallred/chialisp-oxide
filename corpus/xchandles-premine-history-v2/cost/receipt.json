@@ -1,0 +1,1386 @@
+{
+  "status": "executed_pure_count_and_locked_source_identity_checks_passed",
+  "scope": "No VM, SDK, Rust tests, compiler, RPC or block/bundle reconstruction. Count is from retained actual component outputs; condition pricing applicability is manually inspected pinned consensus source, not an executed consensus-parser proof.",
+  "attempt4_receipt_sha256": "a2e9f96d98371e428798b9b6a8fd29de5a1338abcf47acd41200ff0f50e43f28",
+  "crate": {
+    "name": "chia-consensus",
+    "version": "0.36.1",
+    "archive_bytes": 111307,
+    "archive_sha256": "d942bcb20b243213becbd94630dd7122c18dea7450beab38cbb4a6fcac993cae",
+    "matches_cargo_lock": true,
+    "installed_selected_sources_match_archive": true,
+    "vcs_metadata": {
+      "git": {
+        "sha1": "56f6b676a96de8659fe05d7e4f705df553f37fa5"
+      },
+      "path_in_vcs": "crates/chia-consensus"
+    },
+    "git_metadata_is_not_source_deployment_authentication": true
+  },
+  "sources": [
+    {
+      "path": "src/opcodes.rs",
+      "bytes": 8886,
+      "sha256": "7d7eec6712d68a73ae891bf553ba47e66ace9810b98db428e1ca9e1bed7c37bc"
+    },
+    {
+      "path": "src/conditions.rs",
+      "bytes": 215073,
+      "sha256": "91f868e4b8c6abdb868a59eb59cc19c215a0c498b966ae1c0eb2b398b165f8b7"
+    },
+    {
+      "path": "src/consensus_constants.rs",
+      "bytes": 8913,
+      "sha256": "e627a2123ebf75a2055430746fd1d2bed891d6ac7c7c2c16ef7cd46097176a5e"
+    },
+    {
+      "path": "src/spendbundle_validation.rs",
+      "bytes": 14097,
+      "sha256": "0c50aaae1160c0e128239a494ad5045d68ea3e9c829949a81b18e4852d1d014d"
+    },
+    {
+      "path": "src/flags.rs",
+      "bytes": 1687,
+      "sha256": "732ceb87d6ded878147a87ab1b4e593ac7687eebe7717f541a341477b6d14d50"
+    },
+    {
+      "path": ".cargo_vcs_info.json",
+      "bytes": 115,
+      "sha256": "787494bb7b738d358e722aa8068eae5d63d479f9b946ff138e7c7773d64d7760"
+    }
+  ],
+  "counts": {
+    "components": 129,
+    "registered_names": 3836,
+    "CREATE_COIN_total": 11637,
+    "zero_mojo_CREATE_COIN": 11508,
+    "one_mojo_controller_CREATE_COIN": 129,
+    "unique_created_coin_ids": 11637,
+    "per_component_create_count_histogram": {
+      "4": 1,
+      "91": 127,
+      "76": 1
+    }
+  },
+  "cost": {
+    "CREATE_COIN_unit_cost": 1800000,
+    "maximum_block_cost": 11000000000,
+    "all_observed_creation_condition_charge": 20946600000,
+    "zero_mojo_creation_condition_charge_only": 20714400000,
+    "zero_only_excess_over_block_limit": 9714400000,
+    "consolidated_one_controller_plus_same_zero_creates": 20716200000,
+    "ignored_nonnegative_costs": [
+      "primary CLVM execution",
+      "other condition charges",
+      "generator structure/serialized bytes",
+      "BLS",
+      "omitted companion spends"
+    ],
+    "claim": "Under chia-consensus0.36.1 fixed condition pricing, preserving these11508 zero-mojo slot CREATE_COIN occurrences alone requires20714400000 cost, exceeding11000000000; no full-bundle fee/cost was measured."
+  },
+  "pure_falsification_controls": {
+    "count": 7,
+    "rejected": [
+      "drop_one_zero_creation",
+      "duplicate_zero_output",
+      "hide_creation_as_remark",
+      "zero_amount_is_not_one",
+      "padded_zero_outside_observed_canonical_profile",
+      "negative_amount_outside_observed_profile",
+      "invalid_created_hash_width"
+    ],
+    "not_consensus_executions": true
+  },
+  "rows": [
+    {
+      "index": 0,
+      "names": 1,
+      "create_coin_conditions": 4,
+      "zero_mojo": 3,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 7200000,
+      "stdout_bytes": 1308,
+      "stdout_sha256": "efd478446010dca7e572c96d597c21c230db00886baab805a2d1b0b2a56e55fd"
+    },
+    {
+      "index": 1,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "7b007654f9fc49ba96062d2cbb57faf959fc5d6afc44d5b0c0edd28c2725a32d"
+    },
+    {
+      "index": 2,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6467c0f4eebd1fc5134a1ccddcf6255619f2865d320f4136b8dfa1793ade0772"
+    },
+    {
+      "index": 3,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "88b6874fa52eb8a3b5ab310da7b5d992141f5502bc6396d6c2dd13fddf4374e3"
+    },
+    {
+      "index": 4,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "ca74f21c69ccc495483d2e75313e39b11adacbc86a0ff412cc14aca1fc2dc0c9"
+    },
+    {
+      "index": 5,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5d31f11fc86f6583809b80728861ec2a8be05d350ec40ea376aeb8b834584439"
+    },
+    {
+      "index": 6,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "b1ac064e48d360936f9a6f552c07bbf3463fab3973de396d3962d2c9c7dc5dc0"
+    },
+    {
+      "index": 7,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "61d6916f0bbfbf4a501ffcf6c44d0e64970d3a4354ceae31008c0ac997bd8adf"
+    },
+    {
+      "index": 8,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "4ffa8cbf62e0eb97c29440926177e166cdb2b875340c4dbc45aaaf82eddd1e3d"
+    },
+    {
+      "index": 9,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "1078df323b60177b9efe111c278bd08ac2d122c6daa6516dc13500aad4120a39"
+    },
+    {
+      "index": 10,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "05494ce3762375b9b1be5a47dda9c34a2f03368c1bbc2235b64e12b8d35d3594"
+    },
+    {
+      "index": 11,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "a742b5d5961972f0652dd3961d91cd7a16904964c019bdced09d6fe89dd267b5"
+    },
+    {
+      "index": 12,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "3854d6f87d2b431a203197aab2638b9c0174c7ad901f70d6e72c5e1dfc8452bf"
+    },
+    {
+      "index": 13,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "b86dc5aa6d08a794a903c1a17e8c705e22be7f4a13d554bebc3b287929c37ca3"
+    },
+    {
+      "index": 14,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "e552e67c8b0dd44f9f9aff1648f997ceb584bc19ad4eec9a30588ed81e6b47d3"
+    },
+    {
+      "index": 15,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "bfa1374397967f06f22f89f21b088a1739026dc2d4094b2ae137ee9d6d428776"
+    },
+    {
+      "index": 16,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "ca76f3639f399888080e685afc8718999947169d5755f4a83ba76d6b7746e7ee"
+    },
+    {
+      "index": 17,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5a0f2b85c46c04daa4530c5be5ec674e013534b82cbe3ab75d2e16143d446f16"
+    },
+    {
+      "index": 18,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "cb6e2c4afdb64eaedd017a228008d18a4dc8135c7582b46bcec23faea4f832d2"
+    },
+    {
+      "index": 19,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "ebc38e344cf6e259ee28efe9a872608a42092808b7a83849abc8a54fb4412e9b"
+    },
+    {
+      "index": 20,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "a56ae51a27f583b1ebc167514059cb3d4252ad30cc810c3095f8b333ea2da9fe"
+    },
+    {
+      "index": 21,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5b804f7435793b54fa4ae8b7ce0d8e40400cb0ced51b91cf26251a584d8b12ac"
+    },
+    {
+      "index": 22,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "23a2e88d87c656b7e82b027cf59ecb4f745f11bdb9bbd7281c2a9b0937528316"
+    },
+    {
+      "index": 23,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "f4dac79a2d077c852f55c49d5ce99bd6beace7d430e8374441b34056bd18d203"
+    },
+    {
+      "index": 24,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "2e52318a45580634c8c1c7b18e79e90eb304629d5d90642cb4f89124ec50fe27"
+    },
+    {
+      "index": 25,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6a6831b2bba3f92e5d4a936450d2605f236a500609cf9818399db8d7cc224faa"
+    },
+    {
+      "index": 26,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "394c309610da688f2d31ffe47a7f27012a1492c4e621eb9970ac2b43b46dba9c"
+    },
+    {
+      "index": 27,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "db7d1f381c3f1cbd7183bf91312ddcdffe6e353e0275759743d149eed75482aa"
+    },
+    {
+      "index": 28,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "c1d7698998912c05f4f29cfd99553413410d58f65914bbf76207821f2a1042ce"
+    },
+    {
+      "index": 29,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6837a32d57bba1b0610b38a974e07e7944ae1cf76dd2224bc3355d76b4c8135f"
+    },
+    {
+      "index": 30,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "129b909db31c4972bd1458b5514bdcc66b5c6cd8b756d133ea7e516f98adc318"
+    },
+    {
+      "index": 31,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "0f4821c384019af517f0cfe7fa9e511ae8a656e461e5646370de1168f47ec25d"
+    },
+    {
+      "index": 32,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "ff752ca0e428d79e0ab7d2caf49cb0fa39a13028248500a57964508d2aac655b"
+    },
+    {
+      "index": 33,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6c1732a534cb48eb217ad0b5cc206a29afccc95bd9d6a05e20d7b49a2005513e"
+    },
+    {
+      "index": 34,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "23a03e6ff6bed226230d5b4ff579f5c0ea68469efd4e8fbc107f3f39aa4e5b49"
+    },
+    {
+      "index": 35,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "ba5e78935d51e8fb1cdf040a74279482e00011a221f0721661e2062468af209a"
+    },
+    {
+      "index": 36,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "576b83b13d8bca5f43979579c20f897aacbe2d3a7992e57d2682ff8e39dc9c50"
+    },
+    {
+      "index": 37,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29161,
+      "stdout_sha256": "ce99a880b2eac39ecc989da229778095e83570da7ecd42ecc6cd6a69a9433438"
+    },
+    {
+      "index": 38,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "25563b094c356719b6c42c1fd583d46c7736741eccff893a2394b2aec1c2bed6"
+    },
+    {
+      "index": 39,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "e0a49a6ace01f8603886202fe13e599f957e9f45d0d813cd441e5eebe43e03e1"
+    },
+    {
+      "index": 40,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "a40243c99f3bf157c0c1e21f76cc610c76126d49c0fe626f8f9e237a6a87ca85"
+    },
+    {
+      "index": 41,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "810c1d94caa96b9e35464371764aa1ddf099138e87aed9de81dad16c2fb1f04d"
+    },
+    {
+      "index": 42,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "81798c494e51c1ce4a437204ae188f4da508a5030746c5351229f57ff3de3dfe"
+    },
+    {
+      "index": 43,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "1f07ce33b8e25d96886399a2061af55abd92332e6d337ac2fb99fd989aac8730"
+    },
+    {
+      "index": 44,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "86457a0b0c038fb690aa51f366854a71a007a9dedef47d1a9afb9360e24e751d"
+    },
+    {
+      "index": 45,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "f20f6ff02e78ad8784137a3d4fb819b4059722634e821387ac2ed27b2400b490"
+    },
+    {
+      "index": 46,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "166d363e57b72694cab75b83b562785e87f0aebf30e802543001424de0661272"
+    },
+    {
+      "index": 47,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "d31fc7a5a284fca5f1ca4c42446f571761b8210d3f2ac9ca24f408f34ae7c326"
+    },
+    {
+      "index": 48,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "eda03ee5c7a47590bb7050bb407101a60b7ebe3cbcb92820a39ef43184227674"
+    },
+    {
+      "index": 49,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "b3fdba5548cb1f5db836b38c76b605b5393d6228a0c7544b2ecacda2d9eee9de"
+    },
+    {
+      "index": 50,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6f33676ede0be4a1557ccea6555355eaf102fbc51f61d94b81648763487449ee"
+    },
+    {
+      "index": 51,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "495601ef913d163e8804d48793e092cc281a8807e5addeee5b2dd31fd9e8e3bf"
+    },
+    {
+      "index": 52,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "f0b53056b0cddf03dc86fbe7bf07538c4c87e600ba2b1396c86c276d7a50f937"
+    },
+    {
+      "index": 53,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "b7e9328dec1c4f9f1fa85e31538a567acf5741992528139ca1ca9a1364544286"
+    },
+    {
+      "index": 54,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "a9662915c2d45125c08ea131f7d83e1b4696d85540f1de0b8c3bd40dda9a4906"
+    },
+    {
+      "index": 55,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5f71c99a9027a94ab4edb9d76f08a64e3f026dffc3ea0658cca5a07929177b16"
+    },
+    {
+      "index": 56,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "f14d6799ad45b4b3c69c15c2544bb39b96bbc9e1a6ac03144ab19cfe3cef78b8"
+    },
+    {
+      "index": 57,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "d62e79600f4d441a68e8f0becf15e1e0cbba7cf765aea17f7618d36a035528a7"
+    },
+    {
+      "index": 58,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "24c9fd975e4369e6ee3ce4b486f882cf1059360be14de3d42a4e8e0b07b07b92"
+    },
+    {
+      "index": 59,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "168c3cb755e654ab434c1b2f386a607804f5e3123f51f207152c9a27af412f2d"
+    },
+    {
+      "index": 60,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "057d5c31129c9a8fff65a414235ffa5b7b32c2a2f72fa29ff5bd97702f4c79b7"
+    },
+    {
+      "index": 61,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "d40bb43e7dd3431a981577fcb72f89241d7054b6c8ee1aeedc38fc39d2922fed"
+    },
+    {
+      "index": 62,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "81961bc548ca3b11665c99d88a07d1614bef7ecbc743e6bb6c50ef7675edc932"
+    },
+    {
+      "index": 63,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "15eff7274062c794f20482d1f700892d582833bb27297b7d08688b61d9b0f55a"
+    },
+    {
+      "index": 64,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "aa2251c3e1332f2eaef6b0e1799858ae5ee08aefa3d03f4066394b842e8fe657"
+    },
+    {
+      "index": 65,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6dfaa4f020e5ec41c913d1ccbd037ae1b82a8f16baf8b40f5fd9bb0230518787"
+    },
+    {
+      "index": 66,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "f10d375c02121564bd1a29937b7153145d8b13d06e6308abd47917582ac39185"
+    },
+    {
+      "index": 67,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "1451214c48062cfb4d31eba3ae0116d703c402c7ad69a37f7c70737010b4a7d4"
+    },
+    {
+      "index": 68,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "17bfad273e8ae66e0b56341e587817fa3cdbf4781da1994e46f43a7cc6ed9e1b"
+    },
+    {
+      "index": 69,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "ea2cac4598cc0abec9214a11957e1792be43fa936590d61c90c3b47741d29884"
+    },
+    {
+      "index": 70,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "a57d62be3cccdd45b9b594ecfce0ba21a38087e7a838ed7b237b7009d49db798"
+    },
+    {
+      "index": 71,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "9837f3eb730b55b981b6a585e719caa40ccbb77a8df44abdfd2ff6f41ab95a6e"
+    },
+    {
+      "index": 72,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "397884f39c79ee5c90a9bd7db983534e0175b279879812f0c28b81fe36139cdc"
+    },
+    {
+      "index": 73,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "687b7bcc10e6d8e33d68dfda2a8b89ed980e130db25a3540b8c79452b19e40a6"
+    },
+    {
+      "index": 74,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "7de2d2ecdefc555bd9fb2027f6480f42ff89f1c5426f32d96a583e81edbe8747"
+    },
+    {
+      "index": 75,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "10c8e91096c17e0411f0148e1c0143f33a9ac21eb30ab2a13496584720b2582d"
+    },
+    {
+      "index": 76,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "bbb0efad2417cfa717babbfedc7e981c5b5417d6d831a19b16bf3d3174946185"
+    },
+    {
+      "index": 77,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "72e0e8dfa5310cf1c7c4c6de6eea6bfc7cb9ae6cf1d67ae7374e00e73b19227f"
+    },
+    {
+      "index": 78,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "84724538760c85f69a569203d3b8bf7f3d6ed76838828eddde570368a79e254d"
+    },
+    {
+      "index": 79,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5b262e0dfb968ad0a9f379a49bd7f8c46fd13deeb9b66497e1ca351a695bbf95"
+    },
+    {
+      "index": 80,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "0cb2da80a6077822945a9f4e0550e77534bbff3ad7d3d68fee04a9fd8eebae38"
+    },
+    {
+      "index": 81,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "d8254cd2e332f1c74d2cbdca239d97b780029ad1ecc66d45c3b8c2426195d04d"
+    },
+    {
+      "index": 82,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "112ead149fddf3917e316dc8640e9e8efafb243c77d625d308afc5042befa604"
+    },
+    {
+      "index": 83,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "c70e117bb7824edf35670a149d5da7b3a9e1903cbee685b95769a74f76fa3ab4"
+    },
+    {
+      "index": 84,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6f2bda11449c844c18b5445be56c2063f2a408c44f6f4c1d506a139cef69df89"
+    },
+    {
+      "index": 85,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5d317f5c464c1f7158dd048383d5eb0b0ae32b56d399747e14bbc6ffecfafa35"
+    },
+    {
+      "index": 86,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "3c770e82ac92fa8e18d96e45857850465a91046b6510386db7e29f5a144d4a70"
+    },
+    {
+      "index": 87,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "a16eef5bb9686b56518d1b8c689d8b95dc7b5bb4056e6b897ea701b9cf98c030"
+    },
+    {
+      "index": 88,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "a800908dd26460920857cc316160cf7bccf7619fc440af7b1e6a424588b9709a"
+    },
+    {
+      "index": 89,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "3a85511d47de6e5bab407cf95686108f1034c181101dbb28dc6b734bc2e2299a"
+    },
+    {
+      "index": 90,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "2e61ebfed6c618f638fb20257c037d1224f211aa1bb29c110858c110fa482386"
+    },
+    {
+      "index": 91,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "8a7db2b63ed7daae986ff5cfb96088919fee42f9ba00568b74c185c025b73976"
+    },
+    {
+      "index": 92,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "7ee7ad0be61a0e06df386255858be8c8ec3f4d7af73109f823599e5772356b2a"
+    },
+    {
+      "index": 93,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "c3d006a9d734d64ffa2009133e7285ac1dd1f929800d9a4b386cbc3309c76e8b"
+    },
+    {
+      "index": 94,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "62f8511506aaa90552d8bbc3841f43de7f83f0d1f7911a9badee967fe6542a2d"
+    },
+    {
+      "index": 95,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "1c697da72f7e30ba51030daae028a2f670a3e84c0e0c2fbab5c81a57e21dbc2a"
+    },
+    {
+      "index": 96,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "aa83a2fb7f682b0b1ea5c5ccc78b4d5315c4331284bc17d1a20c64c5a716487f"
+    },
+    {
+      "index": 97,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "273cae58f595ff97a9cec8d24cbaeff4993a8465fdfa54db5db4a8836fb7232d"
+    },
+    {
+      "index": 98,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "f529a9d024e78374ddd9fd8b372c0d0efd8db543989bba512817f443eb7e9ff8"
+    },
+    {
+      "index": 99,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "4536734bad44db884037fe3be66215079a7f9d95a8ca6c2b511c9194c51f308b"
+    },
+    {
+      "index": 100,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "c9e9b7183ba9feae057137e5902bef539fdb6af07feab49bb7887756f6dc431a"
+    },
+    {
+      "index": 101,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "e1b8c8104a07405bfe07053b6007044ccc3d92e425e587810212661688f352be"
+    },
+    {
+      "index": 102,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "bf827c03247fe6d1ee7357f7d89be04ef39ac5bf859b5b6343b870789d9760f4"
+    },
+    {
+      "index": 103,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "bf4fc9fd238c05fa6f240319e93100fb910bcc939c9237b35c6031ff9fea40f7"
+    },
+    {
+      "index": 104,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "c4152ec10856b4baff7f539e44e7f57c22e070eb31d9229d140fd52ad2842661"
+    },
+    {
+      "index": 105,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "6162d8731e021222b366402357f3a9a39b3381d4ac5dd56c77c62f72080e4b09"
+    },
+    {
+      "index": 106,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "2d0af1d2cd2bf788c1624671e53bb22cfef8852ad3627463a9fa646a428c700c"
+    },
+    {
+      "index": 107,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "455165fd130a5e3cc3b2c836b10a804658663f3cef3b850fccad7df696ba1696"
+    },
+    {
+      "index": 108,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "532aa442dc4e63d93fbf94f3365c9f9bca65957564f58268a3984c3d294a1913"
+    },
+    {
+      "index": 109,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "a42210229ce83cfe05c257e886d3eb98a60e64ec85e928e1661de267d0392348"
+    },
+    {
+      "index": 110,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "c3c1fd919f54d751cfcd7089f7b0a4ede84008cab81735b5eef572ec6beae0ad"
+    },
+    {
+      "index": 111,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "8667c561566f0ce2fbdac24fe62503a78a63227a8e21f2e7698fe15b36903233"
+    },
+    {
+      "index": 112,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "5adbe777ca9717746feb7f636b6f9267beff67301c0ab82982835f68482b333b"
+    },
+    {
+      "index": 113,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "f2ee3ed40d1e951baf234850c841034ac7d7a6f8567edf45e4ee45375bd8db19"
+    },
+    {
+      "index": 114,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "4f74d976e7ab155e5474af9b8bbe39a6fdbc11560d011078e7cb1852b87c068b"
+    },
+    {
+      "index": 115,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "18122eb4b9216190fcaad0d58cb2adefce71460486b6a3d45b27ad3f972093cd"
+    },
+    {
+      "index": 116,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "af89f594f5755a77c6d04f69f81096e0b277ebe38d811d4b556c2d7e717f85ae"
+    },
+    {
+      "index": 117,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29153,
+      "stdout_sha256": "320d4710979660d96e0b7cf0063b37e4fc497c29d56263f779acd522e5ef1a91"
+    },
+    {
+      "index": 118,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "94cee66d02d6a2c50cecf4b38befb4c7bbab65d83ae79643c81897028843d172"
+    },
+    {
+      "index": 119,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "7e2c12d98b738ec71b0b487ec603fc2c0b6d2ed45b00f817e362b28d37df61c9"
+    },
+    {
+      "index": 120,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "65f8439f16210472cbb31116c683de414f76bcb3370981c14fa3109ed18a630a"
+    },
+    {
+      "index": 121,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "91011308138a5d505eaab981da5755fdd034dd6b416e7a5c216c59b001da0865"
+    },
+    {
+      "index": 122,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "3271377e37e13d224ebab596d9912195c0453247763849b3cfceb8b572c2a8ab"
+    },
+    {
+      "index": 123,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "34761b51d965fdda6a5e3223c7ae4e70cc04af08fb3f9ce19682c8708b24f4ad"
+    },
+    {
+      "index": 124,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "25a507a49b8a29d84c623e01d400b26aa0c3b2341aff4a1346df70db3bbc3545"
+    },
+    {
+      "index": 125,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "74b3c6ea1537b15c914d70a11367e7cfeeab5a9467860e781026d0a1036f14a7"
+    },
+    {
+      "index": 126,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "27d110a96f150beee777c27755f9d4dd927de758554afec5a12da15b61f4ae02"
+    },
+    {
+      "index": 127,
+      "names": 30,
+      "create_coin_conditions": 91,
+      "zero_mojo": 90,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 163800000,
+      "stdout_bytes": 29149,
+      "stdout_sha256": "cd4a7e43177667589fb7979ce349141e5eabc7e7e74c78bb49342f0a62b09782"
+    },
+    {
+      "index": 128,
+      "names": 25,
+      "create_coin_conditions": 76,
+      "zero_mojo": 75,
+      "one_mojo": 1,
+      "condition_cost_lower_bound": 136800000,
+      "stdout_bytes": 24349,
+      "stdout_sha256": "cef23fd995e2e92b7d54b57215d862d62cbc229e2dc9c3dda213f760002df4b4"
+    }
+  ]
+}

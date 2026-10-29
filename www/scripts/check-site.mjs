@@ -16,7 +16,15 @@ import { siteFiles } from '../src/lib/site-files.mjs';
 import { readRegistryProtocol, checkRegistryDisplay, registryRoutes, registryHTMLLimit, readRegistryBytes } from '../src/lib/registry-protocol.mjs';
 import { readRegistrySourceControls, checkRegistryControlsDisplay } from '../src/lib/registry-source-controls.mjs';
 
+import { readXchandlesPremine, readXchandlesArtifact, readXchandlesBytes, checkXchandlesDisplay, xchandlesRoute } from '../src/lib/xchandles-premine.mjs';
+
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
+const xchandles = await readXchandlesPremine({ required: true });
+checkXchandlesDisplay(readXchandlesBytes(path.join(root,xchandlesRoute,'index.html'),512*1024).toString('utf8'),xchandles);
+for (const lane of ['history','simulator']) for (const file of xchandles[lane].downloads) {
+  const actual = readXchandlesBytes(path.join(root,'reports/xchandles-premine',lane,file.path),2*1024*1024,file);
+  assert.deepEqual(actual,await readXchandlesArtifact(lane,file.path),'XCHandles download differs from admitted complete packet');
+}
 const registryView = await readRegistryProtocol();
 assert(registryView, 'Complete current registry sidecars required before publication');
 for (const route of registryRoutes) checkRegistryDisplay(readRegistryBytes(path.join(root,route,'index.html'),registryHTMLLimit(route)).toString('utf8'),registryView,{route});
@@ -1219,6 +1227,7 @@ try {
     ['counter reset state', 'tutorials/action-counter/'],
     ['registry slots creator spender', 'tutorials/action-registry/'],
     ['registry condition omission', 'tutorials/action-registry/'],
+    ['XCHandles premine cascade', 'case-studies/xchandles-premine/'],
   ]) {
     const result = await pagefind.search(term);
     const matches = await Promise.all(result.results.map(row => row.data()));

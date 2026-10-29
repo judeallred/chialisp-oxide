@@ -192,7 +192,12 @@ backlog; this ordering does not mark their acceptance criteria complete.
    include the finite counter and fixed two-name registry/slot lifecycle with an
    isolated actual slot double-spend and own-root Rust mutation controls. Continue with
    the XCHandles case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
-   then authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
+   which now has a separately scoped recorded history of 129 controller spends
+   covering 3,836 names and a three-step canonical host recipe (six local names).
+   It is protocol analysis, not an on-chain Rust frontend port or an authenticated
+   remaining-work queue. Exact historical bundle costs and fees remain open;
+   whole-block observations include unrelated work. Continue with authenticated
+   continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
    Build on the original precommit/wait/reveal demo
    ([#17](https://github.com/judeallred/chialisp-oxide/issues/17)) while retaining
    its canonical-port and reusable-abstraction gaps. Derive new

@@ -1,0 +1,89 @@
+{
+  "protocol": "chialisp-oxide-xchandles-host-checkpoint-receipt/v1",
+  "status": "hardened_executed_isolated_native",
+  "base_commit": "40ae94f",
+  "source_files": [
+    {
+      "path": "experiments/xchandles-premine/Cargo.lock",
+      "bytes": 76140,
+      "sha256": "91a3406d88e3d3a512a45991264856f8f2bc101296d0e27b1b2b048d63f346a4"
+    },
+    {
+      "path": "experiments/xchandles-premine/Cargo.toml",
+      "bytes": 646,
+      "sha256": "7bcd59cc16ccb2b6dfd493fac74f49120d6ede98380b576d785b4baaa3c128fc"
+    },
+    {
+      "path": "experiments/xchandles-premine/README.md",
+      "bytes": 9761,
+      "sha256": "9b8f205c9fee6014ae039ebe053b9b12b84d4f81e1f8f433368d0f72db0b74d1"
+    },
+    {
+      "path": "experiments/xchandles-premine/fixtures/SLOT-MACHINE-LICENSE.md",
+      "bytes": 3127,
+      "sha256": "257f43a5c0407fb3a90f3c0771aecdd77a1160dee1ee2be8250ac629dcac1962"
+    },
+    {
+      "path": "experiments/xchandles-premine/fixtures/register.rue.hex",
+      "bytes": 3003,
+      "sha256": "fda50a86642384bed3256c8cc910697a0721aba74309f2c34f47d98a2aa75227"
+    },
+    {
+      "path": "experiments/xchandles-premine/src/controls.rs",
+      "bytes": 2681,
+      "sha256": "aad962423152cdedc69ea4bef157c4398648273c06b5f76c0f658318681b0596"
+    },
+    {
+      "path": "experiments/xchandles-premine/src/journal.rs",
+      "bytes": 7803,
+      "sha256": "aff2283d2be47a27ff55e6efe671e8a84740ad634aac996adebe8262f8ad48bd"
+    },
+    {
+      "path": "experiments/xchandles-premine/src/launch.rs",
+      "bytes": 3350,
+      "sha256": "b27bb7fb89e97b4c66ef380d546baa6369a5aaf1e16843c0bd6dcfba32594213"
+    },
+    {
+      "path": "experiments/xchandles-premine/src/main.rs",
+      "bytes": 21089,
+      "sha256": "8fe28296a47b00dac73641c62ad289c7f3d8df811e65218d9912166ef9863bea"
+    },
+    {
+      "path": "experiments/xchandles-premine/src/metrics.rs",
+      "bytes": 4034,
+      "sha256": "c8080cf1209eb69fb6c8b0fd95195fe60ec25609dda18f91a7dc2a24a115796f"
+    }
+  ],
+  "source_recipe_fingerprint": "562bae7eeb9277399f62098f25e24155f386726eda0389b073558d6319947de3",
+  "full_reports": [
+    "full-first.stdout",
+    "full-repeat.stdout",
+    "resume-first.stdout"
+  ],
+  "full_report_sha256": "d2534c7c2431ebd9ea0d11d01eb0c9d421f2623f84b3f3db56738d4a8a92ce71",
+  "per_full_report": {
+    "sdk_attempts": 20,
+    "accepted": 11,
+    "exact_typed_consensus_rejections": 6,
+    "runtime_umbrellas": 3,
+    "component_vm_runs": 48,
+    "cost_passes": 11
+  },
+  "pause_prefix": {
+    "sdk_attempts": 7,
+    "component_vm_runs": 20
+  },
+  "checkpoint_refusal_processes": 11,
+  "before_sdk_refusals": 9,
+  "prefix_replay_refusals": 2,
+  "native_unit_tests": 4,
+  "gate_process_matrix_totals": {
+    "sdk_attempts": 81,
+    "accepted": 45,
+    "exact_typed_consensus_rejections": 24,
+    "runtime_umbrellas": 12,
+    "retained_component_vm_runs": 204,
+    "separate_cost_passes": 45
+  },
+  "scope": "Finite fixed host recipe. Gate totals include full repeats, resume prefix replay and two checkpoint-prefix refusal replays; no extra distinct coverage. Parser/descriptor refusals are infrastructure, not SDK/policy rejection. No execution authentication, Rust frontend port, live wallet or compiler-preservation claim."
+}

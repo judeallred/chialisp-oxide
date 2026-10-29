@@ -4,3 +4,8 @@
 # Preserve byte-exact upstream snapshots, including original whitespace.
 # Their hashes and line spans are checked by the offline inventory validator.
 corpus/upstream/** -whitespace
+
+# Retained case-study observations include exact upstream bytes, process logs
+# and a deliberately whitespace-only oversized checkpoint refusal input.
+corpus/xchandles-premine-history-v2/** -whitespace
+corpus/xchandles-simulator/** -whitespace

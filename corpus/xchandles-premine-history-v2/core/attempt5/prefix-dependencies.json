@@ -1,0 +1,235 @@
+{
+  "protocol": "chialisp-oxide-xchandles15-prefix-dependencies/v1",
+  "path_base": "research packet root containing attempt2/ and attempt4/",
+  "origin_policy": "All admission paths are closed relative paths below packet root. Recorded collector absolute origins are descriptive only and must never be followed.",
+  "first_six_registry_coin_ids": [
+    "57f0e719db51fdc7d1400462372a6dc7cfb8526e9237e720cf78eda72e66524f",
+    "45cfd84d1d848955330167cddd5add40be443c879770405b86e7db7ce0c3c36c",
+    "cee06f0a6631f740dec5f7ac50199c6107fc4c03ef1d2e700d0ff5798ac2f026",
+    "4676218623e0e229f1739ca9f5408e2d295a75dc2e4255a831392e5f8642ed81",
+    "b1ecd5db27a0e93cfbc5a2dcc6885f1f9d1d225d9281647449968afdc407a5f1",
+    "dfa9c967a7f5eac4d93c2f7968c6dd19d9cb7dffb7a86f6f27486dbdb961a720"
+  ],
+  "bootstrap_coin_ids": [
+    "6f314f69a9cf776311e1c7781a3013e4daae3696c71d8a04d049a5af1530f050",
+    "f44621b5cff07a5e02f78b95e579871d62e3df5e3ee31425a61dda846336b83c"
+  ],
+  "index_receipt": {
+    "path": "attempt2/trace-receipt.json",
+    "bytes": 372903,
+    "sha256": "ac32b8d7340dcb1981bee142375fd9ea90958f6f646ada1aa0e8755245885702"
+  },
+  "files": [
+    {
+      "path": "attempt2/00-get_network_info.json",
+      "bytes": 64,
+      "sha256": "bc6dd3f5d924825c7444ece4aceab7dcbeb7d54e82badad476324c263ef18942",
+      "endpoint": "get_network_info",
+      "request": {},
+      "role": "network_observation"
+    },
+    {
+      "path": "attempt2/01-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "f936e704fe16a55af336859edb0d5f5ac0678bbb20848bc02002cb444716a8cb",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0x6f314f69a9cf776311e1c7781a3013e4daae3696c71d8a04d049a5af1530f050"
+      },
+      "role": "launcher_eve_bootstrap"
+    },
+    {
+      "path": "attempt2/02-get_puzzle_and_solution.json",
+      "bytes": 1193,
+      "sha256": "222e2f9f62d2307741cb01bb94a9409951260fc976f947ba596099d25317115c",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0x6f314f69a9cf776311e1c7781a3013e4daae3696c71d8a04d049a5af1530f050",
+        "height": 9174777
+      },
+      "role": "launcher_eve_bootstrap"
+    },
+    {
+      "path": "attempt2/03-get_coin_records_by_parent_ids.json",
+      "bytes": 342,
+      "sha256": "4f550502b9759b6e5e3b43f74426c2f6c8eb9bf930022faea1fb83b26bfc24a4",
+      "endpoint": "get_coin_records_by_parent_ids",
+      "request": {
+        "parent_ids": [
+          "0x6f314f69a9cf776311e1c7781a3013e4daae3696c71d8a04d049a5af1530f050"
+        ],
+        "include_spent_coins": true,
+        "start_height": 9174777,
+        "end_height": 9174778,
+        "limit": 257,
+        "order": "asc"
+      },
+      "role": "bootstrap_child_candidates_completion_unestablished"
+    },
+    {
+      "path": "attempt2/04-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "52dbb414583396b3d8a88206ee2fe20a1b18ac95b5f6533146f2d465cead0668",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0xf44621b5cff07a5e02f78b95e579871d62e3df5e3ee31425a61dda846336b83c"
+      },
+      "role": "launcher_eve_bootstrap"
+    },
+    {
+      "path": "attempt2/05-get_puzzle_and_solution.json",
+      "bytes": 2993,
+      "sha256": "d83a668a22f0b70f834c5cb722774c687b3745abe7682b4bb7ef1b7e5f71ea9c",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0xf44621b5cff07a5e02f78b95e579871d62e3df5e3ee31425a61dda846336b83c",
+        "height": 9174777
+      },
+      "role": "launcher_eve_bootstrap"
+    },
+    {
+      "path": "attempt2/06-get_coin_records_by_parent_ids.json",
+      "bytes": 954,
+      "sha256": "d767ad44dd0085aa18948d65e071b3ffd6a543a58b66d065f023bae4aa30499c",
+      "endpoint": "get_coin_records_by_parent_ids",
+      "request": {
+        "parent_ids": [
+          "0xf44621b5cff07a5e02f78b95e579871d62e3df5e3ee31425a61dda846336b83c"
+        ],
+        "include_spent_coins": true,
+        "start_height": 9174777,
+        "end_height": 9174778,
+        "limit": 257,
+        "order": "asc"
+      },
+      "role": "bootstrap_child_candidates_completion_unestablished"
+    },
+    {
+      "path": "attempt2/07-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "388d20829b1709480677af07212c0960351c4c45172fdf3db7a47c62f1e12a87",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0x57f0e719db51fdc7d1400462372a6dc7cfb8526e9237e720cf78eda72e66524f"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/08-get_puzzle_and_solution.json",
+      "bytes": 11551,
+      "sha256": "4ab76d3c404e5ca9dedc6dc8b07b68956a1b73cf4807c3b74137defb1442d848",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0x57f0e719db51fdc7d1400462372a6dc7cfb8526e9237e720cf78eda72e66524f",
+        "height": 9174976
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/10-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "abe317e2e44da790ba863a49c7a0cc01597062869d55eb347bd86e0a984af1fc",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0x45cfd84d1d848955330167cddd5add40be443c879770405b86e7db7ce0c3c36c"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/11-get_puzzle_and_solution.json",
+      "bytes": 85997,
+      "sha256": "a1bf3327d0704e63d2f9e3617e17940b237317885e1a964e36a1b92aa2c66ba3",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0x45cfd84d1d848955330167cddd5add40be443c879770405b86e7db7ce0c3c36c",
+        "height": 9175111
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/13-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "8c8e9be421bd6d7b729e320637644ef909ffc59f80b059b1e690ec8a1e96f1e3",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0xcee06f0a6631f740dec5f7ac50199c6107fc4c03ef1d2e700d0ff5798ac2f026"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/14-get_puzzle_and_solution.json",
+      "bytes": 85963,
+      "sha256": "644c1e03b0b42f9faaf8364a3abc2cb5b546e19c89f997c5713e00941586874a",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0xcee06f0a6631f740dec5f7ac50199c6107fc4c03ef1d2e700d0ff5798ac2f026",
+        "height": 9175121
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/16-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "71174e9d34d5ab640185f34342bd90e7e3d159609f1b43432b3c9dd9f072ea61",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0x4676218623e0e229f1739ca9f5408e2d295a75dc2e4255a831392e5f8642ed81"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/17-get_puzzle_and_solution.json",
+      "bytes": 85913,
+      "sha256": "9067d3fa58f3702af7b228c5c0c5ee40563e5f96d4df6341f74eb5cd5840a390",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0x4676218623e0e229f1739ca9f5408e2d295a75dc2e4255a831392e5f8642ed81",
+        "height": 9175124
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/19-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "45887e8349c938e0110d44d2b2f9e04da2a22c4b9152d2cf8661659e2090113d",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0xb1ecd5db27a0e93cfbc5a2dcc6885f1f9d1d225d9281647449968afdc407a5f1"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/20-get_puzzle_and_solution.json",
+      "bytes": 86001,
+      "sha256": "56a0d11dd2a9ddb691f268e6b670a98fb6cc715bc5737a1d002595aacd7afdc9",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0xb1ecd5db27a0e93cfbc5a2dcc6885f1f9d1d225d9281647449968afdc407a5f1",
+        "height": 9175127
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/22-get_coin_record_by_name.json",
+      "bytes": 339,
+      "sha256": "fdc8808ce4f197d143b6cecfd1e9fe58f0e7f09ae6bd9be7be4c402f3034a785",
+      "endpoint": "get_coin_record_by_name",
+      "request": {
+        "name": "0xdfa9c967a7f5eac4d93c2f7968c6dd19d9cb7dffb7a86f6f27486dbdb961a720"
+      },
+      "role": "reused_first_six_registry_inputs"
+    },
+    {
+      "path": "attempt2/23-get_puzzle_and_solution.json",
+      "bytes": 85927,
+      "sha256": "56c42bcd1fe9b3c4e818bf896dc7afb0a575f935cb39f99d0cc50f85a9e2392e",
+      "endpoint": "get_puzzle_and_solution",
+      "request": {
+        "coin_id": "0xdfa9c967a7f5eac4d93c2f7968c6dd19d9cb7dffb7a86f6f27486dbdb961a720",
+        "height": 9175133
+      },
+      "role": "reused_first_six_registry_inputs"
+    }
+  ],
+  "scope": "Raw record/spend inputs reused by six actual attempt4 runs, plus launcher/Eve bootstrap observations. Bootstrap parent lists have no completion marker and establish candidate observations only; no launcher/Eve execution or chain authentication credit."
+}

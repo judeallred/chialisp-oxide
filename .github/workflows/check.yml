@@ -598,6 +598,35 @@ jobs:
             ${{ runner.temp }}/offline-consumer-dependencies-prepare.json
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.toml
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.lock
+  xchandles:
+    # Isolated canonical host recipe; never rebuilds the shared compiler driver.
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_BUILD_JOBS: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Rust
+        run: rustup show active-toolchain
+      - name: Admit historical and recorded native packets with corruption controls
+        run: |
+          python3 -B scripts/check-xchandles-history-v2.py check corpus/xchandles-premine-history-v2
+          python3 -B scripts/check-xchandles-simulator.py --packet corpus/xchandles-simulator
+          XCHANDLES_HISTORY_PACKET=corpus/xchandles-premine-history-v2/core python3 -B -m unittest discover -s scripts -p test_xchandles_history.py
+          XCHANDLES_HISTORY_V2_PACKET=corpus/xchandles-premine-history-v2 python3 -B -m unittest discover -s scripts -p test_xchandles_history_v2.py
+          XCHANDLES_SIMULATOR_PACKET=corpus/xchandles-simulator python3 -B -m unittest discover -s scripts -p test_xchandles_simulator_evidence.py
+      - name: Check and build exact isolated host recipe
+        run: |
+          cargo fmt --manifest-path experiments/xchandles-premine/Cargo.toml --check
+          cargo test --manifest-path experiments/xchandles-premine/Cargo.toml --locked --target-dir "$RUNNER_TEMP/xchandles-native"
+          cargo clippy --manifest-path experiments/xchandles-premine/Cargo.toml --all-targets --locked --target-dir "$RUNNER_TEMP/xchandles-native" -- -D warnings
+          cargo build --manifest-path experiments/xchandles-premine/Cargo.toml --locked --target-dir "$RUNNER_TEMP/xchandles-native"
+      - name: Execute full repeat, pause/resume and checkpoint refusals
+        run: python3 -B experiments/xchandles-premine/check.py --execute "$RUNNER_TEMP/xchandles-native/debug/chialisp-oxide-xchandles-premine" --output "$RUNNER_TEMP/xchandles-process-check"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: xchandles-fresh-linux-processes
+          path: ${{ runner.temp }}/xchandles-process-check/
   docs:
     runs-on: ubuntu-latest
     steps:

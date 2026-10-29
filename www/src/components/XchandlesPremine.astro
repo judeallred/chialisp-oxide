@@ -1,0 +1,129 @@
+---
+import { readXchandlesPremine, xchandlesScope } from '../lib/xchandles-premine.mjs';
+const evidence=await readXchandlesPremine({required:import.meta.env.PROD});
+const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
+const url=(lane:string,name:string)=>`${base}reports/xchandles-premine/${lane}/${name.split('/').map(encodeURIComponent).join('/')}`;
+const h=evidence?.history,n=evidence?.simulator,first=h?.rows[0];
+const short=(value:string)=>`${value.slice(0,10)}…${value.slice(-8)}`;
+const source=h?.identities.sourceCorrespondence;
+const upstream=source?`https://github.com/${source.source_repository}/blob/${source.source_commit}`:'';
+const data=h?JSON.stringify({rows:h.rows,downloadBase:`${base}reports/xchandles-premine/history/`}).replace(/</g,'\\u003c'):'';
+const nativeLabels:Record<string,string>={sdk:'SDK submissions',accepted:'Accepted submissions',typed:'Exact typed consensus negatives',runtime:'Runtime umbrellas',component:'Component VM executions',cost:'Plain generator cost passes',hostRefusals:'Host checkpoint refusals',names:'Local fixture names'};
+---
+{evidence&&h&&n&&first ? <div data-xchandles-premine>
+  <aside class="warning"><strong>{xchandlesScope[0]}.</strong> {xchandlesScope[1]}. This case study combines recorded historical observations with a separate local simulator recipe. It does not claim a new Rust puzzle port or live wallet acceptance.</aside>
+  <section aria-labelledby="observed-heading">
+    <h2 id="observed-heading">129 observed spends, one registry policy</h2>
+    <p><strong data-xchandles-spends>{h.counts.spends}</strong> observed primary controller spends cover <strong data-xchandles-names>{h.counts.names}</strong> CSV names: one name, 127 batches of 30, then 25. The reveal, registry state and allowed action root stay constant. Controller coin IDs and the slot coins used by registrations change.</p>
+    <p>The protocol authenticates neighboring slot spends. This retained history checks exact CSV name coverage; it does not establish a complete global child list or agreement on every recipient, NFT and expiration.</p>
+    <figure class="flow">
+      <svg viewBox="0 0 720 210" role="img" aria-labelledby="flow-title flow-description">
+        <title id="flow-title">An off-chain batcher advances controller and slot coins</title>
+        <desc id="flow-description">The operator reads an external allocation list. Each chosen registration batch spends the current controller and neighbor slots, creating the next controller and slot coins. The action root and registry state remain constant. No authenticated remaining-work queue is shown.</desc>
+        <defs><marker id="premine-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="currentColor" /></marker></defs>
+        <rect x="8" y="14" width="210" height="64" rx="8" class="external"/><text x="22" y="39">CSV allocation list</text><text x="22" y="61" class="small">off-chain operator input</text>
+        <path d="M218 46 H300" class="edge dashed" marker-end="url(#premine-arrow)"/>
+        <rect x="304" y="14" width="400" height="64" rx="8"/><text x="320" y="39">Same registry state + action root</text><text x="320" y="61" class="small">not a commitment to the remaining CSV</text>
+        <rect x="8" y="126" width="210" height="64" rx="8"/><text x="22" y="151">Controller input</text><text x="22" y="174" class="small" data-xchandles-svg-input>{short(first.coin)}</text>
+        <path d="M218 158 H300" class="edge" marker-end="url(#premine-arrow)"/>
+        <rect x="304" y="126" width="185" height="64" rx="8"/><text x="320" y="151">Register batch</text><text x="320" y="174" class="small" data-xchandles-svg-names>{first.names} name</text>
+        <path d="M489 158 H525" class="edge" marker-end="url(#premine-arrow)"/>
+        <rect x="530" y="126" width="174" height="64" rx="8"/><text x="544" y="151">Next controller</text><text x="544" y="174" class="small" data-xchandles-svg-output>{short(first.successor)}</text>
+      </svg>
+      <figcaption>{xchandlesScope[2]}. The list and batching strategy belong to the operator; accepted steps do not promise autonomous completion.</figcaption>
+    </figure>
+    <div class="inspector" data-xchandles-inspector>
+      <h3>Inspect a recorded step</h3>
+      <label for="premine-step">Controller spend <output data-xchandles-step-ordinal>1</output> of 129</label>
+      <div class="navigation"><button type="button" data-xchandles-previous disabled>Previous</button><input id="premine-step" data-xchandles-slider type="range" min="0" max="128" value="0" aria-label="Recorded controller spend"/><button type="button" data-xchandles-next>Next</button></div>
+      <dl class="step-fields">
+        <div><dt>Observed height</dt><dd data-xchandles-step-height>{first.height}</dd></div>
+        <div><dt>Names in this batch</dt><dd data-xchandles-step-names>{first.names}</dd></div>
+        <div><dt>CSV names covered so far</dt><dd data-xchandles-step-cumulative>{first.cumulative}</dd></div>
+        <div><dt>Bare primary VM cost</dt><dd data-xchandles-step-primary>{first.primaryCost}</dd></div>
+        <div><dt>Zero-mojo CREATE outputs</dt><dd data-xchandles-step-creates>{first.zeroCreates}</dd></div>
+        <div><dt>Whole-block reported cost</dt><dd data-xchandles-step-block-cost>{first.fullBlockCost}</dd></div>
+        <div><dt>Whole-block reported fees, mojos</dt><dd data-xchandles-step-block-fees>{first.wholeBlockFees}</dd></div>
+      </dl>
+      <p><strong>{xchandlesScope[5]}.</strong> The captured header is provider reported, not independently authenticated here.</p>
+      <p>Input coin: <code data-xchandles-step-coin>{first.coin}</code><br/>Successor coin: <code data-xchandles-step-successor>{first.successor}</code></p>
+      <ul class="step-downloads">{Object.entries(first.downloads).map(([role,name])=><li><a data-xchandles-step-download={role} href={url('history',name as string)}>{role}</a></li>)}</ul>
+      <noscript>JavaScript enables the 129-step selector. This first recorded step and all exact evidence downloads remain available without it.</noscript>
+    </div>
+    <details><summary>Constant registry identities and the coverage boundary</summary><dl>
+      <dt>Registry reveal tree hash</dt><dd><code data-xchandles-registry>{h.identities.registryReveal.module_tree_hash}</code></dd>
+      <dt>Registry state tree hash</dt><dd><code data-xchandles-state>{h.identities.registryStateTreeHash}</code></dd>
+      <dt>Allowed action Merkle root</dt><dd><code data-xchandles-action-root>{h.identities.allowedActionMerkleRoot}</code></dd>
+    </dl><p>{xchandlesScope[3]}. The record retains {h.evidenceCounts.retainedEarlierDependencies} earlier dependency files from {h.evidenceCounts.olderRequestDescriptors} old request descriptors; {h.evidenceCounts.unretainedUncreditedDescriptors} are unretained and receive no credit. Its {h.evidenceCounts.collectorRequests} collection requests and one later terminal point observation are not additional VM executions or proof of the registry's current state.</p></details>
+  </section>
+  <section aria-labelledby="policy-heading">
+    <h2 id="policy-heading">What a step authenticates, and what can interrupt it</h2>
+    <p>The pinned register source requires the new handle hash to lie strictly between the supplied left and right keys. It requests the spends of those exact existing slot values and creates the inserted slot plus updated neighbors with incremented counters. The slot protocol binds those requests to the registry. Under those checks, a stale neighbor proof cannot authorize an insertion into the current sorted list; this is different from authenticating an operator's CSV order.</p>
+    <p>Registration also binds the pricing and CAT-maker programs to hashes in the registry state, consumes the matching precommit payment, and requests approval from the declared owner and resolved singletons. A third party needs the required protocol approvals and spends; it cannot choose arbitrary recipients merely by copying a controller reveal. The local recipe tests actual invalid signatures, wrong neighbors and consumed-bundle replays. Those finite controls do not establish a general front-running or fairness theorem for the deployed protocol.</p>
+    <p>The allowed-action Merkle root commits which actions the controller may execute. It does not commit the next unprocessed allocation, the external queue's order or who will continue the batcher. Another valid registration or conflicting spend can change the slots an operator planned to use. The operator must observe the resulting state and rebuild stale neighbor inputs; this history does not establish exclusive operator ordering.</p>
+    <p>An invalid bundle rejects as one transaction. Earlier confirmed batches remain registered when a later batch fails or the operator stops. A process can resume from the current controller and surviving slot coins if it still satisfies the policy, but there is no automatic retry, all-batches rollback or guarantee of completion. The local pause/resume gate demonstrates deterministic replay of its fixed public fixture, rather than recovery of an arbitrary mainnet wallet.</p>
+    <p>The 129 retained steps supply observed coin identities and provider-reported heights. The associated whole-block totals contain other transactions; exact historical registration-bundle costs and fees remain unresolved. They cannot be used as a per-step fee quote or an exact batch-size ceiling.</p>
+  </section>
+  <section aria-labelledby="cost-heading">
+    <h2 id="cost-heading">Three numbers with different cost scopes</h2>
+    <p>All 129 bare primary replays together consume <strong data-xchandles-primary>{h.primaryCost}</strong> cost under clvmr 0.21.0 MEMPOOL_MODE. <strong>{xchandlesScope[4]}.</strong> This excludes the rest of each transaction, condition charges and generator byte charges.</p>
+    <figure class="cost-chart"><svg viewBox="0 0 720 240" role="img" aria-labelledby="cost-title cost-desc"><title id="cost-title">Bare VM sum, condition-only floor and block ceiling</title><desc id="cost-desc">The bare primary VM sum is about 5.30 billion. Retaining the observed zero-mojo creations alone would charge 20.7144 billion under the pinned source rule, above the 11 billion block ceiling. These are different scopes, not three complete bundle measurements.</desc>
+      <text x="8" y="24">Bare primary replay sum · execution only</text><rect x="8" y="35" width="132.565" height="23" class="primary-bar"/><text x="150" y="52">5.3026 B</text>
+      <text x="8" y="98">Observed zero-mojo CREATEs · condition charge only</text><rect x="8" y="109" width="517.86" height="23" class="floor-bar"/><text x="536" y="126">20.7144 B</text>
+      <text x="8" y="172">Pinned maximum block cost · ceiling</text><rect x="8" y="183" width="275" height="23" class="ceiling-bar"/><text x="293" y="200">11 B</text>
+    </svg><figcaption>Different measurement domains: the diagram does not attribute complete transaction costs or fees.</figcaption></figure>
+    <p>There are <strong data-xchandles-zero-creates>{h.counts.zeroCreates}</strong> captured zero-mojo CREATE outputs. At the source-reviewed chia-consensus 0.36.1 charge of 1,800,000 each, keeping those outputs alone costs <strong data-xchandles-zero-floor>{h.conditionalCost.zeroOnly}</strong>, above the pinned <strong data-xchandles-block-ceiling>{h.conditionalCost.pinnedBlockCeiling}</strong> ceiling. {xchandlesScope[6]}. This is not a lower bound on every possible protocol redesign or a minimum batch-count proof.</p>
+    <p>The 129 observed blocks report aggregate cost <span data-xchandles-whole-block-cost>{h.wholeBlockCost}</span> and fees <code data-xchandles-whole-block-fees>{h.wholeBlockFees}</code> mojos. {xchandlesScope[5]}. Raw block generators, signatures and proofs remain opaque observations; downloading them does not execute or authenticate them.</p>
+    <p><a href={url('history',h.conditionalCost.sourceRuleDownload)}>Read the pinned source-rule audit</a> · <a href={url('history',h.conditionalCost.countObservationDownload)}>Exact output counts</a> · <a href={url('history',h.conditionalCost.licenseDownload)}>Cost-source license</a></p>
+  </section>
+  <section aria-labelledby="local-heading">
+    <h2 id="local-heading">A separate local host recipe: one, two, then three names</h2>
+    <p>The unpublished native Cargo pilot composes canonical modules through the SDK. Three outer registration batches contain one, two and three names, for six local fixtures. It issues a payment CAT, uses real precommit coins and neighbor slots, and supplies one NFT. Public fixture keys and simulator funding require no wallet. The price singleton's inner program is the permissive fixture <code>1</code>, not the deployed pricing scheduler.</p>
+    <dl class="counts">{Object.entries(n.counts).map(([name,value])=><div><dt>{nativeLabels[name]}</dt><dd {...{[`data-xchandles-native-${name}`]:''}}>{value}</dd></div>)}</dl>
+    <p>The six exact consensus negatives are three <code>BadAggregateSignature</code> and three <code>DoubleSpend</code> submissions. Three wrong-neighbor submissions receive <code>GeneratorRuntimeError</code>, with separate component <code>Raise</code> witnesses. Every rejected SDK submission compares the complete simulator state in memory. Runtime umbrellas are not exact semantic consensus codes.</p>
+    <div class="table-scroll"><table><caption>Actual local plain-generator measurements; no BLS validation in this cost lane</caption><thead><tr><th>Names</th><th>Plain / charged bytes</th><th>Execution</th><th>Conditions</th><th>Byte charge</th><th>Total</th><th>Fee, mojos</th></tr></thead><tbody>{n.batches.map((row:any)=><tr data-xchandles-batch={row.batch_size}><th>{row.batch_size}</th><td><span data-xchandles-batch-plain-generator-bytes>{row.plain_generator_bytes}</span> / <span data-xchandles-batch-charged-generator-bytes>{row.charged_generator_bytes}</span></td><td data-xchandles-batch-execution-cost>{row.execution_cost}</td><td data-xchandles-batch-condition-cost>{row.condition_cost}</td><td data-xchandles-batch-byte-cost>{row.byte_cost}</td><td data-xchandles-batch-total-cost>{row.total_cost}</td><td data-xchandles-batch-fee-mojos>{row.fee_mojos}</td></tr>)}</tbody></table></div>
+    <p>Component execution uses clvmr 0.16.2. SDK test 0.36.0 and consensus 0.36.1 admit the signed transactions separately. The 11 complete plain-generator cost passes use <code>{n.versions.cost}</code> and the pinned <code>DONT_VALIDATE_SIGNATURE</code> profile, exclude two quote-wrapper bytes and charge 12,000 per remaining byte. They are not backreference-compressed or full-block measurements, and these three fixtures do not establish a universal batch bound.</p>
+    <p>Pause/resume deterministically reexecutes the recipe prefix and checks it before continuing; it is not a wallet snapshot. Repeats and resume add no scenario coverage. Across the retained process matrix there are {n.gateProcessMatrix.sdk_attempts} SDK attempts; those repeats and prefix checks add no scenario coverage. Eleven parser, descriptor and checkpoint refusal processes remain distinct from policy rejections; two prefix mismatches replay their seven-submission prefix before refusal.</p>
+  </section>
+  <section aria-labelledby="source-heading"><h2 id="source-heading">Exact artifacts, separate source and license boundaries</h2>
+    <p>The observed register artifact is the same 1,478-byte Rue/SDK module: <code data-xchandles-register>{h.identities.registerModule.treeHash}</code>. Its later source correspondence is pinned to <a href={`${upstream}/${source.source_path}`}>slot-machine commit {source.source_commit}</a>, tree <code>{source.source_tree}</code>. That correspondence does not authenticate deployment source. The authoritative slot-machine license is {source.license}; Cargo metadata saying MIT is not an alternate license grant.</p>
+    <p>A <a href={`${upstream}/puzzles/actions/xchandles/register.clsp`}>Chialisp source alternative</a> and its <a href={`${upstream}/puzzles/actions/xchandles/register.clsp.hex`}>upstream artifact</a> are discovery links. This admitted history does not independently compile or compare that alternative, and does not claim its module hash matches the deployed Rue artifact.</p>
+    <p>The local host launch adapter follows public SDK primitives rather than the helper's random security-key choice. Its Apache-2.0 <code>chia-sdk-driver 0.36.0</code> crate is pinned by checksum <code>33d22cc417877a290eff196fe851cfc1175a5432166f8d9bedeb9f55e010bc76</code>. Crate VCS metadata declares commit <code>e9a08f6e54ea5132f7da06327836a3b386a944b1</code> with <code>dirty: true</code>; exact release bytes do not establish a clean Git correspondence. This SDK license does not relicense the Prosperity puzzle sources.</p>
+    <p>Today's Rust frontend already supports the original #14 action policies, explicit <code>Cons</code> pairs, SHA and named condition constructors. The canonical register's dynamic pricing and CAT <code>apply</code> paths are outside the admitted frontend subset. The host recipe does not add them. A future #16 remaining-work commitment would be an additional policy, not a property inferred from this premine.</p>
+    <p>{xchandlesScope[7]}.</p>
+  </section>
+  <section aria-labelledby="downloads-heading"><h2 id="downloads-heading">Retain the exact evidence</h2>
+    <p>The complete offline Python readers admit both inventories before presentation. The history has {h.downloads.length} physical files and {h.physicalBytes} bytes; each download is opened, bounded and hash-checked separately.</p>
+    <p>History manifest SHA-256: <code data-xchandles-history-index>{h.manifestSHA}</code><br/>Local simulator index SHA-256: <code data-xchandles-native-index>{n.indexSHA}</code></p>
+    <p><a href={url('history','history-packet.json')}>History v2 manifest</a> · <a href={url('simulator','report.json')}>Local simulator index</a></p>
+    <p>Both manifests enumerate every exact downloadable member. The selected step above links its retained program, solution, command, result and opaque block observations. The source and license entrypoints below are a compact subset; every admitted path has a corresponding static download.</p>
+    <details><summary>Source and license entrypoints</summary><ul class="downloads">{(['history','simulator'] as const).map(lane=>evidence[lane].downloads.filter((file:any)=>lane==='simulator'||/\.(csv|rue)$|LICENSE|source-correspondence/.test(file.path)).map((file:any)=><li><a href={url(lane,file.path)} data-xchandles-download={`${lane}/${file.path}`}>{lane}/{file.path}</a> · {file.bytes} bytes · <code>{file.sha256}</code></li>))}</ul></details>
+  </section>
+  <script is:inline type="application/json" data-xchandles-step-data set:html={data}/>
+</div> : <section data-xchandles-pending><h2>XCHandles evidence is pending locally</h2><p>Both the complete history v2 packet and the local native packet must pass before a production build. No historical fixture or partial report substitutes for that admission.</p></section>}
+
+<script>
+  const panel=document.querySelector<HTMLElement>('[data-xchandles-inspector]');
+  const payload=document.querySelector<HTMLScriptElement>('[data-xchandles-step-data]');
+  if(panel&&payload){
+    type Step={index:number;ordinal:number;coin:string;successor:string;height:number;names:number;cumulative:number;primaryCost:number;zeroCreates:number;fullBlockCost:number;wholeBlockFees:string;downloads:Record<string,string>};
+    const data=JSON.parse(payload.textContent??'') as {rows:Step[];downloadBase:string};
+    if(data.rows.length!==129)throw new Error('Complete 129-step inspector required');
+    const slider=panel.querySelector<HTMLInputElement>('[data-xchandles-slider]')!;
+    const previous=panel.querySelector<HTMLButtonElement>('[data-xchandles-previous]')!;
+    const next=panel.querySelector<HTMLButtonElement>('[data-xchandles-next]')!;
+    const show=(index:number)=>{
+      const row=data.rows[index];slider.value=String(index);slider.setAttribute('aria-valuetext',`Spend ${row.ordinal} of 129, ${row.names} names, ${row.cumulative} cumulative names`);
+      const values={ordinal:row.ordinal,height:row.height,names:row.names,cumulative:row.cumulative,primary:row.primaryCost,creates:row.zeroCreates,'block-cost':row.fullBlockCost,'block-fees':row.wholeBlockFees,coin:row.coin,successor:row.successor};
+      for(const [name,value]of Object.entries(values)){const output=panel.querySelector(`[data-xchandles-step-${name}]`);if(output)output.textContent=String(value);}
+      const short=(value:string)=>`${value.slice(0,10)}…${value.slice(-8)}`;
+      for(const [name,value]of Object.entries({input:short(row.coin),output:short(row.successor),names:`${row.names} ${row.names===1?'name':'names'}`})){const output=document.querySelector(`[data-xchandles-svg-${name}]`);if(output)output.textContent=value;}
+      for(const link of panel.querySelectorAll<HTMLAnchorElement>('[data-xchandles-step-download]')){const name=row.downloads[link.dataset.xchandlesStepDownload!];link.href=data.downloadBase+name.split('/').map(encodeURIComponent).join('/');}
+      previous.disabled=index===0;next.disabled=index===128;
+    };
+    slider.addEventListener('input',()=>show(Number(slider.value)));previous.addEventListener('click',()=>show(Math.max(0,Number(slider.value)-1)));next.addEventListener('click',()=>show(Math.min(128,Number(slider.value)+1)));show(0);
+  }
+</script>
+<style>
+  .warning{padding:1rem;border-inline-start:4px solid var(--sl-color-orange);background:var(--sl-color-gray-6);margin-block:1.5rem;}section{margin-block:2.5rem;}svg{display:block;width:100%;height:auto;color:var(--sl-color-text);font:15px var(--sl-font);}svg rect{fill:var(--sl-color-gray-6);stroke:var(--sl-color-gray-3);}svg text{fill:currentColor;}.small{font-size:12px;}.external{stroke-dasharray:5 4;}.edge{fill:none;stroke:currentColor;stroke-width:1.5;}.dashed{stroke-dasharray:5 4;}svg .primary-bar{fill:#528a7c;}svg .floor-bar{fill:#b65b37;}svg .ceiling-bar{fill:#8b87a9;}figcaption{font-size:.85rem;color:var(--sl-color-gray-2);}.inspector{padding:1rem;border:1px solid var(--sl-color-gray-4);border-radius:.4rem;}.navigation{display:flex;align-items:center;gap:.7rem;margin-block:.8rem;}input[type=range]{flex:1;min-width:3rem;}button{padding:.35rem .7rem;cursor:pointer;}button:disabled{cursor:default;opacity:.5;}.step-fields,.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:1rem;}.step-fields dt,.counts dt{font-weight:650;font-size:.8rem;}.step-fields dd,.counts dd{margin:0;}.step-downloads{display:flex;gap:.75rem;flex-wrap:wrap;list-style:none;padding:0;}.table-scroll{overflow-x:auto;}table{font-size:.85rem;}td,th{white-space:nowrap;}code{overflow-wrap:anywhere;word-break:break-word;white-space:normal;}.downloads{font-size:.8rem;max-height:32rem;overflow:auto;}.downloads li{overflow-wrap:anywhere;}details{margin-block:1rem;}@media(max-width:30rem){.navigation{gap:.35rem;}button{padding:.3rem .4rem;}.flow svg,.cost-chart svg{min-width:35rem;}.flow,.cost-chart{overflow-x:auto;}}
+</style>
