@@ -2,12 +2,14 @@
 
 **WIP design, not an implemented feature. Not ready for use or real funds.**
 This records a proposed first experiment for
-[#16](https://github.com/judeallred/chialisp-oxide/issues/16). The continuation
-generic SDK type, measured costs and multi-step simulator evidence remain
-unimplemented. An isolated [ordered-payout ABI/hash spike](../experiments/authenticated-continuations/README.md)
+[#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type, automatic splitting and shared
+deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](../experiments/authenticated-continuations/README.md)
 now supplies a concrete annotated export, independent host oracle and native
 adversarial tests. Its actual subset check, both-mode builds and 108 finite
-primary-VM observations pass; it is not yet a complete-spend prototype. The issue stays open.
+primary-VM observations pass. A separate finite ledger milestone now mines
+three four-step SDK simulator chains and records actual-source counterexamples
+and generator measurements. The issue stays open; this is an explicit teaching
+policy rather than a general continuation feature.
 
 The intended feature lets an author divide committed work into bounded spends.
 Each accepted spend performs one specified chunk and commits the next coin to
@@ -87,9 +89,10 @@ Each step must enforce all of these rules:
    really names the selected module artifact. Successors preserve that identity;
    an unchecked caller-supplied module hash would break the intended chain.
 
-The exact treatment of a controller reserve and final remainder is a policy
-decision still to implement. It must have a committed destination and preserve
-fund conservation. Continuation amounts, payouts and fee contributions need
+The concrete first experiment chooses no controller reserve, remainder or
+abort branch: exactly 1,000 mojos per item is fully paid. A later reserve or
+remainder policy must commit its destination and preserve fund conservation.
+Continuation amounts, payouts and fee contributions need
 separate names and units.
 
 Permissionless advancement is a useful first policy because the queue fixes
@@ -116,8 +119,9 @@ protocols should be dependencies only when the chosen example needs them.
 The [concrete ABI/hash spike](../experiments/authenticated-continuations/README.md)
 fixes one payout at 1,000 mojos, a finite count of 1..=8, no reserve or abort,
 fixed byte-domain queue hashes, and a one-parameter standard curry. It includes
-original independent Chialisp source. Its next task is complete multi-block simulator spends, separate from its
-retained both-mode/reference template VM evidence.
+original independent Chialisp source, retained both-mode/reference template VM
+evidence, three actual SDK successor chains and separately counted source
+controls. Only batch size one is measured.
 Canonical state hashing, terminal shape, amount bounds and the initial module
 binding require independent checks before claiming an SDK abstraction. No new compiler feature is assumed merely because its
 native Rust spelling compiles.
@@ -143,13 +147,17 @@ Keep these acceptance checks separate:
   limits from a universal compiler cost guarantee. Retain total chain costs and
   fees separately from whole-block observations.
 - CLI/GUI planning, submission, interruption recovery and monitoring must use
-  the same checked recipe. The current [local lifecycle](lifecycle.md) is a
-  simulator workflow; funded Testnet11 evidence requires its own executed
-  network integration.
+  the same checked recipe. This in-process continuation fixture is separate
+  from the [wallet lifecycle](lifecycle.md); deployment through CLI/GUI on
+  Testnet11 requires its own executed network integration.
 
-The design and ABI/hash spike are a stopping point before complete-spend
-implementation. They add no
-SDK-spend, live-network, source-authentication or proof credit. SHA remains
+The concrete experiment records 45 base SDK submissions and a separate 16
+actual-source-control submissions; runtime umbrellas remain inconclusive as
+policy-rejection evidence. Its public cursor is persisted and reparsed within
+one process while the simulator remains in memory. Durable process/node
+recovery, a reusable SDK API, another explicit batch size, cost planning and
+shared CLI/GUI live deployment remain substantive work. No live-network,
+source-authentication or proof credit follows. SHA remains
 outside models that do not support it; termination/progress models, if added,
 must remain separate from compiler preservation. Liveness, inclusion, finality,
 cross-block atomicity and production safety are not guaranteed.

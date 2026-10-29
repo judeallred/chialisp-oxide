@@ -2,15 +2,16 @@
 
 **WIP experiment. Not ready for use or real funds.** This is an original teaching
 policy for issue #16. It is not an automatic compiler continuation feature,
-a generic `Step<State>` API, an XCHandles port, or a complete-spend demonstration.
+a generic `Step<State>` API, an XCHandles port, or a general deployment workflow. The separate ledger subcrate records finite
+complete-spend observations.
 
 The ordinary Cargo library exports one annotated `step` function. Seven native tests and six independent Python host-oracle tests check the
 recipe. Actual CLVM subset admission and two source-aware builds pass; the
 retained Rust off/on and independently compiled Chialisp programs pass 36 raw
 environments each, for 108 primary-VM observations. Native checking, subset
-admission and VM replay remain separate evidence. The
-multi-block simulator, source mutations, generator-cost plan and shared CLI/GUI
-resume integration remain work for the next milestone. Issue #16 remains open.
+admission and VM replay remain separate evidence. The ledger milestone below adds three four-step simulator chains, source
+controls and actual generator costs. Shared CLI/GUI planning, submission and
+durable node recovery remain unimplemented. Issue #16 remains open.
 
 ## Concrete contract
 
@@ -102,12 +103,13 @@ cargo run --manifest-path experiments/authenticated-continuations/Cargo.toml --l
   --example compile_reference -- /tmp/continuation-reference.clvm.hex
 ```
 
-Compilation is separate from executing its serialized result. Before promoting
-this spike, replay the compiled reference and both Rust modes against the full
-raw-tree positive/adversarial suite, retain exact typed VM results and costs,
-and add complete SDK spends with full simulator preservation after intended
-consensus rejections. Measure actual generator bytes/costs; no block-fit claim
-is made from the source or byte size alone. SHA and optional outputs remain
+Compilation is separate from executing its serialized result. The retained IR
+is also validated and recompiled with the actual Rust verifier, in both modes,
+requiring exact artifact bytes and tree hashes. This is an executed compiler
+consistency check, not a compiler-preservation proof. The retained checkpoint replays the compiled reference and both Rust modes
+against the declared raw-tree suite. The separate ledger milestone below adds
+complete SDK spends, full simulator preservation after rejections and actual
+generator measurements. No general batch-size or block-fit guarantee follows. SHA and optional outputs remain
 outside the current proof models.
 
 ## Retained finite VM checkpoint
@@ -122,7 +124,8 @@ prove compiler preservation. Run the reader and optional actual retained replay:
 ```sh
 python3 -B experiments/authenticated-continuations/check_retained.py
 python3 -B experiments/authenticated-continuations/check_retained.py \
-  --replay-cli target/debug/chialisp-oxide --output target/continuation-replay-new
+  --replay-cli target/debug/chialisp-oxide --verifier target/debug/chialisp-oxide-verifier \
+  --output target/continuation-replay-new
 ```
 
 The optimized Rust module is 7,967 bytes; its first/second/terminal template VM
@@ -146,3 +149,88 @@ one-byte array. Actual subset checks rejected both. Literal finite budget and
 count-atom tables now implement this bounded policy without adding compiler
 semantics or relaxing guards. The native tests check every entry. Those rejected
 source attempts are not admitted frontend features.
+
+## Finite complete-spend milestone
+
+The separate `ledger` Cargo package reconstructs a four-item queue independently
+with `sha2`, constructs each actual curried reveal and funds it in the pinned
+TESTNET11 SDK simulator. Each of the three builds (Rust off/on and independent
+Chialisp) mines four transactions, pays all four recipients, creates exactly
+three actual successor coins and ends with no continuation. It charges zero
+fees; fee sponsorship and another batch size remain unimplemented.
+
+The base lane contains three scenario runs and **45 SDK submissions**: 12
+accepted, 21 rejected with exact intended consensus codes and 12 explicit
+`GeneratorRuntimeError` observations. The exact rejections cover unrelated
+nonempty BLS aggregates (`BadAggregateSignature`), incorrect coin amounts
+(`AssertMyAmountFailed`), valid reveals that differ from the committed one
+(`WrongPuzzleHash`), and consumed-coin resubmissions (`DoubleSpend`). Every
+rejected submission, including each runtime umbrella, checks complete simulator
+equality in memory. No unstable SDK Debug state is retained. Runtime umbrellas
+remain inconclusive as policy-rejection evidence; the independent primary-VM
+lane supplies the separately typed opening failures.
+
+Each build writes and reparses a public cursor after the first step. The
+simulator remains in memory. After another permissionless advancement consumes
+the cursor's coin, the harness reconciles its exact consuming spend and child
+without another push. This is an in-process checkpoint/reconciliation
+experiment, not crash-safe process or node recovery and not shared CLI/GUI
+resume support.
+
+Actual uncompressed generator totals for all four accepted steps are:
+
+- Rust on: 32,684 charged bytes and 405,112,339 total cost.
+- Rust off: 173,748 charged bytes and 2,098,234,081 total cost.
+- Chialisp: 6,612 charged bytes and 92,128,540 total cost.
+
+The corresponding measured backreference totals are 14,908 bytes / 191,800,339
+cost, 22,444 / 282,586,081 and 5,952 / 84,208,540. These are actual encoded
+generators under the pinned previous-height rules, not whole-block observations
+or a guarantee for other batches. The reviewed shared measurement module checks
+expanded generator equality, BLS verification, exact total-cost budgets and
+one-less `CostExceeded` controls. Conditions-helper calls skip BLS; generator,
+helper and SDK submission counts remain distinct. Only batch size one is
+measured. Existing backend optimization differs between modes; optional Rust IR
+rewrite support or universal cost improvement is not claimed.
+
+Four actual-source controls remove opening authentication, remove the terminal
+sentinel, omit the amount assertion, or replace the derived successor with an
+attacker's fixed puzzle hash. Each original and mutant funds its own selected
+reveal. The separate lane has **8 native observations, 16 primary-VM observations
+and 16 SDK submissions**: 10 accepted, two exact amount rejections and four
+explicit runtime umbrellas. The counterexamples show injected payouts,
+premature termination, a one-mojo fee from an overfunded coin, and diverted
+successor funds. Native syntax/types do not enforce those policy invariants.
+The finite controls do not establish absence of other failures.
+
+Reproduce the actual retained SDK scenarios independently:
+
+```sh
+cargo build --manifest-path experiments/authenticated-continuations/ledger/Cargo.toml --locked
+python3 -B experiments/authenticated-continuations/check_ledger.py
+python3 -B experiments/authenticated-continuations/check_ledger.py \
+  --runner experiments/authenticated-continuations/ledger/target/debug/chialisp-oxide-continuation-ledger \
+  --verifier target/debug/chialisp-oxide-verifier \
+  --output target/continuation-ledger-replay-new
+```
+
+`check_ledger.py` alone checks complete packet/source consistency. Its explicit
+runner option executes SDK submissions and requires byte-identical reports;
+repeated runs add no distinct coverage. `source_controls.py --help` describes
+the fresh native/compiler/VM/source-control capture. Fresh capture admits the
+complete source-aware export inventory with independently queried compiler and
+driver identities before selection, checks source windows, validates recorded
+VM/native witnesses independently, and uses precharged streaming stdout/stderr
+caps with deadlines and process-group cleanup. Retained readers never open captured host paths. Structural
+bundle admission and source consistency do not authenticate execution or prove
+IR/CLVM equivalence. Eight constructed bundle/VM corruptions and eight constructed ledger/native/VM
+witness corruptions are separate from actual source mutations, native
+observations, VM runs and ledger attempts. Six transport controls separately
+check precharged stdout/stderr caps, deadlines and process-group cleanup.
+
+Issue #16 remains open for a reusable reviewed SDK interface, funding-plan
+admission, a second explicit batch size, cost planning, and shared CLI/GUI
+submission/monitoring with durable interruption recovery. This original demo
+requires neither singleton support nor dynamic apply. Larger generators,
+iterators, automatic suspension or general enum support would need separately
+specified compiler semantics and evidence.

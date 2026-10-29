@@ -2,15 +2,21 @@
   "schema": 1,
   "scope": "retained finite ABI/hash spike, not corpus promotion, SDK spends, build authentication or compiler preservation",
   "source_files": {
-    "Cargo.toml": "a813a4e2a16946fc0539bc44e48cfb1fc46f4ce545d7cd3ad8285a4b46379a45",
     "Cargo.lock": "a099f259ae65630f1d23bb732a8662c205c41288ed704fb218b6fa81373a2593",
-    "src/lib.rs": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3",
-    "reference.clsp": "b94392de705c34404499f2fc2d0395195a545f1b8bf7b84f030c12d76289fbc1",
-    "oracle.py": "021215a31e50789f45899a206e7c80f951d8b8d31bb41a709c31c52cef738307",
+    "Cargo.toml": "a813a4e2a16946fc0539bc44e48cfb1fc46f4ce545d7cd3ad8285a4b46379a45",
+    "admission.py": "94c28dca4a86340476f1b797898e8c4e92b2391b09aac22d60e44046a602c34a",
+    "bounded_process.py": "07481d6a91dc4d615e2dd5107a1c521468d9976fc389f8168fbb9b8ba139ab1b",
+    "check_retained.py": "d1d400873ba1b67c410bc2d69669fc2efc32a98a6a1c7c43e333339d7b900151",
+    "examples/compile_reference.rs": "ffd0704ce8c808f8ff7a0b81b96527725129fe23185729939f96df0b70c526d5",
     "fixtures.json": "94e7bd56ec21b3b4539c9e7730d19b10d5fbdcf287e23c025a410cedc9764ed9",
+    "oracle.py": "021215a31e50789f45899a206e7c80f951d8b8d31bb41a709c31c52cef738307",
+    "reference.clsp": "b94392de705c34404499f2fc2d0395195a545f1b8bf7b84f030c12d76289fbc1",
+    "replay.py": "a679f7ac44864e88a2dfa2055f9d91fce9dd171a5b691a038c621b8e77e79c37",
+    "src/lib.rs": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3",
+    "test_bounded_process.py": "b8d7fcf24c6088120c506a238a155927dda577f5b05fd94111c7cc2b60fd6eaa",
     "test_oracle.py": "d82ba66caf90617ad7ec88346e7e09218963cb1d56174fb3d7971c6afd9b2aa1",
-    "replay.py": "440eb1ae35fd6112b405e5c66e05c98ddd0b20a5f513ccbf38b27f08eb2d519d",
-    "examples/compile_reference.rs": "ffd0704ce8c808f8ff7a0b81b96527725129fe23185729939f96df0b70c526d5"
+    "test_retained.py": "8aef4f9101a77109e086c2653ce197d0e714097fe8bcf45c774d47fa11a6056b",
+    "vm_witnesses.py": "40188f510e15e87393fe075ef950722e25a99ce93802cb25db838939bb2cf05a"
   },
   "tool_files": {
     "cargo-chialisp-oxide": "3e8a42fba672dd18c9a3899c1de2790c5978df5997f3a56f6926b76f1ed7a343",
@@ -19,6 +25,7 @@
   },
   "files": {
     "chialisp.json": "40988acf8408ca49fa5034722322bfa1336bd0559d8e1f37af46d062dcd98137",
+    "ir-recompile.json": "13a1d18cbee81a424e910825d168ba859cf24f466fbf053b6fbd2b77b4c22693",
     "reference.clvm.hex": "4a7dfd7cac236c9170128a76cfb4b1b2b225c3f0081626b873ba7c1788fbad78",
     "report.json": "3c58eb560b254e61ae72a64fd3ff69eb5a3dbec284d5ac305988fcd4087b1bf8",
     "rust-off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.artifact.json": "57f22d88a83d04d97d669c43d4bbe0797d2a29c947797c2092ae903b5c7493b3",
@@ -54,5 +61,16 @@
     "unoptimized ABI extra-list-tail rejection is InvalidOpArg for three cases; all other rejects Raise",
     "raw schema2 receipts preserve original host paths; source attachments are bounded selected-library captures, not complete build graphs"
   ],
-  "compiler_source_anchor": "72d3c092ff5ff4084d68cf918122315f27c8fb76"
+  "compiler_source_anchor": "72d3c092ff5ff4084d68cf918122315f27c8fb76",
+  "reader_dependencies": {
+    "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
+    "scripts/cargo_authoring.py": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494",
+    "scripts/cargo_bundle.py": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664",
+    "scripts/cargo_source_receipt.py": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f",
+    "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
+    "scripts/source_walk.py": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423",
+    "scripts/vm_failures.py": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+  },
+  "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e"
 }

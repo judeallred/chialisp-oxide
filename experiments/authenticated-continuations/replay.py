@@ -6,6 +6,7 @@ A non-program failure is inconclusive and fails the gate.
 """
 import argparse
 import hashlib
+import bounded_process
 import json
 from pathlib import Path
 import subprocess
@@ -112,7 +113,7 @@ def main():
     report=dict(schema=1,scope="finite template primary-VM executions; no SDK spends, build authentication or proof", cases=len(rows),programs={})
     for name,path in [("rust_on",args.rust_on),("rust_off",args.rust_off),("chialisp",args.reference)]:
         raw=path.read_bytes()
-        completed=subprocess.run([str(args.cli.resolve()),"run-batch",str(path.resolve()),"--solutions",str(solutions.resolve()),"--max-cost","10000000"],capture_output=True,check=True)
+        completed=bounded_process.run([str(args.cli.resolve()),"run-batch",str(path.resolve()),"--solutions",str(solutions.resolve()),"--max-cost","10000000"],check=True,timeout=60)
         (args.output/f"{name}.json").write_bytes(completed.stdout)
         actual=json.loads(completed.stdout)
         if len(actual)!=len(rows): raise SystemExit("wrong result count")
