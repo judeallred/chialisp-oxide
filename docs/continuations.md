@@ -3,8 +3,11 @@
 **WIP design, not an implemented feature. Not ready for use or real funds.**
 This records a proposed first experiment for
 [#16](https://github.com/judeallred/chialisp-oxide/issues/16). The continuation
-SDK type, demo export, measured costs and multi-step simulator evidence remain
-unimplemented. The issue stays open.
+generic SDK type, measured costs and multi-step simulator evidence remain
+unimplemented. An isolated [ordered-payout ABI/hash spike](../experiments/authenticated-continuations/README.md)
+now supplies a concrete annotated export, independent host oracle and native
+adversarial tests. Its actual subset check, both-mode builds and 108 finite
+primary-VM observations pass; it is not yet a complete-spend prototype. The issue stays open.
 
 The intended feature lets an author divide committed work into bounded spends.
 Each accepted spend performs one specified chunk and commits the next coin to
@@ -110,10 +113,13 @@ queue can derive a successor puzzle hash and emit `CREATE_COIN`; it need not
 apply a dynamic program or wrap every step in a singleton. Those larger
 protocols should be dependencies only when the chosen example needs them.
 
-The next implementation task is a small concrete ABI and hashing spike, then a
-demo with independent reference source. It must resolve canonical state hashing,
-terminal output shape, amount bounds and exact module binding before claiming
-an SDK abstraction. No new compiler feature is assumed merely because its
+The [concrete ABI/hash spike](../experiments/authenticated-continuations/README.md)
+fixes one payout at 1,000 mojos, a finite count of 1..=8, no reserve or abort,
+fixed byte-domain queue hashes, and a one-parameter standard curry. It includes
+original independent Chialisp source. Its next task is complete multi-block simulator spends, separate from its
+retained both-mode/reference template VM evidence.
+Canonical state hashing, terminal shape, amount bounds and the initial module
+binding require independent checks before claiming an SDK abstraction. No new compiler feature is assumed merely because its
 native Rust spelling compiles.
 
 ## Required evidence before crediting the prototype
@@ -141,7 +147,8 @@ Keep these acceptance checks separate:
   simulator workflow; funded Testnet11 evidence requires its own executed
   network integration.
 
-This design is a stopping point before implementing the prototype. It adds no
+The design and ABI/hash spike are a stopping point before complete-spend
+implementation. They add no
 SDK-spend, live-network, source-authentication or proof credit. SHA remains
 outside models that do not support it; termination/progress models, if added,
 must remain separate from compiler preservation. Liveness, inclusion, finality,

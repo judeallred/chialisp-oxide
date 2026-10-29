@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "scope": "finite template primary-VM executions; no SDK spends, build authentication or proof",
+  "cases": 36,
+  "programs": {
+    "rust_on": {
+      "program_hex_sha256": "28a6a59b5e985cd4e2cca4436dfa3e6190000cb68ce0602acd9b32d026773b94",
+      "serialized_bytes": 7967,
+      "accepted_costs": [
+        {
+          "label": "queue step 1",
+          "cost": 92068
+        },
+        {
+          "label": "queue step 2",
+          "cost": 90527
+        },
+        {
+          "label": "queue step 3",
+          "cost": 27489
+        },
+        {
+          "label": "changed module changes successor; funding preflight required",
+          "cost": 92068
+        }
+      ]
+    },
+    "rust_off": {
+      "program_hex_sha256": "d9b4e22587fb05f7570f80bbb279412206e02c873f08de7809a7ea19e4c18976",
+      "serialized_bytes": 43233,
+      "accepted_costs": [
+        {
+          "label": "queue step 1",
+          "cost": 201680
+        },
+        {
+          "label": "queue step 2",
+          "cost": 197144
+        },
+        {
+          "label": "queue step 3",
+          "cost": 53212
+        },
+        {
+          "label": "changed module changes successor; funding preflight required",
+          "cost": 201680
+        }
+      ]
+    },
+    "chialisp": {
+      "program_hex_sha256": "4a7dfd7cac236c9170128a76cfb4b1b2b225c3f0081626b873ba7c1788fbad78",
+      "serialized_bytes": 1449,
+      "accepted_costs": [
+        {
+          "label": "queue step 1",
+          "cost": 54399
+        },
+        {
+          "label": "queue step 2",
+          "cost": 54399
+        },
+        {
+          "label": "queue step 3",
+          "cost": 20359
+        },
+        {
+          "label": "changed module changes successor; funding preflight required",
+          "cost": 54399
+        }
+      ]
+    }
+  },
+  "status": "passed"
+}
