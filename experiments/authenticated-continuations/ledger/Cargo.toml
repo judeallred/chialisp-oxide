@@ -1,0 +1,20 @@
+[package]
+name = "chialisp-oxide-continuation-ledger"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+anyhow = "1"
+chia-bls = "=0.36.1"
+chia-consensus = "=0.36.1"
+chia-sdk-types = "=0.36.0"
+chialisp-oxide-simulator = { path = "../../../crates/chialisp-oxide-simulator" }
+chialisp-oxide-reference = { path = "../../../crates/chialisp-oxide-reference" }
+clvmr = "=0.16.2"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"

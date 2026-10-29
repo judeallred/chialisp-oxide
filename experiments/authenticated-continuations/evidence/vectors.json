@@ -1,0 +1,404 @@
+[
+  {
+    "label": "queue step 1",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff49ff820bb880ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa07f846e6f94595803fc199033ee42080b7223e47107b060776ac4341c40b9820eff8207d08080"
+    }
+  },
+  {
+    "label": "queue step 2",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563 2) (0x2222222222222222222222222222222222222222222222222222222222222222 0xa6e94a7b6c7b0d395eefd41355be296b27b184f74f3dbefc10382d59d4515607))",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff49ff8207d080ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff8203e880ffff33ffa05d118f71af986f9b1cb2928118aac3560349868a74b39f68d0ec2a096b79f8ddff8203e88080"
+    }
+  },
+  {
+    "label": "queue step 3",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xa6e94a7b6c7b0d395eefd41355be296b27b184f74f3dbefc10382d59d4515607 1) (0x3333333333333333333333333333333333333333333333333333333333333333 0xbd41c08fb4a96f6379af5f44862570349f94b936e8e94ea3fadf91bbde9c9699))",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff49ff8203e880ffff33ffa03333333333333333333333333333333333333333333333333333333333333333ff8203e88080"
+    }
+  },
+  {
+    "label": "skip first item",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x2222222222222222222222222222222222222222222222222222222222222222 0xa6e94a7b6c7b0d395eefd41355be296b27b184f74f3dbefc10382d59d4515607))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "reorder recipient",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x2222222222222222222222222222222222222222222222222222222222222222 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "inject recipient",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x4444444444444444444444444444444444444444444444444444444444444444 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "wrong next digest",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0xa6e94a7b6c7b0d395eefd41355be296b27b184f74f3dbefc10382d59d4515607))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "wrong committed head",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0x5555555555555555555555555555555555555555555555555555555555555555 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "early terminal count",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 1) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "zero count",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 ()) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "count above finite bound",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 9) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "count u8 maximum",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 255) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "count oversized u8",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 256) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "negative count",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 -1) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "padded count",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 0x0003) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "pair count",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 (3)) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "short module",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "long module",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "short head",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0x55555555555555555555555555555555555555555555555555555555555555 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "long recipient",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x111111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "short next digest",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x55555555555555555555555555555555555555555555555555555555555555))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "excess terminal continuation",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xa6e94a7b6c7b0d395eefd41355be296b27b184f74f3dbefc10382d59d4515607 2) (0x3333333333333333333333333333333333333333333333333333333333333333 0xbd41c08fb4a96f6379af5f44862570349f94b936e8e94ea3fadf91bbde9c9699))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "nil environment",
+    "solution": "()",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "atom environment",
+    "solution": "1",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "missing opening",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "extra argument",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563) ())",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    },
+    "failure_by_mode": {
+      "rust_off": {
+        "kind": "program",
+        "code": "invalid_op_arg"
+      }
+    }
+  },
+  {
+    "label": "improper environment",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563) . 1)",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "nil terms",
+    "solution": "(() (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "extra terms field",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3 4) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    },
+    "failure_by_mode": {
+      "rust_off": {
+        "kind": "program",
+        "code": "invalid_op_arg"
+      }
+    }
+  },
+  {
+    "label": "improper terms",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3 . 4) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "pair module",
+    "solution": "(((1) 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "nil opening",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) ())",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "extra opening field",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563 1))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    },
+    "failure_by_mode": {
+      "rust_off": {
+        "kind": "program",
+        "code": "invalid_op_arg"
+      }
+    }
+  },
+  {
+    "label": "improper opening",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563 . 1))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "pair recipient",
+    "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) ((1) 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "rejected",
+      "failure": {
+        "kind": "program",
+        "code": "raise"
+      }
+    }
+  },
+  {
+    "label": "changed module changes successor; funding preflight required",
+    "solution": "((0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb 0xdcc697246e5b5e236fca8d601cdb397146471c7a6ec1159444b2fc74e7534815 3) (0x1111111111111111111111111111111111111111111111111111111111111111 0x4f935a856fb28c9e376dfe8dd01d191b00b50ef5c82daec4e59cf912c8b8b563))",
+    "expected": {
+      "status": "accepted",
+      "output_hex": "ffff49ff820bb880ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa04fb679dc94bd211a1bafa81f6e1d84ccd039753a4e370a95fa34987046f248fbff8207d08080"
+    }
+  }
+]

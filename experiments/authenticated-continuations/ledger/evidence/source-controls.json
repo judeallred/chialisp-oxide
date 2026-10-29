@@ -1,0 +1,561 @@
+{
+  "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+  "tools": {
+    "cargo-chialisp-oxide": "3e8a42fba672dd18c9a3899c1de2790c5978df5997f3a56f6926b76f1ed7a343",
+    "chialisp-oxide-driver": "d96f32fc4fcc997c6e9f9c02fcf90fd74cee77cea857ced3573513d081732668",
+    "chialisp-oxide": "fff86f6d96a3e6a36a499fd9df2cd744d57de66c86a86fb4ca4d73f39642d133"
+  },
+  "schema": 1,
+  "scope": "actual-source own-reveal controls; native, primary VM and SDK attempts are separate",
+  "base_source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3",
+  "records": [
+    {
+      "kind": "drop_opening",
+      "role": "original",
+      "mode": "on",
+      "manifest": "controls/drop_opening/original/on/manifest.json",
+      "program": "controls/drop_opening/original/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "on",
+        "bytes": 7967,
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_opening",
+      "role": "original",
+      "mode": "off",
+      "manifest": "controls/drop_opening/original/off/manifest.json",
+      "program": "controls/drop_opening/original/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "off",
+        "bytes": 43233,
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_opening",
+      "role": "mutant",
+      "mode": "on",
+      "manifest": "controls/drop_opening/mutant/on/manifest.json",
+      "program": "controls/drop_opening/mutant/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "4579f53b8cdf7518e37efe38c6d2471a6c2a58c23dc2a0b38c36b8984bc743b2",
+        "mode": "on",
+        "bytes": 7563,
+        "tree_hash": "74fb6aa8790dce74891139b283af90991bb924c749aa29fb51a74ec6ebdd3e50",
+        "blob_sha256": "f5412a110c18c1923ab1fa40c3fdc4ba1218499a9c254fa31592a023f4fd98c9"
+      },
+      "source_sha256": "0f4a359d839368a2ab9e19dd58d20d8a7b4a96202b33ac168925d0c3c6a25d2d"
+    },
+    {
+      "kind": "drop_opening",
+      "role": "mutant",
+      "mode": "off",
+      "manifest": "controls/drop_opening/mutant/off/manifest.json",
+      "program": "controls/drop_opening/mutant/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "4579f53b8cdf7518e37efe38c6d2471a6c2a58c23dc2a0b38c36b8984bc743b2",
+        "mode": "off",
+        "bytes": 40753,
+        "tree_hash": "1e32d4669a108a60b4c6494e58fbc8c8924d2ffb4c9957babb43876e94526782",
+        "blob_sha256": "f7c9bad18498c7c08c5f454a490841d65ac17ab191ea2fdb95ca5724d467fd30"
+      },
+      "source_sha256": "0f4a359d839368a2ab9e19dd58d20d8a7b4a96202b33ac168925d0c3c6a25d2d"
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "original",
+      "mode": "on",
+      "manifest": "controls/drop_terminal/original/on/manifest.json",
+      "program": "controls/drop_terminal/original/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "on",
+        "bytes": 7967,
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "original",
+      "mode": "off",
+      "manifest": "controls/drop_terminal/original/off/manifest.json",
+      "program": "controls/drop_terminal/original/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "off",
+        "bytes": 43233,
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "mutant",
+      "mode": "on",
+      "manifest": "controls/drop_terminal/mutant/on/manifest.json",
+      "program": "controls/drop_terminal/mutant/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "86574b79ed5e0b99f9323538e61c0bc20ba46090e73d41f7f6f496518d33cc7b",
+        "mode": "on",
+        "bytes": 7807,
+        "tree_hash": "de35028745914d10126bb4b9f0842ebe9024ae4ab7a03cb166675e9b6fff5f70",
+        "blob_sha256": "997ee0048fcaf2e8407d72b0b9546882b6aec7c9dca663d635ec8e16e6bd34ed"
+      },
+      "source_sha256": "d735ec8a7ead685b21bb3e4514efd3c898d0af69152dd78d94f0a7519d77dab6"
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "mutant",
+      "mode": "off",
+      "manifest": "controls/drop_terminal/mutant/off/manifest.json",
+      "program": "controls/drop_terminal/mutant/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "86574b79ed5e0b99f9323538e61c0bc20ba46090e73d41f7f6f496518d33cc7b",
+        "mode": "off",
+        "bytes": 42403,
+        "tree_hash": "f80031915b6873b1f47739f42e5bdbeb7027ada3c85d5dc9f407bdb7bb225ab1",
+        "blob_sha256": "7a4acdb8fa38cccb56876b878b033b347432bb61bd118d07836198bdaebae0ef"
+      },
+      "source_sha256": "d735ec8a7ead685b21bb3e4514efd3c898d0af69152dd78d94f0a7519d77dab6"
+    },
+    {
+      "kind": "drop_amount",
+      "role": "original",
+      "mode": "on",
+      "manifest": "controls/drop_amount/original/on/manifest.json",
+      "program": "controls/drop_amount/original/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "on",
+        "bytes": 7967,
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_amount",
+      "role": "original",
+      "mode": "off",
+      "manifest": "controls/drop_amount/original/off/manifest.json",
+      "program": "controls/drop_amount/original/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "off",
+        "bytes": 43233,
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "drop_amount",
+      "role": "mutant",
+      "mode": "on",
+      "manifest": "controls/drop_amount/mutant/on/manifest.json",
+      "program": "controls/drop_amount/mutant/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "6b3bbeafa6a41b813784dcfc2ac90ff8b1b404e3d08ec897daa0edda57cbcc30",
+        "mode": "on",
+        "bytes": 7495,
+        "tree_hash": "6444be7d559275b973414676f36e482f48fa9ee410af46bd7da259569b403f9c",
+        "blob_sha256": "837c039ca62ed685422aae72d3386a68219e95b836125e675a2d5ad6d66afef3"
+      },
+      "source_sha256": "a98fa5033e3cbb171a4c6394f16cf4b8229eaebf029a83173c8da2bfa4bb7837"
+    },
+    {
+      "kind": "drop_amount",
+      "role": "mutant",
+      "mode": "off",
+      "manifest": "controls/drop_amount/mutant/off/manifest.json",
+      "program": "controls/drop_amount/mutant/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "6b3bbeafa6a41b813784dcfc2ac90ff8b1b404e3d08ec897daa0edda57cbcc30",
+        "mode": "off",
+        "bytes": 40953,
+        "tree_hash": "da28ff5bd3b166564def811a9e78b63849bf97faf48cc1c4fb45fb1fd3281482",
+        "blob_sha256": "cfd5166b5f364d343b99109365f662a3c163b5bb74325585c9e03165f300890e"
+      },
+      "source_sha256": "a98fa5033e3cbb171a4c6394f16cf4b8229eaebf029a83173c8da2bfa4bb7837"
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "original",
+      "mode": "on",
+      "manifest": "controls/wrong_successor/original/on/manifest.json",
+      "program": "controls/wrong_successor/original/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "on",
+        "bytes": 7967,
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "original",
+      "mode": "off",
+      "manifest": "controls/wrong_successor/original/off/manifest.json",
+      "program": "controls/wrong_successor/original/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "mode": "off",
+        "bytes": 43233,
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955"
+      },
+      "source_sha256": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3"
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "mutant",
+      "mode": "on",
+      "manifest": "controls/wrong_successor/mutant/on/manifest.json",
+      "program": "controls/wrong_successor/mutant/on/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "2e59956f04e25ab65d02472e87372eede7e8d2bf5be36a40ab3e686867fae132",
+        "mode": "on",
+        "bytes": 4521,
+        "tree_hash": "24ee42fe24aa9cbd5a7b2219fcbe2bc34ab8e6d683ffcc119752d1873a2b444c",
+        "blob_sha256": "83c99a3f6d7c978a32337cc94546f9f1a343fc80c84965a6f45ce266418a5bd7"
+      },
+      "source_sha256": "f014124895fd566775b727cce550b7eecaf0cd50d3dba124a48d51d13cae8809"
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "mutant",
+      "mode": "off",
+      "manifest": "controls/wrong_successor/mutant/off/manifest.json",
+      "program": "controls/wrong_successor/mutant/off/c794c01afe0d59eaf949794422ba46fdde06d236ceb5c0bb52bb3f8d6c614191.clvm.hex",
+      "recompiled": {
+        "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+        "ir_sha256": "2e59956f04e25ab65d02472e87372eede7e8d2bf5be36a40ab3e686867fae132",
+        "mode": "off",
+        "bytes": 23513,
+        "tree_hash": "ecf36af2e945f94aea5a17fc9fdfe19e9b592c03cf1da8a0c6797497896a2ecc",
+        "blob_sha256": "d905d8f6ae59c1ff0876cb36e3f8b84e79f6227c56abf6cc6af81f8f77d57849"
+      },
+      "source_sha256": "f014124895fd566775b727cce550b7eecaf0cd50d3dba124a48d51d13cae8809"
+    }
+  ],
+  "native": [
+    {
+      "kind": "drop_opening",
+      "role": "original",
+      "observed": {
+        "status": "native_panic"
+      }
+    },
+    {
+      "kind": "drop_opening",
+      "role": "mutant",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff49ff820fa080ffff33ffa05555555555555555555555555555555555555555555555555555555555555555ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "original",
+      "observed": {
+        "status": "native_panic"
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "mutant",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff49ff8203e880ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e88080"
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "original",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "mutant",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "original",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "mutant",
+      "observed": {
+        "status": "accepted",
+        "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa07777777777777777777777777777777777777777777777777777777777777777ff820bb88080"
+      }
+    }
+  ],
+  "primary_vm": [
+    {
+      "kind": "drop_opening",
+      "role": "original",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "rejected"
+        },
+        "cost": null,
+        "error": "Raise(NodePtr(SmallAtom, 0))",
+        "failure": {
+          "kind": "program",
+          "code": "raise"
+        }
+      }
+    },
+    {
+      "kind": "drop_opening",
+      "role": "original",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "rejected"
+        },
+        "cost": null,
+        "error": "Raise(NodePtr(SmallAtom, 0))",
+        "failure": {
+          "kind": "program",
+          "code": "raise"
+        }
+      }
+    },
+    {
+      "kind": "drop_opening",
+      "role": "mutant",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa05555555555555555555555555555555555555555555555555555555555555555ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 89411,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_opening",
+      "role": "mutant",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa05555555555555555555555555555555555555555555555555555555555555555ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 196100,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "original",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "rejected"
+        },
+        "cost": null,
+        "error": "Raise(NodePtr(SmallAtom, 0))",
+        "failure": {
+          "kind": "program",
+          "code": "raise"
+        }
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "original",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "rejected"
+        },
+        "cost": null,
+        "error": "Raise(NodePtr(SmallAtom, 0))",
+        "failure": {
+          "kind": "program",
+          "code": "raise"
+        }
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "mutant",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff8203e880ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e88080"
+        },
+        "cost": 25350,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_terminal",
+      "role": "mutant",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff8203e880ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e88080"
+        },
+        "cost": 47642,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "original",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 93271,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "original",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 205061,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "mutant",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 88912,
+        "error": null
+      }
+    },
+    {
+      "kind": "drop_amount",
+      "role": "mutant",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 194438,
+        "error": null
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "original",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 93271,
+        "error": null
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "original",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa0cf4bc0a716f1244f09a930c44fa8df05b759b7c98649dffa4e8321d66e596da6ff820bb88080"
+        },
+        "cost": 205061,
+        "error": null
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "mutant",
+      "mode": "on",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa07777777777777777777777777777777777777777777777777777777777777777ff820bb88080"
+        },
+        "cost": 36111,
+        "error": null
+      }
+    },
+    {
+      "kind": "wrong_successor",
+      "role": "mutant",
+      "mode": "off",
+      "execution": {
+        "outcome": {
+          "status": "accepted",
+          "output_hex": "ffff49ff820fa080ffff33ffa01111111111111111111111111111111111111111111111111111111111111111ff8203e880ffff33ffa07777777777777777777777777777777777777777777777777777777777777777ff820bb88080"
+        },
+        "cost": 73237,
+        "error": null
+      }
+    }
+  ],
+  "counts": {
+    "native_observations": 8,
+    "primary_vm_observations": 16,
+    "sdk_attempts": 16
+  }
+}
