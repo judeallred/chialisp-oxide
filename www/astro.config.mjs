@@ -59,6 +59,9 @@ export default defineConfig({
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },
         ] },
+        { label: 'Case studies and protocol analysis', items: [
+          { label: 'XCHandles premine cascade', slug: 'case-studies/xchandles-premine' },
+        ] },
         { label: 'Validate a coin policy', items: [
           { label: 'Inputs and commitments', slug: 'validation/inputs' },
           { label: 'Conditions and authority', slug: 'validation/outputs' },

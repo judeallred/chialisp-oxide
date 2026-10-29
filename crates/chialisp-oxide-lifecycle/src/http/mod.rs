@@ -1,6 +1,6 @@
 //! Local simulator GUI. The session capability prevents cross-origin browser
 //! actions; it does not authenticate against other processes on this machine.
-mod policy;
+pub(crate) mod policy;
 mod service;
 mod session;
 
@@ -16,13 +16,13 @@ use std::{
 };
 use tokio::{net::TcpListener, sync::Semaphore, task::JoinSet};
 
-pub(super) const MAX_CONNECTIONS: usize = 8;
-pub(super) const MAX_HEADERS: usize = 24;
-pub(super) const MAX_HEADER_BYTES: usize = 8192;
-pub(super) const MAX_BODY: usize = 2048;
-pub(super) const HEADER_TIMEOUT: Duration = Duration::from_secs(2);
-pub(super) const BODY_TIMEOUT: Duration = Duration::from_secs(2);
-pub(super) const CONNECTION_TIMEOUT: Duration = Duration::from_secs(5);
+pub(crate) const MAX_CONNECTIONS: usize = 8;
+pub(crate) const MAX_HEADERS: usize = 24;
+pub(crate) const MAX_HEADER_BYTES: usize = 8192;
+pub(crate) const MAX_BODY: usize = 2048;
+pub(crate) const HEADER_TIMEOUT: Duration = Duration::from_secs(2);
+pub(crate) const BODY_TIMEOUT: Duration = Duration::from_secs(2);
+pub(crate) const CONNECTION_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub struct LoopbackServer {
     listener: TcpListener,

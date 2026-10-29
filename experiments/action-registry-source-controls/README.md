@@ -30,7 +30,11 @@ the other original action.
 The package has its own `[workspace]`, no default features, and explicit
 `native-vm` support for ordinary native tests. Extraction must keep the empty
 profile; the actual puzzle-library baseline is a **dev-dependency only**.
-`root-lock.seed` retains the original reviewed root lock. The package's own
+`root-lock.seed` retains the current reviewed root lock. The wallet integration
+adds `bigdecimal 0.4.11` and `chia-sdk-driver 0.36.0` to the root dependency graph;
+neither is added to this package. Its 127 resolved external tuples remain
+unchanged and a subset of the updated seed. Updating this declaration requires
+fresh native, LAST-build and control capture records. The package's own
 `Cargo.lock` was reconciled by explicit offline workspace resolution: all 127
 external `(name, version, source, checksum)` tuples matched the root lock, without
 upgrades or new external packages. Its workspace membership differs from the

@@ -293,6 +293,39 @@ jobs:
           path: |
             ${{ runner.temp }}/registry-standard-wallet/
             !${{ runner.temp }}/registry-standard-wallet/project/target/**
+      - name: Execute fresh CAT source admission twice without a wallet secret or network
+        run: |
+          pinned_cargo=$(rustup which --toolchain nightly-2026-07-14 cargo)
+          for repeat in 1 2; do
+            target/debug/chialisp-oxide-lifecycle live cat-check \
+              --network testnet11 --cargo "$pinned_cargo" \
+              --compiler "$GITHUB_WORKSPACE/target/debug/cargo-chialisp-oxide" \
+              --wallet-puzzle-hash dc2eeaf3acf70a3e5924fd38ef2b3c1ffb26d2edc7e02456abb79abd2bd3cbc1 \
+              --master-public-key 8d9dba2d2b83b25845894af96a8d0e8fb05a277f2b4b12bf1f550b2eae250e351546cac0e13a3bd8663a25cb65bb1109 \
+              --mode on --output "$RUNNER_TEMP/cat-check-$repeat" \
+              > "$RUNNER_TEMP/cat-check-$repeat.json"
+          done
+          python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          first, second = [json.loads((root / f'cat-check-{n}.json').read_text()) for n in (1, 2)]
+          assert first['status'] == second['status'] == 'passed'
+          assert first['source_identity'] == second['source_identity']
+          for report in (first, second):
+              assert {row['lane'] for row in report['bundles']} == {'rust_off', 'rust_on'}
+              assert all(row['exports_admitted'] == row['exports_recompiled'] == 40 for row in report['bundles'])
+          assert [row['complete_inventory_sha256'] for row in first['bundles']] == [row['complete_inventory_sha256'] for row in second['bundles']]
+          PYTHON
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: fresh-cat-admission
+          path: |
+            ${{ runner.temp }}/cat-check-*.json
+            ${{ runner.temp }}/cat-check-*/
+            !${{ runner.temp }}/cat-check-*/native-target/**
+            !${{ runner.temp }}/cat-check-*/compiler-target/**
       - name: Execute fresh local lifecycle and resume through the shared core
         run: |
           pinned_cargo=$(rustup which --toolchain nightly-2026-07-14 cargo)
@@ -598,6 +631,35 @@ jobs:
             ${{ runner.temp }}/offline-consumer-dependencies-prepare.json
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.toml
             ${{ runner.temp }}/offline-consumer-dependencies/Cargo.lock
+  xchandles:
+    # Isolated canonical host recipe; never rebuilds the shared compiler driver.
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_BUILD_JOBS: 2
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Rust
+        run: rustup show active-toolchain
+      - name: Admit historical and recorded native packets with corruption controls
+        run: |
+          python3 -B scripts/check-xchandles-history-v2.py check corpus/xchandles-premine-history-v2
+          python3 -B scripts/check-xchandles-simulator.py --packet corpus/xchandles-simulator
+          XCHANDLES_HISTORY_PACKET=corpus/xchandles-premine-history-v2/core python3 -B -m unittest discover -s scripts -p test_xchandles_history.py
+          XCHANDLES_HISTORY_V2_PACKET=corpus/xchandles-premine-history-v2 python3 -B -m unittest discover -s scripts -p test_xchandles_history_v2.py
+          XCHANDLES_SIMULATOR_PACKET=corpus/xchandles-simulator python3 -B -m unittest discover -s scripts -p test_xchandles_simulator_evidence.py
+      - name: Check and build exact isolated host recipe
+        run: |
+          cargo fmt --manifest-path experiments/xchandles-premine/Cargo.toml --check
+          cargo test --manifest-path experiments/xchandles-premine/Cargo.toml --locked --target-dir "$RUNNER_TEMP/xchandles-native"
+          cargo clippy --manifest-path experiments/xchandles-premine/Cargo.toml --all-targets --locked --target-dir "$RUNNER_TEMP/xchandles-native" -- -D warnings
+          cargo build --manifest-path experiments/xchandles-premine/Cargo.toml --locked --target-dir "$RUNNER_TEMP/xchandles-native"
+      - name: Execute full repeat, pause/resume and checkpoint refusals
+        run: python3 -B experiments/xchandles-premine/check.py --execute "$RUNNER_TEMP/xchandles-native/debug/chialisp-oxide-xchandles-premine" --output "$RUNNER_TEMP/xchandles-process-check"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: xchandles-fresh-linux-processes
+          path: ${{ runner.temp }}/xchandles-process-check/
   docs:
     runs-on: ubuntu-latest
     steps:

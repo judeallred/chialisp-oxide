@@ -5,7 +5,7 @@ use hyper::{
 };
 use subtle::ConstantTimeEq;
 
-pub(super) fn one<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
+pub(crate) fn one<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
     let mut values = headers.get_all(name).iter();
     let first = values.next()?.to_str().ok()?;
     if values.next().is_some() {
@@ -14,7 +14,7 @@ pub(super) fn one<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
     Some(first)
 }
 
-pub(super) fn same_origin(request: &Request<Incoming>, host: &str, origin: &str) -> bool {
+pub(crate) fn same_origin(request: &Request<Incoming>, host: &str, origin: &str) -> bool {
     if request.version() != Version::HTTP_11
         || request.uri().scheme().is_some()
         || request.uri().authority().is_some()
@@ -39,7 +39,7 @@ pub(super) fn same_origin(request: &Request<Incoming>, host: &str, origin: &str)
     true
 }
 
-pub(super) fn authorized(headers: &HeaderMap, capability: &str) -> bool {
+pub(crate) fn authorized(headers: &HeaderMap, capability: &str) -> bool {
     let Some(candidate) = one(headers, "x-oxide-session") else {
         return false;
     };

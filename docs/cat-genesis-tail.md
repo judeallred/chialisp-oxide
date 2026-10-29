@@ -1,8 +1,10 @@
 # Genesis-by-coin-ID CAT TAIL: local Rust lifecycle
 
-**WIP prototype. Not ready for real funds. This is a local experiment using
-an in-memory SDK simulator, not a live CAT or Sage integration.** No
-wallet, Sage integration or network funding is required for these local checks.
+**WIP prototype. Not ready for real funds.** The paired corpus and source
+controls described here use an in-memory SDK simulator and need no wallet.
+The separate closed Testnet11 CLI and executed Sage-discovery trial are
+documented below; sending the CAT to another wallet and receiving it back
+remain open.
 
 The unpublished ordinary Cargo library
 [chialisp-oxide-puzzles](https://github.com/judeallred/chialisp-oxide/tree/main/puzzles)
@@ -15,8 +17,8 @@ parent lineage, then spends the resulting CAT child.
 
 The paired manifest declares Rust, unchanged canonical Chialisp and independently
 authored Rue source. Each language retains its own module and curried asset
-identity. Broader CAT rings, Sage/live Testnet11 workflow and the full acceptance
-criteria of issue #13 remain open. Rust using Rue LIR alone would not establish
+identity. Broader CAT rings, Sage send/receive and the full acceptance criteria
+of issue #13 remain open. Rust using Rue LIR alone would not establish
 a Rue source port.
 
 The current paired run checks 37 named raw environments in each of five builds,

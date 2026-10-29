@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 
 mod bounded;
 mod https;
-mod json;
+pub(crate) mod json;
 pub use bounded::{BodyCollector, BoundedBody, MAX_BODY, MAX_REQUEST};
 pub use https::Testnet11Https;
 #[cfg(test)]

@@ -16,6 +16,7 @@ use std::{
     process::Command,
 };
 
+pub(crate) mod cat;
 mod oracle;
 mod process;
 mod receipt;
@@ -71,17 +72,53 @@ fn source_root() -> PathBuf {
         .to_owned()
 }
 pub(crate) fn require_native_inputs() -> Result<()> {
+    require_native_environment()?;
     require_inputs_at(&source_root(), NATIVE_INPUTS)
 }
-fn require_inputs_at(root: &Path, inputs: &[(&str, &str)]) -> Result<()> {
-    for (relative, expected) in inputs {
+pub(crate) fn require_native_environment() -> Result<()> {
+    for name in NATIVE_FORBIDDEN_ENV {
         ensure!(
-            hex::encode(crate::digest(&read(&root.join(relative), MAX_FILE)?)) == *expected,
+            std::env::var_os(name).is_none(),
+            "native BigDecimal configuration must remain unset: {name}"
+        );
+    }
+    Ok(())
+}
+fn require_inputs_at(root: &Path, inputs: &[(&str, &str)]) -> Result<()> {
+    const MAX_TOTAL: u64 = 64 * 1024 * 1024;
+    ensure!(inputs.len() <= 1024, "native source row bound");
+    let mut remaining = MAX_TOTAL;
+    // Reserve the complete declared closure before reading any file body.
+    for (relative, _) in inputs {
+        ensure!(
+            !Path::new(relative).is_absolute()
+                && Path::new(relative)
+                    .components()
+                    .all(|part| matches!(part, Component::Normal(_))),
+            "confined native input path"
+        );
+        let metadata = fs::symlink_metadata(root.join(relative))?;
+        ensure!(
+            metadata.is_file()
+                && !metadata.file_type().is_symlink()
+                && metadata.len() <= MAX_FILE as u64
+                && metadata.len() <= remaining,
+            "native source file/aggregate byte bound"
+        );
+        remaining -= metadata.len();
+    }
+    let mut remaining = MAX_TOTAL;
+    for (relative, expected) in inputs {
+        let bytes = read(&root.join(relative), MAX_FILE.min(remaining as usize))?;
+        remaining -= bytes.len() as u64;
+        ensure!(
+            hex::encode(crate::digest(&bytes)) == *expected,
             "native linked library/source inputs changed; rebuild lifecycle binary"
         );
     }
     Ok(())
 }
+
 fn fingerprint(path: &Path) -> Result<String> {
     let metadata = fs::symlink_metadata(path)?;
     ensure!(

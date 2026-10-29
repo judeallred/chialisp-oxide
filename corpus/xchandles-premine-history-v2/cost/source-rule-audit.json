@@ -1,0 +1,115 @@
+{
+  "status": "manual_pinned_consensus_rule_audit_complete",
+  "source_pin": "chia-consensus0.36.1 archive SHA256 d942bcb20b243213becbd94630dd7122c18dea7450beab38cbb4a6fcac993cae; crate-reported Git56f6b676a96de8659fe05d7e4f705df553f37fa5",
+  "line_relations": [
+    {
+      "file": "sources/src/opcodes.rs",
+      "matching_lines": [
+        65
+      ],
+      "claim": "fixed_CREATE_COIN_rate"
+    },
+    {
+      "file": "sources/src/conditions.rs",
+      "matching_lines": [
+        1040
+      ],
+      "claim": "unconditional_charge_before_parse_args"
+    },
+    {
+      "file": "sources/src/conditions.rs",
+      "matching_lines": [
+        1065
+      ],
+      "claim": "optional_generic_charge_is_additional"
+    },
+    {
+      "file": "sources/src/conditions.rs",
+      "matching_lines": [
+        1088
+      ],
+      "claim": "duplicate_outputs_fail_not_free_dedup"
+    },
+    {
+      "file": "sources/src/conditions.rs",
+      "matching_lines": [
+        4514
+      ],
+      "claim": "source_test_ephemeral_still_pays_CREATE_cost_not_executed"
+    },
+    {
+      "file": "sources/src/conditions.rs",
+      "matching_lines": [
+        143
+      ],
+      "claim": "message_conditions_ineligible_for_mempool_dedup"
+    },
+    {
+      "file": "sources/src/consensus_constants.rs",
+      "matching_lines": [
+        223
+      ],
+      "claim": "pinned_block_ceiling"
+    },
+    {
+      "file": "sources/src/spendbundle_validation.rs",
+      "matching_lines": [
+        91
+      ],
+      "claim": "height_flags_do_not_wrap_fixed_create_charge"
+    }
+  ],
+  "rule_findings": [
+    "parse_conditions charges1800000 per recognized CREATE_COIN occurrence before parsing amount/hint and without any flags, zero-amount, ephemeral or same-block branch.",
+    "Zero amount is an admitted u64 amount; ret.addition_amount +=0 does not undo condition_cost. No condition-cost subtraction/refund was found in this pinned parser.",
+    "COST_CONDITIONS can add a generic500-condition surcharge after a free quota; it does not replace/exempt the1800000 CREATE rate.",
+    "Duplicate same-parent puzzlehash/amount output is rejected after charge, not deduplicated into a valid free output. Audited actual11637 outputs have unique fullcoinIDs and each step has distinct puzzlehash/amount pairs.",
+    "Pinned source includes test_ephemeral_non_ff_spend asserting CREATE_COIN_COST when an output is consumed in the same bundle. This test was read, not executed. Ephemeral status and mempool fast-forward/dedup are not creation-condition rebates.",
+    "All129 observed controller outputs emit message conditions, which disable mempool spend dedup in MempoolVisitor. Consensus fixed occurrence charging is independent of that optional mempool eligibility visitor.",
+    "The condition-count claim preserves the emitted zero-mojo slot CREATE conditions. It is not a lower bound on every redesigned/more efficient protocol implementing the same abstract allocations."
+  ],
+  "historical_applicability": {
+    "observed_height_range": [
+      9174976,
+      9175930
+    ],
+    "pinned_rule": "Fixed1.8M CREATE pricing and11B maxblock as shipped in the exact installed locked0.36.1 crate. It is unconditionally valid under that pinned implementation regardless of COST_CONDITIONS activation.",
+    "official_context": "Official Chia cost/condition documentation describes1.8M CREATE and11B maxblock. Official current3.0 FAQ announces activation9,562,000, after observed heights. These public source/docs support the legacy-rule context; we did not authenticate the historical mainnet nodes exact executable/constants or reconstruct historical full blocks.",
+    "permitted_statement": "Under the pinned legacy CREATE_COIN pricing rule, the11508 emitted zero-mojo slot creations alone cost20714400000, exceeding an11B block ceiling. This provides a finite unchanged-output resource lower bound, even before other work.",
+    "forbidden_strengthenings": [
+      "Actual complete premine bundle fee/cost measured",
+      "All possible equivalent redesigned allocations necessarily cost this amount",
+      "Current/future consensus pricing is universally unchanged",
+      "A valid hypothetical aggregate was constructed or consensus rejected it",
+      "Historic mainnet node executable or block inclusion authenticated",
+      "129 historical spends were minimally necessary"
+    ]
+  },
+  "official_primary_references": [
+    {
+      "title": "Pinned Chia Rust CREATE constant",
+      "url": "https://github.com/Chia-Network/chia_rs/blob/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-consensus/src/opcodes.rs"
+    },
+    {
+      "title": "Pinned Chia Rust condition parser and ephemeral test",
+      "url": "https://github.com/Chia-Network/chia_rs/blob/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-consensus/src/conditions.rs"
+    },
+    {
+      "title": "Pinned consensus constants",
+      "url": "https://github.com/Chia-Network/chia_rs/blob/56f6b676a96de8659fe05d7e4f705df553f37fa5/crates/chia-consensus/src/consensus_constants.rs"
+    },
+    {
+      "title": "Official CREATE_COIN condition documentation",
+      "url": "https://chialisp.com/conditions/"
+    },
+    {
+      "title": "Official Chia cost calculation documentation",
+      "url": "https://docs.chia.net/chia-blockchain/coin-set-model/costs/"
+    },
+    {
+      "title": "Official3.0 fork activation FAQ",
+      "url": "https://docs.chia.net/chia-blockchain/consensus/proof-of-space-2.0/new-proof-faq/"
+    }
+  ],
+  "scope": "Source reading, official source browsing and executed pure counting/record corruption checks only; zero new VM/SDK/consensus-parser executions or network RPCs."
+}

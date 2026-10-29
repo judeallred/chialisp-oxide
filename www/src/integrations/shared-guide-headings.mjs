@@ -6,6 +6,7 @@ const titles = new Map([
   [realpathSync(new URL('../../../docs/package-registry.md', import.meta.url)), 'Offline package registry'],
   [realpathSync(new URL('../../../docs/lifecycle.md', import.meta.url)), 'Local coin puzzle lifecycle'],
   [realpathSync(new URL('../../../docs/cat-genesis-tail.md', import.meta.url)), 'Genesis-by-coin-ID CAT TAIL: local Rust lifecycle'],
+  [realpathSync(new URL('../../../docs/testnet11-cat-live.md', import.meta.url)), 'Closed Testnet11 CAT issuance'],
   [realpathSync(new URL('../../../docs/action-counter.md', import.meta.url)), 'Counter actions: state across singleton spends'],
   [realpathSync(new URL('../../../docs/action-registry.md', import.meta.url)), 'Registry actions and separately consumed slots'],
   [realpathSync(new URL('../../../docs/reveal-inspection.md', import.meta.url)), 'Inspect reveals and bind standard modules'],

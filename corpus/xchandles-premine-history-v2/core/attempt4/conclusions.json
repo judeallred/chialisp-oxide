@@ -1,0 +1,74 @@
+{
+  "protocol": "chialisp-oxide-xchandles15-research-conclusions/v1",
+  "primary_receipt": {
+    "path": "target/xchandles15-research-20261026/attempt4/execution-receipt.json",
+    "sha256": "a2e9f96d98371e428798b9b6a8fd29de5a1338abcf47acd41200ff0f50e43f28"
+  },
+  "observed": {
+    "component_executions": 129,
+    "action_counts": {
+      "1": 1,
+      "30": 127,
+      "25": 1
+    },
+    "unique_name_count": 3836,
+    "csv_name_set_exact": true,
+    "first_spent_height": 9174976,
+    "last_spent_height": 9175930,
+    "distinct_spent_heights": 129,
+    "sum_primary_component_cost": 5302597203,
+    "max_primary_component_cost": 41838769,
+    "constant_controller_puzzle_hash": "4b9b1135a504bf907cafbc17b7565dbcd66be728c5449a5d351c9eeac1314e81",
+    "constant_registry_state_tree_hash": "ae396f69c89206da3f05fe15e999920bfb46f8b44c42946d0a91bf56a0242457",
+    "fixed_register_artifact_tree_hash": "150ae295efe60fa049b87cff5c05c0031fa768959ba466b425ef5a58b4a95ee8",
+    "last_derived_successor_coin_id": "65a7d0b129028b35e3cd8bc6f5de8dc9738eb7d654365d559c0b2d74e06a5c91",
+    "last_successor_point_queried": false,
+    "http_requests": 247,
+    "source_cli_bytes_unchanged": true,
+    "shared_cli_lane_released": true,
+    "csv_identity": {
+      "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/xchandles_premine_mainnet.csv",
+      "sha256": "44697ad7265b4869226825741b0e0466a3031b382b462925a051a69190405860",
+      "relation": "Exact name set against this enriched pinned CSV, not a check of all columns or a fresh row-by-row comparison to the separate Yakuhito/nfts published CSV."
+    }
+  },
+  "inference": "Successive authorized register batches spend and recreate a constant registry state; observed data does not establish a committed remaining CSV queue or autonomous continuation. A future #16 committed-next-work design is separate.",
+  "explicit_gaps": [
+    "CSV relation checks exact ASCII names and declared handle tree hashes only; recipient ownership/NFT delivery, pricing metadata and expiration allocation correspondence are not checked.",
+    "No source-deployment authentication: exact artifact correspondence to retained Rue/SDK artifacts is distinct from authenticating deployed source; source snapshot postdates launch.",
+    "Sum primary controller component cost 5302597203 is below the 11000000000 block ceiling; omitted CAT/NFT/slot/precommit components, generator-byte/signature charges and full-bundle consensus admission mean the original whole-premine >block assertion remains unverified.",
+    "No full block/bundle reconstruction or per-step fee attribution. Prior whole-block cost/fee observations are not costs or fees of this registry component.",
+    "Observer HTTPS point records and actual execution are finite consistency observations, not authenticated chain history, inclusion proofs, finality, or exhaustive post-premine activity.",
+    "129 actual runs begin at first registry registration, not launcher/Eve execution. Derived final successor was not queried after exact CSV-name coverage completed.",
+    "No SDK/signature/ledger rejection/liveness/compiler-preservation or on-chain Rust frontend credit."
+  ],
+  "bounds": {
+    "steps": 256,
+    "retained_aggregate_bytes": 134217728,
+    "input_program_solution_output_bytes_each": 1048576,
+    "nodes_each": 65536,
+    "depth_each": 512,
+    "decode_modeled_work_bytes": 16777216,
+    "assembly_bytes": 240000,
+    "primary_cost_each": 11000000000,
+    "child_wall_seconds": 60,
+    "stdout_stderr_bytes_each": 1048576,
+    "http_record_bytes": 65536,
+    "http_reveal_bytes": 1048576,
+    "http_read_timeout_seconds": 15,
+    "http_observed_elapsed_guard_seconds": 25
+  },
+  "prior_attempts": "Attempts1/2 retain incomplete child-list observations (no completion marker); attempt3 retains one executed accepted component then a JSON consumer error. No attempt was overwritten. Attempt4 accepts absent failure field on success, and traces derived successor point records instead of assuming parent-list completeness.",
+  "source_references": {
+    "discovery": "https://docs.xchandles.com/xchandles-faq.md",
+    "premine_discovery": "https://docs.xchandles.com/premine.md",
+    "canonical_register": "https://github.com/Yakuhito/slot-machine/blob/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/actions/xchandles/register.rue",
+    "canonical_artifact": "https://github.com/Yakuhito/slot-machine/blob/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/actions/xchandles/register.rue.hex",
+    "source_license": "https://github.com/Yakuhito/slot-machine/blob/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+    "public_allocation": "https://github.com/Yakuhito/nfts/blob/2c0386dcdc9ee3b60286bee47bc8b881305750a2/premine.csv",
+    "actual_launch_dependency": "https://github.com/xch-dev/chia-wallet-sdk/tree/05630657c6a811345263fbfeafe002f68cdcbee9",
+    "observer": "https://api.coinset.org/",
+    "license_scope": "Slot-machine and allocation sources retain Prosperity3.0.0 constraints; SDK Apache2 source and original project teaching fixtures are separate. Exact SDK0.36 crate bytes and dirty VCS disclosure are recorded in research-summary.json.",
+    "executed_name_set_csv": "https://github.com/Yakuhito/slot-machine/blob/6edc94856306d0f77e065c6c99aacf1055e51e2f/xchandles_premine_mainnet.csv"
+  }
+}

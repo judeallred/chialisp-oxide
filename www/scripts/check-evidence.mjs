@@ -11,7 +11,11 @@ import { loadP2CostEvidence } from '../src/lib/p2-costs.mjs';
 import { loadCompositionCostEvidence } from '../src/lib/composition-costs.mjs';
 import { checkDelegatedReport } from './p2dc-protocol.mjs';
 import { checkBoomerangReport } from './boomerang-protocol.mjs';
+import { readXchandlesPremine } from '../src/lib/xchandles-premine.mjs';
 import { sourceFiles, compareSourcePaths } from './source-walk.mjs';
+
+// These are complete historical observations, separately admitted from current compiler evidence.
+await readXchandlesPremine({ required: true });
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));

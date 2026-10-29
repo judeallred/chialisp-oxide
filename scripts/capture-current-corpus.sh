@@ -4,7 +4,7 @@
 # Run this after every source change that is final (Rust, scripts, puzzles).
 # It performs, in the only order that keeps tool identities consistent:
 #   1. format check and an initial workspace host build (bins + examples);
-#   2. the full corpus validation twice, requiring byte-identical reports;
+#   2. fresh counter controls, then corpus validation twice (byte-identical);
 #   3. fresh Cargo bundles in both optimizer modes;
 #   4. the pay-to-singleton policy-control sidecar for this source window;
 #   5. the generic corpus-append capture (--record) and its pin;
@@ -36,6 +36,35 @@ step() { echo; echo "##### $*"; }
 step "format check and initial host build"
 cargo fmt --all --check
 cargo build --workspace --bins --examples --locked
+
+capture_counter() {
+  local suffix="$1"
+  local -a counter_args
+  step "fresh counter source controls ($suffix)"
+  counter_args=(--output "$WORK/counter-source-capture-$suffix" --native-target "${COUNTER_NATIVE_TARGET:-$WORK/counter-native-target}" --compiler-target "$ROOT/target" --compiler-root "$ROOT" --rustc "$(rustup which --toolchain nightly-2026-07-14 rustc)" --driver "$ROOT/$DRIVER" --cargo-cli "$ROOT/target/debug/cargo-chialisp-oxide")
+  python3 -B experiments/action-counter/capture.py prepare "${counter_args[@]}"
+  python3 -B experiments/action-counter/capture.py native "${counter_args[@]}"
+  cargo build --workspace --bins --examples --locked
+  python3 -B experiments/action-counter/capture.py extract "${counter_args[@]}"
+  python3 -B experiments/action-counter/capture.py replay "${counter_args[@]}"
+  python3 -B experiments/action-counter/protocol_capture.py run --protocol-output "$WORK/counter-protocol-capture-$suffix" "${counter_args[@]}"
+  python3 -B scripts/check-action-counter.py --install "$WORK/counter-source-packet-$suffix" --raw-capture "$WORK/counter-source-capture-$suffix" --protocol-capture "$WORK/counter-protocol-capture-$suffix" --self-test --replay --cli target/debug/chialisp-oxide > "$WORK/gate-counter-source-capture-$suffix.log"
+  WORK="$WORK" COUNTER_CAPTURE_SUFFIX="$suffix" python3 - <<'PYTHON'
+import os, shutil
+from pathlib import Path
+work = Path(os.environ["WORK"])
+suffix = os.environ["COUNTER_CAPTURE_SUFFIX"]
+destination = Path("corpus/action-counter-source-controls")
+if destination.is_symlink():
+    raise SystemExit("Counter packet destination must not be a symlink")
+if destination.exists():
+    destination.rename(work / f"previous-counter-source-packet-{suffix}")
+shutil.copytree(work / f"counter-source-packet-{suffix}", destination)
+PYTHON
+  python3 -B scripts/check-action-counter.py > "$WORK/gate-counter-source-installed-$suffix.log"
+}
+
+capture_counter before-validation
 
 step "full corpus validation, twice"
 target/debug/chialisp-oxide validate --output corpus/validation.json
@@ -75,9 +104,16 @@ PYTHON
 python3 scripts/check-cat-source-controls.py > "$WORK/gate-cat-source-installed.log"
 
 step "generic corpus append capture"
+cp scripts/corpus_append.py "$WORK/corpus-append-before-record.py"
 python3 scripts/check-corpus-append.py --record --fresh-on "$WORK/puzzles-on" --fresh-off "$WORK/puzzles-off" --driver "$DRIVER" | tee "$WORK/record.json"
 PIN=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["new_pin"])' "$WORK/record.json")
 sed -i.bak "s/^PIN = '[0-9a-f]*'/PIN = '$PIN'/" scripts/corpus_append.py && rm scripts/corpus_append.py.bak
+# The counter's broad current-source window includes corpus_append.py. A
+# changed reviewed pin requires new native/extraction/VM/SDK evidence, retaining
+# both attempts and the previously installed packet rather than patching hashes.
+if ! cmp -s "$WORK/corpus-append-before-record.py" scripts/corpus_append.py; then
+  capture_counter after-pin
+fi
 python3 scripts/check-corpus-append.py --self-test --fresh-on "$WORK/puzzles-on" --fresh-off "$WORK/puzzles-off" --driver "$DRIVER" > "$WORK/gate-corpus-append.log"
 
 step "delegated source-control packet"

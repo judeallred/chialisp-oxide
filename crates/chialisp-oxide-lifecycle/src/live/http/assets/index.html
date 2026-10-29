@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="oxide-session" content="__SESSION_CAPABILITY__">
+  <meta name="color-scheme" content="light">
+  <title>Testnet11 coin lifecycle · chialisp-oxide</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lifecycle">Skip to lifecycle controls</a>
+  <main>
+    <header class="masthead">
+      <a class="wordmark" href="/" aria-label="chialisp-oxide live lifecycle"><span aria-hidden="true">◈</span> chialisp<span class="wordmark-end">oxide</span></a>
+      <span class="network-badge">TESTNET11 · LIVE</span>
+    </header>
+    <aside class="warning"><strong>WIP prototype · not ready for use.</strong> These controls operate real Testnet11 coins. Use only disposable test funds. A prepared signature is submitted only when you choose a Submit action.</aside>
+    <section class="intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">PUBLIC COIN LIFECYCLE</p><h1 id="page-title">Follow a real testnet coin.</h1><p class="lede">Fund the checked Rust puzzle, spend its 1,000-mojo payment, then inspect the exact inputs and outputs. Keys are entered only in the server terminal.</p></div>
+      <div class="amount-summary"><span class="eyebrow">PAYMENT BACK TO THIS WALLET</span><strong id="payment-amount">—</strong><span id="payment-txch" class="muted">Waiting for checked state</span></div>
+    </section>
+    <noscript><p class="error">JavaScript is required for these local controls. The command-line workflow remains available.</p></noscript>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section class="session-panel" aria-labelledby="session-heading">
+      <div class="session-heading"><div><h2 id="session-heading">Local session</h2><p id="connection-status" class="muted">Loading the cached public view…</p></div><button type="button" id="reload" data-action="reload" class="button secondary" disabled>Reload checked state</button></div>
+      <div class="job-line" role="status" aria-live="polite"><span id="job-indicator" class="status-dot" aria-hidden="true"></span><strong id="job-status">Connecting</strong><span id="job-detail" class="muted">No network action is started by opening this page.</span></div>
+      <p id="terminal-note" class="terminal-note" tabindex="-1" hidden><strong>Continue in the terminal.</strong> If a signing prompt appears, enter the disposable key there. This page never collects a key. The cached view stays responsive while the terminal waits.</p>
+      <p class="caption">This page polls cached local state. Monitor buttons explicitly query the provider; Submit buttons explicitly send the saved signed bundle. A failed or disconnected action requires Reload before another mutation.</p>
+    </section>
+    <section class="identity-panel" aria-labelledby="identity-heading">
+      <div class="panel-heading"><h2 id="identity-heading">Checked program and wallet</h2><span id="source-status" class="badge neutral">Loading</span></div>
+      <dl class="identity-grid">
+        <div><dt>Selected Rust mode</dt><dd id="source-mode">—</dd></div>
+        <div><dt>Funding fee</dt><dd id="funding-fee">—</dd></div>
+        <div><dt>Payment fee</dt><dd id="payment-fee">—</dd></div>
+        <div><dt>Public event capacity</dt><dd id="event-capacity">—</dd></div>
+        <div class="wide"><dt>Wallet puzzle hash · recipient and change</dt><dd id="wallet-puzzle-hash" class="hash">—</dd></div>
+        <div class="wide"><dt>Checked funding puzzle hash</dt><dd id="funding-puzzle-hash" class="hash">—</dd></div>
+        <div class="wide"><dt>Reveal byte SHA-256</dt><dd id="reveal-sha256" class="hash">—</dd></div>
+        <div class="wide"><dt>Exact saved outbox revision</dt><dd id="revision" class="hash">—</dd></div>
+      </dl>
+      <p id="verification-scope" class="caption">Fresh local checks and provider observations have separate scopes. Neither is a compiler-preservation or chain-finality proof.</p>
+    </section>
+    <section id="lifecycle" aria-labelledby="lifecycle-heading">
+      <div class="section-heading"><h2 id="lifecycle-heading">Two transfers, explicit actions</h2><span class="muted">Prepare → Submit → Monitor</span></div>
+      <div class="transfer-grid">
+        <article class="transfer-panel" aria-labelledby="funding-heading">
+          <div class="panel-heading"><div><p class="eyebrow">01 · FUND THE PUZZLE</p><h3 id="funding-heading">Wallet → checked puzzle</h3></div><span id="funding-state" class="badge neutral">Loading</span></div>
+          <p class="transfer-description">Exactly 1,000 mojos go to the checked puzzle. The bounded funding fee is deducted; every remaining mojo returns to this wallet as change.</p>
+          <div class="transfer-actions" aria-label="Funding actions"><button type="button" data-action="prepare_funding" class="button secondary" disabled>Prepare &amp; sign funding</button><button type="button" data-action="submit_funding" class="button primary" disabled>Submit saved funding</button><button type="button" data-action="monitor_funding" class="button secondary" disabled>Monitor funding</button></div>
+          <p id="funding-outcome" class="outcome">No funding bundle is prepared.</p>
+          <div id="funding-details" hidden>
+            <dl class="transfer-facts"><dt>Bundle ID</dt><dd id="funding-bundle-id" class="hash">—</dd><dt>Signed bundle byte SHA-256</dt><dd id="funding-bundle-sha256" class="hash">—</dd><dt>Retained preflight height</dt><dd id="funding-preflight-height">—</dd></dl>
+            <section class="cost-panel" aria-labelledby="funding-cost-heading"><h4 id="funding-cost-heading">Retained local preflight cost</h4><dl class="cost-grid"><div class="cost-total"><dt>Total charged cost</dt><dd id="funding-cost-total">—</dd></div><div><dt>VM execution</dt><dd id="funding-cost-execution">—</dd></div><div><dt>Conditions</dt><dd id="funding-cost-conditions">—</dd></div><div><dt>Charged generator bytes</dt><dd id="funding-cost-bytes">—</dd></div><div><dt>Generator byte cost</dt><dd id="funding-cost-byte-cost">—</dd></div></dl></section>
+            <details class="coin-details"><summary>Exact funding inputs and all known outputs</summary><h4>Inputs</h4><div id="funding-inputs" class="coin-list"></div><h4>Outputs</h4><div id="funding-outputs" class="coin-list"></div></details>
+          </div>
+          <section class="observation" aria-labelledby="funding-observation-heading"><h4 id="funding-observation-heading">Last saved provider observation</h4><p id="funding-observation">None recorded. Choose Monitor funding to query the provider.</p></section>
+        </article>
+        <article class="transfer-panel" aria-labelledby="payment-heading">
+          <div class="panel-heading"><div><p class="eyebrow">02 · SPEND THE PAYMENT</p><h3 id="payment-heading">Checked puzzle → wallet</h3></div><span id="payment-state" class="badge neutral">Loading</span></div>
+          <p class="transfer-description">The permissionless puzzle returns the full 1,000 mojos to this wallet. A configured fee sponsor uses a separate wallet input and returns its change here.</p>
+          <div class="transfer-actions" aria-label="Payment actions"><button type="button" data-action="prepare_payment" class="button secondary" disabled>Prepare payment</button><button type="button" data-action="submit_payment" class="button primary" disabled>Submit saved payment</button><button type="button" data-action="monitor_payment" class="button secondary" disabled>Monitor payment</button></div>
+          <p id="payment-outcome" class="outcome">Observe confirmed funding before preparing the payment.</p>
+          <div id="payment-details" hidden>
+            <dl class="transfer-facts"><dt>Bundle ID</dt><dd id="payment-bundle-id" class="hash">—</dd><dt>Signed bundle byte SHA-256</dt><dd id="payment-bundle-sha256" class="hash">—</dd><dt>Retained preflight height</dt><dd id="payment-preflight-height">—</dd></dl>
+            <section class="cost-panel" aria-labelledby="payment-cost-heading"><h4 id="payment-cost-heading">Retained local preflight cost</h4><dl class="cost-grid"><div class="cost-total"><dt>Total charged cost</dt><dd id="payment-cost-total">—</dd></div><div><dt>VM execution</dt><dd id="payment-cost-execution">—</dd></div><div><dt>Conditions</dt><dd id="payment-cost-conditions">—</dd></div><div><dt>Charged generator bytes</dt><dd id="payment-cost-bytes">—</dd></div><div><dt>Generator byte cost</dt><dd id="payment-cost-byte-cost">—</dd></div></dl></section>
+            <details class="coin-details"><summary>Exact payment inputs and all known outputs</summary><h4>Inputs</h4><div id="payment-inputs" class="coin-list"></div><h4>Outputs</h4><div id="payment-outputs" class="coin-list"></div></details>
+          </div>
+          <section class="observation" aria-labelledby="payment-observation-heading"><h4 id="payment-observation-heading">Last saved provider observation</h4><p id="payment-observation">None recorded. Choose Monitor payment to query the provider.</p></section>
+        </article>
+      </div>
+    </section>
+    <aside class="scope-note"><h2>What this view establishes</h2><p>Costs are local, height-specific preflight measurements: execution, conditions, and charged plain generator bytes. They are not whole-block costs or network fee quotes. A saved confirmation records provider-observed exact spend bytes and expected child coins; it is not authenticated bundle inclusion or finality.</p><p>Inputs marked unspent belong to that transfer. Signed bundles, hashes, outputs and observations are public. No private-key or recovery-phrase entry belongs in this page.</p></aside>
+    <footer><span>chialisp-oxide · WIP Testnet11 workflow</span><span>Explicit actions · public outbox · local terminal signer</span></footer>
+  </main>
+</body>
+</html>

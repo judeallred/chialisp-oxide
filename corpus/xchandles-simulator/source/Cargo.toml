@@ -1,0 +1,26 @@
+[package]
+name = "chialisp-oxide-xchandles-premine"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+anyhow = "=1.0.104"
+chia-sdk-driver = { version = "=0.36.0", features = ["action-layer"] }
+chia-sdk-test = { version = "=0.36.0", default-features = false }
+chia-sdk-types = { version = "=0.36.0", features = ["action-layer"] }
+chia-bls = "=0.36.1"
+chia-protocol = "=0.36.1"
+chia-consensus = "=0.36.1"
+chia-puzzle-types = "=0.36.1"
+chia-puzzles = "=0.20.3"
+clvm-utils = "=0.36.1"
+clvm-traits = "=0.36.1"
+clvmr = "=0.16.2"
+hex = "=0.4.3"
+serde_json = "=1.0.154"
+serde = "=1.0.229"
+libc = "=0.2.190"
+sha2 = "=0.10.9"

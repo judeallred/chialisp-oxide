@@ -181,18 +181,26 @@ backlog; this ordering does not mark their acceptance criteria complete.
    registry integration remain open; source attachments and build declarations
    alone do not establish compilation or source authenticity. The
    [local lifecycle](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/)
-   now connects fresh checks to a shared simulator CLI/GUI. Continue the explicit-network lifecycle
-   ([#12](https://github.com/judeallred/chialisp-oxide/issues/12)). Live wallet
-   demonstrations require actual testnet evidence, not simulated transaction IDs.
+   connects fresh checks to a shared simulator CLI/GUI. Its separate narrow
+   Testnet11 CLI and GUI have executed real funding, payment and monitoring
+   cycles. Broader puzzle paths, external signers and complete
+   [#12](https://github.com/judeallred/chialisp-oxide/issues/12) acceptance remain open.
 3. The local CAT issuance and transfer workflow
    ([#13](https://github.com/judeallred/chialisp-oxide/issues/13)) now has paired
-   Cargo exports and five-build CAT2 lifecycle evidence. Funded Testnet11
-   issuance and Sage send/receive evidence remain open. The action-layer
+   Cargo exports and five-build CAT2 lifecycle evidence. The separate
+   [executed Testnet11 trial](https://judeallred.github.io/chialisp-oxide/tutorials/cat-genesis-tail/#executed-local-trial-october-28-2026)
+   issued 1,000 raw units and observed their spendable balance in Sage.
+   Sage send/receive and a second-wallet round trip remain open. The action-layer
    demonstrations ([#14](https://github.com/judeallred/chialisp-oxide/issues/14)) now
    include the finite counter and fixed two-name registry/slot lifecycle with an
    isolated actual slot double-spend and own-root Rust mutation controls. Continue with
    the XCHandles case study ([#15](https://github.com/judeallred/chialisp-oxide/issues/15)),
-   then authenticated continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
+   which now has a separately scoped recorded history of 129 controller spends
+   covering 3,836 names and a three-step canonical host recipe (six local names).
+   It is protocol analysis, not an on-chain Rust frontend port or an authenticated
+   remaining-work queue. Exact historical bundle costs and fees remain open;
+   whole-block observations include unrelated work. Continue with authenticated
+   continuations ([#16](https://github.com/judeallred/chialisp-oxide/issues/16)).
    Build on the original precommit/wait/reveal demo
    ([#17](https://github.com/judeallred/chialisp-oxide/issues/17)) while retaining
    its canonical-port and reusable-abstraction gaps. Derive new
