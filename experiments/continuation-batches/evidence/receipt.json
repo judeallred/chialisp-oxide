@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "status": "boundary_observed",
+  "scope": "native Rust success; public compiler check/build unsupported at unchanged expansion-depth budget; Chialisp-only finite VM lane",
+  "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+  "toolchain": "nightly-2026-07-14",
+  "tool_files": {
+    "cargo-chialisp-oxide": "3e8a42fba672dd18c9a3899c1de2790c5978df5997f3a56f6926b76f1ed7a343",
+    "chialisp-oxide": "fff86f6d96a3e6a36a499fd9df2cd744d57de66c86a86fb4ca4d73f39642d133",
+    "chialisp-oxide-driver": "d96f32fc4fcc997c6e9f9c02fcf90fd74cee77cea857ced3573513d081732668",
+    "chialisp-oxide-verifier": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e"
+  },
+  "source_files": {
+    "Cargo.lock": "887b202c0c334c4a1618976332220a9583c00f84efdc12e8cbeb6adc1757154f",
+    "Cargo.toml": "acf3f6d675ac105223628186e51c1f1f8e9b5eeeabc4e1e505cf3b67fc9e0775",
+    "capture_boundary.py": "0a861c6bace427e5a2a2e0b54875aeadc48754a765d74dae9bd0ad27fffe954a",
+    "examples/compile_reference.rs": "ffd0704ce8c808f8ff7a0b81b96527725129fe23185729939f96df0b70c526d5",
+    "fixtures.json": "3db45c3f7dda988775663c1908f40b5a5ef70cbef533ea27e0731aa9cbc17946",
+    "oracle.py": "e3a7f530ca2766891ef268552bac404defeed59f1732ec083d577b12c331520e",
+    "reference.clsp": "d8aec475ddc22f9bdac5672efb52a1864d6ac2a9f876e3780d4c281dc8e28aab",
+    "replay.py": "c93aa310bdef283156975bdb49fdb5f016e706532249ca2f0ce1fd24b76744be",
+    "src/lib.rs": "773cd5a2bed9679e21963b58fabf30acc54fee3771d19c735fdfe0b04213afc9",
+    "test_oracle.py": "8de6134c78be72f107355154cdf792f6d44f362abfbf3f128a34991708752b10",
+    "test_replay.py": "7ac583f6dfade23166684775356b8476b2f5f8aa93aeebae4d565aaca91a9f28"
+  },
+  "dependencies": {
+    "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
+    "experiments/authenticated-continuations/bounded_process.py": "07481d6a91dc4d615e2dd5107a1c521468d9976fc389f8168fbb9b8ba139ab1b",
+    "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
+    "scripts/vm_failures.py": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+  },
+  "native_tests": 8,
+  "python_tests": 10,
+  "subset": {
+    "status": "not_completed",
+    "diagnostic": "CLVM expansion nesting limit"
+  },
+  "rust_modes": {
+    "on": {
+      "status": "not_emitted",
+      "diagnostic": "CLVM expansion nesting limit",
+      "ir": "diagnostics/rust-on.ir.json",
+      "ir_sha256": "00a32edfed41eb83f6a09390d6cb7d8fe988a1f2614b5b2a138b8a01cf079dbb"
+    },
+    "off": {
+      "status": "not_emitted",
+      "diagnostic": "CLVM expansion nesting limit",
+      "ir": "diagnostics/rust-off.ir.json",
+      "ir_sha256": "00a32edfed41eb83f6a09390d6cb7d8fe988a1f2614b5b2a138b8a01cf079dbb"
+    }
+  },
+  "reference": {
+    "schema": 1,
+    "scope": "finite primary VM observations, no SDK spends/authentication/proof",
+    "cases": 59,
+    "programs": {
+      "chialisp": {
+        "program_hex_sha256": "526dd4f58a58cc38538a46fd4223661fa315b376c66b75ba7904772de2d360ec",
+        "serialized_bytes": 1770,
+        "accepted_costs": [
+          {
+            "label": "complete queue 2 batch 0",
+            "cost": 32420
+          },
+          {
+            "label": "complete queue 4 batch 0",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 4 batch 1",
+            "cost": 32420
+          },
+          {
+            "label": "complete queue 6 batch 0",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 6 batch 1",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 6 batch 2",
+            "cost": 32420
+          },
+          {
+            "label": "complete queue 8 batch 0",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 8 batch 1",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 8 batch 2",
+            "cost": 66468
+          },
+          {
+            "label": "complete queue 8 batch 3",
+            "cost": 32420
+          },
+          {
+            "label": "wrong selected module accepted by template; host admission required",
+            "cost": 66468
+          }
+        ]
+      }
+    },
+    "status": "passed"
+  },
+  "sdk_spends": 0,
+  "cost_comparison_executed": false,
+  "compiler_budgets_changed": false,
+  "source_authentication": false,
+  "compiler_preservation": false,
+  "files": {
+    "compiler.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.stderr": "bffc960438976b7b0023d7160b4649c82a4518bae16b03fe5efbf9605bccd92b",
+    "subset.stderr": "e68b148b094fdde5d9044c9f7638eae3be45274b49bb2035ce93fb9d06b658e8",
+    "rust-off.stderr": "3afc6392906d74df58cdc4e5bd76c2e4c6c0439089a154cdd232164755576a6b",
+    "rust-off.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "subset.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler.stdout": "ca3c9664fd8f0aeff129afbc2eb652e98d0f851b3fb7e1a3df1506b19246dc51",
+    "commands.json": "eb0592720dca0e3fc696e0d5fec628c7f01f4c3af67e98e6c3780a55e807a18b",
+    "native.stdout": "f12d8ca8adc3326c3651b5c521b3a0a05567b41beac4801317d4f6f4d7e98327",
+    "reference.stdout": "3af824d51c5b08bfaa8c0a0fb8f8a4a2da68348ad9cb6ab002db4e9a8236cac4",
+    "rust-on.stderr": "3afc6392906d74df58cdc4e5bd76c2e4c6c0439089a154cdd232164755576a6b",
+    "reference.clvm.hex": "526dd4f58a58cc38538a46fd4223661fa315b376c66b75ba7904772de2d360ec",
+    "python.stderr": "38eeff1237d74275801617a271eced659e08b1cad8069897d18e659ae40641d8",
+    "fmt.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fmt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rust-on.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference.stderr": "9966b6469e5795ac691a3ac721b4049be20039e58bfdcb6a1b95d32910337a37",
+    "native.stderr": "9d3d9c96a5a654768aba302a982ed0cb641c654dd6f2801823845ddecbf58dfd",
+    "reference-vm/solutions.json": "5fe32d81a4f0d50b9cb9aa4ae03a6c792ab2fa7b177d201de6f868e01c2a206a",
+    "reference-vm/report.json": "034a30614867730619eb6bfed976f795118fa7e9bcaa5c22873a771e5a4fd688",
+    "reference-vm/vectors.json": "8d95a6b859060392f3b0f752587283472e9983ce33795d0a04bd0344a10587c0",
+    "reference-vm/chialisp.json": "173ea64976fb1c0670359c7624397f13cedc087c410608d3b323bce9ce32de9e",
+    "diagnostics/rust-on.ir.json": "00a32edfed41eb83f6a09390d6cb7d8fe988a1f2614b5b2a138b8a01cf079dbb",
+    "diagnostics/rust-off.ir.json": "00a32edfed41eb83f6a09390d6cb7d8fe988a1f2614b5b2a138b8a01cf079dbb"
+  }
+}
