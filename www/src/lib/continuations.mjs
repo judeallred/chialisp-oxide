@@ -14,14 +14,49 @@ const sdkOutcome = value => value.accepted ? 'accepted' : value.negative.code ==
 export const continuationScopes = [
   'WIP prototype. Not ready for real funds.',
   'Original ordered-payout teaching policy; not a generic continuation SDK.',
-  'Only batch size one is measured.',
-  'The cursor is persisted and reparsed in one process while the simulator remains in memory.',
-  'No live Testnet11 continuation spend is recorded.',
+  'Only batch size one has complete SDK measurements.',
+  'This historical simulator cursor is persisted and reparsed in one process while the simulator remains in memory.',
+  'This historical simulator packet records no live Testnet11 continuation spend.',
   'Runtime umbrellas remain inconclusive as policy-rejection evidence.',
   'Source/file consistency is not execution authentication or compiler preservation.',
   'Conditions-helper calls skip BLS; actual generator runs verify BLS separately.',
   'Liveness, inclusion, finality and cross-block atomicity are not guaranteed.',
 ];
+
+/** @returns {Promise<{fields: ContinuationField[], steps: ContinuationRow[], scopes: string[]}>} */
+export async function readLiveContinuationEvidence() {
+  const filename = path.join(await repository(), 'experiments/authenticated-continuations/live-evidence/report.json');
+  assert(statSync(filename).isFile() && statSync(filename).size <= 1024 * 1024, 'Bounded live continuation summary');
+  const bytes = readFileSync(filename); assert(bytes.length <= 1024 * 1024);
+  const { summary } = JSON.parse(bytes.toString('utf8'));
+  assert(summary.status === 'completed_trial_observed' && summary.network === 'testnet11');
+  assert(summary.chain_authentication === false && summary.finality === false && summary.compiler_preservation === false);
+  assert(summary.steps.length === 4 && summary.funding_coin.amount === 4000);
+  assert(summary.counts.provider_observed_spends === 4 && summary.counts.retained_http_push_attempts === 5
+    && summary.counts.unique_prepared_bundles === 4 && summary.counts.success_acknowledgements === 4);
+  assert(summary.fees.prepared_bundles_mojos === 0 && summary.original_ambiguous_response.availability === 'not_retained');
+  const hash = value => { assert(typeof value === 'string' && /^[0-9a-f]{64}$/.test(value)); return value; };
+  return {
+    fields: [field('spends', 'Provider-observed policy spends', 4), field('paid', 'Paid back to the test wallet (mojos)', 4000),
+      field('attempts', 'HTTP pushes / distinct bundles / success acknowledgements', '5 / 4 / 4'),
+      field('fees', 'Prepared policy-bundle fees (mojos; funding excluded)', 0),
+      field('module', 'Retained Rust-on module tree hash', hash(summary.selected_module_hash)),
+      field('funding', 'Initial 4,000-mojo coin', hash(summary.funding_coin.coin_id)),
+      field('birth', 'Funding confirmation height', summary.funding_confirmed_height)],
+    steps: summary.steps.map((step, index) => {
+      assert(step.index === index && Number.isInteger(step.spent_height) && step.payout.amount === 1000);
+      assert(index === 3 ? step.successor === null : step.successor.amount === 3000 - index * 1000);
+      return { id: String(index), fields: [field('height', 'Spent at height', step.spent_height),
+        field('bundle', 'Prepared bundle ID', hash(step.bundle_id)), field('payout', '1,000-mojo payout coin', hash(step.payout.coin_id)),
+        field('successor', 'Continuation successor', step.successor ? hash(step.successor.coin_id) : 'none — terminal payout')] };
+    }),
+    scopes: ['WIP Testnet11 trial using the retained Rust-on batch-one artifact; not a reusable SDK or shared Rust CLI/GUI.',
+      'Five HTTP push attempts concern four bundle IDs. The first response body was not retained; its receipt remains an inconclusive gap.',
+      'One explicit identical-bundle retry and process restart are retained separately; default submission never retries automatically.',
+      'Provider observations and source hashes do not authenticate inclusion, submission causality, binaries or finality.',
+      'Prepared continuation bundles have zero fees. Funding fees and containing chain-bundle fees are not measured.'],
+  };
+}
 
 /** @typedef {{id: string, label: string, value: string}} ContinuationField */
 /** @typedef {{id: string, fields: ContinuationField[]}} ContinuationRow */

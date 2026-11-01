@@ -1,15 +1,19 @@
 # Authenticated continuations: exploration design
 
-**WIP design, not an implemented feature. Not ready for use or real funds.**
+**WIP exploration and narrow prototypes. Not ready for use or real funds.**
 This records a proposed first experiment for
 [#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type, automatic splitting and shared
-deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
-now supplies a concrete annotated export, independent host oracle and native
+Rust CLI/GUI deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
+supplies a concrete annotated export, independent host oracle and native
 adversarial tests. Its actual subset check, both-mode builds and 108 finite
 primary-VM observations pass. A separate finite ledger milestone now mines
 three four-step SDK simulator chains and records actual-source counterexamples
 and generator measurements. The issue stays open; this is an explicit teaching
-policy rather than a general continuation feature.
+policy rather than a general continuation feature. A separate experimental
+host workflow now admits the complete published artifact and queue, persists
+public progress across processes, and supports fixed-provider Testnet11
+observation and explicit submission. It is not integrated into the shared Rust
+CLI/GUI; see the [workflow commands](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations#offline-funding-plan-and-process-recovery).
 
 The intended feature lets an author divide committed work into bounded spends.
 Each accepted spend performs one specified chunk and commits the next coin to
@@ -151,13 +155,47 @@ Keep these acceptance checks separate:
   from the [wallet lifecycle](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/); deployment through CLI/GUI on
   Testnet11 requires its own executed network integration.
 
-The concrete experiment records 45 base SDK submissions and a separate 16
+## Host workflow and remaining boundaries
+
+The host planner reconstructs every opening, budget and successor before
+recording a funding parent. Recording that parent alone does not establish a
+real coin. The separate HTTPS adapter checks the exact confirmed coin, repeats
+SDK preflight at the provider's previous transaction block height, and persists
+the exact unsigned zero-fee bundle before submission. Its normal submission
+command never retries a started push automatically. A distinct explicit
+recovery action can archive and retry the identical bundle once after fresh
+reconciliation; mempool absence never proves an earlier submission failed.
+Available response bytes, confirmation heights, actual reveals and complete
+child sets are retained. Provider assertions are not chain authentication or
+finality, and there is no automatic reorganization rollback or fee sponsorship.
+The separate Testnet11 trial completed four provider-observed spends at heights
+4,904,700, 4,904,715, 4,904,742 and 4,904,760, paying the committed 4,000 mojos
+back to the test wallet with no final successor. Its four prepared bundles have
+zero fees; funding and containing chain-bundle fees are not measured. Five HTTP
+push attempts concern four bundle IDs because the first ambiguous attempt was
+followed by one explicit identical-bundle retry. The missing first response
+body remains an inconclusive evidence gap. The
+[retained live packet](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations/live-evidence)
+is separate from every historical simulator count and does not authenticate
+submission causality, chain inclusion or finality.
+
+The separate [batch-two experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/continuation-batches)
+has native Rust checks and independently executed Chialisp vectors. Its public
+Rust check and both builds exceed the unchanged CLVM expansion-depth limit.
+It has no Rust CLVM artifact, complete SDK spends or measured batching-cost
+comparison. Pairwise distinct recipients are an additional explicit policy
+restriction, needed to avoid duplicate output coins within a batch. This is a
+compiler-boundary checkpoint, not a supported batch-size option.
+
+The concrete batch-one experiment records 45 base SDK submissions and a separate 16
 actual-source-control submissions; runtime umbrellas remain inconclusive as
 policy-rejection evidence. Its public cursor is persisted and reparsed within
-one process while the simulator remains in memory. Durable process/node
-recovery, a reusable SDK API, another explicit batch size, cost planning and
-shared CLI/GUI live deployment remain substantive work. No live-network,
-source-authentication or proof credit follows. SHA remains
+one process while the simulator remains in memory. The new host journal and
+adapter have separate process-restart and injected-provider controls; they do
+not add SDK attempts to those historical counts. A reusable SDK API, a compiled
+second batch size, broader fee/cost planning, reorganization recovery and shared Rust
+CLI/GUI deployment remain substantive work. Source authentication and
+compiler-preservation credit do not follow. SHA remains
 outside models that do not support it; termination/progress models, if added,
 must remain separate from compiler preservation. Liveness, inclusion, finality,
 cross-block atomicity and production safety are not guaranteed.

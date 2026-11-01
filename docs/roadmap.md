@@ -213,6 +213,13 @@ backlog; this ordering does not mark their acceptance criteria complete.
    ([#18](https://github.com/judeallred/chialisp-oxide/issues/18)) and EVM
    ([#19](https://github.com/judeallred/chialisp-oxide/issues/19)) learning tracks
    from working examples, explaining differences between accounts and coins.
+   The isolated [batch-two source experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/continuation-batches)
+   and [spuds source experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/spuds)
+   now retain native checks and independently executed Chialisp vectors. Their
+   public Rust checks and both builds exceed the unchanged CLVM expansion-depth
+   limit. They are compiler-boundary checkpoints, with no Rust CLVM artifacts,
+   SDK spends or cost-comparison credit. Resolving that authoring gap remains
+   work; it does not authorize raising compiler budgets or shrinking the goals.
 5. Continue manifest-driven evidence tooling, broader adversarial fuzzing,
    fork matrices and state-transition models. Keep SHA outside proofs that do
    not model it, and compiler preservation separate from model equivalence.

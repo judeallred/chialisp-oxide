@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/Users/judeallred/code/clispOx/target/continuation-live-a01/advance.py", line 39, in <module>
+    intent = live.reconcile(JOURNAL, live.CurlTransport())
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/live_workflow.py", line 374, in reconcile
+    return reconcile_locked(journal, transport, read_intent(journal))
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/live_workflow.py", line 355, in reconcile_locked
+    observation = confirmed_observation(transport, intent)
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/live_workflow.py", line 329, in confirmed_observation
+    current = fetch_coin(transport, prepared['current_coin'], before)
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/live_workflow.py", line 180, in fetch_coin
+    result = record(raw, peak)
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/live_workflow.py", line 168, in record
+    w.require(type(value['spent']) is bool and type(value['coinbase']) is bool and value['coinbase'] is False
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              and type(value['timestamp']) is int and value['timestamp'] >= 0
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              and 0 < confirmed <= peak['height'] and spent <= peak['height']
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              and ((value['spent'] and 0 < spent and confirmed <= spent)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   or (not value['spent'] and spent == 0)), 'consistent confirmed/spent record')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/judeallred/code/clispOx/experiments/authenticated-continuations/workflow.py", line 30, in require
+    raise ValueError(message)
+ValueError: consistent confirmed/spent record

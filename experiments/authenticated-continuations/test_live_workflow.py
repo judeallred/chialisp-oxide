@@ -176,6 +176,17 @@ class LiveWorkflowTests(unittest.TestCase):
         self.assertEqual(live.reconcile(self.path,self.provider)['status'],'confirmed')
         self.assertEqual(w.load(self.path)['completed'],1)
 
+    def test_newer_coin_record_is_snapshot_uncertainty_without_progress(self):
+        before=self.path.read_bytes()
+        class Newer(Provider):
+            def _call(self,endpoint,body):
+                if endpoint=='get_coin_record_by_name':
+                    return dict(success=True,coin_record=wire_record(self.prepared['current_coin'],spent=11))
+                return super()._call(endpoint,body)
+        with self.assertRaisesRegex(live.Inconclusive,'newer than'):
+            live.reconcile(self.path,Newer(self.intent['prepared']))
+        self.assertEqual(self.path.read_bytes(),before)
+
     def test_stale_token_and_tampered_wire_forbid_push(self):
         with self.assertRaisesRegex(ValueError,'stale'):
             live.submit(self.path,self.provider,'00'*32,explicitly_submit=True,executable=self.exe)

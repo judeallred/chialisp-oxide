@@ -5,14 +5,17 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { unified } from 'unified';
 import rehypeParse from 'rehype-parse';
-import { readContinuationEvidence } from '../src/lib/continuations.mjs';
+import { readContinuationEvidence, readLiveContinuationEvidence } from '../src/lib/continuations.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 for (const script of ['check_retained.py', 'check_ledger.py']) {
   execFileSync('python3', ['-B', `experiments/authenticated-continuations/${script}`],
     { cwd: root, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
 }
+execFileSync('python3', ['-B', 'experiments/authenticated-continuations/live_report.py', '--check',
+  'experiments/authenticated-continuations/live-evidence'], { cwd: root, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
 const view = await readContinuationEvidence();
+const liveView = await readLiveContinuationEvidence();
 const parser = unified().use(rehypeParse);
 const text = node => node.type === 'text' ? node.value : (node.children ?? []).map(text).join('');
 const normalized = node => text(node).trim().replace(/\s+/g, ' ');
@@ -35,6 +38,15 @@ function one(node, property, value) {
 function fields(node, values, property = 'dataContinuationField') {
   assert.equal(find(node, child => child.properties?.[property] !== undefined).length, values.length, 'Exact visible witness field inventory');
   for (const item of values) assert.equal(normalized(one(node, property, item.id)), item.value, `Visible witness changed: ${item.id}`);
+}
+export function checkLiveContinuationDisplay(ast, evidence = liveView) {
+  const section = one(ast, 'dataLiveContinuationEvidence', '');
+  fields(one(section, 'dataLiveContinuationHeader', ''), evidence.fields, 'dataLiveContinuationField');
+  const scopes = find(section, node => node.properties?.dataLiveContinuationScope !== undefined);
+  assert.deepEqual(scopes.map(row => { for (const parent of [...row.parents, row.node]) visible(parent); return normalized(row.node); }), evidence.scopes);
+  assert.equal(find(section, node => node.properties?.dataLiveContinuationStep !== undefined).length, 4);
+  for (const step of evidence.steps) fields(one(section, 'dataLiveContinuationStep', step.id), step.fields, 'dataLiveContinuationField');
+  return section;
 }
 export function checkContinuationDisplay(ast, evidence = view) {
   const sections = find(ast, node => node.properties?.dataContinuationsEvidence !== undefined);
@@ -96,13 +108,21 @@ const changes = [
   ast => { const row = find(ast, node => node.properties?.dataContinuationScope !== undefined)[0].node; mutateText(row); },
 ];
 for (const change of changes) { const ast = structuredClone(fixture); change(ast); assert.throws(() => checkContinuationDisplay(ast)); corruptions++; }
+const liveFixture = parser.parse(`<section data-live-continuation-evidence><div data-live-continuation-header>${renderFields(liveView.fields, 'data-live-continuation-field')}</div>${liveView.scopes.map(scope => `<p data-live-continuation-scope>${escape(scope)}</p>`).join('')}${liveView.steps.map(step => `<div data-live-continuation-step="${step.id}">${renderFields(step.fields, 'data-live-continuation-field')}</div>`).join('')}</section>`);
+checkLiveContinuationDisplay(liveFixture);
+for (const change of [
+  ast => { one(ast, 'dataLiveContinuationStep', '3').properties.hidden = true; },
+  ast => { mutateText(one(one(ast, 'dataLiveContinuationStep', '0'), 'dataLiveContinuationField', 'height')); },
+  ast => { mutateText(one(one(ast, 'dataLiveContinuationStep', '2'), 'dataLiveContinuationField', 'payout')); },
+  ast => { mutateText(one(one(ast, 'dataLiveContinuationStep', '3'), 'dataLiveContinuationField', 'successor')); },
+]) { const ast = structuredClone(liveFixture); change(ast); assert.throws(() => checkLiveContinuationDisplay(ast)); corruptions++; }
 const args = process.argv.slice(2);
 assert(args.length === 0 || args[0] === '--built' && args.length <= 2, 'Use --built [dist]');
 export function checkBuiltContinuation(dist = path.resolve(root, 'www', 'dist')) {
   const file = path.resolve(dist, 'reference/continuations/index.html');
   assert(statSync(file).size <= 3 * 1024 * 1024, 'Bounded continuation built page');
   const bytes = readFileSync(file); assert(bytes.length <= 3 * 1024 * 1024);
-  const ast = parser.parse(bytes.toString('utf8')); checkContinuationDisplay(ast);
+  const ast = parser.parse(bytes.toString('utf8')); checkContinuationDisplay(ast); checkLiveContinuationDisplay(ast);
   assert.equal(find(ast, node => node.tagName === 'h1').length, 1, 'Imported guide needs exactly one Starlight h1');
   assert(find(ast, node => node.tagName === 'a' && node.properties?.href === '/chialisp-oxide/reference/continuations/').length > 0, 'Mandatory sidebar link');
 }
@@ -110,4 +130,4 @@ if (args[0] === '--built') checkBuiltContinuation(path.resolve(root, 'www', args
 const packageJSON = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 assert(packageJSON.scripts['test:site'].includes('node scripts/check-site.mjs'), 'Existing mandatory site entrypoint required');
 assert(readFileSync(new URL('./check-site.mjs', import.meta.url), 'utf8').includes('checkBuiltContinuation(root)'), 'Built continuation gate must be called by the mandatory site entrypoint');
-console.log(`PASS continuation publication: complete portable packet admission, 108 base VM / 8 native + 16 source VM / 45 + 16 SDK lanes, visible coin/cost/outcome witnesses, ${corruptions} display corruptions${args.length ? ' and actual built page' : ''}`);
+console.log(`PASS continuation publication: complete portable packet admission, 108 base VM / 8 native + 16 source VM / 45 + 16 SDK lanes, separate live 4-spend / 5-push packet, visible coin/cost/outcome witnesses, ${corruptions} display corruptions${args.length ? ' and actual built page' : ''}`);

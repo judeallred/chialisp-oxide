@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "status": "boundary_observed",
+  "scope": "native Rust success; public compiler check/build unsupported at unchanged expansion-depth budget; Chialisp-only finite VM lane",
+  "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+  "toolchain": "nightly-2026-07-14",
+  "tool_files": {
+    "cargo-chialisp-oxide": "3e8a42fba672dd18c9a3899c1de2790c5978df5997f3a56f6926b76f1ed7a343",
+    "chialisp-oxide": "fff86f6d96a3e6a36a499fd9df2cd744d57de66c86a86fb4ca4d73f39642d133",
+    "chialisp-oxide-driver": "d96f32fc4fcc997c6e9f9c02fcf90fd74cee77cea857ced3573513d081732668",
+    "chialisp-oxide-verifier": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e"
+  },
+  "source_files": {
+    "Cargo.lock": "71b1bfec14fed9cee8c8ac0b5de02a68280e14917d49d020bb8764fc2309ec29",
+    "Cargo.toml": "14ca0ba9f1ef5f392f3dfe508f62759a202231192415c2dc172ca50cdc8dfb0f",
+    "README.md": "0d36b00e1f067a9fc6cb570a4743ba0178aa3195355b16482e6c5928917ad38a",
+    "capture_boundary.py": "64b6e5f1f33fb05f728ac4f664ea4ad43f788adccc0fa79002aa33271b4fbadc",
+    "examples/compile_reference.rs": "ffd0704ce8c808f8ff7a0b81b96527725129fe23185729939f96df0b70c526d5",
+    "fixtures.json": "8d9121fea7eeca0bc039c9bd571f7fb73a1da7453c2d3531c3930209861601b0",
+    "oracle.py": "392968ebf5bdc3d840048d906794e71136983681efe4d30146ab6378a505ca16",
+    "reference.clsp": "a838c8f1310763e3e5f5bc1fed24b3ef5ab176b40577d235064d8799938a7104",
+    "replay.py": "ca0e47dbec8c8835a449387aca472a5c753a3cf69b8eeb253d213358f1fa41a3",
+    "src/fixture_keys.rs": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319",
+    "src/lib.rs": "94b90cace77788e12040e74c71b20b82efbd31be69a141c8452a0790a619f1de",
+    "src/tests.rs": "e2f0a0289af67b7c2883ed043e03ec3759b1060629f475bcdd645e232ae6510b",
+    "test_oracle.py": "94212a7c32a5e780f5ee8d0317d294933ceb4a71c718d8a2084cc8be2977d653",
+    "test_replay.py": "6fcb02c6360a62bb23baa11ae4a6834b7a99dfadeb283c0073437901c17dc0fc"
+  },
+  "dependencies": {
+    "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
+    "experiments/authenticated-continuations/bounded_process.py": "07481d6a91dc4d615e2dd5107a1c521468d9976fc389f8168fbb9b8ba139ab1b",
+    "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
+    "scripts/vm_failures.py": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+  },
+  "native_tests": 7,
+  "python_tests": 9,
+  "subset": {
+    "status": "not_completed",
+    "diagnostic": "CLVM expansion nesting limit"
+  },
+  "rust_modes": {
+    "on": {
+      "status": "not_emitted",
+      "diagnostic": "CLVM expansion nesting limit",
+      "ir": "diagnostics/rust-on.ir.json",
+      "ir_sha256": "e703d4f1f179fef4b3ac437a0cf93344612b0609bc6aa26a253962810ee5cadf"
+    },
+    "off": {
+      "status": "not_emitted",
+      "diagnostic": "CLVM expansion nesting limit",
+      "ir": "diagnostics/rust-off.ir.json",
+      "ir_sha256": "e703d4f1f179fef4b3ac437a0cf93344612b0609bc6aa26a253962810ee5cadf"
+    }
+  },
+  "reference": {
+    "schema": 1,
+    "scope": "finite primary VM observations, no SDK spends/authentication/proof",
+    "cases": 51,
+    "programs": {
+      "chialisp": {
+        "program_hex_sha256": "e176753a395a741038e4cc8ed6293b01294fa79ae578f951dfd632688d6e5b76",
+        "serialized_bytes": 1712,
+        "accepted_costs": [
+          {
+            "label": "claim round 1 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 1 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 2 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 2 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 3 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 3 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 4 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 4 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 5 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 5 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 6 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 6 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 7 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "take round 7 emits required topup and reset state",
+            "cost": 62635
+          },
+          {
+            "label": "claim round 8 emits age/signature conditions, not consensus execution",
+            "cost": 25888
+          },
+          {
+            "label": "wrong selected module accepted; initial host admission required",
+            "cost": 62635
+          },
+          {
+            "label": "claim ignores decoded next fields",
+            "cost": 25888
+          },
+          {
+            "label": "invalid BLS key bytes only produce conditions; consensus required",
+            "cost": 62635
+          },
+          {
+            "label": "new payout changes signed message and successor",
+            "cost": 62635
+          }
+        ]
+      }
+    },
+    "status": "passed"
+  },
+  "sdk_spends": 0,
+  "cost_comparison_executed": false,
+  "compiler_budgets_changed": false,
+  "source_authentication": false,
+  "compiler_preservation": false,
+  "files": {
+    "compiler.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.stderr": "84d1bd9cadc1d13c96f1ddf2865993ed3e64621aed30d5ed5fc3e0d0f0db7f08",
+    "subset.stderr": "630fed651461fbd718cc6d959e9539f756a249bfa5dacf0a47bf264417d47688",
+    "rust-off.stderr": "bc36997d79afd6c8aa44a3d13561a11ce986818309ee76fd4d2323e2aa549bcc",
+    "rust-off.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "subset.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler.stdout": "ca3c9664fd8f0aeff129afbc2eb652e98d0f851b3fb7e1a3df1506b19246dc51",
+    "commands.json": "9857c5033614f7d5ad6b9ba642b25e1cdea16990c2e76c60c46c8fed5fbcf6bf",
+    "native.stdout": "8b84f08f774a31e88b045e4e656f4bd170a306ef22636671325667d86f27ba97",
+    "reference.stdout": "55a5047376ad65b8c1a219a5203c372c616ce537d77a92607ca52dcfc8d3ce36",
+    "rust-on.stderr": "ed478a731992f930408596fa3f3c4ed6fab7ec2ca92ec2f936cdbfab81af078f",
+    "reference.clvm.hex": "e176753a395a741038e4cc8ed6293b01294fa79ae578f951dfd632688d6e5b76",
+    "python.stderr": "603db52fd0016ca5cdcf83b2588160ae92bde08c66ba4c61dfc8a2a74cdb95c9",
+    "fmt.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fmt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rust-on.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference.stderr": "1d060511087cbb759a7bc531fbd3269121acc9bade7d307e4806c7f58e404808",
+    "native.stderr": "0242d50eb7479110459229c427a06a12e28b9cf042e420e21b646ba9c83efd51",
+    "reference-vm/solutions.json": "6b69c8062d4021b378ee174190925cdad6c2512c410815f827d26b41b86f103a",
+    "reference-vm/report.json": "493abad5a32a1385852bdd6b886f0ac178030ac78932de1468097a22c35c1be9",
+    "reference-vm/vectors.json": "7951b67806c1f5788b6c45fcdcf6190438cf1f2e8f1882ca5beb26a7bf5d6722",
+    "reference-vm/chialisp.json": "c5826aadf8496ace2f36dadc15b3721b254664c430539e1471a4265808d1c20f",
+    "diagnostics/rust-on.ir.json": "e703d4f1f179fef4b3ac437a0cf93344612b0609bc6aa26a253962810ee5cadf",
+    "diagnostics/rust-off.ir.json": "e703d4f1f179fef4b3ac437a0cf93344612b0609bc6aa26a253962810ee5cadf"
+  }
+}

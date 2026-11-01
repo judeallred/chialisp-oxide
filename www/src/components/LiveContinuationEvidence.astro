@@ -1,0 +1,26 @@
+---
+import { readLiveContinuationEvidence } from '../lib/continuations.mjs';
+const evidence = await readLiveContinuationEvidence();
+---
+
+<section data-live-continuation-evidence aria-labelledby="live-continuation-title">
+  <h2 id="live-continuation-title">Executed Testnet11 trial</h2>
+  {evidence.scopes.map(scope => <p data-live-continuation-scope>{scope}</p>)}
+  <dl data-live-continuation-header>
+    {evidence.fields.map(field => <div><dt>{field.label}</dt><dd><code data-live-continuation-field={field.id}>{field.value}</code></dd></div>)}
+  </dl>
+  {evidence.steps.map(step => <details data-live-continuation-step={step.id}>
+    <summary>Step {Number(step.id) + 1}: confirmed 1,000-mojo payout</summary>
+    <dl>{step.fields.map(field => <div><dt>{field.label}</dt><dd><code data-live-continuation-field={field.id}>{field.value}</code></dd></div>)}</dl>
+  </details>)}
+  <p><a href="https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations/live-evidence">Inspect the complete retained live packet</a>. Its offline checker verifies source, coin, response and cost-record consistency; it adds no authentication or compiler-preservation proof.</p>
+</section>
+
+<style>
+  section { margin-block: 2rem; }
+  dl > div { margin-block: .75rem; }
+  dt { font-weight: 600; }
+  dd { margin-inline-start: 0; }
+  code { overflow-wrap: anywhere; white-space: normal; }
+  details { margin-block: .75rem; }
+</style>

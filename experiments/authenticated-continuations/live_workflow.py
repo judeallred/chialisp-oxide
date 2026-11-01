@@ -167,9 +167,11 @@ def record(value, peak):
     spent = uint(value['spent_block_index'])
     w.require(type(value['spent']) is bool and type(value['coinbase']) is bool and value['coinbase'] is False
               and type(value['timestamp']) is int and value['timestamp'] >= 0
-              and 0 < confirmed <= peak['height'] and spent <= peak['height']
+              and 0 < confirmed
               and ((value['spent'] and 0 < spent and confirmed <= spent)
                    or (not value['spent'] and spent == 0)), 'consistent confirmed/spent record')
+    if confirmed > peak['height'] or spent > peak['height']:
+        raise Inconclusive('coin record is newer than the sampled tip; reobserve')
     return dict(coin=coin, confirmed=confirmed, spent=spent)
 
 

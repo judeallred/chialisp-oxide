@@ -1,0 +1,143 @@
+[
+  {
+    "label": "compiler",
+    "argv": [
+      "rustup",
+      "run",
+      "nightly-2026-07-14",
+      "rustc",
+      "-vV"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  },
+  {
+    "label": "fmt",
+    "argv": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  },
+  {
+    "label": "native",
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--locked"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  },
+  {
+    "label": "clippy",
+    "argv": [
+      "cargo",
+      "clippy",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--all-targets",
+      "--locked",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  },
+  {
+    "label": "python",
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/judeallred/code/clispOx/experiments/spuds",
+      "-p",
+      "test_*.py"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  },
+  {
+    "label": "subset",
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "expected_exit": 1,
+    "status": "completed",
+    "exit_code": 1
+  },
+  {
+    "label": "rust-on",
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/spuds-boundary-a02/rust-on"
+    ],
+    "expected_exit": 1,
+    "status": "completed",
+    "exit_code": 1
+  },
+  {
+    "label": "rust-off",
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/spuds-boundary-a02/rust-off",
+      "--no-optimize"
+    ],
+    "expected_exit": 1,
+    "status": "completed",
+    "exit_code": 1
+  },
+  {
+    "label": "reference",
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--locked",
+      "--example",
+      "compile_reference",
+      "--",
+      "/Users/judeallred/code/clispOx/target/spuds-boundary-a02/reference.clvm.hex"
+    ],
+    "expected_exit": 0,
+    "status": "completed",
+    "exit_code": 0
+  }
+]

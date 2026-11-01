@@ -10,8 +10,9 @@ recipe. Actual CLVM subset admission and two source-aware builds pass; the
 retained Rust off/on and independently compiled Chialisp programs pass 36 raw
 environments each, for 108 primary-VM observations. Native checking, subset
 admission and VM replay remain separate evidence. The ledger milestone below adds three four-step simulator chains, source
-controls and actual generator costs. Shared CLI/GUI planning, submission and
-durable node recovery remain unimplemented. Issue #16 remains open.
+controls and actual generator costs. A separate experimental host workflow
+and live trial are described below. Shared Rust CLI/GUI integration and
+reorganization recovery remain unimplemented. Issue #16 remains open.
 
 ## Concrete contract
 
@@ -228,9 +229,9 @@ witness corruptions are separate from actual source mutations, native
 observations, VM runs and ledger attempts. Six transport controls separately
 check precharged stdout/stderr caps, deadlines and process-group cleanup.
 
-Issue #16 remains open for a reusable reviewed SDK interface, funding-plan
-admission, a second explicit batch size, cost planning, and shared CLI/GUI
-submission/monitoring with durable interruption recovery. This original demo
+Issue #16 remains open for a reusable reviewed SDK interface, automated wallet
+funding, a compiled second batch size, broader fee/cost planning, and shared Rust
+CLI/GUI submission/monitoring with reorganization recovery. This original demo
 requires neither singleton support nor dynamic apply. Larger generators,
 iterators, automatic suspension or general enum support would need separately
 specified compiler semantics and evidence.
@@ -245,7 +246,7 @@ fees, typed outcomes and bounded claims, with display corruption controls.
 
 The independent `continuations` workflow job first builds its own four host
 tools, then invokes `ci.py`. The recipe runs normal Cargo fmt/test/Clippy for
-both unpublished libraries, the original 28 Python controls plus 38 host workflow, preparation, injected-provider and explicit-recovery checks, complete portable packet
+both unpublished libraries, the original 28 Python controls plus 57 host workflow, preparation, injected-provider, recovery, report and cost-planner checks, complete portable packet
 admission, actual retained VM/IR/SDK replays, and fresh current-host source,
 reference and mutation executions. It records this runner's independently
 queried compiler and tool hashes under `current_execution`; the original
@@ -303,7 +304,7 @@ The output includes the complete plan, initial puzzle hash and required mojo
 amount, selected artifact identity and a revision token. `record-funding` takes
 that token and `--parent HEX` to **record** the public funding parent; it does
 not build, sign, submit or observe a funding transaction. The resulting expected
-coin must still be verified by a future network adapter before spending.
+coin must still be verified by the separate network adapter before spending.
 
 `reconcile` takes `--journal`, `--revision-token` and `--observation FILE`.
 An observation has exactly `network` (`testnet11`), `coin_id` (the consumed
@@ -333,9 +334,10 @@ python3 -B -m unittest discover -s experiments/authenticated-continuations \
   -p 'test_workflow*.py'
 ```
 
-Shared Rust CLI/GUI integration, live confirmation/reorg handling, persisted
-submission intent and ambiguous-push recovery remain the next boundary before
-a Testnet11 continuation trial. The policy still supports only batch size one.
+The separate adapter below adds confirmation checks, persisted submission
+intent and explicit ambiguous-push recovery; those are outside this offline
+command. Shared Rust CLI/GUI integration and reorganization rollback remain
+open. The policy still supports only batch size one.
 
 ### Offline permissionless step preparation
 
@@ -365,9 +367,9 @@ charged bytes and total costs remain distinct from this simulator preflight.
 
 The prepared spend is permissionless, zero-fee, and uses the empty aggregate
 signature. It does not require or accept a wallet key. No transaction is sent;
-zero fees do not guarantee inclusion. A future network adapter must check the
-actual chain coin and protocol, persist submission intent, recheck the journal
-revision, and reconcile uncertain submission before retrying. The existing
+zero fees do not guarantee inclusion. The separate adapter below checks the
+actual provider-reported coin and protocol, persists submission intent, rechecks
+the journal revision, and reconciles before its explicit recovery action. The existing
 payment funding and fee-sponsor APIs are not widened by this experiment.
 
 ### Experimental fixed-provider submission adapter
@@ -398,15 +400,15 @@ have no automatic rollback; conflicts and incomplete/provider-failure data stop
 progress. Inspection or a later reviewed recovery policy is required. Zero fees
 provide no inclusion guarantee.
 
-Thirteen injected-provider tests exercise confirmation, wrong network/children,
+Fourteen injected-provider tests exercise confirmation, wrong network/children,
 stale journals, timeout and uncertain push, crash recovery, later-spent children,
 zero confirmation height, transport bounds and unsupported protocol context.
 They use the actual local SDK preparation binary but make no real HTTP calls.
 They add no live-network evidence or simulator chain coverage. The CI recipe
-sets the explicit preparation executable and requires all 66 Python checks
+sets the explicit preparation executable and requires all 85 Python checks
 without skips. The initial development probes only read provider state. The separate live
-trial now has a confirmed 4,000-mojo funding coin and an ambiguous submission;
-this does not yet establish a completed live chain.
+trial now has four provider-observed completed spends, retained below; these
+are separate from all historical simulator counts.
 
 ### Explicit identical-bundle recovery
 
@@ -431,3 +433,46 @@ separate from the journal's 1 MiB intent limit. A transport or size failure is
 inconclusive and does not acquire a complete-body receipt. The first live
 attempt predates raw response retention; its receipt hash is retained without
 inventing the missing response body or a reason for failure.
+
+### Whole-queue cost planning
+
+`plan_costs.py --recipients FILE --mode on|off --executable FILE
+--previous-transaction-height N [--funding-parent HEX]` measures the entire
+1..8-item batch-one queue without changing a real journal or making network
+requests. An omitted parent uses an explicitly labeled synthetic fixture; a
+supplied public parent is still not an observation that a funding coin exists.
+Each step is a separate injected-coin SDK preflight. These are not a mined
+simulator chain or additional live spends.
+
+The bounded report retains exact bundle and generator bytes, charged bytes,
+execution and condition costs, both generator encodings, queue sums and maximum
+step cost. It excludes funding, sponsorship and future network fees. Summed
+isolated generator charges do not measure shared whole-block encoding or
+node storage, and fitting these measured limits is not a universal block-fit
+or inclusion guarantee. Eight controls cover both Rust modes, full queue
+length, deterministic traces, typed metric corruption and resource limits.
+
+`live_report.py --check live-evidence` separately checks the completed live
+trial's retained provider observations. Its ten constructed corruption controls
+add no node requests, SDK ledger attempts or authentication credit. Export
+refuses an incomplete four-step trial.
+
+## Executed Testnet11 four-payout trial
+
+The [retained live packet](live-evidence/report.json) records the actual
+4,000-mojo funding coin at height 4,904,647 and four matching spends at heights
+4,904,700, 4,904,715, 4,904,742 and 4,904,760. Each pays 1,000 mojos to the
+existing test wallet; the terminal spend has no successor. Only the retained
+Rust-on batch-one artifact was used. Four prepared bundles have zero fees; the
+funding fee and fees of any containing chain bundle are not measured.
+
+Five HTTP push attempts concern four bundle IDs. The first ambiguous response
+body was not retained, and no rejection is inferred from its receipt. One
+explicit identical-bundle retry received success. A later provider snapshot
+race stopped the monitor before further progress; a fresh process reconciled
+the confirmed coin and resumed. The packet preserves both runtime contexts,
+that interruption, available acknowledgements and exact confirmation witnesses.
+This is finite provider-consistency evidence, not authenticated inclusion,
+submission causality, finality, source/binary authentication or compiler
+preservation. Shared Rust CLI/GUI integration and reorganization rollback
+remain open. No second wallet or wallet key is used by the permissionless steps.

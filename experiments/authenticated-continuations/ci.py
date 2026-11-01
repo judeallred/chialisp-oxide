@@ -29,12 +29,18 @@ PUBLICATION_FILES={
     'experiments/authenticated-continuations/test_live_workflow.py',
     'experiments/authenticated-continuations/recovery_step.py',
     'experiments/authenticated-continuations/test_recovery_step.py',
+    'experiments/authenticated-continuations/live_report.py',
+    'experiments/authenticated-continuations/test_live_report.py',
+    'experiments/authenticated-continuations/plan_costs.py',
+    'experiments/authenticated-continuations/test_plan_costs.py',
+    'experiments/authenticated-continuations/live-evidence/report.json',
     'experiments/authenticated-continuations/ci.py',
     'experiments/authenticated-continuations/README.md','docs/continuations.md',
     '.github/workflows/check.yml','www/package.json','www/astro.config.mjs',
     'www/src/integrations/shared-guide-headings.mjs',
     'www/src/content/docs/reference/continuations.mdx',
     'www/src/components/ContinuationEvidence.astro','www/src/lib/continuations.mjs',
+    'www/src/components/LiveContinuationEvidence.astro',
     'www/scripts/test-continuations.mjs','www/scripts/check-site.mjs',
 }
 TOOLS=(*sorted(check_retained.TOOLS),'chialisp-oxide-verifier')
@@ -100,7 +106,8 @@ def main():
     env['CHIALISP_CONTINUATION_PREPARE']=str(ledger_target/'debug/prepare-step')
     command('python',[sys.executable,'-B','-m','unittest','discover','-s',BASE,'-p','test_*.py'])
     python_log=(args.output/'python.stderr').read_text()
-    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['66'] and python_log.rstrip().endswith('OK'),'66 executed Python checks without skips')
+    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['85'] and python_log.rstrip().endswith('OK'),'85 executed Python checks without skips')
+    command('retained-live-report',[sys.executable,'-B',BASE/'live_report.py','--check',BASE/'live-evidence'])
     runner=ledger_target/'debug/chialisp-oxide-continuation-ledger'
     command('retained-vm-ir',[sys.executable,'-B',BASE/'check_retained.py','--replay-cli',args.tools/'chialisp-oxide',
         '--verifier',args.tools/'chialisp-oxide-verifier','--output',args.output/'retained-vm'])
@@ -135,11 +142,12 @@ def main():
         '--work',args.output/'fresh-source-controls','--target',args.output/'mutation-target','--ledger',runner],timeout=1200)
     a.require((args.output/'fresh-source-controls/ledger/report.json').read_bytes()==(BASE/'ledger/evidence/controls-report.json').read_bytes(),
         'fresh actual-source control SDK outcomes differ from independently expected retained observations')
+    command('retained-live-report-final',[sys.executable,'-B',BASE/'live_report.py','--check',BASE/'live-evidence'])
     a.require(snapshot()==before and {name:digest(args.tools/name) for name in TOOLS}==tools,'source/tool window changed during CI execution')
     report=dict(schema=1,status='passed',commit=commit,working_tree_dirty=bool(status.strip()),scope='Current-host finite execution; distinct from historical capture, binary authentication and compiler preservation',
         current_execution=dict(compiler=compiler,expected_host=args.expected_host,tools=tools,runner_sha256=digest(runner)),
         historical_capture=dict(compiler=historical['compiler'],tools=historical['tool_files'],verifier_sha256=historical['verifier_sha256']),
-        current_source_window=before,fresh=fresh,counts=dict(native_tests=7,python_tests=28,retained_primary_vm=108,
+        current_source_window=before,fresh=fresh,counts=dict(native_tests=7,python_tests=85,historical_python_controls=28,retained_primary_vm=108,
         base_sdk_attempts=45,source_control_native=8,source_control_primary_vm=16,source_control_sdk_attempts=16),
         repetition_scope='Fresh and retained reruns repeat the fixed case sets; they add no distinct coverage')
     (args.output/'receipt.json').write_text(json.dumps(report,indent=2)+'\n')
