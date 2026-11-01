@@ -20,10 +20,12 @@ import workflow as w
 
 ORIGIN = 'https://testnet11.api.coinset.org'
 ENDPOINTS = {'get_network_info', 'get_blockchain_state', 'get_coin_record_by_name',
-             'get_coin_records_by_parent_ids', 'get_puzzle_and_solution', 'push_tx'}
+             'get_coin_records_by_parent_ids', 'get_puzzle_and_solution', 'push_tx',
+             'get_mempool_item_by_tx_id'}
 SCOPE = 'fixed HTTPS provider assertions; no chain authentication or finality'
 PROTOCOL = 'chia-consensus-0.36.1/Testnet11/pre-hard-fork-2'
 MAX_BYTES = 1024*1024
+MAX_PUSH_RESPONSE = 65536
 
 
 class Inconclusive(ValueError):
@@ -60,11 +62,17 @@ def decode(raw):
 
 
 class CurlTransport:
-    def __init__(self):
+    def __init__(self, receipt_directory=None):
         self.receipts = []
+        self.receipt_directory = receipt_directory
 
     def call(self, endpoint, body):
         w.require(endpoint in ENDPOINTS, 'fixed endpoint allowlist')
+        if endpoint == 'push_tx':
+            w.require(self.receipt_directory is not None, 'push requires durable public response directory')
+            self.receipt_directory.mkdir(mode=0o700, parents=False, exist_ok=True)
+            w.require(self.receipt_directory.is_dir() and not self.receipt_directory.is_symlink(), 'private response directory')
+        response_limit = MAX_PUSH_RESPONSE if endpoint == 'push_tx' else MAX_BYTES
         w.require(len(self.receipts) < 32, 'HTTP receipt count bound before request')
         payload = w.encode(body)
         w.require(len(payload) <= 512*1024, 'bounded public request')
@@ -75,9 +83,9 @@ class CurlTransport:
                 result = bounded_process.run(['/usr/bin/curl', '--disable', '--silent', '--show-error',
                     '--max-time', '20', '--connect-timeout', '5', '--max-redirs', '0',
                     '--proto', '=https', '--proto-redir', '=https', '--noproxy', '*',
-                    '--max-filesize', str(MAX_BYTES), '--header', 'Content-Type: application/json',
+                    '--max-filesize', str(response_limit), '--header', 'Content-Type: application/json',
                     '--data-binary', '@'+str(path), '--write-out', '\n%{http_code}',
-                    ORIGIN+'/'+endpoint], timeout=25, stdout_limit=MAX_BYTES+4,
+                ORIGIN+'/'+endpoint], timeout=25, stdout_limit=response_limit+4,
                     stderr_limit=16384, check=True)
             except (OSError, RuntimeError, subprocess.SubprocessError) as error:
                 raise Inconclusive('provider HTTP transport/deadline/size failure') from error
@@ -85,6 +93,12 @@ class CurlTransport:
         self.receipts.append(dict(endpoint=endpoint, http_status=int(status), request_bytes=len(payload),
             request_sha256=hashlib.sha256(payload).hexdigest(), response_bytes=len(raw),
             response_sha256=hashlib.sha256(raw).hexdigest()))
+        if endpoint == 'push_tx':
+            # Record complete bounded bytes before interpreting an acknowledgement.
+            # A transport/size failure has no invented complete-body receipt.
+            record = dict(schema=1, scope=SCOPE, receipt=self.receipts[-1], response_hex=raw.hex())
+            name = self.receipts[-1]['request_sha256']+'-'+self.receipts[-1]['response_sha256']+'.json'
+            write_intent(self.receipt_directory/name, record)
         if status != b'200':
             raise Inconclusive('exact HTTP 200 required; redirects/retries forbidden')
         try:
@@ -360,6 +374,18 @@ def reconcile(journal, transport):
         return reconcile_locked(journal, transport, read_intent(journal))
 
 
+def rpc_bundle(bundle):
+    """RPC hex presentation only; stored streamable bytes and bundle ID stay fixed."""
+    value = json.loads(json.dumps(bundle))
+    for spend in value['coin_spends']:
+        for key in ('parent_coin_info', 'puzzle_hash'):
+            spend['coin'][key] = '0x'+spend['coin'][key]
+        for key in ('puzzle_reveal', 'solution'):
+            spend[key] = '0x'+spend[key]
+    value['aggregated_signature'] = '0x'+value['aggregated_signature']
+    return value
+
+
 def submit(journal, transport, expected, *, explicitly_submit=False, executable=None):
     begin(transport)
     w.require(explicitly_submit is True, 'explicit submit flag required')
@@ -392,7 +418,7 @@ def submit(journal, transport, expected, *, explicitly_submit=False, executable=
         intent['http_receipts'] = receipts(transport)
         write_intent(intent_path(journal), intent)
         try:
-            response = transport.call('push_tx', {'spend_bundle':intent['prepared']['spend_bundle']})
+            response = transport.call('push_tx', {'spend_bundle':rpc_bundle(intent['prepared']['spend_bundle'])})
             accepted = type(response) is dict and response.get('success') is True and response.get('status') == 'SUCCESS' and response.get('error') is None
             intent['status'] = 'submitted' if accepted else 'ambiguous'
             intent['http_receipts'] = receipts(transport)
@@ -419,7 +445,7 @@ def main():
         result = prepare(args.journal, args.executable, args.previous_transaction_height, args.revision_token)
     elif args.command == 'observe': result = observe_current(args.journal, CurlTransport())
     elif args.command == 'reconcile': result = reconcile(args.journal, CurlTransport())
-    else: result = submit(args.journal, CurlTransport(), args.revision_token, explicitly_submit=args.submit, executable=args.executable)
+    else: result = submit(args.journal, CurlTransport(args.journal.with_name(args.journal.name+'.responses')), args.revision_token, explicitly_submit=args.submit, executable=args.executable)
     print(json.dumps(result, sort_keys=True))
 
 

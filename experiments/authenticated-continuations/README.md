@@ -245,7 +245,7 @@ fees, typed outcomes and bounded claims, with display corruption controls.
 
 The independent `continuations` workflow job first builds its own four host
 tools, then invokes `ci.py`. The recipe runs normal Cargo fmt/test/Clippy for
-both unpublished libraries, the original 28 Python controls plus 29 host workflow, preparation and injected-provider checks, complete portable packet
+both unpublished libraries, the original 28 Python controls plus 38 host workflow, preparation, injected-provider and explicit-recovery checks, complete portable packet
 admission, actual retained VM/IR/SDK replays, and fresh current-host source,
 reference and mutation executions. It records this runner's independently
 queried compiler and tool hashes under `current_execution`; the original
@@ -398,12 +398,36 @@ have no automatic rollback; conflicts and incomplete/provider-failure data stop
 progress. Inspection or a later reviewed recovery policy is required. Zero fees
 provide no inclusion guarantee.
 
-Twelve injected-provider tests exercise confirmation, wrong network/children,
+Thirteen injected-provider tests exercise confirmation, wrong network/children,
 stale journals, timeout and uncertain push, crash recovery, later-spent children,
 zero confirmation height, transport bounds and unsupported protocol context.
 They use the actual local SDK preparation binary but make no real HTTP calls.
 They add no live-network evidence or simulator chain coverage. The CI recipe
-sets the explicit preparation executable and requires all 57 Python checks
-without skips. Actual provider probes recorded during development only read blockchain state
-and checked network identity through the adapter; no continuation funding or
-push occurred.
+sets the explicit preparation executable and requires all 66 Python checks
+without skips. The initial development probes only read provider state. The separate live
+trial now has a confirmed 4,000-mojo funding coin and an ambiguous submission;
+this does not yet establish a completed live chain.
+
+### Explicit identical-bundle recovery
+
+The normal submit command still refuses to retry a started push. The separate
+`recovery_step.py` requires `--retry-exact-bundle`, `--expected-bundle-id HEX`,
+`--journal FILE` and `--executable FILE`. It permits at most one explicit retry
+per bundle, preserving the old intent and provider context in immutable
+archives before preparing that same bundle again. It reconciles first, monitors
+an existing mempool entry without pushing, and otherwise requires fresh stable
+provider observations plus SDK preflight reproducing the identical bytes and
+children. Mempool absence never proves that the earlier push failed. The same
+coin cannot be spent twice; this command cannot change fees, outputs or keys.
+A crash after reserving the retry consumes it and requires inspection. Eight
+additional tests use actual local preflight and an injected provider; the mock
+effect counter is not new consensus or live execution evidence.
+
+RPC hex presentation follows the existing wallet adapter's `0x` convention;
+streamable bundle bytes and ID stay unchanged. Pushes now require a private
+response directory and retain complete bounded raw response bytes (up to 64 KiB)
+with their HTTP receipt before interpreting acknowledgement. Responses are
+separate from the journal's 1 MiB intent limit. A transport or size failure is
+inconclusive and does not acquire a complete-body receipt. The first live
+attempt predates raw response retention; its receipt hash is retained without
+inventing the missing response body or a reason for failure.

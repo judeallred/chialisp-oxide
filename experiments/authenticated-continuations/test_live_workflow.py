@@ -93,6 +93,10 @@ class LiveWorkflowTests(unittest.TestCase):
         self.provider.push_hook=check_started
         result=live.submit(self.path,self.provider,w.token(self.state),explicitly_submit=True,executable=self.exe)
         self.assertEqual(result['status'],'submitted')
+        pushed=next(body['spend_bundle'] for endpoint,body in self.provider.calls if endpoint=='push_tx')
+        self.assertEqual(pushed['aggregated_signature'],'0x'+self.intent['prepared']['spend_bundle']['aggregated_signature'])
+        self.assertEqual(pushed['coin_spends'][0]['puzzle_reveal'],'0x'+self.intent['prepared']['spend_bundle']['coin_spends'][0]['puzzle_reveal'])
+        self.assertEqual(result['prepared']['spend_bundle_hex'],self.intent['prepared']['spend_bundle_hex'])
         with self.assertRaisesRegex(ValueError,'already attempted'):
             live.submit(self.path,self.provider,w.token(self.state),explicitly_submit=True,executable=self.exe)
         self.assertEqual(sum(endpoint=='push_tx' for endpoint,_ in self.provider.calls),1)
@@ -199,6 +203,24 @@ class LiveWorkflowTests(unittest.TestCase):
 
 
 class TransportControls(unittest.TestCase):
+    def test_push_response_requires_durable_directory_and_retains_raw_error(self):
+        with self.assertRaisesRegex(ValueError,'durable'):
+            live.CurlTransport().call('push_tx',{})
+        raw=b'{"success":false,"error":"provider observation, not consensus evidence"}'
+        def transport(args,**kwargs):
+            self.assertEqual(kwargs['stdout_limit'],live.MAX_PUSH_RESPONSE+4)
+            return subprocess.CompletedProcess(args,0,raw+b'\n200',b'')
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'responses'
+            with patch.object(live.bounded_process,'run',side_effect=transport):
+                response=live.CurlTransport(path).call('push_tx',{})
+            self.assertFalse(response['success'])
+            files=list(path.iterdir());self.assertEqual(len(files),1)
+            record=live.decode(w.payload(files[0],live.MAX_BYTES))
+            self.assertEqual(bytes.fromhex(record['response_hex']),raw)
+            self.assertEqual(record['receipt']['response_sha256'],hashlib.sha256(raw).hexdigest())
+            self.assertEqual(record['receipt']['response_bytes'],len(raw))
+
     def test_unique_bounded_json(self):
         for raw in (b'{"success":true,"success":false}',b'{"x":NaN}',b'['*33+b']'*33,b' '*1048577):
             with self.assertRaises(ValueError):live.decode(raw)

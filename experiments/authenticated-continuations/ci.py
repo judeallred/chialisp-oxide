@@ -27,6 +27,8 @@ PUBLICATION_FILES={
     'experiments/authenticated-continuations/ledger/src/bin/prepare-step.rs',
     'experiments/authenticated-continuations/live_workflow.py',
     'experiments/authenticated-continuations/test_live_workflow.py',
+    'experiments/authenticated-continuations/recovery_step.py',
+    'experiments/authenticated-continuations/test_recovery_step.py',
     'experiments/authenticated-continuations/ci.py',
     'experiments/authenticated-continuations/README.md','docs/continuations.md',
     '.github/workflows/check.yml','www/package.json','www/astro.config.mjs',
@@ -98,7 +100,7 @@ def main():
     env['CHIALISP_CONTINUATION_PREPARE']=str(ledger_target/'debug/prepare-step')
     command('python',[sys.executable,'-B','-m','unittest','discover','-s',BASE,'-p','test_*.py'])
     python_log=(args.output/'python.stderr').read_text()
-    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['57'] and python_log.rstrip().endswith('OK'),'57 executed Python checks without skips')
+    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['66'] and python_log.rstrip().endswith('OK'),'66 executed Python checks without skips')
     runner=ledger_target/'debug/chialisp-oxide-continuation-ledger'
     command('retained-vm-ir',[sys.executable,'-B',BASE/'check_retained.py','--replay-cli',args.tools/'chialisp-oxide',
         '--verifier',args.tools/'chialisp-oxide-verifier','--output',args.output/'retained-vm'])
