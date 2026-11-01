@@ -278,3 +278,61 @@ build graph, source authentication or installed-binary authentication. The
 pinned installed compiler/standard library and consistent mutable build inputs
 remain assumptions. Fresh and retained reruns repeat fixed observations and do
 not add new distinct coverage or a compiler-preservation proof.
+
+## Offline funding plan and process recovery
+
+`workflow.py` adds a local public journal for the fixed batch-one teaching
+policy. It admits the complete retained Rust packet against the current declared
+sources before selecting either Rust mode, recomputes the entire 1..8 recipient
+queue and every transition, and binds the selected serialized artifact digest
+and module tree hash. This is retained consistency checking, not fresh compiler
+execution, artifact authentication or funding authorization.
+
+In a private working directory, create a JSON array containing 1..8 public
+recipient puzzle hashes (each exactly 64 lowercase hexadecimal characters):
+
+```sh
+python3 -B experiments/authenticated-continuations/workflow.py init \
+  --mode on --recipients /absolute/path/recipients.json \
+  --journal /absolute/path/new-journal.json
+python3 -B experiments/authenticated-continuations/workflow.py show \
+  --journal /absolute/path/new-journal.json
+```
+
+The output includes the complete plan, initial puzzle hash and required mojo
+amount, selected artifact identity and a revision token. `record-funding` takes
+that token and `--parent HEX` to **record** the public funding parent; it does
+not build, sign, submit or observe a funding transaction. The resulting expected
+coin must still be verified by a future network adapter before spending.
+
+`reconcile` takes `--journal`, `--revision-token` and `--observation FILE`.
+An observation has exactly `network` (`testnet11`), `coin_id` (the consumed
+current coin ID) and `children` (the complete ordered payout then successor
+records, with no successor at termination). Each child has exactly `parent_id`,
+`puzzle_hash`, `amount` and `coin_id`. The journal verifies every derived field
+and rejects stale revisions, missing/extra children, wrong amounts and replayed
+steps. Caller-supplied JSON does not establish that a coin was spent, confirmed
+or remains canonical. This command is an offline recovery adapter, with no
+network, signer or submission support and no live deployment credit.
+
+Writes use a nonblocking cooperating-writer lock, revision comparison, an
+fsynced temporary file and atomic replacement. Read inputs are bounded regular
+single-link files; symlinks and duplicate JSON keys are rejected. A failure after
+replacement means the commit may already be visible: inspect `show` before
+retrying. A private directory and cooperating writers are assumptions; this is
+not a hostile-directory or power-loss guarantee.
+
+The workflow tests include separate CLI processes reconstructing their state
+from disk, malformed inputs, changed artifact/queue identities, stale writers,
+replayed observations and write-failure controls. A separate host test admits
+and reconciles all four steps in each retained Rust SDK lane. Those retained
+observations add no new SDK attempts. Run:
+
+```sh
+python3 -B -m unittest discover -s experiments/authenticated-continuations \
+  -p 'test_workflow*.py'
+```
+
+Shared Rust CLI/GUI integration, live confirmation/reorg handling, persisted
+submission intent and ambiguous-push recovery remain the next boundary before
+a Testnet11 continuation trial. The policy still supports only batch size one.

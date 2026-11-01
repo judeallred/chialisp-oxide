@@ -19,6 +19,9 @@ import check_ledger
 ROOT=Path(__file__).resolve().parents[2]
 BASE=Path(__file__).resolve().parent
 PUBLICATION_FILES={
+    'experiments/authenticated-continuations/workflow.py',
+    'experiments/authenticated-continuations/test_workflow.py',
+    'experiments/authenticated-continuations/test_workflow_ledger.py',
     'experiments/authenticated-continuations/ci.py',
     'experiments/authenticated-continuations/README.md','docs/continuations.md',
     '.github/workflows/check.yml','www/package.json','www/astro.config.mjs',
@@ -88,7 +91,7 @@ def main():
     a.require(native_results and sum(row[0] for row in native_results)==7 and all(row[1:]==(0,0) for row in native_results),'seven executed native tests, no failures or ignored cases')
     command('python',[sys.executable,'-B','-m','unittest','discover','-s',BASE,'-p','test_*.py'])
     python_log=(args.output/'python.stderr').read_text()
-    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['28'] and python_log.rstrip().endswith('OK'),'28 executed Python checks without skips')
+    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['40'] and python_log.rstrip().endswith('OK'),'40 executed Python checks without skips')
     command('ledger-build',['cargo','build','--manifest-path',BASE/'ledger/Cargo.toml','--locked'],target=ledger_target,timeout=900)
     runner=ledger_target/'debug/chialisp-oxide-continuation-ledger'
     command('retained-vm-ir',[sys.executable,'-B',BASE/'check_retained.py','--replay-cli',args.tools/'chialisp-oxide',
