@@ -245,7 +245,7 @@ fees, typed outcomes and bounded claims, with display corruption controls.
 
 The independent `continuations` workflow job first builds its own four host
 tools, then invokes `ci.py`. The recipe runs normal Cargo fmt/test/Clippy for
-both unpublished libraries, all 28 Python controls, complete portable packet
+both unpublished libraries, the original 28 Python controls plus 29 host workflow, preparation and injected-provider checks, complete portable packet
 admission, actual retained VM/IR/SDK replays, and fresh current-host source,
 reference and mutation executions. It records this runner's independently
 queried compiler and tool hashes under `current_execution`; the original
@@ -336,3 +336,74 @@ python3 -B -m unittest discover -s experiments/authenticated-continuations \
 Shared Rust CLI/GUI integration, live confirmation/reorg handling, persisted
 submission intent and ambiguous-push recovery remain the next boundary before
 a Testnet11 continuation trial. The policy still supports only batch size one.
+
+### Offline permissionless step preparation
+
+Build the separate host binary, then supply a recorded public funding coin:
+
+```sh
+cargo build --locked --manifest-path experiments/authenticated-continuations/ledger/Cargo.toml \
+  --bin prepare-step --target-dir target/continuation-prepare
+python3 -B experiments/authenticated-continuations/prepare_step.py \
+  --journal /absolute/path/journal.json \
+  --executable target/continuation-prepare/debug/prepare-step \
+  --previous-transaction-height 0
+CHIALISP_CONTINUATION_PREPARE="$PWD/target/continuation-prepare/debug/prepare-step" \
+  python3 -B -m unittest discover -s experiments/authenticated-continuations -p 'test_*.py'
+```
+
+The wrapper repeats complete retained admission and checks journal/executable
+stability. The Rust binary independently reconstructs the entire queue and
+coin lineage from the funding parent, admits only the pinned retained Rust
+on/off module bytes, derives the reveal and opening, and checks the complete
+payout/successor set using an actual SDK simulator submission. This inserts the
+supplied public coin into a private simulator at height zero; it establishes no
+network coin existence, confirmation or unspent status. The separate generator
+measurements use the explicitly supplied previous transaction height under the
+measurement helper's supported protocol range. Both generator encodings,
+charged bytes and total costs remain distinct from this simulator preflight.
+
+The prepared spend is permissionless, zero-fee, and uses the empty aggregate
+signature. It does not require or accept a wallet key. No transaction is sent;
+zero fees do not guarantee inclusion. A future network adapter must check the
+actual chain coin and protocol, persist submission intent, recheck the journal
+revision, and reconcile uncertain submission before retrying. The existing
+payment funding and fee-sponsor APIs are not widened by this experiment.
+
+### Experimental fixed-provider submission adapter
+
+`live_workflow.py` connects the same checked journal and preparation binary to
+fixed-origin Testnet11 Coinset HTTPS. Its provider checks are assertions, not
+chain authentication or finality. This is still separate from the shared Rust
+CLI/GUI. It does not fund coins, sign wallet transactions or sponsor fees.
+
+After recording a known public funding parent, `observe --journal FILE` checks
+the expected coin against a synced provider and brackets reads with a stable
+tip. `prepare --journal FILE --executable FILE --previous-transaction-height N
+--revision-token HEX` persists the exact public bundle and an immutable step
+snapshot. `submit --journal FILE --executable FILE --revision-token HEX
+--submit` is the only command that can send a transaction. It repeats actual
+SDK preflight using the freshly observed previous transaction block height,
+checks the exact stored bytes, and saves `push_started` before sending. No
+secret, wallet credential or Git signing credential is accepted.
+
+Once a push starts, the adapter never automatically pushes it again, including
+a timeout, missing coin or absent mempool result. Use `reconcile --journal FILE`
+to check the actual spent reveal/solution and complete child set at a consistent
+creation height. The companion intent retains the observed confirmation snapshot
+and available bounded HTTP request/response byte counts and digests; these are provider
+observations, not execution authentication. Later-spent payouts are allowed. Recovery handles a journal
+step committed before its companion intent status was updated. Reorganizations
+have no automatic rollback; conflicts and incomplete/provider-failure data stop
+progress. Inspection or a later reviewed recovery policy is required. Zero fees
+provide no inclusion guarantee.
+
+Twelve injected-provider tests exercise confirmation, wrong network/children,
+stale journals, timeout and uncertain push, crash recovery, later-spent children,
+zero confirmation height, transport bounds and unsupported protocol context.
+They use the actual local SDK preparation binary but make no real HTTP calls.
+They add no live-network evidence or simulator chain coverage. The CI recipe
+sets the explicit preparation executable and requires all 57 Python checks
+without skips. Actual provider probes recorded during development only read blockchain state
+and checked network identity through the adapter; no continuation funding or
+push occurred.

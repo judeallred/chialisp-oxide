@@ -22,6 +22,11 @@ PUBLICATION_FILES={
     'experiments/authenticated-continuations/workflow.py',
     'experiments/authenticated-continuations/test_workflow.py',
     'experiments/authenticated-continuations/test_workflow_ledger.py',
+    'experiments/authenticated-continuations/prepare_step.py',
+    'experiments/authenticated-continuations/test_prepare_step.py',
+    'experiments/authenticated-continuations/ledger/src/bin/prepare-step.rs',
+    'experiments/authenticated-continuations/live_workflow.py',
+    'experiments/authenticated-continuations/test_live_workflow.py',
     'experiments/authenticated-continuations/ci.py',
     'experiments/authenticated-continuations/README.md','docs/continuations.md',
     '.github/workflows/check.yml','www/package.json','www/astro.config.mjs',
@@ -89,10 +94,11 @@ def main():
     native_log=(args.output/'prototype-test.stdout').read_text()
     native_results=[tuple(map(int,row)) for row in re.findall(r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;',native_log)]
     a.require(native_results and sum(row[0] for row in native_results)==7 and all(row[1:]==(0,0) for row in native_results),'seven executed native tests, no failures or ignored cases')
+    command('ledger-build',['cargo','build','--manifest-path',BASE/'ledger/Cargo.toml','--locked'],target=ledger_target,timeout=900)
+    env['CHIALISP_CONTINUATION_PREPARE']=str(ledger_target/'debug/prepare-step')
     command('python',[sys.executable,'-B','-m','unittest','discover','-s',BASE,'-p','test_*.py'])
     python_log=(args.output/'python.stderr').read_text()
-    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['40'] and python_log.rstrip().endswith('OK'),'40 executed Python checks without skips')
-    command('ledger-build',['cargo','build','--manifest-path',BASE/'ledger/Cargo.toml','--locked'],target=ledger_target,timeout=900)
+    a.require(re.findall(r'Ran (\d+) tests?',python_log)==['57'] and python_log.rstrip().endswith('OK'),'57 executed Python checks without skips')
     runner=ledger_target/'debug/chialisp-oxide-continuation-ledger'
     command('retained-vm-ir',[sys.executable,'-B',BASE/'check_retained.py','--replay-cli',args.tools/'chialisp-oxide',
         '--verifier',args.tools/'chialisp-oxide-verifier','--output',args.output/'retained-vm'])
