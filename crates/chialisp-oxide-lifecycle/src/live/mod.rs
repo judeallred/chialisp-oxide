@@ -4,6 +4,7 @@
 mod bundle;
 pub(crate) mod cat;
 mod cat_live;
+pub mod continuation;
 use bundle::decode_bundle;
 mod journal;
 pub use journal::*;

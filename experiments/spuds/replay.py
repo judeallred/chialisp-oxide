@@ -66,6 +66,9 @@ def vectors():
         ('pair holder key',normal.replace('0x'+fixture['holder_key'],'(1)',1)),
         ('pair next payout',normal.replace('0x'+fixture['next_payout'],'(1)',1)),
     ]:add(label,solution)
+    for row in rows:
+        if row['label'] in ('extra environment field','extra terms'):
+            row['failure_by_mode']={'rust_off':dict(kind='program',code='invalid_op_arg')}
     add('wrong selected module accepted; initial host admission required',env(module='bb'*32),conditions(module=b'\xbb'*32))
     add('claim ignores decoded next fields',env(take='()',next_payout='99'*32),conditions(take=False,next_payout=b'\x99'*32))
     add('invalid BLS key bytes only produce conditions; consensus required',env(next_key='00'*48),conditions(next_key=b'\0'*48))
@@ -74,12 +77,12 @@ def vectors():
 
 
 def execute(cli, programs, output):
-    if set(programs) != {'chialisp'}:raise ValueError('reference-only lane; no Rust artifact admitted')
+    if set(programs) not in ({'chialisp'},{'chialisp','rust_on','rust_off'}):raise ValueError('complete three-mode set or explicit reference-only execution required')
     output.mkdir(parents=True,exist_ok=False)
     rows=vectors()
     (output/'vectors.json').write_text(json.dumps(rows,indent=2)+'\n')
     solutions=output/'solutions.json';solutions.write_text(json.dumps([row['solution'] for row in rows]))
-    report=dict(schema=1,scope='finite primary VM observations, no SDK spends/authentication/proof',cases=len(rows),programs={})
+    report=dict(schema=1,scope='finite primary VM observations, no SDK spends/authentication/proof',cases=len(rows),programs={},mode_scope='reference_only' if set(programs)=={'chialisp'} else 'three_mode')
     for mode,path in programs.items():
         payload=path.read_bytes()
         result=bounded_process.run([cli.resolve(),'run-batch',path.resolve(),'--solutions',solutions.resolve(),'--max-cost','10000000'],check=True,timeout=90)
@@ -101,7 +104,16 @@ def execute(cli, programs, output):
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--cli',type=Path,required=True)
+    parser.add_argument('--rust-on',type=Path)
+    parser.add_argument('--rust-off',type=Path)
+    parser.add_argument('--reference-only',action='store_true')
     parser.add_argument('--reference',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
-    print(json.dumps(execute(args.cli,dict(chialisp=args.reference),args.output),indent=2))
+    if args.reference_only:
+        if args.rust_on or args.rust_off:parser.error('reference-only forbids Rust programs')
+        programs=dict(chialisp=args.reference)
+    else:
+        if not args.rust_on or not args.rust_off:parser.error('both Rust modes required without reference-only')
+        programs=dict(rust_on=args.rust_on,rust_off=args.rust_off,chialisp=args.reference)
+    print(json.dumps(execute(args.cli,programs,args.output),indent=2))

@@ -143,10 +143,16 @@ fn excessive_inlined_continuations_retry_the_exact_previous_optimized_program() 
         candidate.functions.is_empty(),
         "control must actually inline and prune"
     );
-    // This input is already inlined: its new plan has no previous function
-    // table to recover. The same compiler must expose the real resource limit.
-    let error = compile(&candidate, true).unwrap_err();
-    assert!(error.to_string().contains("CLVM expansion nesting limit"));
+    // The already-inlined candidate has no previous function table to recover.
+    // Its compiler-owned strict continuations now fit the bounded code table.
+    let chunked = compile(&candidate, true).unwrap();
+    for input in [atom(&[]), atom(&[0]), atom(&[0, 0, 1])] {
+        accepted(run(&chunked, &input, FINITE_LIMIT), &atom(&[]));
+    }
+    failed(
+        run(&chunked, &pair(&atom(&[]), &atom(&[])), LIMIT),
+        FailureCode::Raise,
+    );
 
     let on = compile(&source, true).expect("optional inlining must not lose the previous route");
     let previous = hex::decode(include_str!("fixtures/inlining-limit-405.hex").trim()).unwrap();

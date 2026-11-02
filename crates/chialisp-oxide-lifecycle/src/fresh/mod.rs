@@ -17,6 +17,7 @@ use std::{
 };
 
 pub(crate) mod cat;
+pub mod continuation;
 mod oracle;
 mod process;
 mod receipt;

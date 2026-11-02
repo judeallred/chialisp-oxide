@@ -661,9 +661,9 @@ jobs:
           name: xchandles-fresh-linux-processes
           path: ${{ runner.temp }}/xchandles-process-check/
   continuations:
-    name: "Continuation prototype: native, compiler, VM and SDK"
+    name: "Stateful prototypes: native, compiler, VM and SDK"
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       CARGO_BUILD_JOBS: 2
     steps:
@@ -676,12 +676,15 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target/continuations-ci/host
-          key: ${{ runner.os }}-continuations-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock', 'experiments/authenticated-continuations/**/Cargo.lock') }}
+          key: ${{ runner.os }}-continuations-${{ hashFiles('rust-toolchain.toml', 'Cargo.lock', 'experiments/authenticated-continuations/**/Cargo.lock', 'experiments/continuation-batches/Cargo.lock', 'experiments/spuds/Cargo.lock', 'experiments/stateful-ledger/Cargo.lock') }}
       - name: Fetch exact locked host, prototype and SDK dependencies
         run: |
           cargo fetch --locked
           cargo fetch --locked --manifest-path experiments/authenticated-continuations/Cargo.toml
           cargo fetch --locked --manifest-path experiments/authenticated-continuations/ledger/Cargo.toml
+          cargo fetch --locked --manifest-path experiments/continuation-batches/Cargo.toml
+          cargo fetch --locked --manifest-path experiments/spuds/Cargo.toml
+          cargo fetch --locked --manifest-path experiments/stateful-ledger/Cargo.toml
       - name: Finish independent host tools before any driver execution
         run: |
           cargo build --locked --target-dir target/continuations-ci/host \
@@ -693,6 +696,12 @@ jobs:
             --tools "$GITHUB_WORKSPACE/target/continuations-ci/host/debug" \
             --expected-host x86_64-unknown-linux-gnu \
             --output "$GITHUB_WORKSPACE/target/continuations-ci/run"
+      - name: Execute fresh batch-two and spuds source, mutation and signed SDK evidence
+        run: |
+          python3 -B experiments/stateful-ledger/ci.py \
+            --tools "$GITHUB_WORKSPACE/target/continuations-ci/host/debug" \
+            --expected-host x86_64-unknown-linux-gnu \
+            --output "$GITHUB_WORKSPACE/target/continuations-ci/stateful"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -703,6 +712,8 @@ jobs:
             !target/continuations-ci/run/ledger-target/**
             !target/continuations-ci/run/source-target/**
             !target/continuations-ci/run/mutation-target/**
+            target/continuations-ci/stateful/
+            !target/continuations-ci/stateful/**/*-target/**
   docs:
     runs-on: ubuntu-latest
     steps:

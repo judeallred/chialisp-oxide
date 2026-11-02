@@ -1,0 +1,104 @@
+[
+  {
+    "argv": [
+      "rustup",
+      "run",
+      "nightly-2026-07-14",
+      "rustc",
+      "-vV"
+    ],
+    "exit_code": 0,
+    "label": "compiler",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--check"
+    ],
+    "exit_code": 0,
+    "label": "runner-fmt",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "label": "runner-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "clippy",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "label": "runner-clippy",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger",
+      "-p",
+      "test_*.py"
+    ],
+    "exit_code": 0,
+    "label": "reader-python",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/ledger/input.json",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/ledger/report.json"
+    ],
+    "exit_code": 0,
+    "label": "sdk",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/ledger/input.json",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/ledger/report-rerun.json"
+    ],
+    "exit_code": 0,
+    "label": "sdk-rerun",
+    "status": "completed"
+  }
+]

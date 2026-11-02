@@ -1,0 +1,921 @@
+[
+  {
+    "argv": [
+      "rustup",
+      "run",
+      "nightly-2026-07-14",
+      "rustc",
+      "-vV"
+    ],
+    "exit_code": 0,
+    "label": "compiler",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/artifacts/rust-on/77587-1793594447398255000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/artifacts/rust-off/77747-1793594448317809000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "amount-original-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/artifacts/rust-on/78085-1793594450390344000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/artifacts/rust-off/78249-1793594451382099000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/amount/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "amount-mutant-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "age-original-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "age-original-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "age-original-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "age-original-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/artifacts/rust-on/78649-1793594453423756000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "age-original-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/artifacts/rust-off/78808-1793594454359739000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "age-original-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/artifacts/rust-on/79156-1793594456423457000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/artifacts/rust-off/79319-1793594457376856000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/age/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "age-mutant-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/artifacts/rust-on/79660-1793594459362448000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/artifacts/rust-off/79818-1793594460265035000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-original-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/artifacts/rust-on/80162-1793594462278954000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/artifacts/rust-off/80327-1793594463265233000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "nextstate-mutant-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/artifacts/rust-on/80675-1793594465431439000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/artifacts/rust-off/80931-1793594466398559000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "announcement-original-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/artifacts/rust-on/81272-1793594468949321000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/artifacts/rust-off/81433-1793594469946844000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/announcement/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "announcement-mutant-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/artifacts/rust-on/81769-1793594471945815000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/artifacts/rust-off/81932-1793594472880860000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/original/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-original-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/Cargo.toml",
+      "--locked",
+      "--bin",
+      "mutation-probe"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/artifacts/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/artifacts/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/artifacts/rust-on/82268-1793594474878345000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-rust_on-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "run-batch",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/artifacts/rust-off/82433-1793594475819434000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--solutions",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/signature_binding/mutant/solutions.json",
+      "--max-cost",
+      "100000000"
+    ],
+    "exit_code": 0,
+    "label": "signature_binding-mutant-rust_off-vm",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/stateful-ledger/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--",
+      "--mutations",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/sdk-input.json",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/sdk-report.json"
+    ],
+    "exit_code": 0,
+    "label": "sdk",
+    "status": "completed"
+  }
+]

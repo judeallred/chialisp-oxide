@@ -9,3 +9,8 @@ corpus/upstream/** -whitespace
 # and a deliberately whitespace-only oversized checkpoint refusal input.
 corpus/xchandles-premine-history-v2/** -whitespace
 corpus/xchandles-simulator/** -whitespace
+
+# Preserve exact Cargo stdout, including its terminal blank line.
+experiments/continuation-batches/success-evidence/native.stdout whitespace=-blank-at-eof
+experiments/spuds/success-evidence/native.stdout whitespace=-blank-at-eof
+experiments/stateful-ledger/evidence/runner-native.stdout whitespace=-blank-at-eof

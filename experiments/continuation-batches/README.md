@@ -5,19 +5,25 @@ is a new original teaching policy for issue #16. It is separate from the
 published one-payout experiment. Nothing here changes its source, artifacts,
 measurements, journal format or live workflow.
 
-This checkpoint contains native Rust and independent Python recipe/vector tests,
-an independently compiled Chialisp reference, and 59 executed primary-VM
-observations of that reference alone. **The current Rust compiler cannot emit
-this combined policy under its unchanged expansion-depth budget.** The public
-`cargo chialisp-oxide check` and both optimized/unoptimized builds fail with
-`CLVM expansion nesting limit`; no Rust CLVM artifact or complete source-aware
-bundle is available. Native Rust success is not CLVM admission.
+Current [successful capture](success-evidence/receipt.json) admits this real
+Cargo export in both Rust modes and executes 59 primary-VM vectors per mode
+beside the independent Chialisp reference. The module sizes are 25,691 bytes
+with optimization, 36,072 without, and 1,770 for Chialisp. Native Rust tests,
+compiler admission, template VM observations and SDK consensus are separate lanes.
 
-The retained [boundary receipt](evidence/receipt.json), actual diagnostic IR,
-command logs and single-lane reference observations record that distinction.
-Source-mutation controls, Rust VM execution, complete SDK spends and cost
-comparisons remain open. There is no claim that batching improves bytes, cost
-or fees, and no generic continuation API or compiler splitting feature.
+The shared [ledger report](../stateful-ledger/evidence/report.json) executes
+complete two/four-step batch chains and immutable four/eight-step batch-one
+baselines for identical pair-distinct queues. Every accepted bundle has actual
+uncompressed/backreference generator, BLS and exact-budget controls. Optimized
+Rust batch-two costs more in both encodings; unoptimized Rust improves raw
+generator cost but regresses with backreferences. No universal gain is claimed.
+
+Four [actual-source controls](source-controls/receipt.json) exercise second
+opening, amount, terminal and successor rules, each funded under its own reveal.
+The older [boundary receipt](evidence/receipt.json) remains an unchanged
+historical unsupported-compiler checkpoint, checked against its exact frozen
+source snapshot. It grants no current-source or current compiler-boundary credit.
+There is no generic continuation API, standard wallet integration or new live test.
 
 ## Contract
 
@@ -49,8 +55,8 @@ budget. A terminal step emits no continuation coin.
 Output has type
 `Cons<AssertMyAmount, Cons<CreateCoin, Cons<CreateCoin, Option<CreateCoin>>>>`:
 three conditions at termination and four otherwise. This uses the existing
-output-only optional encoding in source; actual compiler emission is blocked by
-the current expansion-depth limit. Unsupported inputs still need executed strict-ABI VM controls.
+output-only optional encoding in the emitted version-6 program. Executed strict-ABI
+vectors reject malformed, padded, improper and oversized input trees in both Rust modes.
 
 ## Deliberate difference from batch one
 
@@ -62,8 +68,8 @@ again in another batch because that payout has a different parent.
 
 Batch one can pay the same recipient in consecutive separate spends. Batch two
 therefore supports a narrower queue domain; it is not a behavior-preserving
-replacement. Odd queue lengths reject. The planned four-identical-recipient
-live trial remains a batch-one workflow and is not a batch-two fixture.
+replacement. Odd queue lengths reject. The four-identical-recipient
+live trial is a batch-one workflow and is not a batch-two fixture.
 
 As in batch one, the template cannot intrinsically verify its module-hash field
 against its actual selected artifact. A native test retains an accepted wrong
@@ -113,64 +119,64 @@ python3 -B -m unittest discover -s experiments/continuation-batches -p 'test_*.p
 
 Eight native tests include full 2/4/6/8-item queue replays, exact payout and
 successor fields, terminal transitions, count/budget tables, changed openings,
-duplicate recipients and the selected-module boundary. Ten Python recipe/vector
+duplicate recipients and the selected-module boundary. Fourteen Python recipe/vector/reader
 tests check the independent fixed fixtures, complete plans, adversarial openings
-and raw-environment construction. These are host observations. The separate
-reference lane executes 59 actual primary-VM cases: 11 accepted outputs (including
-the wrong-module template counterexample) and 48 typed program failures. It is
-not Rust VM execution or complete SDK transaction evidence.
+and raw-environment construction. These are host observations. Each of the three primary-VM modes executes
+59 cases: 11 accepted exact outputs and 48 program rejections. Five extra-tail
+cases deliberately retain Rust-off `InvalidOpArg` versus reference/on `Raise`;
+no resource or infrastructure failure receives program-rejection credit.
 
-## Reproduce the current compiler boundary
+## Reproduce and read current evidence
 
-Build the repository host tools first and keep them unchanged during capture.
-Use a fresh output directory; the script never rebuilds the shared driver:
+Build the pinned host tools first, then keep their compiler implementation and
+binaries unchanged during capture. The shared gate executes fresh complete
+Cargo bundles, native checks, all three primary-VM modes, source controls and
+two complete SDK runs whose reports must be byte-identical:
 
 ```sh
-python3 -B experiments/continuation-batches/capture_boundary.py --tools target/debug --output target/continuation-batches-boundary-new
+python3 -B experiments/stateful-ledger/ci.py --tools target/debug --expected-host aarch64-apple-darwin --output target/stateful-capture-new
+python3 -B experiments/stateful-ledger/ci.py --check experiments/stateful-ledger/evidence/receipt.json
+python3 -B experiments/continuation-batches/check_boundary.py
 ```
 
-This reruns native checks, the public compiler check and both attempted builds.
-The expected result is the same expansion-depth diagnostic, with actual Rust IR
-retained solely for diagnosis. It then independently compiles the Chialisp
-module and executes its 59 vectors. `boundary_observed` is an observed compiler
-limitation, **not** a successful Rust port. Source/tool hash consistency and
-retained command declarations do not authenticate executions or prove compiler
-preservation. The old one-payout evidence and compiler budgets remain unchanged.
+Use the actual pinned compiler host on other platforms. `capture_success.py` and
+`capture_mutations.py` provide separate capture/read-only `--check` entrypoints.
+Readers check complete current source inventories, actual compiler-read source
+attachments, exact native/VM/SDK witnesses and corruption controls. They do not
+authenticate executions or prove compiler preservation.
 
-The original readable source remains intact after failed local attempts to add
-ordinary policy frames and spell the standard curry hash in named local steps.
-None admitted the combined program under the existing limit; no compiler
-fallback eligibility, bounds or policy checks were changed. Local diagnostic
-attempts remain under `target/continuation-batches-capture-a01` through `a04`.
-The retained checkpoint re-executes the original source in both modes.
+## Measured complete chains and source controls
 
-The replay data includes proposed Rust-off ABI-tail expectations for future
-comparisons. They are expectations only; no Rust mode was executed here. The
-report credits only the `chialisp` program. Its module is 1,770 serialized bytes;
-accepted terminal vectors cost 32,420 and nonterminal vectors 66,468 primary-VM
-units. These are template VM measurements, not generator, transaction, block or
-fee measurements, and establish no improvement over batch one.
+Both queues start with exactly 1,000 mojos per recipient, pay every recipient
+exactly once and end without a successor. Normal accepted chains pay no fee.
+The fixture has no reserve. Parent-linked coin names and all resulting children
+are checked independently; they cannot match across different selected modules.
 
-## Required comparison before making batching claims
+For four payouts, batch-two minus batch-one total generator cost is:
 
-First resolve the compiler admission boundary with reviewed semantics and
-regressions, retaining the existing limits. Then extract this real Cargo export
-in both modes, retain complete source-aware bundles, and execute the independent
-reference alongside Rust on malformed/padded/improper-tree/oversized and policy
-adversarial environments. Do not remove guards to fit the export. Add actual
-source mutants for opening, amount, terminal and successor enforcement.
+- Chialisp: -33,925,160 uncompressed; -32,029,160 with backreferences.
+- Rust on: +227,292,802 uncompressed; +63,948,802 with backreferences.
+- Rust off: -1,216,285,258 uncompressed; +257,194,742 with backreferences.
 
-Then replay the immutable batch-one module bytes freshly beside batch two using
-the same pinned SDK, consensus protocol and previous transaction height. Use the
-same ordered pair-distinct four- and eight-recipient queues, exact initial
-budget, zero fees and no reserve. Both Rust modes and independent Chialisp remain
-separate lanes. Compare the payout sequence and amounts, remaining budget and
-completion; coin IDs cannot match across different modules and parent chains.
+For eight payouts, the respective deltas are -67,850,312 / -64,058,312 for
+Chialisp, +454,580,577 / +127,892,577 for Rust on, and -2,432,567,743 /
++514,392,257 for Rust off. The report retains every step and whole-chain charged
+byte, execution, condition, byte and total cost. For example, four-payout Rust
+on adds 19,250 uncompressed charged bytes or 5,638 backreference bytes despite
+using fewer spends. These pinned simulator measurements are not fee estimates
+or a claim about current live block admission.
 
-Retain per-step and whole-chain generator charged bytes, execution/condition/
-byte/total costs for both uncompressed and backreference encodings, BLS checks,
-number of submissions and fees. Check full expected children after each accepted
-SDK spend and exact typed outcomes/full simulator equality for appropriate
-negative submissions. Report regressions as well as gains. Two hashes and two
-payouts per spend may enlarge an individual module or increase step cost; fewer
-spends alone is not a measured total-cost improvement.
+The four source controls have eight native observations, sixteen primary-VM
+observations and sixteen SDK submissions across original/mutant and both Rust
+modes: ten accept, two reject with exact `AssertMyAmountFailed`, and four return
+explicitly inconclusive runtime umbrellas without policy-rejection credit.
+Original opening/terminal failures separately have executed typed primary-VM
+`Raise` observations. Every rejected SDK submission preserves the full simulator.
+Accepted mutants demonstrate finite policy errors ordinary Rust permits; they
+are not compiler security proofs.
+
+The unchanged historical `capture_boundary.py` reproduces only its old
+unsupported-compiler contract with the corresponding old tools/source snapshot.
+It is not the command for reproducing current successful emission. The current
+reviewed compiler change preserves the existing budgets and earlier successful
+artifacts; no policy guard was removed to emit the real source.

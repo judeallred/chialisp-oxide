@@ -1,0 +1,10 @@
+use chialisp_oxide::{PuzzleHash,Message32};
+fn probe()->Vec<u8>{let x=chialisp_oxide_continuation_batches::step((PuzzleHash([170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170,170]),Message32([126,18,70,22,152,78,188,100,105,123,194,205,76,154,215,78,165,144,124,232,165,223,144,15,249,126,132,44,254,100,195,196]),4),((PuzzleHash([17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17]),Message32([169,156,208,213,48,56,135,180,178,51,163,204,83,7,253,242,9,195,207,26,145,29,188,72,134,212,67,98,179,52,220,193])),(PuzzleHash([34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34]),Message32([127,253,208,196,68,235,231,81,244,72,46,117,248,73,156,255,187,176,220,141,98,232,38,80,133,113,1,59,75,96,180,212]))));
+        let mut cs=vec![c2(x.first.0.into(),x.first.1.mojos()),create(x.rest.first.0.into(),&x.rest.first.1.0,x.rest.first.2.mojos()),create(x.rest.rest.first.0.into(),&x.rest.rest.first.1.0,x.rest.rest.first.2.mojos())];if let Some(c)=x.rest.rest.rest{cs.push(create(c.0.into(),&c.1.0,c.2.mojos()));}list(cs)}
+
+fn atom(v:&[u8])->Vec<u8>{if v.len()==1&&v[0]<128{return v.to_vec()}if v.len()<64{let mut out=vec![128+v.len() as u8];out.extend(v);out}else{panic!("finite atom bound")}}
+fn uint(v:u64)->Vec<u8>{let b=v.to_be_bytes();let i=b.iter().position(|x|*x!=0).unwrap_or(8);let mut x=b[i..].to_vec();if x.first().is_some_and(|x|x&128!=0){x.insert(0,0);}atom(&x)}
+fn list(xs:Vec<Vec<u8>>)->Vec<u8>{let mut t=vec![128];for x in xs.into_iter().rev(){let mut p=vec![255];p.extend(x);p.extend(t);t=p;}t}
+fn c2(op:u64,v:u64)->Vec<u8>{list(vec![uint(op),uint(v)])}
+fn create(op:u64,p:&[u8],v:u64)->Vec<u8>{list(vec![uint(op),atom(p),uint(v)])}
+fn main(){let result=std::panic::catch_unwind(probe);match result{Ok(v)=>{print!("{{\"status\":\"accepted\",\"output_hex\":\"");for b in v{print!("{b:02x}");}println!("\"}}");},Err(_)=>println!("{{\"status\":\"rejected\"}}")}}

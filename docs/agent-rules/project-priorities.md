@@ -22,7 +22,10 @@
   observer remains separate from those adapters. The separate live CLI and loopback GUI have executed Testnet11 funding,
   submission, monitoring and interruption recovery. Closed CAT issuance and Sage
   discovery also have an executed trial; CAT wallet transfer and complete issue
-  acceptance remain open. Local fixtures need no wallet.
+  acceptance remain open. The shared Rust adapters now include a purpose-specific
+  batch-one continuation session with fresh source checks, standard-wallet funding,
+  fee sponsorship and durable recovery. Its local simulator evidence is separate
+  from the earlier Python Testnet11 trial. Local fixtures need no wallet.
 - Keep #14's counter and fixed two-name registry demonstrations separate from
   canonical protocol ports. The registry adds actual SLOT creator/current-spender
   bindings, isolated consumed-slot rejection and own-root Rust omission controls;

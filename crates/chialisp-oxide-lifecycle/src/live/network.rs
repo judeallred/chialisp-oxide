@@ -367,6 +367,33 @@ impl Testnet11Client {
             header_hash: hash32(&state["peak"]["header_hash"])?,
         })
     }
+    /// Explicit protocol context for continuation preparation, from the same
+    /// synced peak response. Missing previous-transaction context is inconclusive.
+    pub fn continuation_tip(&mut self) -> Result<(LiveTip, u32)> {
+        let value = self.call(Endpoint::BlockchainState, &json!({}))?;
+        success(&value)?;
+        let state = &value["blockchain_state"];
+        if state["sync"]["synced"].as_bool() != Some(true)
+            || state["sync"]["sync_mode"].as_bool() != Some(false)
+        {
+            return Err(error(
+                ErrorKind::Inconclusive,
+                "provider is not explicitly synced",
+            ));
+        }
+        let tip = LiveTip {
+            height: uint32(&state["peak"]["height"])?,
+            header_hash: hash32(&state["peak"]["header_hash"])?,
+        };
+        let previous = uint32(&state["peak"]["prev_transaction_block_height"])?;
+        if previous > tip.height {
+            return Err(error(
+                ErrorKind::Inconclusive,
+                "previous transaction height exceeds peak",
+            ));
+        }
+        Ok((tip, previous))
+    }
     pub fn coin(&mut self, id: [u8; 32]) -> Result<Option<LiveCoinRecord>> {
         let value = self.call(Endpoint::CoinByName, &json!({"name": prefixed(id)}))?;
         success(&value)?;

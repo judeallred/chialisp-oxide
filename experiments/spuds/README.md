@@ -2,10 +2,13 @@
 
 **WIP prototype. Not ready for use or real funds.** This normal unpublished
 Cargo library is an original teaching policy for issue #10. It has no singleton,
-CAT, wallet integration or live-network lane. The readable Rust source passes native tests but the public compiler check
-and both attempted builds stop at the existing CLVM expansion-depth limit.
-Only the independent Chialisp reference has executed template VM vectors;
-there is no admitted Rust CLVM or complete ledger spend evidence.
+CAT, standard wallet integration or live-network lane. The current
+[successful capture](success-evidence/receipt.json) contains fresh complete Cargo
+bundles in both Rust modes and 51 executed primary-VM vectors per mode beside
+independent Chialisp. Module sizes are 22,909 bytes for Rust on, 19,546 for Rust
+off and 1,712 for Chialisp. The shared [SDK report](../stateful-ledger/evidence/report.json)
+executes actual signed takes and a claim with exact ledger effects and ages.
+Native outputs, VM conditions and consensus admission remain distinct evidence.
 
 ## Policy and exact ABI
 
@@ -49,9 +52,10 @@ which resets the relative window. Under the pinned height protocol, take is
 eligible once the previous transaction block height reaches creation plus one
 and strictly before creation plus five; claim is eligible at or after creation
 plus five. These are block-age conditions, not seconds or a wall-clock promise.
-The minimum age is intended to reject ephemeral same-bundle takes. Actual
-consensus boundary and ephemeral rejection tests are required before crediting
-that behavior.
+The executed SDK lane rejects ordinary age-zero takes with
+`AssertHeightRelativeFailed`. Ephemeral same-bundle spends instead fail with
+`EphemeralRelativeCondition`: consensus forbids their relative conditions. That
+separate rule is not mislabeled as an ordinary age failure.
 
 The successor commits the same module, new holder key, new payout hash and round
 plus one. `instance_hash` hashes the exact proper Terms list using `atom_hash`
@@ -88,7 +92,9 @@ specific take. Merely asserting a concurrent spend of the pot is insufficient:
 an old holder's claim could otherwise be aggregated with the contribution,
 burning it as a fee instead of creating the intended successor.
 
-No wallet builder or signer is supplied here. Native generation of signature,
+The SDK experiment supplies a deliberately quoted top-up fixture with that exact
+announcement assertion and fixed own change. It is not standard wallet integration.
+Native generation of signature,
 age or announcement conditions does not verify them. A wallet signature alone
 is not a complete transaction or a consensus test.
 
@@ -102,18 +108,28 @@ The Python oracle separately constructs the curry hash and condition wires.
 Fixture module `aa...aa` is not a compiled module. Public teaching keys are copied
 from `puzzles/fixture_keys.rs`; no user's wallet key or secret appears here.
 
-Before promoting this example, execute actual source-derived Rust in both modes
-and the independent Chialisp reference on malformed/padded/improper/oversized
-input trees. Then use full signed SDK bundles to exercise repeated takes and
-claims with actual mined birth/successor heights. Check age boundaries, expiry,
-minimum age and ephemeral takes, missing/insufficient contributions, wrong
-successor hashes/amounts, stale coins, changed payout with an old signature,
-invalid BLS signatures and claim-plus-contribution theft. Rejected bundles must
-match exact typed consensus codes and preserve full simulator state. Host and
-resource failures remain inconclusive.
+The current capture executes Rust on/off and independent Chialisp on the full
+51-vector malformed/padded/improper/oversized and policy suite. Each mode has
+19 accepted condition lists and 32 program failures. Two extra-tail Rust-off
+cases have typed `InvalidOpArg`; the corresponding reference/on cases raise.
 
-Actual source mutants should remove meaningful amount, age, next-state,
-announcement or signature-message checks, each funded under its own reveal.
+The SDK chain takes at actual ages one and four, resets each successor's timer,
+and claims at age five. Every complete six-condition output and resulting child
+coin is checked. Per mode, three accepted bundles accompany ten exact typed
+rejections for timing, signatures, transplant, top-up, stale coin and protected
+announcement cases. A separate cap take is an inconclusive runtime umbrella
+without rejection credit. Full simulator equality follows every rejected
+submission. Wrong-key and old-message signature tests submit actual bundles;
+signer-preflight refusal is not counted as consensus rejection.
+
+Five [actual-source controls](source-controls/receipt.json) alter amount, age,
+next state, announcement and signature binding. Their original/mutant programs
+have ten native, twenty primary-VM and twenty SDK observations across both Rust
+modes: twelve SDK accepts and eight exact typed rejections with full state equality.
+Each instance is funded under its own selected compiled reveal. These are finite
+policy counterexamples, separate from the base chain, with named disposable
+simulator keys; no user's secret key is used.
+
 No finite tests establish compiler preservation, cryptographic security,
 production readiness or universal absence of attacks.
 
@@ -149,41 +165,39 @@ An observed admission boundary is a substantive stopping point, not a successful
 Rust puzzle port.
 
 
-## Observed compiler boundary and independent reference
+## Reproduce current evidence and retain the historical boundary
 
-The retained `evidence/receipt.json` records seven native Rust tests, nine Python
-recipe/vector tests, fmt and Clippy checks, then actual public `check` and both
-Rust build attempts. All three compiler commands stop with `CLVM expansion
-nesting limit`; their actual version-4 strict source IR is diagnostic material,
-not a compiled or executable artifact. No Rust mode is credited with subset
-admission or VM outputs. The original readable Rust policy remains intact;
-there were no factoring attempts, policy deletions or compiler limit changes.
-
-The independently compiled Chialisp module is 1,712 serialized bytes. Its 51
-actual primary-VM template observations include 19 exact accepted condition
-lists and 32 typed program raises for malformed shapes, widths, padded numbers,
-invalid booleans, invalid rounds and taking at the cap. Claims cost 25,888 VM
-units and takes 62,635 in these finite vectors. These are template costs, not
-full generator, transaction or block costs. No batching, fee, Rust performance
-or security improvement follows.
-
-Accepted vectors deliberately include an incorrect selected-module field and
-invalid BLS key bytes: the template cannot admit its own funding source or
-verify returned conditions. A claim VM output is not evidence of passing its
-age or signature conditions. No SDK transaction, top-up, timeout, BLS or
-live-network test has executed for this experiment.
-
-Build the host tools beforehand and leave the driver unchanged during capture:
+Build the pinned tools first and keep the compiler implementation and executables
+unchanged during capture:
 
 ```sh
-python3 -B experiments/spuds/capture_boundary.py --tools target/debug --output target/spuds-boundary-new
+python3 -B experiments/stateful-ledger/ci.py --tools target/debug --expected-host aarch64-apple-darwin --output target/stateful-capture-new
+python3 -B experiments/stateful-ledger/ci.py --check experiments/stateful-ledger/evidence/receipt.json
+python3 -B experiments/spuds/check_boundary.py
 ```
 
-The script expects the observed compiler boundary, retains its logs and fresh
-actual-source IR, independently compiles the reference, and executes only that
-reference lane. It freezes fourteen project inputs, four declared reader
-inputs and the selected host tools. Retained bytes, command records and matching
-hashes establish consistency, not source/execution authentication or compiler
-preservation. The installed compiler, dependencies and mutable native build
-inputs remain assumptions. Resolve this admission boundary with reviewed
-semantics and regressions before planning Rust SDK game transactions.
+Use the actual pinned compiler host on other platforms. The shared gate includes
+seven native policy tests, thirteen Python recipe/vector/reader tests, both
+source-aware Cargo builds, all three VM modes, source controls and SDK replay.
+The two complete retained SDK reports are byte-identical. Individual
+`capture_success.py` and `capture_mutations.py` commands also offer read-only
+`--check` gates. They bind exact current source inventories, compiler-read
+attachments, typed outcomes, coin names, witness inputs, complete outputs and
+reader corruption controls. They grant no source/execution authentication or
+compiler-preservation proof.
+
+The three-bundle Spuds chain's whole generator costs are 87,127,936 uncompressed
+and 81,451,936 with backreferences for Chialisp; 850,350,713 / 206,106,713 for
+Rust on; and 729,758,911 / 422,762,911 for Rust off. These include actual charged
+generator bytes and BLS verification, plus independent exact-cost and one-less
+budget controls. Per-step costs and byte counts remain in the report. They use
+the pinned simulator's pre-hard-fork-2 configuration, not current live height or
+fee estimates.
+
+The unchanged `evidence/receipt.json` records the earlier expansion-depth
+boundary, diagnostic IR and Chialisp-only VM lane. Exact original source and
+dependency snapshots make that historical packet independently readable; it
+has no current-source freshness, present compiler-boundary or current-success
+credit. Its unchanged `capture_boundary.py` is a historical reproducer, not the
+current successful capture command. No policy guard or compiler budget was
+removed to emit the current real source.

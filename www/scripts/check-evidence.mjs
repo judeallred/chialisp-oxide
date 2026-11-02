@@ -13,9 +13,13 @@ import { checkDelegatedReport } from './p2dc-protocol.mjs';
 import { checkBoomerangReport } from './boomerang-protocol.mjs';
 import { readXchandlesPremine } from '../src/lib/xchandles-premine.mjs';
 import { sourceFiles, compareSourcePaths } from './source-walk.mjs';
+import { readStatefulEvidence } from '../src/lib/stateful-evidence.mjs';
 
 // These are complete historical observations, separately admitted from current compiler evidence.
 await readXchandlesPremine({ required: true });
+await readStatefulEvidence();
+execFileSync('python3', ['-B', 'experiments/stateful-ledger/ci.py', '--check', 'experiments/stateful-ledger/evidence/receipt.json'],
+  { cwd: fileURLToPath(new URL('../../', import.meta.url)), stdio: 'inherit', timeout: 120_000 });
 
 const root = new URL('../../', import.meta.url);
 const rootPath = await realpath(fileURLToPath(root));

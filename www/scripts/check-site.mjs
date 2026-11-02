@@ -1,5 +1,6 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { checkBuiltContinuation } from './test-continuations.mjs';
+import { checkBuiltStateful } from './test-stateful-evidence.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -27,6 +28,7 @@ for (const lane of ['history','simulator']) for (const file of xchandles[lane].d
   assert.deepEqual(actual,await readXchandlesArtifact(lane,file.path),'XCHandles download differs from admitted complete packet');
 }
 checkBuiltContinuation(root);
+await checkBuiltStateful(root);
 const registryView = await readRegistryProtocol();
 assert(registryView, 'Complete current registry sidecars required before publication');
 for (const route of registryRoutes) checkRegistryDisplay(readRegistryBytes(path.join(root,route,'index.html'),registryHTMLLimit(route)).toString('utf8'),registryView,{route});

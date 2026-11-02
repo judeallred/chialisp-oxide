@@ -36,6 +36,9 @@ pub(in crate::live) mod cat_signer;
 #[path = "wallet/tty.rs"]
 mod tty;
 
+#[path = "wallet/continuation.rs"]
+pub mod continuation;
+
 pub const PAYMENT_AMOUNT: u64 = 1_000;
 pub const DEFAULT_FEE: u64 = 10_000;
 pub const MAX_FEE: u64 = 1_000_000;
@@ -171,6 +174,7 @@ struct TransactionPlan {
     change: Coin,
     fee: u64,
     height: u32,
+    max_cost: u64,
 }
 
 /// Exactly one standard-wallet input funds a 1,000-mojo checked puzzle.
@@ -535,6 +539,7 @@ impl TransactionPlan {
             change,
             fee,
             height,
+            max_cost: MAX_WALLET_BUNDLE_COST,
         })
     }
     fn require_inputs(&self, coins: &[Coin], network: &Testnet11Network) -> Result<()> {
@@ -579,13 +584,9 @@ impl TransactionPlan {
         let bundle = SpendBundle::new(self.spends.clone(), signature);
         let flags =
             get_flags_for_height_and_constants(self.height, &TESTNET11_CONSTANTS) | MEMPOOL_MODE;
-        let (conditions, _) = validate_clvm_and_signature(
-            &bundle,
-            MAX_WALLET_BUNDLE_COST,
-            &TESTNET11_CONSTANTS,
-            flags,
-        )
-        .map_err(|failure| WalletError::Consensus(failure.1))?;
+        let (conditions, _) =
+            validate_clvm_and_signature(&bundle, self.max_cost, &TESTNET11_CONSTANTS, flags)
+                .map_err(|failure| WalletError::Consensus(failure.1))?;
         let removed: u128 = self
             .spends
             .iter()

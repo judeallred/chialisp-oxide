@@ -329,6 +329,26 @@ functions before optional optimization.
 The later code-generation expansion check remains four million estimated units
 and depth 96. A valid 64-function table is not guaranteed to fit those budgets.
 
+If the complete existing runtime emission pipeline still fails specifically
+with `ExpansionDepth`, a fresh conservative emitter stores compiler-generated
+strict continuations alongside quoted functions in an immutable binary code
+table. Static heap paths replace deeply nested continuation quotes and linear
+function-table lookups. The frame still carries that table and the same ordered
+lexical slots; callees start with fresh scopes, and each strict initializer
+executes once before its continuation. Arbitrary quoted data and dynamic
+`Apply` operands never become entries in this table. Input data cannot select
+executable code through this retry.
+
+This route validates the whole original IR and retains both code-generation
+limits and the runtime work budget. Table growth, copying, traversal and lookup
+paths are charged before allocation. It runs only after all existing optional
+and decoder fallbacks, preserving successful earlier artifacts byte for byte.
+The separate and sequenced ABI decoder retries remain eligible only for
+`ExpansionSize`; intrinsically deep decoders can still fail. The alternate
+layout disables optional Rust layout rewrites while retaining the requested Rue
+optimization mode. Finite strictness and artifact regressions do not establish
+a general compiler-preservation proof.
+
 VM execution always has a finite cost budget. Under the shared typed failure
 protocol, cost, stack, timeout, and allocation limits are resource failures;
 they are inconclusive rather than program rejection. Infrastructure failures

@@ -1,0 +1,14 @@
+---
+interface Props { fields: { id: string; label: string; value: string }[] }
+const { fields } = Astro.props;
+---
+<dl class="stateful-fields">
+  {fields.map(item => <div><dt>{item.label}</dt><dd><code data-stateful-field={item.id}>{item.value}</code></dd></div>)}
+</dl>
+<style>
+  .stateful-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: .6rem 1rem; }
+  .stateful-fields > div { margin: 0; min-width: 0; }
+  .stateful-fields dt { font-size: .9rem; color: var(--sl-color-gray-2); }
+  .stateful-fields dd { margin: .15rem 0 0; }
+  .stateful-fields code { overflow-wrap: anywhere; white-space: normal; }
+</style>

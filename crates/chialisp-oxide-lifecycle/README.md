@@ -1,6 +1,6 @@
 # chialisp-oxide-lifecycle
 
-**WIP prototype, not ready for use. Simulator only; no live deployment.**
+**WIP prototype, not ready for use. Simulator workflows and explicit Testnet11 live tooling.**
 
 The library exposes a bounded public journal, cooperating-writer storage and a
 trusted command runner. The CLI drives that same runner:
@@ -259,3 +259,80 @@ ceiling, scoped to consensus 0.36.1 / SDK VM 0.16.2 / Testnet11 height zero. Thi
 cost includes SDK charged generator bytes, VM and conditions. It is not the
 primary VM cost, a measurement of the later funded coin, a full-block cost or a
 network fee quote. The displayed zero fee is the plan's value.
+
+## Shared continuation trial
+
+The Rust CLI and loopback GUI now share `ContinuationSession` for the original
+batch-one authenticated continuation policy. This is separate from the Python
+prototype and from the later batch-two/spuds experiments. Each process runs the
+actual current-host continuation CI coordinator (native Cargo, both complete
+source-aware Cargo bundles, independent reference, VM/SDK checks and source
+controls). Rust independently admits and recompiles the complete fresh bundles,
+checks all supported initial counts 1..8, and executes every selected queue step
+before exposing a funding/signing plan. Saved JSON cannot create this capability.
+Installed tools and the declared mutable source closure must remain unchanged.
+These checks are consistency and finite execution evidence, not compiler
+preservation or binary authentication.
+
+`--recipients` names a bounded JSON file containing 1..8 64-character
+puzzle-hash hex strings in payout order. The complete queue, selected Rust mode,
+exact module and all curried instances are committed before funding. For example:
+
+```sh
+cargo run -p chialisp-oxide-lifecycle -- live continuation-plan \
+  --network testnet11 --cargo /absolute/pinned/toolchain/bin/cargo \
+  --compiler /absolute/tools/cargo-chialisp-oxide \
+  --wallet-puzzle-hash PUBLIC_WALLET_HASH_HEX \
+  --master-public-key PUBLIC_MASTER_KEY_HEX --mode on \
+  --recipients /absolute/recipients.json --output /absolute/new-fresh-run
+```
+
+The same options plus `--outbox /absolute/trial.continuation.live.json`,
+`--fee-mojos 10000` and `--step-fee-mojos 0` support these explicit operations:
+
+- `continuation-prepare-funding`: select and point-requery one wallet input,
+  request the existing hidden terminal signer, and durably save exact funding.
+- `continuation-submit`: submit the latest saved transaction once.
+- `continuation-watch`: observe exact input/spend bytes and point-query the
+  complete locally executed payout/successor/change set.
+- `continuation-prepare-step`: freshly observe the preceding transaction,
+  validate the next input and prepare its exact permissionless opening.
+- `continuation-status`: reopen and validate public history without provider calls.
+- `continuation-serve`: present those same operations in the protected loopback GUI.
+
+Use a new fresh output directory on every invocation; retain the same immutable
+outbox, queue, public identity, mode and fees. A positive `--step-fee-mojos` uses a
+separate purpose-specific wallet sponsor with concurrent-spend binding and exact
+change. Funding sends exactly `1000 × queue length` mojos; each step pays 1000
+mojos to its committed recipient. No HTTP or argv field accepts a secret. Only
+explicit submit pushes; neither startup, observation nor reload resubmits.
+
+A durable push-start event permanently closes that transaction's submission,
+including after a timeout or process crash. Recover with reload/status and watch;
+there is no automatic retry or alternate-input replacement. A newer coin record
+than the bracketed provider peak is inconclusive. Observations establish provider
+consistency against complete locally executed effects, not a complete provider
+parent/wallet inventory, authenticated inclusion, finality or ownership.
+
+The continuation SDK ceiling is separately fixed at 5.5 billion cost units. The
+old 1000-mojo payment, policy-VM and wallet/CAT limits are unchanged. Eight focused
+Rust tests cover all queue lengths, actual invalid-BLS/replay SDK submissions
+with complete simulator equality, sponsored four-step execution and reload,
+response-loss recovery, revision checks before provider/signer callbacks,
+provider snapshot races, storage controls, and the actual loopback page/cache.
+Those fixture tests do not count as a new live network execution.
+
+`continuation-watch` performs one observation and exits; it is not a watch loop.
+GUI polling reads the cached local view; provider monitoring requires an explicit
+button action. The journal is bounded to 96 events and 2 MiB. Repeated monitoring
+can exhaust these bounds, after which further durable progress stops. There is
+currently no pruning, migration or reorg-recovery workflow. The journal provides
+no unbounded liveness guarantee; do not create replacement funding or blindly
+resubmit to bypass a bound or conflicting observation.
+
+The stable journal source identity includes the sorted root-relative compiled
+native-input declarations and the exact three admitted package-source attachment
+digests, alongside both IR/artifact identities and installed tool fingerprints.
+A comment-only source or implementation change therefore cannot silently upgrade
+an existing session even when the compiled module bytes remain identical. Fresh
+output paths and run IDs are excluded from this identity.

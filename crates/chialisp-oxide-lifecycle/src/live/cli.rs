@@ -7,6 +7,13 @@ use std::{collections::BTreeMap, ffi::OsString, path::Path};
 pub fn run(arguments: &[OsString]) -> Result<()> {
     if arguments
         .first()
+        .and_then(|v| v.to_str())
+        .is_some_and(|v| v.starts_with("continuation-"))
+    {
+        return super::continuation::cli::run(arguments);
+    }
+    if arguments
+        .first()
         .and_then(|s| s.to_str())
         .is_some_and(|s| s.starts_with("cat-") && s != "cat-check")
     {

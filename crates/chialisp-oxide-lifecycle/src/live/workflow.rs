@@ -54,7 +54,7 @@ pub struct MonitoringEvidence {
     pub receipts: Vec<HttpReceipt>,
 }
 
-fn require_network(identity: &NetworkIdentity) -> Result<Testnet11Network> {
+pub(super) fn require_network(identity: &NetworkIdentity) -> Result<Testnet11Network> {
     ensure!(identity.scope.len() <= 1024, "bounded provider scope");
     ensure!(
         identity.origin == network::ORIGIN

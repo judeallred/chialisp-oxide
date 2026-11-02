@@ -1,0 +1,12 @@
+     Removed 11 files, 404.6KiB total
+    Checking chialisp-oxide-spuds v0.0.0 (/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-mutations/nextstate/mutant)
+warning: unused variable: `next_payout`
+  --> src/lib.rs:85:60
+   |
+85 | pub fn step(terms: Terms, take: bool, next_key: PublicKey, next_payout: PuzzleHash) -> Conditions {
+   |                                                            ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_next_payout`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `chialisp-oxide-spuds` (lib) generated 1 warning (run `cargo fix --lib -p chialisp-oxide-spuds` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.18s

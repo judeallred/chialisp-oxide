@@ -162,7 +162,69 @@ impl Backend for SessionBackend {
         self.view()
     }
 }
+struct ContinuationBackend {
+    session: crate::live::continuation::ContinuationSession,
+    network: Testnet11Client,
+}
+impl ContinuationBackend {
+    fn view(&self) -> Result<(Digest, Value), ApiError> {
+        Ok((
+            self.session.revision(),
+            self.session.view().map_err(action_error)?,
+        ))
+    }
+}
+impl Backend for ContinuationBackend {
+    fn initialize(&mut self) -> Result<(Digest, Value), ApiError> {
+        let view = self.session.reload_view_current().map_err(action_error)?;
+        Ok((self.session.revision(), view))
+    }
+    fn execute(
+        &mut self,
+        action: LiveAction,
+        revision: Digest,
+    ) -> Result<(Digest, Value), ApiError> {
+        if action != LiveAction::Reload {
+            self.session
+                .require_revision(&revision)
+                .map_err(action_error)?;
+        }
+        self.session.reload_current().map_err(action_error)?;
+        match action {
+            LiveAction::Reload => (),
+            LiveAction::PrepareFunding => self
+                .session
+                .prepare_funding(&mut self.network)
+                .map_err(action_error)?,
+            LiveAction::PreparePayment => self
+                .session
+                .prepare_step(&mut self.network)
+                .map_err(action_error)?,
+            LiveAction::SubmitFunding | LiveAction::SubmitPayment => self
+                .session
+                .submit(&mut self.network)
+                .map_err(action_error)?,
+            LiveAction::MonitorFunding | LiveAction::MonitorPayment => {
+                self.session
+                    .monitor(&mut self.network)
+                    .map_err(action_error)?;
+            }
+        }
+        self.view()
+    }
+}
 fn action_error(error: anyhow::Error) -> ApiError {
+    if let Some(error) = error.downcast_ref::<crate::live::continuation::ContinuationError>() {
+        use crate::live::continuation::ContinuationError;
+        let kind = match error {
+            ContinuationError::Inconclusive => "inconclusive",
+            ContinuationError::Conflict => "state_conflict",
+            ContinuationError::AlreadySubmitted => "reconcile_required",
+            ContinuationError::RevisionConflict => "revision_conflict",
+            ContinuationError::Consensus(_) => "sdk_preflight",
+        };
+        return ApiError::new(kind, &error.to_string());
+    }
     if let Some(error) = error.downcast_ref::<crate::live::network::Error>() {
         return ApiError::new("provider_observation", &error.message);
     }
@@ -190,6 +252,17 @@ pub(super) struct Controller {
     finished: Mutex<Option<oneshot::Receiver<()>>>,
 }
 impl Controller {
+    pub(super) async fn continuation(
+        session: crate::live::continuation::ContinuationSession,
+    ) -> Result<Self, ApiError> {
+        Self::launch(move || {
+            Ok(ContinuationBackend {
+                session,
+                network: Testnet11Client::new().map_err(|_| ApiError::infrastructure())?,
+            })
+        })
+        .await
+    }
     pub(super) async fn production(session: LiveSession) -> Result<Self, ApiError> {
         Self::launch(move || {
             // This closure runs on an ordinary thread, never spawn_blocking or

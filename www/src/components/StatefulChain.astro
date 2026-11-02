@@ -1,0 +1,17 @@
+---
+import StatefulFields from './StatefulFields.astro';
+interface Row { id: string; fields: { id: string; label: string; value: string }[] }
+interface Props { chain: Row & { label: string; steps: Row[]; rejections: Row[] } }
+const { chain } = Astro.props;
+---
+<details data-stateful-chain={chain.id}>
+  <summary>{chain.label}: {chain.steps.length} accepted SDK steps</summary>
+  <div data-stateful-chain-header><StatefulFields fields={chain.fields} /></div>
+  {chain.steps.map(step => <section data-stateful-step={step.id}>
+    <h5>Accepted SDK step {Number(step.id) + 1}</h5>
+    <StatefulFields fields={step.fields} />
+  </section>)}
+  <details><summary>Submitted controls: exact codes and credit scope</summary>
+    {chain.rejections.map(row => <div data-stateful-rejection={row.id}><StatefulFields fields={row.fields} /></div>)}
+  </details>
+</details>

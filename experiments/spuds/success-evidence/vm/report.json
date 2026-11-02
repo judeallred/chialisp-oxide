@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "scope": "finite primary VM observations, no SDK spends/authentication/proof",
+  "cases": 51,
+  "programs": {
+    "rust_on": {
+      "program_hex_sha256": "ca4a9ae26824767ca5748b485c6de0c27d7e6ad8189028591fe39d707026fb1a",
+      "serialized_bytes": 22909,
+      "accepted_costs": [
+        {
+          "label": "claim round 1 emits age/signature conditions, not consensus execution",
+          "cost": 38210
+        },
+        {
+          "label": "take round 1 emits required topup and reset state",
+          "cost": 120860
+        },
+        {
+          "label": "claim round 2 emits age/signature conditions, not consensus execution",
+          "cost": 38611
+        },
+        {
+          "label": "take round 2 emits required topup and reset state",
+          "cost": 122063
+        },
+        {
+          "label": "claim round 3 emits age/signature conditions, not consensus execution",
+          "cost": 39012
+        },
+        {
+          "label": "take round 3 emits required topup and reset state",
+          "cost": 123266
+        },
+        {
+          "label": "claim round 4 emits age/signature conditions, not consensus execution",
+          "cost": 39413
+        },
+        {
+          "label": "take round 4 emits required topup and reset state",
+          "cost": 124469
+        },
+        {
+          "label": "claim round 5 emits age/signature conditions, not consensus execution",
+          "cost": 39814
+        },
+        {
+          "label": "take round 5 emits required topup and reset state",
+          "cost": 125672
+        },
+        {
+          "label": "claim round 6 emits age/signature conditions, not consensus execution",
+          "cost": 40215
+        },
+        {
+          "label": "take round 6 emits required topup and reset state",
+          "cost": 126875
+        },
+        {
+          "label": "claim round 7 emits age/signature conditions, not consensus execution",
+          "cost": 40616
+        },
+        {
+          "label": "take round 7 emits required topup and reset state",
+          "cost": 127760
+        },
+        {
+          "label": "claim round 8 emits age/signature conditions, not consensus execution",
+          "cost": 40699
+        },
+        {
+          "label": "wrong selected module accepted; initial host admission required",
+          "cost": 120860
+        },
+        {
+          "label": "claim ignores decoded next fields",
+          "cost": 38210
+        },
+        {
+          "label": "invalid BLS key bytes only produce conditions; consensus required",
+          "cost": 120860
+        },
+        {
+          "label": "new payout changes signed message and successor",
+          "cost": 120860
+        }
+      ]
+    },
+    "rust_off": {
+      "program_hex_sha256": "3ac6733ea6230b98501a74a5c67a90172c570987a015854472513996584b373e",
+      "serialized_bytes": 19546,
+      "accepted_costs": [
+        {
+          "label": "claim round 1 emits age/signature conditions, not consensus execution",
+          "cost": 118238
+        },
+        {
+          "label": "take round 1 emits required topup and reset state",
+          "cost": 316682
+        },
+        {
+          "label": "claim round 2 emits age/signature conditions, not consensus execution",
+          "cost": 119541
+        },
+        {
+          "label": "take round 2 emits required topup and reset state",
+          "cost": 320607
+        },
+        {
+          "label": "claim round 3 emits age/signature conditions, not consensus execution",
+          "cost": 120844
+        },
+        {
+          "label": "take round 3 emits required topup and reset state",
+          "cost": 324532
+        },
+        {
+          "label": "claim round 4 emits age/signature conditions, not consensus execution",
+          "cost": 122147
+        },
+        {
+          "label": "take round 4 emits required topup and reset state",
+          "cost": 328457
+        },
+        {
+          "label": "claim round 5 emits age/signature conditions, not consensus execution",
+          "cost": 123450
+        },
+        {
+          "label": "take round 5 emits required topup and reset state",
+          "cost": 332382
+        },
+        {
+          "label": "claim round 6 emits age/signature conditions, not consensus execution",
+          "cost": 124753
+        },
+        {
+          "label": "take round 6 emits required topup and reset state",
+          "cost": 336307
+        },
+        {
+          "label": "claim round 7 emits age/signature conditions, not consensus execution",
+          "cost": 126056
+        },
+        {
+          "label": "take round 7 emits required topup and reset state",
+          "cost": 338921
+        },
+        {
+          "label": "claim round 8 emits age/signature conditions, not consensus execution",
+          "cost": 126048
+        },
+        {
+          "label": "wrong selected module accepted; initial host admission required",
+          "cost": 316682
+        },
+        {
+          "label": "claim ignores decoded next fields",
+          "cost": 118238
+        },
+        {
+          "label": "invalid BLS key bytes only produce conditions; consensus required",
+          "cost": 316682
+        },
+        {
+          "label": "new payout changes signed message and successor",
+          "cost": 316682
+        }
+      ]
+    },
+    "chialisp": {
+      "program_hex_sha256": "e176753a395a741038e4cc8ed6293b01294fa79ae578f951dfd632688d6e5b76",
+      "serialized_bytes": 1712,
+      "accepted_costs": [
+        {
+          "label": "claim round 1 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 1 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 2 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 2 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 3 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 3 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 4 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 4 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 5 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 5 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 6 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 6 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 7 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "take round 7 emits required topup and reset state",
+          "cost": 62635
+        },
+        {
+          "label": "claim round 8 emits age/signature conditions, not consensus execution",
+          "cost": 25888
+        },
+        {
+          "label": "wrong selected module accepted; initial host admission required",
+          "cost": 62635
+        },
+        {
+          "label": "claim ignores decoded next fields",
+          "cost": 25888
+        },
+        {
+          "label": "invalid BLS key bytes only produce conditions; consensus required",
+          "cost": 62635
+        },
+        {
+          "label": "new payout changes signed message and successor",
+          "cost": 62635
+        }
+      ]
+    }
+  },
+  "mode_scope": "three_mode",
+  "status": "passed"
+}

@@ -119,3 +119,78 @@ criteria, and #13 still requires actual wallet spending beyond discovery.
 
 See the [crate implementation and detailed contracts](https://github.com/judeallred/chialisp-oxide/tree/main/crates/chialisp-oxide-lifecycle)
 and [provider boundaries](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-lifecycle/docs/provider.md).
+
+## Authenticated continuation CLI and GUI
+
+The separate `live continuation-*` commands use one Rust `ContinuationSession`
+for the original batch-one policy. They are WIP Testnet11 tooling; the simulator
+commands above remain local. This is separate from the later batch-two/spuds
+experiments and does not credit a new live trial.
+
+Prepare a public JSON file of 1..8 recipient puzzle-hash hex strings. Before any
+wallet signing callback, each new process executes actual current-host native
+Cargo tests, both complete source-aware compiler bundles, independent reference,
+VM/SDK checks and source controls. Rust independently admits/recompiles all fresh
+bundle exports, SDK-checks supported counts 1..8 and every selected queue step,
+and commits the complete queue plus selected module/instances and public wallet.
+Retained JSON alone cannot supply fresh execution authority.
+
+Use `live continuation-plan` with the explicit `--network testnet11`, pinned
+`--cargo`, `--compiler`, public `--wallet-puzzle-hash`, public
+`--master-public-key`, `--mode on|off`, `--recipients FILE`, and a new `--output`
+directory. Transaction commands additionally require a dedicated
+`--outbox FILE.continuation.live.json`; keep the same immutable identity, queue,
+mode, `--fee-mojos` and `--step-fee-mojos` on every reopening. The complete command
+example is in [the companion README](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-lifecycle/README.md#shared-continuation-trial).
+
+1. `continuation-prepare-funding` selects and point-requeries one wallet input,
+   invokes the existing hidden terminal signer, and durably saves exact funding.
+2. `continuation-submit` pushes that saved transaction once.
+3. `continuation-watch` checks provider-reported exact spend bytes and every
+   child from the complete locally SDK-executed output set.
+4. `continuation-prepare-step` reobserves the preceding transaction, checks the
+   next exact coin and prepares its permissionless opening; repeat submit/watch.
+
+`continuation-status` reopens history without provider calls.
+`continuation-serve` exposes those same shared operations through the existing
+capability-protected, same-origin loopback server. HTTP accepts closed actions
+and an exact journal revision; programs, queues, fees, tools and keys cannot be
+selected through the page. Opening/polling the GUI never submits or watches the
+network automatically. Signing stays in the local terminal.
+
+Funding is exactly `1000 × queue length` mojos; each step pays 1000 mojos to its
+committed recipient. A positive step fee uses a separate purpose-specific wallet
+sponsor with concurrent-spend binding and exact change. The separately measured
+continuation SDK ceiling is 5.5 billion cost units; existing fixed-payment,
+wallet/CAT and compiler limits remain unchanged.
+
+A durable push-start permanently closes resubmission, even if the response is
+lost or the process exits. Reload/status and watch reconcile the exact saved
+transaction; no action blindly retries or replaces inputs. Changed source/tools,
+queue or fees fail matching. The bounded journal rejects stale revisions and
+history rewrites before provider/signing callbacks. A provider coin record newer
+than the bracketed peak is inconclusive. Exact point records establish provider
+consistency against locally complete effects, not a complete provider inventory,
+authenticated inclusion, ownership or finality.
+
+The focused Rust tests exercise all supported queue lengths, actual bad-BLS and
+replay SDK rejections with complete simulator equality, four sponsored steps and
+reload, response-loss recovery, pre-callback revision checks, provider snapshot
+races, storage controls, and the actual loopback page and cached session view.
+They remain fixture executions, separate from production source certification
+and any future funded live run.
+
+`continuation-watch` performs one observation and exits; it is not a watch loop.
+GUI polling reads the cached local view; provider monitoring requires an explicit
+button action. The journal is bounded to 96 events and 2 MiB. Repeated monitoring
+can exhaust these bounds, after which further durable progress stops. There is
+currently no pruning, migration or reorg-recovery workflow. The journal provides
+no unbounded liveness guarantee; do not create replacement funding or blindly
+resubmit to bypass a bound or conflicting observation.
+
+The stable journal source identity includes the sorted root-relative compiled
+native-input declarations and the exact three admitted package-source attachment
+digests, alongside both IR/artifact identities and installed tool fingerprints.
+A comment-only source or implementation change therefore cannot silently upgrade
+an existing session even when the compiled module bytes remain identical. Fresh
+output paths and run IDs are excluded from this identity.

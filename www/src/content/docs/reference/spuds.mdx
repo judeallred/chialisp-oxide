@@ -1,0 +1,23 @@
+---
+title: Spuds hot-potato experiment
+description: A finite original policy with separately scoped source, VM and SDK observations, relative coin-age boundaries and no wallet or live-network lane.
+---
+
+import StatefulEvidence from '../../../components/StatefulEvidence.astro';
+
+**WIP prototype. Not ready for use or real funds.** Spuds is an original teaching
+policy. One pot coin commits its selected module, holder key, payout hash and
+round. A take adds exactly 1,000 mojos; a claim pays the current holder. Counts
+stop at round eight. It is not a singleton or CAT.
+
+The relative timer belongs to each actual pot coin. Takes require age at least
+one and below five; claims require age at least five. A take creates a new coin
+and resets the timer. The new holder signs an intent committing the exact
+successor, while the top-up asserts that take's announcement. Key widths alone
+establish neither valid BLS keys nor destination recoverability.
+
+The simulator's quoted top-up is a composition fixture. Spuds has no standard
+wallet integration, funding workflow or live-network lane. These results do not
+claim liveness, inclusion, finality or compiler preservation.
+
+<StatefulEvidence experiment="spuds" />

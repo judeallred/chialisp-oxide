@@ -93,11 +93,12 @@ def vectors():
 
 
 def execute(cli, programs, output):
+    if set(programs) not in ({'chialisp'},{'chialisp','rust_on','rust_off'}):raise ValueError('complete three-mode set or explicit reference-only execution required')
     output.mkdir(parents=True,exist_ok=False)
     rows=vectors()
     (output/'vectors.json').write_text(json.dumps(rows,indent=2)+'\n')
     solutions=output/'solutions.json';solutions.write_text(json.dumps([row['solution'] for row in rows]))
-    report=dict(schema=1,scope='finite primary VM observations, no SDK spends/authentication/proof',cases=len(rows),programs={})
+    report=dict(schema=1,scope='finite primary VM observations, no SDK spends/authentication/proof',cases=len(rows),programs={},mode_scope='reference_only' if set(programs)=={'chialisp'} else 'three_mode')
     for mode,path in programs.items():
         payload=path.read_bytes()
         result=bounded_process.run([cli.resolve(),'run-batch',path.resolve(),'--solutions',solutions.resolve(),'--max-cost','10000000'],check=True,timeout=90)

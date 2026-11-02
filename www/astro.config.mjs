@@ -86,6 +86,7 @@ export default defineConfig({
           { label: 'Puzzle ABI', slug: 'reference/abi' },
           { label: 'Optional output lists', slug: 'reference/optional-lists' },
           { label: 'Authenticated continuations (prototype)', slug: 'reference/continuations' },
+          { label: 'Spuds hot-potato experiment', slug: 'reference/spuds' },
           { label: 'Compiler commands', slug: 'reference/cli' },
           { label: 'Local coin lifecycle', slug: 'reference/lifecycle' },
           { label: 'Offline package registry', slug: 'reference/package-registry' },

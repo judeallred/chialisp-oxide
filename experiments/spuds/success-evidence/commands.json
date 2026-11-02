@@ -1,0 +1,154 @@
+[
+  {
+    "argv": [
+      "rustup",
+      "run",
+      "nightly-2026-07-14",
+      "rustc",
+      "-vV"
+    ],
+    "exit_code": 0,
+    "label": "compiler",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "label": "fmt",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "native",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "clippy",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--all-targets",
+      "--locked",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "label": "clippy",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/Users/judeallred/code/clispOx/experiments/spuds",
+      "-p",
+      "test_*.py"
+    ],
+    "exit_code": 0,
+    "label": "python",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "check",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "label": "source-check",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/rust-on"
+    ],
+    "exit_code": 0,
+    "label": "source-on",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/cargo-chialisp-oxide",
+      "build",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--package",
+      "chialisp-oxide-spuds",
+      "--locked",
+      "--output-dir",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/rust-off",
+      "--no-optimize"
+    ],
+    "exit_code": 0,
+    "label": "source-off",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/judeallred/code/clispOx/experiments/spuds/Cargo.toml",
+      "--locked",
+      "--example",
+      "compile_reference",
+      "--",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/reference.clvm.hex"
+    ],
+    "exit_code": 0,
+    "label": "reference",
+    "status": "completed"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "/Users/judeallred/code/clispOx/experiments/spuds/replay.py",
+      "--cli",
+      "/Users/judeallred/code/clispOx/target/compiler-depth-integration46/target/debug/chialisp-oxide",
+      "--rust-on",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/rust-on/76879-1793594437552953000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--rust-off",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/rust-off/77045-1793594438510565000/c4e53e006197cf7b4f4f714f7a54268d7346d670519a710ccf612b4d0b745f78.clvm.hex",
+      "--reference",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/reference.clvm.hex",
+      "--output",
+      "/Users/judeallred/code/clispOx/target/stateful-current-capture-a04/spuds-success/vm"
+    ],
+    "exit_code": 0,
+    "label": "vm",
+    "status": "completed"
+  }
+]

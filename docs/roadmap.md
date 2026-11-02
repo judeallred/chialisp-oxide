@@ -215,11 +215,14 @@ backlog; this ordering does not mark their acceptance criteria complete.
    from working examples, explaining differences between accounts and coins.
    The isolated [batch-two source experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/continuation-batches)
    and [spuds source experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/spuds)
-   now retain native checks and independently executed Chialisp vectors. Their
-   public Rust checks and both builds exceed the unchanged CLVM expansion-depth
-   limit. They are compiler-boundary checkpoints, with no Rust CLVM artifacts,
-   SDK spends or cost-comparison credit. Resolving that authoring gap remains
-   work; it does not authorize raising compiler budgets or shrinking the goals.
+   retain their historical compiler-boundary checkpoints. A bounded compiler-owned
+   continuation table now emits both unchanged Cargo exports in both modes
+   without raising the expansion limits. Current native, three-mode VM,
+   signed SDK, source-mutation and generator-cost lanes are recorded separately
+   from those historical receipts. The shared Rust CLI/GUI has a purpose-specific
+   batch-one workflow; it is not automatic splitting or a generic continuation
+   SDK. Broader #10 corpus-manifest integration and #12/#16 acceptance remain
+   open; finite evidence does not shrink those goals.
 5. Continue manifest-driven evidence tooling, broader adversarial fuzzing,
    fork matrices and state-transition models. Keep SHA outside proofs that do
    not model it, and compiler preservation separate from model equivalence.

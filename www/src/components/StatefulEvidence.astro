@@ -1,0 +1,59 @@
+---
+import { readStatefulEvidence } from '../lib/stateful-evidence.mjs';
+import StatefulFields from './StatefulFields.astro';
+import StatefulChain from './StatefulChain.astro';
+interface Props { experiment: 'batch' | 'spuds' }
+interface Field { id: string; label: string; value: string }
+interface Row { id: string; fields: Field[] }
+interface Chain extends Row { label: string; steps: Row[]; rejections: Row[] }
+interface Comparison extends Row { label: string; chains: Chain[] }
+interface Lane extends Row { label: string; comparisons?: Comparison[]; chain?: Chain }
+interface Control extends Row { label: string; roles: Row[] }
+const { experiment } = Astro.props;
+const evidence = await readStatefulEvidence();
+const selected = evidence[experiment] as { counts: Field[]; lanes: Lane[] };
+const controls = evidence.sourceControls[experiment] as { status: string; counts: Field[]; controls: Control[] };
+const name = experiment === 'batch' ? 'Batch-two continuation comparison' : 'Spuds take/take/claim';
+const source = experiment === 'batch' ? 'continuation-batches' : 'spuds';
+const packet = experiment === 'batch' ? 'batch' : 'spuds';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<section data-stateful-evidence={experiment} data-stateful-status={evidence.status}>
+  <h2>{name}: current evidence</h2>
+  {evidence.scopes.map(scope => <p data-stateful-scope>{scope}</p>)}
+    <p data-stateful-result>Retained complete three-mode source capture and SDK execution. These readers check retained consistency; they add no fresh execution credit.</p>
+    <div data-stateful-context><StatefulFields fields={evidence.context} /></div>
+    <div data-stateful-counts><StatefulFields fields={selected.counts} /></div>
+    {experiment === 'batch' && <p>Both widths use the same ordered four- and eight-recipient queues. Adjacent recipients differ. Base counts include both immutable batch-one and batch-two chains in all three modes. Positive signed deltas are regressions. Fewer spends alone does not establish lower bytes or cost.</p>}
+    {experiment === 'spuds' && <p>Actual takes occur at coin ages one and four; the successor resets its timer, and the current holder claims at age five. The external top-up is a quoted fixture, with no wallet or live-network lane.</p>}
+    {selected.lanes.map(lane => <details data-stateful-lane={lane.id}>
+      <summary>{lane.label}</summary>
+      <div data-stateful-lane-header><StatefulFields fields={lane.fields} /></div>
+      {lane.comparisons ? lane.comparisons.map(comparison => <section data-stateful-comparison={comparison.id}>
+        <h3>{comparison.label}: batch two minus immutable batch one</h3>
+        <div data-stateful-deltas><StatefulFields fields={comparison.fields} /></div>
+        {comparison.chains.map(chain => <StatefulChain chain={chain} />)}
+      </section>) : lane.chain && <StatefulChain chain={lane.chain} />}
+    </details>)}
+  <section data-stateful-source-controls data-stateful-control-status={controls.status}>
+    <h3>Separate actual-source mutation controls</h3>
+      <p data-stateful-control-scope>Actual Rust sources were changed by one exact recipe and compiled under both modes. Native and primary-VM output witnesses use fixture module fields; each SDK attempt instead funds its own actual compiled reveal. These counts are separate from base runs and from constructed IR compiler controls.</p>
+      <div data-stateful-control-counts><StatefulFields fields={controls.counts} /></div>
+      {controls.controls.map(control => <details data-stateful-control={control.id}>
+        <summary>{control.label}</summary>
+        <div data-stateful-recipe><StatefulFields fields={control.fields} /></div>
+        {control.roles.map(role => <section data-stateful-role={role.id}>
+          <h4>{role.id === 'original' ? 'Original source' : 'Mutated source'}</h4>
+          <StatefulFields fields={role.fields} />
+        </section>)}
+      </details>)}
+  </section>
+  <p>The <a data-stateful-boundary href={`https://github.com/judeallred/chialisp-oxide/tree/main/experiments/${source}/evidence`}>earlier expansion-depth boundary packet</a> remains a historical checkpoint. Its source snapshot and independent reference observations grant no current-source freshness, current compiler-boundary or current-success credit.</p>
+  <p><a href={`https://github.com/judeallred/chialisp-oxide/tree/main/experiments/${source}`}>Inspect the Rust, independent Chialisp, oracle and retained packets</a>; <a href="https://github.com/judeallred/chialisp-oxide/tree/main/experiments/stateful-ledger">inspect the offline SDK runner and complete cost records</a>.</p>
+  <p><a data-stateful-download href={`${base}reports/stateful.json`}>Download this exact displayed summary</a>. The complete generators, source packets and typed execution records remain in the separate retained experiment packets.</p>
+  <p>Download the <a data-stateful-raw="sdk-report" href={`${base}reports/stateful-data/ledger/report.json`}>complete SDK report</a>,
+    <a data-stateful-raw="sdk-receipt" href={`${base}reports/stateful-data/ledger/receipt.json`}>SDK capture receipt</a>,
+    <a data-stateful-raw="source-receipt" href={`${base}reports/stateful-data/${packet}-success/receipt.json`}>three-mode source receipt</a>,
+    <a data-stateful-raw="control-receipt" href={`${base}reports/stateful-data/${packet}-controls/receipt.json`}>actual-source mutation receipt</a>, and
+    <a data-stateful-raw="inventory" href={`${base}reports/stateful-data/inventory.json`}>every packet member and its byte digest</a>.</p>
+</section>

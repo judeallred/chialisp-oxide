@@ -6,8 +6,33 @@ description: Inspect an explicit ordered-payout prototype, its separately counte
 import { Content as Continuations } from '../../../../../docs/continuations.md';
 import ContinuationEvidence from '../../../components/ContinuationEvidence.astro';
 import LiveContinuationEvidence from '../../../components/LiveContinuationEvidence.astro';
+import StatefulEvidence from '../../../components/StatefulEvidence.astro';
 
 <Continuations />
+
+## Shared Rust CLI and loopback GUI
+
+The local lifecycle crate now shares a closed batch-one recipe between its
+`continuation-*` commands and loopback GUI. Fresh native, source-aware compiler,
+VM and SDK checks precede preparation. The journal binds the complete queue,
+selected module, public wallet identity and fees. Funding and optional fee
+sponsorship use purpose-specific signing plans; signing stays in the local
+terminal. A durable push intent closes submission after a transport error, so
+recovery observes the exact spend and outputs before continuing.
+
+Read the [lifecycle commands and scope](https://github.com/judeallred/chialisp-oxide/tree/main/crates/chialisp-oxide-lifecycle#shared-continuation-trial)
+and the [shared Rust state machine](https://github.com/judeallred/chialisp-oxide/tree/main/crates/chialisp-oxide-lifecycle/src/live/continuation).
+This closed batch-one workflow is separate from the earlier Python live trial
+and the batch-two simulator comparison. It is not a generic continuation SDK.
+
+<StatefulEvidence experiment="batch" />
+
+## Earlier batch-one checkpoints
+
+The following sections retain the claims and measurements of their earlier
+checkpoints. Statements about missing interfaces or additional batch sizes
+describe those captures; the current shared workflow and batch-two evidence
+are presented separately above.
 
 <LiveContinuationEvidence />
 

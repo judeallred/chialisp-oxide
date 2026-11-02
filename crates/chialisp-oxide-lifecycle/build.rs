@@ -66,7 +66,7 @@ fn visit(
         if metadata.is_dir() {
             visit(root, &path, rows, remaining, work, depth + 1);
         } else if [
-            ".rs", ".clsp", ".clib", ".rue", ".toml", ".html", ".js", ".css",
+            ".py", ".rs", ".clsp", ".clib", ".rue", ".toml", ".html", ".js", ".css",
         ]
         .iter()
         .any(|suffix| name.ends_with(suffix))
@@ -90,7 +90,13 @@ fn main() {
     let mut work = 0;
     // Broad local native/adapter/compiler source closure. Installed compiler and
     // standard-library bytes are separately frozen by FreshTools at execution.
-    for relative in ["crates", "puzzles", "vendor/rue-lir", "experiments/backend"] {
+    for relative in [
+        "crates",
+        "puzzles",
+        "vendor/rue-lir",
+        "experiments/backend",
+        "experiments/authenticated-continuations",
+    ] {
         println!("cargo:rerun-if-changed={}", root.join(relative).display());
         visit(
             root,
@@ -104,6 +110,16 @@ fn main() {
     for relative in [
         "Cargo.toml",
         "Cargo.lock",
+        "scripts/cargo_bundle.py",
+        "scripts/cargo_source_receipt.py",
+        "scripts/cargo_authoring.py",
+        "scripts/raw_tree.py",
+        "scripts/vm_failures.py",
+        "scripts/source_walk.py",
+        "crates/chialisp-oxide-vm/failure-protocol.json",
+        "experiments/spend-costs/src/measurement.rs",
+        "experiments/authenticated-continuations/Cargo.lock",
+        "experiments/authenticated-continuations/ledger/Cargo.lock",
         "rust-toolchain.toml",
         ".cargo/config.toml",
         "puzzles/authoring.json",

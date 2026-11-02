@@ -1,9 +1,11 @@
 # Authenticated continuations: exploration design
 
 **WIP exploration and narrow prototypes. Not ready for use or real funds.**
-This records a proposed first experiment for
-[#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type, automatic splitting and shared
-Rust CLI/GUI deployment/recovery tooling remain unimplemented. An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
+This records the explicit teaching experiments for
+[#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type and automatic splitting
+remain unimplemented. The shared Rust CLI/GUI now has a purpose-specific
+batch-one session for fresh planning, funding, fee sponsorship, monitoring and
+process recovery; see [the lifecycle commands](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/#authenticated-continuation-cli-and-gui). An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
 supplies a concrete annotated export, independent host oracle and native
 adversarial tests. Its actual subset check, both-mode builds and 108 finite
 primary-VM observations pass. A separate finite ledger milestone now mines
@@ -12,8 +14,8 @@ and generator measurements. The issue stays open; this is an explicit teaching
 policy rather than a general continuation feature. A separate experimental
 host workflow now admits the complete published artifact and queue, persists
 public progress across processes, and supports fixed-provider Testnet11
-observation and explicit submission. It is not integrated into the shared Rust
-CLI/GUI; see the [workflow commands](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations#offline-funding-plan-and-process-recovery).
+observation and explicit submission. That historical Python workflow is separate from the new shared Rust
+CLI/GUI session; see the [workflow commands](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations#offline-funding-plan-and-process-recovery).
 
 The intended feature lets an author divide committed work into bounded spends.
 Each accepted spend performs one specified chunk and commits the next coin to
@@ -180,21 +182,23 @@ is separate from every historical simulator count and does not authenticate
 submission causality, chain inclusion or finality.
 
 The separate [batch-two experiment](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/continuation-batches)
-has native Rust checks and independently executed Chialisp vectors. Its public
-Rust check and both builds exceed the unchanged CLVM expansion-depth limit.
-It has no Rust CLVM artifact, complete SDK spends or measured batching-cost
-comparison. Pairwise distinct recipients are an additional explicit policy
+retains its historical expansion-depth boundary receipt. The bounded
+compiler-owned continuation-table retry now emits the unchanged real Cargo
+export in both modes without raising compiler limits. Current successful VM,
+SDK and cost evidence is captured separately from that historical receipt. Pairwise distinct recipients are an additional explicit policy
 restriction, needed to avoid duplicate output coins within a batch. This is a
-compiler-boundary checkpoint, not a supported batch-size option.
+separate explicit policy, not a selectable batch size in the shared live workflow.
 
 The concrete batch-one experiment records 45 base SDK submissions and a separate 16
 actual-source-control submissions; runtime umbrellas remain inconclusive as
 policy-rejection evidence. Its public cursor is persisted and reparsed within
 one process while the simulator remains in memory. The new host journal and
 adapter have separate process-restart and injected-provider controls; they do
-not add SDK attempts to those historical counts. A reusable SDK API, a compiled
-second batch size, broader fee/cost planning, reorganization recovery and shared Rust
-CLI/GUI deployment remain substantive work. Source authentication and
+not add SDK attempts to those historical counts. A reusable generic SDK API, reorganization recovery and actual Testnet11
+execution through the new shared Rust adapters remain substantive work. The
+new session never retries a started push automatically, including after a
+missing response. Its simulator tests and local GUI checks do not add live
+network credit to the historical Python trial. Source authentication and
 compiler-preservation credit do not follow. SHA remains
 outside models that do not support it; termination/progress models, if added,
 must remain separate from compiler preservation. Liveness, inclusion, finality,

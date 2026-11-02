@@ -6,6 +6,8 @@ use num_bigint::BigInt;
 use rue_lir::{CodegenOptions, Lir, LirId};
 
 #[cfg(test)]
+mod chunks_tests;
+#[cfg(test)]
 mod decoder_tests;
 mod limits;
 mod runtime;
@@ -362,14 +364,55 @@ impl Lower<'_> {
     }
 }
 pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
-    let result = compile_existing(program, optimize);
+    let result = compile_unchunked(program, optimize);
+    if program.uses_runtime()
+        && result.as_ref().is_err_and(|error| {
+            matches!(
+                error.downcast_ref::<limits::Limit>(),
+                Some(limits::Limit::ExpansionDepth)
+            )
+        })
+    {
+        // This separate runtime representation does not change ABI decoder
+        // retries. Only compiler-created strict continuations become entries
+        // in an immutable code table; successful preceding artifacts stay exact.
+        let result = emit_decoder_with_chunks(
+            program,
+            optimize,
+            true,
+            false,
+            false,
+            false,
+            Decoder::Inline,
+            true,
+        );
+        return finish_decoder_retry(program, optimize, result, true);
+    }
+    result
+}
+
+fn compile_unchunked(program: &Program, optimize: bool) -> Result<Vec<u8>> {
+    finish_decoder_retry(
+        program,
+        optimize,
+        compile_existing(program, optimize),
+        false,
+    )
+}
+
+fn finish_decoder_retry(
+    program: &Program,
+    optimize: bool,
+    result: Result<Vec<u8>>,
+    chunks: bool,
+) -> Result<Vec<u8>> {
     if program.environment == crate::Environment::Strict && is_expansion_size(&result) {
         // Retry only after the entire preceding pipeline, including optional
         // emitter and inlining fallbacks, has failed. A successful historical
         // fallback must retain its exact artifact. Use the original validated
         // program conservatively, preserving strict runtime evaluation and the
         // selected Rue mode without optional Rust IR/layout rewrites.
-        let separate = emit_decoder_attempt(
+        let separate = emit_decoder_with_chunks(
             program,
             optimize,
             program.uses_runtime(),
@@ -377,13 +420,14 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
             false,
             false,
             Decoder::Separate,
+            chunks,
         );
         if !is_expansion_size(&separate) {
             return separate;
         }
         // Only a decoder that still duplicates continuations past the budget
         // reaches this last emitter, so successful artifacts are unchanged.
-        return emit_decoder_attempt(
+        return emit_decoder_with_chunks(
             program,
             optimize,
             program.uses_runtime(),
@@ -391,6 +435,7 @@ pub fn compile(program: &Program, optimize: bool) -> Result<Vec<u8>> {
             false,
             false,
             Decoder::Sequenced,
+            chunks,
         );
     }
     result
@@ -528,6 +573,29 @@ fn emit_decoder_attempt(
     compact_unary: bool,
     decoder: Decoder,
 ) -> Result<Vec<u8>> {
+    emit_decoder_with_chunks(
+        program,
+        optimize,
+        runtime_required,
+        guarded_projections,
+        atom_facts,
+        compact_unary,
+        decoder,
+        false,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn emit_decoder_with_chunks(
+    program: &Program,
+    optimize: bool,
+    runtime_required: bool,
+    guarded_projections: bool,
+    atom_facts: bool,
+    compact_unary: bool,
+    decoder: Decoder,
+    chunks: bool,
+) -> Result<Vec<u8>> {
     program.validate()?;
     let mut lower = Lower {
         arena: Arena::new(),
@@ -554,6 +622,7 @@ fn emit_decoder_attempt(
             guarded_projections,
             atom_facts,
             compact_unary,
+            chunks,
         )?
     } else {
         lower.expression(&program.body)?

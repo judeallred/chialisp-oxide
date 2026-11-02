@@ -122,12 +122,21 @@ async fn route(request: Request<Incoming>, shared: Arc<Shared>) -> Reply {
         let asset = match request.uri().path() {
             "/" => Some((
                 "text/html; charset=utf-8",
-                include_str!("assets/index.html")
-                    .replace("__SESSION_CAPABILITY__", &shared.capability),
+                (if shared.continuation {
+                    include_str!("assets/continuation.html")
+                } else {
+                    include_str!("assets/index.html")
+                })
+                .replace("__SESSION_CAPABILITY__", &shared.capability),
             )),
             "/app.js" => Some((
                 "text/javascript; charset=utf-8",
-                include_str!("assets/app.js").to_owned(),
+                (if shared.continuation {
+                    include_str!("assets/continuation.js")
+                } else {
+                    include_str!("assets/app.js")
+                })
+                .to_owned(),
             )),
             "/app.css" => Some((
                 "text/css; charset=utf-8",

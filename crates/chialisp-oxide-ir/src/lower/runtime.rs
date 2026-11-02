@@ -288,6 +288,10 @@ struct Runtime<'a, 'p> {
     projection_ids: BTreeMap<(Place, bool), usize>,
     atom_facts: bool,
     atom_work: usize,
+    // Only compiler-owned Run continuations are lifted. User program/data
+    // atoms and explicit dynamic Apply operands never enter this collection.
+    chunks: bool,
+    continuations: Vec<LirId>,
 }
 
 type Continuation<'a, 'p, 'c> =
@@ -624,16 +628,58 @@ impl<'a, 'p> Runtime<'a, 'p> {
         self.lower.alloc(Lir::Path(first_path(&path)))
     }
 
-    fn continuation(&mut self, value: LirId, body: LirId) -> LirId {
+    fn code_slot(&mut self, index: usize) -> Result<LirId> {
+        if !self.chunks {
+            return Ok(self.list_slot(2, index));
+        }
+        let heap = index.checked_add(1).ok_or(Limit::RuntimeWork)?;
+        let bits = usize::BITS - heap.leading_zeros();
+        self.charge(bits as usize + 1)?;
+        let mut path = BigUint::from(2u8);
+        for bit in (0..bits - 1).rev() {
+            path = rest_path(&path);
+            path = if heap & (1usize << bit) == 0 {
+                first_path(&path)
+            } else {
+                rest_path(&path)
+            };
+        }
+        Ok(self.lower.alloc(Lir::Path(first_path(&path))))
+    }
+
+    fn continuation(&mut self, value: LirId, body: LirId) -> Result<LirId> {
         // The only possibly fallible computation in this new frame is `value`.
         // It is evaluated once before Run enters the continuation, even when
         // that continuation ignores slot zero. Other operands are frame paths.
+        if self.chunks {
+            self.charge(5)?; // Four frame nodes and the final Run, before allocation.
+        }
         let previous = self.lower.alloc(Lir::Path(3u8.into()));
         let slots = self.lower.alloc(Lir::Cons(value, previous));
         let table = self.table();
         let frame = self.lower.alloc(Lir::Cons(table, slots));
-        let quoted = self.lower.alloc(Lir::Quote(body));
-        self.lower.alloc(Lir::Run(quoted, frame))
+        let quoted = if self.chunks {
+            // Charge growth/copies before allocation. Every continuation and
+            // table node also consumes the unchanged runtime work budget.
+            self.charge(1)?;
+            if self.continuations.len() == self.continuations.capacity() {
+                self.charge(1 + self.continuations.len())?;
+                self.continuations.try_reserve(1)?;
+            }
+            let index = self
+                .lower
+                .program
+                .functions
+                .len()
+                .checked_add(self.continuations.len())
+                .ok_or(Limit::RuntimeWork)?;
+            let quoted = self.lower.alloc(Lir::Quote(body));
+            self.continuations.push(quoted);
+            self.code_slot(index)?
+        } else {
+            self.lower.alloc(Lir::Quote(body))
+        };
+        Ok(self.lower.alloc(Lir::Run(quoted, frame)))
     }
 
     fn values(
@@ -669,7 +715,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 self.operand()?;
                 bindings.push(Value::Slot(binding));
                 let body = self.values(remaining, &next, bindings, finish)?;
-                Ok(self.continuation(value, body))
+                self.continuation(value, body)
             } else {
                 finish(self, scope, bindings)
             }
@@ -758,7 +804,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 let mut next = self.extend_scope(scope, binding)?;
                 next.locals.push((*local_id, ty.clone()));
                 let body = self.expression(body, &next)?;
-                self.continuation(value, body)
+                self.continuation(value, body)?
             }
             Expr::If {
                 condition,
@@ -800,7 +846,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 self.next_temporary += 1;
                 let next = self.extend_scope(scope, binding)?;
                 let body = self.expression(then_value, &next)?;
-                self.continuation(value, body)
+                self.continuation(value, body)?
             }
             Expr::Call {
                 function_id,
@@ -808,7 +854,7 @@ impl<'a, 'p> Runtime<'a, 'p> {
             } => {
                 let values = arguments.iter().collect::<Vec<_>>();
                 self.values(&values, scope, &mut vec![], &mut |this, scope, bindings| {
-                    let callee = this.list_slot(2, *function_id);
+                    let callee = this.code_slot(*function_id)?;
                     let values = bindings
                         .iter()
                         .map(|binding| this.value(scope, *binding))
@@ -988,6 +1034,7 @@ pub(super) fn bootstrap(
     guarded_projections: bool,
     atom_facts: bool,
     compact_unary: bool,
+    chunks: bool,
 ) -> Result<LirId> {
     let program = lower.program;
     // Every preflighted body can use branch-local Tree facts. Explicit pair
@@ -1011,7 +1058,13 @@ pub(super) fn bootstrap(
         projection_ids: BTreeMap::new(),
         atom_facts: atom_facts && guarded_projections,
         atom_work: 0,
+        chunks,
+        continuations: vec![],
     };
+    if chunks {
+        // The new representation owns this vector and one quote per function.
+        runtime.charge(program.functions.len().saturating_mul(2))?;
+    }
     let mut functions = Vec::with_capacity(program.functions.len());
     for (frame, function) in program.functions.iter().enumerate() {
         // Pair-capable tables use the same branch-local facts in every body;
@@ -1032,7 +1085,10 @@ pub(super) fn bootstrap(
         )?;
         functions.push(runtime.lower.alloc(Lir::Quote(body)));
     }
-    let table = runtime.lower.list(&functions);
+    // Keep the preceding emitter's allocation order exactly, including arena
+    // identities observed by Rue's optimizer. Only the new layout waits until
+    // the entry body's compiler continuations have all been registered.
+    let preceding_table = (!chunks).then(|| runtime.lower.list(&functions));
     // Facts/options are body-local; never inherit the last helper's admission.
     runtime.guarded_projections = guarded_projections;
     runtime.atom_facts = atom_facts && guarded_projections;
@@ -1045,6 +1101,33 @@ pub(super) fn bootstrap(
         ),
     )?;
     let body = runtime.lower.alloc(Lir::Quote(body));
+    let table = if chunks {
+        let count = functions
+            .len()
+            .checked_add(runtime.continuations.len())
+            .ok_or(Limit::RuntimeWork)?;
+        // n copied IDs, 2n Cons nodes, n+1 empty leaves and 2n+1 traversal
+        // visits. Charge the complete scan/construction before reserving or
+        // traversing the table.
+        runtime.charge(count.saturating_mul(6).saturating_add(2))?;
+        functions.try_reserve(runtime.continuations.len())?;
+        functions.extend_from_slice(&runtime.continuations);
+        // Node i stores (code_i . (left . right)); heap indices make every
+        // lookup independent of final table length. The table is constructed
+        // solely from quoted compiler code, never from input data.
+        fn heap(lower: &mut Lower<'_>, codes: &[LirId], index: usize) -> LirId {
+            if index >= codes.len() {
+                return lower.nil();
+            }
+            let left = heap(lower, codes, index * 2 + 1);
+            let right = heap(lower, codes, index * 2 + 2);
+            let children = lower.alloc(Lir::Cons(left, right));
+            lower.alloc(Lir::Cons(codes[index], children))
+        }
+        heap(runtime.lower, &functions, 0)
+    } else {
+        preceding_table.expect("preceding table is allocated before the entry body")
+    };
     let arguments = runtime.arguments(&runtime.lower.args.clone());
     let frame = runtime.lower.alloc(Lir::Cons(table, arguments));
     Ok(runtime.lower.alloc(Lir::Run(body, frame)))

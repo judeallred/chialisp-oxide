@@ -23,6 +23,7 @@ struct Shared {
     host: String,
     capability: String,
     worker: worker::Controller,
+    continuation: bool,
 }
 
 pub struct LiveLoopbackServer {
@@ -38,7 +39,16 @@ impl LiveLoopbackServer {
         let worker = worker::Controller::production(session).await?;
         Self::with_worker(worker).await
     }
+    pub async fn bind_continuation(
+        session: crate::live::continuation::ContinuationSession,
+    ) -> Result<Self> {
+        let worker = worker::Controller::continuation(session).await?;
+        Self::with_kind(worker, true).await
+    }
     async fn with_worker(worker: worker::Controller) -> Result<Self> {
+        Self::with_kind(worker, false).await
+    }
+    async fn with_kind(worker: worker::Controller, continuation: bool) -> Result<Self> {
         let listener = TcpListener::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0))).await?;
         let address = listener.local_addr()?;
         ensure!(
@@ -52,6 +62,7 @@ impl LiveLoopbackServer {
             host: address.to_string(),
             capability: hex::encode(bytes),
             worker,
+            continuation,
         };
         Ok(Self {
             listener,
