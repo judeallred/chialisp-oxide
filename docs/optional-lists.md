@@ -1,8 +1,8 @@
-# Optional output lists with standard Rust Option
+# Standard Rust Option inputs and output lists
 
 **WIP prototype. Not ready for use with real funds or in production.** This
-feature provides a restricted CLVM output encoding for ordinary Rust
-`Option<T>`. It does not add general enum support, a variable-length collection
+feature provides a restricted CLVM value encoding for ordinary Rust
+`Option<T>`, including version-8 entry arguments and by-value matching. It does not add general enum support, a variable-length collection
 library, or a completed boomerang puzzle.
 
 Start a puzzle in a normal Cargo library using the unpublished
@@ -30,6 +30,39 @@ Bounded nested outputs preserve each layer: `Some(None::<u8>)` becomes `(())`,
 and `Some(Some(0_u8))` becomes `((()))`. Fixed byte payloads preserve their
 bytes, including leading zero bytes. An optional borrowed `Tree` preserves the
 complete payload tree, including improper tails, inside a proper outer list.
+
+## Match a typed optional argument
+
+Version-8 exports can accept an optional value and inspect it through ordinary
+by-value Rust patterns:
+
+```rust
+#[chialisp_oxide::puzzle]
+pub fn increment(value: Option<u8>) -> Option<u8> {
+    match value {
+        Some(n) => Some(n + 1),
+        None => None,
+    }
+}
+```
+
+The strict export environment still wraps its arguments in a proper list.
+For this single argument, `(())` supplies `None`, whereas `((7))` supplies
+`Some(7)`; the results are `()` and `(8)`. `Some(0)` uses a one-element list
+containing nil, so it stays distinct from `None`. The compiler rejects non-nil
+atom tags, improper or longer lists, and malformed payloads before the source
+body runs, even if that body ignores its argument. `Some` payloads receive the
+same complete canonicality, width, length and nested-shape checks as other
+strict typed arguments.
+
+By-value `match`, `if let` and `matches!` use the actual standard Option variants.
+A None branch does not project or evaluate a Some payload. Nested optional
+values, admitted tuple/pair payloads and local named records retain their exact
+structural ABI. `Option<State>` can therefore carry an admitted state record or
+an absent result without introducing a custom enum or target memory layout.
+It does not itself enforce a continuation's root, coin identity or successor.
+Generic methods such as `unwrap`, `is_some`, `map` and mutable borrowing remain
+outside this initial inspection profile.
 
 ## Extend a list with an optional last element
 
@@ -111,10 +144,10 @@ not reads of the author's wall clock.
 
 This helper deliberately does not decide who may spend or when authorization
 is required. An actual exported policy must make those decisions and commit
-its destinations, amount and deadline appropriately. Marking this helper itself
-as an export would fail because its `authorization` parameter contains
-`Option`. Only compiler-created optional values may be passed to internal
-helpers. A complete reclaimable-payment tutorial also needs curried instances,
+its destinations, amount and deadline appropriately. Version 8 can decode its
+optional authorization argument; accepting that argument does not establish
+that authorization is required. Earlier version-6/7 exports remain output-only.
+Compiler-created optional values may also pass through internal helpers. A complete reclaimable-payment tutorial also needs curried instances,
 independent language implementations, adversarial vectors and actual ledger
 spends. The assembly helper is checked as a function, not as that complete
 puzzle. Its test wrapper's key bytes are opaque wire fixtures; the tests do not
@@ -129,18 +162,15 @@ variants through rustc identities and the pinned core crate. Normal aliases and
 this encoding.
 
 Supported operations are construction, ordinary whole-value assignment, moves,
-copies where Rust permits them, and opaque forwarding through local
-monomorphic helpers. A helper may accept and return an optional value built by
+copies where Rust permits them, opaque forwarding through local monomorphic
+helpers, and version-8 by-value pattern inspection. A helper may accept and return an optional value built by
 another checked function. Bounded nesting in admitted tuples, arrays and
 `Cons` outputs is allowed, within the existing type-depth and work limits.
 
 The current subset rejects:
 
-- `Option` anywhere in an exported parameter, including nested tuple, array,
-  transparent-wrapper and `Cons` fields. The exact typed environment ABI does
-  not decode optional inputs.
-- Matching or inspecting an optional value, discriminant or payload
-  projections, and methods such as `is_some`, `unwrap` and `map`.
+- Generic Option methods such as `is_some`, `unwrap`, `map` and `take`.
+  Use the supported by-value patterns instead.
 - References to optional values. An optional immutable borrowed `Tree` or
   admitted atom payload is a different supported shape.
 - Owned-tree, `Box`, `Vec`, custom-drop and other unsupported payload types,
@@ -165,12 +195,16 @@ evaluations rather than treating `Option` as lazy execution.
 ## Wire format, optimization and evidence
 
 The typed IR has an explicit `Optional` type and `OptionalNone`/`OptionalSome`
-constructors. Programs with optional capability use version 6, including when
-they also use version-5 `Cons` pairs. Capability discovery includes unused
-function signatures, local type metadata and dead branches. Older envelopes
-reject these types and nodes; existing programs without optional capability
-retain their earlier formats. The output contains nil or a list, never a Rust
-discriminant, niche layout or pointer representation.
+constructors. Output-only programs use version 6, or version 7 when they also
+contain primitive integer casts. Optional entry parameters or the new typed
+presence/payload inspection nodes require version 8. Version 8 composes with
+pairs and casts; versions 6 and 7 keep their output-only entry contract.
+Capability discovery includes dead and unused bodies. Existing opaque internal
+helper parameters alone do not upgrade an old output-only program. Earlier
+formats reject new input/inspection capability rather than silently changing
+accepted inputs. The wire contains nil or a list, never a Rust discriminant,
+niche layout or pointer representation. Existing proof models remain closed to
+all optional capability, including a discarded or unreachable inspection.
 
 Optional-capable programs currently skip the Rust IR refinement and inlining
 passes. Their complete validated IR is retained conservatively. Selecting
@@ -184,10 +218,15 @@ The implementation's evidence has separate scopes:
   compare actual Cargo Rust functions and native results against independently
   compiled Chialisp, with both optimization modes and wire round trips. They
   also exercise rejected inputs, unsupported operations, identities, ownership
-  and source-order controls. Both Rust examples on this page are bound exactly
-  to that fixture's source. The condition helper is exercised with and without
+  and source-order controls. The tail and condition-helper examples are bound
+  exactly to that fixture's source. The condition helper is exercised with and without
   authorization and with both named time conditions; those are output-tree
   comparisons, not consensus authorization or timelock observations.
+- [Input/match Cargo tests](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-driver/tests/optional_inputs.rs)
+  exercise native standard Option values, independent Chialisp policies and both
+  compiled Rust modes. Malformed optional tags and ignored payloads, nested
+  records, lazy branches, casts and strict discarded initializers have separate
+  finite controls; they add no consensus or compiler-preservation claim.
 - [IR tests](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-ir/tests/optional.rs) exercise exact output
   trees, strict evaluation, capability versions, internal calls and bounded
   metadata validation independently of Rust extraction.

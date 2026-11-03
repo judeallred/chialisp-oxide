@@ -26,10 +26,10 @@
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7"
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/p2-controls-bundle/28153-1793720418434827000/manifest.json",
-    "manifest_sha256": "6091a24dad68fc4435031893826a6349fb9f7dbcd959aa1c2b6131ed6296dcbb",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/p2-controls-bundle/7558-1793739228521948000/manifest.json",
+    "manifest_sha256": "9605402d20ba649cbd3a63d24d89d2c27ebf543002d626bacc2500f1f6486f64",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
-    "driver_sha256": "59c6135be006354636ce6ea5caa8448a7598f9eedd7266a80f1bc56de0fd7c9d",
+    "driver_sha256": "c581aeba0de6410f95e7d018aff8af78c77e6fb7dd4a4553cc2c06cf6f59c703",
     "toolchain": "nightly-2026-07-14",
     "rue_revision": "245c107a8e795229ea08097142f005a4c0d91075",
     "optimize_lir": true,
@@ -146,9 +146,17 @@
           "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
           "source": "puzzles/fixed-payment/puzzle.rs"
         },
+        "inner-any-conditions": {
+          "entry": "chialisp_oxide_puzzles::inner_any_conditions::puzzle",
+          "source": "puzzles/inner-any-conditions/puzzle.rs"
+        },
         "inner-puzzle": {
           "entry": "chialisp_oxide_puzzles::inner_puzzle::puzzle",
           "source": "puzzles/inner-puzzle/puzzle.rs"
+        },
+        "inner-require-signature": {
+          "entry": "chialisp_oxide_puzzles::inner_require_signature::puzzle",
+          "source": "puzzles/inner-require-signature/puzzle.rs"
         },
         "insertion-sort-by-keys": {
           "entry": "chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle",
@@ -181,6 +189,14 @@
         "module-times-ten": {
           "entry": "chialisp_oxide_puzzles::module_times_ten::puzzle",
           "source": "puzzles/module-times-ten/puzzle.rs"
+        },
+        "morph-any-with-signature": {
+          "entry": "chialisp_oxide_puzzles::morph_any_with_signature::puzzle",
+          "source": "puzzles/morph-any-with-signature/puzzle.rs"
+        },
+        "morph-coin-doubler": {
+          "entry": "chialisp_oxide_puzzles::morph_coin_doubler::puzzle",
+          "source": "puzzles/morph-coin-doubler/puzzle.rs"
         },
         "p2-conditions": {
           "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
@@ -291,6 +307,10 @@
         {
           "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp.hex",
           "sha256": "81ac2c9256e356df768c1fb6819cc4d157c733cfdd51881c51cf3c61f424fd66"
+        },
+        {
+          "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+          "sha256": "eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e"
         },
         {
           "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
@@ -538,11 +558,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "66b4eafe9d05ce83ed05512f2414bd284232736154ed77726f88cbb92654a5ae"
+          "sha256": "737730574fbbdc5af5548edec131c85ecf680278d59887e7b854e6d9795739fc"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "e156636319321661eb89738156d430e2accc32311ecb81e0a405664bf62dd96c"
+          "sha256": "698966441910d4173ed539619e124e999b20c9af07bdca70f0647dbd8dbd4e3c"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -694,7 +714,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
+          "sha256": "61c0bc2bf20dfd3f0918ebc66e35768470e4488009ce7fa32b23ff11a637b7ba"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -801,8 +821,40 @@
           "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
         },
         {
+          "path": "puzzles/inner-any-conditions/puzzle.json",
+          "sha256": "d3f7c1ef770ea58cad10669f37d01d8ce20bc69c4d4bdf756593c8f451057abc"
+        },
+        {
+          "path": "puzzles/inner-any-conditions/puzzle.rs",
+          "sha256": "09ae15a6b93691a09721e880206f8df078e7ff2426ef171a7a516f7adab5854c"
+        },
+        {
+          "path": "puzzles/inner-any-conditions/puzzle.rue",
+          "sha256": "224b15b929c8b9ad317830ac68e056ca75368b928e4251de172dacaac60d0a3a"
+        },
+        {
+          "path": "puzzles/inner-any-conditions/reference.clsp",
+          "sha256": "184fdc539df817ffe54ce82db2bfe2f852669a678f205ff7a755f5f23ce1d87d"
+        },
+        {
           "path": "puzzles/inner-puzzle/puzzle.rs",
           "sha256": "c533d8b1940fbf88a503348bbab1cc307ae8516f862de267bdc0041dd42f424e"
+        },
+        {
+          "path": "puzzles/inner-require-signature/puzzle.json",
+          "sha256": "b9d1444537acdb730bfa269b4664f2bcd4fa31bf6aa090d5e4cdc5514b832ae0"
+        },
+        {
+          "path": "puzzles/inner-require-signature/puzzle.rs",
+          "sha256": "3df68313a6449de87123c304e1f8a7de59f273c1350680fd3f5379cf30fe61df"
+        },
+        {
+          "path": "puzzles/inner-require-signature/puzzle.rue",
+          "sha256": "2bf14da1c47ee393420d3c9a7bc491d29f1b22e989534f71988c3be486633f2c"
+        },
+        {
+          "path": "puzzles/inner-require-signature/reference.clsp",
+          "sha256": "2eed40a54e4d5d6d8485d7148c2b9ea642b7e24a2d603ea30ba7bfd675351d15"
         },
         {
           "path": "puzzles/insertion-sort-by-keys/generated-cases.json",
@@ -830,7 +882,7 @@
         },
         {
           "path": "puzzles/lib.rs",
-          "sha256": "8a80a044124ac5c29d07d4e8afd8c4133890dc68d016e8bb29bc7d58ba682ee9"
+          "sha256": "1bbd9f5fc9e1f293bed3399e3d5f2f7df906ce2af0e4157f6394cf299c465862"
         },
         {
           "path": "puzzles/module-add/puzzle.rs",
@@ -843,6 +895,38 @@
         {
           "path": "puzzles/module-times-ten/puzzle.rs",
           "sha256": "9034321d4d35bca1ef52bd2add7d23a400b345f2c8f8b283a7c465c29f28d1f1"
+        },
+        {
+          "path": "puzzles/morph-any-with-signature/puzzle.json",
+          "sha256": "1ef74647b6478c57c0115a81c780338b88af34cf6d5a06bd32ee291c65a817e1"
+        },
+        {
+          "path": "puzzles/morph-any-with-signature/puzzle.rs",
+          "sha256": "39e386ce1526138efd5ae2b0b0696e8612db437f0afa5aef8510a32d2af0aff6"
+        },
+        {
+          "path": "puzzles/morph-any-with-signature/puzzle.rue",
+          "sha256": "0ecf62a29d34c8653689335a088991ae10d95197febf7891e55852ad7a656ed7"
+        },
+        {
+          "path": "puzzles/morph-any-with-signature/reference.clsp",
+          "sha256": "72d729066874ed1d69b6a58c8c7cea1dfc2b685f2f6ab7d48783f05c1a559311"
+        },
+        {
+          "path": "puzzles/morph-coin-doubler/puzzle.json",
+          "sha256": "5ed1c58f6f05048b47c810186a60ef4c8f1da2a57c504a50187a6394c710d692"
+        },
+        {
+          "path": "puzzles/morph-coin-doubler/puzzle.rs",
+          "sha256": "f0fe5b2e791dbd96a19bd873eed86cbcbe77782bf885825c3071d834ba027573"
+        },
+        {
+          "path": "puzzles/morph-coin-doubler/puzzle.rue",
+          "sha256": "7912de8c005b864b294c0a15e8204f5834827b0faa74e021cf0217c3fe97cf7d"
+        },
+        {
+          "path": "puzzles/morph-coin-doubler/reference.clsp",
+          "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
         },
         {
           "path": "puzzles/p2-conditions/puzzle.rs",
@@ -1041,7 +1125,7 @@
       },
       {
         "path": "scripts/cargo_bundle.py",
-        "sha256": "857622f345e98ae291f382a4e799a6c1e90933c7ec2f215d2eee26d8220a016b"
+        "sha256": "72963c54bcdf1e214912103f553a238b4fb84610c73244f1c55650f791eda847"
       },
       {
         "path": "scripts/cargo_source_receipt.py",
@@ -1063,12 +1147,12 @@
     },
     "scope": "Fresh caller-supplied three-export Cargo bundle identity and current source consistency only. Exact reviewed Rust mutations are checked separately from IR identity. The main declared Cargo/SDK and seven private inputs are checked before/after loading. This gate does not extract, validate Program semantics, compile or replay native/CLVM programs, authenticate execution, capture the complete build environment, or prove compiler/IR/CLVM preservation. Existing Rust replay performs Program validation and six finite VM comparisons."
   },
-  "manifest": "{\n  \"analysis_target\": \"aarch64-apple-darwin\",\n  \"cargo_options\": [\n    \"--locked\",\n    \"--manifest-path\",\n    \"experiments/p2-singleton-controls/Cargo.toml\"\n  ],\n  \"compiler\": \"rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\\nbinary: rustc\\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\\ncommit-date: 2026-07-13\\nhost: aarch64-apple-darwin\\nrelease: 1.99.0-nightly\\nLLVM version: 22.1.8\\n\",\n  \"driver_sha256\": \"59c6135be006354636ce6ea5caa8448a7598f9eedd7266a80f1bc56de0fd7c9d\",\n  \"entries\": [\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1380,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff8405ffffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff835fffff80ffff01ff0880ffff01835fffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff825fff80ffff01ff0880ffff01825fff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff820bff80ffff01ff0880ffff01820bff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ff80ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 100663295 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 6291455) (q 8) (q . 6291455)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 24575) (q 8) (q . 24575)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 3071) (q 8) (q . 3071)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c () 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"13f3e4c1a585a4db47f2ac68211f9d2d9cf0683b3bb95659137502e0ff980209\"\n      },\n      \"clvm\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::proper_struct::puzzle\",\n      \"ir\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2180ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8202ff80ffff01ff0880ffff018202ff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 33) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 767) (q 8) (q . 767)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"b2abbd4e448db99c0e4a76752f1d001ecaf0260f0b8473e285826f25b562ca3b\"\n      },\n      \"clvm\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle\",\n      \"ir\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"7cf88d533580b1f8c15dd1bd02ac8b16fcd601bfe6096efc82f2a4125422fdb0\"\n      },\n      \"clvm\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle\",\n      \"ir\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json\"\n    }\n  ],\n  \"manifest_path\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls/Cargo.toml\",\n  \"package\": \"chialisp-oxide-p2-singleton-controls\",\n  \"package_id\": \"path+file:///Users/judeallred/code/clispOx/experiments/p2-singleton-controls#chialisp-oxide-p2-singleton-controls@0.1.0\",\n  \"rue_revision\": \"245c107a8e795229ea08097142f005a4c0d91075\",\n  \"schema_version\": 1,\n  \"status\": \"wip_prototype_not_ready_for_use\",\n  \"toolchain\": \"nightly-2026-07-14\",\n  \"workspace_root\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls\"\n}",
+  "manifest": "{\n  \"analysis_target\": \"aarch64-apple-darwin\",\n  \"cargo_options\": [\n    \"--locked\",\n    \"--manifest-path\",\n    \"experiments/p2-singleton-controls/Cargo.toml\"\n  ],\n  \"compiler\": \"rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\\nbinary: rustc\\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\\ncommit-date: 2026-07-13\\nhost: aarch64-apple-darwin\\nrelease: 1.99.0-nightly\\nLLVM version: 22.1.8\\n\",\n  \"driver_sha256\": \"c581aeba0de6410f95e7d018aff8af78c77e6fb7dd4a4553cc2c06cf6f59c703\",\n  \"entries\": [\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1380,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff8405ffffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff835fffff80ffff01ff0880ffff01835fffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff825fff80ffff01ff0880ffff01825fff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff820bff80ffff01ff0880ffff01820bff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ffff04ff2fff0580ff03808080ffff04ff02ffff04ff80ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 100663295 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 6291455) (q 8) (q . 6291455)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 24575) (q 8) (q . 24575)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 3071) (q 8) (q . 3071)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c (c 47 5) 3))) (c 2 (c () 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"13f3e4c1a585a4db47f2ac68211f9d2d9cf0683b3bb95659137502e0ff980209\"\n      },\n      \"clvm\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::proper_struct::puzzle\",\n      \"ir\": \"284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2180ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff5fff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8202ff80ffff01ff0880ffff018202ff80ff0180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 33) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 95 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 767) (q 8) (q . 767)) 1) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"b2abbd4e448db99c0e4a76752f1d001ecaf0260f0b8473e285826f25b562ca3b\"\n      },\n      \"clvm\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle\",\n      \"ir\": \"a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json\"\n    },\n    {\n      \"artifact\": {\n        \"backend\": \"rust_mir\",\n        \"bytes\": 1334,\n        \"clvm_hex\": \"ff02ffff01ff02ffff03ffff07ff0380ffff01ff02ffff03ffff07ff0780ffff01ff02ffff03ffff07ff0f80ffff01ff02ffff03ffff07ff1f80ffff01ff02ffff03ffff07ff3f80ffff01ff02ff04ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fff8080808080808080ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff01ff088080ff0180ffff04ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff04ff17ffff04ff0bffff04ff05ff80808080ffff04ff02ffff04ffff04ffff0146ffff04ff84017fffffff808080ff03808080ffff04ff02ffff04ffff01ff3cff2480ff03808080ffff04ff02ffff04ffff04ffff013fffff04ff05ff808080ff03808080ffff04ff02ffff04ffff0bff0bff05ff8080ff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8317ffff80ffff01ff0880ffff018317ffff80ff0180ff03808080ffff04ff02ffff04ff05ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0102ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ffff03ffff07ff8217ff80ffff01ff0880ffff018217ff80ff0180ff03808080ffff04ff02ffff04ffff02ff16ffff04ff02ffff04ffff0104ffff04ff0bffff04ff05ff808080808080ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff04ff02ffff04ffff04ff0bff0580ff03808080ffff04ff02ffff04ffff04ff0bff1780ff03808080ffff04ffff01ff02ffff03ffff07ff0380ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff0f8080ff03808080ffff04ff02ffff04ffff02ff0affff04ff02ff058080ff03808080ffff01ff02ffff01ff0bffff0101ff05ff8080ffff04ff02ffff04ff03ff0380808080ff0180ffff04ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff02ffff01ff0bffff0102ff0bff0580ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff820bffff03808080ffff04ff02ffff04ffff0bffff0102ff0bff0580ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff8205ffff0580ff03808080ffff04ff02ffff04ff17ff03808080ffff04ff02ffff04ffff0bffff0102ff05ff81bf80ff03808080ffff04ff02ffff04ff0bff03808080ffff04ff02ffff04ffff0bffff010180ff03808080ffff04ff02ffff04ffff0bffff0182010180ff03808080ffff04ff02ffff04ffff0bffff0101ff05ff8080ff03808080ff80808080ff018080\",\n        \"disassembly\": \"(a (q 2 (i (l 3) (q 2 (i (l 7) (q 2 (i (l 15) (q 2 (i (l 31) (q 2 (i (l 63) (q 2 4 (c 2 (c 5 (c 11 (c 23 (c 47 (c 95 ()))))))) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (q 8)) 1) (c (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 4 23 (c 11 (c 5 ()))) (c 2 (c (c (q . 70) (c 25165823 ())) 3))) (c 2 (c (q 60 36) 3))) (c 2 (c (c (q . 63) (c 5 ())) 3))) (c 2 (c (sha256 11 5 ()) 3))) (c 2 (c (a (i (l 1572863) (q 8) (q . 1572863)) 1) 3))) (c 2 (c 5 3))) (c 2 (c (a 22 (c 2 (c (q . 2) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c (a (i (l 6143) (q 8) (q . 6143)) 1) 3))) (c 2 (c (a 22 (c 2 (c (q . 4) (c 11 (c 5 ()))))) 3))) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (c 2 (c (c 11 5) 3))) (c 2 (c (c 11 23) 3))) (c (q 2 (i (l 3) (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 11 3))) (c 2 (c (a 10 (c 2 15)) 3))) (c 2 (c (a 10 (c 2 5)) 3))) (q 2 (q 11 (q . 1) 5 ()) (c 2 (c 3 3)))) 1) (c (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 2 (q 11 (q . 2) 11 5) (c 2 (c 11 3))) (c 2 (c 3071 3))) (c 2 (c (sha256 (q . 2) 11 5) 3))) (c 2 (c 11 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 1535 5) 3))) (c 2 (c 23 3))) (c 2 (c (sha256 (q . 2) 5 -65) 3))) (c 2 (c 11 3))) (c 2 (c (sha256 (q . 1)) 3))) (c 2 (c (sha256 (q . 257)) 3))) (c 2 (c (sha256 (q . 1) 5 ()) 3))) ()))) 1))\",\n        \"optimize_lir\": true,\n        \"tree_hash\": \"7cf88d533580b1f8c15dd1bd02ac8b16fcd601bfe6096efc82f2a4125422fdb0\"\n      },\n      \"clvm\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.clvm.hex\",\n      \"entry\": \"chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle\",\n      \"ir\": \"a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json\"\n    }\n  ],\n  \"manifest_path\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls/Cargo.toml\",\n  \"package\": \"chialisp-oxide-p2-singleton-controls\",\n  \"package_id\": \"path+file:///Users/judeallred/code/clispOx/experiments/p2-singleton-controls#chialisp-oxide-p2-singleton-controls@0.1.0\",\n  \"rue_revision\": \"245c107a8e795229ea08097142f005a4c0d91075\",\n  \"schema_version\": 1,\n  \"status\": \"wip_prototype_not_ready_for_use\",\n  \"toolchain\": \"nightly-2026-07-14\",\n  \"workspace_root\": \"/Users/judeallred/code/clispOx/experiments/p2-singleton-controls\"\n}",
   "vm_replay": {
     "controls": [
       {
         "entry": "chialisp_oxide_p2_singleton_controls::proper_struct::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/p2-controls-bundle/28153-1793720418434827000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/p2-controls-bundle/7558-1793739228521948000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
         "ir_sha256": "47ab6cc139bf20e4c7db32ef04da38d35382a4402a9db1b67fef70ce8801c112",
         "runs": [
           {
@@ -1117,7 +1201,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/p2-controls-bundle/28153-1793720418434827000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/p2-controls-bundle/7558-1793739228521948000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7",
         "runs": [
           {
@@ -1166,7 +1250,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/p2-controls-bundle/28153-1793720418434827000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/p2-controls-bundle/7558-1793739228521948000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
         "ir_sha256": "ca7214b68d737e0442c0c91a6361d4e6efcd6a78219c4f8e296624f39ab6dbfc",
         "runs": [
           {
@@ -1214,8 +1298,8 @@
         ]
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/p2-controls-bundle/28153-1793720418434827000/manifest.json",
-    "manifest_sha256": "6091a24dad68fc4435031893826a6349fb9f7dbcd959aa1c2b6131ed6296dcbb",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/p2-controls-bundle/7558-1793739228521948000/manifest.json",
+    "manifest_sha256": "9605402d20ba649cbd3a63d24d89d2c27ebf543002d626bacc2500f1f6486f64",
     "scope": "Three actual ordinary Rust policy mutations admitted through Cargo. Native tests and six CLVM runs distinguish the independent protocol relation. This is not an error Rust makes impossible or constructed-IR mutation.",
     "source_controls": [
       {
@@ -1257,7 +1341,7 @@
     ],
     "exit_code": 0,
     "tests": 3,
-    "log_sha256": "1b7849915a382d034c2d723640587d451df162b65af21d044df1a3e644a591ac",
+    "log_sha256": "faf9e785f43a34320f088854caa17267f0da4d06c387a176c2f17dab0cb8c335",
     "observations": [
       {
         "name": "proper_struct",
@@ -1279,7 +1363,7 @@
   "window": {
     "source_root": "/Users/judeallred/code/clispOx",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
-    "driver_sha256": "59c6135be006354636ce6ea5caa8448a7598f9eedd7266a80f1bc56de0fd7c9d",
+    "driver_sha256": "c581aeba0de6410f95e7d018aff8af78c77e6fb7dd4a4553cc2c06cf6f59c703",
     "toolchain": "nightly-2026-07-14",
     "sources": [
       {
@@ -1317,6 +1401,10 @@
       {
         "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp.hex",
         "sha256": "81ac2c9256e356df768c1fb6819cc4d157c733cfdd51881c51cf3c61f424fd66"
+      },
+      {
+        "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+        "sha256": "eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e"
       },
       {
         "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
@@ -1620,11 +1708,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "66b4eafe9d05ce83ed05512f2414bd284232736154ed77726f88cbb92654a5ae"
+        "sha256": "737730574fbbdc5af5548edec131c85ecf680278d59887e7b854e6d9795739fc"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "e156636319321661eb89738156d430e2accc32311ecb81e0a405664bf62dd96c"
+        "sha256": "698966441910d4173ed539619e124e999b20c9af07bdca70f0647dbd8dbd4e3c"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -1636,7 +1724,7 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
-        "sha256": "e632a03146ad35462d66f1c178b0600bb458bc7026eedf8d80fe983f695645f3"
+        "sha256": "da18ac591aa2534f84c793b07c62b06de47ed3be83036b0277d6566c4871030c"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -1704,11 +1792,15 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower.rs",
-        "sha256": "98ec31ddc0a78729973d5822fbce2c54257df0b13dca51a23addb5d771cbe54a"
+        "sha256": "c8030da557c5c39bee61a14713199c9f633296a0cfe1cfd98eec2c36b590f1c9"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
         "sha256": "cf5599e63d1503f3419412543a103fe1694b8d017939aa436c95be39d0a9b71d"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/lower/arrays.rs",
+        "sha256": "33c3311659983839346e721d4f9e114d53078004a4b17900b1f5a6d8cefa5f60"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/byte_comparison.rs",
@@ -1716,11 +1808,11 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/cons.rs",
-        "sha256": "84a71b0c703c14273e9eebbfab8ba04ec3d5eeadbdc9e922010726011236fc3d"
+        "sha256": "597b97378f2b7c3cc10377d63f777cab58709ba3874831e28509041965bc5f61"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/constants.rs",
-        "sha256": "223ff35ec9c7704a485489a305d14e33f0b8d3efd33569be654fc785fa7d7252"
+        "sha256": "115cd1b70add59c47338829138973dc45c94cde475795cac80106769847d56d1"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/empty_atoms.rs",
@@ -1760,7 +1852,7 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/optional.rs",
-        "sha256": "b056f2f19dbde63c6e85debf3f9935b82d67144b3a8dec2306cbb0478b3ae708"
+        "sha256": "18265fd05849ae951198988cfde89583cdb488215388de479731290f0f6c8457"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/owned.rs",
@@ -1768,11 +1860,15 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-        "sha256": "10fa49e69ce535d1729be48b862c35edd0b890c559eb9ac1573021b96b552028"
+        "sha256": "e40c17e3ec0ff6dd43eab022477fa7961655ad6104e490c9fda0599ee5a7fdaf"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
         "sha256": "b032e4e590eaa0c5c48b32f75bf8dfa7eb01d7ac718aa47ccde6ee5e2efecab7"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/lower/structs.rs",
+        "sha256": "f31db871c5b2807b3741380e8d968cc44184bc18f455a306ce447beb7c40a56e"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -1780,7 +1876,7 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/trees.rs",
-        "sha256": "656ca2e88a9b14c1ea38822c8d75de8030b5e18b0fb954cefb82b2195e4c0434"
+        "sha256": "e276e8466d37e43bca7209c16f9d9220f6b6f11219ee9f70e51af0d3232357f2"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/main.rs",
@@ -1812,11 +1908,11 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lib.rs",
-        "sha256": "f6386551db224827d61cf81b777b95cb59084b4c9bbe907d189ccbe1579a66c6"
+        "sha256": "17a8571077f4adeed64c96d53877e3b7bc19f86ec76e77a72a7ff48924123c16"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower.rs",
-        "sha256": "71da87e0f0897d597d1fbc88cd303ba86bd933fcda8ce30600b1f9a8a9233ee5"
+        "sha256": "55760ad5fa420d36db5073f201f6f669fc27771a389ce4dfdf14ba961d33f236"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -1824,7 +1920,7 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/decoder_tests.rs",
-        "sha256": "753228e0d0be288b558063fe0639f481da313338e22e3f3d0336d71b21acdcbf"
+        "sha256": "caa693313a25934e2c4c734cf79298c37e2b0a863c011cd6ae17dd2e2f481f92"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/limits.rs",
@@ -1832,39 +1928,39 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
-        "sha256": "e91fa45218b06c0f47eb4faa321a963368f4679aeac9ec90c6fc614543c3ba1f"
+        "sha256": "0993e88a55d542e42c0f3d4057398fd3b0de2637afe20f535aeb8545691ecc42"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize.rs",
-        "sha256": "942db3fd2b90ce06038286be3bf0102bf7884ef40c08ff92b470c6c125d74f91"
+        "sha256": "68b58b8318304e9ba96b88aba34476d154182533abf3b3da1257d9ab900c9e3f"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize/budget.rs",
-        "sha256": "31e5e0f2a5009977a66fd9cc76afc209cefb998aef9cea9d6f9f52fc2248010b"
+        "sha256": "c596dab9e8f31d7fb5da0b6faec5cff7e5c0d117459740ce6105c64e7bf6528d"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize/constants.rs",
-        "sha256": "571e3b0e526dd8ce0c85965f8e4b19140c1d59d1476aa61705d7b2ef2aff5cef"
+        "sha256": "96a5b27af1996608b25b19c04dca6480a243e67c0591779295f26993e8ac92d8"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize/facts.rs",
-        "sha256": "523807ae4705d7ef15609feaaaf7a07ba589e1c02d10b3c8a7225773b552f406"
+        "sha256": "91fd124d1a6fa61d4f2c42c24480c36d4eb843be38798e2ece0f81844719874e"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize/inline.rs",
-        "sha256": "09aee7820d5f2f0f157815c4b70007d9b83517a7a7cd5c85f48ef256f1b68bb9"
+        "sha256": "b2827610562286c40316cb1fd3955f8df4b64a9c4003a47cac6394e6d599d5a3"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/optimize/intervals.rs",
-        "sha256": "1e89fd3afac82016d6db71b7ebc8e1b53a4c0aa692c88e2543fe241c59ed4dc2"
+        "sha256": "81272381726a4c5b3f7bd745340042787f462503494f6a091a6070c852fed924"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/validate.rs",
-        "sha256": "eb0c77872202dafc523b05c6bcdfecf6230ad86ee3c2c58147656b7bfbeb7cb9"
+        "sha256": "da86f610a6ce0cbf75bc66ae6f2b6a33af182ed991ee1ce185de14ef12122515"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/wire.rs",
-        "sha256": "000ae3ed1dd84f3ccc36f248ab03ab3f48a800e414948e04333d6df423adb080"
+        "sha256": "fc8a3aba62a5d0ea6710decf106161bdbccd9548f584ecac0f78a10c575eaa40"
       },
       {
         "path": "crates/chialisp-oxide-lifecycle/Cargo.toml",
@@ -1884,11 +1980,11 @@
       },
       {
         "path": "crates/chialisp-oxide-lifecycle/src/fresh/cat.rs",
-        "sha256": "3a8b4a798a05adcbf5bde14bfbe4cc957c97e69a39fe6df9356a59fcfeeea6f2"
+        "sha256": "8fa5ca165c99dd1065f9427770a59dba2a3232a0f04ea7476b9fb2c48d8708f9"
       },
       {
         "path": "crates/chialisp-oxide-lifecycle/src/fresh/cat_bundle.rs",
-        "sha256": "23a4529e56b2efac6110d3486b21c45b7cc454bbb5efee858de9937eca307aa2"
+        "sha256": "4bb718f36bcae57514e6dda891cc13a236e6551b179a8e15d47cc2704de7ccd4"
       },
       {
         "path": "crates/chialisp-oxide-lifecycle/src/fresh/cat_provenance.rs",
@@ -2172,11 +2268,11 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/bundle.rs",
-        "sha256": "e0defa427a610845aa97ef9d164dd5be66b17c5e5a12f367ea297e788e2b36f0"
+        "sha256": "4924f8856435675ead65f23fbf7597ec4e0a48bafc02d15572549f05c0ab7ab9"
       },
       {
         "path": "crates/chialisp-oxide-package/src/bundle/tests.rs",
-        "sha256": "4917e1f94d76fb76017e611722c88172611b67e79fddc2f61a3e7485dc2a2c36"
+        "sha256": "f78581c62b1ca94fa89d9fc5ed4b669b77424c67dc79bf08317e7fe29729eefd"
       },
       {
         "path": "crates/chialisp-oxide-package/src/codegen.rs",
@@ -2352,11 +2448,11 @@
       },
       {
         "path": "crates/chialisp-oxide-package/src/package.rs",
-        "sha256": "2daa2d1d02222ea6aab5db0c1ccc226e801b232ad414a6e8da98b152873375d0"
+        "sha256": "3f55f44c7340202daef18876d0d389786cdf106defe668e697c92491c36c9a44"
       },
       {
         "path": "crates/chialisp-oxide-package/src/package_tests.rs",
-        "sha256": "217b7f26f2d074f8c9366031e1b13261238675b3eb7d2ad787f332efaeea1914"
+        "sha256": "42d0e470da022e3fe87275b29b93935d9d72dc9d023b27418558fafde9682d0d"
       },
       {
         "path": "crates/chialisp-oxide-package/src/receipt.rs",
@@ -2440,7 +2536,7 @@
       },
       {
         "path": "crates/chialisp-oxide-verifier/src/lib.rs",
-        "sha256": "093004862c836e86105679dd7c1138863405434b854ed239f38cc9f690857296"
+        "sha256": "b88d342397cebeed8ce770a7dd3b844b502e075ffc814455da4081ae893b565e"
       },
       {
         "path": "crates/chialisp-oxide-verifier/src/main.rs",
@@ -2456,7 +2552,7 @@
       },
       {
         "path": "crates/chialisp-oxide-verifier/src/scalar_bitwise.rs",
-        "sha256": "68104036765d9885ecca91f0c3c1a0fa66fe615f082b3d2869d419f9e59ce902"
+        "sha256": "e47077ec0687d2ef5808c7afba5b5ffd11266f778c8f510137d5dd1bc7045b51"
       },
       {
         "path": "crates/chialisp-oxide-verifier/src/structural_boolean.rs",
@@ -2620,7 +2716,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
+        "sha256": "61c0bc2bf20dfd3f0918ebc66e35768470e4488009ce7fa32b23ff11a637b7ba"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -2727,8 +2823,40 @@
         "sha256": "97f9a7d12b606ae4be117cebbde2401e50d51a4dd36ec382428cc1b9162c6319"
       },
       {
+        "path": "puzzles/inner-any-conditions/puzzle.json",
+        "sha256": "d3f7c1ef770ea58cad10669f37d01d8ce20bc69c4d4bdf756593c8f451057abc"
+      },
+      {
+        "path": "puzzles/inner-any-conditions/puzzle.rs",
+        "sha256": "09ae15a6b93691a09721e880206f8df078e7ff2426ef171a7a516f7adab5854c"
+      },
+      {
+        "path": "puzzles/inner-any-conditions/puzzle.rue",
+        "sha256": "224b15b929c8b9ad317830ac68e056ca75368b928e4251de172dacaac60d0a3a"
+      },
+      {
+        "path": "puzzles/inner-any-conditions/reference.clsp",
+        "sha256": "184fdc539df817ffe54ce82db2bfe2f852669a678f205ff7a755f5f23ce1d87d"
+      },
+      {
         "path": "puzzles/inner-puzzle/puzzle.rs",
         "sha256": "c533d8b1940fbf88a503348bbab1cc307ae8516f862de267bdc0041dd42f424e"
+      },
+      {
+        "path": "puzzles/inner-require-signature/puzzle.json",
+        "sha256": "b9d1444537acdb730bfa269b4664f2bcd4fa31bf6aa090d5e4cdc5514b832ae0"
+      },
+      {
+        "path": "puzzles/inner-require-signature/puzzle.rs",
+        "sha256": "3df68313a6449de87123c304e1f8a7de59f273c1350680fd3f5379cf30fe61df"
+      },
+      {
+        "path": "puzzles/inner-require-signature/puzzle.rue",
+        "sha256": "2bf14da1c47ee393420d3c9a7bc491d29f1b22e989534f71988c3be486633f2c"
+      },
+      {
+        "path": "puzzles/inner-require-signature/reference.clsp",
+        "sha256": "2eed40a54e4d5d6d8485d7148c2b9ea642b7e24a2d603ea30ba7bfd675351d15"
       },
       {
         "path": "puzzles/insertion-sort-by-keys/generated-cases.json",
@@ -2756,7 +2884,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "8a80a044124ac5c29d07d4e8afd8c4133890dc68d016e8bb29bc7d58ba682ee9"
+        "sha256": "1bbd9f5fc9e1f293bed3399e3d5f2f7df906ce2af0e4157f6394cf299c465862"
       },
       {
         "path": "puzzles/module-add/puzzle.rs",
@@ -2769,6 +2897,38 @@
       {
         "path": "puzzles/module-times-ten/puzzle.rs",
         "sha256": "9034321d4d35bca1ef52bd2add7d23a400b345f2c8f8b283a7c465c29f28d1f1"
+      },
+      {
+        "path": "puzzles/morph-any-with-signature/puzzle.json",
+        "sha256": "1ef74647b6478c57c0115a81c780338b88af34cf6d5a06bd32ee291c65a817e1"
+      },
+      {
+        "path": "puzzles/morph-any-with-signature/puzzle.rs",
+        "sha256": "39e386ce1526138efd5ae2b0b0696e8612db437f0afa5aef8510a32d2af0aff6"
+      },
+      {
+        "path": "puzzles/morph-any-with-signature/puzzle.rue",
+        "sha256": "0ecf62a29d34c8653689335a088991ae10d95197febf7891e55852ad7a656ed7"
+      },
+      {
+        "path": "puzzles/morph-any-with-signature/reference.clsp",
+        "sha256": "72d729066874ed1d69b6a58c8c7cea1dfc2b685f2f6ab7d48783f05c1a559311"
+      },
+      {
+        "path": "puzzles/morph-coin-doubler/puzzle.json",
+        "sha256": "5ed1c58f6f05048b47c810186a60ef4c8f1da2a57c504a50187a6394c710d692"
+      },
+      {
+        "path": "puzzles/morph-coin-doubler/puzzle.rs",
+        "sha256": "f0fe5b2e791dbd96a19bd873eed86cbcbe77782bf885825c3071d834ba027573"
+      },
+      {
+        "path": "puzzles/morph-coin-doubler/puzzle.rue",
+        "sha256": "7912de8c005b864b294c0a15e8204f5834827b0faa74e021cf0217c3fe97cf7d"
+      },
+      {
+        "path": "puzzles/morph-coin-doubler/reference.clsp",
+        "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
       },
       {
         "path": "puzzles/p2-conditions/puzzle.rs",
@@ -2960,7 +3120,7 @@
       },
       {
         "path": "scripts/cargo_bundle.py",
-        "sha256": "857622f345e98ae291f382a4e799a6c1e90933c7ec2f215d2eee26d8220a016b"
+        "sha256": "72963c54bcdf1e214912103f553a238b4fb84610c73244f1c55650f791eda847"
       },
       {
         "path": "scripts/cargo_source_receipt.py",

@@ -87,6 +87,76 @@ This is a Cargo-driven extractor and CLVM backend adapter. It does not implement
 `cargo build --target clvm`; target configuration alone does not add a code
 generator or establish supported library semantics.
 
+## Execute the program you just built
+
+The native tests called Rust functions. Now execute the emitted `pay` program
+in CLVM. Python 3 is used only to follow the bundle manifest; it does not compile
+the puzzle. Save this small runner from the repository root:
+
+```sh
+mkdir -p target/quickstart
+cat > target/quickstart/run-pay.py <<'PYTHON'
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+root = Path('examples/cargo-puzzles/target/chialisp-oxide/artifacts')
+pointer = json.loads((root / 'latest.json').read_text())
+manifest_path = root / pointer['manifest']
+manifest = json.loads(manifest_path.read_text())
+entry = next(item for item in manifest['entries']
+             if item['entry'] == 'chialisp_oxide_cargo_puzzles::pay')
+program = manifest_path.parent / entry['clvm']
+print(f'Running {program}', flush=True)
+result = subprocess.run(['target/debug/chialisp-oxide', 'run', str(program),
+                         '--solution', sys.argv[1], '--max-cost', '1000000'])
+sys.exit(result.returncode)
+PYTHON
+
+python3 target/quickstart/run-pay.py '(101)'
+python3 target/quickstart/run-pay.py '(1001)'
+python3 target/quickstart/run-pay.py '(0x0001)'
+```
+
+For the default build, `(101)` succeeds with the condition tree
+`((73 1000) (51 0x4242…4242 101))`; the destination atom contains 32 `42` bytes.
+The CLI prints its serialized `output_hex` and VM cost. The amount assertion
+requests an input of 1,000 mojos; the output requests 101. In an otherwise
+balanced single-input spend, the remaining 899 mojos become a fee. This policy
+does not automatically return change.
+
+The other two commands deliberately exit with status 2. Inspect the JSON:
+expect a program failure with code `raise`. `1001` exceeds the cap;
+`0x0001` pads the integer 1 and fails the canonical input decoder before the
+body runs. Resource or infrastructure failures are inconclusive, rather than
+evidence that the policy rejected these inputs. A successful VM result still
+does not check the input coin's actual amount or submit a spend.
+
+## Change a policy and predict its effect
+
+Use the example's existing Cargo feature as a first controlled edit. Predict
+what happens to `(101)` when the generated cap becomes 100, then run:
+
+```sh
+cargo test --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+cargo chialisp-oxide build --manifest-path examples/cargo-puzzles/Cargo.toml --features strict-cap --locked
+python3 target/quickstart/run-pay.py '(100)'
+python3 target/quickstart/run-pay.py '(101)'
+```
+
+`(100)` succeeds; `(101)` now rejects with `raise`. The feature selects generated
+Rust through `build.rs`, so both native tests and CLVM compilation must receive
+it. The earlier `check --features strict-cap` did not publish a bundle. This
+`build` does: the runner resolves `latest.json` again for every invocation,
+while the old immutable default bundle remains available. Executing an old
+`.hex` file would test the old policy even after changing the source or features.
+
+To restore the default lesson, build again without `--features strict-cap`.
+Before designing another payment, decide whether callers should choose an
+amount at all, who authorizes it, and whether any remainder must be returned.
+Those choices need explicit policy and spend tests.
+
 ## What you have built
 
 You now have a native-tested Cargo library and an immutable CLVM artifact bundle.

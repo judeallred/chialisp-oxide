@@ -1,0 +1,137 @@
+---
+title: Transform an inner puzzle's conditions
+description: Follow the published condition-morphing example through its raw environment, exact opcode matching, arbitrary-width arithmetic and remaining spend obligations.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles } from '../../../lib/data';
+
+export const morphPuzzle = puzzles.find(puzzle => puzzle.slug === 'morph-coin-doubler');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Start with the [coin model](/chialisp-oxide/start/coin-model/) and
+[your first fixed payment](/chialisp-oxide/tutorials/first-payment/). That payment
+returns conditions directly. An **outer puzzle** can instead run an inner
+program, examine its result, and transform the returned conditions.
+
+The published [Condition Morphing lesson](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md#L17-L63)
+demonstrates this by doubling each `CREATE_COIN` amount. The Chialisp file
+retains that pinned Apache-2.0 source span unchanged, including its comments.
+The Rust and independently authored Rue sources translate its raw-tree
+contract. The exercise transforms payment requests; it does not manufacture
+the value needed to pay them.
+
+## Read the three sources
+
+{morphPuzzle ? <SourceComparison slug="morph-coin-doubler" /> : <p>
+  The source files are present under <code>puzzles/morph-coin-doubler/</code>.
+  Fresh validation is pending; the retained three-language comparison will
+  appear here after the new report is integrated. Source presence alone is
+  not an executed validation result.
+</p>}
+
+Rust uses borrowed `Tree` inputs to preserve exact atom bytes and improper
+tails, then `OwnedTree` to construct the transformed output. The
+[explicit raw CLVM helpers](/chialisp-oxide/tutorials/raw-clvm/) retain the
+original operator semantics. An ordinary typed `Amount` parameter would
+impose a different input contract on this example.
+
+## Trace the dotted environment
+
+The original module declares:
+
+```clsp
+(mod (INNER_PUZZLE . inner_solution) ...)
+```
+
+The dot means that `inner_solution` is the complete remaining environment.
+It is not one element containing a nested argument list. Rust explicitly reads
+the first and rest of the raw environment; Rue spreads that same rest when
+calling the inner program.
+
+For a small example, choose the inner program `1`. In CLVM this path returns
+its complete environment unchanged:
+
+```text
+Outer environment: (1 (51 0x11 3) (73 6))
+Inner solution:       ((51 0x11 3) (73 6))
+Outer result:         ((51 0x11 6) (73 6))
+```
+
+`0x11` is deliberately a one-byte teaching value, not a usable recipient puzzle
+hash. This shows the transformation without implying a valid coin spend.
+The inner program could instead be a quoted constant or a larger policy;
+`apply` executes that supplied program before traversal begins. Its failure
+fails the outer computation too.
+
+## Follow the transformation exactly
+
+For each pair in the returned condition list, the outer program inspects that
+condition's first field. If its bytes are exactly `0x33` (decimal 51), it
+constructs a new three-field list containing opcode 51, the original second
+field, and twice the third field. Otherwise it returns the entire condition
+unchanged.
+
+Several details are part of the published program's behavior:
+
+- **Memos are discarded for matching payments.** `(51 hash 7 memos)` becomes
+  `(51 hash 14)`. Extra fields and even an improper tail after the amount are
+  discarded. Other conditions keep their exact original structure.
+- **Opcode matching compares bytes.** `0x0033` numerically represents 51 but
+  does not match `0x33`; that condition remains unchanged, including its amount.
+- **Amounts use signed, unbounded CLVM arithmetic.** Padded `0x0007` becomes
+  canonical 14; `-7` becomes `-14`; `0x80` represents -128 and becomes -256.
+  A value of `2^128` becomes `2^129`. These are raw atom operations, rather than
+  ordinary fixed-width Rust multiplication or a valid coin-amount check.
+- **An atom ends list traversal.** An empty result and a nonempty atom both
+  produce nil. `((51 hash 3) . 9)` becomes `((51 hash 6))`: the atom tail is
+  discarded. This follows `listp`, rather than requiring a proper list.
+
+Malformed fields still matter. An atom where a condition is expected, a pair
+opcode, a missing payment hash or amount, or a pair amount fails evaluation.
+The second field itself may be any tree: the transformer does not validate a
+32-byte destination. Rue's explicit shape assertions can reject with different
+failure codes from Chialisp's raw projections. Rejection agreement alone does
+not establish identical failure codes or resource thresholds.
+
+## Ask what a coin actually commits to
+
+This raw module receives the inner program from its environment. On its own,
+it does not commit to an authorized inner policy or require a signature. A
+coin design must decide what is fixed before funding and what the spender
+may choose; [currying](/chialisp-oxide/tutorials/password-coin/#bind-the-expected-hash-before-creating-the-coin)
+illustrates that distinction with a different module.
+
+Conservation is a separate obligation. If an inner result requests a 7-mojo
+child and the outer result requests 14, an otherwise isolated 7-mojo input
+cannot fund that output. A successful VM evaluation of the transformation
+does not make the resulting spend valid. Consensus checks amounts, condition
+schemas, signatures and the complete bundle. Negative amounts and arbitrary
+hash trees above are useful semantic tests, not proposed transactions.
+
+## Reproduce the authoring checks
+
+With the [pinned local tools](/chialisp-oxide/start/quickstart/) installed, run
+from the repository root:
+
+```sh
+cargo test -p chialisp-oxide-puzzles --test condition_morphing --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+The native tests link the same library export that the compiler extracts and
+compare exact trees. Their raw helper implementation uses the pinned host VM;
+it is not an independent arithmetic implementation. The build separately
+checks the reachable CLVM subset and emits artifacts.
+
+Select `chialisp_oxide_puzzles::morph_coin_doubler::puzzle` from the bundle
+manifest using the [selected-export workflow](/chialisp-oxide/reference/cli/#execute-a-selected-export).
+Use `(1 (51 0x11 3) (73 6))` as its solution and predict the result above.
+Then try a padded opcode, a memo, and an improper condition-list tail. Keep
+program failures separate from inconclusive resource or infrastructure errors.
+
+These commands are local authoring exercises. They neither submit a spend nor
+establish compiler preservation. For funding, reveal identity and actual spend
+validation, continue with the separate
+[wallet-free lifecycle](/chialisp-oxide/start/build-to-spend/).

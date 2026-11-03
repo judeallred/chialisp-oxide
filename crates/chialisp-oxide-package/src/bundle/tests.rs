@@ -87,6 +87,15 @@ fn program(name: &str, version: u32) -> Program {
                 },
             });
         }
+        8 => {
+            result = access_pair_optional_program(name);
+            result.parameters.push(Parameter {
+                name: "input".into(),
+                ty: Type::Optional {
+                    item: Box::new(Type::Bool),
+                },
+            });
+        }
         _ => unreachable!(),
     }
     result
@@ -855,7 +864,7 @@ fn v2_rejects_source_symlinks_without_opening_their_targets() {
 
 #[test]
 fn admits_all_current_ir_profiles_and_keeps_exact_import_bytes() {
-    for version in 1..=7 {
+    for version in 1..=8 {
         for optimize in [false, true] {
             let fixture = Fixture::new(version, optimize);
             let ir = std::fs::read(fixture.root.join("one.ir.json")).unwrap();
@@ -1080,7 +1089,7 @@ fn rejects_ir_capability_and_environment_corruptions() {
         let mut ir = fixture.ir("two");
         let expected = match mutation {
             "unknown-version" => {
-                ir["ir_version"] = 8.into();
+                ir["ir_version"] = 9.into();
                 ErrorKind::UnsupportedVersion
             }
             "boolean-version" => {
@@ -1400,6 +1409,105 @@ fn unselected_cast_corruptions_fail_even_with_coherent_schema_two_receipt_hashes
             fixture.write_ir("two", &ir);
             // Receipt construction follows the mutation, so all declared IR
             // lengths and digests agree; semantic admission must still fail.
+            let fixture = if source_aware {
+                fixture.with_receipt()
+            } else {
+                fixture
+            };
+            fixture.assert_error(ErrorKind::InvalidManifest);
+        }
+    }
+}
+
+fn access_pair_optional_program(name: &str) -> Program {
+    let mut p = cast_pair_optional_program(name);
+    let byte = Type::Int {
+        bits: 8,
+        signed: false,
+    };
+    p.parameters.push(Parameter {
+        name: "input".into(),
+        ty: Type::Optional {
+            item: Box::new(byte.clone()),
+        },
+    });
+    let Expr::Pair { first, .. } = &mut p.body else {
+        unreachable!()
+    };
+    **first = Expr::IntCast(chialisp_oxide_ir::IntegerCast {
+        value: Box::new(Expr::OptionalValue(chialisp_oxide_ir::OptionalAccess {
+            value: Box::new(Expr::Arg { index: 0 }),
+        })),
+        source: byte,
+        target: Type::Int {
+            bits: 16,
+            signed: false,
+        },
+    });
+    p
+}
+#[test]
+fn v8_composed_bundle_profiles_retain_exact_bytes_in_both_schemas() {
+    for source_aware in [false, true] {
+        let fixture = Fixture::new(8, true);
+        let fixture = if source_aware {
+            fixture.with_receipt()
+        } else {
+            fixture
+        };
+        let ir = std::fs::read(fixture.root.join("one.ir.json")).unwrap();
+        let admitted = admit_bundle(&fixture.path(), &Limits::default()).unwrap();
+        assert_eq!(admitted.entries().len(), 2);
+        let imported = import_bundle(&fixture.path(), "fixture::one", &Limits::default()).unwrap();
+        let rust = imported.manifest().rust.as_ref().unwrap();
+        assert_eq!(rust.ir_wire_version, 8);
+        assert_eq!(rust.ir_json.as_bytes(), ir);
+        assert_eq!(
+            rust.abi.parameters[0].ty,
+            crate::package::AbiType::Optional {
+                item: Box::new(crate::package::AbiType::Int {
+                    bits: 8,
+                    signed: false
+                })
+            }
+        );
+        let replay = crate::verify_package(imported.bytes(), &Limits::default()).unwrap();
+        assert_eq!(replay.object_id(), imported.object_id());
+        assert_eq!(replay.bytes(), imported.bytes());
+        assert_eq!(replay.artifact().bytes(), &[0x80]); // Transport only; never IR/artifact equivalence.
+    }
+}
+#[test]
+fn unselected_v8_access_corruptions_fail_with_coherent_receipts() {
+    for source_aware in [false, true] {
+        for mutation in [
+            "old-version",
+            "wrong-operand",
+            "unknown-access-field",
+            "dead-malformed",
+            "v8-without-access",
+        ] {
+            let fixture = Fixture::new(8, true);
+            let mut ir = fixture.ir("two");
+            match mutation {
+                "old-version" => ir["ir_version"] = 7.into(),
+                "wrong-operand" => {
+                    ir["program"]["body"]["first"]["value"]["value"] = json!({"op":"unit"})
+                }
+                "unknown-access-field" => {
+                    ir["program"]["body"]["first"]["value"]["invented"] = true.into()
+                }
+                "dead-malformed" => {
+                    ir["program"]["functions"] = json!([{"id":0,"name":"unused","parameters":[],"result":{"kind":"bool"},"body":{"op":"optional_is_some","value":{"op":"unit"}}}])
+                }
+                "v8-without-access" => {
+                    ir["program"]["parameters"] = json!([]);
+                    ir["program"]["body"]["first"]["value"] =
+                        json!({"op":"int","value":"7","ty":{"kind":"int","bits":8,"signed":false}});
+                }
+                _ => unreachable!(),
+            }
+            fixture.write_ir("two", &ir);
             let fixture = if source_aware {
                 fixture.with_receipt()
             } else {

@@ -47,6 +47,7 @@ capabilities of every native Rust crate.
 | Feature | Native Rust route | Current compiler | Needed for broader support |
 | --- | --- | --- | --- |
 | Arbitrary atoms/pairs; `c`, `f`, `r`, `l` | Explicit tree values | Borrowed `Tree` and opt-in `OwnedTree` pair construction/matching, checked projections and direct recursion | Dynamic atom storage, broader operations and preservation proofs |
+| Fixed arrays, repeats and literal indexing | Rust fixed arrays | Non-byte arrays use proper lists, byte arrays keep exact atoms; reviewed literal reads and strict computed initializers/argument snapshots | Dynamic indexing/slices, indexed mutation, element references, broader element profiles and preservation proofs; existing expansion budgets apply |
 | Environment paths and argument patterns | Explicit projections | Typed lists by default; ignored nullary or explicit raw whole-tree exports | Broader patterns and explicit typed adapters |
 | Quote and dynamic apply | Data trees and an interpreter | Literals, `quote(&Tree)` and reviewed strict `apply(&Tree, &Tree)` | Program/environment types, strictness, dialect and cost rules |
 | Arbitrary-precision signed numeric atoms | Big integers and an atom codec | Checked fixed-width integers; explicit raw-atom helpers through `apply` | Explicit unbounded numeric semantics and resource policy |
@@ -61,7 +62,7 @@ capabilities of every native Rust crate.
 | BLS and secp operations | Reviewed crypto libraries | Explicit raw group/map/pairing/verification helpers, including legacy four-byte SECP encodings | Broader point/subgroup vectors, profile/cost scope and cryptographic assumptions; native crypto-library calls are not admitted |
 | Signature conditions | Typed condition data and consensus checking | Small SDK plus selected spend scenarios | Keep condition verification distinct from lowered BLS operators |
 | Softfork/extensions | Pinned interpreter rules | Explicit raw four-argument guard, returning nil; extension-1 Keccak assertions remain inside the guard | Other activations, exact declared costs and resource scope |
-| Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset; large acyclic helper graphs can retry as closed function tables at selected inlining limits; constants remain bounded and acyclic | Broader constants/calls with reproducible inputs and checked semantics |
+| Modules, helpers, constants, compile-time expansion | Cargo and ordinary Rust | A bounded pure subset, including tuple/array/`Cons`/named-record/transparent-wrapper constants; large acyclic helper graphs can retry as closed function tables at selected inlining limits; constants remain bounded and acyclic | Broader owned/reference/enum constants and calls with reproducible inputs and checked semantics |
 | Recursion, lists, iteration, closures | Rust recursion/collections/functions | Self/mutual and non-tail direct calls with strict v4 bindings; pinned `last_inner` and owned `prefix` adapters; general allocation/loops/closures rejected | Further helpers, broader collections and termination/resource/preservation proofs |
 | Currying and nested/standard puzzles | Explicit program trees | Compiled owned curry construction and hash helpers, separately tested host curry instances for the canonical password and pay-to-singleton modules, plus an [exact retrieved standard-module host binding](/chialisp-oxide/reference/reveal-inspection/) with opaque delegated programs; general typed dependencies inside compiled Rust remain separate | Broader typed authoring, canonical module/instance hashes and composition validation |
 | Conditions and protocol families | Typed builders and transaction validation | Named payment/signature/amount/identity/announcement/time/height/message constructors and selected scenarios | More conditions, lineage/replay/authorization and cross-coin invariants |
@@ -74,6 +75,31 @@ than independently reimplementing each operation in Rust. See
 [raw CLVM values](/chialisp-oxide/tutorials/raw-clvm/) for the byte, numeric and
 strictness contracts. These helpers do not add arbitrary `Vec`, slice or
 big-integer library calls to the Rust frontend.
+
+[Fixed-array authoring](/chialisp-oxide/reference/supported-rust/#fixed-arrays-and-literal-indexing)
+uses existing IR tuple/byte fields and strict runtime captures when required.
+The source tests cover native Rust, independent Chialisp and both Rust modes,
+including exhaustive byte-to-unsigned-integer reads, source-order failures,
+zero-length/discarded initializers and snapshots. These are finite observations;
+large admitted type shapes can still exceed unchanged backend budgets.
+
+Standard `Option<T>` retains nil/one-element output encoding in versions 6/7.
+Version 8 also admits exact typed optional inputs and by-value matching,
+including admitted local state records. Generic methods, references to Option,
+custom enums, owned/drop payloads and Some CTFE remain closed. These are Rust
+authoring conveniences over existing tree operations; current proof models
+reject optional capability. See [optional values](/chialisp-oxide/reference/optional-lists/).
+
+Named aggregate constants group data in tuples, records and bounded arrays,
+retaining the existing tuple/pair/byte wire shapes. Their
+leaves can be fixed-width integers, `bool`, unit or bounded byte arrays; rustc
+evaluates the values, and the driver reads actual field offsets without reading
+padding. The complete original type graph is checked before evaluation, with
+existing depth/4,096-node limits and at most 65,536 bytes of native storage.
+References/pointers, `Option`, tree payloads and general
+containers remain closed in this route. These compiler limits do not become
+on-chain policy guards. See [supported Rust](/chialisp-oxide/reference/supported-rust/#named-aggregate-constants)
+for an authoring example and the distinct borrowed-tree constant route.
 
 ## Pinned operator audit
 

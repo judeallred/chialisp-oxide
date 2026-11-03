@@ -764,3 +764,43 @@ fn sequenced_nested_tuple_and_pair_decoders_keep_their_shapes() {
         }
     }
 }
+
+#[test]
+fn optional_input_decoder_modes_keep_exact_shape_guard_order_and_none_laziness() {
+    let optional = Type::Optional {
+        item: Box::new(Type::Tuple {
+            items: vec![uint_type(), Type::Bool],
+        }),
+    };
+    let source = Program {
+        name: "optional-decoder-modes".into(),
+        environment: Environment::Strict,
+        parameters: vec![parameter(0, optional.clone())],
+        result: optional,
+        body: Expr::Arg { index: 0 },
+        functions: vec![],
+    };
+    let valid = list(&[list(&[uint(128), uint(1)])]);
+    let inputs = vec![
+        list(&[atom(&[])]),
+        list(std::slice::from_ref(&valid)),
+        list(&[atom(&[0])]),
+        list(&[list(&[uint(7)])]),
+        list(&[list(&[list(&[uint(7), uint(1), uint(2)])])]),
+        list(&[list(&[list(&[atom(&[0, 7]), uint(1)])])]),
+        list(&[list(&[list(&[uint(7), uint(2)])])]),
+        list(&[pair(&list(&[uint(7), uint(1)]), &uint(1))]),
+    ];
+    for optimize in [false, true] {
+        let inline = decoder_attempt(&source, optimize, Decoder::Inline).unwrap();
+        let separate = decoder_attempt(&source, optimize, Decoder::Separate).unwrap();
+        let sequenced = decoder_attempt(&source, optimize, Decoder::Sequenced).unwrap();
+        for input in &inputs {
+            let expected = run(&inline, input, 10_000_000);
+            assert_eq!(run(&separate, input, 10_000_000), expected);
+            assert_eq!(run(&sequenced, input, 10_000_000), expected);
+        }
+        assert_eq!(run(&inline, &inputs[0], 10_000_000).unwrap(), atom(&[]));
+        assert_eq!(run(&inline, &inputs[1], 10_000_000).unwrap(), valid);
+    }
+}

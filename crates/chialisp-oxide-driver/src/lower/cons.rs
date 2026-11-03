@@ -58,6 +58,13 @@ impl<'tcx> Lowerer<'tcx> {
                             );
                         }
                         pending.extend(fields.into_iter().map(|ty| (ty, depth + 1)));
+                    } else if let Some(fields) = self.named_struct_fields(ty, span)? {
+                        if fields.len() > 4096usize.saturating_sub(visited + pending.len()) {
+                            return Err(
+                                self.error(span, "Cons component type discovery limit exceeded")
+                            );
+                        }
+                        pending.extend(fields.into_iter().map(|ty| (ty, depth + 1)));
                     } else if let Some(inner) = self.transparent_inner(ty, span)? {
                         pending.push((inner, depth + 1));
                     }

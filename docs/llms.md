@@ -117,6 +117,19 @@ A well-shaped `PublicKey` or `PuzzleHash` is not evidence of ownership or a
 recoverable destination. The laboratory records
 [real sources and VM/ledger cases](https://judeallred.github.io/chialisp-oxide/lab/signature-payment/).
 
+## Standard Option values
+
+Use ordinary by-value `match`, `if let` or `matches!` for an admitted
+`Option<T>` argument or local value. Optional entry/inspection requires IR v8;
+None is exact nil and Some is one proper-list element containing a completely
+validated payload. The strict export environment adds its usual argument list,
+so a single None argument is `(())`, not a missing environment argument.
+Local state records can be carried as `Option<State>` while their own field
+profile remains closed. Generic Option methods (`unwrap`, `map`, `is_some`),
+`&Option`, custom enums and Some CTFE remain unsupported. Version-6/7 optional
+exports retain their previous output-only contracts. Read
+[optional values](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/) for framing and evidence scope.
+
 ## Check the supported subset before designing an abstraction
 
 Use supported fixed-width integers, booleans, tuples, fixed arrays, named

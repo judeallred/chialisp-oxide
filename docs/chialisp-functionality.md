@@ -131,6 +131,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
 | Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree`, opt-in `OwnedTree`, and explicit `Cons<First, Rest>` struct construction/projection; checked projections, direct recursion and bounded native codecs. `Cons` uses v5 explicit pairs; tuples retain their proper-list ABI | General native Rust owned-byte storage and per-operator preservation proofs |
+| Fixed arrays, repeats and literal indexing | Native fixed arrays | Index-order proper lists for non-byte arrays; exact atoms for `[u8; N]`; reviewed literal-index fields including existing immutable fixed-byte references; strict computed initializer/argument captures and snapshots | Dynamic indices/slices, indexed mutation, element references, broader element profiles and preservation proofs; unchanged compiler expansion budgets still apply |
 | Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit raw whole-tree export in v3, runtime v4 or explicit-pair v5 | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
 | Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | `chialisp_oxide::apply(&Tree, &Tree) -> Tree` is a reviewed reserved export admitted by exact signature and implementation fingerprint and lowered to opcode 2 with strict operand bindings; see [dynamic application](dynamic-apply.md). The `delegated-puzzle` fixture witnesses it in all five builds | Broader typed composition, dialect/softfork rules, cost bounds, and compiler preservation; currying and committed inner-puzzle fixtures are described below, and every proof model rejects applications |
@@ -150,7 +151,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | BLS pairing/signature verification | Reviewed native verification | Signature conditions and explicit raw BLS verification helpers are separate interfaces | Separate opcode implementation/proof obligations from consensus verification of emitted conditions |
 | secp256k1/secp256r1 verification | Reviewed curve verification | Explicit raw legacy four-byte opcode helpers; single-byte opcodes remain flag gated | Exact key/signature/message encodings, failure behavior, activation, and cost |
 | `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | Explicit raw four-argument softfork with default-profile extension semantics | Exact extension and cost semantics; no assumption that unknown operators are harmless |
-| `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants | General aggregate constants, external-call semantics, and preserved module boundaries where observable |
+| `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants and bounded tuple/array/`Cons`/named-record/transparent-wrapper constants | Broader owned/reference/enum constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
@@ -164,6 +165,35 @@ feature. It admits the reviewed facade `Cons` layout and preserves arbitrary
 raw tails without changing tuple encoding. The scalar, tree and byte proof
 models reject explicit pairs, including unused signatures and discarded nodes;
 finite native/VM tests do not remove that proof boundary.
+
+Standard `Option<T>` uses nil or a proper singleton over the existing tree
+operations. Versions 6/7 retain optional output construction and opaque helper
+passing; version 8 also admits strict optional inputs and ordinary by-value
+matching. An admitted local state record can be carried as `Option<State>`.
+Generic Option methods, references to Option, custom enums, owned/drop payloads
+and Some CTFE remain closed. These Rust authoring conveniences add no new
+Chialisp operator or proof model; all current proof APIs reject optional
+capability. See [optional values](optional-lists.md).
+
+### Named policy data and quotation
+
+Named aggregate constants can contain nested tuples, bounded fixed arrays,
+admitted local named records, validated `Cons` pairs and supported transparent
+wrappers over fixed-width integers, `bool`, unit and fixed byte arrays. The driver validates the original types before asking
+rustc to evaluate the constant, then reads actual field offsets and initialized,
+provenance-free leaf bytes. It never reads Rust padding as policy data. The
+existing depth/4,096-node limits and a 65,536-byte native storage limit apply;
+these are compiler admission limits, not guards on an on-chain environment.
+References/pointers, `Option`, tree payloads and arbitrary
+containers remain unsupported in this constant route, even inside zero-sized
+values. The separate existing borrowed-tree constant route retains its contract.
+
+The [actual Cargo regressions](../crates/chialisp-oxide-driver/tests/aggregate_constants.rs)
+compare named and `const fn`-computed values with native Rust and independently
+compiled Chialisp in both Rust modes, including Rust tuple field reordering,
+explicit improper pairs, malformed ABI inputs, strict failures and resource
+controls. The constants lower to existing IR data constructors and wire formats;
+this adds no general macro compatibility or compiler-preservation proof.
 
 ## Explicit raw-operator authoring
 

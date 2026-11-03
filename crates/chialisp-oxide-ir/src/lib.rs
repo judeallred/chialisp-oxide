@@ -30,7 +30,7 @@ pub enum Type {
         first: Box<Type>,
         rest: Box<Type>,
     },
-    /// An output-only optional value: nil for None, a one-item list for Some.
+    /// Nil for None, a one-item list for Some. Inputs/inspection require v8.
     Optional {
         item: Box<Type>,
     },
@@ -117,12 +117,23 @@ fn cast_integer_type<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Resul
     let Primitive::Int { bits, signed } = Primitive::deserialize(deserializer)?;
     Ok(Type::Int { bits, signed })
 }
+/// Closed payload for the v8 optional-value inspection nodes. Historical
+/// expression/type payloads retain their existing reader contract.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OptionalAccess {
+    pub value: Box<Expr>,
+}
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
     /// Primitive fixed-width Rust integer `as`, not a type retag or ABI cast.
     /// Requires the strict version-7 capability; source/target are both checked.
     IntCast(IntegerCast),
+    /// Presence of an evaluated optional value; no payload truthiness coercion.
+    OptionalIsSome(OptionalAccess),
+    /// The payload of Some. Evaluating this projection on None rejects.
+    OptionalValue(OptionalAccess),
     /// Explicit optional values require strict version-6 lowering.
     OptionalNone {
         item: Type,

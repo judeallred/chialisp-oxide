@@ -51,6 +51,18 @@ pub(super) fn preflight(a: &Allocator, root: NodePtr) -> Result<Stats> {
     Ok(stats)
 }
 
+/// Condition morphing preserves or shortens every tree path. Multiplication
+/// by two can grow each amount atom by one byte; charge one per input node.
+/// This runs on the applied result before the native source constructs Boxes.
+pub(super) fn preflight_morph(a: &Allocator, conditions: NodePtr) -> Result<()> {
+    let stats = preflight(a, conditions)?;
+    ensure!(
+        stats.atom_bytes.saturating_add(stats.nodes) <= MAX_ATOM_BYTES,
+        "native condition-morph output atom budget exceeded"
+    );
+    Ok(())
+}
+
 /// A proper left spine of length n places the complete final tail n levels down.
 /// An improper left tree fails before constructing a result; its whole input
 /// still needs the ordinary preflight because native unwinding drops that tree.

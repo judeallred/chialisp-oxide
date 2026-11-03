@@ -30,8 +30,10 @@ authenticate installed bytes. See
 - Bounded standard `Option<T>` outputs: `None` encodes nil and `Some(value)` a
   one-element proper list. Construction, whole-value assignment and opaque
   monomorphic helper passing are supported, including optional `Cons` tails.
-  Exported inputs reject `Option` recursively; matching, methods, references
-  to `Option` and owned/drop payloads remain rejected. This is a closed
+  Version-8 exports also accept optional arguments and ordinary by-value
+  `match`/`if let` inspection, with exact nil/singleton and complete payload
+  validation. Older v6/v7 entry contracts stay output-only. Generic methods,
+  references to `Option` and owned/drop payloads remain rejected. This is a closed
   version-6 capability, not general enum support. See
   [optional output lists](/chialisp-oxide/reference/optional-lists/).
 - Local values, tuple fields, comparisons, boolean negation, `if`, integer and
@@ -50,9 +52,11 @@ authenticate installed bytes. See
 - Local/SDK helpers, including lifetime-only generics for borrowed and owned trees. Acyclic
   source graphs inline into expressions; self, mutual, and non-tail recursion
   use a closed runtime function table. Type/const generic functions remain rejected.
-- Named scalar and fixed-byte constants, including supported transparent wrappers
-  of those values: typed policy amounts, recipient hashes, and public fixture keys.
-  The restricted tree route also lowers supported promoted shared constants from their real MIR. General pointer and tuple constants remain unsupported.
+- Named scalar/fixed-byte constants and bounded nested tuple, array, `Cons`, named-record
+  and transparent-wrapper constants: policy terms, typed amounts, hashes and public
+  fixture keys. See [named aggregate constants](#named-aggregate-constants).
+  The separate restricted tree route also lowers supported promoted shared
+  constants from their real MIR; it does not grant general pointer constants.
 - Byte-array parameters and constant byte arrays, with a byte-string ABI.
 - Ordinary `==` and `!=` on immutable `u8` slices and identical `[u8; N]`
   arrays through immutable references, within the existing 256-element limit.
@@ -70,18 +74,22 @@ authenticate installed bytes. See
   locally or in the vetted SDK, over supported nonzero-size values.
   Rust checks their identity; lowering erases
   them to the inner ABI type. See [typed puzzle helpers](/chialisp-oxide/tutorials/typed-sdk/).
+- Local nongeneric named structs with bounded supported value fields, using
+  declaration-order tuple ABI. Construction, by-value passing, moves and bounded
+  record-root field updates retain strict snapshots. See [named value records](#named-value-records).
 - Vetted by-value SDK methods such as `Amount::from_mojos`, `.mojos()`,
   `.is_at_most()`, `Timestamp::from_unix_seconds`, and `.unix_seconds()`.
   The SDK's small transparent values support implicit `Copy` reuse. Explicit
   `.clone()` calls remain unsupported because their borrowed receiver and trait
   dispatch are outside the accepted subset.
-- Supported MIR constant array projections. Ordinary indexing that needs an
-  index local or reference is rejected.
+- Fixed-array construction, repeats and literal-index reads such as `values[0]`.
+  Byte arrays keep their exact atom ABI; other arrays use index-order proper
+  lists. See [fixed arrays and literal indexing](#fixed-arrays-and-literal-indexing).
 - Empty-slice patterns on supported atom slices, such as `Tree::Atom([])` or
   `OwnedTree::Atom([])`.
   Nil matches; nonempty zero bytes do not. The frontend validates the complete
   pinned MIR metadata-test chain and erases its compiler-generated pointer and
-  `usize` intermediates. General length methods, indexing and raw pointers
+  `usize` intermediates. General slice lengths/indexing and raw pointers
   remain rejected. See the [published list helper](/chialisp-oxide/tutorials/last-list-element/).
 
 Byte arrays and tuple-like products use different encodings. The compiler does
@@ -144,6 +152,133 @@ addition remain outside the supported subset. SHA-256 is available only through 
 [reviewed SDK bridge](/chialisp-oxide/reference/hashing/); it does not admit
 arbitrary cryptographic dependencies or loops.
 
+## Named value records
+
+A local named struct can group policy terms while Rust checks its nominal type:
+
+```rust
+pub struct Terms {
+    pub recipient: chialisp_oxide::PuzzleHash,
+    pub amount: chialisp_oxide::Amount,
+    pub deadline: u32,
+}
+
+#[chialisp_oxide::puzzle]
+pub fn extend(mut terms: Terms, blocks: u32) -> Terms {
+    terms.deadline = terms.deadline + blocks;
+    terms
+}
+```
+
+The CLVM value is a proper list in declaration order: `(recipient amount deadline)`.
+This structural wire shape does not retain a Rust type name or native memory
+layout. Nominal checks happen in rustc before lowering. Constructor fields may
+appear in a different source order; their source evaluations remain strict.
+Moves, by-value helpers, whole-value assignments and bounded field updates
+operate on evaluated snapshots through the existing runtime function table.
+Updates of ordinary tuple or array roots do not gain this record route.
+
+The initial profile requires an ordinary local declaration with 1–256 named
+fields, no generics, no custom `Drop` and no macro-generated declaration. Fields
+may contain fixed-width integers, Boolean, unit, bounded fixed arrays, tuples,
+reviewed transparent wrappers and nested admitted records. References, pointers,
+platform-sized integers, owned values, arbitrary external structs, general enums,
+`Cons` and `Option` payloads are excluded, including zero-length occurrences.
+Explicit C, packed or aligned layouts are excluded. Existing SDK pair, optional,
+tree and transparent-wrapper routes keep their separate contracts. An admitted
+record can itself be a component of SDK `Cons` or an `Option`; this does
+not admit those types as fields inside the record. `None` remains nil and
+`Some(record)` is one list element containing the record proper list. Version 8
+also admits that optional record as an entry value and by-value match target.
+
+Original Rust field types and the native layout are checked before logical
+erasure. Type discovery stays within 4,096 nodes and depth 32; field-update copies
+are charged before construction against the existing expression/work limits.
+The [actual Cargo regression tests](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-driver/tests/named_structs.rs)
+compare native values and exact independently compiled Chialisp output in both
+Rust optimization modes. These bounded regressions add no new IR format, nominal
+wire identity or compiler-preservation proof.
+
+## Fixed arrays and literal indexing
+
+Use ordinary Rust arrays for a fixed number of values:
+
+```rust
+#[chialisp_oxide::puzzle]
+pub fn repeated(value: u64) -> [u64; 3] {
+    [value; 3]
+}
+
+#[chialisp_oxide::puzzle]
+pub fn first_byte(bytes: [u8; 1]) -> u8 {
+    bytes[0]
+}
+```
+
+Non-byte arrays encode as proper lists in index order, including arrays of
+supported local records. `[u8; N]` remains one exact-length atom, and a selected
+byte becomes a canonical unsigned integer: byte contents `80` yield integer
+128 with atom contents `0080`. Zero and leading zero bytes remain valid input
+data. The existing immutable `&[u8; N]` representation supports the same literal
+reads; this adds no general pointer/reference admission.
+
+The frontend accepts in-bounds literal indices through an exact typed-MIR
+bounds-check plan. It checks original fixed-value element types and every use
+of the compiler's `usize` scratch locals. Dynamic indices, local-variable index
+forwarding, indexed assignment, dynamic slices and element references remain
+unsupported. The new indexing profile excludes `Option`, `Cons`, trees, drop
+values and arbitrary containers; their existing construction capabilities are
+separate. Fixed scalars, unit, tuples, nested arrays, supported transparent
+wrappers and local records fit the read profile.
+
+Computed initializers evaluate once in source order, including through a helper
+that repeats its argument, and later assignments do not change an earlier array
+snapshot. Discarded or zero-length arrays still evaluate failing/divergent
+initializers; lazy branches remain lazy. Strict captures reuse existing runtime
+IR while total argument/constant copy chains can retain the legacy route. The
+[actual Cargo regressions](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-driver/tests/fixed_arrays.rs)
+compare native Rust, independent Chialisp and both optimization modes, including
+all 256 byte values and malformed shapes/lengths. They distinguish deliberate
+VM resource controls from program rejection.
+
+The 256-element type bound does not promise every layout fits existing backend
+budgets. For example, the tests retain a source/IR-admitted 64-integer input
+that exceeds the unchanged CLVM expansion nesting budget. That is a compiler
+resource failure, not a policy rejection or proof of unsafe behavior. These
+features add no new wire format or compiler-preservation proof.
+
+## Named aggregate constants
+
+Keep related policy data together using ordinary Rust constants:
+
+```rust
+const TERMS: (u8, u128, u16, bool) = (7, u128::MAX, 513, true);
+
+#[chialisp_oxide::puzzle]
+pub fn terms(_selector: u8) -> (u8, u128, u16, bool) {
+    TERMS
+}
+```
+
+The `_selector` still receives the default exact typed environment validation.
+Tuples encode as proper CLVM lists; a validated `Cons<First, Rest>` constant
+retains its explicit pair shape, including an improper tail. Nested tuples,
+admitted local named records, bounded fixed arrays, transparent wrappers and
+`const fn`-computed values are supported when all leaves are fixed-width integers, `bool`, unit or `[u8; N]` with `N <= 256`.
+The complete original type graph must fit the existing depth/4,096-node limits,
+and native storage must fit 65,536 bytes before evaluation. Rustc supplies actual
+field offsets, so Rust padding and field reordering do not change logical order.
+
+Reference/pointer, `Option`, tree and arbitrary container
+payloads remain unsupported in this aggregate-constant route, including
+zero-sized or zero-length occurrences. The existing borrowed-tree constant
+route above is separate. Constants lower to existing IR constructors rather
+than a new ABI or a new proof-model capability. The
+[actual Cargo tests](https://github.com/judeallred/chialisp-oxide/blob/main/crates/chialisp-oxide-driver/tests/aggregate_constants.rs)
+check native values, independent Chialisp, both optimization modes, strict
+failures, malformed environments and admission limits; these are finite tests,
+not a compiler-preservation proof.
+
 ## Runtime calls and borrowed recursion
 
 Ordinary Rust functions can recurse over the supported immutable tree type:
@@ -167,8 +302,9 @@ bindings retain unused calls and prevent reevaluating their results. Argument,
 tuple, pair, and binary operand evaluation is strict and left to right. Each
 callee starts with fresh locals; branch selection remains lazy.
 
-Runtime functions currently reject assignments through tuple/field projections;
-construct and assign a complete value instead. Constants and promoted shared
+Runtime functions support the named-record field updates described above. For
+a tuple, array or transparent wrapper used on its own, construct and assign a
+complete replacement instead. Constants and promoted shared
 values retain their bounded acyclic lowering path. CFG loops and closure
 captures remain unsupported. Dynamic CLVM application is available through the
 [narrow SDK `apply` bridge](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md)
@@ -243,10 +379,11 @@ Its two fields encode one CLVM pair, while tuples retain their proper-list ABI.
 A `Tree` tail may be an atom or an improper pair. Field construction and unused
 initializers stay strict; the default input ABI validates both fields.
 
-This does not admit general structs, generic helper functions or custom Drop.
+This does not admit structs outside the separately checked local-record and
+transparent-wrapper profiles, generic helper functions or custom Drop.
 The frontend validates the real SDK ADT identity and shape rather than its
-spelling. Pair-capable programs use IR v5, or v6 when they also contain optional
-outputs. They retain proper argument frames; optional-capable programs
+spelling. Pair-capable programs use IR v5, v6 with optional outputs, v7 with
+integer casts, or v8 with optional entry/inspection capability. They retain proper argument frames; optional-capable programs
 conservatively skip Rust IR refinement and inlining. Current SMT models reject
 both capabilities explicitly. See the
 [wire-pair ABI](/chialisp-oxide/reference/abi/#explicit-pairs-with-conshead-tail).
@@ -262,7 +399,8 @@ It does not admit arbitrary enums, mutable references, or allocation. Recursive
 functions can traverse these borrowed values without changing Rust ownership. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
 
 General references, type/const generic functions, arbitrary external function calls, CFG loops,
-allocation beyond the restricted owned-tree Box route, general structs/enums,
+allocation beyond the restricted owned-tree Box route, structs outside the
+closed local-record/transparent-wrapper profiles and general enums,
 floating point, and casts outside the fixed-width integer profile are not
 implemented in the accepted subset. Boolean, character, floating-point and
 pointer casts are excluded. User `usize` and `isize` values and casts remain
@@ -273,8 +411,9 @@ those target-sized types as an authoring API. Unsafe code is forbidden by rustc'
 The transparent-wrapper exception requires a nongeneric declaration, local or
 from the vetted SDK, with one supported nonzero-size field, no custom `Drop`, and no
 macro-generated declaration. Extra fields, even zero-size ones, are rejected.
-This support does not make ordinary structs, enums, or unrelated external wrapper
-types available on-chain. Concrete vetted SDK helper calls are supported;
+Other structs and enums remain unsupported outside the separate local
+[named-record profile](#named-value-records); unrelated external wrappers remain
+unsupported. Concrete vetted SDK helper calls are supported;
 resolving an ordinary Rust dependency through Cargo does not establish that its
 function bodies can be lowered.
 

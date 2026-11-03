@@ -236,7 +236,7 @@ pub(crate) fn certify_cat(
         native,
         primary_vm,
         sdk,
-        scope: "Actual paired Cargo native execution, complete40-export schema2 admission/recompilation in both Rust modes, independent pinned canonical compilation and raw-environment vectors, and separate actual SDK controls. Bounded broad local and declared-input consistency assumes mutable host inputs, installed compiler/native tooling and external Cargo cache dependencies remain trustworthy; no binary authentication, compiler-preservation, chain consensus, live issuance, Sage or custody claim. Primary policy VM10M, wallet bundle25M and new CAT bundle100M remain distinct.",
+        scope: "Actual paired Cargo native execution, complete declared-export schema2 admission/recompilation in both Rust modes, independent pinned canonical compilation and raw-environment vectors, and separate actual SDK controls. Bounded broad local and declared-input consistency assumes mutable host inputs, installed compiler/native tooling and external Cargo cache dependencies remain trustworthy; no binary authentication, compiler-preservation, chain consensus, live issuance, Sage or custody claim. Primary policy VM10M, wallet bundle25M and new CAT bundle100M remain distinct.",
     };
     let bytes = serde_json::to_vec_pretty(&report)?;
     use std::io::Write;

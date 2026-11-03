@@ -269,7 +269,11 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
     // bodies. This separate work/copy budget also charges scans/substitution.
     budget.work(1 + bindings.len())?;
     let (expr, known, total) = match expr {
-        Expr::OptionalNone { .. } | Expr::IntCast(_) | Expr::OptionalSome { .. } => {
+        Expr::OptionalNone { .. }
+        | Expr::OptionalIsSome(_)
+        | Expr::OptionalValue(_)
+        | Expr::IntCast(_)
+        | Expr::OptionalSome { .. } => {
             anyhow::bail!("optional output refinement is not admitted")
         }
         // Explicit typed pairs never fold to a known value (no Known variant
@@ -693,7 +697,9 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
             Expr::TreePair { first, rest } | Expr::Pair { first, rest } => {
                 pending.extend([first.as_ref(), rest.as_ref()])
             }
-            Expr::IntCast(crate::IntegerCast { value, .. })
+            Expr::OptionalIsSome(crate::OptionalAccess { value })
+            | Expr::OptionalValue(crate::OptionalAccess { value })
+            | Expr::IntCast(crate::IntegerCast { value, .. })
             | Expr::OptionalSome { value }
             | Expr::Not { value }
             | Expr::AtomIsEmpty { value }

@@ -1,6 +1,6 @@
 //! Structural borrowed trees; no SDK symbol grants an intrinsic meaning.
 use super::Lowerer;
-use chialisp_oxide_ir::{Expr, Type};
+use chialisp_oxide_ir::{BinaryOp, Expr, Type};
 use rustc_hir::def_id::DefId;
 use rustc_middle::{
     mir::{Body, Const, Operand, Place, Rvalue, StatementKind},
@@ -132,13 +132,13 @@ impl<'tcx> Lowerer<'tcx> {
         Err(self.error(span, "shared reference nesting limit"))
     }
 
-    pub(super) fn tree_discriminant(
+    pub(super) fn boolean_discriminant(
         &self,
         body: &Body<'tcx>,
         operand: &Operand<'tcx>,
         locals: &super::Environment,
         span: Span,
-    ) -> Result<Option<(Expr, TreeShape)>, String> {
+    ) -> Result<Option<(Expr, u128, u128)>, String> {
         let (Operand::Copy(place) | Operand::Move(place)) = operand else {
             return Ok(None);
         };
@@ -150,6 +150,24 @@ impl<'tcx> Lowerer<'tcx> {
         {
             return Ok(None);
         }
+        let headers = body.basic_blocks.len();
+        let work = self.expression_work.get().saturating_add(headers);
+        if work > super::MAX_EXPRESSION_WORK {
+            return Err(self.error(span, "discriminant metadata work limit exceeded"));
+        }
+        self.expression_work.set(work);
+        let statements = body
+            .basic_blocks
+            .iter()
+            .try_fold(0usize, |count, block| {
+                count.checked_add(block.statements.len())
+            })
+            .ok_or_else(|| self.error(span, "discriminant metadata statement overflow"))?;
+        let work = self.expression_work.get().saturating_add(statements);
+        if work > super::MAX_EXPRESSION_WORK {
+            return Err(self.error(span, "discriminant metadata work limit exceeded"));
+        }
+        self.expression_work.set(work);
         let mut source = None;
         for block in body.basic_blocks.iter() {
             for statement in &block.statements {
@@ -173,6 +191,24 @@ impl<'tcx> Lowerer<'tcx> {
             }
         }
         let Some(tree) = source else { return Ok(None) };
+        if let Some((none, some)) =
+            self.optional_tags(tree.ty(&body.local_decls, self.tcx).ty, span)?
+        {
+            // Rvalue::Discriminant captured this logical tag before the switch.
+            // Do not inspect the source place again: its generation is not
+            // justified by the tag temporary's unique-definition check.
+            let tag = Type::Int {
+                bits: 8,
+                signed: false,
+            };
+            let condition = Expr::Binary {
+                kind: BinaryOp::Eq,
+                left: Box::new(self.operand(body, operand, locals, span)?),
+                right: Box::new(self.scalar(some, &tag, span)?),
+                ty: tag,
+            };
+            return Ok(Some((condition, none, some)));
+        }
         let shape = self
             .tree_shape(tree.ty(&body.local_decls, self.tcx).ty, span)?
             .ok_or_else(|| {
@@ -185,7 +221,8 @@ impl<'tcx> Lowerer<'tcx> {
             Expr::TreeIsPair {
                 value: Box::new(self.place(body, tree, locals, span)?),
             },
-            shape,
+            shape.atom.index() as u128,
+            shape.pair.index() as u128,
         )))
     }
 
@@ -259,11 +296,8 @@ impl<'tcx> Lowerer<'tcx> {
         locals: &super::Environment,
         span: Span,
     ) -> Result<Expr, String> {
-        if self
-            .optional_shape(place.ty(&body.local_decls, self.tcx).ty, span)?
-            .is_some()
-        {
-            return Err(self.error(span, "optional lists do not yet support discriminants or pattern matching; only output construction and opaque helper passing are supported"));
+        if let Some(value) = self.optional_discriminant_value(body, place, locals, span)? {
+            return Ok(value);
         }
         let shape = self
             .tree_shape(place.ty(&body.local_decls, self.tcx).ty, span)?

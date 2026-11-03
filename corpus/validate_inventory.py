@@ -75,6 +75,14 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
                     "examples": ["chialisp-example:currying-multiply"],
                     "scope": "typed_module_adapter_and_page_argument_instances_only",
                 },
+                "chialisp:chialisp-concepts/inner-puzzles": {
+                    "examples": ["chialisp-example:inner-require-signature", "chialisp-example:inner-any-conditions"],
+                    "scope": "individual_raw_modules_with_selected_includes_only",
+                },
+                "chialisp:chialisp-concepts/condition-morphing": {
+                    "examples": ["chialisp-example:morph-coin-doubler", "chialisp-example:morph-any-with-signature"],
+                    "scope": "individual_raw_modules_with_selected_includes_only",
+                },
             }
             contract = reviewed.get(identity)
             if contract is None or promoted != contract["examples"]:

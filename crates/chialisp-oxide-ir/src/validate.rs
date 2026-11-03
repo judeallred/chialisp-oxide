@@ -111,6 +111,8 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(right);
         }
         Expr::IntCast(crate::IntegerCast { value, .. })
+        | Expr::OptionalIsSome(crate::OptionalAccess { value })
+        | Expr::OptionalValue(crate::OptionalAccess { value })
         | Expr::OptionalSome { value }
         | Expr::AtomIsEmpty { value }
         | Expr::Not { value }
@@ -170,6 +172,8 @@ fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited:
         | Expr::Let { .. } => 2,
         Expr::If { .. } => 3,
         Expr::IntCast(_)
+        | Expr::OptionalIsSome(_)
+        | Expr::OptionalValue(_)
         | Expr::OptionalSome { .. }
         | Expr::AtomIsEmpty { .. }
         | Expr::Not { .. }
@@ -303,7 +307,10 @@ impl Program {
                 return true;
             }
             match expression {
-                Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => return true,
+                Expr::OptionalNone { .. }
+                | Expr::OptionalSome { .. }
+                | Expr::OptionalIsSome(_)
+                | Expr::OptionalValue(_) => return true,
                 Expr::IntCast(crate::IntegerCast { source, target, .. }) => {
                     if 2 > MAX_TYPE_NODES.saturating_sub(types.len()) {
                         return true;
@@ -348,6 +355,56 @@ impl Program {
                     types.extend(items);
                 }
                 _ => (),
+            }
+        }
+        false
+    }
+    /// V8 is selected by optional entry arguments or inspection anywhere in
+    /// the complete graph. Existing opaque internal Optional parameters remain
+    /// compatible with v6/v7. Invalid oversized graphs conservatively report
+    /// capability; complete validation must still precede compilation.
+    pub fn uses_optional_access(&self) -> bool {
+        if self.parameters.len() > MAX_PARAMETERS || self.functions.len() > MAX_FUNCTIONS {
+            return true;
+        }
+        let mut types = self.parameters.iter().map(|p| &p.ty).collect::<Vec<_>>();
+        let mut visited = 0usize;
+        while let Some(ty) = types.pop() {
+            visited += 1;
+            if visited > MAX_TYPE_NODES {
+                return true;
+            }
+            match ty {
+                Type::Optional { .. } => return true,
+                Type::Pair { first, rest } => {
+                    if 2 > MAX_TYPE_NODES.saturating_sub(visited + types.len()) {
+                        return true;
+                    }
+                    types.extend([first.as_ref(), rest.as_ref()]);
+                }
+                Type::Tuple { items } => {
+                    if items.len() > 256
+                        || items.len() > MAX_TYPE_NODES.saturating_sub(visited + types.len())
+                    {
+                        return true;
+                    }
+                    types.extend(items);
+                }
+                _ => (),
+            }
+        }
+        let mut pending = vec![&self.body];
+        pending.extend(self.functions.iter().map(|function| &function.body));
+        visited = 0;
+        while let Some(expr) = pending.pop() {
+            visited += 1;
+            if visited > MAX_EXPRESSION_NODES
+                || matches!(expr, Expr::OptionalIsSome(_) | Expr::OptionalValue(_))
+            {
+                return true;
+            }
+            if !capability_children(expr, &mut pending, visited) {
+                return true;
             }
         }
         false
@@ -441,9 +498,13 @@ impl Program {
                 "entry parameter type discovery limit"
             );
             match ty {
-                Type::Optional { .. } => bail!(
-                    "optional values are output-only; exported parameters cannot contain Optional"
-                ),
+                Type::Optional { item } => {
+                    ensure!(
+                        visited + pending.len() < MAX_TYPE_NODES,
+                        "entry parameter type discovery limit"
+                    );
+                    pending.push(item);
+                }
                 Type::Pair { first, rest } => {
                     ensure!(
                         2 <= MAX_TYPE_NODES.saturating_sub(visited + pending.len()),
@@ -571,6 +632,14 @@ impl Validator<'_> {
                 source,
                 target,
             }) => self.infer_cast(value, source, target, parameters, locals, depth),
+            Expr::OptionalIsSome(crate::OptionalAccess { value })
+            | Expr::OptionalValue(crate::OptionalAccess { value }) => self.infer_optional_access(
+                value,
+                matches!(expr, Expr::OptionalIsSome(_)),
+                parameters,
+                locals,
+                depth,
+            ),
             Expr::OptionalNone { item } => self.infer_optional_none(item),
             Expr::OptionalSome { value } => {
                 self.infer_optional_some(value, parameters, locals, depth)
@@ -624,6 +693,23 @@ impl Validator<'_> {
         Ok(Some(self.budget.clone_type(target)?))
     }
 
+    fn infer_optional_access(
+        &mut self,
+        value: &Expr,
+        presence: bool,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        let Some(ty) = self.infer(value, parameters, locals, depth + 1)? else {
+            return Ok(None);
+        };
+        let Type::Optional { item } = ty else {
+            bail!("optional inspection requires an Optional operand");
+        };
+        Ok(Some(if presence { Type::Bool } else { *item }))
+    }
+
     // Keep optional type/result temporaries out of the dispatcher that every
     // legacy recursive child retains. These helpers preserve the same budgets
     // and payload recursion; they do not enlarge unrelated inference frames.
@@ -662,6 +748,8 @@ impl Validator<'_> {
     ) -> Result<Option<Type>> {
         let ty = match expr {
             Expr::IntCast(_)
+            | Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_)
             | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }

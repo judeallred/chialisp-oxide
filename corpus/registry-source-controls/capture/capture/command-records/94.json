@@ -1,11 +1,19 @@
 {
-  "role": "recompile-beta-drop-send-on",
+  "role": "extract-controls-off",
   "argv": [
-    "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-    "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/registry-capture/capture/bundles/controls/on/42478-1793721107218286000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.ir.json",
-    "--artifacts"
+    "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+    "build",
+    "--manifest-path",
+    "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+    "--package",
+    "chialisp-oxide-registry-controls",
+    "--locked",
+    "--offline",
+    "--output-dir",
+    "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/registry-capture/capture/bundles/controls/off",
+    "--no-optimize"
   ],
   "exit_code": 0,
-  "stdout": "logs/93-recompile-beta-drop-send-on.stdout",
-  "stderr": "logs/93-recompile-beta-drop-send-on.stderr"
+  "stdout": "logs/93-extract-controls-off.stdout",
+  "stderr": "logs/93-extract-controls-off.stderr"
 }

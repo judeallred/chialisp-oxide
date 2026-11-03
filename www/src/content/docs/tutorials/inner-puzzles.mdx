@@ -1,0 +1,175 @@
+---
+title: Separate an inner policy from its authorization
+description: Read three canonical tutorial modules, preserve their raw environments, and distinguish signing conditions from signing a solution passed to an inner program.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles } from '../../../lib/data';
+
+export const anyConditions = puzzles.find(puzzle => puzzle.slug === 'inner-any-conditions');
+export const requireSignature = puzzles.find(puzzle => puzzle.slug === 'inner-require-signature');
+export const signConditions = puzzles.find(puzzle => puzzle.slug === 'morph-any-with-signature');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Read [signature conditions](/chialisp-oxide/tutorials/signatures/),
+[exact tree hashing](/chialisp-oxide/tutorials/sha256tree/) and
+[binding a parameter before funding](/chialisp-oxide/tutorials/password-coin/)
+first. This lesson follows three source modules from the pinned Chialisp
+tutorials. It does not complete either upstream tutorial page or turn these
+modules into production wallet puzzles.
+
+An inner program answers what an action should do. An outer program can add a
+signature requirement. To understand that requirement, identify the exact
+tree being signed and the parameters already committed by the coin.
+
+## Start with a program that returns supplied conditions
+
+The [published inner module](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md#L52-L54)
+is only three lines: select `conditions` and return it.
+
+{anyConditions ? <SourceComparison slug="inner-any-conditions" /> : <p>
+  The three source files for <code>inner-any-conditions</code> are present.
+  Fresh retained validation is pending; the comparison will appear after
+  report integration. Source presence is not executed evidence.
+</p>}
+
+The module uses positional argument selection, not the default strict Rust
+argument decoder. It reads the first tree and ignores the rest of the
+environment. These inputs illustrate that contract:
+
+```text
+(((51 0x11 7)))      -> ((51 0x11 7))
+(0x0001 . 9)         -> 0x0001
+(((8)) 7 8)          -> ((8))
+```
+
+The last example returns program-shaped data without executing it; the extra
+environment fields `7` and `8` are ignored. A missing first field rejects. The selected tree need
+not be a proper list, valid conditions, or even a pair. Rust therefore uses an
+explicit raw `Tree` export and preserves its bytes and improper tails.
+
+This is unsafe as a standalone spending policy: anyone can supply the result.
+Even a well-formed `CREATE_COIN` condition establishes no authorization by
+itself. The one-byte `0x11` above is a semantic fixture, not a valid recipient
+puzzle hash.
+
+## Sign a solution, then run the chosen inner program
+
+The [signature wrapper](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md#L19-L28)
+declares `(PUBLIC_KEY INNER_PUZZLE . inner_solution)`. It prepends a signature
+condition over `sha256tree(inner_solution)` to the inner program's result.
+
+{requireSignature ? <SourceComparison slug="inner-require-signature" /> : <p>
+  Sources for <code>inner-require-signature</code> are present; fresh retained
+  validation is pending. The comparison will appear after report integration.
+</p>}
+
+The dot is part of the ABI. For the raw environment
+`(key 1 (51 0x11 7) (73 7))`, the inner program `1` receives the complete tail
+`((51 0x11 7) (73 7))`. The wrapper hashes that same tail and returns:
+
+```text
+((50 key SHA256TREE(inner_solution)) . INNER_RESULT)
+```
+
+That dotted result uses `INNER_RESULT` directly as its tail. It does not insert
+another list around it. An inner program can return an atom or an improper
+tree, even though that result may be unsuitable as consensus conditions.
+
+The signed tree is the **input solution**, not the inner program's output.
+A quoted inner program can return the same constant for several different
+solutions; their signature messages still differ. Likewise, a different inner
+program can produce different results from the same signed solution. Binding
+the intended inner program is therefore part of the coin design.
+
+## Sign the conditions directly
+
+The [condition-morphing page's inner module](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md#L75-L83)
+instead reads `(PUBLIC_KEY conditions)`. It hashes the selected conditions and
+prepends a signature requirement to those exact conditions. It does not apply
+an inner program.
+
+{signConditions ? <SourceComparison slug="morph-any-with-signature" /> : <p>
+  Sources for <code>morph-any-with-signature</code> are present; fresh retained
+  validation is pending. The comparison will appear after report integration.
+</p>}
+
+Here extra environment fields are ignored, because `conditions` is the second
+selected tree. That differs from the previous dotted wrapper, where every
+remaining environment value belongs to the signed inner solution. The two
+contracts must not share a strict two-argument decoder.
+
+Tree hashing also distinguishes representations. Nil and the nonempty zero
+atom `0x00` have different hashes, as do `1` and padded `0x0001`, or `(1)` and
+`(1 . 2)`. Atoms hash `01` followed by their unchanged bytes; pairs hash `02`
+followed by their two child hashes. Neither hashing nor signature-condition
+construction normalizes numeric atoms or checks condition schemas.
+
+The next [condition-morphing lesson](/chialisp-oxide/tutorials/condition-morphing/)
+shows an outer program doubling payment amounts. If it transforms this signed
+condition list, the signature message still commits to the original conditions.
+It is not silently recomputed over the doubled payments. Review what each
+layer commits to before treating a composition as an authorization policy.
+
+## Commit the authorizer before funding
+
+Both raw signature modules accept an arbitrary public-key tree. They do not
+verify that it is a valid BLS key. More fundamentally, a key supplied freely
+by the spender does not identify the coin's intended owner.
+
+A coin design must commit to the intended key before funding. The runtime-inner
+wrapper must also commit to the intended inner program. Currying those values
+changes the complete reveal and its puzzle hash; the coin must be funded to
+that instance's hash. The modules alone do not establish that this happened.
+Their raw template examples receive no curried-instance or complete-spend
+credit from this lesson.
+
+`AGG_SIG_ME` (opcode 50) is a signature **requirement**. Returning it does not
+sign anything. A real spend needs the corresponding aggregate signature with
+the coin ID and network signature domain included by the consensus rules.
+Private keys are not puzzle arguments. Successful native or VM output cannot
+establish that a wallet supplied the right signature, or that the complete
+bundle conserves value.
+
+## Keep the include resolution explicit
+
+The two signature sources retain the tutorial's original
+`condition_codes.clib` and `sha256tree.clib` include names. The tutorial text
+does not pin their revision. This comparison explicitly resolves them to the
+already retained
+[`chia_puzzles` revision `cfe5ced…`](https://github.com/Chia-Network/chia_puzzles/tree/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles),
+with exact file identities in each manifest. This selected include contract
+is not evidence that the upstream tutorial originally used those same bytes.
+
+The original module spans remain unchanged. Rust expresses their tree-hash
+algorithm through the reviewed SHA helper; Rue has its own source algorithm.
+Native SHA/apply routes and compiler assumptions remain separate from proof
+of cryptographic security or compiler preservation.
+
+## Exercise the actual Cargo exports
+
+After the [quickstart](/chialisp-oxide/start/quickstart/), run from the repository
+root:
+
+```sh
+cargo test -p chialisp-oxide-puzzles --test tutorial_inner --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+The tests link the same library that the compiler extracts. They compare exact
+trees, literal independently calculated hashes, ignored tails, arbitrary key
+trees and malformed environments. They do not check real signatures or submit
+spends. The build separately checks the reachable CLVM subset.
+
+Use the [selected-export runner](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+with `chialisp_oxide_puzzles::inner_any_conditions::puzzle`,
+`chialisp_oxide_puzzles::inner_require_signature::puzzle`, or
+`chialisp_oxide_puzzles::morph_any_with_signature::puzzle`. Their manifests
+contain exact raw solutions and expected serialized results. Try changing only
+an ignored tail in the positional module, then only the dotted solution in the
+runtime-inner wrapper. Predict which output and signature message must change.
+
+For actual simulator funding and spend validation, continue with the separate
+[local lifecycle](/chialisp-oxide/start/build-to-spend/); it uses a different
+recipe and does not deploy these raw modules.

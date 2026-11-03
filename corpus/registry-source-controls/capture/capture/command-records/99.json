@@ -1,15 +1,18 @@
 {
-  "role": "template-beta-drop-create-off",
+  "role": "extract-controls-on",
   "argv": [
-    "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-    "run-batch",
-    "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/registry-capture/capture/bundles/controls/off/42255-1793721100474698000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.clvm.hex",
-    "--solutions",
-    "/Users/judeallred/code/clispOx/target/casts49-current-corpus-a01/registry-capture/capture/inputs/beta-drop-create-off.json",
-    "--max-cost",
-    "10000000"
+    "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+    "build",
+    "--manifest-path",
+    "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+    "--package",
+    "chialisp-oxide-registry-controls",
+    "--locked",
+    "--offline",
+    "--output-dir",
+    "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/registry-capture/capture/bundles/controls/on"
   ],
   "exit_code": 0,
-  "stdout": "logs/98-template-beta-drop-create-off.stdout",
-  "stderr": "logs/98-template-beta-drop-create-off.stderr"
+  "stdout": "logs/98-extract-controls-on.stdout",
+  "stderr": "logs/98-extract-controls-on.stderr"
 }

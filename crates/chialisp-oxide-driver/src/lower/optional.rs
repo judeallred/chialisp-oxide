@@ -1,11 +1,11 @@
-//! A closed output encoding for the compiler's actual standard Option enum.
+//! Closed standard Option values: v6 outputs and v8 entry/match access.
 //! None is nil and Some(value) is one proper-list element, never a Rust tag.
 use super::Lowerer;
-use chialisp_oxide_ir::Expr;
+use chialisp_oxide_ir::{Expr, OptionalAccess, Type};
 use rustc_abi::VariantIdx;
 use rustc_hir::def_id::DefId;
 use rustc_middle::{
-    mir::Const,
+    mir::{Body, Const, Place},
     ty::{self, Ty, TypeVisitableExt},
 };
 use rustc_span::Span;
@@ -98,6 +98,80 @@ impl<'tcx> Lowerer<'tcx> {
             item,
             none: none.ok_or_else(invalid)?,
             some: some.ok_or_else(invalid)?,
+        }))
+    }
+
+    /// Query actual standard discriminants; native niche bytes never enter IR.
+    pub(super) fn optional_tags(
+        &self,
+        rust_ty: Ty<'tcx>,
+        span: Span,
+    ) -> Result<Option<(u128, u128)>, String> {
+        let Some(shape) = self.optional_shape(rust_ty, span)? else {
+            return Ok(None);
+        };
+        self.ty(rust_ty, span)?;
+        let ty::Adt(definition, _) = rust_ty.kind() else {
+            return Err(self.error(span, "standard Option metadata changed after validation"));
+        };
+        let none = definition
+            .discriminant_for_variant(self.tcx, shape.none)
+            .val;
+        let some = definition
+            .discriminant_for_variant(self.tcx, shape.some)
+            .val;
+        if none != 0 || some != 1 {
+            return Err(self.error(
+                span,
+                "standard Option requires the pinned None=0 and Some=1 discriminants",
+            ));
+        }
+        Ok(Some((none, some)))
+    }
+
+    pub(super) fn optional_presence(
+        &self,
+        body: &Body<'tcx>,
+        place: Place<'tcx>,
+        locals: &super::Environment,
+        span: Span,
+    ) -> Result<Option<Expr>, String> {
+        if self
+            .optional_tags(place.ty(&body.local_decls, self.tcx).ty, span)?
+            .is_none()
+        {
+            return Ok(None);
+        }
+        if !self.constants.borrow().is_empty() {
+            return Err(self.error(
+                span,
+                "optional inspection in borrowed or promoted constants is unsupported",
+            ));
+        }
+        Ok(Some(Expr::OptionalIsSome(OptionalAccess {
+            value: Box::new(self.place(body, place, locals, span)?),
+        })))
+    }
+
+    /// Keep the compiler-owned small integer temporary inside its MIR role.
+    pub(super) fn optional_discriminant_value(
+        &self,
+        body: &Body<'tcx>,
+        place: Place<'tcx>,
+        locals: &super::Environment,
+        span: Span,
+    ) -> Result<Option<Expr>, String> {
+        let Some(condition) = self.optional_presence(body, place, locals, span)? else {
+            return Ok(None);
+        };
+        let tag = Type::Int {
+            bits: 8,
+            signed: false,
+        };
+        Ok(Some(Expr::If {
+            condition: Box::new(condition),
+            then_value: Box::new(self.scalar(1, &tag, span)?),
+            else_value: Box::new(self.scalar(0, &tag, span)?),
         }))
     }
 

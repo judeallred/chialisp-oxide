@@ -41,7 +41,8 @@ pub(super) fn admit(
     let path = super::super::bundle_path(output)?;
     // The shared bounded reader validates every program, blob and source
     // inventory before selection. It establishes consistency, not authenticity.
-    let bundle = chialisp_oxide_package::bundle::admit_bundle(&path, &Limits::default())?;
+    let limits = Limits::default();
+    let bundle = chialisp_oxide_package::bundle::admit_bundle(&path, &limits)?;
     let value: Value = serde_json::from_str(bundle.manifest_json())?;
     let receipt = bundle
         .source_receipt()
@@ -76,22 +77,23 @@ pub(super) fn admit(
             && authoring["package"] == PACKAGE
             && authoring["manifest"] == "puzzles/Cargo.toml"
             && authoring["library"] == "puzzles/lib.rs"
-            && exports.len() == 40,
-        "exact current40 Cargo declaration"
+            && !exports.is_empty()
+            && exports.len() <= limits.max_objects,
+        "bounded complete current Cargo declaration"
     );
     let expected = exports
         .values()
         .map(|row| row["entry"].as_str().context("declared export entry"))
         .collect::<Result<BTreeSet<_>>>()?;
     ensure!(
-        expected.len() == 40
+        expected.len() == exports.len()
             && bundle
                 .entries()
                 .keys()
                 .map(String::as_str)
                 .collect::<BTreeSet<_>>()
                 == expected,
-        "complete40 export set, never selected-only fallback"
+        "complete declared export set, never selected-only fallback"
     );
     let mut source_count = 0;
     let mut selected_source = false;
@@ -142,7 +144,7 @@ pub(super) fn admit(
         native_library && selected_source,
         "complete selected native source attachments"
     );
-    // Recompile all40 independently of the selected export. This is executed
+    // Recompile every admitted export independently of the selected TAIL. This is executed
     // IR/artifact consistency, not a compiler-preservation or nominal-type proof.
     let mut inventory = BTreeMap::new();
     for (name, export) in bundle.entries() {
@@ -153,7 +155,7 @@ pub(super) fn admit(
         let bytes = chialisp_oxide_ir::compile(export.program(), optimize)?;
         ensure!(
             bytes == export.artifact().bytes(),
-            "full40 IR/artifact recompile mismatch"
+            "complete inventory IR/artifact recompile mismatch"
         );
         inventory.insert(
             name.as_str(),
@@ -187,8 +189,8 @@ pub(super) fn admit(
         lane: if optimize { "rust_on" } else { "rust_off" }.into(),
         manifest_sha256: hex::encode(crate::digest(bundle.manifest_json().as_bytes())),
         complete_inventory_sha256: hex::encode(crate::digest(&serde_json::to_vec(&inventory)?)),
-        exports_admitted: 40,
-        exports_recompiled: 40,
+        exports_admitted: bundle.entries().len(),
+        exports_recompiled: inventory.len(),
         source_attachments_checked: source_count,
         selected_ir_sha256: hex::encode(crate::digest(selected.ir_json().as_bytes())),
         selected_module_sha256: hex::encode(crate::digest(&bytes)),

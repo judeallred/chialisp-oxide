@@ -333,7 +333,10 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
-            Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+            Expr::OptionalNone { .. }
+            | Expr::OptionalSome { .. }
+            | Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_) => {
                 bail!("optional outputs have no admitted proof model")
             }
             Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => {

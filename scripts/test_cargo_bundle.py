@@ -183,6 +183,28 @@ class CargoBundleTests(unittest.TestCase):
                     self.assertEqual(path.read_bytes(), payload)
                     fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
 
+    def test_v8_optional_input_inspection_and_composed_casts_keep_exact_bytes(self):
+        byte = {"kind": "int", "bits": 8, "signed": False}
+        optional = {"kind": "optional", "item": byte}
+        for name in ["one", "two"]:
+            with self.subTest(export=name):
+                fixture = self.fixture()
+                program = {"ir_version": 8, "environment": "strict", "program": {
+                    "name": f"controls::{name}", "parameters": [{"name": "input", "ty": optional}],
+                    "result": {"kind": "pair", "first": byte, "rest": optional},
+                    "body": {"op": "pair", "first": {"op": "int_cast", "source": byte, "target": byte,
+                        "value": {"op": "optional_value", "value": {"op": "arg", "index": 0}}},
+                        "rest": {"op": "optional_some", "value": {"op": "int", "value": "7", "ty": byte}}},
+                    "functions": []}}
+                path = fixture.bundle / f"{name}.ir.json"
+                fixture.write(path, program)
+                payload = path.read_bytes()
+                loaded = fixture.load(selected_entry=f"controls::{name}")
+                self.assertEqual(loaded.program, program)
+                self.assertEqual(loaded.ir_sha256, hashlib.sha256(payload).hexdigest())
+                self.assertEqual(path.read_bytes(), payload)
+                fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
+
     def test_v6_optional_export_body_is_transport_not_program_validation(self):
         fixture = self.fixture()
         program = {"ir_version": 6, "environment": "strict", "program": {
@@ -199,10 +221,10 @@ class CargoBundleTests(unittest.TestCase):
         fixture.write(fixture.bundle / "one.ir.json", program)
         self.assertEqual(fixture.load().program, program)
 
-    def test_v5_v6_v7_envelope_fields_and_environment_are_closed(self):
+    def test_v5_v6_v7_v8_envelope_fields_and_environment_are_closed(self):
         mutations = {
             "unknown version": lambda p: p.update(ir_version=9),
-            "future v8": lambda p: p.update(ir_version=8),
+            "future v9": lambda p: p.update(ir_version=9),
             "boolean version": lambda p: p.update(ir_version=True),
             "float version": lambda p: p.update(ir_version=float(p["ir_version"])),
             "string version": lambda p: p.update(ir_version=str(p["ir_version"])),
@@ -215,7 +237,7 @@ class CargoBundleTests(unittest.TestCase):
             "missing body": lambda p: p["program"].pop("body"),
             "nonobject program": lambda p: p.update(program=[]),
         }
-        for version in [5, 6, 7]:
+        for version in [5, 6, 7, 8]:
             valid = {"ir_version": version, "environment": "strict", "program": {
                 "name": "controls::one", "parameters": [], "result": {"kind": "bool"},
                 "body": {"op": "bool", "value": True}, "functions": []}}

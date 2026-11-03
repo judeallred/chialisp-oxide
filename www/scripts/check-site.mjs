@@ -247,7 +247,7 @@ for (const [name, bad] of [
 const normalizedCode = source => source.replaceAll('\t', '  ').split(/\r?\n/).map(line => line.trimEnd()).join('\n').trim();
 let checkedSourceCopies = 0;
 for (const [route, source, expectedBlocks] of [
-  ['reference/optional-lists', 'docs/optional-lists.md', 2],
+  ['reference/optional-lists', 'docs/optional-lists.md', 3],
   ['reference/agent-guide', 'docs/llms.md', 1],
 ]) {
   const page = await html(path.join(root, route, 'index.html'));
@@ -1079,6 +1079,29 @@ const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tuto
 const coverage = await html(path.join(root, 'coverage/index.html'));
 const introIds = new Set(['chialisp-example:intro-list', 'chialisp-example:intro-add', 'chialisp-example:intro-conditional']);
 const moduleIds = new Set(['chialisp-example:module-add', 'chialisp-example:module-times-ten', 'chialisp-example:module-factorial', 'chialisp-example:currying-multiply']);
+const rawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const rawTutorialIds = Object.keys(rawTutorialCounts).map(slug => `chialisp-example:${slug}`);
+const rawTutorialContract = { abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module', claim_scope: 'executed_raw_differential_cases_only', ledger: 'not_claimed', compiler_preservation: 'not_claimed', whole_page_completed: false };
+function visibleMain(markup) {
+  const main = markup.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1];
+  assert(main, 'Actual page main content is required');
+  return decodeAttribute(main.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/g, '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+function checkRawLesson(markup, slugs, witnesses) {
+  const text = visibleMain(markup);
+  assert(!/fresh retained validation is pending|fresh validation is pending/i.test(text), 'Lesson must display its actual retained source comparisons');
+  const columns = [...markup.matchAll(/<section\b[^>]*>/g)].map(match => match[0])
+    .filter(tag => attribute(tag, 'class')?.split(/\s+/).includes('source-column'));
+  for (const language of ['chialisp', 'rust', 'rue']) assert.equal(columns.filter(tag => attribute(tag, 'data-language') === language).length, slugs.length, 'Missing actual three-language source columns');
+  const copies = [...markup.matchAll(/\bdata-code="([^"]*)"/g)].map(match => normalizedCode(decodeAttribute(match[1]).replaceAll('\x7f', '\n')));
+  for (const slug of slugs) {
+    const puzzle = validation.puzzles.find(puzzle => puzzle.slug === slug);
+    assert(puzzle?.validated, `${slug}: lesson must use a validated report row`);
+    for (const source of [puzzle.reference, puzzle.source, puzzle.rue.source]) assert(copies.includes(normalizedCode(source)), `${slug}: lesson source differs from executed source`);
+  }
+  for (const witness of witnesses) assert(text.includes(witness), `Missing visible raw tutorial witness: ${witness}`);
+  return text;
+}
 const implementedExamples = [];
 for (const example of tutorialExamples.examples) {
   assert(coverage.includes(example.title), `Missing canonical example: ${example.id}`);
@@ -1119,6 +1142,29 @@ for (const example of tutorialExamples.examples) {
         }
       }
       assert.deepEqual(puzzle.simulator, [], 'Tutorial module has no ledger scenario credit');
+    } else if (Object.hasOwn(rawTutorialCounts, puzzle.slug)) {
+      assert.equal(example.id, `chialisp-example:${puzzle.slug}`);
+      assert.equal(example.source_adaptation.operation, 'extract_complete_chialisp_module');
+      assert.deepEqual(example.validation_contract, rawTutorialContract);
+      assert.equal(puzzle.environment, 'raw');
+      assert.equal(puzzle.reference_mode ?? 'module', 'module');
+      assert.equal(puzzle.provenance.source_adaptation.kind, 'exact_source_span');
+      assert.equal(puzzle.provenance.source_adaptation.sha256, example.source.sha256);
+      assert(detail.includes('Original Chialisp module') && detail.includes('Environment contract: raw tree.'), `${puzzle.slug}: missing complete-module/raw labels`);
+      assert.equal(puzzle.cases.length, rawTutorialCounts[puzzle.slug]);
+      assert.equal(puzzle.generated_cases, 2059);
+      const text = visibleMain(detail);
+      assert(text.includes(`${puzzle.cases.length} named vectors`) && text.includes('2,059 generated inputs'), `${puzzle.slug}: visible metric values must match named/generated coverage`);
+      assert(text.includes('not a coin puzzle'), `${puzzle.slug}: template output must not claim a complete spend`);
+      assert.equal(puzzle.kind, 'pure_function');
+      assert.deepEqual(puzzle.simulator, []);
+      assert.deepEqual(puzzle.simulator_comparisons, []);
+      for (const field of ['curried_instances', 'curried_examples', 'module_identity']) assert.equal(puzzle[field], undefined, `${puzzle.slug}: invented instance or module evidence`);
+      if (['inner-require-signature', 'morph-any-with-signature'].includes(puzzle.slug)) {
+        const prefix = 'corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/';
+        assert.deepEqual(puzzle.reference_includes, { 'condition_codes.clib': prefix + 'condition_codes.clib', 'sha256tree.clib': prefix + 'sha256tree.clib' });
+        for (const source of Object.values(puzzle.reference_includes)) assert(detail.includes(source), `${puzzle.slug}: selected include source not displayed`);
+      }
     } else {
       assert.equal(example.id, 'chialisp-example:password-coin', 'An unreviewed canonical example was promoted');
       assert.equal(puzzle.slug, 'password-coin');
@@ -1144,7 +1190,27 @@ for (const example of tutorialExamples.examples) {
     assert.equal(example.validation_status, 'not_run', 'Canonical source inventory is not executed evidence');
   }
 }
-assert.deepEqual(implementedExamples.sort(), [...introIds, ...moduleIds, 'chialisp-example:password-coin'].sort(), 'Only the three closed Intro expressions, the three Using Modules programs and the exact password module are promoted');
+assert.deepEqual(implementedExamples.sort(), [...introIds, ...moduleIds, 'chialisp-example:password-coin', ...rawTutorialIds].sort(), 'Only reviewed exact canonical examples may be promoted');
+assert.equal(Object.keys(rawTutorialCounts).reduce((sum, slug) => sum + validation.puzzles.find(puzzle => puzzle.slug === slug).cases.length, 0), 83, 'Raw tutorial named vectors must remain separately counted');
+for (const lesson of [
+  { route: 'tutorials/inner-puzzles', slugs: ['inner-any-conditions', 'inner-require-signature', 'morph-any-with-signature'], witnesses: ['complete tail', 'input solution', 'different hashes', 'does not apply an inner program', 'not pin their revision', 'does not sign anything', 'no curried-instance or complete-spend credit'], corruption: ['input solution', 'output conditions'] },
+  { route: 'tutorials/condition-morphing', slugs: ['morph-coin-doubler'], witnesses: ['Memos are discarded', '0x0033', '2^128', '2^129', 'the atom tail is discarded', 'cannot fund that output', 'does not commit to an authorized inner policy'], corruption: ['Memos are discarded', 'Memos are retained'] },
+]) {
+  const filename = path.join(root, lesson.route, 'index.html');
+  assert(built.includes(filename), `Missing ${lesson.route}`);
+  const markup = await html(filename);
+  checkRawLesson(markup, lesson.slugs, lesson.witnesses);
+  const missingColumn = markup.replace('class="source-column"', 'class="missing-source-column"');
+  assert.notEqual(missingColumn, markup, `${lesson.route}: column corruption must modify actual HTML`);
+  assert.throws(() => checkRawLesson(missingColumn, lesson.slugs, lesson.witnesses), assert.AssertionError, 'Missing source column escaped display gate');
+  const hiddenWitness = markup.replaceAll(lesson.corruption[0], lesson.corruption[1]);
+  assert.notEqual(hiddenWitness, markup, `${lesson.route}: witness corruption must modify actual HTML`);
+  assert.throws(() => checkRawLesson(hiddenWitness, lesson.slugs, lesson.witnesses), assert.AssertionError, 'Changed visible semantic witness escaped display gate');
+  const source = normalizedCode(validation.puzzles.find(puzzle => puzzle.slug === lesson.slugs[0]).source);
+  const changedSource = markup.replace(/\bdata-code="([^"]*)"/g, (whole, encoded) => normalizedCode(decodeAttribute(encoded).replaceAll('\x7f', '\n')) === source ? 'data-code="altered source"' : whole);
+  assert.notEqual(changedSource, markup, `${lesson.route}: source corruption must modify actual copy payload`);
+  assert.throws(() => checkRawLesson(changedSource, lesson.slugs, lesson.witnesses), assert.AssertionError, 'Changed actual source escaped display gate');
+}
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 assert(built.includes(path.join(root, 'tutorials/canonical-modules/index.html')), 'Missing canonical Using Modules tutorial');
 assert(built.includes(path.join(root, 'tutorials/delegated-puzzle/index.html')), 'Missing delegated-puzzle tutorial');
@@ -1196,7 +1262,7 @@ for (const needle of ['not a compiler guarantee', 'overflow checks', 'E0061']) a
 const statusPage = await html(path.join(root, 'reference/status/index.html'));
 assert(statusPage.includes(`${validation.puzzles.length} annotated exports`), 'Status page export count must match the validation report');
 const namedVectors = validation.puzzles.reduce((n, puzzle) => n + puzzle.cases.length, 0);
-assert(statusPage.includes(`${namedVectors} named`), 'Status page named-vector count must match the validation report');
+assert(statusPage.includes(`${new Intl.NumberFormat('en-US').format(namedVectors)} named`), 'Status page named-vector count must match the validation report');
 assert(statusPage.includes(`${study.studies.length === 11 ? 'eleven' : study.studies.length} studies`), 'Status page study count must match the error-study report');
 for (const needle of ['not ready for real funds', 'roadmap-history.md', 'Next work']) assert(statusPage.includes(needle), `status page missing ${needle}`);
 const functionality = await html(path.join(root, 'reference/chialisp-functionality/index.html'));

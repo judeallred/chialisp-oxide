@@ -53,6 +53,8 @@ export default defineConfig({
           { label: 'Order entries by byte keys', slug: 'tutorials/insertion-sort-by-keys' },
           { label: 'Hash exact bytes and trees', slug: 'tutorials/sha256tree' },
           { label: 'Bind a password hash to a coin', slug: 'tutorials/password-coin' },
+          { label: 'Separate inner policy and authorization', slug: 'tutorials/inner-puzzles' },
+          { label: 'Transform an inner puzzle’s conditions', slug: 'tutorials/condition-morphing' },
           { label: 'Read the singleton launcher', slug: 'tutorials/singleton-launcher' },
           { label: 'Compose pay-to-singleton spends', slug: 'tutorials/p2-singleton' },
           { label: 'Write a CAT TAIL in Rust', slug: 'tutorials/cat-genesis-tail' },

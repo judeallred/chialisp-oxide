@@ -49,6 +49,16 @@ pub mod intro_list;
 #[path = "delegated-puzzle/puzzle.rs"]
 pub mod delegated_puzzle;
 
+#[path = "morph-coin-doubler/puzzle.rs"]
+pub mod morph_coin_doubler;
+
+#[path = "inner-any-conditions/puzzle.rs"]
+pub mod inner_any_conditions;
+#[path = "inner-require-signature/puzzle.rs"]
+pub mod inner_require_signature;
+#[path = "morph-any-with-signature/puzzle.rs"]
+pub mod morph_any_with_signature;
+
 #[path = "curry-factory/puzzle.rs"]
 pub mod curry_factory;
 #[path = "curry-hash/puzzle.rs"]

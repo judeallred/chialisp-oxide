@@ -1,0 +1,23 @@
+// Independent positional translation: conditions are signed before morphing.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    let public_key = environment.first;
+    let rest = environment.rest;
+    assert rest is (Any, Any);
+    let conditions = rest.first;
+    ((50, (public_key, (hash_tree(conditions), nil))), conditions)
+}
+
+fn hash_tree(value: Any) -> Bytes32 {
+    if value is (Any, Any) {
+        let first_hash = hash_tree(value.first);
+        let rest_hash = hash_tree(value.rest);
+        sha256(...[PAIR_DOMAIN, first_hash, rest_hash])
+    } else {
+        assert value is Bytes;
+        sha256(...[ATOM_DOMAIN, value])
+    }
+}

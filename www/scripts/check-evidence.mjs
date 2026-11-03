@@ -879,7 +879,60 @@ for (const snippet of snippets) {
   const text = lines.slice(source.start_line - 1, source.end_line).join('');
   assert.equal(createHash('sha256').update(text).digest('hex'), source.sha256, `${snippet.id}: canonical source span changed`);
 }
+const rawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const rawTutorialContract = { abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module', claim_scope: 'executed_raw_differential_cases_only', ledger: 'not_claimed', compiler_preservation: 'not_claimed', whole_page_completed: false };
+const selectedIncludeRoot = 'corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/';
+const selectedIncludePins = { 'condition_codes.clib': '891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f', 'sha256tree.clib': 'eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e' };
+function checkRawTutorial(example, puzzle, manifest, span) {
+  const slug = puzzle.slug;
+  assert(Object.hasOwn(rawTutorialCounts, slug), 'Unreviewed raw tutorial promotion');
+  assert.equal(example.id, `chialisp-example:${slug}`);
+  assert.deepEqual(example.validation_contract, rawTutorialContract, `${slug}: changed raw claim contract`);
+  assert.equal(example.source_adaptation.operation, 'extract_complete_chialisp_module');
+  assert.equal(puzzle.environment, 'raw');
+  assert.equal(puzzle.reference_mode ?? 'module', 'module');
+  assert.equal(puzzle.reference, span, `${slug}: changed original source span`);
+  assert.equal(puzzle.provenance.source_adaptation.kind, 'exact_source_span');
+  assert.equal(puzzle.provenance.source_adaptation.sha256, example.source.sha256);
+  assert.deepEqual(puzzle.provenance, manifest.provenance, `${slug}: changed provenance`);
+  assert.deepEqual(puzzle.provenance.upstream, {
+    repository: 'https://github.com/Chia-Network/chialisp-web', revision: tutorialExamples.upstream.revision,
+    source_path: example.source.path, snapshot: example.source.snapshot, sha256: example.source.file_sha256,
+    git_blob_sha1: example.source.git_blob_sha1, start_line: example.source.start_line, end_line: example.source.end_line,
+  }, `${slug}: original full-file/span provenance`);
+  assert.deepEqual(example.local_examples, [`puzzles/${slug}/puzzle.rs`, `puzzles/${slug}/reference.clsp`, `puzzles/${slug}/puzzle.rue`]);
+  assert.deepEqual(example.evidence, ['corpus/validation.json']);
+  assert.equal(manifest.generated_suite, 'raw-environment-v1');
+  assert.equal(puzzle.generated_cases, 2059, `${slug}: raw generated suite count`);
+  assert.equal(puzzle.cases.length, rawTutorialCounts[slug]);
+  assert.equal(manifest.cases.length, rawTutorialCounts[slug]);
+  for (const [index, test] of puzzle.cases.entries()) {
+    assert.equal(test.declared_divergence, undefined, `${slug}: no adapter divergences`);
+    assert.deepEqual(test.native, manifest.cases[index].expected, `${slug}: independently declared expected tree`);
+    assert.deepEqual(test.runs.map(run => `${run.backend}:${run.optimize_lir}`).sort(), ['rust_mir:false', 'rust_mir:true', 'chialisp:true', 'rue_source:false', 'rue_source:true'].sort());
+    for (const run of test.runs) assert.deepEqual(run.execution.outcome, test.native, `${slug}/${test.label}: exact run outcome`);
+  }
+  assert.equal(puzzle.kind, 'pure_function');
+  assert.deepEqual(puzzle.simulator, []);
+  assert.deepEqual(puzzle.simulator_comparisons, []);
+  for (const field of ['curried_instances', 'curried_examples', 'module_identity']) assert.equal(puzzle[field], undefined, `${slug}: unreviewed instance or module claim`);
+  const signed = ['inner-require-signature', 'morph-any-with-signature'].includes(slug);
+  const includes = signed ? Object.fromEntries(Object.keys(selectedIncludePins).map(name => [name, selectedIncludeRoot + name])) : {};
+  assert.deepEqual(puzzle.reference_includes ?? {}, includes, `${slug}: selected include bindings`);
+  assert.deepEqual(manifest.reference_includes ?? {}, includes);
+  if (signed) {
+    const resolution = puzzle.provenance.include_resolution;
+    assert.equal(resolution.repository, 'https://github.com/Chia-Network/chia_puzzles');
+    assert.equal(resolution.revision, 'cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8');
+    assert(resolution.contract.includes('not evidence that the tutorial used that exact revision'), `${slug}: unversioned include limitation`);
+    assert.deepEqual(resolution.files.map(file => [file.name, file.snapshot, file.sha256]).sort(), Object.entries(selectedIncludePins).map(([name, pin]) => [name, includes[name], pin]).sort());
+    for (const [name, filename] of Object.entries(includes)) {
+      assert(puzzle.source_dependencies.some(source => source.path === filename && source.sha256 === selectedIncludePins[name]), `${slug}: selected include source bytes`);
+    }
+  }
+}
 let canonicalPorts = 0;
+let rawTutorials = 0;
 for (const example of tutorialExamples.examples) {
   if (example.implementation_status === 'not_started') {
     assert.equal(example.validation_status, 'not_run', `${example.id}: unimplemented example has validation claims`);
@@ -919,6 +972,29 @@ for (const example of tutorialExamples.examples) {
     assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
     await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
     assert(example.local_examples.includes(adaptation.rue_source));
+  } else if (Object.hasOwn(rawTutorialCounts, puzzle.slug)) {
+    const manifest = JSON.parse(await read(`puzzles/${puzzle.slug}/puzzle.json`));
+    checkRawTutorial(example, puzzle, manifest, span);
+    assert.equal(adaptation.rue_source, `puzzles/${puzzle.slug}/puzzle.rue`);
+    await checkRecordedHash(adaptation.rue_source, adaptation.rue_source_sha256);
+    assert(example.local_examples.includes(adaptation.rue_source));
+    const controls = [
+      ([e]) => { e.validation_contract.compiler_preservation = 'proven'; },
+      ([, p]) => { p.environment = 'strict'; },
+      ([, p]) => { p.reference += '\n'; },
+      ([, p]) => { p.generated_cases--; },
+      ([, p]) => { p.cases[0].native = { status: 'rejected' }; },
+      ([, p]) => { p.simulator.push({ status: 'accepted' }); },
+      ([, p]) => { p.curried_instances = {}; },
+      ([, p, m]) => { m.generated_suite = 'invented-suite'; },
+    ];
+    if (manifest.reference_includes) controls.push(([, p]) => { p.reference_includes['sha256tree.clib'] = 'another-source.clib'; });
+    for (const corrupt of controls) {
+      const candidate = structuredClone([example, puzzle, manifest]);
+      corrupt(candidate);
+      assert.throws(() => checkRawTutorial(...candidate, span), assert.AssertionError, `${puzzle.slug}: corruption escaped raw contract gate`);
+    }
+    rawTutorials++;
   } else if (['module-add', 'module-times-ten', 'module-factorial', 'currying-multiply'].includes(puzzle.slug)) {
     assert.equal(adaptation.operation, 'extract_complete_chialisp_module');
     assert.equal(puzzle.environment ?? 'strict', 'strict', `${example.id}: typed module adapter must use the default strict ABI`);
@@ -994,6 +1070,8 @@ for (const example of tutorialExamples.examples) {
   canonicalPorts++;
 }
 assert.equal(canonicalPorts, report.puzzles.filter(puzzle => puzzle.provenance.classification === 'canonical_tutorial_port').length, 'Untracked canonical-port claim in report');
+assert.equal(rawTutorials, 4, 'All four reviewed raw tutorial modules must have fresh promotions');
+assert.equal(Object.values(rawTutorialCounts).reduce((sum, count) => sum + count, 0), 83);
 console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 

@@ -92,3 +92,35 @@ fn unused_function_optional_signature_cannot_evade_preflight() {
     });
     rejected(&source);
 }
+
+#[test]
+fn every_model_rejects_v8_inputs_and_bottom_inspection_even_when_dead() {
+    let mut source = fixture();
+    source.body = Expr::Bool { value: true };
+    source.parameters.push(chialisp_oxide_ir::Parameter {
+        name: "input".into(),
+        ty: optional(),
+    });
+    rejected(&source);
+    source.parameters.clear();
+    let inspection = Expr::OptionalIsSome(chialisp_oxide_ir::OptionalAccess {
+        value: Box::new(Expr::Reject {
+            message: "no visible optional type".into(),
+        }),
+    });
+    source.body = Expr::If {
+        condition: Box::new(Expr::Bool { value: true }),
+        then_value: Box::new(Expr::Bool { value: true }),
+        else_value: Box::new(inspection.clone()),
+    };
+    rejected(&source);
+    source.body = Expr::Bool { value: true };
+    source.functions.push(Function {
+        id: 0,
+        name: "unused-inspection".into(),
+        parameters: vec![],
+        result: Type::Bool,
+        body: inspection,
+    });
+    rejected(&source);
+}

@@ -164,7 +164,18 @@ impl Lower<'_> {
                 self.scalar(value, yes)
             }
             Type::Tuple { items } => self.decode_list(value, items, yes)?,
-            Type::Optional { .. } => anyhow::bail!("optional values are output-only"),
+            Type::Optional { item } => {
+                // The proper singleton is a tag, even when its payload is nil.
+                // Check the payload completely on Some; None never evaluates
+                // any payload projection or guard. Entry admission reserves
+                // this decoder for version-8 optional input capability.
+                let some = self.decode_list(value, std::slice::from_ref(item.as_ref()), yes)?;
+                let nil = self.nil();
+                let is_nil = self.alloc(Lir::Eq(value, nil));
+                let none = self.require(is_nil, yes);
+                let pair = self.alloc(Lir::Listp(value, true));
+                self.branch(pair, some, none)
+            }
             Type::Pair { first, rest } => {
                 let head = self.alloc(Lir::First(value));
                 let tail = self.alloc(Lir::Rest(value));
@@ -383,6 +394,9 @@ impl Lower<'_> {
     }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
+            Expr::OptionalIsSome(_) | Expr::OptionalValue(_) => {
+                anyhow::bail!("optional inspection requires strict version-8 lowering")
+            }
             Expr::IntCast(_) => anyhow::bail!("integer casts require strict version-7 lowering"),
             Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
                 anyhow::bail!("optional outputs require strict version-6 lowering")

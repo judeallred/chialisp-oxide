@@ -142,7 +142,7 @@ source; generated Rue text is optional.
 
 ## What is validated
 
-The locally validated [corpus report](corpus/validation.json) records forty
+The locally validated [corpus report](corpus/validation.json) records forty-four
 Chialisp/Rust/Rue source comparisons: ten original teaching fixtures covering
 payments, timelocks, signatures, recovery, a boolean gate, a bounded counter,
 and recursive raw-tree traversal;
@@ -163,14 +163,14 @@ module with separate curried-instance observations, plus canonical pay-to-single
 with dedicated counterpart composition evidence, and canonical delegated
 conditions with owner-key and signature/reveal checks, and an original boomerang
 payment with terms committed before funding, the original precommit claim/registry
-pair, a canonical genesis-by-coin-ID CAT TAIL, two original counter actions, and three original fixed two-name registry actions. The
+pair, a canonical genesis-by-coin-ID CAT TAIL, two original counter actions, three original fixed two-name registry actions, and four canonical raw-tree modules from the Inner Puzzles and Condition Morphing tutorials. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The Using Modules ports compile the
 original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-941 explicit vectors and 27,281 generated integer/tree/byte cases against five CLVM
+1,024 explicit vectors and 35,517 generated integer/tree/byte cases against five CLVM
 builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Sixty-two
 complete-spend scenario groups run for each selected language build (186 ledger
 scenario runs). The eight original condition-producing teaching fixtures,
@@ -433,12 +433,16 @@ finite semantics. Reviewed [currying](docs/currying.md) and
 implementation and validation boundaries.
 The reviewed `Cons<First, Rest>` SDK type adds an explicit typed wire pair in
 version-5 IR. It preserves arbitrary tails without changing tuple encoding;
-general Rust struct, heap and generic-call support remain separate work.
-Standard Rust `Option<T>` also supports bounded, output-only nil/singleton lists
-and optional `Cons` tails in version-6 IR. Exported optional inputs, inspection,
-methods and general enums remain unsupported; current proof models reject this
-capability. See [optional output lists](docs/optional-lists.md) for executable
-examples and the conservative optimization boundary.
+Local nongeneric named records use declaration-order proper lists and support
+by-value helpers, snapshots and field updates. Bounded aggregate constants and
+literal fixed-array reads are also supported; dynamic indices, general heap
+containers and generic-call support remain separate work.
+Standard Rust `Option<T>` supports bounded nil/singleton lists and optional
+`Cons` tails. Version-8 IR adds exact optional inputs and by-value `match`,
+`if let` and `let else`; earlier output-only envelopes retain their contracts.
+Option methods, references and general enums remain unsupported; current proof
+models reject this capability. See [optional lists](docs/optional-lists.md) for
+executable examples and the conservative optimization boundary.
 The [hashing guide](docs/hashing.md) explains exact byte concatenation, tree-hash
 domain tags, strict once-only operands, profile restrictions and native identity
 checks. Immutable `&[u8; N]` to `&[u8]` coercions are supported for `N <= 256`,

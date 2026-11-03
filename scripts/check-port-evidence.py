@@ -34,7 +34,7 @@ def declared_ports(report):
 def validate(report, slug, reader=evidence.read_source):
     entry = PORTS.get(slug, {})
     expected = entry["expected"] if entry else None
-    generated = len(entry["generated"]()) if entry else 0
+    generated = len(entry["generated"]()) if entry else None
     return evidence.validate_port(report, slug, expected=expected, reader=reader, generated=generated)
 
 

@@ -52,10 +52,16 @@ impl<'tcx> Lowerer<'tcx> {
         let mut has_pairs = false;
         let mut has_optional = false;
         let mut has_integer_cast = false;
+        let mut has_named_struct = false;
+        let mut has_array_bindings = false;
+        let mut has_array_initializers = false;
         let mut pair_local_work = 0usize;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
             self.runtime_signature(body)?;
+            let array_plan = self.array_plan(body)?;
+            has_array_bindings |= !array_plan.indices.is_empty();
+            has_array_initializers |= array_plan.has_initializers;
             for declaration in &body.local_decls {
                 pair_local_work += 1;
                 if pair_local_work > 500_000 {
@@ -63,6 +69,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 has_pairs |= self.contains_cons(declaration.ty, body.span)?;
                 has_optional |= self.contains_optional(declaration.ty, body.span)?;
+                has_named_struct |= self.contains_named_struct(declaration.ty, body.span)?;
             }
             let mut pending = vec![START_BLOCK];
             let mut visited = HashSet::new();
@@ -253,10 +260,43 @@ impl<'tcx> Lowerer<'tcx> {
             }
         }
         if removed == functions.len()
+            && (!acyclic_fallback || functions.len() == 1)
+            && has_array_initializers
+            && !has_array_bindings
             && !has_native_hash
             && !has_pairs
             && !has_optional
             && !has_integer_cast
+            && !has_named_struct
+        {
+            for definition in &functions {
+                let body = self.function_body(*definition)?;
+                let origins = self.array_total_origins(body)?;
+                has_array_bindings |= self.array_plan(body)?.computed_initializers(&origins);
+                // Initializers can flow into argument-only repeats in callees.
+                for data in body.basic_blocks.iter() {
+                    if let TerminatorKind::Call { args, .. } = &data.terminator().kind {
+                        let work = self.expression_work.get().saturating_add(args.len());
+                        if work > 500_000 {
+                            return Err(
+                                self.error(body.span, "array call-source work limit exceeded")
+                            );
+                        }
+                        self.expression_work.set(work);
+                        has_array_bindings |= args.iter().any(|argument| {
+                            super::arrays::computed_operand(&argument.node, &origins)
+                        });
+                    }
+                }
+            }
+        }
+        if removed == functions.len()
+            && !has_native_hash
+            && !has_pairs
+            && !has_optional
+            && !has_integer_cast
+            && !has_named_struct
+            && !has_array_bindings
             && (!acyclic_fallback || functions.len() == 1)
         {
             return Ok(vec![]);
@@ -326,6 +366,7 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn runtime_bind(
         &self,
+        body: &Body<'tcx>,
         assignment: (Place<'tcx>, Type, Expr),
         locals: &mut super::Environment,
         bindings: &mut Vec<Binding>,
@@ -333,10 +374,17 @@ impl<'tcx> Lowerer<'tcx> {
         span: Span,
     ) -> Result<(), String> {
         let (place, ty, value) = assignment;
-        if !place.projection.is_empty() {
-            return Err(self.error(span, "projected assignment is unsupported in runtime functions; construct and assign a complete tuple/newtype"));
-        }
         let value = self.runtime_value(value, ty, bindings, runtime, span)?;
+        let value = if place.projection.is_empty() {
+            value
+        } else {
+            let rust_ty = body.local_decls[place.local].ty;
+            let base = locals[place.local.index()].clone().ok_or_else(|| {
+                self.error(span, "named struct update requires an initialized value")
+            })?;
+            let updated = self.update_named_struct(rust_ty, base, place.projection, value, span)?;
+            self.runtime_value(updated, self.ty(rust_ty, span)?, bindings, runtime, span)?
+        };
         locals[place.local.index()] = Some(value);
         Ok(())
     }
@@ -406,10 +454,17 @@ impl<'tcx> Lowerer<'tcx> {
         }
         path.push(block);
         let mut bindings = vec![];
+        let array_plan = self.array_plan(body)?;
         let owned = self.owned_plan(body)?;
         let shift_guard = self.shift_guard(body, block);
         for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
+            if array_plan.skip.contains(&Location {
+                block,
+                statement_index,
+            }) {
+                continue;
+            }
             if shift_guard
                 .as_ref()
                 .is_some_and(|plan| plan.skip.contains(&statement_index))
@@ -462,6 +517,7 @@ impl<'tcx> Lowerer<'tcx> {
                             statement_span,
                         )? {
                             self.runtime_bind(
+                                body,
                                 (*place, Type::Bool, value),
                                 &mut locals,
                                 &mut bindings,
@@ -471,7 +527,11 @@ impl<'tcx> Lowerer<'tcx> {
                         }
                         continue;
                     }
-                    if !place.projection.is_empty() {
+                    if !place.projection.is_empty()
+                        && self
+                            .named_struct_fields(body.local_decls[place.local].ty, statement_span)?
+                            .is_none()
+                    {
                         return Err(self.error(statement_span, "projected assignment is unsupported in runtime functions; construct and assign a complete tuple/newtype"));
                     }
                     let ty = if matches!(rvalue, Rvalue::Discriminant(_)) {
@@ -480,10 +540,11 @@ impl<'tcx> Lowerer<'tcx> {
                             signed: false,
                         }
                     } else {
-                        self.ty(body.local_decls[place.local].ty, statement_span)?
+                        self.ty(place.ty(&body.local_decls, self.tcx).ty, statement_span)?
                     };
                     let value = self.rvalue(body, rvalue, &locals, statement_span)?;
                     self.runtime_bind(
+                        body,
                         (*place, ty, value),
                         &mut locals,
                         &mut bindings,
@@ -504,7 +565,9 @@ impl<'tcx> Lowerer<'tcx> {
                 }
             }
         }
-        let result = if let Some(target) = owned.targets.get(&block) {
+        let result = if let Some(target) = array_plan.targets.get(&block) {
+            self.runtime_block(body, *target, locals, path, runtime, patterns)?
+        } else if let Some(target) = owned.targets.get(&block) {
             self.runtime_block(body, *target, locals, path, runtime, patterns)?
         } else {
             match &data.terminator().kind {
@@ -516,7 +579,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 TerminatorKind::SwitchInt { discr, targets } => {
                     let value = self.operand(body, discr, &locals, span)?;
-                    let tree = self.tree_discriminant(body, discr, &locals, span)?;
+                    let tree = self.boolean_discriminant(body, discr, &locals, span)?;
                     let ty = if tree.is_some() {
                         Type::Int {
                             bits: 8,
@@ -534,10 +597,10 @@ impl<'tcx> Lowerer<'tcx> {
                         patterns.clone(),
                     )?;
                     for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
-                        let condition = if let Some((is_pair, shape)) = &tree {
-                            if bits == shape.pair.index() as u128 {
+                        let condition = if let Some((is_pair, false_tag, true_tag)) = &tree {
+                            if bits == *true_tag {
                                 is_pair.clone()
-                            } else if bits == shape.atom.index() as u128 {
+                            } else if bits == *false_tag {
                                 Expr::Not {
                                     value: Box::new(is_pair.clone()),
                                 }
@@ -614,6 +677,7 @@ impl<'tcx> Lowerer<'tcx> {
                             .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
                             .collect::<Result<Vec<_>, _>>()?;
                         self.runtime_bind(
+                            body,
                             (
                                 *destination,
                                 Type::Bytes { len: 32 },
@@ -637,6 +701,7 @@ impl<'tcx> Lowerer<'tcx> {
                         let environment =
                             self.operand(body, &args[1].node, &locals, args[1].span)?;
                         self.runtime_bind(
+                            body,
                             (
                                 *destination,
                                 Type::Tree,
@@ -661,6 +726,7 @@ impl<'tcx> Lowerer<'tcx> {
                     } else if self.box_constructor(body, func, args, *destination, span)? {
                         let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
                         self.runtime_bind(
+                            body,
                             (*destination, Type::Tree, value),
                             &mut locals,
                             &mut bindings,
@@ -682,6 +748,7 @@ impl<'tcx> Lowerer<'tcx> {
                         let right = self.operand(body, &args[1].node, &locals, args[1].span)?;
                         let value = comparison.expression(left, right);
                         self.runtime_bind(
+                            body,
                             (*destination, Type::Bool, value),
                             &mut locals,
                             &mut bindings,
@@ -712,8 +779,9 @@ impl<'tcx> Lowerer<'tcx> {
                             function_id,
                             arguments,
                         };
-                        let ty = self.ty(body.local_decls[destination.local].ty, span)?;
+                        let ty = self.ty(destination.ty(&body.local_decls, self.tcx).ty, span)?;
                         self.runtime_bind(
+                            body,
                             (*destination, ty, value),
                             &mut locals,
                             &mut bindings,

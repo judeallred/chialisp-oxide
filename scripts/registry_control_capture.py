@@ -165,10 +165,10 @@ def capture(root, target, output, *, source_snapshot, verify_native, validate_sd
     fixtures = decode_json(read(package / "fixtures/native-vectors.json"))
     require([row["id"] for row in fixtures["cases"]] == list(NAMES), "complete ordered native fixtures")
     bundles, control_entries, vm, pending_templates = {}, {}, [], []
-    for label, source_root, snapshot, count, options in (
-        ("baseline", root, lambda: cargo_authoring.snapshot(root), 40,
+    for label, source_root, snapshot, options in (
+        ("baseline", root, lambda: cargo_authoring.snapshot(root),
             ["--locked", "--manifest-path", str(root / "puzzles/Cargo.toml")]),
-        ("controls", package, lambda: private_snapshot(package), 4,
+        ("controls", package, lambda: private_snapshot(package),
             ["--manifest-path", str(package / "Cargo.toml"), "--package", PACKAGE, "--locked", "--offline"]),
     ):
         for mode in ("off", "on"):
@@ -176,7 +176,13 @@ def capture(root, target, output, *, source_snapshot, verify_native, validate_sd
             execute(f"extract-{label}-{mode}", [tool_paths["cargo-chialisp-oxide"], "build", *options,
                 "--output-dir", destination, *(["--no-optimize"] if mode == "off" else [])])
             authoring = snapshot()
-            require(len(authoring["exports"]) == count, "complete expected authoring count")
+            exports = authoring['exports']
+            require(type(exports) is dict and 0 < len(exports) <= cargo_bundle.MAX_EXPORTS,
+                    "bounded complete authoring declaration")
+            expected_entries = {row['entry'] for row in exports.values()}
+            require(len(expected_entries) == len(exports), "unique complete declared export entries")
+            if label == 'controls':
+                require(set(exports) == set(NAMES), "exact four control declarations")
             first = next(iter(authoring["exports"].values()))["entry"]
             # This loads the complete immutable bundle and its schema-2 receipt
             # before any selected entry is used.
@@ -184,6 +190,8 @@ def capture(root, target, output, *, source_snapshot, verify_native, validate_sd
                 selected_entry=first, compiler=compiler, driver_sha256=tools["chialisp-oxide-driver"]["sha256"],
                 toolchain=toolchain, current_authoring=snapshot, optimize=mode == "on",
                 rue_revision=RUE, cargo_options=options)
+            require({row['entry'] for row in admitted.manifest['entries']} == expected_entries
+                    and len(admitted.manifest['entries']) == len(exports), "complete declared bundle admission before selection")
             require(type(admitted.manifest["schema_version"]) is int and admitted.manifest["schema_version"] == 2,
                     "schema2 required; never artifact-only fallback")
             bundles[f"{label}-{mode}"] = dict(manifest=str(admitted.manifest_path.relative_to(output)),
@@ -203,10 +211,11 @@ def capture(root, target, output, *, source_snapshot, verify_native, validate_sd
                         and [a["optimize"] for a in artifacts] == [False, True], "actual two-mode verifier output")
                     selected = artifacts[int(mode == "on")]
                     require(type(selected["optimize"]) is bool and all(selected[k] == entry_row["artifact"][k]
-                            for k in ("bytes", "clvm_hex", "tree_hash")), "all40 actual selected baseline recompilations")
+                            for k in ("bytes", "clvm_hex", "tree_hash")), "all declared actual baseline recompilations")
                     recompiled.append(dict(entry=entry_row["entry"], role=role,
                         optimize=mode == "on", bytes=selected["bytes"], tree_hash=selected["tree_hash"]))
-                require(len(recompiled) == 40, "all40 actual Programs validated before selection")
+                require(len(recompiled) == len(exports) and {row['entry'] for row in recompiled} == expected_entries,
+                        "all declared actual Programs validated before selection")
                 bundles[f"{label}-{mode}"]["recompiled"] = recompiled
                 validate_baseline(admitted, mode)
                 continue

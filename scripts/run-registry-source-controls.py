@@ -55,7 +55,7 @@ def run_capture(args):
     receipt_path = output / 'wrapper-receipt.json'
     receipt = {'status': 'in_progress', 'source_root': str(root),
         'native_dir': str(native_dir), 'last_dir': str(last_dir), 'base_report': str(base_path),
-        'scope': 'Capture consistency and finite local observations; no execution authentication, whole40 execution, live chain, BLS/security or compiler-preservation credit.'}
+        'scope': 'Capture consistency and finite local observations; no execution authentication, whole-corpus execution, live chain, BLS/security or compiler-preservation credit.'}
     try:
         import cargo_authoring
         import cargo_bundle
@@ -168,15 +168,17 @@ def run_capture(args):
         # Admit the current base record and its complete canonical/journal sidecars
         # before using the three reference artifacts or matching baseline bundles.
         base = load(base_path)
-        require(base['authoring'] == cargo_authoring.snapshot(root) and len(base['authoring']['exports']) == 40,
-                'current complete40 authoring metadata')
+        current_authoring = cargo_authoring.snapshot(root)
+        exports = current_authoring['exports']
+        require(type(exports) is dict and 0 < len(exports) <= cargo_bundle.MAX_EXPORTS
+                and base['authoring'] == current_authoring, 'current complete bounded authoring metadata')
         require(type(base['puzzles']) is list, 'base puzzle list')
         declared = set(base['authoring']['exports'])
         slugs = [row['slug'] for row in base['puzzles']]
         require(len(slugs) == len(set(slugs)) and (slugs == list(registry.SLUGS) or set(slugs) == declared),
-                'exact triplet or complete40 base report')
+                'exact triplet or complete declared base report')
         base_registry = [row for slug in registry.SLUGS for row in base['puzzles'] if row['slug'] == slug]
-        require(len(base_registry) == 3, 'complete registry selection after current40 source admission')
+        require(len(base_registry) == 3, 'complete registry selection after current source admission')
         registry.validate_report(base, sidecar_root=base_path.parent)
         index = registry.json_value(registry.read_member(base_path.parent / registry.INDEX,
             base_registry[0]['protocol_validation']['index']))
@@ -233,7 +235,7 @@ def run_capture(args):
         def validate_baseline(admitted, mode):
             manifest = admitted.manifest
             require({e['entry'] for e in manifest['entries']} == {e['entry'] for e in base['authoring']['exports'].values()},
-                    'all40 baseline entries admitted before registry selection')
+                    'all declared baseline entries admitted before registry selection')
             for row in base_registry:
                 entry = base['authoring']['exports'][row['slug']]['entry']
                 actual = [e['artifact'] for e in manifest['entries'] if e['entry'] == entry]
@@ -284,7 +286,7 @@ def main():
         print(json.dumps({'status': 'plan_only_no_execution', 'source_root': str(ROOT),
             'phase': args.phase, 'order': ['native', 'last', 'capture'],
             'requires': 'Choose an explicit phase, provide fresh isolated target paths and pass --execute.',
-            'scope': 'Native8, templateVM8 and SDK24/primary36 are separate planned lanes; no live funds, full40 execution or preservation proof.'}, indent=2))
+            'scope': 'Native8, templateVM8 and SDK24/primary36 are separate planned lanes; no live funds, whole-corpus execution or preservation proof.'}, indent=2))
         return
     if args.phase == 'capture':
         run_capture(args)

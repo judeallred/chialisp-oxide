@@ -52,6 +52,8 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
                 arguments: items, ..
             } => pending.extend(items),
             Expr::IntCast(chialisp_oxide_ir::IntegerCast { value, .. })
+            | Expr::OptionalIsSome(chialisp_oxide_ir::OptionalAccess { value })
+            | Expr::OptionalValue(chialisp_oxide_ir::OptionalAccess { value })
             | Expr::OptionalSome { value }
             | Expr::Not { value }
             | Expr::Field { value, .. }

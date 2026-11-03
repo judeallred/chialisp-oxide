@@ -282,12 +282,32 @@ def check_ledger(puzzle, report):
     return 0
 
 
-def validate_port(report, slug, *, expected=None, reader=read_source, generated=0, require_pins=True):
+def declared_generated_count(manifest):
+    """Declare the existing shared suite without claiming retained observations.
+
+    Its cases run through native and all five builds during corpus capture.
+    Only named cases retain outcomes/costs for the separate byte replay gate.
+    """
+    suite = manifest.get("generated_suite")
+    if suite is None:
+        return 0
+    require(suite == "raw-environment-v1" and manifest.get("environment") == "raw",
+            f"{manifest['slug']}: unknown or incompatible generated suite")
+    from hashing_vectors import raw_generated
+    return len(raw_generated())
+
+
+def validate_port(report, slug, *, expected=None, reader=read_source, generated=None, require_pins=True):
     """Check one port's recorded evidence against its manifest and an independent expectation."""
     manifest = load_manifest(slug, reader)
     puzzle = puzzle_row(report, slug)
     if expected is None:
         expected = declared_expectations(manifest)
+    declared = declared_generated_count(manifest)
+    if generated is None:
+        generated = declared
+    elif "generated_suite" in manifest:
+        require(generated == declared, f"{slug}: generated suite/count conflict")
     pins = check_pins(manifest["provenance"], reader, slug) if require_pins else 0
     check_identity(puzzle, manifest, reader)
     check_artifacts(puzzle)
@@ -413,7 +433,7 @@ def self_test_port(report, slug, validate, *, reader=read_source):
         ("changed Chialisp source", {f"puzzles/{slug}/reference.clsp": reader(f"puzzles/{slug}/reference.clsp") + b"\n"}),
         ("changed Rue source", {f"puzzles/{slug}/puzzle.rue": reader(f"puzzles/{slug}/puzzle.rue") + b"\n"}),
     ]
-    for mutation in ("case", "order", "claim", "environment", "mode", "dependency", "native", "include", "budget", "classification"):
+    for mutation in ("case", "order", "claim", "environment", "mode", "dependency", "native", "include", "budget", "classification", "generated_suite"):
         bad = copy.deepcopy(manifest)
         if mutation == "case": bad["cases"].pop()
         elif mutation == "order": bad["cases"].reverse()
@@ -424,15 +444,19 @@ def self_test_port(report, slug, validate, *, reader=read_source):
         elif mutation == "native": bad["native_sources"] = bad.get("native_sources", []) + ["puzzles/lib.rs"]
         elif mutation == "include": bad["reference_includes"] = {"invented.clib": "puzzles/lib.rs"}
         elif mutation == "budget": bad["validation_max_cost"] = 1 if bad.get("validation_max_cost") != 1 else 2
+        elif mutation == "generated_suite": bad["generated_suite"] = "invented-suite"
         else: bad["provenance"]["classification"] = "invented"
         overrides.append((f"manifest {mutation}", {f"puzzles/{slug}/puzzle.json": json.dumps(bad).encode()}))
     pinned = []
 
     def collect(value):
         if isinstance(value, dict):
-            for key in PATH_KEYS:
-                if isinstance(value.get(key), str) and any(field in value for field in ("sha256", "source_sha256", "git_blob_sha1", "clvm_hex")):
-                    pinned.append(value[key])
+            # Match check_pins' snapshot/path/manifest precedence. A pinned
+            # upstream license can also carry its upstream-relative path; that
+            # spelling is not a second repository-local file to mutate.
+            paths = [value[key] for key in PATH_KEYS if isinstance(value.get(key), str)]
+            if paths and any(field in value for field in ("sha256", "source_sha256", "git_blob_sha1", "clvm_hex")):
+                pinned.append(paths[0])
             for item in value.values():
                 collect(item)
         elif isinstance(value, list):

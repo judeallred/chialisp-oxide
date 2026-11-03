@@ -56,10 +56,31 @@ simulator workflow after three durable transitions. It has not sent XCH.
 Fresh validation can take several minutes, including on resume; the output
 directory retains the detailed checks.
 
-Resume by repeating the command with `fresh resume`, changing `check-1` to
-`check-2` and removing `--steps 3`. Keep the same journal, recipient and mode.
-Inspect the returned stage and child coin records. A completed run reports
-`confirmed` in the simulator; it does not establish a network confirmation.
+The returned view should report stage `awaiting_signature` and revision `3`.
+This is the simulator runner's durable stage name; it is not asking you to
+unlock a wallet or provide a key. Resume the same session with a new directory
+for its fresh validation results:
+
+```sh
+target/debug/chialisp-oxide-lifecycle fresh resume \
+  --cargo "$(rustup which --toolchain nightly-2026-07-14 cargo)" \
+  --compiler "$PWD/target/debug/cargo-chialisp-oxide" \
+  --destination-hex 2323232323232323232323232323232323232323232323232323232323232323 \
+  --mode on --output "$PWD/target/lifecycle-local/check-2" \
+  --journal "$PWD/target/lifecycle-local/payment.lifecycle.json"
+```
+
+Keep the journal, recipient and mode unchanged. The returned view should now
+report `confirmed` at revision `7`, with the same input coin and exactly one
+1,000-mojo child locked to the `23…23` destination. The complete 1,000-mojo
+input is returned, so this recipe's fee is zero. Here `confirmed` means
+observed in the seeded SDK simulator; it does not establish network confirmation.
+
+The journal records durable progress; the two output directories retain the
+fresh checks executed by each process. Changing the source, tools, recipient
+or mode does not upgrade the saved coin: the runner checks their identities
+before admitting the journal. To start another independent exercise, choose
+a new journal and new output paths.
 
 To use the same core in a GUI, replace `fresh run` with `fresh serve`, use another
 new output directory, remove `--steps 3`, and open the printed loopback URL.

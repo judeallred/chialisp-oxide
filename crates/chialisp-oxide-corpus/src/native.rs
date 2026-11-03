@@ -476,6 +476,52 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if slug == "morph-coin-doubler" {
+        let arena = bumpalo::Bump::new();
+        // Inputs are borrowed, so use the whole borrowed-tree limit. Only the
+        // applied result enters the narrower owned-output construction route.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        // The source applies an arbitrary program before constructing owned
+        // output. Bound that actual result first, outside the policy adapter.
+        // This extra host VM execution is a codec preflight, not independent
+        // native evidence for the CLVM primitives used by raw_clvm helpers.
+        if let SExp::Pair(inner, inner_solution) = a.sexp(env) {
+            match clvmr::run_program(
+                &mut a,
+                &clvmr::ChiaDialect::new(clvmr::MEMPOOL_MODE),
+                inner,
+                inner_solution,
+                10_000_000,
+            ) {
+                Ok(result) => super::native_owned_tree::preflight_morph(&a, result.1)?,
+                Err(error) => {
+                    ensure!(
+                        chialisp_oxide_vm::classify_failure(&error).is_program_rejection(),
+                        "native condition-morph preflight was inconclusive: {error:?}"
+                    );
+                }
+            }
+        }
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::morph_coin_doubler::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(payload) => {
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native condition-morph evaluator exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
     if matches!(
         slug,
         "registry-initialize" | "registry-set-alpha" | "registry-set-beta"
@@ -564,13 +610,55 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
             tree,
         ))?));
     }
-    if slug == "p2-delegated-conditions" {
+    if slug == "inner-any-conditions" {
+        let arena = bumpalo::Bump::new();
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::inner_any_conditions::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => Ok(Some(output(value)?)),
+            Err(_) => Ok(None),
+        };
+    }
+    if slug == "inner-require-signature" {
+        let arena = bumpalo::Bump::new();
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::inner_require_signature::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => {
+                // The returned program result can exceed the input bounds.
+                // Inspect both output trees before encoding, outside rejection.
+                super::p2_delegated_conditions::output_preflight(&Cons {
+                    first: value.first,
+                    rest: &value.rest,
+                })?;
+                Ok(Some(output(value)?))
+            }
+            Err(payload) => {
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native tutorial signature evaluator exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
+    if slug == "p2-delegated-conditions" || slug == "morph-any-with-signature" {
         let arena = bumpalo::Bump::new();
         // Decode and preflight the complete environment before the policy
         // panic adapter, including arbitrary key trees and ignored tails.
         let tree = super::native_hash::decode(&arena, &a, env)?;
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            chialisp_oxide_puzzles::p2_delegated_conditions::puzzle(tree)
+            if slug == "morph-any-with-signature" {
+                chialisp_oxide_puzzles::morph_any_with_signature::puzzle(tree)
+            } else {
+                chialisp_oxide_puzzles::p2_delegated_conditions::puzzle(tree)
+            }
         }));
         return match result {
             Ok(value) => {
@@ -918,6 +1006,62 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn raw_tutorial_library_outputs_match_every_independent_manifest_case() {
+        for (slug, manifest) in [
+            (
+                "inner-any-conditions",
+                include_str!("../../../puzzles/inner-any-conditions/puzzle.json"),
+            ),
+            (
+                "inner-require-signature",
+                include_str!("../../../puzzles/inner-require-signature/puzzle.json"),
+            ),
+            (
+                "morph-any-with-signature",
+                include_str!("../../../puzzles/morph-any-with-signature/puzzle.json"),
+            ),
+            (
+                "morph-coin-doubler",
+                include_str!("../../../puzzles/morph-coin-doubler/puzzle.json"),
+            ),
+        ] {
+            let manifest: serde_json::Value = serde_json::from_str(manifest).unwrap();
+            for case in manifest["cases"].as_array().unwrap() {
+                let actual = super::execute(slug, case["solution"].as_str().unwrap()).unwrap();
+                let label = case["label"].as_str().unwrap();
+                match case["expected"]["status"].as_str().unwrap() {
+                    "accepted" => assert_eq!(
+                        hex::encode(actual.unwrap()),
+                        case["expected"]["output_hex"].as_str().unwrap(),
+                        "{slug}: {label}"
+                    ),
+                    "rejected" => assert!(actual.is_none(), "{slug}: {label}"),
+                    _ => panic!("unsupported expected status"),
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn morph_applied_output_is_bounded_before_owned_construction() {
+        let program = chialisp_oxide_reference::compile(
+            "(mod (N) (defun build (N) (if (> N 0) (c (list 60 7) (build (- N 1))) ())) (build N))",
+        )
+        .unwrap();
+        let assembly =
+            chialisp_oxide_backend_experiment::artifact("preflight-control", true, &program)
+                .unwrap()
+                .disassembly;
+        // The program and solution are shallow, but their result exceeds the
+        // native owned-tree depth. This is an inconclusive host error, never
+        // an observation that the source or canonical policy rejects.
+        let error = super::execute("morph-coin-doubler", &format!("({assembly} 129)"))
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("native owned-tree depth exceeds"), "{error}");
+    }
+
     #[test]
     fn registry_actual_library_matches_independent_full_environment_cases() {
         for (slug, manifest) in [

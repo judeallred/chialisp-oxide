@@ -239,11 +239,94 @@ def check_module_promotion(row, excerpt, report, root):
     }, f"{slug}: changed ABI/result/proof-scope claim")
 
 
+RAW_PROMOTIONS = {
+    "inner-any-conditions": ("docs/chialisp-concepts/inner-puzzles.md", 52, 54),
+    "inner-require-signature": ("docs/chialisp-concepts/inner-puzzles.md", 19, 28),
+    "morph-coin-doubler": ("docs/chialisp-concepts/condition-morphing.md", 17, 63),
+    "morph-any-with-signature": ("docs/chialisp-concepts/condition-morphing.md", 75, 83),
+}
+
+
+def raw_adaptation(slug, row, root):
+    """Source/report identities only; creating this record adds no execution."""
+    result = {"operation": "extract_complete_chialisp_module",
+              "source_span_sha256": row["source"]["sha256"],
+              "report": "corpus/validation.json",
+              "report_sha256": sha256((root / "corpus/validation.json").read_bytes()),
+              "slug": slug}
+    for key, filename in (("rust_source", "puzzle.rs"), ("reference", "reference.clsp"),
+                          ("rue_source", "puzzle.rue"), ("manifest", "puzzle.json")):
+        path = f"puzzles/{slug}/{filename}"
+        result[key] = path
+        result[key + "_sha256"] = sha256(confined_file(root, path).read_bytes())
+    return result
+
+
+RAW_CONTRACT = {"abi": "raw_one_tree", "environment": "raw", "reference_mode": "module",
+                "claim_scope": "executed_raw_differential_cases_only",
+                "ledger": "not_claimed", "compiler_preservation": "not_claimed",
+                "whole_page_completed": False}
+
+
+def check_raw_upstream(row, provenance):
+    source = row["source"]
+    require(provenance["upstream"] == {
+        "repository": REPOSITORY, "revision": REVISION,
+        "source_path": source["path"], "snapshot": source["snapshot"],
+        "sha256": source["file_sha256"], "git_blob_sha1": source["git_blob_sha1"],
+        "start_line": source["start_line"], "end_line": source["end_line"],
+    }, f"{row['id']}: manifest canonical source identity/span changed")
+    require(provenance["references"] == [row["url"], source["url"]],
+            f"{row['id']}: canonical reference links changed")
+    require(provenance["license"] == {
+        "path": "LICENSE", "snapshot": f"{SNAPSHOT}/LICENSE",
+        "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+        "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c", "spdx": "Apache-2.0",
+    }, f"{row['id']}: canonical license identity changed")
+
+
+def check_raw_promotion(row, excerpt, report, root):
+    """Reuse the shared port evidence gate for four exact tutorial modules."""
+    import port_evidence
+    slug = row["id"].split(":", 1)[1]
+    source = row["source"]
+    require((source["path"], source["start_line"], source["end_line"]) == RAW_PROMOTIONS[slug],
+            f"{slug}: promotion requires the complete reviewed module span")
+    require(row["kind"] == "puzzle" and row["implementation_status"] == "implemented"
+            and row["validation_status"] == "differential_only"
+            and not any(key in row for key in ("validated", "passed", "executed")),
+            f"{slug}: unreviewed promotion state")
+    adaptation = raw_adaptation(slug, row, root)
+    require(row["source_adaptation"] == adaptation, f"{slug}: stale source/report identities")
+    require(row["local_examples"] == [adaptation[key] for key in ("rust_source", "reference", "rue_source")]
+            and row["evidence"] == ["corpus/validation.json"], f"{slug}: source/evidence bindings changed")
+    require(excerpt.encode() == confined_file(root, adaptation["reference"]).read_bytes(),
+            f"{slug}: original module must remain unchanged")
+    reader = lambda path: confined_file(root, path).read_bytes()
+    manifest = port_evidence.load_manifest(slug, reader)
+    require(manifest["provenance"]["classification"] == "canonical_tutorial_port"
+            and manifest["provenance"]["example_id"] == row["id"], f"{slug}: wrong canonical example")
+    check_raw_upstream(row, manifest["provenance"])
+    require(port_evidence.declared_expectations(manifest) is not None,
+            f"{slug}: every named case needs an independently specified expected outcome")
+    port_evidence.validate_port(report, slug, reader=reader)
+    puzzle = port_evidence.puzzle_row(report, slug)
+    require(puzzle["environment"] == "raw" and puzzle.get("reference_mode", "module") == "module"
+            and puzzle["simulator"] == []
+            and puzzle["generated_cases"] == port_evidence.declared_generated_count(manifest),
+            f"{slug}: raw template observations must remain separate from complete spends")
+    require(row["validation_contract"] == RAW_CONTRACT
+            and row["validation_contract"]["whole_page_completed"] is False,
+            f"{slug}: changed ABI, proof or whole-page claim")
+
+
 def check_promotion(row, excerpt, report, root):
     """Bind only explicitly reviewed examples to actual source/report bytes."""
     if row["id"] == "chialisp-example:password-coin":
         return check_password_promotion(row, excerpt, report, root)
     slug = row["id"].split(":", 1)[1]
+    if slug in RAW_PROMOTIONS:
+        return check_raw_promotion(row, excerpt, report, root)
     if slug in MODULE_PROMOTIONS:
         return check_module_promotion(row, excerpt, report, root)
     require(slug in EXPECTATIONS, "Only the three closed Intro expressions and the reviewed module ports have a promotion contract")
@@ -544,6 +627,61 @@ class ModulePromotionControls(unittest.TestCase):
                 check_module_promotion(changed, excerpt, evidence, ROOT)
 
 
+class RawPromotionControls(unittest.TestCase):
+    def test_coherent_manifest_metadata_cannot_move_the_canonical_source(self):
+        inventory = load(ROOT / "corpus/tutorial-examples.json")
+        for slug in RAW_PROMOTIONS:
+            row = next(item for item in inventory["examples"] if item["id"] == f"chialisp-example:{slug}")
+            provenance = load(ROOT / f"puzzles/{slug}/puzzle.json")["provenance"]
+            check_raw_upstream(row, provenance)
+            for field in provenance["upstream"]:
+                changed = copy.deepcopy(provenance)
+                value = changed["upstream"][field]
+                changed["upstream"][field] = value + 1 if type(value) is int else value + "changed"
+                with self.subTest(slug=slug, field=field), self.assertRaises(ValueError):
+                    check_raw_upstream(row, changed)
+            for field in provenance["license"]:
+                changed = copy.deepcopy(provenance)
+                changed["license"][field] += "changed"
+                with self.subTest(slug=slug, license_field=field), self.assertRaises(ValueError):
+                    check_raw_upstream(row, changed)
+
+    def test_raw_module_sources_outcomes_and_claim_scope_are_bound(self):
+        inventory = load(ROOT / "corpus/tutorial-examples.json")
+        report = load(ROOT / "corpus/validation.json")
+        for slug in RAW_PROMOTIONS:
+            row = next(item for item in inventory["examples"] if item["id"] == f"chialisp-example:{slug}")
+            source = row["source"]
+            excerpt = "".join(confined_file(ROOT, source["snapshot"]).read_text().splitlines(keepends=True)
+                              [source["start_line"] - 1:source["end_line"]])
+            check_raw_promotion(row, excerpt, report, ROOT)
+            # Module is the Rust report's omitted serde default. Both exact
+            # encodings retain the same module contract; expression does not.
+            for mode in (None, "module"):
+                evidence = copy.deepcopy(report)
+                puzzle = next(item for item in evidence["puzzles"] if item["slug"] == slug)
+                if mode is None:
+                    puzzle.pop("reference_mode", None)
+                else:
+                    puzzle["reference_mode"] = mode
+                check_raw_promotion(row, excerpt, evidence, ROOT)
+            for mutation in ("report", "rust", "span", "page", "ledger", "native", "vm", "reference_mode"):
+                changed, evidence = copy.deepcopy(row), copy.deepcopy(report)
+                puzzle = next(item for item in evidence["puzzles"] if item["slug"] == slug)
+                if mutation == "report": changed["source_adaptation"]["report_sha256"] = "00" * 32
+                elif mutation == "rust": changed["source_adaptation"]["rust_source_sha256"] = "00" * 32
+                elif mutation == "span": changed["source"]["start_line"] += 1
+                elif mutation == "page": changed["validation_contract"]["whole_page_completed"] = True
+                elif mutation == "ledger": puzzle["simulator"] = [{"passed": True}]
+                elif mutation == "native": puzzle["cases"][0]["native"] = {"status": "rejected"}
+                elif mutation == "reference_mode": puzzle["reference_mode"] = "expression"
+                else: puzzle["cases"][0]["runs"][0]["execution"]["outcome"] = {"status": "rejected"}
+                with self.subTest(slug=slug, mutation=mutation), self.assertRaises((ValueError, KeyError)):
+                    check_raw_promotion(changed, excerpt, evidence, ROOT)
+            with self.subTest(slug=slug, mutation="wrapper"), self.assertRaises(ValueError):
+                check_raw_promotion(row, "(mod ENV (x))\n", report, ROOT)
+
+
 class InventoryControls(unittest.TestCase):
     def test_provenance_scope_and_claim_mutations_are_rejected(self):
         original = load(ROOT / "corpus/tutorial-examples.json")
@@ -692,7 +830,8 @@ def main():
     args = parser.parse_args()
     if args.self_test:
         suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(InventoryControls),
-                                    unittest.defaultTestLoader.loadTestsFromTestCase(ModulePromotionControls)])
+                                    unittest.defaultTestLoader.loadTestsFromTestCase(ModulePromotionControls),
+                                    unittest.defaultTestLoader.loadTestsFromTestCase(RawPromotionControls)])
         result = unittest.TextTestRunner().run(suite)
         return 0 if result.wasSuccessful() else 1
     try:

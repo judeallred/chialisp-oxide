@@ -192,12 +192,12 @@ fn documented_rust_examples_are_exact_parts_of_the_checked_cargo_fixture() {
         .collect::<Vec<_>>();
     assert_eq!(
         blocks.len(),
-        2,
+        3,
         "Each Rust example needs an execution binding"
     );
     for block in blocks {
         assert!(
-            SOURCE.contains(block),
+            SOURCE.contains(block) || include_str!("fixtures/optional_inputs.rs").contains(block),
             "Documentation differs from the native and CLVM fixture:\n{block}"
         );
     }
@@ -414,15 +414,9 @@ fn rejected_native_valid(fixture: &Fixture, source: &str, diagnostic: Option<&st
 }
 
 #[test]
-fn output_support_does_not_admit_optional_input_decoding_or_inspection() {
+fn optional_support_does_not_admit_generic_option_methods() {
     let fixture = Fixture::new();
     for source in [
-        "#[chialisp_oxide::puzzle]pub fn puzzle(_:Option<u8>)->u8{7}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(_:(u8,Option<u8>))->u8{7}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(_:chialisp_oxide::Cons<u8,Option<u8>>)->u8{7}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(_:[Option<u8>;2])->u8{7}",
-        "#[repr(transparent)]pub struct Wrapped(Option<u8>);#[chialisp_oxide::puzzle]pub fn puzzle(_:Wrapped)->u8{7}",
-        "fn maybe(flag:bool,n:u8)->Option<u8>{if flag{Some(n)}else{None}}#[chialisp_oxide::puzzle]pub fn puzzle(flag:bool,n:u8)->u8{match maybe(flag,n){Some(value)=>value,None=>0}}",
         "fn maybe(flag:bool,n:u8)->Option<u8>{if flag{Some(n)}else{None}}#[chialisp_oxide::puzzle]pub fn puzzle(flag:bool,n:u8)->bool{maybe(flag,n).is_some()}",
         "fn maybe(flag:bool,n:u8)->Option<u8>{if flag{Some(n)}else{None}}#[chialisp_oxide::puzzle]pub fn puzzle(flag:bool,n:u8)->u8{maybe(flag,n).unwrap()}",
     ] {

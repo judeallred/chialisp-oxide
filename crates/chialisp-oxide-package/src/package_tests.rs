@@ -940,3 +940,106 @@ fn coherent_v7_ir_attachment_edits_do_not_bypass_cast_or_inherited_optional_guar
         );
     }
 }
+
+fn access_pair_optional_manifest() -> PackageManifest {
+    use chialisp_oxide_ir::Expr;
+    let mut p = unit_program();
+    let byte = Type::Int {
+        bits: 8,
+        signed: false,
+    };
+    p.parameters.push(chialisp_oxide_ir::Parameter {
+        name: "input".into(),
+        ty: Type::Optional {
+            item: Box::new(byte.clone()),
+        },
+    });
+    p.result = Type::Pair {
+        first: Box::new(Type::Int {
+            bits: 16,
+            signed: false,
+        }),
+        rest: Box::new(Type::Optional {
+            item: Box::new(Type::Unit),
+        }),
+    };
+    p.body = Expr::Pair {
+        first: Box::new(Expr::IntCast(chialisp_oxide_ir::IntegerCast {
+            value: Box::new(Expr::OptionalValue(chialisp_oxide_ir::OptionalAccess {
+                value: Box::new(Expr::Arg { index: 0 }),
+            })),
+            source: byte,
+            target: Type::Int {
+                bits: 16,
+                signed: false,
+            },
+        })),
+        rest: Box::new(Expr::OptionalSome {
+            value: Box::new(Expr::Unit),
+        }),
+    };
+    rust_manifest(p)
+}
+#[test]
+fn portable_v8_input_access_cast_and_pair_preserve_exact_abi_and_ir() {
+    let manifest = access_pair_optional_manifest();
+    let rust = manifest.rust.as_ref().unwrap();
+    assert_eq!(rust.ir_wire_version, 8);
+    assert_eq!(
+        rust.abi.parameters[0].ty,
+        AbiType::Optional {
+            item: Box::new(AbiType::Int {
+                bits: 8,
+                signed: false
+            })
+        }
+    );
+    let package = admit(&serde_json::to_value(&manifest).unwrap()).unwrap();
+    let replay = verify_package(package.bytes(), &Limits::default()).unwrap();
+    assert_eq!(replay.object_id(), package.object_id());
+    assert_eq!(replay.bytes(), package.bytes());
+    assert_eq!(
+        replay.manifest().rust.as_ref().unwrap().ir_json,
+        rust.ir_json
+    );
+    assert_eq!(replay.artifact().bytes(), &[0x80]);
+    assert_eq!(replay.summary().scope, VERIFICATION_SCOPE);
+}
+#[test]
+fn coherent_v8_access_attachment_mutations_fail_closed() {
+    for mutation in [
+        "old-wire",
+        "wrong-operand",
+        "unknown-node-field",
+        "unused-malformed",
+    ] {
+        let mut manifest = access_pair_optional_manifest();
+        let rust = manifest.rust.as_mut().unwrap();
+        let mut ir: Value = serde_json::from_str(&rust.ir_json).unwrap();
+        match mutation {
+            "old-wire" => {
+                ir["ir_version"] = 7.into();
+                rust.ir_wire_version = 7;
+            }
+            "wrong-operand" => {
+                ir["program"]["body"]["first"]["value"]["value"] = json!({"op":"bool","value":true})
+            }
+            "unknown-node-field" => {
+                ir["program"]["body"]["first"]["value"]["metadata"] = true.into()
+            }
+            "unused-malformed" => {
+                ir["program"]["functions"] = json!([{"id":0,"name":"unused","parameters":[],"result":{"kind":"bool"},"body":{"op":"optional_is_some","value":{"op":"unit"}}}])
+            }
+            _ => unreachable!(),
+        }
+        rust.ir_json = serde_json::to_string(&ir).unwrap();
+        rust.ir_sha256 = digest(rust.ir_json.as_bytes());
+        assert_eq!(
+            admit(&serde_json::to_value(manifest).unwrap())
+                .err()
+                .unwrap()
+                .kind(),
+            ErrorKind::InvalidManifest
+        );
+    }
+}

@@ -313,7 +313,7 @@ fn read_ir(text: &str, limits: &Limits) -> Result<(Program, u32)> {
             .and_then(|n| u32::try_from(n).ok())
             .ok_or_else(|| invalid("IR wire version must be an integer"))?,
     };
-    if !(1..=7).contains(&version) {
+    if !(1..=8).contains(&version) {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             "unsupported IR wire version",

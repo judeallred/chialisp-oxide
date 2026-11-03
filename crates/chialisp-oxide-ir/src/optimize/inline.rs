@@ -81,7 +81,9 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
         | Expr::TreePair { .. }
         | Expr::Pair { .. } => 2,
         Expr::If { .. } => 3,
-        Expr::IntCast(_)
+        Expr::OptionalIsSome(_)
+        | Expr::OptionalValue(_)
+        | Expr::IntCast(_)
         | Expr::OptionalSome { .. }
         | Expr::Field { .. }
         | Expr::Not { .. }
@@ -128,7 +130,9 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
             then_value,
             else_value,
         } => pending.extend([condition.as_ref(), then_value.as_ref(), else_value.as_ref()]),
-        Expr::IntCast(crate::IntegerCast { value, .. })
+        Expr::OptionalIsSome(crate::OptionalAccess { value })
+        | Expr::OptionalValue(crate::OptionalAccess { value })
+        | Expr::IntCast(crate::IntegerCast { value, .. })
         | Expr::OptionalSome { value }
         | Expr::Field { value, .. }
         | Expr::Not { value }
@@ -277,6 +281,8 @@ impl Rewriter<'_> {
         self.budget.node(depth)?;
         Some(match expr {
             Expr::OptionalNone { .. }
+            | Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_)
             | Expr::IntCast(_)
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
@@ -507,6 +513,8 @@ fn frames(
     (depth <= MAX_DEPTH && live <= MAX_BINDINGS && pending <= MAX_BINDINGS).then_some(())?;
     match expr {
         Expr::OptionalNone { .. }
+        | Expr::OptionalIsSome(_)
+        | Expr::OptionalValue(_)
         | Expr::IntCast(_)
         | Expr::OptionalSome { .. }
         | Expr::Pair { .. }
@@ -640,6 +648,8 @@ fn prune(program: &mut Program, budget: &mut Budget) -> Option<()> {
         (depth <= MAX_DEPTH).then_some(())?;
         match expr {
             Expr::OptionalNone { .. }
+            | Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_)
             | Expr::IntCast(_)
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }

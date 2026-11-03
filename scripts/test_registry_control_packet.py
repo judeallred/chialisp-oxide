@@ -16,6 +16,62 @@ import registry_control_packet as packet
 
 class TransportBoundaries(unittest.TestCase):
 
+    def test_installer_aliases_only_the_exact_independently_captured_sdk_repeat(self):
+        with tempfile.TemporaryDirectory(prefix='registry-sdk-repeat-') as name:
+            root = Path(name)
+            payload = b'{"independent_sdk_result":true}\n'
+            paths = []
+            logical = ['capture/capture/sdk-1.json', 'capture/capture/sdk-2.json',
+                       'capture/capture/bundles/on/one.ir.json', 'capture/capture/bundles/on/two.ir.json']
+            for index, target in enumerate(logical):
+                source = root / f'source-{index}'
+                source.write_bytes(payload)
+                paths.append((str(source), target))
+            origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
+            origins['capture_sources'] = ['/opaque/one.py', '/opaque/two.py', '/opaque/three.py']
+            destination = root / 'packet'
+            with patch.object(packet, 'validate', side_effect=lambda stage: packet.Packet(stage)):
+                packet.install(paths, destination, origins)
+            admitted = packet.Packet(destination)
+            self.assertEqual(admitted.index['aliases'], {logical[1]: logical[0]})
+            self.assertEqual(admitted.raw(logical[1]), payload)
+            self.assertFalse((destination / logical[1]).exists())
+            self.assertTrue(all((destination / path).is_file() for path in (logical[0], *logical[2:])))
+            self.assertTrue(all(Path(source).read_bytes() == payload for source, _ in paths))
+            self.assertEqual(admitted.index['profile'], packet.PROFILE)
+
+    def test_installer_refuses_unequal_sdk_repeats_before_writing(self):
+        with tempfile.TemporaryDirectory(prefix='registry-sdk-unequal-') as name:
+            root = Path(name)
+            plan = []
+            for index, payload in enumerate((b'first', b'other')):
+                source = root / str(index)
+                source.write_bytes(payload)
+                plan.append((str(source), f'capture/capture/sdk-{index + 1}.json'))
+            origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
+            origins['capture_sources'] = ['/opaque/one.py', '/opaque/two.py', '/opaque/three.py']
+            with self.assertRaisesRegex(ValueError, 'byte-identical SDK repeat'), patch.object(packet, 'validate') as validate:
+                packet.install(plan, root / 'packet', origins)
+            validate.assert_not_called()
+            self.assertFalse((root / 'packet').exists())
+
+    def test_installer_precharges_physical_aggregate_before_reading_repeat(self):
+        with tempfile.TemporaryDirectory(prefix='registry-sdk-precharge-') as name:
+            root = Path(name)
+            plan = []
+            for index, (logical, size) in enumerate((('capture/capture/sdk-1.json', 70),
+                    ('capture/capture/sdk-2.json', 70), ('capture/extra.json', 60))):
+                source = root / str(index)
+                source.write_bytes(b'x' * size)
+                plan.append((str(source), logical))
+            origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
+            origins['capture_sources'] = ['/opaque/one.py', '/opaque/two.py', '/opaque/three.py']
+            with patch.object(packet, 'MAX_TOTAL', 100), patch.object(packet, 'regular_read') as read:
+                with self.assertRaisesRegex(ValueError, 'precharge'):
+                    packet.install(plan, root / 'packet', origins)
+            read.assert_not_called()
+            self.assertFalse((root / 'packet').exists())
+
     def minimal(self, directory):
         origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
         origins['drafts'] = ['/opaque/draft-one.py', '/opaque/draft-two.py', '/opaque/draft-three.py']

@@ -94,14 +94,14 @@ def _identity(program):
         require(set(program) == {"ir_version", "environment", "program"},
                 "Malformed versioned Cargo IR envelope")
         version, environment = program["ir_version"], program["environment"]
-        require(type(version) is int and version in (2, 3, 4, 5, 6, 7),
+        require(type(version) is int and version in (2, 3, 4, 5, 6, 7, 8),
                 "Unsupported Cargo IR version")
         require((version == 2 and environment == "ignored")
                 or (version == 3 and environment == "raw")
-                or (version in (4, 5, 6, 7) and environment in ("strict", "ignored", "raw")),
+                or (version in (4, 5, 6, 7, 8) and environment in ("strict", "ignored", "raw")),
                 "Unsupported Cargo IR environment/version combination")
         program = program["program"]
-        fields = legacy | ({"functions"} if version in (4, 5, 6, 7) else set())
+        fields = legacy | ({"functions"} if version in (4, 5, 6, 7, 8) else set())
         require(isinstance(program, dict) and set(program) == fields,
                 "Malformed versioned Cargo IR program")
     else:

@@ -368,6 +368,8 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
         expr @ (Expr::Atom { .. }
         | Expr::OptionalNone { .. }
         | Expr::OptionalSome { .. }
+        | Expr::OptionalIsSome(_)
+        | Expr::OptionalValue(_)
         | Expr::Pair { .. }
         | Expr::PairFirst { .. }
         | Expr::PairRest { .. }

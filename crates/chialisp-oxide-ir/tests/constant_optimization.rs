@@ -62,6 +62,9 @@ fn contains(expr: &Expr, predicate: impl Fn(&Expr) -> bool) -> bool {
         }
         match expr {
             Expr::IntCast(cast) => pending.push(&cast.value),
+            Expr::OptionalIsSome(access) | Expr::OptionalValue(access) => {
+                pending.push(&access.value)
+            }
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }
             | Expr::Call {

@@ -91,11 +91,46 @@ compiler response files, or spell a literal leading-`@` filename as `./@name.rs`
 The supported subset includes:
 
 - `bool`; `u8` through `u128`; `i8` through `i128`; unit; tuples and fixed arrays
-  of at most 256 items. Byte arrays have a distinct byte-string ABI.
+  of at most 256 items. Non-byte arrays retain index-order proper-list tuple
+  ABI; byte arrays retain their exact-length atom ABI. Ordinary literal-index
+  reads such as `values[0]` validate the original array and element types, exact
+  compiler-owned `usize` literal/bounds metadata, and every scratch use before
+  lowering to existing IR fields. This includes the already-supported immutable
+  `&[u8; N]` route; it adds no general reference or slice indexing. The new read
+  profile admits fixed scalars, unit, tuples, nested arrays, transparent wrappers
+  and supported local records; `Option`, `Cons`, trees, pointers and drop types
+  remain outside that indexing profile. Existing structural array construction
+  retains its separate contract. Dynamic/nonliteral indices, indexed mutation
+  and element borrows remain rejected.
+  Computed non-byte array/repeat initializers and arguments passed into repeated
+  values retain strict, once-only source-order bindings and snapshots. Pure
+  argument/constant copy chains keep successful legacy routes. Byte `[f(); 0]`
+  initializers retain their effects even though the resulting atom is empty.
+  Existing backend expansion budgets still apply below the 256-item type limit;
+  no compiler budget is raised. See `tests/fixed_arrays.rs`.
 - Local or SDK, non-generic `#[repr(transparent)]` structs with exactly one
   field, no custom `Drop`, a nonzero layout, and a recursively supported inner
   type. Rustc checks nominal distinctions such as `PuzzleHash` versus `CoinId`
   before wrapper construction and projection erase to the inner ABI.
+- Local nongeneric named structs with 1–256 declared fields, ordinary Rust
+  representation and no custom `Drop`. Fields may contain fixed-width scalars,
+  unit, bounded fixed arrays, tuples, supported transparent wrappers and nested
+  local records. They use declaration-order proper-list tuple ABI; native memory
+  offsets do not define the wire order. Construction, by-value helper passing,
+  moves and record-root field updates retain strict evaluated snapshots through
+  the existing runtime IR. Generic/external/macro-generated records, references,
+  owned values, enums, `Cons` and `Option` fields remain outside this profile.
+  Admitted records may also be values inside SDK `Cons` and `Option`;
+  their own fields retain the closed profile above. Type discovery and expanded
+  update copies retain the existing limits. See
+  `tests/named_structs.rs`; this adds no new IR node or compiler-preservation proof.
+- Standard `Option<T>` entry values and by-value `match`/`if let` inspection
+  use IR v8. None is exact nil; Some is a proper singleton with a completely
+  checked payload. Actual core identities and discriminants select this route;
+  native niches never define the CLVM encoding. Strict snapshots retain unused
+  initializers and lazy None branches. Existing v6/v7 outputs keep their prior
+  contracts. Generic Option methods, `&Option`, Some CTFE and general enums
+  remain unsupported. See `tests/optional_inputs.rs` and `docs/optional-lists.md`.
 - Local values, tuple fields, comparisons, boolean/integer `!`, `if`,
   integer/boolean `match`, and acyclic control flow.
 - Built-in `&`, `|` and `^` on matching fixed-width integers or `bool`.
@@ -159,8 +194,17 @@ The supported subset includes:
   Named fixed-byte constants, including supported transparent wrappers, are
   evaluated by rustc and read only after checking their exact bounded layout,
   allocation bounds, initialized bytes, and absence of pointer provenance.
-  Tuple fields and MIR constant array projections are supported; ordinary Rust
-  indexing is rejected when it requires an index local or reference.
+  Named aggregate constants also admit nested tuples, bounded fixed arrays,
+  validated `Cons` pairs, supported local named records and transparent wrappers
+  with fixed-width integer, Boolean, unit and fixed-byte-array leaves. Rustc evaluates the value; the driver reads
+  fields using their actual Rust layout offsets, without reading padding.
+  Before evaluation, the complete original type graph must fit the existing
+  depth/4,096-node limits and the aggregate storage must fit 65,536 bytes.
+  Reference/pointer, `Option`, tree and general container
+  payloads remain closed, including zero-length or zero-sized occurrences.
+  Tuple fields, MIR constant array projections and the closed ordinary literal
+  indexing route above are supported. Dynamic indices and element references
+  remain unsupported.
 
 The closed signed shift-count guard recognizes actual compiler-generated MIR
 metadata with complete scratch-use checks. It preserves the overflow assertion
@@ -271,9 +315,9 @@ Decoding does not invoke constructors or establish user-defined invariants;
 puzzle checks must enforce these at runtime. Zero-sized wrappers, multiple
 fields (including extra zero-sized fields), generic wrappers, other external
 wrappers such as `NonZeroU64`, destructors, and macro-generated wrapper
-declarations are rejected. Apart from the narrowly validated borrowed and owned trees,
-named tuple/other aggregate constants and borrowed
-wrapper methods remain unsupported. The SDK's `Copy` domain values provide
+declarations are rejected. The bounded aggregate-constant route above preserves
+existing tuple/pair wire encodings; it does not admit arbitrary aggregate
+containers or borrowed wrapper methods. The SDK's `Copy` domain values provide
 by-value constructors, unit-explicit getters, and comparisons without adding
 reference or trait-operator semantics to the compiler.
 

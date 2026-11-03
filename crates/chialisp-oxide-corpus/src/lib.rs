@@ -75,6 +75,10 @@ pub const PUZZLES: &[&str] = &[
     "registry-initialize",
     "registry-set-alpha",
     "registry-set-beta",
+    "morph-coin-doubler",
+    "inner-any-conditions",
+    "inner-require-signature",
+    "morph-any-with-signature",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

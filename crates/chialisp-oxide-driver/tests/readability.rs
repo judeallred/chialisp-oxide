@@ -164,11 +164,11 @@ fn nested_transparent_byte_constants_preserve_only_the_inner_bytes() {
 }
 
 #[test]
-fn constants_do_not_enable_general_references_aggregate_layouts_or_unsafe_memory() {
+fn constants_keep_general_reference_layouts_and_unsafe_memory_closed() {
     for (source, diagnostic) in [
         (
-            "const DATA:(u64,u64)=(1,2); pub fn puzzle()->(u64,u64) { DATA }",
-            "only scalar compile-time constants",
+            "const DATA:([&u64;0],u64)=([],2); pub fn puzzle()->([&'static u64;0],u64) { DATA }",
+            "unsupported Rust type",
         ),
         (
             "const DATA:&u64=&7; pub fn puzzle()->&'static u64 { DATA }",
@@ -202,6 +202,24 @@ fn constants_do_not_enable_general_references_aggregate_layouts_or_unsafe_memory
         let errors = String::from_utf8_lossy(&output.stderr);
         assert!(errors.contains(diagnostic), "{errors}");
         assert!(!errors.contains("internal compiler error"), "{errors}");
+    }
+}
+
+#[test]
+fn standalone_aggregate_constants_keep_exact_tuple_values_and_strict_environment() {
+    let source = Source::new("const DATA:(u64,u64)=(1,2); pub fn puzzle()->(u64,u64) { DATA }");
+    let program = extract(&source.0);
+    let reference = chialisp_oxide_reference::compile("(mod () (list 1 2))").unwrap();
+    for optimize in [false, true] {
+        let code = chialisp_oxide_ir::compile(&program, optimize).unwrap();
+        assert_eq!(
+            execute(&code, "()", 1_000_000).unwrap().outcome,
+            execute(&reference, "()", 1_000_000).unwrap().outcome
+        );
+        assert_eq!(
+            execute(&code, "(1)", 1_000_000).unwrap().outcome,
+            Outcome::Rejected
+        );
     }
 }
 

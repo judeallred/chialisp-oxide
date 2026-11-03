@@ -110,7 +110,9 @@ fn projection_preflight(program: &Program) -> bool {
                     && child(then_value.as_ref())
                     && child(else_value.as_ref())
             }
-            Expr::IntCast(crate::IntegerCast { value, .. })
+            Expr::OptionalIsSome(crate::OptionalAccess { value })
+            | Expr::OptionalValue(crate::OptionalAccess { value })
+            | Expr::IntCast(crate::IntegerCast { value, .. })
             | Expr::OptionalSome { value }
             | Expr::AtomIsEmpty { value }
             | Expr::Not { value }
@@ -180,7 +182,9 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
     while let Some(expression) = pending.pop() {
         helper_charge(work, 1)?;
         match expression {
-            Expr::IntCast(_)
+            Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_)
+            | Expr::IntCast(_)
             | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
@@ -226,7 +230,9 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
             | Expr::Bool { .. }
             | Expr::Int { .. }
             | Expr::Reject { .. } => 0,
-            Expr::IntCast(_)
+            Expr::OptionalIsSome(_)
+            | Expr::OptionalValue(_)
+            | Expr::IntCast(_)
             | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
@@ -745,6 +751,26 @@ impl<'a, 'p> Runtime<'a, 'p> {
 
     fn expression_inner(&mut self, expression: &Expr, scope: &Scope<'_>) -> Result<LirId> {
         Ok(match expression {
+            Expr::OptionalIsSome(crate::OptionalAccess { value }) => self.values(
+                &[value.as_ref()],
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let value = this.value(scope, bindings[0])?;
+                    Ok(this.lower.alloc(Lir::Listp(value, true)))
+                },
+            )?,
+            Expr::OptionalValue(crate::OptionalAccess { value }) => self.values(
+                &[value.as_ref()],
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let value = this.value(scope, bindings[0])?;
+                    let head = this.lower.alloc(Lir::First(value));
+                    let pair = this.lower.alloc(Lir::Listp(value, true));
+                    Ok(this.lower.require(pair, head))
+                },
+            )?,
             Expr::OptionalNone { .. } => self.lower.nil(),
             Expr::OptionalSome { value } => self.values(
                 &[value.as_ref()],

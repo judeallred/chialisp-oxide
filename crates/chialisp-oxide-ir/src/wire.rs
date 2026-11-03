@@ -76,7 +76,9 @@ impl Serialize for Program {
         self.validate().map_err(S::Error::custom)?;
         if self.uses_runtime() {
             return RuntimeEnvelopeRef {
-                ir_version: if self.uses_casts() {
+                ir_version: if self.uses_optional_access() {
+                    8
+                } else if self.uses_casts() {
                     7
                 } else if self.uses_optional() {
                     6
@@ -119,89 +121,109 @@ impl Serialize for Program {
 }
 impl<'de> Deserialize<'de> for Program {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let (program, runtime, pair_capability, optional_capability, cast_capability) =
-            match Wire::deserialize(deserializer)? {
-                Wire::Runtime(envelope) => {
-                    if !matches!(envelope.ir_version, 4..=7) {
-                        return Err(D::Error::custom(
-                            "function metadata requires IR version 4, 5, 6 or 7",
-                        ));
-                    }
-                    let pair_capability = envelope.ir_version == 5;
-                    let optional_capability = envelope.ir_version == 6;
-                    let cast_capability = envelope.ir_version == 7;
-                    let fields = envelope.program;
-                    (
-                        Self {
-                            name: fields.name,
-                            parameters: fields.parameters,
-                            result: fields.result,
-                            body: fields.body,
-                            environment: envelope.environment,
-                            functions: fields.functions,
-                        },
-                        true,
-                        pair_capability,
-                        optional_capability,
-                        cast_capability,
-                    )
+        let (
+            program,
+            runtime,
+            pair_capability,
+            optional_capability,
+            cast_capability,
+            access_capability,
+        ) = match Wire::deserialize(deserializer)? {
+            Wire::Runtime(envelope) => {
+                if !matches!(envelope.ir_version, 4..=8) {
+                    return Err(D::Error::custom(
+                        "function metadata requires IR version 4, 5, 6, 7 or 8",
+                    ));
                 }
-                Wire::Strict(fields) => (
+                let pair_capability = envelope.ir_version == 5;
+                let optional_capability = envelope.ir_version == 6;
+                let cast_capability = envelope.ir_version == 7;
+                let access_capability = envelope.ir_version == 8;
+                let fields = envelope.program;
+                (
                     Self {
                         name: fields.name,
                         parameters: fields.parameters,
                         result: fields.result,
                         body: fields.body,
-                        environment: Environment::Strict,
+                        environment: envelope.environment,
+                        functions: fields.functions,
+                    },
+                    true,
+                    pair_capability,
+                    optional_capability,
+                    cast_capability,
+                    access_capability,
+                )
+            }
+            Wire::Strict(fields) => (
+                Self {
+                    name: fields.name,
+                    parameters: fields.parameters,
+                    result: fields.result,
+                    body: fields.body,
+                    environment: Environment::Strict,
+                    functions: vec![],
+                },
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            Wire::Versioned(envelope) => {
+                if !matches!(
+                    (envelope.ir_version, envelope.environment),
+                    (2, Environment::Ignored) | (3, Environment::Raw)
+                ) {
+                    return Err(D::Error::custom(
+                        "unsupported IR version or environment policy",
+                    ));
+                }
+                let fields = envelope.program;
+                (
+                    Self {
+                        name: fields.name,
+                        parameters: fields.parameters,
+                        result: fields.result,
+                        body: fields.body,
+                        environment: envelope.environment,
                         functions: vec![],
                     },
                     false,
                     false,
                     false,
                     false,
-                ),
-                Wire::Versioned(envelope) => {
-                    if !matches!(
-                        (envelope.ir_version, envelope.environment),
-                        (2, Environment::Ignored) | (3, Environment::Raw)
-                    ) {
-                        return Err(D::Error::custom(
-                            "unsupported IR version or environment policy",
-                        ));
-                    }
-                    let fields = envelope.program;
-                    (
-                        Self {
-                            name: fields.name,
-                            parameters: fields.parameters,
-                            result: fields.result,
-                            body: fields.body,
-                            environment: envelope.environment,
-                            functions: vec![],
-                        },
-                        false,
-                        false,
-                        false,
-                        false,
-                    )
-                }
-            };
-        if program.uses_casts() != cast_capability {
+                    false,
+                )
+            }
+        };
+        if program.uses_optional_access() != access_capability {
+            return Err(D::Error::custom(
+                "optional inputs or inspection require IR version 8, and version 8 requires that capability",
+            ));
+        }
+        if !access_capability && program.uses_casts() != cast_capability {
             return Err(D::Error::custom(
                 "integer casts require IR version 7, and version 7 requires an integer cast",
             ));
         }
-        if !cast_capability && program.uses_optional() != optional_capability {
+        if !access_capability && !cast_capability && program.uses_optional() != optional_capability
+        {
             return Err(D::Error::custom(
                 "optional output capability requires IR version 6, and version 6 requires optional values",
             ));
         }
-        if !cast_capability && !optional_capability && program.uses_pairs() != pair_capability {
+        if !access_capability
+            && !cast_capability
+            && !optional_capability
+            && program.uses_pairs() != pair_capability
+        {
             return Err(D::Error::custom(
                 "typed pair capability requires IR version 5, and version 5 requires typed pairs",
             ));
         }
-        if pair_capability || optional_capability || cast_capability {
+        if pair_capability || optional_capability || cast_capability || access_capability {
             program.validate().map_err(D::Error::custom)?;
         }
         if !runtime && program.uses_runtime() {
@@ -298,6 +320,12 @@ impl Serialize for Expr {
                 ("source", source),
                 ("target", target),
             ),
+            Expr::OptionalIsSome(crate::OptionalAccess { value }) => {
+                node1(serializer, "optional_is_some", ("value", value))
+            }
+            Expr::OptionalValue(crate::OptionalAccess { value }) => {
+                node1(serializer, "optional_value", ("value", value))
+            }
             Expr::OptionalNone { item } => node1(serializer, "optional_none", ("item", item)),
             Expr::OptionalSome { value } => node1(serializer, "optional_some", ("value", value)),
             Expr::Pair { first, rest } => {

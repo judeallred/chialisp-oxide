@@ -15,6 +15,7 @@ use rustc_middle::{
 use rustc_span::Span;
 
 mod applying;
+mod arrays;
 mod byte_comparison;
 mod cons;
 mod constants;
@@ -26,6 +27,7 @@ mod optional;
 mod owned;
 mod runtime;
 mod shift_guards;
+mod structs;
 mod totality;
 mod trees;
 
@@ -39,6 +41,7 @@ pub struct Lowerer<'tcx> {
     owned_plans: RefCell<HashMap<usize, std::rc::Rc<owned::Plan<'tcx>>>>,
     // Tcxt query bodies are immutable and arena-stable for this Lowerer lifetime.
     shift_plans: RefCell<HashMap<(usize, BasicBlock), Option<shift_guards::Plan<'tcx>>>>,
+    array_plans: RefCell<HashMap<usize, std::rc::Rc<arrays::Plan>>>,
     explicit_allocator: Cell<Option<bool>>,
     hash_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
     hash_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
@@ -157,6 +160,7 @@ impl<'tcx> Lowerer<'tcx> {
             constants: RefCell::new(Vec::new()),
             owned_plans: RefCell::new(HashMap::new()),
             shift_plans: RefCell::new(HashMap::new()),
+            array_plans: RefCell::new(HashMap::new()),
             explicit_allocator: Cell::new(None),
             hash_candidates: RefCell::new(None),
             hash_primitives: RefCell::new(HashMap::new()),
@@ -189,7 +193,9 @@ impl<'tcx> Lowerer<'tcx> {
                     push(left);
                     push(right);
                 }
-                Expr::IntCast(chialisp_oxide_ir::IntegerCast { value, .. })
+                Expr::OptionalIsSome(chialisp_oxide_ir::OptionalAccess { value })
+                | Expr::OptionalValue(chialisp_oxide_ir::OptionalAccess { value })
+                | Expr::IntCast(chialisp_oxide_ir::IntegerCast { value, .. })
                 | Expr::Not { value }
                 | Expr::Field { value, .. }
                 | Expr::TreeIsPair { value }
@@ -282,24 +288,9 @@ impl<'tcx> Lowerer<'tcx> {
     }
 
     pub fn input_ty(&self, ty: Ty<'tcx>, span: Span) -> Result<Type, String> {
-        let lowered = self.ty(ty, span)?;
-        // lower_type already bounded this owned type graph before allocation.
-        let mut pending = vec![&lowered];
-        while let Some(ty) = pending.pop() {
-            match ty {
-                Type::Optional { .. } => return Err(self.error(
-                    span,
-                    "optional lists are output-only; exported puzzle inputs cannot contain Option",
-                )),
-                Type::Tuple { items } => pending.extend(items),
-                Type::Pair { first, rest } => {
-                    pending.push(first);
-                    pending.push(rest);
-                }
-                _ => (),
-            }
-        }
-        Ok(lowered)
+        // The version-8 IR records optional entry capability. The complete
+        // ordinary type preflight still excludes unsupported Rust payloads.
+        self.ty(ty, span)
     }
 
     fn lower_type(&self, ty: Ty<'tcx>, span: Span, depth: usize) -> Result<(Type, usize), String> {
@@ -367,6 +358,17 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 if let Some(inner) = self.owned_tree_box(ty,span)? { return self.lower_type(inner, span, depth + 1); }
                 if self.tree_shape(ty, span)?.is_some() { return Ok((Type::Tree, 1)); }
+                if let Some(fields) = self.named_struct_fields(ty, span)? {
+                    let mut items = Vec::new();
+                    let mut nodes = 1usize;
+                    for field in fields {
+                        let (item, count) = self.lower_type(field, span, depth + 1)?;
+                        nodes += count;
+                        if nodes > 4096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
+                        items.push(item);
+                    }
+                    return Ok((Type::Tuple { items }, nodes));
+                }
                 let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
                 return self.lower_type(inner, span, depth + 1);
             }
@@ -569,7 +571,7 @@ impl<'tcx> Lowerer<'tcx> {
                 }
                 TerminatorKind::SwitchInt { discr, targets } => {
                     let value = self.operand(body, discr, &locals, span)?;
-                    let tree = self.tree_discriminant(body, discr, &locals, span)?;
+                    let tree = self.boolean_discriminant(body, discr, &locals, span)?;
                     let ty = if tree.is_some() {
                         Type::Int {
                             bits: 8,
@@ -587,10 +589,10 @@ impl<'tcx> Lowerer<'tcx> {
                         patterns.clone(),
                     )?;
                     for (bits, target) in targets.iter().collect::<Vec<_>>().into_iter().rev() {
-                        let condition = if let Some((is_pair, shape)) = &tree {
-                            if bits == shape.pair.index() as u128 {
+                        let condition = if let Some((is_pair, false_tag, true_tag)) = &tree {
+                            if bits == *true_tag {
                                 is_pair.clone()
-                            } else if bits == shape.atom.index() as u128 {
+                            } else if bits == *false_tag {
                                 Expr::Not {
                                     value: Box::new(is_pair.clone()),
                                 }
@@ -792,6 +794,9 @@ impl<'tcx> Lowerer<'tcx> {
                 if matches!(ty, Type::Tree | Type::Atom) || matches!(rust_ty.kind(), ty::Ref(..)) {
                     return self.borrowed_constant(constant.const_, span);
                 }
+                if matches!(ty, Type::Tuple { .. } | Type::Pair { .. }) {
+                    return self.aggregate_constant(constant.const_, rust_ty, span);
+                }
                 if ty == Type::Unit {
                     return Ok(Expr::Unit);
                 }
@@ -870,10 +875,17 @@ impl<'tcx> Lowerer<'tcx> {
             .skip(usize::from(captured.is_some()))
         {
             match projection {
-                ProjectionElem::Downcast(..) | ProjectionElem::Field(..)
+                ProjectionElem::Downcast(_, index)
                     if self.optional_shape(current_ty, span)?.is_some() =>
                 {
-                    return Err(self.error(span, "optional lists support output construction and opaque helper passing, not variant or payload inspection"));
+                    let shape = self
+                        .optional_shape(current_ty, span)?
+                        .ok_or_else(|| self.error(span, "missing standard Option metadata"))?;
+                    if index != shape.none && index != shape.some {
+                        return Err(self.error(span, "invalid standard Option variant projection"));
+                    }
+                    self.ty(current_ty, span)?;
+                    variant = Some(index);
                 }
                 ProjectionElem::Deref
                     if matches!(current_ty.kind(), ty::Ref(_, _, ty::Mutability::Not))
@@ -893,7 +905,28 @@ impl<'tcx> Lowerer<'tcx> {
                     variant = Some(index)
                 }
                 ProjectionElem::Field(index, field_ty) => {
-                    if let Some(shape) = self.tree_shape(current_ty, span)? {
+                    if let Some(shape) = self.optional_shape(current_ty, span)? {
+                        if !self.constants.borrow().is_empty() {
+                            return Err(self.error(span, "optional inspection in borrowed or promoted constants is unsupported"));
+                        }
+                        let selected = variant.take().ok_or_else(|| {
+                            self.error(
+                                span,
+                                "optional payload requires a validated Some projection",
+                            )
+                        })?;
+                        if selected != shape.some
+                            || index.index() != 0
+                            || self.tcx.erase_and_anonymize_regions(field_ty)
+                                != self.tcx.erase_and_anonymize_regions(shape.item)
+                        {
+                            return Err(self.error(span, "invalid standard Option payload field"));
+                        }
+                        self.ty(current_ty, span)?;
+                        value = Expr::OptionalValue(chialisp_oxide_ir::OptionalAccess {
+                            value: Box::new(value),
+                        });
+                    } else if let Some(shape) = self.tree_shape(current_ty, span)? {
                         let selected = variant.take().ok_or_else(|| {
                             self.error(span, "tree fields require a validated variant projection")
                         })?;
@@ -922,7 +955,9 @@ impl<'tcx> Lowerer<'tcx> {
                             },
                             _ => return Err(self.error(span, "wire pairs have exactly two fields")),
                         };
-                    } else if self.transparent_inner(current_ty, span)?.is_some() {
+                    } else if self.named_struct_fields(current_ty, span)?.is_none()
+                        && self.transparent_inner(current_ty, span)?.is_some()
+                    {
                         if index.index() != 0 {
                             return Err(self.error(span, "transparent newtypes have only field 0"));
                         }
@@ -939,6 +974,26 @@ impl<'tcx> Lowerer<'tcx> {
                         };
                     }
                     current_ty = field_ty;
+                }
+                ProjectionElem::Index(index) => {
+                    // Only immutable Tcxt arena bodies create cached plans;
+                    // projection lookup cannot authorize new metadata.
+                    let plans = self.array_plans.borrow();
+                    let offset = *plans
+                        .get(&(body as *const Body<'tcx> as usize))
+                        .and_then(|plan| plan.indices.get(&index))
+                        .ok_or_else(|| self.error(span, "dynamic array indices are unsupported"))?;
+                    let ty::Array(element, _) = current_ty.kind() else {
+                        return Err(self.error(
+                            span,
+                            "unsupported indexing: static indexing requires an original fixed-array type",
+                        ));
+                    };
+                    value = Expr::Field {
+                        value: Box::new(value),
+                        index: offset,
+                    };
+                    current_ty = *element;
                 }
                 ProjectionElem::ConstantIndex {
                     offset,
@@ -988,7 +1043,9 @@ impl<'tcx> Lowerer<'tcx> {
         for projection in place.projection {
             match projection {
                 ProjectionElem::Field(index, field_ty) => {
-                    if self.transparent_inner(current_ty, span)?.is_some() {
+                    if self.named_struct_fields(current_ty, span)?.is_none()
+                        && self.transparent_inner(current_ty, span)?.is_some()
+                    {
                         if index.index() != 0 {
                             return Err(self.error(span, "transparent newtypes have only field 0"));
                         }
@@ -1245,6 +1302,15 @@ impl<'tcx> Lowerer<'tcx> {
                                 })
                             };
                         }
+                        if let Some(fields) = self.named_struct_fields(rust_ty, span)? {
+                            self.ty(rust_ty, span)?;
+                            if variant.index() != 0 || items.len() != fields.len() {
+                                return Err(
+                                    self.error(span, "invalid named struct aggregate fields")
+                                );
+                            }
+                            return Ok(Expr::Tuple { items });
+                        }
                         self.transparent_inner(rust_ty, span)?.ok_or_else(|| {
                             self.error(span, "expected a transparent newtype aggregate")
                         })?;
@@ -1257,7 +1323,7 @@ impl<'tcx> Lowerer<'tcx> {
                         })?;
                         Ok(value)
                     }
-                    _ => Err(self.error(span, "structs, enums and closures are not yet supported")),
+                    _ => Err(self.error(span, "unsupported aggregate; general enums and closures remain outside the supported subset")),
                 }
             }
             Rvalue::Repeat(operand, count) => {

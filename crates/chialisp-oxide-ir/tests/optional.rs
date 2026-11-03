@@ -3,7 +3,7 @@
 #[allow(dead_code)]
 mod support;
 
-use chialisp_oxide_ir::{Environment, Expr, Program, Type, compile, optimize};
+use chialisp_oxide_ir::{Environment, Expr, Program, Type, optimize};
 use chialisp_oxide_vm::FailureCode;
 use support::*;
 
@@ -197,7 +197,7 @@ fn discarded_optional_payloads_still_reject_or_exhaust_the_budget() {
 }
 
 #[test]
-fn every_export_parameter_container_rejects_optional_values() {
+fn old_output_only_envelopes_reject_optional_entry_containers() {
     for ty in [
         optional(u8_type()),
         Type::Tuple {
@@ -209,23 +209,16 @@ fn every_export_parameter_container_rejects_optional_values() {
         },
     ] {
         let source = program(Environment::Strict, vec![ty], u8_type(), int(7), vec![]);
-        assert!(
-            source
-                .validate()
-                .unwrap_err()
-                .to_string()
-                .contains("output-only")
-        );
-        for mode in [false, true] {
-            assert!(
-                compile(&source, mode)
-                    .unwrap_err()
-                    .to_string()
-                    .contains("output-only")
-            );
+        // Constructed entry Optional now requests v8. The old output-only
+        // envelopes still reject the exact same parameters even when unused.
+        source.validate().unwrap();
+        let wire = serde_json::to_value(&source).unwrap();
+        assert_eq!(wire["ir_version"], 8);
+        for version in [4, 5, 6, 7] {
+            let mut old = wire.clone();
+            old["ir_version"] = version.into();
+            assert!(serde_json::from_value::<chialisp_oxide_ir::Program>(old).is_err());
         }
-        assert!(optimize(&source).is_err());
-        assert!(serde_json::to_value(&source).is_err());
     }
 }
 

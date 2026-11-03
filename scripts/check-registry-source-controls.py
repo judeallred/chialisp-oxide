@@ -1,4 +1,4 @@
-"""Offline registry controls packet reader. Install an actual partial3 base captured with all40 authoring; the current full40 report stays external. Full40-to-packet input fails rather than projecting. Explicit --partial-base permits historical feasibility only."""
+"""Offline registry controls packet reader. Install an actual partial3 base with complete authoring; the current full report stays external. A full report cannot be projected into a packet. Explicit --partial-base permits historical feasibility only."""
 import argparse, json, sys
 from pathlib import Path
 sys.dont_write_bytecode = True
@@ -19,13 +19,17 @@ args = parser.parse_args()
 root = args.source_root.resolve()
 sys.path.insert(0, str(root / 'scripts'))
 import registry_control_packet as p
-import cargo_authoring, registry_protocol, port_evidence
+import cargo_authoring, cargo_bundle, registry_protocol, port_evidence
 from cargo_source_receipt import decode_json
 from vm_failures import PROTOCOL
 
 def current(packet):
     report = decode_json(p.regular_read(args.report, 16 * 1024 * 1024))
     declared = cargo_authoring.snapshot(root)
+    exports = declared['exports']
+    p.require(type(exports) is dict and 0 < len(exports) <= cargo_bundle.MAX_EXPORTS, 'bounded complete current authoring declaration')
+    expected_entries = {row['entry'] for row in exports.values()}
+    p.require(len(expected_entries) == len(exports), 'unique complete current Cargo entries')
     cargo_authoring.check_recorded(report['authoring'], root, list(declared['exports']))
     p.require(report['authoring'] == packet.load('base/report.json')['authoring'], 'packet/current complete source authoring relation')
     p.require(type(report['schema_version']) is int and report['schema_version'] == 1 and (report['vm_failure_protocol'] == PROTOCOL), 'current typed report schema')
@@ -34,7 +38,7 @@ def current(packet):
         p.require(slugs == list(registry_protocol.SLUGS), 'explicit partial base exact3')
     else:
         p.require(packet.index['protocol'] == p.PRODUCTION_PROTOCOL, 'current publication requires production capture protocol v2')
-        p.require(len(slugs) == 40 and set(slugs) == set(declared['exports']), 'current full40 report required')
+        p.require(len(slugs) == len(expected_entries) and set(slugs) == set(declared['exports']), 'current complete declared report required')
         import corpus_append
         corpus_append.validate_current(report, sidecar_root=args.report.parent)
     registry_protocol.validate_report(report, sidecar_root=args.report.parent)
@@ -59,7 +63,7 @@ else:
     p.require(args.native_dir is None and args.last_dir is None and (args.base_dir is None), 'installation paths require --install-capture')
 result = p.validate(args.packet, current_callback=current)
 result['status'] = 'partial_feasibility_recorded_consistency_checked' if args.partial_base else 'recorded_consistency_checked'
-result['scope'] = 'Explicit partial base feasibility only; no whole40/current publication credit.' if args.partial_base else 'Current source/native/protocol and recorded packet consistency only; no new native/VM/SDK execution, execution authentication, Program authentication, proof or production-readiness credit.'
+result['scope'] = 'Explicit partial base feasibility only; no complete-corpus/current publication credit.' if args.partial_base else 'Current source/native/protocol and recorded packet consistency only; no new native/VM/SDK execution, execution authentication, Program authentication, proof or production-readiness credit.'
 keep = ['status', 'scope', 'component_vm', 'component_failure_protocol', 'index_sha256', 'downloads', 'native_counts', 'templates', 'sdk_capture', 'repeat_byte_identical', 'counts', 'physical_files', 'bytes', 'exports_admitted', 'commands_checked']
 summary = {k: result[k] for k in keep}
 if args.self_test:

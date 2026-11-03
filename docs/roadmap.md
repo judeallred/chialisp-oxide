@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 40 annotated exports of the real
+The latest local capture covers 44 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -18,8 +18,10 @@ compiled curry factory with second-stage applications, and the inner-puzzle
 commitment fixture whose curried instances run only the committed program, and
 the original boomerang payment with fixed terms committed before funding,
 the original precommit claim/registry pair, the canonical genesis-by-coin-ID CAT TAIL,
-two original counter actions, and three fixed two-name registry actions.
-Its repeated report records 941 named and 27,281 generated inputs across native Rust and five
+two original counter actions, and three fixed two-name registry actions, plus four exact raw-tree modules from the
+Inner Puzzles and Condition Morphing tutorials. Their finite template comparisons
+add no complete-spend or whole-page completion credit.
+Its repeated report records 1,024 named and 35,517 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -98,11 +100,15 @@ establish CATalog, XCHandles, live Testnet11 or compiler-preservation claims.
   decoding, fixed-width bounds, byte arrays, tuples, booleans, exact arity,
   checked Rust recursion through version-4 function tables, empty-slice
   patterns, primitive byte equality/ordering and bitwise integer operations.
-- Bounded, output-only standard Rust `Option<T>` with nil/singleton encoding
+- Local nongeneric named records, bounded aggregate constants and literal
+  fixed-array reads, with native/reference/both-mode regressions. Dynamic indexing,
+  general collections and source loops remain open.
+- Bounded standard Rust `Option<T>` with nil/singleton encoding
   and optional `Cons` tails, described in [optional-lists.md](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/).
-  Version 6 preserves strict construction and helper passing; it does not add
-  optional inputs, general enums, `Vec` or trait APIs. This capability has
-  separate constructor regressions. The original
+  Versions 6/7 preserve output construction and opaque helper passing; version 8
+  adds exact optional inputs and ordinary by-value matching. Option methods,
+  references, general enums, `Vec` and trait APIs remain closed. These capabilities
+  have separate source/native/VM regressions. The original
   [boomerang payment](https://judeallred.github.io/chialisp-oxide/tutorials/boomerang/)
   uses the capability with its own committed-instance and ledger evidence.
 - An original [precommit pair](https://github.com/judeallred/chialisp-oxide/blob/main/docs/precommit.md)
