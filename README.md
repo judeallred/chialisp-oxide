@@ -526,8 +526,15 @@ nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
 and enums outside the restricted `Tree`/`OwnedTree` and standard `Option` output shapes, general loops,
 allocation beyond restricted owned-tree construction, arbitrary external calls,
-general references and casts, and other unsupported MIR
-remain rejected.
+general references, casts outside the ten fixed-width integer types, and other
+unsupported MIR remain rejected. Primitive integer `as` conversions preserve
+Rust truncation, sign extension and signedness conversion; unlike checked
+arithmetic, narrowing does not reject a value merely because it loses bits.
+Boolean, character, floating-point, pointer, `usize` and `isize` casts are outside
+that profile. Retained integer-cast nodes require version-7 IR, whose programs
+skip optional Rust IR refinement/inlining and remain outside the existing proof
+models. Casts eliminated by rustc do not force that capability; backend
+optimization and finite regression tests are separate obligations.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. A separate
 [example inventory](corpus/tutorial-examples.json) snapshots 12 concrete tutorial

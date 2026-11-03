@@ -39,7 +39,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
             | Expr::Apply { .. }
             | Expr::Binary { .. } => 2,
             Expr::If { .. } => 3,
-            Expr::OptionalSome { .. }
+            Expr::IntCast(_)
+            | Expr::OptionalSome { .. }
             | Expr::AtomIsEmpty { .. }
             | Expr::TreeAtom { .. }
             | Expr::TreeAtomValue { .. }
@@ -98,7 +99,8 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
                 (then_value.as_ref(), depth),
                 (else_value.as_ref(), depth),
             ]),
-            Expr::OptionalSome { value }
+            Expr::IntCast(crate::IntegerCast { value, .. })
+            | Expr::OptionalSome { value }
             | Expr::AtomIsEmpty { value }
             | Expr::TreeAtom { value }
             | Expr::TreeAtomValue { value }

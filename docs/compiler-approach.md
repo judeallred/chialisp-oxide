@@ -180,7 +180,15 @@ Critical representation contracts:
    Rust arithmetic. Preserve widths, signedness, overflow behavior, casts,
    division/remainder, and shifts explicitly. Prefer checked SDK operations for
    the first puzzles; reject operations without implemented semantics. A custom
-   arbitrary-precision SDK integer can be a later, explicit type.
+   arbitrary-precision SDK integer can be a later, explicit type. Primitive
+   `as` conversions among the ten fixed-width signed/unsigned integer types
+   retain truncation and sign/zero extension rather than imposing an extra
+   range check. Integer-cast nodes retained in checked IR require the explicit
+   version-7 capability; source casts eliminated by rustc do not force it. Boolean,
+   character, floating-point, pointer and target-sized conversions remain
+   outside that profile. Cast-capable programs skip optional Rust IR refinement
+   and helper inlining while retaining the requested backend optimization mode;
+   current proof models reject this capability.
 2. Bytes and booleans: define canonical encodings; never confuse numeric zero,
    byte strings, false, empty lists, and unit merely because some share a CLVM
    representation. Validate untrusted inputs at the puzzle boundary.

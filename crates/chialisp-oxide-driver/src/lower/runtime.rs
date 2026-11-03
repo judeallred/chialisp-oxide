@@ -51,6 +51,7 @@ impl<'tcx> Lowerer<'tcx> {
         let mut has_native_hash = false;
         let mut has_pairs = false;
         let mut has_optional = false;
+        let mut has_integer_cast = false;
         let mut pair_local_work = 0usize;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
@@ -74,6 +75,38 @@ impl<'tcx> Lowerer<'tcx> {
                     return Err(
                         self.error(body.span, "call-graph discovery exceeded 10,000 MIR blocks")
                     );
+                }
+                // Select strict bindings before legacy substitution for actual
+                // primitive casts. Existing closed signed-shift guard metadata
+                // retains its historical handling and does not add capability.
+                let cast_scan_work = self
+                    .expression_work
+                    .get()
+                    .saturating_add(body.basic_blocks[block].statements.len());
+                if cast_scan_work > 500_000 {
+                    return Err(self.error(body.span, "cast graph discovery work budget exceeded"));
+                }
+                self.expression_work.set(cast_scan_work);
+                let shift_guard = self.shift_guard(body, block);
+                for (index, statement) in body.basic_blocks[block].statements.iter().enumerate() {
+                    if shift_guard
+                        .as_ref()
+                        .is_some_and(|p| p.skip.contains(&index))
+                    {
+                        continue;
+                    }
+                    if let StatementKind::Assign(assignment) = &statement.kind
+                        && let (
+                            _,
+                            Rvalue::Cast(rustc_middle::mir::CastKind::IntToInt, operand, target),
+                        ) = &**assignment
+                    {
+                        has_integer_cast |= super::integer_casts::primitive_integer(
+                            operand.ty(&body.local_decls, self.tcx),
+                        )
+                        .is_some()
+                            && super::integer_casts::primitive_integer(*target).is_some();
+                    }
                 }
                 let terminator = body.basic_blocks[block].terminator();
                 let span = terminator.source_info.span;
@@ -223,6 +256,7 @@ impl<'tcx> Lowerer<'tcx> {
             && !has_native_hash
             && !has_pairs
             && !has_optional
+            && !has_integer_cast
             && (!acyclic_fallback || functions.len() == 1)
         {
             return Ok(vec![]);
@@ -346,7 +380,7 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn runtime_block(
         &self,
-        body: &Body<'tcx>,
+        body: &'tcx Body<'tcx>,
         block: BasicBlock,
         mut locals: super::Environment,
         path: &mut Vec<BasicBlock>,

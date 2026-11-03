@@ -97,9 +97,32 @@ pub enum BinaryOp {
     Shl,
     Shr,
 }
+/// Closed semantics for the newly introduced integer-cast payload only.
+/// Other, historical expression payloads retain their existing reader contract.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegerCast {
+    pub value: Box<Expr>,
+    #[serde(deserialize_with = "cast_integer_type")]
+    pub source: Type,
+    #[serde(deserialize_with = "cast_integer_type")]
+    pub target: Type,
+}
+fn cast_integer_type<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Type, D::Error> {
+    #[derive(Deserialize)]
+    #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+    enum Primitive {
+        Int { bits: u16, signed: bool },
+    }
+    let Primitive::Int { bits, signed } = Primitive::deserialize(deserializer)?;
+    Ok(Type::Int { bits, signed })
+}
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Expr {
+    /// Primitive fixed-width Rust integer `as`, not a type retag or ABI cast.
+    /// Requires the strict version-7 capability; source/target are both checked.
+    IntCast(IntegerCast),
     /// Explicit optional values require strict version-6 lowering.
     OptionalNone {
         item: Type,

@@ -179,7 +179,7 @@ impl Analysis {
         self.charge(1)?;
         let mut value = Value::default();
         let result = match expression {
-            Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
+            Expr::OptionalNone { .. } | Expr::IntCast(_) | Expr::OptionalSome { .. } => {
                 anyhow::bail!("optional output facts are not admitted")
             }
             // Explicit typed pairs are constructed and projected like borrowed

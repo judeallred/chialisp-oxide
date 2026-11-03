@@ -76,7 +76,9 @@ impl Serialize for Program {
         self.validate().map_err(S::Error::custom)?;
         if self.uses_runtime() {
             return RuntimeEnvelopeRef {
-                ir_version: if self.uses_optional() {
+                ir_version: if self.uses_casts() {
+                    7
+                } else if self.uses_optional() {
                     6
                 } else if self.uses_pairs() {
                     5
@@ -117,16 +119,17 @@ impl Serialize for Program {
 }
 impl<'de> Deserialize<'de> for Program {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let (program, runtime, pair_capability, optional_capability) =
+        let (program, runtime, pair_capability, optional_capability, cast_capability) =
             match Wire::deserialize(deserializer)? {
                 Wire::Runtime(envelope) => {
-                    if !matches!(envelope.ir_version, 4..=6) {
+                    if !matches!(envelope.ir_version, 4..=7) {
                         return Err(D::Error::custom(
-                            "function metadata requires IR version 4, 5 or 6",
+                            "function metadata requires IR version 4, 5, 6 or 7",
                         ));
                     }
                     let pair_capability = envelope.ir_version == 5;
                     let optional_capability = envelope.ir_version == 6;
+                    let cast_capability = envelope.ir_version == 7;
                     let fields = envelope.program;
                     (
                         Self {
@@ -140,6 +143,7 @@ impl<'de> Deserialize<'de> for Program {
                         true,
                         pair_capability,
                         optional_capability,
+                        cast_capability,
                     )
                 }
                 Wire::Strict(fields) => (
@@ -151,6 +155,7 @@ impl<'de> Deserialize<'de> for Program {
                         environment: Environment::Strict,
                         functions: vec![],
                     },
+                    false,
                     false,
                     false,
                     false,
@@ -177,20 +182,26 @@ impl<'de> Deserialize<'de> for Program {
                         false,
                         false,
                         false,
+                        false,
                     )
                 }
             };
-        if program.uses_optional() != optional_capability {
+        if program.uses_casts() != cast_capability {
+            return Err(D::Error::custom(
+                "integer casts require IR version 7, and version 7 requires an integer cast",
+            ));
+        }
+        if !cast_capability && program.uses_optional() != optional_capability {
             return Err(D::Error::custom(
                 "optional output capability requires IR version 6, and version 6 requires optional values",
             ));
         }
-        if !optional_capability && program.uses_pairs() != pair_capability {
+        if !cast_capability && !optional_capability && program.uses_pairs() != pair_capability {
             return Err(D::Error::custom(
                 "typed pair capability requires IR version 5, and version 5 requires typed pairs",
             ));
         }
-        if pair_capability || optional_capability {
+        if pair_capability || optional_capability || cast_capability {
             program.validate().map_err(D::Error::custom)?;
         }
         if !runtime && program.uses_runtime() {
@@ -276,6 +287,17 @@ fn node4<
 impl Serialize for Expr {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
+            Expr::IntCast(crate::IntegerCast {
+                value,
+                source,
+                target,
+            }) => node3(
+                serializer,
+                "int_cast",
+                ("value", value),
+                ("source", source),
+                ("target", target),
+            ),
             Expr::OptionalNone { item } => node1(serializer, "optional_none", ("item", item)),
             Expr::OptionalSome { value } => node1(serializer, "optional_some", ("value", value)),
             Expr::Pair { first, rest } => {

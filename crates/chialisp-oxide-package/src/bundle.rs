@@ -247,7 +247,7 @@ fn wire_version(value: &Value) -> Result<u32> {
     match value.get("ir_version") {
         None => Ok(1),
         Some(version) => match version.as_u64() {
-            Some(version @ 2..=6) => Ok(version as u32),
+            Some(version @ 2..=7) => Ok(version as u32),
             Some(_) => Err(Error::new(
                 ErrorKind::UnsupportedVersion,
                 "unsupported Cargo IR wire version",

@@ -110,7 +110,8 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(left);
             pending.push(right);
         }
-        Expr::OptionalSome { value }
+        Expr::IntCast(crate::IntegerCast { value, .. })
+        | Expr::OptionalSome { value }
         | Expr::AtomIsEmpty { value }
         | Expr::Not { value }
         | Expr::Field { value, .. }
@@ -168,7 +169,8 @@ fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited:
         | Expr::Sequence { .. }
         | Expr::Let { .. } => 2,
         Expr::If { .. } => 3,
-        Expr::OptionalSome { .. }
+        Expr::IntCast(_)
+        | Expr::OptionalSome { .. }
         | Expr::AtomIsEmpty { .. }
         | Expr::Not { .. }
         | Expr::Field { .. }
@@ -223,6 +225,12 @@ impl Program {
             }
             match expression {
                 Expr::Pair { .. } | Expr::PairFirst { .. } | Expr::PairRest { .. } => return true,
+                Expr::IntCast(crate::IntegerCast { source, target, .. }) => {
+                    if 2 > MAX_TYPE_NODES.saturating_sub(types.len()) {
+                        return true;
+                    }
+                    types.extend([source, target]);
+                }
                 Expr::Let { ty, .. } | Expr::Binary { ty, .. } | Expr::Int { ty, .. } => {
                     if types.len() >= MAX_TYPE_NODES {
                         return true;
@@ -296,6 +304,12 @@ impl Program {
             }
             match expression {
                 Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => return true,
+                Expr::IntCast(crate::IntegerCast { source, target, .. }) => {
+                    if 2 > MAX_TYPE_NODES.saturating_sub(types.len()) {
+                        return true;
+                    }
+                    types.extend([source, target]);
+                }
                 Expr::Let { ty, .. } | Expr::Binary { ty, .. } | Expr::Int { ty, .. } => {
                     if types.len() >= MAX_TYPE_NODES {
                         return true;
@@ -341,7 +355,11 @@ impl Program {
     /// Runtime constructs and strict multipart hashes require version 4,
     /// regardless of entry policy. This traversal never follows calls.
     pub fn uses_runtime(&self) -> bool {
-        if !self.functions.is_empty() || self.uses_pairs() || self.uses_optional() {
+        if !self.functions.is_empty()
+            || self.uses_pairs()
+            || self.uses_optional()
+            || self.uses_casts()
+        {
             return true;
         }
         let mut pending = vec![&self.body];
@@ -363,6 +381,26 @@ impl Program {
     /// Hash semantics require a separate model; inspect dead arms and every
     /// function table entry as well as the entry expression.
     /// Dynamic application has no model: inspect dead arms and every function.
+    /// Casts are capability-gated even in dead arms and unused function bodies.
+    /// The bounded scan is conservative on malformed oversized programs.
+    pub fn uses_casts(&self) -> bool {
+        if self.functions.len() > MAX_FUNCTIONS {
+            return true;
+        }
+        let mut pending = vec![&self.body];
+        pending.extend(self.functions.iter().map(|f| &f.body));
+        let mut visited = 0usize;
+        while let Some(value) = pending.pop() {
+            visited += 1;
+            if visited > MAX_EXPRESSION_NODES || matches!(value, Expr::IntCast(_)) {
+                return true;
+            }
+            if !capability_children(value, &mut pending, visited) {
+                return true;
+            }
+        }
+        false
+    }
     pub fn uses_apply(&self) -> bool {
         let mut pending = vec![&self.body];
         pending.extend(self.functions.iter().map(|function| &function.body));
@@ -528,6 +566,11 @@ impl Validator<'_> {
         // Every node still pays the same depth/node/work checks above exactly
         // once, and every child re-enters this dispatcher in its own scope.
         match expr {
+            Expr::IntCast(crate::IntegerCast {
+                value,
+                source,
+                target,
+            }) => self.infer_cast(value, source, target, parameters, locals, depth),
             Expr::OptionalNone { item } => self.infer_optional_none(item),
             Expr::OptionalSome { value } => {
                 self.infer_optional_some(value, parameters, locals, depth)
@@ -542,6 +585,43 @@ impl Validator<'_> {
             ),
             _ => self.infer_non_pair(expr, parameters, locals, depth),
         }
+    }
+
+    fn infer_cast(
+        &mut self,
+        value: &Expr,
+        source: &Type,
+        target: &Type,
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        self.budget.validate_type(source, 0)?;
+        self.budget.validate_type(target, 0)?;
+        // Primitive integer widths only. Reject a false source declaration even
+        // if its initializer never returns or the cast appears in a dead arm.
+        ensure!(
+            matches!(
+                source,
+                Type::Int {
+                    bits: 8 | 16 | 32 | 64 | 128,
+                    ..
+                }
+            ) && matches!(
+                target,
+                Type::Int {
+                    bits: 8 | 16 | 32 | 64 | 128,
+                    ..
+                }
+            ),
+            "integer casts require primitive fixed-width integers"
+        );
+        let actual = self.infer(value, parameters, locals, depth + 1)?;
+        ensure!(
+            actual.as_ref().is_none_or(|ty| ty == source),
+            "integer cast source type mismatch"
+        );
+        Ok(Some(self.budget.clone_type(target)?))
     }
 
     // Keep optional type/result temporaries out of the dispatcher that every
@@ -581,7 +661,8 @@ impl Validator<'_> {
         depth: usize,
     ) -> Result<Option<Type>> {
         let ty = match expr {
-            Expr::OptionalNone { .. }
+            Expr::IntCast(_)
+            | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
             | Expr::PairFirst { .. }

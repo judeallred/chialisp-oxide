@@ -7,7 +7,7 @@ use support::Fixture;
 fn captured_export_count_is_checked_before_any_mir_lowering_or_ir_output() {
     let fixture = Fixture::new();
     let cast_source =
-        "#[doc=\"__oxide_puzzle_v1\"]pub fn first_cast(value:u64)->u128 {value as u128}\n";
+        "#[doc=\"__oxide_puzzle_v1\"]pub fn first_cast(value:u64)->u8 {(value!=0) as u8}\n";
     let mut source = cast_source.to_owned();
     for index in 1..1025 {
         source.push_str(&format!(
@@ -90,7 +90,7 @@ fn captured_export_count_is_checked_before_any_mir_lowering_or_ir_output() {
     );
     assert!(std::fs::read_dir(&exports).unwrap().next().is_none());
 
-    // Prove that this same first body really reaches unsupported casting when
+    // Prove that this same first body really reaches unsupported boolean casting when
     // the export count permits lowering; its rejection is not assumed from text.
     fixture.source(cast_source);
     let under_limit = run_checked();

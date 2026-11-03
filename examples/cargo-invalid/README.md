@@ -5,9 +5,12 @@
 Package `chialisp-oxide-cargo-invalid` is a separate local workspace with a real
 `chialisp-oxide` path dependency. It supplies two distinct failure boundaries:
 
-- Default: `unsupported_cast` is valid Rust and its ordinary native test
-  passes. Extracting its marked body for CLVM must fail because a general integer cast has
-  no accepted lowering. The Cargo integration must not publish a new successful
+- Default: `unsupported_bool_cast` converts a comparison's `bool` result to
+  `u8`. It is valid Rust and its ordinary native test passes. The CLVM subset
+  accepts casts between the ten fixed-width integer types (`i8`–`i128` and
+  `u8`–`u128`), but does not admit a Boolean source to that integer-cast route.
+  Extraction must reject this body with a subset diagnostic after native Rust
+  checking succeeds. The Cargo integration must not publish a new successful
   artifact bundle after that failure; any prior successful bundle is preserved.
 - `--features type-error`: `wrong_domain` passes a `CoinId` to `create_coin`,
   which requires a `PuzzleHash`. Ordinary Rust checking must fail with `E0308`

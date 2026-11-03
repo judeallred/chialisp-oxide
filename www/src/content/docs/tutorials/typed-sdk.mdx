@@ -99,9 +99,14 @@ requires `PuzzleHash`. This command intentionally fails with Rust `E0308`:
 cargo check --manifest-path examples/cargo-invalid/Cargo.toml --locked --features type-error
 ```
 
-Without that feature, its integer-widening cast example passes native tests but
-`cargo chialisp-oxide check` rejects the unsupported operation. Valid Rust and accepted
-CLVM-source Rust are separate checks.
+Without that feature, `unsupported_bool_cast` converts a comparison's Boolean
+result to `u8`. Its native tests pass, but `cargo chialisp-oxide check` rejects
+that Boolean-to-integer cast at the subset boundary. Casts between the ten
+fixed-width integer types are supported; Boolean, character, floating-point,
+pointer and target-sized integer casts are separate cases. See
+[integer conversions](/chialisp-oxide/reference/supported-rust/#integer-casts-preserve-rust-conversion-rules).
+The `type-error` case fails ordinary Rust checking; this default case instead
+passes Rust and fails the additional subset check.
 
 The standalone driver regressions below also exercise both domain mistakes.
 Their observed diagnostics require the two type names and no emitted IR:

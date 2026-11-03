@@ -99,11 +99,12 @@ class CargoBundleTests(unittest.TestCase):
             for version, environment in [(2, "ignored"), (3, "raw"),
                     (4, "strict"), (4, "ignored"), (4, "raw"),
                     (5, "strict"), (5, "ignored"), (5, "raw"),
-                    (6, "strict"), (6, "ignored"), (6, "raw")]:
+                    (6, "strict"), (6, "ignored"), (6, "raw"),
+                    (7, "strict"), (7, "ignored"), (7, "raw")]:
                 with self.subTest(export=name, version=version, environment=environment):
                     fixture = self.fixture()
                     body = {**fixture.program, "name": f"controls::{name}"}
-                    if version in (4, 5, 6):
+                    if version in (4, 5, 6, 7):
                         body["functions"] = []
                     if version == 5:
                         body["result"] = {"kind": "pair", "first": {"kind": "bool"},
@@ -152,6 +153,36 @@ class CargoBundleTests(unittest.TestCase):
                         self.assertEqual(path.read_bytes(), payload)
                         fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
 
+    def test_v7_casts_and_composed_capabilities_retain_exact_bytes(self):
+        # Transport checks every export identity; Rust separately admits the
+        # actual cast types, function table and optional/pair capability graph.
+        integer = {"kind": "int", "bits": 8, "signed": True}
+        target = {"kind": "int", "bits": 128, "signed": False}
+        cast = {"op": "int_cast", "source": integer, "target": target,
+                "value": {"op": "int", "value": "-1", "ty": integer}}
+        for name in ["one", "two"]:
+            for environment in ["strict", "ignored", "raw"]:
+                with self.subTest(export=name, environment=environment):
+                    fixture = self.fixture()
+                    result = {"kind": "pair", "first": target,
+                              "rest": {"kind": "optional", "item": target}}
+                    program = {"ir_version": 7, "environment": environment, "program": {
+                        "name": f"controls::{name}",
+                        "parameters": [{"name": "tree", "ty": {"kind": "tree"}}]
+                                      if environment == "raw" else [],
+                        "result": result,
+                        "body": {"op": "pair", "first": cast,
+                                 "rest": {"op": "optional_some", "value": cast}},
+                        "functions": []}}
+                    path = fixture.bundle / f"{name}.ir.json"
+                    fixture.write(path, program)
+                    payload = path.read_bytes()
+                    loaded = fixture.load(selected_entry=f"controls::{name}")
+                    self.assertEqual(loaded.program, program)
+                    self.assertEqual(loaded.ir_sha256, hashlib.sha256(payload).hexdigest())
+                    self.assertEqual(path.read_bytes(), payload)
+                    fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
+
     def test_v6_optional_export_body_is_transport_not_program_validation(self):
         fixture = self.fixture()
         program = {"ir_version": 6, "environment": "strict", "program": {
@@ -168,10 +199,10 @@ class CargoBundleTests(unittest.TestCase):
         fixture.write(fixture.bundle / "one.ir.json", program)
         self.assertEqual(fixture.load().program, program)
 
-    def test_v5_and_v6_envelope_fields_and_environment_are_closed(self):
+    def test_v5_v6_v7_envelope_fields_and_environment_are_closed(self):
         mutations = {
             "unknown version": lambda p: p.update(ir_version=9),
-            "future v7": lambda p: p.update(ir_version=7),
+            "future v8": lambda p: p.update(ir_version=8),
             "boolean version": lambda p: p.update(ir_version=True),
             "float version": lambda p: p.update(ir_version=float(p["ir_version"])),
             "string version": lambda p: p.update(ir_version=str(p["ir_version"])),
@@ -184,7 +215,7 @@ class CargoBundleTests(unittest.TestCase):
             "missing body": lambda p: p["program"].pop("body"),
             "nonobject program": lambda p: p.update(program=[]),
         }
-        for version in [5, 6]:
+        for version in [5, 6, 7]:
             valid = {"ir_version": version, "environment": "strict", "program": {
                 "name": "controls::one", "parameters": [], "result": {"kind": "bool"},
                 "body": {"op": "bool", "value": True}, "functions": []}}

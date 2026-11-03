@@ -12,6 +12,7 @@ use rustc_middle::{
     ty,
 };
 use rustc_span::Span;
+#[derive(Clone)]
 pub(super) struct Plan<'tcx> {
     pub skip: [usize; 2],
     pub source: Operand<'tcx>,
@@ -27,6 +28,7 @@ struct Uses {
     locals: [Local; 2],
     counts: [usize; 2],
     work: usize,
+    limit: usize,
 }
 impl<'tcx> Visitor<'tcx> for Uses {
     fn visit_local(&mut self, local: Local, _context: PlaceContext, _location: Location) {
@@ -39,7 +41,7 @@ impl<'tcx> Visitor<'tcx> for Uses {
     }
     fn visit_place(&mut self, p: &Place<'tcx>, context: PlaceContext, location: Location) {
         self.work = self.work.saturating_add(p.projection.len() + 1);
-        if self.work <= 500_000 {
+        if self.work <= self.limit {
             self.super_place(p, context, location);
         }
     }
@@ -48,28 +50,51 @@ impl<'tcx> Visitor<'tcx> for Uses {
             Rvalue::Aggregate(_, items) => items.len() + 1,
             _ => 1,
         });
-        if self.work <= 500_000 {
+        if self.work <= self.limit {
             self.super_rvalue(value, location);
         }
     }
     fn visit_basic_block_data(&mut self, block: BasicBlock, data: &mir::BasicBlockData<'tcx>) {
         self.work = self.work.saturating_add(1);
-        if self.work <= 500_000 {
+        if self.work <= self.limit {
             self.super_basic_block_data(block, data);
         }
     }
 }
 impl<'tcx> Lowerer<'tcx> {
-    pub(super) fn shift_guard(&self, body: &Body<'tcx>, block: BasicBlock) -> Option<Plan<'tcx>> {
-        // Bound the candidate and full-use scan before allocating any metadata.
-        if body.basic_blocks.len() > 64 || body.local_decls.len() > 2048 {
+    pub(super) fn shift_guard(
+        &self,
+        body: &'tcx Body<'tcx>,
+        block: BasicBlock,
+    ) -> Option<Plan<'tcx>> {
+        // Body identity is valid only inside the immutable Tcxt query arena and
+        // this Lowerer's lifetime. Never persist plans or identify one by name.
+        let work = self.expression_work.get().saturating_add(1);
+        self.expression_work.set(work);
+        if work > 500_000 {
             return None;
         }
-        let statements = body
-            .basic_blocks
-            .iter()
-            .try_fold(0usize, |n, b| n.checked_add(b.statements.len()))?;
-        if statements > 4096 {
+        let key = (body as *const Body<'tcx> as usize, block);
+        if let Some(plan) = self.shift_plans.borrow().get(&key) {
+            return plan.clone();
+        }
+        // Charge before cache growth/copying. A missing plan never authorizes
+        // skipped metadata; bounded ordinary cast lowering is a separate route.
+        if self.shift_plans.borrow().len() >= 10_000 {
+            return None;
+        }
+        let plan = self.compute_shift_guard(body, block);
+        let work = self.expression_work.get().saturating_add(1);
+        self.expression_work.set(work);
+        if work > 500_000 {
+            return None;
+        }
+        self.shift_plans.borrow_mut().insert(key, plan.clone());
+        plan
+    }
+    fn compute_shift_guard(&self, body: &'tcx Body<'tcx>, block: BasicBlock) -> Option<Plan<'tcx>> {
+        // Bound the candidate and full-use scan before allocating any metadata.
+        if body.basic_blocks.len() > 64 || body.local_decls.len() > 2048 {
             return None;
         }
         let data = &body.basic_blocks[block];
@@ -87,6 +112,23 @@ impl<'tcx> Lowerer<'tcx> {
             return None;
         };
         if !matches!(op, BinOp::Shl | BinOp::Shr) {
+            return None;
+        }
+        // Cheap noncandidate checks above avoid unrelated whole-body scans.
+        // Charge every block-length visit before the bounded fold itself.
+        let scan_work = self
+            .expression_work
+            .get()
+            .saturating_add(body.basic_blocks.len());
+        self.expression_work.set(scan_work);
+        if scan_work > 500_000 {
+            return None;
+        }
+        let statements = body
+            .basic_blocks
+            .iter()
+            .try_fold(0usize, |n, b| n.checked_add(b.statements.len()))?;
+        if statements > 4096 {
             return None;
         }
         let condition = place(cond)?;
@@ -167,15 +209,25 @@ impl<'tcx> Lowerer<'tcx> {
         if actual_width != u64::from(width) {
             return None;
         }
+        // The full-use walk may consume only the remaining global budget.
+        // Charge its known header before visiting any child; every aggregate
+        // and projection is also charged before its recursive visitor step.
+        let start_work = self.expression_work.get();
+        let remaining = 500_000usize.saturating_sub(start_work);
+        let header = statements.saturating_add(body.local_decls.len());
+        if header > remaining {
+            return None;
+        }
         let mut uses = Uses {
             locals: [cast_place.local, condition.local],
             counts: [0, 0],
-            work: statements + body.local_decls.len(),
+            work: header,
+            limit: remaining,
         };
         uses.visit_body(body);
-        let work = self.expression_work.get().saturating_add(uses.work);
+        let work = start_work.saturating_add(uses.work);
         self.expression_work.set(work);
-        if uses.work > 500_000 || work > 500_000 || uses.counts != [2, 2] {
+        if uses.work > uses.limit || work > 500_000 || uses.counts != [2, 2] {
             return None;
         }
         Some(Plan {

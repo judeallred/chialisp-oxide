@@ -126,19 +126,119 @@ fn helper(a:i8,b:i16)->i8{a<<b}
 }
 
 #[test]
-fn user_casts_and_reused_or_different_width_count_metadata_are_not_admitted() {
-    for source in [
-        "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{a<<(b as u16)}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{a<<(b as u32)}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->(i8,u16){let count=b as u16;(a<<count,count)}",
-        "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{let count=b as u16;assert!(count<8);a<<count}",
+fn explicit_user_integer_casts_remain_distinct_from_compiler_shift_metadata() {
+    for (source, tuple) in [
+        (
+            "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{a<<(b as u16)}",
+            false,
+        ),
+        (
+            "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{a<<(b as u32)}",
+            false,
+        ),
+        (
+            "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->(i8,u16){let count=b as u16;(a<<count,count)}",
+            true,
+        ),
+        (
+            "#[chialisp_oxide::puzzle]pub fn puzzle(a:i8,b:i16)->i8{let count=b as u16;assert!(count<8);a<<count}",
+            false,
+        ),
     ] {
         let fixture = Fixture::with_sdk_alias("chialisp_oxide");
         fixture.source(source);
         let output = fixture.cargo(true);
-        assert!(!output.status.success(), "general casts must remain closed");
-        let errors = String::from_utf8_lossy(&output.stderr);
-        assert!(errors.contains("unsupported MIR value"), "{errors}");
-        assert!(fixture.exports().is_empty());
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let programs = fixture.exports();
+        assert_eq!(programs.len(), 1);
+        assert!(programs[0].uses_casts());
+        assert_eq!(serde_json::to_value(&programs[0]).unwrap()["ir_version"], 7);
+        for optimize in [false, true] {
+            let code = chialisp_oxide_ir::compile(&programs[0], optimize).unwrap();
+            assert_eq!(
+                vm::execute(&code, "(127 1)", 10_000_000).unwrap().outcome,
+                Outcome::Accepted {
+                    output_hex: if tuple { "ff81feff0180" } else { "81fe" }.into()
+                }
+            );
+            assert_eq!(
+                vm::execute(&code, "(127 0)", 10_000_000).unwrap().outcome,
+                Outcome::Accepted {
+                    output_hex: if tuple { "ff7fff8080" } else { "7f" }.into()
+                }
+            );
+            for input in ["(1 -1)", "(1 8)", "(1 257)"] {
+                let rejected = vm::execute(&code, input, 10_000_000).unwrap();
+                assert_eq!(rejected.outcome, Outcome::Rejected);
+                assert_eq!(format!("{:?}", rejected.failure.unwrap().code()), "Raise");
+            }
+        }
     }
+}
+
+#[test]
+fn previously_emitted_signed_shift_keeps_both_exact_artifacts_without_cast_capability() {
+    let output = Command::new(env!("CARGO_BIN_EXE_chialisp-oxide-driver"))
+        .arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/signed_shift_frozen.rs"))
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let program: chialisp_oxide_ir::Program = serde_json::from_slice(&output.stdout).unwrap();
+    assert!(!program.uses_casts());
+    assert!(!program.uses_runtime());
+    // Captured before this change with the retained local driver+CLI. Receipt
+    // target/primitive-casts49/signedshift-before records tool identities; this
+    // fixed regression is not a compiler-preservation or release-auth claim.
+    for (optimize, bytes, expected_hash) in [
+        (
+            false,
+            12162,
+            "632a294dcd8c612040543324978ef4f35478504f1b980c0bb4218056528ab2a1",
+        ),
+        (
+            true,
+            1867,
+            "fa15f35554f2933e64c9dd54a6f3ea4cb7073f2a12004542b883e3decdbb1130",
+        ),
+    ] {
+        let code = chialisp_oxide_ir::compile(&program, optimize).unwrap();
+        assert_eq!(code.len(), bytes);
+        let mut allocator = clvmr_sdk::Allocator::new();
+        let node = clvmr_sdk::serde::node_from_bytes(&mut allocator, &code).unwrap();
+        let actual = tree_hash(&allocator, node);
+        assert_eq!(actual, expected_hash);
+    }
+}
+
+fn tree_hash(allocator: &clvmr_sdk::Allocator, node: clvmr_sdk::NodePtr) -> String {
+    use sha2::{Digest, Sha256};
+    fn digest(allocator: &clvmr_sdk::Allocator, node: clvmr_sdk::NodePtr) -> [u8; 32] {
+        match allocator.sexp(node) {
+            clvmr_sdk::allocator::SExp::Atom => {
+                let mut hash = Sha256::new();
+                hash.update([1]);
+                hash.update(allocator.atom(node).as_ref());
+                hash.finalize().into()
+            }
+            clvmr_sdk::allocator::SExp::Pair(first, rest) => {
+                let mut hash = Sha256::new();
+                hash.update([2]);
+                hash.update(digest(allocator, first));
+                hash.update(digest(allocator, rest));
+                hash.finalize().into()
+            }
+        }
+    }
+    digest(allocator, node)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
 }

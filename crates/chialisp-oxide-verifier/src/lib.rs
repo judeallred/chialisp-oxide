@@ -340,6 +340,7 @@ impl Translation {
                 bail!("typed wire pairs have no admitted proof model")
             }
             Expr::Sha256 { .. } => bail!("scalar SMT does not model SHA256 semantics"),
+            Expr::IntCast(_) => bail!("integer casts are not modeled"),
             Expr::Apply { .. } => bail!("scalar SMT does not model dynamic application"),
             Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
                 bail!("scalar SMT does not model runtime functions or local bindings")
@@ -600,6 +601,10 @@ fn default_value(ty: &Type) -> Result<Value> {
 /// Expression-model preflight must examine the whole Program, not just the
 /// reachable entry expression: an unused table or dead branch is still v4 IR.
 fn require_expression_model(program: &Program, model: &str) -> Result<()> {
+    ensure!(
+        !program.uses_casts(),
+        "integer casts are not modeled by this proof API"
+    );
     ensure!(
         !program.uses_optional(),
         "{model} does not model optional outputs"

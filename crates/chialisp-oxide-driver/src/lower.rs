@@ -20,6 +20,7 @@ mod cons;
 mod constants;
 mod empty_atoms;
 mod hashing;
+mod integer_casts;
 mod newtypes;
 mod optional;
 mod owned;
@@ -36,6 +37,8 @@ pub struct Lowerer<'tcx> {
     total_functions: RefCell<HashMap<DefId, bool>>,
     constants: RefCell<Vec<(DefId, Option<Promoted>)>>,
     owned_plans: RefCell<HashMap<usize, std::rc::Rc<owned::Plan<'tcx>>>>,
+    // Tcxt query bodies are immutable and arena-stable for this Lowerer lifetime.
+    shift_plans: RefCell<HashMap<(usize, BasicBlock), Option<shift_guards::Plan<'tcx>>>>,
     explicit_allocator: Cell<Option<bool>>,
     hash_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
     hash_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
@@ -153,6 +156,7 @@ impl<'tcx> Lowerer<'tcx> {
             total_functions: RefCell::new(HashMap::new()),
             constants: RefCell::new(Vec::new()),
             owned_plans: RefCell::new(HashMap::new()),
+            shift_plans: RefCell::new(HashMap::new()),
             explicit_allocator: Cell::new(None),
             hash_candidates: RefCell::new(None),
             hash_primitives: RefCell::new(HashMap::new()),
@@ -185,7 +189,8 @@ impl<'tcx> Lowerer<'tcx> {
                     push(left);
                     push(right);
                 }
-                Expr::Not { value }
+                Expr::IntCast(chialisp_oxide_ir::IntegerCast { value, .. })
+                | Expr::Not { value }
                 | Expr::Field { value, .. }
                 | Expr::TreeIsPair { value }
                 | Expr::TreeFirst { value }
@@ -428,7 +433,7 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn lower_body(
         &self,
-        body: &Body<'tcx>,
+        body: &'tcx Body<'tcx>,
         arguments: Vec<Expr>,
         stack: &mut Vec<DefId>,
     ) -> Result<Expr, LegacyError> {
@@ -463,7 +468,7 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn block(
         &self,
-        body: &Body<'tcx>,
+        body: &'tcx Body<'tcx>,
         block: BasicBlock,
         mut locals: Environment,
         path: &mut Vec<BasicBlock>,
@@ -1047,6 +1052,15 @@ impl<'tcx> Lowerer<'tcx> {
                 self.place(body, *place, locals, span)
             }
             Rvalue::Discriminant(place) => self.tree_discriminant_value(body, *place, locals, span),
+            Rvalue::Cast(rustc_middle::mir::CastKind::IntToInt, operand, target)
+                if integer_casts::primitive_integer(operand.ty(&body.local_decls, self.tcx))
+                    .is_some()
+                    && integer_casts::primitive_integer(*target).is_some() =>
+            {
+                Ok(self
+                    .integer_cast(body, operand, *target, locals, span)?
+                    .expect("closed primitive cast"))
+            }
             Rvalue::Cast(
                 rustc_middle::mir::CastKind::PointerCoercion(
                     rustc_middle::ty::adjustment::PointerCoercion::Unsize,

@@ -830,3 +830,113 @@ fn verified_package_debug_is_compact_and_omits_raw_envelopes_and_attachments() {
     }
     assert!(package.bytes().len() > debug.len());
 }
+
+fn cast_pair_optional_manifest() -> PackageManifest {
+    use chialisp_oxide_ir::Expr;
+    let source = Type::Int {
+        bits: 16,
+        signed: true,
+    };
+    let target = Type::Int {
+        bits: 8,
+        signed: false,
+    };
+    let mut program = unit_program();
+    program.result = Type::Pair {
+        first: Box::new(target.clone()),
+        rest: Box::new(Type::Optional {
+            item: Box::new(Type::Unit),
+        }),
+    };
+    program.body = Expr::Pair {
+        first: Box::new(Expr::IntCast(chialisp_oxide_ir::IntegerCast {
+            value: Box::new(Expr::Int {
+                value: "-1".into(),
+                ty: source.clone(),
+            }),
+            source,
+            target,
+        })),
+        rest: Box::new(Expr::OptionalSome {
+            value: Box::new(Expr::Unit),
+        }),
+    };
+    rust_manifest(program)
+}
+
+#[test]
+fn portable_v7_cast_pair_optional_abi_and_raw_ir_roundtrip_without_equivalence_credit() {
+    let manifest = cast_pair_optional_manifest();
+    let rust = manifest.rust.as_ref().unwrap();
+    assert_eq!(rust.ir_wire_version, 7);
+    assert_eq!(
+        rust.abi.result,
+        AbiType::Pair {
+            first: Box::new(AbiType::Int {
+                bits: 8,
+                signed: false
+            }),
+            rest: Box::new(AbiType::Optional {
+                item: Box::new(AbiType::Unit {})
+            }),
+        }
+    );
+    let value = serde_json::to_value(&manifest).unwrap();
+    let package = admit(&value).unwrap();
+    let bytes = package.bytes().to_vec();
+    let replay = verify_package(&bytes, &Limits::default()).unwrap();
+    assert_eq!(replay.object_id(), package.object_id());
+    assert_eq!(replay.bytes(), bytes);
+    let retained = replay.manifest().rust.as_ref().unwrap();
+    assert_eq!(retained.ir_json, rust.ir_json);
+    assert_eq!(retained.ir_sha256, digest(rust.ir_json.as_bytes()));
+    assert_eq!(retained.abi, rust.abi);
+    assert_eq!(replay.artifact().bytes(), &[0x80]);
+    assert_eq!(replay.summary().scope, VERIFICATION_SCOPE);
+}
+
+#[test]
+fn coherent_v7_ir_attachment_edits_do_not_bypass_cast_or_inherited_optional_guards() {
+    for mutation in [
+        "source-mismatch",
+        "old-wire",
+        "optional-input",
+        "unknown-cast-field",
+    ] {
+        let mut manifest = cast_pair_optional_manifest();
+        let rust = manifest.rust.as_mut().unwrap();
+        let mut ir: Value = serde_json::from_str(&rust.ir_json).unwrap();
+        match mutation {
+            "source-mismatch" => {
+                ir["program"]["body"]["first"]["source"]["signed"] = false.into();
+            }
+            "old-wire" => {
+                ir["ir_version"] = 6.into();
+                rust.ir_wire_version = 6;
+            }
+            "optional-input" => {
+                ir["program"]["parameters"] =
+                    json!([{"name":"input","ty":{"kind":"optional","item":{"kind":"unit"}}}]);
+                rust.abi.parameters.push(AbiParameter {
+                    name: "input".into(),
+                    ty: AbiType::Optional {
+                        item: Box::new(AbiType::Unit {}),
+                    },
+                });
+            }
+            "unknown-cast-field" => {
+                ir["program"]["body"]["first"]["wrapping_authenticated"] = true.into();
+            }
+            _ => unreachable!(),
+        }
+        rust.ir_json = serde_json::to_string(&ir).unwrap();
+        rust.ir_sha256 = digest(rust.ir_json.as_bytes());
+        assert_eq!(
+            verify_package(&serde_json::to_vec(&manifest).unwrap(), &Limits::default())
+                .unwrap_err()
+                .kind(),
+            ErrorKind::InvalidManifest,
+            "{mutation}"
+        );
+    }
+}

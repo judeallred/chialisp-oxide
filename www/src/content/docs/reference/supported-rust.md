@@ -41,6 +41,10 @@ authenticate installed bytes. See
 - Built-in integer `&`, `|`, `^` and `!` at each supported signed/unsigned
   width; `bool` also supports strict `&`, `|` and `^`. These do not add
   wrapping arithmetic. Checked integer shifts are supported with explicit count guards. See [bit masks](#bit-masks-and-evaluation-order).
+- Primitive integer `as` casts between all ten fixed-width signed/unsigned
+  types (`i8`–`i128`, `u8`–`u128`). Narrowing truncates bits rather than rejecting
+  overflow; widening and signedness changes follow Rust. See
+  [integer conversions](#integer-casts-preserve-rust-conversion-rules).
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
 - Local/SDK helpers, including lifetime-only generics for borrowed and owned trees. Acyclic
@@ -258,8 +262,12 @@ It does not admit arbitrary enums, mutable references, or allocation. Recursive
 functions can traverse these borrowed values without changing Rust ownership. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
 
 General references, type/const generic functions, arbitrary external function calls, CFG loops,
-allocation beyond the restricted owned-tree Box route, general structs/enums, casts, floating point are not implemented in the accepted subset. `usize`
-and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
+allocation beyond the restricted owned-tree Box route, general structs/enums,
+floating point, and casts outside the fixed-width integer profile are not
+implemented in the accepted subset. Boolean, character, floating-point and
+pointer casts are excluded. User `usize` and `isize` values and casts remain
+unsupported; the closed compiler-generated metadata exceptions do not expose
+those target-sized types as an authoring API. Unsafe code is forbidden by rustc's
 `-Funsafe-code`, including unsafe code that MIR might otherwise eliminate.
 
 The transparent-wrapper exception requires a nongeneric declaration, local or
@@ -305,6 +313,69 @@ returned value is unused, strict Rust evaluation requires rejection. The IR's
 sequence nodes retain this obligation for the legacy acyclic route. Runtime
 IR uses strict typed bindings and explicitly evaluates operands once, left to
 right. A failure or diverging call in an unchosen branch remains lazy.
+
+## Integer casts preserve Rust conversion rules
+
+An `as` conversion changes the numeric value according to Rust's
+[integer-cast rules](https://doc.rust-lang.org/reference/expressions/operator-expr.html#numeric-cast).
+It is not a checked-arithmetic operation or an application range check. Both
+source and destination must be one of `i8`, `i16`, `i32`, `i64`, `i128`, `u8`,
+`u16`, `u32`, `u64` or `u128`.
+
+```rust
+#[chialisp_oxide::puzzle]
+pub fn convert(value: i16) -> (i8, u8, i32, u32) {
+    (value as i8, value as u8, value as i32, value as u32)
+}
+```
+
+For input `-1`, the result is `(-1, 255, -1, 4294967295)`. Signed widening
+preserves the sign; widening a negative signed source to an unsigned destination
+also extends the sign before interpreting the destination's bits. For input
+`256`, the result is `(0, 0, 256, 256)`: both narrow conversions retain only the
+low eight bits. Converting `128` to `i8` produces `-128`, while converting it to
+`u8` produces `128`. No overflow panic is implied by any of these casts.
+
+By contrast, checked `u8` addition of `255 + 1` rejects. If a conversion must
+reject out-of-range input, write that policy before the cast:
+
+```rust
+#[chialisp_oxide::puzzle]
+pub fn checked_byte(value: i16) -> u8 {
+    assert!(value >= 0 && value <= 255);
+    value as u8
+}
+```
+
+This returns `255` for `255` and rejects `256` or `-1`. A cast alone would not
+establish that constraint. Source operands still evaluate once, including a
+failing or diverging operand whose converted result is discarded; lazy branches
+retain Rust's ordinary behavior.
+
+An integer conversion does not reinterpret the serialized CLVM atom. The source
+ABI still rejects noncanonical or out-of-range input. The `u8` integer `128`
+encodes as canonical integer bytes `0x0080`; a one-byte array containing `128`
+encodes as `0x80`. A numeric cast does not turn one representation into the other.
+The explicit raw CLVM interfaces retain their own atom contracts.
+
+Programs retaining an integer-cast node in the checked IR use the version-7
+capability. A source cast that rustc eliminates, such as an identity cast,
+does not force that capability. Older readers reject the version-7 envelope
+rather than silently treating a retained cast as ordinary arithmetic.
+Cast-capable programs conservatively skip optional Rust IR
+refinement and helper inlining; backend optimization may still run. Programs
+without casts retain their existing lowering route. No cost improvement follows
+from adding the capability.
+
+Current proof models reject cast-capable programs, including cast nodes retained
+in discarded expressions or unused IR functions. The conversion examples and compiler regressions are
+finite execution evidence, not compiler-preservation proofs.
+
+This profile does not add Boolean/character/float/pointer casts, target-sized
+`usize`/`isize`, `TryFrom`, wrapping methods, or general trait calls. The native
+valid [negative consumer](/chialisp-oxide/tutorials/typed-sdk/#observe-a-typed-api-failure)
+uses a Boolean-to-`u8` cast to demonstrate that ordinary Rust checking and the
+additional subset check remain distinct.
 
 ## Bounded compilation
 

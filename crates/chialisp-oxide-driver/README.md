@@ -164,7 +164,21 @@ The supported subset includes:
 
 The closed signed shift-count guard recognizes actual compiler-generated MIR
 metadata with complete scratch-use checks. It preserves the overflow assertion
-at its original location and does not admit a general Rust integer-cast API.
+at its original location. That internal metadata exception is separate from
+ordinary `as` conversions between `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`,
+`u32`, `u64` and `u128`. Integer casts truncate on narrowing, sign-extend signed
+sources or zero-extend unsigned sources on widening, and reinterpret equal-width
+signedness as Rust does. They do not insert a range-rejection policy. Boolean,
+character, floating-point, pointer and user `usize`/`isize` conversions are not
+admitted by this primitive-integer route.
+
+Programs retaining an integer-cast node in checked IR use the version-7 envelope
+and conservatively skip
+optional Rust IR refinement and helper inlining; backend optimization remains
+separate. Source casts eliminated by rustc do not force the capability; programs
+without retained cast nodes keep their prior lowering route. Existing proof
+models reject the cast capability, including dead or unused IR occurrences; native
+and both-mode VM regressions do not establish compiler preservation.
 Explicit facade `raw_clvm` helpers construct trees and call the reviewed apply
 bridge; their atom, crypto and guard semantics are separate from primitive Rust
 operators or arbitrary external-library admission.
@@ -172,8 +186,8 @@ operators or arbitrary external-library admission.
 Unannotated native functions may use ordinary Rust features, including
 allocation and closures, provided they are not reachable from a puzzle. They
 still undergo Rust checking. General references, type/const generics, other external calls,
-CFG loops, general allocation, ordinary structs/enums, general casts, floats,
-and non-Rust function ABIs are rejected
+CFG loops, general allocation, ordinary structs/enums, casts outside that
+fixed-width integer profile, floats, and non-Rust function ABIs are rejected
 when encountered in an exported puzzle. Panic messages and formatted
 assertions currently require unsupported Rust formatting calls. Unsafe Rust and
 unstable source features are forbidden across the selected library and SDK by

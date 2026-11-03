@@ -110,7 +110,8 @@ fn projection_preflight(program: &Program) -> bool {
                     && child(then_value.as_ref())
                     && child(else_value.as_ref())
             }
-            Expr::OptionalSome { value }
+            Expr::IntCast(crate::IntegerCast { value, .. })
+            | Expr::OptionalSome { value }
             | Expr::AtomIsEmpty { value }
             | Expr::Not { value }
             | Expr::Field { value, .. }
@@ -179,7 +180,8 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
     while let Some(expression) = pending.pop() {
         helper_charge(work, 1)?;
         match expression {
-            Expr::OptionalNone { .. }
+            Expr::IntCast(_)
+            | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
             | Expr::PairFirst { .. }
@@ -224,7 +226,8 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
             | Expr::Bool { .. }
             | Expr::Int { .. }
             | Expr::Reject { .. } => 0,
-            Expr::OptionalNone { .. }
+            Expr::IntCast(_)
+            | Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::Pair { .. }
             | Expr::PairFirst { .. }
@@ -897,6 +900,15 @@ impl<'a, 'p> Runtime<'a, 'p> {
                     Ok(this.lower.alloc(Lir::Sha256(parts)))
                 },
             )?,
+            Expr::IntCast(crate::IntegerCast { value, target, .. }) => self.values(
+                &[value.as_ref()],
+                scope,
+                &mut vec![],
+                &mut |this, scope, bindings| {
+                    let value = this.value(scope, bindings[0])?;
+                    this.lower.integer_cast(value, target)
+                },
+            )?,
             Expr::Apply {
                 program,
                 environment,
@@ -1040,8 +1052,10 @@ pub(super) fn bootstrap(
     // Every preflighted body can use branch-local Tree facts. Explicit pair
     // operands retain strict captures and every v5 call keeps proper argument
     // frames; these facts do not admit compact unary layouts or Pair rewrites.
-    let preflighted =
-        !program.uses_optional() && guarded_projections && projection_preflight(program);
+    let preflighted = !program.uses_optional()
+        && !program.uses_casts()
+        && guarded_projections
+        && projection_preflight(program);
     let pair_capability = preflighted && program.uses_pairs();
     let guarded_projections = preflighted;
     let mut runtime = Runtime {

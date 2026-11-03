@@ -312,6 +312,28 @@ impl Lower<'_> {
         let frame = self.list(&[right, left]);
         Ok(self.alloc(Lir::Run(quoted, frame)))
     }
+    fn integer_cast(&mut self, operand: LirId, target: &Type) -> Result<LirId> {
+        let Type::Int { bits, signed } = target else {
+            unreachable!("validated integer cast target")
+        };
+        let modulus = BigInt::from(1u8) << usize::from(*bits);
+        let mask = self.number(&modulus - 1);
+        let masked = self.alloc(Lir::Logand(vec![operand, mask]));
+        // Capture the narrowed value once before sign interpretation.
+        let local = self.alloc(Lir::Path(2u8.into()));
+        let result = if *signed {
+            let maximum = self.number((&modulus >> 1usize) - 1);
+            let negative = self.alloc(Lir::Gt(local, maximum));
+            let modulus = self.number(modulus);
+            let signed_value = self.alloc(Lir::Sub(vec![local, modulus]));
+            self.branch(negative, signed_value, local)
+        } else {
+            local
+        };
+        let quoted = self.alloc(Lir::Quote(result));
+        let frame = self.list(&[masked]);
+        Ok(self.alloc(Lir::Run(quoted, frame)))
+    }
     fn binary(&mut self, kind: BinaryOp, l: LirId, r: LirId, ty: &Type) -> Result<LirId> {
         if matches!(kind, BinaryOp::Shl | BinaryOp::Shr) {
             return self.shift(kind, l, r, ty);
@@ -361,6 +383,7 @@ impl Lower<'_> {
     }
     fn expression(&mut self, expr: &Expr) -> Result<LirId> {
         Ok(match expr {
+            Expr::IntCast(_) => anyhow::bail!("integer casts require strict version-7 lowering"),
             Expr::OptionalNone { .. } | Expr::OptionalSome { .. } => {
                 anyhow::bail!("optional outputs require strict version-6 lowering")
             }

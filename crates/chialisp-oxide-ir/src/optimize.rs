@@ -14,7 +14,7 @@ pub(crate) struct Plan {
 
 pub(crate) fn plan(program: &Program) -> Result<Plan> {
     program.validate()?;
-    if program.uses_optional() {
+    if program.uses_optional() || program.uses_casts() {
         // Optional output constructors are executable but have no admitted
         // refinement/inlining rules yet. Validate and charge before cloning;
         // retain every strict initializer and every unused table body.
@@ -252,6 +252,21 @@ fn projection(value: Expr, tree_arguments: u64, first: bool) -> (Expr, u64) {
 
 fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
     match expr {
+        Expr::IntCast(crate::IntegerCast {
+            value,
+            source,
+            target,
+        }) => {
+            let (value, _) = boxed(*value, tree_arguments);
+            (
+                Expr::IntCast(crate::IntegerCast {
+                    value,
+                    source,
+                    target,
+                }),
+                0,
+            )
+        }
         Expr::If {
             condition,
             then_value,
