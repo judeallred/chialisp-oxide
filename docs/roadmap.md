@@ -76,6 +76,16 @@ establish CATalog, XCHandles, live Testnet11 or compiler-preservation claims.
 
 ## What works
 
+- A beginner path explains the coin model before compiler details, then follows
+  Cargo authoring through local simulator funding/spending and the separately
+  supported live recipes. Compiling an artifact creates no coin.
+- Checked Rust division/remainder and shifts retain fixed-width Rust semantics.
+  Explicit raw CLVM helpers cover atom arithmetic/bytes, structural operations,
+  group/verification operators, variadic operand lists and softfork guards via
+  actual Rust tree construction and the reviewed apply bridge. Native tests use
+  the pinned VM oracle; proof models and ordinary Rust library admission remain
+  separate. Inactive opcode profiles are not silently enabled.
+
 - Pinned rustc driver with complete analysis and typed MIR; strict checked
   arithmetic, branch semantics, explicit unsupported diagnostics and resource
   limits. The driver is compiler-private and host checked under the enforced

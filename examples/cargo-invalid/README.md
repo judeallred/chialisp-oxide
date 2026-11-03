@@ -5,8 +5,8 @@
 Package `chialisp-oxide-cargo-invalid` is a separate local workspace with a real
 `chialisp-oxide` path dependency. It supplies two distinct failure boundaries:
 
-- Default: `unsupported_divide` is valid Rust and its ordinary native test
-  passes. Extracting its marked body for CLVM must fail because division has
+- Default: `unsupported_cast` is valid Rust and its ordinary native test
+  passes. Extracting its marked body for CLVM must fail because a general integer cast has
   no accepted lowering. The Cargo integration must not publish a new successful
   artifact bundle after that failure; any prior successful bundle is preserved.
 - `--features type-error`: `wrong_domain` passes a `CoinId` to `create_coin`,

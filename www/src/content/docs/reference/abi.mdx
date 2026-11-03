@@ -107,8 +107,9 @@ unchosen branch. Runtime-free programs keep their existing serialization.
 A v4 envelope must contain a runtime node or a nonempty function table;
 `functions: []` with a legacy-only body is invalid, so decoding cannot silently
 downgrade an explicitly versioned request to legacy semantics.
-Current scalar and structural SMT models reject runtime IR even if its table is
-unused; finite VM replay is a separate execution check. See
+Default scalar and structural SMT APIs reject runtime IR even if its table is
+unused; the separate [acyclic scalar mode](/chialisp-oxide/verification/formal/#check-nonrecursive-scalar-helpers-explicitly)
+admits bounded nonrecursive scalar tables after ABI decoding. Finite VM replay is a separate execution check. See
 [compiler architecture](/chialisp-oxide/reference/architecture/#closed-runtime-functions).
 
 ## Integers are canonical signed atoms with declared bounds

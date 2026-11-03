@@ -130,31 +130,31 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 
 | Feature family | Native Rust route | Current compiler | Evidence still required for broader support |
 | --- | --- | --- | --- |
-| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree`, opt-in `OwnedTree`, and explicit `Cons<First, Rest>` struct construction/projection; checked projections, direct recursion and bounded native codecs. `Cons` uses v5 explicit pairs; tuples retain their proper-list ABI | Dynamic atom storage, broader byte/number operations and per-operator preservation proofs |
+| Atoms, pairs, proper and improper trees; `c`, `f`, `r`, `l` | An explicit atom/pair representation | Borrowed `Tree`, opt-in `OwnedTree`, and explicit `Cons<First, Rest>` struct construction/projection; checked projections, direct recursion and bounded native codecs. `Cons` uses v5 explicit pairs; tuples retain their proper-list ABI | General native Rust owned-byte storage and per-operator preservation proofs |
 | Environment paths, `@`, argument patterns | Explicit tree projections | Exact typed lists by default; ignored nullary exports; explicit raw whole-tree export in v3, runtime v4 or explicit-pair v5 | More argument patterns and deliberate typed adapters without weakening defaults |
 | Quote, `q` | Data constructors | Scalar/product literals and `quote(&Tree)` constructing `(1 . value)` | General program execution/composition and compiler preservation |
-| Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | `chialisp_oxide::apply(&Tree, &Tree) -> Tree` is a reviewed reserved export admitted by exact signature and implementation fingerprint and lowered to opcode 2 with strict operand bindings; see [dynamic application](dynamic-apply.md). The `delegated-puzzle` fixture witnesses it in all five builds | Currying, hash commitments and signature wrapping of inner puzzles, dialect/softfork rules, cost bounds, and compiler preservation; every proof model rejects applications |
-| Signed arbitrary-precision numeric atoms | A big-integer implementation with explicit atom codec | Fixed widths 8–128 only; canonical encodings required | Unbounded numeric SDK/IR semantics, padded/negative atoms, result encoding, and resource bounds |
-| `+`, `-`, `*` | Primitive checked arithmetic or explicit big integers | Checked fixed-width operations implemented | Per-operation widening/overflow contract; never silently map Rust overflow to unbounded arithmetic |
-| `/`, `divmod`, `%` | Explicit quotient/remainder algorithms | Rejected | CLVM floor rounding versus Rust signed truncation, remainder signs, zero, and signed minimum cases |
-| `modpow` | Modular exponentiation | Rejected | Negative operands, exceptional domains, canonical results, and VM costs |
+| Apply, `a`; dynamic delegated puzzles | An interpreter or an explicit program value | `chialisp_oxide::apply(&Tree, &Tree) -> Tree` is a reviewed reserved export admitted by exact signature and implementation fingerprint and lowered to opcode 2 with strict operand bindings; see [dynamic application](dynamic-apply.md). The `delegated-puzzle` fixture witnesses it in all five builds | Broader typed composition, dialect/softfork rules, cost bounds, and compiler preservation; currying and committed inner-puzzle fixtures are described below, and every proof model rejects applications |
+| Signed arbitrary-precision numeric atoms | A big-integer implementation with explicit atom codec | Fixed-width Rust integers 8–128 with canonical encodings; explicit raw atom helpers retain VM numeric contracts | Unbounded numeric SDK/IR semantics, padded/negative atoms, result encoding, and resource bounds |
+| `+`, `-`, `*` | Primitive checked arithmetic or explicit big integers | Checked fixed-width Rust operations and explicit raw atom/list arithmetic | Per-operation widening/overflow contract; never silently map Rust overflow to unbounded arithmetic |
+| `/`, `divmod`, `%` | Explicit quotient/remainder algorithms | Checked fixed-width Rust `/` and `%` truncate toward zero; zero and signed minimum divided/remainder by -1 trap. The separate raw helpers expose CLVM floor division/divmod/modulo | Broader numeric models, resource and preservation proofs; scalar proof models still reject division/remainder |
+| `modpow` | Modular exponentiation | Disabled in the current default VM profile | Negative operands, exceptional domains, canonical results, and VM costs |
 | Atom `=`; numeric `>`; byte `>s` | Separate byte and numeric comparisons | Typed scalar equality/order; primitive byte-slice/fixed-array equality and unsigned lexicographic ordering, nil patterns, published `!=` and insertion-sort adapters | General tree/trait equality, ordered-byte models and per-operation preservation/resource proofs |
-| Truthiness; `not`, `all`, `any` | Explicit CLVM truth conversion and evaluation order | Canonical Rust `bool`; boolean negation/control flow | Nil versus nonempty atoms/pairs; eager operand effects versus Rust short-circuit operators |
-| Lazy `if`; strict `i`; `x` | Branches, evaluated operands, and explicit failure | Rust lazy branches and plain assertions supported | General strict-conditional and raw failure-value semantics; discarded failures must remain observable |
-| Byte `concat`, `strlen`, `substr` | Byte vectors/slices with specified bounds | Fixed bytes and static projections; immutable `&[u8; N]` to `&[u8]` coercion for `N <= 256`; no general byte operations | Dynamic lengths, invalid slices, allocation bounds, and byte-exact results |
-| `logand`, `logior`, `logxor`, `lognot`, `ash`, `lsh` | Primitive integer masks with explicit widths | Fixed-width integer `&`, `|`, `^`, `!` and strict Boolean `&`, `|`, `^`; unsigned complement uses a width mask | Unbounded sign extension, shifts/rotations, shift limits, and preservation/resource proofs |
+| Truthiness; `not`, `all`, `any` | Explicit CLVM truth conversion and evaluation order | Canonical Rust bool/control flow and explicit raw not/strict fixed/list any/all | Broader truth models and resource/preservation scope |
+| Lazy `if`; strict `i`; `x` | Branches, evaluated operands, and explicit failure | Rust lazy branches/assertions and explicit raw strict selection/raise | Broader failure-payload and preservation models; discarded failures remain observable |
+| Byte `concat`, `strlen`, `substr` | Byte vectors/slices with specified bounds | Fixed bytes/static projections and immutable array unsizing, plus explicit raw length/substring/concat helpers through apply | General native Rust slice/owned-byte APIs, allocation bounds and preservation models |
+| `logand`, `logior`, `logxor`, `lognot`, `ash`, `lsh` | Primitive integer masks with explicit widths | Fixed-width integer bitwise/shift and strict Boolean bitwise operations, plus explicit raw atom/list helpers; unsigned complement and left shift use width masks; shift counts have independent integer types | Checked fixed-width shifts also preserve Rust signed right-shift and discarded left bits; unbounded sign extension, rotations, and preservation/resource proofs remain separate |
 | `sha256`, tree hashing | A reviewed safe scalar kernel and exact tree encoding | Actual Cargo calls to one signature/typed-MIR/profile-pinned kernel lower to opcode11; exact raw bytes, multipart concatenation and recursive tree hashing, with paired `sha256tree` and launcher evidence | General hash-library admission, broader profiles, cryptographic assumptions and compiler-preservation proofs; current models reject SHA |
-| `keccak256`, `coinid` | Reviewed algorithms with exact wire formats | Unsupported | Activation context, amount/identifier validation, padding, exception behavior, and cost vectors |
-| BLS exponent/public-key and G1/G2 operations | Curve libraries with specified encodings | No on-chain crypto arithmetic/verification lowering | Point validation, infinity, subgroup rules, scalars, mapping DSTs, exceptional inputs, and costs |
-| BLS pairing/signature verification | Reviewed native verification | Signature conditions exist in the small SDK; this is not a lowered BLS opcode | Separate opcode implementation/proof obligations from consensus verification of emitted conditions |
-| secp256k1/secp256r1 verification | Reviewed curve verification | Unsupported | Exact key/signature/message encodings, failure behavior, activation, and cost |
-| `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | No explicit source support | Exact extension and cost semantics; no assumption that unknown operators are harmless |
+| `keccak256`, `coinid` | Reviewed algorithms with exact wire formats | Explicit raw coin ID; Keccak assertions inside extension-1 softfork guards | Activation context, amount/identifier validation, padding, exception behavior, and cost vectors |
+| BLS exponent/public-key and G1/G2 operations | Curve libraries with specified encodings | Explicit raw fixed/list crypto helpers through apply; no arbitrary native crypto-library admission | Point validation, infinity, subgroup rules, scalars, mapping DSTs, exceptional inputs, and costs |
+| BLS pairing/signature verification | Reviewed native verification | Signature conditions and explicit raw BLS verification helpers are separate interfaces | Separate opcode implementation/proof obligations from consensus verification of emitted conditions |
+| secp256k1/secp256r1 verification | Reviewed curve verification | Explicit raw legacy four-byte opcode helpers; single-byte opcodes remain flag gated | Exact key/signature/message encodings, failure behavior, activation, and cost |
+| `softfork`, extension guards, unknown operators | The corresponding interpreter/dialect behavior | Explicit raw four-argument softfork with default-profile extension semantics | Exact extension and cost semantics; no assumption that unknown operators are harmless |
 | `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants | General aggregate constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
 | Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, separately validated host-curried password instances, an [exact retrieved standard-module host binding](reveal-inspection.md) with opaque delegated programs, and `chialisp_oxide::curry` (hash arithmetic ported from the pinned `curry-and-treehash.clib` with the `curry-hash` fixture validated against the include itself; owned-tree `curry` construction with native oracle tests, corpus cross-checks of the canonical `currying-multiply` page-argument instances in five builds, and the compiled `curry-factory` program factory with second-stage applications); see [currying](currying.md) | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
-| Conditions and wallet protocols | Typed condition builders and transaction validation | Four named SDK constructors and selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
+| Conditions and wallet protocols | Typed condition builders and transaction validation | Named SDK constructors for payments, signatures, amount/identity assertions, announcements, height/time bounds and selected messages, with selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Primary VM costs, selected ledger scenarios and 15 selected whole-bundle conditions measurements; signature verification belongs to separate SDK admissions | Broader whole-spend cost coverage, activation rules, resource-equivalence criteria, and realistic maximum inputs |
 | Host I/O, clocks, randomness, network state | Native Rust can perform them | Not an implicit puzzle capability | Supply explicit committed inputs or return consensus conditions; no hidden nondeterministic dependency |
 
@@ -163,6 +163,32 @@ feature. It admits the reviewed facade `Cons` layout and preserves arbitrary
 raw tails without changing tuple encoding. The scalar, tree and byte proof
 models reject explicit pairs, including unused signatures and discarded nodes;
 finite native/VM tests do not remove that proof boundary.
+
+## Explicit raw-operator authoring
+
+The facade's `raw_clvm` module now provides an explicit route to the active VM
+operations using ordinary Rust tree construction and the existing reviewed
+`apply` bridge. It includes byte length/substring/concat, arbitrary-width atom
+arithmetic and bit operations, comparisons and truth, coin IDs, group arithmetic,
+hash-to-curve, pairing/signature verification and legacy four-byte SECP
+verification. Proper-list helpers cover variadic operations without executing
+program-shaped operand data. Structural helpers and strict selection preserve
+CLVM shape/failure semantics. See the
+[raw-value lesson](https://judeallred.github.io/chialisp-oxide/tutorials/raw-clvm/).
+
+These are compiled Rust helper bodies, not new name-authorized intrinsics or
+admission of arbitrary Rust big-integer, byte-vector or crypto libraries. Native
+helper tests use the pinned VM oracle, not an independent Rust implementation of
+each primitive. Independent Chialisp compilation is independent source evidence;
+it shares the VM and crypto implementation. Existing proof models reject apply.
+
+The four-argument softfork helper keeps the default dialect. Its result is nil:
+extension-1 Keccak assertions execute inside the guard and cannot return their
+digest. Declared costs must match exactly; cost exhaustion is a resource result,
+not policy-rejection credit. Disabled modpow, flag-gated native tree hashing and
+single-byte SECP encodings remain explicit profile restrictions. Ordinary Rust
+source ergonomics, protocol ports, canonical hashes, whole-spend costs and
+compiler-preservation proofs remain separate goals.
 
 ## Explicit pinned VM operator audit
 
@@ -183,20 +209,20 @@ every compiler version.
 
 | Numeric opcode(s) | Names, in opcode order | Rust authoring coverage today |
 | --- | --- | --- |
-| 1, 2, 36 | `q`, `a`, `softfork` | Literals and raw-tree `quote`; reviewed `apply` lowers to opcode 2 over borrowed trees; no softfork API |
-| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw tree construction/projections/pair tests, lazy branches, assertions, scalar comparisons, exact primitive byte equality/unsigned lexicographic ordering, and empty-atom tests |
-| 11–14 | `sha256`, `substr`, `strlen`, `concat` | Reviewed SHA-256 source calls lower to11 with strict operand bindings; general substring/length/concatenation APIs remain unsupported. Decoder-generated byte checks are separate |
-| 16–18 | `+`, `-`, `*` | Checked fixed-width arithmetic only |
-| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Typed numeric comparisons and fixed-width `&`, `|`, `^`, `!`; unsigned `!` uses masked XOR, not opcode27 directly. Division and shifts remain rejected |
-| 29, 30 | `point_add` (documentation: `g1_add`), `pubkey_for_exp` | Missing crypto-op lowering |
-| 32–34 | `not`, `any`, `all` | `not` on Rust `bool`; no explicit strict variadic `any`/`all` or general truthiness API |
-| 48–51 | `coinid`, `g1_subtract`, `g1_multiply`, `g1_negate` | Missing |
-| 52–55 | `g2_add`, `g2_subtract`, `g2_multiply`, `g2_negate` | Missing |
-| 56–59 | `g1_map`, `g2_map`, `bls_pairing_identity`, `bls_verify` | Missing |
-| 60, 61 | `modpow`, `%` (`op_mod` implementation) | Missing; opcode 60 additionally has a disable/cost-model gate |
-| 62, 63 | `keccak256`, `sha256tree` | Direct opcode lowering missing and flag/extension dependent; the Rust tree-hash helper instead recursively uses opcode11 |
-| 64, 65 | `secp256k1_verify`, `secp256r1_verify` | Missing and gated by `ENABLE_SECP_OPS` |
-| `0x13d61f00`, `0x1c3a8f00` | Four-byte `secp256k1_verify`, `secp256r1_verify` encodings | VM dispatch accepts these separately; no source lowering |
+| 1, 2, 36 | `q`, `a`, `softfork` | Literals and raw-tree `quote`; reviewed apply and explicit four-argument softfork over trees |
+| 3–10 | `i`, `c`, `f`, `r`, `l`, `x`, `=`, `>s` | Typed products, raw construction/projections/pair tests, lazy Rust branches and explicit raw strict selection/raise, comparisons and nil tests |
+| 11–14 | `sha256`, `substr`, `strlen`, `concat` | Reviewed SHA-256 source calls lower to11 with strict operand bindings; explicit raw substring/length/concatenation helpers use apply. Decoder-generated byte checks are separate |
+| 16–18 | `+`, `-`, `*` | Checked fixed-width Rust arithmetic and explicit raw atom/list arithmetic |
+| 19–27 | `/`, `divmod`, `>`, `ash`, `lsh`, `logand`, `logior`, `logxor`, `lognot` | Checked Rust numeric/bitwise/division/shift operations and explicit raw numeric/bitwise/shift helpers; unsigned Rust complement uses masked XOR |
+| 29, 30 | `point_add` (documentation: `g1_add`), `pubkey_for_exp` | Explicit raw fixed/list group arithmetic helpers |
+| 32–34 | `not`, `any`, `all` | Rust bool not and explicit raw not, strict fixed/list any/all |
+| 48–51 | `coinid`, `g1_subtract`, `g1_multiply`, `g1_negate` | Explicit raw helpers |
+| 52–55 | `g2_add`, `g2_subtract`, `g2_multiply`, `g2_negate` | Explicit raw fixed/list helpers |
+| 56–59 | `g1_map`, `g2_map`, `bls_pairing_identity`, `bls_verify` | Explicit raw maps and fixed/list verification helpers |
+| 60, 61 | `modpow`, `%` (`op_mod` implementation) | Raw modulo helper; modpow remains disabled under the current profile |
+| 62, 63 | `keccak256`, `sha256tree` | Extension-1 guarded Keccak assertions discard their result; native treehash remains flag gated, while the Rust tree-hash helper recursively uses opcode11 |
+| 64, 65 | `secp256k1_verify`, `secp256r1_verify` | Inactive in the selected profile; legacy four-byte helpers are separate |
+| `0x13d61f00`, `0x1c3a8f00` | Four-byte `secp256k1_verify`, `secp256r1_verify` encodings | Explicit raw verification helpers; single-byte encodings keep their separate gates |
 | Other/reserved operator bytes | Unknown-operator dispatch, defined costs or reserved failures | No source API; rejected by the execution backend's `NO_UNKNOWN_OPS` policy |
 
 Unquoted program atoms also traverse environment paths; that interpreter
@@ -278,9 +304,22 @@ also be reviewed. A condition named
 `SOFTFORK` is distinct from VM operator 36. Constructing its tuple does not
 establish extension or cost correctness.
 
-## Concrete next compiler and corpus work
+## Current priorities and retained implementation history
 
-The latest locally validated capture covers 32 annotated exports. It includes
+The current release covers 40 annotated Cargo exports; see [the current status](roadmap.md)
+for the active case counts and separately scoped protocol lanes. The preceding signed release
+passed 1,121 workspace tests. The batch-two and Spuds experiments now compile
+in both Rust modes through a bounded compiler-owned continuation-table retry;
+their native, VM, signed SDK and source-control evidence is separate from the
+paired corpus and from historical compiler-boundary receipts.
+
+The following 32-export account is a retained historical checkpoint, not the
+current source, current suite count or current completeness claim. Its measured
+results remain part of the project history.
+
+### Retained 32-export checkpoint
+
+This historical capture covers 32 annotated exports. It includes
 the full raw-domain `sha256tree` helper
 adapter, singleton launcher, original password tutorial module and canonical
 pay-to-singleton and delegated-conditions components through the

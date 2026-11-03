@@ -338,6 +338,18 @@
         "sha256": "c4358f195d7f96c9b040df8a1f2d8928d41675836f8327f8bda50b7dd556c10d"
       },
       {
+        "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+        "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+        "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+        "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
+      },
+      {
         "path": "experiments/precommit-controls/naive.clsp",
         "sha256": "b8de5a3abbd7d398607f3b92f2c9e2a562d791816a5af70d8a2cc771b404a571"
       },
@@ -534,7 +546,7 @@
       {
         "path": "Cargo.lock",
         "before_sha256": "28ea981c1150a39202389c66c826c81158417cab8a18a8d40598ef8d3edd55c0",
-        "after_sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+        "after_sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
       },
       {
         "path": "Cargo.toml",
@@ -594,7 +606,7 @@
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
         "before_sha256": "b8971aebdb39c998846b7b82019a3d7ca3cfe3d9999c8a8bd92efa609aeccc64",
-        "after_sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+        "after_sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
       },
       {
         "path": "puzzles/Cargo.toml",
@@ -604,7 +616,7 @@
       {
         "path": "puzzles/authoring.json",
         "before_sha256": "a2bd0f0da6a5cebb91647f46371c0332b9d749d91708f1473d84771d0081a6a5",
-        "after_sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+        "after_sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
       },
       {
         "path": "puzzles/lib.rs",
@@ -650,9 +662,9 @@
     ]
   },
   "reviewed_after": {
-    "report_sha256": "756f17738d06d97d7f74bd3988f8ba1f74b8387008524ff56bcbd8067a53b721",
-    "canonical_report_sha256": "cf839788ef5956b5d975173f88d35fe933df4420821b465cd84bc8c12f90f5cb",
-    "controls_sha256": "d95c6d532fe44730d7d2e1d6a34e32168b8cf5e06ff11d1676fa4a787bf827ba",
+    "report_sha256": "0b296962e1a7d6b639e331276535ea4da28f0cb36d336b6042ffc1b2faf1a34d",
+    "canonical_report_sha256": "379e790015bbc4aae1c2cf66c5d77593bda2fc88c28b22d98821be282978dfac",
+    "controls_sha256": "ac046907a24532590dad1a05c3b0b7306be67579fae7a4d35d0b79a4b9bc8448",
     "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
     "added_puzzles": [
       {
@@ -669,11 +681,11 @@
       },
       {
         "slug": "delegated-puzzle",
-        "sha256": "42912cf0b2972f61a60ba2a726600e9a0c02055161d18218585135e1a21bd3fa"
+        "sha256": "83715c276f777b9f07809e8e3e271f1a7aa7aa12d6bfe9560ece6f472966d71b"
       },
       {
         "slug": "curry-hash",
-        "sha256": "ac5c33f458897dde0d42370d7d9e7af0b493e630de6db4072b6fd4a452877afa"
+        "sha256": "70654dbd80a3601b22da3a7ecdd1c1939227885f0c8f59b695edb196b5e687e6"
       },
       {
         "slug": "currying-multiply",
@@ -685,43 +697,43 @@
       },
       {
         "slug": "inner-puzzle",
-        "sha256": "a58f5011503970cc18dad00e8a65b641d4384a2c9476e30add4e810de334ba2e"
+        "sha256": "767ceeb7f6a88843b12e886261591d3895110f0add6fe0ce18fc8b90d803b3a5"
       },
       {
         "slug": "boomerang",
-        "sha256": "b839390423bd61050a74ef6024d1d03354a2d6f7ddb66f8245abca52398e77d5"
+        "sha256": "55e0b42a941f00499dd8ca343bbaa1a52679ad9122a3cecb1dc5f4a4b4a7175b"
       },
       {
         "slug": "precommit-claim",
-        "sha256": "1644855902ace3992112b95f374dd42c779ead7b2406922034ae0601b525901c"
+        "sha256": "795d204a119f50ddbd2f144e1670175fbf9d22ff4dc4a6b8be5283561742ddbe"
       },
       {
         "slug": "precommit-registry",
-        "sha256": "6c9aa4e32d34d3c8ccbb3515863e025efb07e310d5e4d5aa235dd1087d9f1e93"
+        "sha256": "b9b7a3dabca3e9cb5241f7be6245ee0d0eaaa8ef55d8db6a3730fb2ab50d32e3"
       },
       {
         "slug": "cat-genesis-by-coin-id",
-        "sha256": "5e8611b68a4b4680fc1be01ffe3562c9b5f584f6af2f2240ed67d1773d3ebcc4"
+        "sha256": "b2d388c40f675206f6bdb05375ee87bc4ef3de0933ffe37baae7f1dee3ae7cb8"
       },
       {
         "slug": "counter-increment",
-        "sha256": "1d79827bed7feb408bb2342544c9690462d8aa5a5479182ba886b96fa35aec3b"
+        "sha256": "c41802c6fc91301b817f414d71760a1946b2ce49a2627d2071cbbb556851d65a"
       },
       {
         "slug": "counter-reset",
-        "sha256": "c95ffd1e80b7f40c889854e80023a6c0afebed7a03b9fc491d0ffb0d3c8b12a1"
+        "sha256": "2665efa340014ce84a19c2e860e0a723ffcd80f8c709c043425f0b23f3fa756d"
       },
       {
         "slug": "registry-initialize",
-        "sha256": "0539eb7e237ec25d8b58fcb92e5c91e7aaa0d239f7416a116adf9efc19800474"
+        "sha256": "78c5e14d2fcb9d5100c3518c0a167b2824a3d10ee7519784cebe5e8d5983e701"
       },
       {
         "slug": "registry-set-alpha",
-        "sha256": "a42654191b2954a9a6de2122e5b4666ff4081c97f2cc714dca13fd1511579f3e"
+        "sha256": "ea1e034272e3d70686d8635995ee7db2ac821deb3dc14586e6aff41657e7926d"
       },
       {
         "slug": "registry-set-beta",
-        "sha256": "989bc200e2cf717cbfbdcac4c74451d8d087f4f7c63470a62dfc23937ce478b8"
+        "sha256": "09028cb672f2b3a96c77773e568346f76ab95efdaa4e90144bbfbfc5a5b71dd7"
       }
     ],
     "raw_ir": [
@@ -888,7 +900,7 @@
     ],
     "bundles": {
       "on": {
-        "manifest_sha256": "e94f0cf35156d6462cd296402320f72b216abc7841153957fd3fcc9fe245609d",
+        "manifest_sha256": "0a4cf2cc3d0e018a6391148ded098163e9b21a777566a5d3f6afd499c37a2140",
         "optimize_lir": true,
         "cargo_options": [
           "--manifest-path",
@@ -899,7 +911,7 @@
         ]
       },
       "off": {
-        "manifest_sha256": "a29efcef5b93c31fdeb1adae363e0a91eaf625e9ae55907d8ed67226adc5ae95",
+        "manifest_sha256": "d1e1e62b9635f2c58da08917e4daf608ab98e8d07f360c7055439c35fd6e6b99",
         "optimize_lir": false,
         "cargo_options": [
           "--manifest-path",

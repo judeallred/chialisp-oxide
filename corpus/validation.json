@@ -173,7 +173,7 @@
    },
    {
     "path": "Cargo.lock",
-    "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+    "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
    },
    {
     "path": "Cargo.toml",
@@ -565,11 +565,23 @@
    },
    {
     "path": "crates/chialisp-oxide/src/lib.rs",
-    "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+    "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
    },
    {
     "path": "crates/chialisp-oxide/src/owned_tree.rs",
     "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+   },
+   {
+    "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+    "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+   },
+   {
+    "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+    "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+   },
+   {
+    "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+    "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
    },
    {
     "path": "crates/chialisp-oxide/src/tree.rs",
@@ -593,7 +605,7 @@
    },
    {
     "path": "puzzles/authoring.json",
-    "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+    "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
    },
    {
     "path": "puzzles/boolean-gate/puzzle.rs",
@@ -1445,8 +1457,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -2591,8 +2603,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -3737,8 +3749,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -4272,8 +4284,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -5045,8 +5057,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -5856,8 +5868,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -6763,8 +6775,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -8591,8 +8603,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -13716,8 +13728,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -14716,8 +14728,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -16083,8 +16095,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -21370,8 +21382,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -27339,8 +27351,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -30609,8 +30621,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -32621,8 +32633,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -41627,8 +41639,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -49866,8 +49878,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -68587,8 +68599,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/cons.rs",
@@ -74175,8 +74187,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -75362,8 +75374,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/hashing.rs",
@@ -84884,8 +84896,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -102151,8 +102163,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -105611,8 +105623,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -109917,8 +109929,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/domain.rs",
@@ -115846,8 +115858,8 @@
    "source_dependencies": [
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -120931,8 +120943,8 @@
     },
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -126834,8 +126846,8 @@
     },
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -128512,8 +128524,8 @@
     },
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -129491,8 +129503,8 @@
     },
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",
@@ -130470,8 +130482,8 @@
     },
     {
      "path": "crates/chialisp-oxide/src/lib.rs",
-     "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6",
-     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n"
+     "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
+     "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
     },
     {
      "path": "crates/chialisp-oxide/src/tree.rs",

@@ -5,6 +5,11 @@ description: Understand AGG_SIG_ME, complete spend validation, public fixture ke
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+Read [the split-payment lesson](/chialisp-oxide/tutorials/split-payment/) first.
+Its caller may choose a split without owning a key. Here you add an authority
+requirement: the puzzle returns a condition, and the spend bundle must supply
+the corresponding signature. The private key is never a puzzle argument.
+
 An amount guard or caller-controlled boolean does not establish ownership. The
 signature-payment fixture returns an `AGG_SIG_ME` condition for a fixed public
 key, asserts the input amount, and creates the fixed recipient coin.
@@ -44,6 +49,22 @@ cargo run -p chialisp-oxide-simulator --example fixture-keys --locked
 ```
 
 These keys are intentionally public and must never control real funds.
+
+## Try the puzzle without confusing a condition with a signature
+
+After the [quickstart](/chialisp-oxide/start/quickstart/), run the linked native
+fixture with the manifest's 32-byte message:
+
+```sh
+target/debug/chialisp-oxide native signature-payment --solution '(0xabababababababababababababababababababababababababababababababab)'
+```
+
+The accepted result includes a signature **requirement**; this command has not
+signed anything. Follow [the selected-export walkthrough](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+with `chialisp_oxide_puzzles::signature_payment::puzzle` and that solution to
+inspect the compiled CLVM result too. A VM run can succeed even when a spend
+bundle without the required signature would be rejected. The ledger scenarios
+in the lab check that additional boundary.
 
 ## Require both signatures
 

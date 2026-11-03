@@ -126,7 +126,7 @@ async function checkAuthoring(snapshot, label) {
     assert.deepEqual(snapshot[field], configuration[field], `${label}: Cargo ${field} changed`);
   }
   assert.deepEqual(snapshot.sources.map(source => source.path), [...configuration.inputs].sort(), `${label}: declared Cargo inputs changed`);
-  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/cons.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide/src/owned_tree.rs', 'crates/chialisp-oxide/src/hashing.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
+  for (const required of ['puzzles/authoring.json', 'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', '.cargo/config.toml', configuration.manifest, configuration.library, 'puzzles/fixture_keys.rs', 'crates/chialisp-oxide/Cargo.toml', 'crates/chialisp-oxide/src/lib.rs', 'crates/chialisp-oxide/src/cons.rs', 'crates/chialisp-oxide/src/domain.rs', 'crates/chialisp-oxide/src/tree.rs', 'crates/chialisp-oxide/src/owned_tree.rs', 'crates/chialisp-oxide/src/hashing.rs', 'crates/chialisp-oxide/src/raw_clvm.rs', 'crates/chialisp-oxide/src/raw_clvm_crypto.rs', 'crates/chialisp-oxide/src/raw_clvm_variadic.rs', 'crates/chialisp-oxide-macros/Cargo.toml', 'crates/chialisp-oxide-macros/src/lib.rs']) {
     assert(configuration.inputs.includes(required), `${label}: missing required Cargo input ${required}`);
   }
   for (const source of snapshot.sources) await checkRecordedHash(source.path, source.sha256);
@@ -528,6 +528,9 @@ const executionPaths = [
   "crates/chialisp-oxide/src/hashing.rs",
   "crates/chialisp-oxide/src/lib.rs",
   "crates/chialisp-oxide/src/owned_tree.rs",
+  "crates/chialisp-oxide/src/raw_clvm.rs",
+  "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+  "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
   "crates/chialisp-oxide/src/tree.rs",
   "crates/chialisp-oxide/tests/hashing.rs",
   "experiments/backend/Cargo.toml",

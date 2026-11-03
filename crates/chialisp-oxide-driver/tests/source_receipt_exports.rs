@@ -6,9 +6,9 @@ use support::Fixture;
 #[test]
 fn captured_export_count_is_checked_before_any_mir_lowering_or_ir_output() {
     let fixture = Fixture::new();
-    let division_source =
-        "#[doc=\"__oxide_puzzle_v1\"]pub fn first_division(value:u64)->u64 {value/3}\n";
-    let mut source = division_source.to_owned();
+    let cast_source =
+        "#[doc=\"__oxide_puzzle_v1\"]pub fn first_cast(value:u64)->u128 {value as u128}\n";
+    let mut source = cast_source.to_owned();
     for index in 1..1025 {
         source.push_str(&format!(
             "#[doc=\"__oxide_puzzle_v1\"]pub fn export_{index}(value:u64)->u64 {{value}}\n"
@@ -85,19 +85,19 @@ fn captured_export_count_is_checked_before_any_mir_lowering_or_ir_output() {
         "{errors}"
     );
     assert!(
-        !errors.contains("unsupported integer operation"),
+        !errors.contains("unsupported MIR value"),
         "lowering preceded count preflight: {errors}"
     );
     assert!(std::fs::read_dir(&exports).unwrap().next().is_none());
 
-    // Prove that this same first body really reaches unsupported division when
+    // Prove that this same first body really reaches unsupported casting when
     // the export count permits lowering; its rejection is not assumed from text.
-    fixture.source(division_source);
+    fixture.source(cast_source);
     let under_limit = run_checked();
     assert!(!under_limit.status.success());
     assert!(under_limit.stdout.is_empty());
     let errors = String::from_utf8_lossy(&under_limit.stderr);
-    assert!(errors.contains("unsupported integer operation"), "{errors}");
+    assert!(errors.contains("unsupported MIR value"), "{errors}");
     assert!(!errors.contains("export-count limit"), "{errors}");
     assert!(std::fs::read_dir(&exports).unwrap().next().is_none());
 }

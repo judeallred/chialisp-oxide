@@ -176,7 +176,7 @@
           },
           {
             "path": "Cargo.lock",
-            "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+            "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
           },
           {
             "path": "Cargo.toml",
@@ -568,11 +568,23 @@
           },
           {
             "path": "crates/chialisp-oxide/src/lib.rs",
-            "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+            "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
           },
           {
             "path": "crates/chialisp-oxide/src/owned_tree.rs",
             "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+            "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+            "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+            "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
           },
           {
             "path": "crates/chialisp-oxide/src/tree.rs",
@@ -596,7 +608,7 @@
           },
           {
             "path": "puzzles/authoring.json",
-            "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+            "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
           },
           {
             "path": "puzzles/boolean-gate/puzzle.rs",
@@ -939,7 +951,7 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+          "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
         },
         {
           "path": "Cargo.toml",
@@ -1167,7 +1179,7 @@
         },
         {
           "path": "crates/cargo-chialisp-oxide/tests/cargo_workflow.rs",
-          "sha256": "de1187a661cb1d40deebb0f89d7c00f5e2b1404ecac054766ffc85e9deab7558"
+          "sha256": "cb22c17c9cdb0cfac50b0a6a50d50e2424f3caed5c9cb326822e1da15a75365c"
         },
         {
           "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
@@ -1275,7 +1287,7 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-          "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
+          "sha256": "f3eb4da1cc29cbf5d5856123ba67ae6d6fc4e2979d9876ea065615437f60e346"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
@@ -1371,7 +1383,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/Cargo.toml",
-          "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
+          "sha256": "979a3100e358c41d1c86656f2035dd1ed7cd47be2856d6eb419434802aba2cf9"
         },
         {
           "path": "crates/chialisp-oxide-driver/build.rs",
@@ -1387,7 +1399,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower.rs",
-          "sha256": "36802613363e5cae73e6968a3845bf11990d19c0cc474b9827f6385bdcb63ef4"
+          "sha256": "540211f8bc6514ae82bbdeb9246a61533b0d010beb29d13915df3f442219a404"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -1447,7 +1459,11 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-          "sha256": "a6cbf2071fbeb32befad06d26076824946c58b38d4a7f97e7de7ca0ed234b37c"
+          "sha256": "57b864b53f77cbe8efe3566fe04652545cf3947730bba1c32338145daff793cd"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
+          "sha256": "9bbcbe3b01bfec39b6169c760ac80828ec754eed4e80f53f6ff1a39f8f1a0e41"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -1483,7 +1499,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/acyclic_fallback.rs",
-          "sha256": "e8e9cbc5683874307ae393711a7d2ba2571bc76938f82a6524af944554114119"
+          "sha256": "5e3d6ae701e9f8d892e93fcdcebb3ddeb4d1c3771bb35ab88674c9c5fde0bce2"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/applying.rs",
@@ -1516,6 +1532,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/constant_fallback.rs",
           "sha256": "515e433da3bab67364d7a50def93df0f5df25958124f914691e075194193ce6f"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/division.rs",
+          "sha256": "6ffd13dac14d4bbf686024fbf932606bb500c973ffc710b6dc52acf187a8d578"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/empty_atoms.rs",
@@ -1682,6 +1702,10 @@
           "sha256": "e43cec8336777407da5c9d5e507ed6645bb34d7bf95f9bf9b0ee745e505cd792"
         },
         {
+          "path": "crates/chialisp-oxide-driver/tests/fixtures/shifts.rs",
+          "sha256": "c0077d52013f83a9492ac8f77821e4d292a840ea53fc6f303c1f44d903444ffc"
+        },
+        {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/signed.rs",
           "sha256": "6a0f00cd8ee7b3f2e57b7099241a928cbb6c51c55b0bae8fb50d65bc1b37d92f"
         },
@@ -1719,7 +1743,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-          "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
+          "sha256": "6f293e69ad711c2b95519241d8b357b4e475aabe194c53bc4bb6f7313e6c8a17"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -1774,6 +1798,18 @@
           "sha256": "111b0274acfdc8afceaf48717ad0a9b10e6440ffb41ef6a7590c18129450958d"
         },
         {
+          "path": "crates/chialisp-oxide-driver/tests/raw_clvm.rs",
+          "sha256": "3909cb561c3c316af2004caa0beb6437c4f1cd3a88a01d37e231e2157be053f5"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto.rs",
+          "sha256": "b659bb8e32b2bd4f9959e85efac411d67772cbc21044750c25cc8788ed2d59b7"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/raw_clvm_variadic.rs",
+          "sha256": "038e8ec5ba47de932aac18baa8f6463d77ae75467de551679ddf5a398a6937f4"
+        },
+        {
           "path": "crates/chialisp-oxide-driver/tests/raw_trees.rs",
           "sha256": "22fd6456d0452f14de28ec8d21a91c381b35dce2a45608177646f510766d8c0f"
         },
@@ -1783,11 +1819,15 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-          "sha256": "0d8f92c8ef6ef3e5f60dcb031fba8f368fd944315d83fef7996eb44d9a8d7e9a"
+          "sha256": "5ccd94c5d0fcd385314e4f7e45cbf223eea66b6cd997e9eca0f47650d91462d9"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
+          "sha256": "0aad1e51e8c73b7d7741bbfd8dbe956ace3447d5068b573ed5e0121c9874899b"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
-          "sha256": "b0552b2d98546c892ca7e0edc47d71b31c1cc0e5773c32adb4c2728f186d789e"
+          "sha256": "c899124952846532bbfbc52efe6cdd79796ff73ebb4196e0f5629cf8d3225683"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -1799,7 +1839,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/toolchain.rs",
-          "sha256": "3f772addaaa4d2f00aa7db7d324e312455cce124f10ce128a40fbc65d277d1cf"
+          "sha256": "911bdf3ba1640247d692e35b607778cca2c79eca86415521f32a1e37e8571c50"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/toolchain/alias.rs",
@@ -1823,7 +1863,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/toolchain/host.rs",
-          "sha256": "4398e4b38343634e6560fc592a8b6337d56b4683749f35831e46d68a9e680936"
+          "sha256": "408f1b1615300ee43ce0259b89b94de5a8cae0c0502c4f407c5bdb356a20963b"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
@@ -1839,7 +1879,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower.rs",
-          "sha256": "d89fb196bfecf2196f53bfd723c33ed91ac272ab2ca19fec29164132ee885585"
+          "sha256": "fb8089cad60305886a748a2e478e7ebaa09b74036f38fbfafd2695aa43af4fbb"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -1883,7 +1923,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/validate.rs",
-          "sha256": "c3fd9a02284476b87a610667114f696268c322af6e38d2eaa7f916e85357afa7"
+          "sha256": "30f682705062a913b11692de2d3bb065f972c40b2c0aa9c872dda6150396f8c5"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -1907,7 +1947,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/bitwise.rs",
-          "sha256": "fdca688a9a13b474dcf538eb068fabbabfabedf072b310a9c3c3922653e61897"
+          "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
@@ -1919,11 +1959,15 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-          "sha256": "e81f31f50363445ab516c7c0e3092ef5b71c1648e303a26086e53c59ff215ec8"
+          "sha256": "59bedf168454e6c49cce920b725c1d36a57ebbc105a767d836dccf71cc85dc8f"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
           "sha256": "66a0955b13c6d9f741fef19c378da2427d39bf814a9f03ad065aad419ed560cf"
+        },
+        {
+          "path": "crates/chialisp-oxide-ir/tests/division.rs",
+          "sha256": "ff3b5522e7850ce3aceee4ce37344f309fdd8fc374ab18f0e1279c533ac9898a"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/execution_facts.rs",
@@ -1987,7 +2031,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/runtime_validation.rs",
-          "sha256": "0b08bae7bc0e3d7d736cc314ecf8cd25604aa619995728b9778226630d011797"
+          "sha256": "b6297ea921b1c5385da47f8619ed5d25468eadc89f643ee669c2694cd27547b6"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/semantics.rs",
@@ -1996,6 +2040,10 @@
         {
           "path": "crates/chialisp-oxide-ir/tests/sha256.rs",
           "sha256": "546abbf8cf5a4a8c0eafd16ff91e05f528f3e775e02ce2d6abed175101c77ab2"
+        },
+        {
+          "path": "crates/chialisp-oxide-ir/tests/shifts.rs",
+          "sha256": "56f7ab00c0bfcabed962458255efada607e5bc288da0981eb4e0b44cb87a3822"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/tree_optimization.rs",
@@ -2007,7 +2055,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/typed_bottom.rs",
-          "sha256": "4988e7061af1b854a9a3a1b51e2823032cd2362b1692ac5b905cf02c7859266a"
+          "sha256": "f9d10f9c823ad315ea25473c6f5625ed8e9fd603776c641c709ef7acfc098f96"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/wire.rs",
@@ -2751,7 +2799,7 @@
         },
         {
           "path": "crates/chialisp-oxide-verifier/tests/typed_bottom.rs",
-          "sha256": "26e18ba8d6dcae32d2205aca4a5c74a9f4e7632c666713ee92dc84c231765b80"
+          "sha256": "64bb8115c31a63f913f91ed25869ff0709aba2d56f037e2e2e3345c417081088"
         },
         {
           "path": "crates/chialisp-oxide-vm/Cargo.toml",
@@ -2799,11 +2847,23 @@
         },
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+          "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
         },
         {
           "path": "crates/chialisp-oxide/src/owned_tree.rs",
           "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+          "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+          "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+        },
+        {
+          "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+          "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",
@@ -2812,6 +2872,10 @@
         {
           "path": "crates/chialisp-oxide/tests/hashing.rs",
           "sha256": "d1e5e6499e2afd17901a3a0644278d232d77a1a52336f931c7031e300e2acd94"
+        },
+        {
+          "path": "crates/chialisp-oxide/tests/raw_clvm.rs",
+          "sha256": "d9a81c06308ae72b87307c9c4950d7b54d34ddb14c8f90515f42a0ee1d80009a"
         },
         {
           "path": "experiments/backend/Cargo.toml",
@@ -2891,7 +2955,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+          "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -3267,7 +3331,7 @@
         },
         {
           "path": "scripts/cargo_authoring.py",
-          "sha256": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494"
+          "sha256": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e"
         },
         {
           "path": "scripts/cargo_bundle.py",
@@ -3391,7 +3455,7 @@
         },
         {
           "path": "scripts/check-readable-puzzles.py",
-          "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
+          "sha256": "a3d03e46c6220a6523b2508accc660171e5216812d962d8439539cb5a4c8c623"
         },
         {
           "path": "scripts/check-registry-codegen.py",
@@ -3443,7 +3507,7 @@
         },
         {
           "path": "scripts/corpus_append.py",
-          "sha256": "af59b0f02faece1f877b48323b1358c081c6c676676625275391c3b53437cecd"
+          "sha256": "f1887227ec91430edd8865976c0087c6474fc6c1067eeadcabc9f8a197d034a4"
         },
         {
           "path": "scripts/corpus_compiler_transition.py",
@@ -3799,7 +3863,7 @@
         },
         {
           "path": "scripts/vm_failures.py",
-          "sha256": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+          "sha256": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
         },
         {
           "path": "scripts/xchandles_history.py",
@@ -3937,7 +4001,7 @@
         },
         {
           "path": "root-lock.seed",
-          "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+          "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
         },
         {
           "path": "scaffold-inventory.json",
@@ -4001,8 +4065,8 @@
     "admitted_inputs": {
       "native": {
         "receipt": {
-          "bytes": 2790,
-          "sha256": "a24f7b0797418ad6cd9d1d500ffbbac4eed14379f3ce3007b097027954e6a0af"
+          "bytes": 2789,
+          "sha256": "6a593097957b8f0b9a20916af10db308db601fe762ed53113320fc417350da95"
         },
         "sources": [
           {
@@ -4012,8 +4076,8 @@
           },
           {
             "path": "Cargo.lock",
-            "bytes": 104864,
-            "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+            "bytes": 104884,
+            "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
           },
           {
             "path": "Cargo.toml",
@@ -4302,8 +4366,8 @@
           },
           {
             "path": "crates/cargo-chialisp-oxide/tests/cargo_workflow.rs",
-            "bytes": 29902,
-            "sha256": "de1187a661cb1d40deebb0f89d7c00f5e2b1404ecac054766ffc85e9deab7558"
+            "bytes": 29894,
+            "sha256": "cb22c17c9cdb0cfac50b0a6a50d50e2424f3caed5c9cb326822e1da15a75365c"
           },
           {
             "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
@@ -4437,8 +4501,8 @@
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-            "bytes": 4611,
-            "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
+            "bytes": 4774,
+            "sha256": "f3eb4da1cc29cbf5d5856123ba67ae6d6fc4e2979d9876ea065615437f60e346"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
@@ -4557,13 +4621,13 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/Cargo.toml",
-            "bytes": 652,
-            "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
+            "bytes": 673,
+            "sha256": "979a3100e358c41d1c86656f2035dd1ed7cd47be2856d6eb419434802aba2cf9"
           },
           {
             "path": "crates/chialisp-oxide-driver/README.md",
-            "bytes": 18294,
-            "sha256": "e75aebcec59d32593892e4e0a4cfba8c6a78ca3718871a8c4e920c9f293187d8"
+            "bytes": 19084,
+            "sha256": "b55eda15d6236d76b5e9fe650f7ce79915bbf22f8797db586399a36c6f798d69"
           },
           {
             "path": "crates/chialisp-oxide-driver/build.rs",
@@ -4582,8 +4646,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower.rs",
-            "bytes": 55159,
-            "sha256": "36802613363e5cae73e6968a3845bf11990d19c0cc474b9827f6385bdcb63ef4"
+            "bytes": 55790,
+            "sha256": "540211f8bc6514ae82bbdeb9246a61533b0d010beb29d13915df3f442219a404"
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -4657,8 +4721,13 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-            "bytes": 30284,
-            "sha256": "a6cbf2071fbeb32befad06d26076824946c58b38d4a7f97e7de7ca0ed234b37c"
+            "bytes": 30711,
+            "sha256": "57b864b53f77cbe8efe3566fe04652545cf3947730bba1c32338145daff793cd"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
+            "bytes": 7723,
+            "sha256": "9bbcbe3b01bfec39b6169c760ac80828ec754eed4e80f53f6ff1a39f8f1a0e41"
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -4702,8 +4771,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/acyclic_fallback.rs",
-            "bytes": 11345,
-            "sha256": "e8e9cbc5683874307ae393711a7d2ba2571bc76938f82a6524af944554114119"
+            "bytes": 11342,
+            "sha256": "5e3d6ae701e9f8d892e93fcdcebb3ddeb4d1c3771bb35ab88674c9c5fde0bce2"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/applying.rs",
@@ -4744,6 +4813,11 @@
             "path": "crates/chialisp-oxide-driver/tests/constant_fallback.rs",
             "bytes": 5439,
             "sha256": "515e433da3bab67364d7a50def93df0f5df25958124f914691e075194193ce6f"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/division.rs",
+            "bytes": 3776,
+            "sha256": "6ffd13dac14d4bbf686024fbf932606bb500c973ffc710b6dc52acf187a8d578"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/empty_atoms.rs",
@@ -4961,6 +5035,11 @@
             "sha256": "e43cec8336777407da5c9d5e507ed6645bb34d7bf95f9bf9b0ee745e505cd792"
           },
           {
+            "path": "crates/chialisp-oxide-driver/tests/fixtures/shifts.rs",
+            "bytes": 70,
+            "sha256": "c0077d52013f83a9492ac8f77821e4d292a840ea53fc6f303c1f44d903444ffc"
+          },
+          {
             "path": "crates/chialisp-oxide-driver/tests/fixtures/signed.rs",
             "bytes": 137,
             "sha256": "6a0f00cd8ee7b3f2e57b7099241a928cbb6c51c55b0bae8fb50d65bc1b37d92f"
@@ -5007,8 +5086,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-            "bytes": 13068,
-            "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
+            "bytes": 13054,
+            "sha256": "6f293e69ad711c2b95519241d8b357b4e475aabe194c53bc4bb6f7313e6c8a17"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -5076,6 +5155,56 @@
             "sha256": "111b0274acfdc8afceaf48717ad0a9b10e6440ffb41ef6a7590c18129450958d"
           },
           {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm.rs",
+            "bytes": 13836,
+            "sha256": "3909cb561c3c316af2004caa0beb6437c4f1cd3a88a01d37e231e2157be053f5"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto.rs",
+            "bytes": 9031,
+            "sha256": "b659bb8e32b2bd4f9959e85efac411d67772cbc21044750c25cc8788ed2d59b7"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/LICENSE-APACHE-2.0",
+            "bytes": 11347,
+            "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/PROVENANCE.txt",
+            "bytes": 2335,
+            "sha256": "da624c61305225ae55e8decb81e302b90b81c43b2520a67ec0b0d0028d7e6b21"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/derive-subgroup.py",
+            "bytes": 1282,
+            "sha256": "210a7868d110ed1a5aa47d494fa5704a25af58ad26ad69caea821710b71c1ad5"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/vectors.json",
+            "bytes": 39032,
+            "sha256": "449c40efddf63694a0431b55b52d7cdc16a1f3d6d6913ec54ec6faac750a5bf1"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/LICENSE-APACHE-2.0",
+            "bytes": 11347,
+            "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/PROVENANCE.txt",
+            "bytes": 1981,
+            "sha256": "5c57990ae2fc4686aa32b369a7465f4a9ac83228fd1eb06f2f739b002fc67988"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/softfork-vectors.json",
+            "bytes": 11899,
+            "sha256": "c00fc5d3e0983a3d9131ed028d67ad8b59204628738a50a166ce650479ac21da"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_variadic.rs",
+            "bytes": 24400,
+            "sha256": "038e8ec5ba47de932aac18baa8f6463d77ae75467de551679ddf5a398a6937f4"
+          },
+          {
             "path": "crates/chialisp-oxide-driver/tests/raw_trees.rs",
             "bytes": 14514,
             "sha256": "22fd6456d0452f14de28ec8d21a91c381b35dce2a45608177646f510766d8c0f"
@@ -5087,13 +5216,18 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-            "bytes": 14484,
-            "sha256": "0d8f92c8ef6ef3e5f60dcb031fba8f368fd944315d83fef7996eb44d9a8d7e9a"
+            "bytes": 14486,
+            "sha256": "5ccd94c5d0fcd385314e4f7e45cbf223eea66b6cd997e9eca0f47650d91462d9"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
+            "bytes": 5860,
+            "sha256": "0aad1e51e8c73b7d7741bbfd8dbe956ace3447d5068b573ed5e0121c9874899b"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
-            "bytes": 3761,
-            "sha256": "b0552b2d98546c892ca7e0edc47d71b31c1cc0e5773c32adb4c2728f186d789e"
+            "bytes": 3735,
+            "sha256": "c899124952846532bbfbc52efe6cdd79796ff73ebb4196e0f5629cf8d3225683"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -5107,8 +5241,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain.rs",
-            "bytes": 19272,
-            "sha256": "3f772addaaa4d2f00aa7db7d324e312455cce124f10ce128a40fbc65d277d1cf"
+            "bytes": 19264,
+            "sha256": "911bdf3ba1640247d692e35b607778cca2c79eca86415521f32a1e37e8571c50"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/alias.rs",
@@ -5137,8 +5271,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/host.rs",
-            "bytes": 245,
-            "sha256": "4398e4b38343634e6560fc592a8b6337d56b4683749f35831e46d68a9e680936"
+            "bytes": 250,
+            "sha256": "408f1b1615300ee43ce0259b89b94de5a8cae0c0502c4f407c5bdb356a20963b"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
@@ -5157,8 +5291,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/src/lower.rs",
-            "bytes": 26959,
-            "sha256": "d89fb196bfecf2196f53bfd723c33ed91ac272ab2ca19fec29164132ee885585"
+            "bytes": 31707,
+            "sha256": "fb8089cad60305886a748a2e478e7ebaa09b74036f38fbfafd2695aa43af4fbb"
           },
           {
             "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -5212,8 +5346,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/src/validate.rs",
-            "bytes": 34476,
-            "sha256": "c3fd9a02284476b87a610667114f696268c322af6e38d2eaa7f916e85357afa7"
+            "bytes": 35313,
+            "sha256": "30f682705062a913b11692de2d3bb065f972c40b2c0aa9c872dda6150396f8c5"
           },
           {
             "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -5242,8 +5376,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/bitwise.rs",
-            "bytes": 17489,
-            "sha256": "fdca688a9a13b474dcf538eb068fabbabfabedf072b310a9c3c3922653e61897"
+            "bytes": 17481,
+            "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
@@ -5257,13 +5391,18 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-            "bytes": 25005,
-            "sha256": "e81f31f50363445ab516c7c0e3092ef5b71c1648e303a26086e53c59ff215ec8"
+            "bytes": 25303,
+            "sha256": "59bedf168454e6c49cce920b725c1d36a57ebbc105a767d836dccf71cc85dc8f"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
             "bytes": 10432,
             "sha256": "66a0955b13c6d9f741fef19c378da2427d39bf814a9f03ad065aad419ed560cf"
+          },
+          {
+            "path": "crates/chialisp-oxide-ir/tests/division.rs",
+            "bytes": 6951,
+            "sha256": "ff3b5522e7850ce3aceee4ce37344f309fdd8fc374ab18f0e1279c533ac9898a"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/execution_facts.rs",
@@ -5347,8 +5486,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/runtime_validation.rs",
-            "bytes": 11894,
-            "sha256": "0b08bae7bc0e3d7d736cc314ecf8cd25604aa619995728b9778226630d011797"
+            "bytes": 13374,
+            "sha256": "b6297ea921b1c5385da47f8619ed5d25468eadc89f643ee669c2694cd27547b6"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/semantics.rs",
@@ -5359,6 +5498,11 @@
             "path": "crates/chialisp-oxide-ir/tests/sha256.rs",
             "bytes": 24158,
             "sha256": "546abbf8cf5a4a8c0eafd16ff91e05f528f3e775e02ce2d6abed175101c77ab2"
+          },
+          {
+            "path": "crates/chialisp-oxide-ir/tests/shifts.rs",
+            "bytes": 5757,
+            "sha256": "56f7ab00c0bfcabed962458255efada607e5bc288da0981eb4e0b44cb87a3822"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/tree_optimization.rs",
@@ -5372,8 +5516,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/typed_bottom.rs",
-            "bytes": 7516,
-            "sha256": "4988e7061af1b854a9a3a1b51e2823032cd2362b1692ac5b905cf02c7859266a"
+            "bytes": 7518,
+            "sha256": "f9d10f9c823ad315ea25473c6f5625ed8e9fd603776c641c709ef7acfc098f96"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/wire.rs",
@@ -6557,8 +6701,8 @@
           },
           {
             "path": "crates/chialisp-oxide-verifier/tests/typed_bottom.rs",
-            "bytes": 10280,
-            "sha256": "26e18ba8d6dcae32d2205aca4a5c74a9f4e7632c666713ee92dc84c231765b80"
+            "bytes": 11262,
+            "sha256": "64bb8115c31a63f913f91ed25869ff0709aba2d56f037e2e2e3345c417081088"
           },
           {
             "path": "crates/chialisp-oxide-vm/Cargo.toml",
@@ -6592,8 +6736,8 @@
           },
           {
             "path": "crates/chialisp-oxide/README.md",
-            "bytes": 4219,
-            "sha256": "0e241b35751bd051d44f89b7f5da1d7085d4999c844b61268837ab207b915f1d"
+            "bytes": 5297,
+            "sha256": "5df58cb532fd83bb4a9b74c89bfe1ddd0113de03095bf12be81be61a97ba77fa"
           },
           {
             "path": "crates/chialisp-oxide/src/apply.rs",
@@ -6627,13 +6771,28 @@
           },
           {
             "path": "crates/chialisp-oxide/src/lib.rs",
-            "bytes": 770,
-            "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+            "bytes": 921,
+            "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
           },
           {
             "path": "crates/chialisp-oxide/src/owned_tree.rs",
             "bytes": 492,
             "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+            "bytes": 13256,
+            "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+            "bytes": 6351,
+            "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+            "bytes": 11221,
+            "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
           },
           {
             "path": "crates/chialisp-oxide/src/tree.rs",
@@ -6644,6 +6803,11 @@
             "path": "crates/chialisp-oxide/tests/hashing.rs",
             "bytes": 3882,
             "sha256": "d1e5e6499e2afd17901a3a0644278d232d77a1a52336f931c7031e300e2acd94"
+          },
+          {
+            "path": "crates/chialisp-oxide/tests/raw_clvm.rs",
+            "bytes": 9092,
+            "sha256": "d9a81c06308ae72b87307c9c4950d7b54d34ddb14c8f90515f42a0ee1d80009a"
           },
           {
             "path": "experiments/action-registry-source-controls/Cargo.lock",
@@ -6672,8 +6836,8 @@
           },
           {
             "path": "experiments/action-registry-source-controls/root-lock.seed",
-            "bytes": 104864,
-            "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+            "bytes": 104884,
+            "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
           },
           {
             "path": "experiments/action-registry-source-controls/scaffold-inventory.json",
@@ -6852,8 +7016,8 @@
           },
           {
             "path": "puzzles/authoring.json",
-            "bytes": 18120,
-            "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+            "bytes": 18271,
+            "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
           },
           {
             "path": "puzzles/boolean-gate/puzzle.json",
@@ -7767,8 +7931,8 @@
           },
           {
             "path": "scripts/cargo_authoring.py",
-            "bytes": 4699,
-            "sha256": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494"
+            "bytes": 4838,
+            "sha256": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e"
           },
           {
             "path": "scripts/cargo_bundle.py",
@@ -7922,8 +8086,8 @@
           },
           {
             "path": "scripts/check-readable-puzzles.py",
-            "bytes": 53631,
-            "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
+            "bytes": 53770,
+            "sha256": "a3d03e46c6220a6523b2508accc660171e5216812d962d8439539cb5a4c8c623"
           },
           {
             "path": "scripts/check-registry-codegen.py",
@@ -7988,7 +8152,7 @@
           {
             "path": "scripts/corpus_append.py",
             "bytes": 29164,
-            "sha256": "af59b0f02faece1f877b48323b1358c081c6c676676625275391c3b53437cecd"
+            "sha256": "f1887227ec91430edd8865976c0087c6474fc6c1067eeadcabc9f8a197d034a4"
           },
           {
             "path": "scripts/corpus_compiler_transition.py",
@@ -8432,8 +8596,8 @@
           },
           {
             "path": "scripts/vm_failures.py",
-            "bytes": 45509,
-            "sha256": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+            "bytes": 45672,
+            "sha256": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
           },
           {
             "path": "scripts/xchandles_history.py",
@@ -8639,8 +8803,8 @@
       },
       "last": {
         "receipt": {
-          "bytes": 591,
-          "sha256": "e0242c6b2ae8c9db869cd30fe4e4600e5b9909e60ca987287b08f6e5637e068e"
+          "bytes": 592,
+          "sha256": "cddc81b35d1acf0e459675691641c95ab1db2a74bb49d8a977e85bc4103a8ce4"
         },
         "sources": [
           {
@@ -8650,8 +8814,8 @@
           },
           {
             "path": "Cargo.lock",
-            "bytes": 104864,
-            "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+            "bytes": 104884,
+            "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
           },
           {
             "path": "Cargo.toml",
@@ -8940,8 +9104,8 @@
           },
           {
             "path": "crates/cargo-chialisp-oxide/tests/cargo_workflow.rs",
-            "bytes": 29902,
-            "sha256": "de1187a661cb1d40deebb0f89d7c00f5e2b1404ecac054766ffc85e9deab7558"
+            "bytes": 29894,
+            "sha256": "cb22c17c9cdb0cfac50b0a6a50d50e2424f3caed5c9cb326822e1da15a75365c"
           },
           {
             "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
@@ -9075,8 +9239,8 @@
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-            "bytes": 4611,
-            "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
+            "bytes": 4774,
+            "sha256": "f3eb4da1cc29cbf5d5856123ba67ae6d6fc4e2979d9876ea065615437f60e346"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
@@ -9195,13 +9359,13 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/Cargo.toml",
-            "bytes": 652,
-            "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
+            "bytes": 673,
+            "sha256": "979a3100e358c41d1c86656f2035dd1ed7cd47be2856d6eb419434802aba2cf9"
           },
           {
             "path": "crates/chialisp-oxide-driver/README.md",
-            "bytes": 18294,
-            "sha256": "e75aebcec59d32593892e4e0a4cfba8c6a78ca3718871a8c4e920c9f293187d8"
+            "bytes": 19084,
+            "sha256": "b55eda15d6236d76b5e9fe650f7ce79915bbf22f8797db586399a36c6f798d69"
           },
           {
             "path": "crates/chialisp-oxide-driver/build.rs",
@@ -9220,8 +9384,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower.rs",
-            "bytes": 55159,
-            "sha256": "36802613363e5cae73e6968a3845bf11990d19c0cc474b9827f6385bdcb63ef4"
+            "bytes": 55790,
+            "sha256": "540211f8bc6514ae82bbdeb9246a61533b0d010beb29d13915df3f442219a404"
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -9295,8 +9459,13 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-            "bytes": 30284,
-            "sha256": "a6cbf2071fbeb32befad06d26076824946c58b38d4a7f97e7de7ca0ed234b37c"
+            "bytes": 30711,
+            "sha256": "57b864b53f77cbe8efe3566fe04652545cf3947730bba1c32338145daff793cd"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
+            "bytes": 7723,
+            "sha256": "9bbcbe3b01bfec39b6169c760ac80828ec754eed4e80f53f6ff1a39f8f1a0e41"
           },
           {
             "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -9340,8 +9509,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/acyclic_fallback.rs",
-            "bytes": 11345,
-            "sha256": "e8e9cbc5683874307ae393711a7d2ba2571bc76938f82a6524af944554114119"
+            "bytes": 11342,
+            "sha256": "5e3d6ae701e9f8d892e93fcdcebb3ddeb4d1c3771bb35ab88674c9c5fde0bce2"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/applying.rs",
@@ -9382,6 +9551,11 @@
             "path": "crates/chialisp-oxide-driver/tests/constant_fallback.rs",
             "bytes": 5439,
             "sha256": "515e433da3bab67364d7a50def93df0f5df25958124f914691e075194193ce6f"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/division.rs",
+            "bytes": 3776,
+            "sha256": "6ffd13dac14d4bbf686024fbf932606bb500c973ffc710b6dc52acf187a8d578"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/empty_atoms.rs",
@@ -9599,6 +9773,11 @@
             "sha256": "e43cec8336777407da5c9d5e507ed6645bb34d7bf95f9bf9b0ee745e505cd792"
           },
           {
+            "path": "crates/chialisp-oxide-driver/tests/fixtures/shifts.rs",
+            "bytes": 70,
+            "sha256": "c0077d52013f83a9492ac8f77821e4d292a840ea53fc6f303c1f44d903444ffc"
+          },
+          {
             "path": "crates/chialisp-oxide-driver/tests/fixtures/signed.rs",
             "bytes": 137,
             "sha256": "6a0f00cd8ee7b3f2e57b7099241a928cbb6c51c55b0bae8fb50d65bc1b37d92f"
@@ -9645,8 +9824,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-            "bytes": 13068,
-            "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
+            "bytes": 13054,
+            "sha256": "6f293e69ad711c2b95519241d8b357b4e475aabe194c53bc4bb6f7313e6c8a17"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -9714,6 +9893,56 @@
             "sha256": "111b0274acfdc8afceaf48717ad0a9b10e6440ffb41ef6a7590c18129450958d"
           },
           {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm.rs",
+            "bytes": 13836,
+            "sha256": "3909cb561c3c316af2004caa0beb6437c4f1cd3a88a01d37e231e2157be053f5"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto.rs",
+            "bytes": 9031,
+            "sha256": "b659bb8e32b2bd4f9959e85efac411d67772cbc21044750c25cc8788ed2d59b7"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/LICENSE-APACHE-2.0",
+            "bytes": 11347,
+            "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/PROVENANCE.txt",
+            "bytes": 2335,
+            "sha256": "da624c61305225ae55e8decb81e302b90b81c43b2520a67ec0b0d0028d7e6b21"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/derive-subgroup.py",
+            "bytes": 1282,
+            "sha256": "210a7868d110ed1a5aa47d494fa5704a25af58ad26ad69caea821710b71c1ad5"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/vectors.json",
+            "bytes": 39032,
+            "sha256": "449c40efddf63694a0431b55b52d7cdc16a1f3d6d6913ec54ec6faac750a5bf1"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/LICENSE-APACHE-2.0",
+            "bytes": 11347,
+            "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/PROVENANCE.txt",
+            "bytes": 1981,
+            "sha256": "5c57990ae2fc4686aa32b369a7465f4a9ac83228fd1eb06f2f739b002fc67988"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/softfork-vectors.json",
+            "bytes": 11899,
+            "sha256": "c00fc5d3e0983a3d9131ed028d67ad8b59204628738a50a166ce650479ac21da"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/raw_clvm_variadic.rs",
+            "bytes": 24400,
+            "sha256": "038e8ec5ba47de932aac18baa8f6463d77ae75467de551679ddf5a398a6937f4"
+          },
+          {
             "path": "crates/chialisp-oxide-driver/tests/raw_trees.rs",
             "bytes": 14514,
             "sha256": "22fd6456d0452f14de28ec8d21a91c381b35dce2a45608177646f510766d8c0f"
@@ -9725,13 +9954,18 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-            "bytes": 14484,
-            "sha256": "0d8f92c8ef6ef3e5f60dcb031fba8f368fd944315d83fef7996eb44d9a8d7e9a"
+            "bytes": 14486,
+            "sha256": "5ccd94c5d0fcd385314e4f7e45cbf223eea66b6cd997e9eca0f47650d91462d9"
+          },
+          {
+            "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
+            "bytes": 5860,
+            "sha256": "0aad1e51e8c73b7d7741bbfd8dbe956ace3447d5068b573ed5e0121c9874899b"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
-            "bytes": 3761,
-            "sha256": "b0552b2d98546c892ca7e0edc47d71b31c1cc0e5773c32adb4c2728f186d789e"
+            "bytes": 3735,
+            "sha256": "c899124952846532bbfbc52efe6cdd79796ff73ebb4196e0f5629cf8d3225683"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -9745,8 +9979,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain.rs",
-            "bytes": 19272,
-            "sha256": "3f772addaaa4d2f00aa7db7d324e312455cce124f10ce128a40fbc65d277d1cf"
+            "bytes": 19264,
+            "sha256": "911bdf3ba1640247d692e35b607778cca2c79eca86415521f32a1e37e8571c50"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/alias.rs",
@@ -9775,8 +10009,8 @@
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/host.rs",
-            "bytes": 245,
-            "sha256": "4398e4b38343634e6560fc592a8b6337d56b4683749f35831e46d68a9e680936"
+            "bytes": 250,
+            "sha256": "408f1b1615300ee43ce0259b89b94de5a8cae0c0502c4f407c5bdb356a20963b"
           },
           {
             "path": "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
@@ -9795,8 +10029,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/src/lower.rs",
-            "bytes": 26959,
-            "sha256": "d89fb196bfecf2196f53bfd723c33ed91ac272ab2ca19fec29164132ee885585"
+            "bytes": 31707,
+            "sha256": "fb8089cad60305886a748a2e478e7ebaa09b74036f38fbfafd2695aa43af4fbb"
           },
           {
             "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -9850,8 +10084,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/src/validate.rs",
-            "bytes": 34476,
-            "sha256": "c3fd9a02284476b87a610667114f696268c322af6e38d2eaa7f916e85357afa7"
+            "bytes": 35313,
+            "sha256": "30f682705062a913b11692de2d3bb065f972c40b2c0aa9c872dda6150396f8c5"
           },
           {
             "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -9880,8 +10114,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/bitwise.rs",
-            "bytes": 17489,
-            "sha256": "fdca688a9a13b474dcf538eb068fabbabfabedf072b310a9c3c3922653e61897"
+            "bytes": 17481,
+            "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
@@ -9895,13 +10129,18 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-            "bytes": 25005,
-            "sha256": "e81f31f50363445ab516c7c0e3092ef5b71c1648e303a26086e53c59ff215ec8"
+            "bytes": 25303,
+            "sha256": "59bedf168454e6c49cce920b725c1d36a57ebbc105a767d836dccf71cc85dc8f"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
             "bytes": 10432,
             "sha256": "66a0955b13c6d9f741fef19c378da2427d39bf814a9f03ad065aad419ed560cf"
+          },
+          {
+            "path": "crates/chialisp-oxide-ir/tests/division.rs",
+            "bytes": 6951,
+            "sha256": "ff3b5522e7850ce3aceee4ce37344f309fdd8fc374ab18f0e1279c533ac9898a"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/execution_facts.rs",
@@ -9985,8 +10224,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/runtime_validation.rs",
-            "bytes": 11894,
-            "sha256": "0b08bae7bc0e3d7d736cc314ecf8cd25604aa619995728b9778226630d011797"
+            "bytes": 13374,
+            "sha256": "b6297ea921b1c5385da47f8619ed5d25468eadc89f643ee669c2694cd27547b6"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/semantics.rs",
@@ -9997,6 +10236,11 @@
             "path": "crates/chialisp-oxide-ir/tests/sha256.rs",
             "bytes": 24158,
             "sha256": "546abbf8cf5a4a8c0eafd16ff91e05f528f3e775e02ce2d6abed175101c77ab2"
+          },
+          {
+            "path": "crates/chialisp-oxide-ir/tests/shifts.rs",
+            "bytes": 5757,
+            "sha256": "56f7ab00c0bfcabed962458255efada607e5bc288da0981eb4e0b44cb87a3822"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/tree_optimization.rs",
@@ -10010,8 +10254,8 @@
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/typed_bottom.rs",
-            "bytes": 7516,
-            "sha256": "4988e7061af1b854a9a3a1b51e2823032cd2362b1692ac5b905cf02c7859266a"
+            "bytes": 7518,
+            "sha256": "f9d10f9c823ad315ea25473c6f5625ed8e9fd603776c641c709ef7acfc098f96"
           },
           {
             "path": "crates/chialisp-oxide-ir/tests/wire.rs",
@@ -11195,8 +11439,8 @@
           },
           {
             "path": "crates/chialisp-oxide-verifier/tests/typed_bottom.rs",
-            "bytes": 10280,
-            "sha256": "26e18ba8d6dcae32d2205aca4a5c74a9f4e7632c666713ee92dc84c231765b80"
+            "bytes": 11262,
+            "sha256": "64bb8115c31a63f913f91ed25869ff0709aba2d56f037e2e2e3345c417081088"
           },
           {
             "path": "crates/chialisp-oxide-vm/Cargo.toml",
@@ -11230,8 +11474,8 @@
           },
           {
             "path": "crates/chialisp-oxide/README.md",
-            "bytes": 4219,
-            "sha256": "0e241b35751bd051d44f89b7f5da1d7085d4999c844b61268837ab207b915f1d"
+            "bytes": 5297,
+            "sha256": "5df58cb532fd83bb4a9b74c89bfe1ddd0113de03095bf12be81be61a97ba77fa"
           },
           {
             "path": "crates/chialisp-oxide/src/apply.rs",
@@ -11265,13 +11509,28 @@
           },
           {
             "path": "crates/chialisp-oxide/src/lib.rs",
-            "bytes": 770,
-            "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+            "bytes": 921,
+            "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
           },
           {
             "path": "crates/chialisp-oxide/src/owned_tree.rs",
             "bytes": 492,
             "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+            "bytes": 13256,
+            "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+            "bytes": 6351,
+            "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+          },
+          {
+            "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+            "bytes": 11221,
+            "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
           },
           {
             "path": "crates/chialisp-oxide/src/tree.rs",
@@ -11282,6 +11541,11 @@
             "path": "crates/chialisp-oxide/tests/hashing.rs",
             "bytes": 3882,
             "sha256": "d1e5e6499e2afd17901a3a0644278d232d77a1a52336f931c7031e300e2acd94"
+          },
+          {
+            "path": "crates/chialisp-oxide/tests/raw_clvm.rs",
+            "bytes": 9092,
+            "sha256": "d9a81c06308ae72b87307c9c4950d7b54d34ddb14c8f90515f42a0ee1d80009a"
           },
           {
             "path": "experiments/action-registry-source-controls/Cargo.lock",
@@ -11310,8 +11574,8 @@
           },
           {
             "path": "experiments/action-registry-source-controls/root-lock.seed",
-            "bytes": 104864,
-            "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+            "bytes": 104884,
+            "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
           },
           {
             "path": "experiments/action-registry-source-controls/scaffold-inventory.json",
@@ -11490,8 +11754,8 @@
           },
           {
             "path": "puzzles/authoring.json",
-            "bytes": 18120,
-            "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+            "bytes": 18271,
+            "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
           },
           {
             "path": "puzzles/boolean-gate/puzzle.json",
@@ -12405,8 +12669,8 @@
           },
           {
             "path": "scripts/cargo_authoring.py",
-            "bytes": 4699,
-            "sha256": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494"
+            "bytes": 4838,
+            "sha256": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e"
           },
           {
             "path": "scripts/cargo_bundle.py",
@@ -12560,8 +12824,8 @@
           },
           {
             "path": "scripts/check-readable-puzzles.py",
-            "bytes": 53631,
-            "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
+            "bytes": 53770,
+            "sha256": "a3d03e46c6220a6523b2508accc660171e5216812d962d8439539cb5a4c8c623"
           },
           {
             "path": "scripts/check-registry-codegen.py",
@@ -12626,7 +12890,7 @@
           {
             "path": "scripts/corpus_append.py",
             "bytes": 29164,
-            "sha256": "af59b0f02faece1f877b48323b1358c081c6c676676625275391c3b53437cecd"
+            "sha256": "f1887227ec91430edd8865976c0087c6474fc6c1067eeadcabc9f8a197d034a4"
           },
           {
             "path": "scripts/corpus_compiler_transition.py",
@@ -13070,8 +13334,8 @@
           },
           {
             "path": "scripts/vm_failures.py",
-            "bytes": 45509,
-            "sha256": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+            "bytes": 45672,
+            "sha256": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
           },
           {
             "path": "scripts/xchandles_history.py",
@@ -13220,93 +13484,93 @@
           {
             "name": "chialisp-oxide-driver",
             "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
-            "bytes": 5234936,
-            "sha256": "dda74277e6b3b1ccad02a7d9a15189a35e7339c96360d12668ed6d4806c405e9"
+            "bytes": 5294568,
+            "sha256": "2c3ea2f7e59ed702ef8588395effba1f7f0a9fe8687285d1387f7b0c3f830dac"
           },
           {
             "name": "cargo-chialisp-oxide",
             "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
-            "bytes": 14175912,
-            "sha256": "a5070378534c38c55be6565f67fd49fcde3926ef80fe724071e1c19f940af391"
+            "bytes": 14195448,
+            "sha256": "0108a87e9adcd6a499b25de82acd07ea84d3c8843c7dd4ad8fd7acf72599a4d5"
           },
           {
             "name": "chialisp-oxide",
             "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-            "bytes": 39208480,
-            "sha256": "6e34cd6a0c98a7d130477101e5688b832ff9312cfef9737d56d1df9e3cc60070"
+            "bytes": 39211200,
+            "sha256": "9a06ab6767596ce68c08ccf7de82336543213532da23180933a3c74c785e498f"
           },
           {
             "name": "chialisp-oxide-verifier",
             "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-            "bytes": 15433224,
-            "sha256": "f1c540cdce346c986d322f13a8f27e59abe77c4251c64e558da50ae98f6e14de"
+            "bytes": 15433656,
+            "sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7"
           },
           {
             "name": "examples/registry_controls",
             "path": "/Users/judeallred/code/clispOx/target/debug/examples/registry_controls",
             "bytes": 18605504,
-            "sha256": "f1395a029b16e761b17715f9058a5b8c436cc61b5354d32a8264a9b942a62c8e"
+            "sha256": "c5eec96e73ca1d408d858c8282177a0b55d90f9bbc78f9286915b22acefaaa6d"
           }
         ]
       },
       "base": [
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/report.json",
-          "bytes": 662926,
-          "sha256": "98bcb444c80c49083426d4f3d3c0077c4b51b0e02562c2f5c326efa8b309fc29"
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/report.json",
+          "bytes": 663851,
+          "sha256": "df73bfc644b76d32f41028b40d23abbfeb3ebce2ce5c8537343dec5a81d935ba"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/index.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/index.json",
           "bytes": 21998,
           "sha256": "df627332458a71083647819a2e37c5a53070f5c32d86955c3d7b99137a017960"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-off-ordinary.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-off-ordinary.json",
           "bytes": 379090,
           "sha256": "03d5ab42e0e1a97de5ebe614bf8d9d7bcf5068cea6a9ba7be15aed221caeafe7"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-off-adversarial.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-off-adversarial.json",
           "bytes": 410640,
           "sha256": "2c5309d8eb23ee0ad4ad22e22a58de97fc5f038676db1b79f08c1c17d8c7e6dc"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-on-ordinary.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-on-ordinary.json",
           "bytes": 224064,
           "sha256": "4a788fe28a045dab7d6d9db2f048b3070b0733e6bc1446685be875d729d78778"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-on-adversarial.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-on-adversarial.json",
           "bytes": 242070,
           "sha256": "9864463080fcf13239656e63f9c1f60526d94f329c14801c9e451ce31372fc0d"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/chialisp-ordinary.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/chialisp-ordinary.json",
           "bytes": 135642,
           "sha256": "568238828b1ce611adc08107029c87b67f84ef0201de77dca92d693aefad0524"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/chialisp-adversarial.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/chialisp-adversarial.json",
           "bytes": 145976,
           "sha256": "a45cc13da13448aa545bab7a18b80d15016415a56b84e8e2910279047bd19be6"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-off-ordinary.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-off-ordinary.json",
           "bytes": 152501,
           "sha256": "d8a5feb2dc93842528fa5e71fddfc7b04e5fa7bb818267de8c9932b65ebc13aa"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-off-adversarial.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-off-adversarial.json",
           "bytes": 164379,
           "sha256": "fb348ed1f4156b4b4837f39ff3d05620b465746f65b336da0fc3b19abea1eef9"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-on-ordinary.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-on-ordinary.json",
           "bytes": 138208,
           "sha256": "0327053d0f29aca9d732b4cf9e954b90714bb4318ccccc17ee166b9747aed2e2"
         },
         {
-          "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-on-adversarial.json",
+          "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-on-adversarial.json",
           "bytes": 148806,
           "sha256": "f0d4fd797553ef400e38ecad4271be72a04eee151f6fc17a3a25ee35fd6873ae"
         }
@@ -13314,62 +13578,62 @@
     },
     "base_files_current": [
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/report.json",
-        "bytes": 662926,
-        "sha256": "98bcb444c80c49083426d4f3d3c0077c4b51b0e02562c2f5c326efa8b309fc29"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/report.json",
+        "bytes": 663851,
+        "sha256": "df73bfc644b76d32f41028b40d23abbfeb3ebce2ce5c8537343dec5a81d935ba"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/index.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/index.json",
         "bytes": 21998,
         "sha256": "df627332458a71083647819a2e37c5a53070f5c32d86955c3d7b99137a017960"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-off-ordinary.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-off-ordinary.json",
         "bytes": 379090,
         "sha256": "03d5ab42e0e1a97de5ebe614bf8d9d7bcf5068cea6a9ba7be15aed221caeafe7"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-off-adversarial.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-off-adversarial.json",
         "bytes": 410640,
         "sha256": "2c5309d8eb23ee0ad4ad22e22a58de97fc5f038676db1b79f08c1c17d8c7e6dc"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-on-ordinary.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-on-ordinary.json",
         "bytes": 224064,
         "sha256": "4a788fe28a045dab7d6d9db2f048b3070b0733e6bc1446685be875d729d78778"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rust-on-adversarial.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rust-on-adversarial.json",
         "bytes": 242070,
         "sha256": "9864463080fcf13239656e63f9c1f60526d94f329c14801c9e451ce31372fc0d"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/chialisp-ordinary.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/chialisp-ordinary.json",
         "bytes": 135642,
         "sha256": "568238828b1ce611adc08107029c87b67f84ef0201de77dca92d693aefad0524"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/chialisp-adversarial.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/chialisp-adversarial.json",
         "bytes": 145976,
         "sha256": "a45cc13da13448aa545bab7a18b80d15016415a56b84e8e2910279047bd19be6"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-off-ordinary.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-off-ordinary.json",
         "bytes": 152501,
         "sha256": "d8a5feb2dc93842528fa5e71fddfc7b04e5fa7bb818267de8c9932b65ebc13aa"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-off-adversarial.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-off-adversarial.json",
         "bytes": 164379,
         "sha256": "fb348ed1f4156b4b4837f39ff3d05620b465746f65b336da0fc3b19abea1eef9"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-on-ordinary.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-on-ordinary.json",
         "bytes": 138208,
         "sha256": "0327053d0f29aca9d732b4cf9e954b90714bb4318ccccc17ee166b9747aed2e2"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-base/registry-slot-protocol/rue-on-adversarial.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-base/registry-slot-protocol/rue-on-adversarial.json",
         "bytes": 148806,
         "sha256": "f0d4fd797553ef400e38ecad4271be72a04eee151f6fc17a3a25ee35fd6873ae"
       }
@@ -13382,8 +13646,8 @@
       },
       {
         "path": "Cargo.lock",
-        "bytes": 104864,
-        "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+        "bytes": 104884,
+        "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
       },
       {
         "path": "Cargo.toml",
@@ -13672,8 +13936,8 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/cargo_workflow.rs",
-        "bytes": 29902,
-        "sha256": "de1187a661cb1d40deebb0f89d7c00f5e2b1404ecac054766ffc85e9deab7558"
+        "bytes": 29894,
+        "sha256": "cb22c17c9cdb0cfac50b0a6a50d50e2424f3caed5c9cb326822e1da15a75365c"
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
@@ -13807,8 +14071,8 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-        "bytes": 4611,
-        "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
+        "bytes": 4774,
+        "sha256": "f3eb4da1cc29cbf5d5856123ba67ae6d6fc4e2979d9876ea065615437f60e346"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
@@ -13927,13 +14191,13 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/Cargo.toml",
-        "bytes": 652,
-        "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
+        "bytes": 673,
+        "sha256": "979a3100e358c41d1c86656f2035dd1ed7cd47be2856d6eb419434802aba2cf9"
       },
       {
         "path": "crates/chialisp-oxide-driver/README.md",
-        "bytes": 18294,
-        "sha256": "e75aebcec59d32593892e4e0a4cfba8c6a78ca3718871a8c4e920c9f293187d8"
+        "bytes": 19084,
+        "sha256": "b55eda15d6236d76b5e9fe650f7ce79915bbf22f8797db586399a36c6f798d69"
       },
       {
         "path": "crates/chialisp-oxide-driver/build.rs",
@@ -13952,8 +14216,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower.rs",
-        "bytes": 55159,
-        "sha256": "36802613363e5cae73e6968a3845bf11990d19c0cc474b9827f6385bdcb63ef4"
+        "bytes": 55790,
+        "sha256": "540211f8bc6514ae82bbdeb9246a61533b0d010beb29d13915df3f442219a404"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -14027,8 +14291,13 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-        "bytes": 30284,
-        "sha256": "a6cbf2071fbeb32befad06d26076824946c58b38d4a7f97e7de7ca0ed234b37c"
+        "bytes": 30711,
+        "sha256": "57b864b53f77cbe8efe3566fe04652545cf3947730bba1c32338145daff793cd"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
+        "bytes": 7723,
+        "sha256": "9bbcbe3b01bfec39b6169c760ac80828ec754eed4e80f53f6ff1a39f8f1a0e41"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -14072,8 +14341,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/acyclic_fallback.rs",
-        "bytes": 11345,
-        "sha256": "e8e9cbc5683874307ae393711a7d2ba2571bc76938f82a6524af944554114119"
+        "bytes": 11342,
+        "sha256": "5e3d6ae701e9f8d892e93fcdcebb3ddeb4d1c3771bb35ab88674c9c5fde0bce2"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/applying.rs",
@@ -14114,6 +14383,11 @@
         "path": "crates/chialisp-oxide-driver/tests/constant_fallback.rs",
         "bytes": 5439,
         "sha256": "515e433da3bab67364d7a50def93df0f5df25958124f914691e075194193ce6f"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/division.rs",
+        "bytes": 3776,
+        "sha256": "6ffd13dac14d4bbf686024fbf932606bb500c973ffc710b6dc52acf187a8d578"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/empty_atoms.rs",
@@ -14331,6 +14605,11 @@
         "sha256": "e43cec8336777407da5c9d5e507ed6645bb34d7bf95f9bf9b0ee745e505cd792"
       },
       {
+        "path": "crates/chialisp-oxide-driver/tests/fixtures/shifts.rs",
+        "bytes": 70,
+        "sha256": "c0077d52013f83a9492ac8f77821e4d292a840ea53fc6f303c1f44d903444ffc"
+      },
+      {
         "path": "crates/chialisp-oxide-driver/tests/fixtures/signed.rs",
         "bytes": 137,
         "sha256": "6a0f00cd8ee7b3f2e57b7099241a928cbb6c51c55b0bae8fb50d65bc1b37d92f"
@@ -14377,8 +14656,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-        "bytes": 13068,
-        "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
+        "bytes": 13054,
+        "sha256": "6f293e69ad711c2b95519241d8b357b4e475aabe194c53bc4bb6f7313e6c8a17"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -14446,6 +14725,56 @@
         "sha256": "111b0274acfdc8afceaf48717ad0a9b10e6440ffb41ef6a7590c18129450958d"
       },
       {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm.rs",
+        "bytes": 13836,
+        "sha256": "3909cb561c3c316af2004caa0beb6437c4f1cd3a88a01d37e231e2157be053f5"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto.rs",
+        "bytes": 9031,
+        "sha256": "b659bb8e32b2bd4f9959e85efac411d67772cbc21044750c25cc8788ed2d59b7"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/LICENSE-APACHE-2.0",
+        "bytes": 11347,
+        "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/PROVENANCE.txt",
+        "bytes": 2335,
+        "sha256": "da624c61305225ae55e8decb81e302b90b81c43b2520a67ec0b0d0028d7e6b21"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/derive-subgroup.py",
+        "bytes": 1282,
+        "sha256": "210a7868d110ed1a5aa47d494fa5704a25af58ad26ad69caea821710b71c1ad5"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/vectors.json",
+        "bytes": 39032,
+        "sha256": "449c40efddf63694a0431b55b52d7cdc16a1f3d6d6913ec54ec6faac750a5bf1"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/LICENSE-APACHE-2.0",
+        "bytes": 11347,
+        "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/PROVENANCE.txt",
+        "bytes": 1981,
+        "sha256": "5c57990ae2fc4686aa32b369a7465f4a9ac83228fd1eb06f2f739b002fc67988"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/softfork-vectors.json",
+        "bytes": 11899,
+        "sha256": "c00fc5d3e0983a3d9131ed028d67ad8b59204628738a50a166ce650479ac21da"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_variadic.rs",
+        "bytes": 24400,
+        "sha256": "038e8ec5ba47de932aac18baa8f6463d77ae75467de551679ddf5a398a6937f4"
+      },
+      {
         "path": "crates/chialisp-oxide-driver/tests/raw_trees.rs",
         "bytes": 14514,
         "sha256": "22fd6456d0452f14de28ec8d21a91c381b35dce2a45608177646f510766d8c0f"
@@ -14457,13 +14786,18 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-        "bytes": 14484,
-        "sha256": "0d8f92c8ef6ef3e5f60dcb031fba8f368fd944315d83fef7996eb44d9a8d7e9a"
+        "bytes": 14486,
+        "sha256": "5ccd94c5d0fcd385314e4f7e45cbf223eea66b6cd997e9eca0f47650d91462d9"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
+        "bytes": 5860,
+        "sha256": "0aad1e51e8c73b7d7741bbfd8dbe956ace3447d5068b573ed5e0121c9874899b"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
-        "bytes": 3761,
-        "sha256": "b0552b2d98546c892ca7e0edc47d71b31c1cc0e5773c32adb4c2728f186d789e"
+        "bytes": 3735,
+        "sha256": "c899124952846532bbfbc52efe6cdd79796ff73ebb4196e0f5629cf8d3225683"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -14477,8 +14811,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain.rs",
-        "bytes": 19272,
-        "sha256": "3f772addaaa4d2f00aa7db7d324e312455cce124f10ce128a40fbc65d277d1cf"
+        "bytes": 19264,
+        "sha256": "911bdf3ba1640247d692e35b607778cca2c79eca86415521f32a1e37e8571c50"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/alias.rs",
@@ -14507,8 +14841,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/host.rs",
-        "bytes": 245,
-        "sha256": "4398e4b38343634e6560fc592a8b6337d56b4683749f35831e46d68a9e680936"
+        "bytes": 250,
+        "sha256": "408f1b1615300ee43ce0259b89b94de5a8cae0c0502c4f407c5bdb356a20963b"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
@@ -14527,8 +14861,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower.rs",
-        "bytes": 26959,
-        "sha256": "d89fb196bfecf2196f53bfd723c33ed91ac272ab2ca19fec29164132ee885585"
+        "bytes": 31707,
+        "sha256": "fb8089cad60305886a748a2e478e7ebaa09b74036f38fbfafd2695aa43af4fbb"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -14582,8 +14916,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/validate.rs",
-        "bytes": 34476,
-        "sha256": "c3fd9a02284476b87a610667114f696268c322af6e38d2eaa7f916e85357afa7"
+        "bytes": 35313,
+        "sha256": "30f682705062a913b11692de2d3bb065f972c40b2c0aa9c872dda6150396f8c5"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -14612,8 +14946,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/bitwise.rs",
-        "bytes": 17489,
-        "sha256": "fdca688a9a13b474dcf538eb068fabbabfabedf072b310a9c3c3922653e61897"
+        "bytes": 17481,
+        "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
@@ -14627,13 +14961,18 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-        "bytes": 25005,
-        "sha256": "e81f31f50363445ab516c7c0e3092ef5b71c1648e303a26086e53c59ff215ec8"
+        "bytes": 25303,
+        "sha256": "59bedf168454e6c49cce920b725c1d36a57ebbc105a767d836dccf71cc85dc8f"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
         "bytes": 10432,
         "sha256": "66a0955b13c6d9f741fef19c378da2427d39bf814a9f03ad065aad419ed560cf"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/division.rs",
+        "bytes": 6951,
+        "sha256": "ff3b5522e7850ce3aceee4ce37344f309fdd8fc374ab18f0e1279c533ac9898a"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/execution_facts.rs",
@@ -14717,8 +15056,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/runtime_validation.rs",
-        "bytes": 11894,
-        "sha256": "0b08bae7bc0e3d7d736cc314ecf8cd25604aa619995728b9778226630d011797"
+        "bytes": 13374,
+        "sha256": "b6297ea921b1c5385da47f8619ed5d25468eadc89f643ee669c2694cd27547b6"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/semantics.rs",
@@ -14729,6 +15068,11 @@
         "path": "crates/chialisp-oxide-ir/tests/sha256.rs",
         "bytes": 24158,
         "sha256": "546abbf8cf5a4a8c0eafd16ff91e05f528f3e775e02ce2d6abed175101c77ab2"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/shifts.rs",
+        "bytes": 5757,
+        "sha256": "56f7ab00c0bfcabed962458255efada607e5bc288da0981eb4e0b44cb87a3822"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/tree_optimization.rs",
@@ -14742,8 +15086,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/typed_bottom.rs",
-        "bytes": 7516,
-        "sha256": "4988e7061af1b854a9a3a1b51e2823032cd2362b1692ac5b905cf02c7859266a"
+        "bytes": 7518,
+        "sha256": "f9d10f9c823ad315ea25473c6f5625ed8e9fd603776c641c709ef7acfc098f96"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/wire.rs",
@@ -15927,8 +16271,8 @@
       },
       {
         "path": "crates/chialisp-oxide-verifier/tests/typed_bottom.rs",
-        "bytes": 10280,
-        "sha256": "26e18ba8d6dcae32d2205aca4a5c74a9f4e7632c666713ee92dc84c231765b80"
+        "bytes": 11262,
+        "sha256": "64bb8115c31a63f913f91ed25869ff0709aba2d56f037e2e2e3345c417081088"
       },
       {
         "path": "crates/chialisp-oxide-vm/Cargo.toml",
@@ -15962,8 +16306,8 @@
       },
       {
         "path": "crates/chialisp-oxide/README.md",
-        "bytes": 4219,
-        "sha256": "0e241b35751bd051d44f89b7f5da1d7085d4999c844b61268837ab207b915f1d"
+        "bytes": 5297,
+        "sha256": "5df58cb532fd83bb4a9b74c89bfe1ddd0113de03095bf12be81be61a97ba77fa"
       },
       {
         "path": "crates/chialisp-oxide/src/apply.rs",
@@ -15997,13 +16341,28 @@
       },
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "bytes": 770,
-        "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+        "bytes": 921,
+        "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
         "bytes": 492,
         "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+        "bytes": 13256,
+        "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+        "bytes": 6351,
+        "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+        "bytes": 11221,
+        "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
       },
       {
         "path": "crates/chialisp-oxide/src/tree.rs",
@@ -16014,6 +16373,11 @@
         "path": "crates/chialisp-oxide/tests/hashing.rs",
         "bytes": 3882,
         "sha256": "d1e5e6499e2afd17901a3a0644278d232d77a1a52336f931c7031e300e2acd94"
+      },
+      {
+        "path": "crates/chialisp-oxide/tests/raw_clvm.rs",
+        "bytes": 9092,
+        "sha256": "d9a81c06308ae72b87307c9c4950d7b54d34ddb14c8f90515f42a0ee1d80009a"
       },
       {
         "path": "experiments/action-registry-source-controls/Cargo.lock",
@@ -16042,8 +16406,8 @@
       },
       {
         "path": "experiments/action-registry-source-controls/root-lock.seed",
-        "bytes": 104864,
-        "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+        "bytes": 104884,
+        "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
       },
       {
         "path": "experiments/action-registry-source-controls/scaffold-inventory.json",
@@ -16222,8 +16586,8 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "bytes": 18120,
-        "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+        "bytes": 18271,
+        "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.json",
@@ -17137,8 +17501,8 @@
       },
       {
         "path": "scripts/cargo_authoring.py",
-        "bytes": 4699,
-        "sha256": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494"
+        "bytes": 4838,
+        "sha256": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e"
       },
       {
         "path": "scripts/cargo_bundle.py",
@@ -17292,8 +17656,8 @@
       },
       {
         "path": "scripts/check-readable-puzzles.py",
-        "bytes": 53631,
-        "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
+        "bytes": 53770,
+        "sha256": "a3d03e46c6220a6523b2508accc660171e5216812d962d8439539cb5a4c8c623"
       },
       {
         "path": "scripts/check-registry-codegen.py",
@@ -17358,7 +17722,7 @@
       {
         "path": "scripts/corpus_append.py",
         "bytes": 29164,
-        "sha256": "af59b0f02faece1f877b48323b1358c081c6c676676625275391c3b53437cecd"
+        "sha256": "f1887227ec91430edd8865976c0087c6474fc6c1067eeadcabc9f8a197d034a4"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -17802,8 +18166,8 @@
       },
       {
         "path": "scripts/vm_failures.py",
-        "bytes": 45509,
-        "sha256": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+        "bytes": 45672,
+        "sha256": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
       },
       {
         "path": "scripts/xchandles_history.py",
@@ -17928,64 +18292,64 @@
     ],
     "retained_gate_files_current": [
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/receipt.json",
-        "bytes": 2790,
-        "sha256": "a24f7b0797418ad6cd9d1d500ffbbac4eed14379f3ce3007b097027954e6a0af"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/receipt.json",
+        "bytes": 2789,
+        "sha256": "6a593097957b8f0b9a20916af10db308db601fe762ed53113320fc417350da95"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/frozen-source-before.json",
-        "bytes": 157585,
-        "sha256": "f45657ccf49947d31660409119ec115e411ae72307f3f98660d906f6d4876315"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/frozen-source-before.json",
+        "bytes": 161168,
+        "sha256": "8f1056c14c127b856bbeb29e701786b13ea75b7c2b8d62836065a70c881715e1"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/frozen-source-after.json",
-        "bytes": 157585,
-        "sha256": "f45657ccf49947d31660409119ec115e411ae72307f3f98660d906f6d4876315"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/frozen-source-after.json",
+        "bytes": 161168,
+        "sha256": "8f1056c14c127b856bbeb29e701786b13ea75b7c2b8d62836065a70c881715e1"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/tools-before.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/tools-before.json",
         "bytes": 875,
         "sha256": "444e0794f3e74e86661453075d08db41bad62507c6aab4a94a0e46d45eee00a2"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/tools-after.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/tools-after.json",
         "bytes": 875,
         "sha256": "444e0794f3e74e86661453075d08db41bad62507c6aab4a94a0e46d45eee00a2"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/receipt.json",
-        "bytes": 591,
-        "sha256": "e0242c6b2ae8c9db869cd30fe4e4600e5b9909e60ca987287b08f6e5637e068e"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/receipt.json",
+        "bytes": 592,
+        "sha256": "cddc81b35d1acf0e459675691641c95ab1db2a74bb49d8a977e85bc4103a8ce4"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/frozen-source-before.json",
-        "bytes": 157585,
-        "sha256": "f45657ccf49947d31660409119ec115e411ae72307f3f98660d906f6d4876315"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/frozen-source-before.json",
+        "bytes": 161168,
+        "sha256": "8f1056c14c127b856bbeb29e701786b13ea75b7c2b8d62836065a70c881715e1"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/frozen-source-after.json",
-        "bytes": 157585,
-        "sha256": "f45657ccf49947d31660409119ec115e411ae72307f3f98660d906f6d4876315"
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/frozen-source-after.json",
+        "bytes": 161168,
+        "sha256": "8f1056c14c127b856bbeb29e701786b13ea75b7c2b8d62836065a70c881715e1"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/tools-before.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/tools-before.json",
         "bytes": 875,
         "sha256": "444e0794f3e74e86661453075d08db41bad62507c6aab4a94a0e46d45eee00a2"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/tools-after.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/tools-after.json",
         "bytes": 875,
         "sha256": "444e0794f3e74e86661453075d08db41bad62507c6aab4a94a0e46d45eee00a2"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-native/test.stdout",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-native/test.stdout",
         "bytes": 5443,
         "sha256": "d38cb77f5e01fd5cdfdd43fd7dbf194a9c718379de4678612b3a5cff4ac569fd"
       },
       {
-        "path": "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-last/built-tool-identities.json",
+        "path": "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-last/built-tool-identities.json",
         "bytes": 1155,
-        "sha256": "e54da0605c869dc8c46c5a15d2be9aeb87d4092512259588f0910f626a5600e5"
+        "sha256": "2f2a7a27fffdde886d5f996ce81ef350bf7e9aeebfb272647c6fe4e9f7dd1177"
       }
     ],
     "compiler_tools_current": [
@@ -18014,34 +18378,34 @@
   "tools": {
     "cargo-chialisp-oxide": {
       "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
-      "bytes": 14175912,
-      "sha256": "a5070378534c38c55be6565f67fd49fcde3926ef80fe724071e1c19f940af391"
+      "bytes": 14195448,
+      "sha256": "0108a87e9adcd6a499b25de82acd07ea84d3c8843c7dd4ad8fd7acf72599a4d5"
     },
     "chialisp-oxide-driver": {
       "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
-      "bytes": 5234936,
-      "sha256": "dda74277e6b3b1ccad02a7d9a15189a35e7339c96360d12668ed6d4806c405e9"
+      "bytes": 5294568,
+      "sha256": "2c3ea2f7e59ed702ef8588395effba1f7f0a9fe8687285d1387f7b0c3f830dac"
     },
     "chialisp-oxide": {
       "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-      "bytes": 39208480,
-      "sha256": "6e34cd6a0c98a7d130477101e5688b832ff9312cfef9737d56d1df9e3cc60070"
+      "bytes": 39211200,
+      "sha256": "9a06ab6767596ce68c08ccf7de82336543213532da23180933a3c74c785e498f"
     },
     "chialisp-oxide-verifier": {
       "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-      "bytes": 15433224,
-      "sha256": "f1c540cdce346c986d322f13a8f27e59abe77c4251c64e558da50ae98f6e14de"
+      "bytes": 15433656,
+      "sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7"
     },
     "registry_controls": {
       "path": "/Users/judeallred/code/clispOx/target/debug/examples/registry_controls",
       "bytes": 18605504,
-      "sha256": "f1395a029b16e761b17715f9058a5b8c436cc61b5354d32a8264a9b942a62c8e"
+      "sha256": "c5eec96e73ca1d408d858c8282177a0b55d90f9bbc78f9286915b22acefaaa6d"
     }
   },
   "native": {
     "receipt": {
-      "bytes": 2790,
-      "sha256": "a24f7b0797418ad6cd9d1d500ffbbac4eed14379f3ce3007b097027954e6a0af"
+      "bytes": 2789,
+      "sha256": "6a593097957b8f0b9a20916af10db308db601fe762ed53113320fc417350da95"
     },
     "sources": [
       {
@@ -18051,8 +18415,8 @@
       },
       {
         "path": "Cargo.lock",
-        "bytes": 104864,
-        "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+        "bytes": 104884,
+        "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
       },
       {
         "path": "Cargo.toml",
@@ -18341,8 +18705,8 @@
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/cargo_workflow.rs",
-        "bytes": 29902,
-        "sha256": "de1187a661cb1d40deebb0f89d7c00f5e2b1404ecac054766ffc85e9deab7558"
+        "bytes": 29894,
+        "sha256": "cb22c17c9cdb0cfac50b0a6a50d50e2424f3caed5c9cb326822e1da15a75365c"
       },
       {
         "path": "crates/cargo-chialisp-oxide/tests/registry_offline.rs",
@@ -18476,8 +18840,8 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/authoring.rs",
-        "bytes": 4611,
-        "sha256": "9812c2e5ae66f93ce68eac31eb9d14665032b1c218797bb4323c416e10f862c6"
+        "bytes": 4774,
+        "sha256": "f3eb4da1cc29cbf5d5856123ba67ae6d6fc4e2979d9876ea065615437f60e346"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/boomerang.rs",
@@ -18596,13 +18960,13 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/Cargo.toml",
-        "bytes": 652,
-        "sha256": "a3ab36976eaa2277427c128c646ee352c12dfdfd316df14eaa83236443714bb1"
+        "bytes": 673,
+        "sha256": "979a3100e358c41d1c86656f2035dd1ed7cd47be2856d6eb419434802aba2cf9"
       },
       {
         "path": "crates/chialisp-oxide-driver/README.md",
-        "bytes": 18294,
-        "sha256": "e75aebcec59d32593892e4e0a4cfba8c6a78ca3718871a8c4e920c9f293187d8"
+        "bytes": 19084,
+        "sha256": "b55eda15d6236d76b5e9fe650f7ce79915bbf22f8797db586399a36c6f798d69"
       },
       {
         "path": "crates/chialisp-oxide-driver/build.rs",
@@ -18621,8 +18985,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower.rs",
-        "bytes": 55159,
-        "sha256": "36802613363e5cae73e6968a3845bf11990d19c0cc474b9827f6385bdcb63ef4"
+        "bytes": 55790,
+        "sha256": "540211f8bc6514ae82bbdeb9246a61533b0d010beb29d13915df3f442219a404"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -18696,8 +19060,13 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-        "bytes": 30284,
-        "sha256": "a6cbf2071fbeb32befad06d26076824946c58b38d4a7f97e7de7ca0ed234b37c"
+        "bytes": 30711,
+        "sha256": "57b864b53f77cbe8efe3566fe04652545cf3947730bba1c32338145daff793cd"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
+        "bytes": 7723,
+        "sha256": "9bbcbe3b01bfec39b6169c760ac80828ec754eed4e80f53f6ff1a39f8f1a0e41"
       },
       {
         "path": "crates/chialisp-oxide-driver/src/lower/totality.rs",
@@ -18741,8 +19110,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/acyclic_fallback.rs",
-        "bytes": 11345,
-        "sha256": "e8e9cbc5683874307ae393711a7d2ba2571bc76938f82a6524af944554114119"
+        "bytes": 11342,
+        "sha256": "5e3d6ae701e9f8d892e93fcdcebb3ddeb4d1c3771bb35ab88674c9c5fde0bce2"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/applying.rs",
@@ -18783,6 +19152,11 @@
         "path": "crates/chialisp-oxide-driver/tests/constant_fallback.rs",
         "bytes": 5439,
         "sha256": "515e433da3bab67364d7a50def93df0f5df25958124f914691e075194193ce6f"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/division.rs",
+        "bytes": 3776,
+        "sha256": "6ffd13dac14d4bbf686024fbf932606bb500c973ffc710b6dc52acf187a8d578"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/empty_atoms.rs",
@@ -19000,6 +19374,11 @@
         "sha256": "e43cec8336777407da5c9d5e507ed6645bb34d7bf95f9bf9b0ee745e505cd792"
       },
       {
+        "path": "crates/chialisp-oxide-driver/tests/fixtures/shifts.rs",
+        "bytes": 70,
+        "sha256": "c0077d52013f83a9492ac8f77821e4d292a840ea53fc6f303c1f44d903444ffc"
+      },
+      {
         "path": "crates/chialisp-oxide-driver/tests/fixtures/signed.rs",
         "bytes": 137,
         "sha256": "6a0f00cd8ee7b3f2e57b7099241a928cbb6c51c55b0bae8fb50d65bc1b37d92f"
@@ -19046,8 +19425,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/frontend.rs",
-        "bytes": 13068,
-        "sha256": "a2e954001b38aec267077a2bd348dbfcb583136ceee20558ea3ce5a8318ec36a"
+        "bytes": 13054,
+        "sha256": "6f293e69ad711c2b95519241d8b357b4e475aabe194c53bc4bb6f7313e6c8a17"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/hashing.rs",
@@ -19115,6 +19494,56 @@
         "sha256": "111b0274acfdc8afceaf48717ad0a9b10e6440ffb41ef6a7590c18129450958d"
       },
       {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm.rs",
+        "bytes": 13836,
+        "sha256": "3909cb561c3c316af2004caa0beb6437c4f1cd3a88a01d37e231e2157be053f5"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto.rs",
+        "bytes": 9031,
+        "sha256": "b659bb8e32b2bd4f9959e85efac411d67772cbc21044750c25cc8788ed2d59b7"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/LICENSE-APACHE-2.0",
+        "bytes": 11347,
+        "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/PROVENANCE.txt",
+        "bytes": 2335,
+        "sha256": "da624c61305225ae55e8decb81e302b90b81c43b2520a67ec0b0d0028d7e6b21"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/derive-subgroup.py",
+        "bytes": 1282,
+        "sha256": "210a7868d110ed1a5aa47d494fa5704a25af58ad26ad69caea821710b71c1ad5"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_crypto/vectors.json",
+        "bytes": 39032,
+        "sha256": "449c40efddf63694a0431b55b52d7cdc16a1f3d6d6913ec54ec6faac750a5bf1"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/LICENSE-APACHE-2.0",
+        "bytes": 11347,
+        "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/PROVENANCE.txt",
+        "bytes": 1981,
+        "sha256": "5c57990ae2fc4686aa32b369a7465f4a9ac83228fd1eb06f2f739b002fc67988"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_softfork/softfork-vectors.json",
+        "bytes": 11899,
+        "sha256": "c00fc5d3e0983a3d9131ed028d67ad8b59204628738a50a166ce650479ac21da"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/raw_clvm_variadic.rs",
+        "bytes": 24400,
+        "sha256": "038e8ec5ba47de932aac18baa8f6463d77ae75467de551679ddf5a398a6937f4"
+      },
+      {
         "path": "crates/chialisp-oxide-driver/tests/raw_trees.rs",
         "bytes": 14514,
         "sha256": "22fd6456d0452f14de28ec8d21a91c381b35dce2a45608177646f510766d8c0f"
@@ -19126,13 +19555,18 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-        "bytes": 14484,
-        "sha256": "0d8f92c8ef6ef3e5f60dcb031fba8f368fd944315d83fef7996eb44d9a8d7e9a"
+        "bytes": 14486,
+        "sha256": "5ccd94c5d0fcd385314e4f7e45cbf223eea66b6cd997e9eca0f47650d91462d9"
+      },
+      {
+        "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
+        "bytes": 5860,
+        "sha256": "0aad1e51e8c73b7d7741bbfd8dbe956ace3447d5068b573ed5e0121c9874899b"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
-        "bytes": 3761,
-        "sha256": "b0552b2d98546c892ca7e0edc47d71b31c1cc0e5773c32adb4c2728f186d789e"
+        "bytes": 3735,
+        "sha256": "c899124952846532bbfbc52efe6cdd79796ff73ebb4196e0f5629cf8d3225683"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -19146,8 +19580,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain.rs",
-        "bytes": 19272,
-        "sha256": "3f772addaaa4d2f00aa7db7d324e312455cce124f10ce128a40fbc65d277d1cf"
+        "bytes": 19264,
+        "sha256": "911bdf3ba1640247d692e35b607778cca2c79eca86415521f32a1e37e8571c50"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/alias.rs",
@@ -19176,8 +19610,8 @@
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/host.rs",
-        "bytes": 245,
-        "sha256": "4398e4b38343634e6560fc592a8b6337d56b4683749f35831e46d68a9e680936"
+        "bytes": 250,
+        "sha256": "408f1b1615300ee43ce0259b89b94de5a8cae0c0502c4f407c5bdb356a20963b"
       },
       {
         "path": "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
@@ -19196,8 +19630,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower.rs",
-        "bytes": 26959,
-        "sha256": "d89fb196bfecf2196f53bfd723c33ed91ac272ab2ca19fec29164132ee885585"
+        "bytes": 31707,
+        "sha256": "fb8089cad60305886a748a2e478e7ebaa09b74036f38fbfafd2695aa43af4fbb"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -19251,8 +19685,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/src/validate.rs",
-        "bytes": 34476,
-        "sha256": "c3fd9a02284476b87a610667114f696268c322af6e38d2eaa7f916e85357afa7"
+        "bytes": 35313,
+        "sha256": "30f682705062a913b11692de2d3bb065f972c40b2c0aa9c872dda6150396f8c5"
       },
       {
         "path": "crates/chialisp-oxide-ir/src/wire.rs",
@@ -19281,8 +19715,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/bitwise.rs",
-        "bytes": 17489,
-        "sha256": "fdca688a9a13b474dcf538eb068fabbabfabedf072b310a9c3c3922653e61897"
+        "bytes": 17481,
+        "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
@@ -19296,13 +19730,18 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-        "bytes": 25005,
-        "sha256": "e81f31f50363445ab516c7c0e3092ef5b71c1648e303a26086e53c59ff215ec8"
+        "bytes": 25303,
+        "sha256": "59bedf168454e6c49cce920b725c1d36a57ebbc105a767d836dccf71cc85dc8f"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
         "bytes": 10432,
         "sha256": "66a0955b13c6d9f741fef19c378da2427d39bf814a9f03ad065aad419ed560cf"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/division.rs",
+        "bytes": 6951,
+        "sha256": "ff3b5522e7850ce3aceee4ce37344f309fdd8fc374ab18f0e1279c533ac9898a"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/execution_facts.rs",
@@ -19386,8 +19825,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/runtime_validation.rs",
-        "bytes": 11894,
-        "sha256": "0b08bae7bc0e3d7d736cc314ecf8cd25604aa619995728b9778226630d011797"
+        "bytes": 13374,
+        "sha256": "b6297ea921b1c5385da47f8619ed5d25468eadc89f643ee669c2694cd27547b6"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/semantics.rs",
@@ -19398,6 +19837,11 @@
         "path": "crates/chialisp-oxide-ir/tests/sha256.rs",
         "bytes": 24158,
         "sha256": "546abbf8cf5a4a8c0eafd16ff91e05f528f3e775e02ce2d6abed175101c77ab2"
+      },
+      {
+        "path": "crates/chialisp-oxide-ir/tests/shifts.rs",
+        "bytes": 5757,
+        "sha256": "56f7ab00c0bfcabed962458255efada607e5bc288da0981eb4e0b44cb87a3822"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/tree_optimization.rs",
@@ -19411,8 +19855,8 @@
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/typed_bottom.rs",
-        "bytes": 7516,
-        "sha256": "4988e7061af1b854a9a3a1b51e2823032cd2362b1692ac5b905cf02c7859266a"
+        "bytes": 7518,
+        "sha256": "f9d10f9c823ad315ea25473c6f5625ed8e9fd603776c641c709ef7acfc098f96"
       },
       {
         "path": "crates/chialisp-oxide-ir/tests/wire.rs",
@@ -20596,8 +21040,8 @@
       },
       {
         "path": "crates/chialisp-oxide-verifier/tests/typed_bottom.rs",
-        "bytes": 10280,
-        "sha256": "26e18ba8d6dcae32d2205aca4a5c74a9f4e7632c666713ee92dc84c231765b80"
+        "bytes": 11262,
+        "sha256": "64bb8115c31a63f913f91ed25869ff0709aba2d56f037e2e2e3345c417081088"
       },
       {
         "path": "crates/chialisp-oxide-vm/Cargo.toml",
@@ -20631,8 +21075,8 @@
       },
       {
         "path": "crates/chialisp-oxide/README.md",
-        "bytes": 4219,
-        "sha256": "0e241b35751bd051d44f89b7f5da1d7085d4999c844b61268837ab207b915f1d"
+        "bytes": 5297,
+        "sha256": "5df58cb532fd83bb4a9b74c89bfe1ddd0113de03095bf12be81be61a97ba77fa"
       },
       {
         "path": "crates/chialisp-oxide/src/apply.rs",
@@ -20666,13 +21110,28 @@
       },
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "bytes": 770,
-        "sha256": "9014c8a7a9fbe60f4fe833d14e9a84201d326130a66da956687a06fd524268f6"
+        "bytes": 921,
+        "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
         "bytes": 492,
         "sha256": "76cab36f01fca9a47af7e11282603de41ec183968948df650a1affcef7666dea"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm.rs",
+        "bytes": 13256,
+        "sha256": "ba7cc638db13c70ac31040b6aa19e2cbb28861e1a63d9b0a4a3b0f6eec777321"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+        "bytes": 6351,
+        "sha256": "306486cc083214eb183ebe2544b7c55908f4aaa10f6baba2c6b54a7f04a50bc8"
+      },
+      {
+        "path": "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+        "bytes": 11221,
+        "sha256": "ec344518066be43465af12c675fc4cad823f47245dab786d4e51eee007ff627c"
       },
       {
         "path": "crates/chialisp-oxide/src/tree.rs",
@@ -20683,6 +21142,11 @@
         "path": "crates/chialisp-oxide/tests/hashing.rs",
         "bytes": 3882,
         "sha256": "d1e5e6499e2afd17901a3a0644278d232d77a1a52336f931c7031e300e2acd94"
+      },
+      {
+        "path": "crates/chialisp-oxide/tests/raw_clvm.rs",
+        "bytes": 9092,
+        "sha256": "d9a81c06308ae72b87307c9c4950d7b54d34ddb14c8f90515f42a0ee1d80009a"
       },
       {
         "path": "experiments/action-registry-source-controls/Cargo.lock",
@@ -20711,8 +21175,8 @@
       },
       {
         "path": "experiments/action-registry-source-controls/root-lock.seed",
-        "bytes": 104864,
-        "sha256": "7fb432b5720c083092fc54c95c32a538bbf196d62d9d4d37e2ec4c9447f6f3ba"
+        "bytes": 104884,
+        "sha256": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba"
       },
       {
         "path": "experiments/action-registry-source-controls/scaffold-inventory.json",
@@ -20891,8 +21355,8 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "bytes": 18120,
-        "sha256": "05078407e996bb5069d13ffa07e381cb414df73f92564f47324c81536c378c0a"
+        "bytes": 18271,
+        "sha256": "63aa9b6daa66e011154426d086342bb628e50fd0a898d856e0976e59bdf1c5b1"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.json",
@@ -21806,8 +22270,8 @@
       },
       {
         "path": "scripts/cargo_authoring.py",
-        "bytes": 4699,
-        "sha256": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494"
+        "bytes": 4838,
+        "sha256": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e"
       },
       {
         "path": "scripts/cargo_bundle.py",
@@ -21961,8 +22425,8 @@
       },
       {
         "path": "scripts/check-readable-puzzles.py",
-        "bytes": 53631,
-        "sha256": "ed1f0e074b9cb78f7e7310b0285279907797753f9d53cea3dd52f502ef97950c"
+        "bytes": 53770,
+        "sha256": "a3d03e46c6220a6523b2508accc660171e5216812d962d8439539cb5a4c8c623"
       },
       {
         "path": "scripts/check-registry-codegen.py",
@@ -22027,7 +22491,7 @@
       {
         "path": "scripts/corpus_append.py",
         "bytes": 29164,
-        "sha256": "af59b0f02faece1f877b48323b1358c081c6c676676625275391c3b53437cecd"
+        "sha256": "f1887227ec91430edd8865976c0087c6474fc6c1067eeadcabc9f8a197d034a4"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -22471,8 +22935,8 @@
       },
       {
         "path": "scripts/vm_failures.py",
-        "bytes": 45509,
-        "sha256": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+        "bytes": 45672,
+        "sha256": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
       },
       {
         "path": "scripts/xchandles_history.py",
@@ -22678,8 +23142,8 @@
   },
   "bundles": {
     "baseline-off": {
-      "manifest": "bundles/baseline/off/48536-1793597156823517000/manifest.json",
-      "manifest_sha256": "909a05d391ce9d99c393c1b280e16d5b535bbb6b7884579bfac457cd42a303b0",
+      "manifest": "bundles/baseline/off/63573-1793669697589481000/manifest.json",
+      "manifest_sha256": "8d1095bb4c39c48d36e83afb79ad39b5a0e99c5d38fb760393c7b725621faab7",
       "recompiled": [
         {
           "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
@@ -22964,8 +23428,8 @@
       ]
     },
     "baseline-on": {
-      "manifest": "bundles/baseline/on/49394-1793597195913245000/manifest.json",
-      "manifest_sha256": "6fd29ac11b03b721468dfd786b9e19b2849308fc9058e5b7bad28b6f6f4821a5",
+      "manifest": "bundles/baseline/on/64713-1793669750881088000/manifest.json",
+      "manifest_sha256": "984ef29d0a62c99b164e20358d7402c51009003efb66af737b7d6c3787bbe664",
       "recompiled": [
         {
           "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
@@ -23250,12 +23714,12 @@
       ]
     },
     "controls-off": {
-      "manifest": "bundles/controls/off/50262-1793597233341125000/manifest.json",
-      "manifest_sha256": "ae91528ba59055451e6091d6efab60b7ef1e6bfd67e0a0558dd398b852f47585"
+      "manifest": "bundles/controls/off/65850-1793669800653541000/manifest.json",
+      "manifest_sha256": "e86a5e9c17e243e84f6d81d88112553cb05f27d1c42d77f9a5c99e8c4e2c7e66"
     },
     "controls-on": {
-      "manifest": "bundles/controls/on/50579-1793597239190447000/manifest.json",
-      "manifest_sha256": "55657f3c416a9e20ced93541aa76b24ad5d3c096bf01ee0111ed9ec3d4a24d0e"
+      "manifest": "bundles/controls/on/66074-1793669806655937000/manifest.json",
+      "manifest_sha256": "371c3f19b2216f07e5688d63a3668e88e0baaeab427dd91dd7b5cd81531d79aa"
     }
   },
   "vm": [
@@ -23472,7 +23936,7 @@
         "--manifest-path",
         "/Users/judeallred/code/clispOx/puzzles/Cargo.toml",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off",
         "--no-optimize"
       ],
       "exit_code": 0,
@@ -23483,7 +23947,7 @@
       "role": "recompile-baseline-atom-not-equal-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/1b01a9935dd90b5684a21b8f0bfd9799f10477683a9c5bed9b0dd576163b3a8c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/1b01a9935dd90b5684a21b8f0bfd9799f10477683a9c5bed9b0dd576163b3a8c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23494,7 +23958,7 @@
       "role": "recompile-baseline-boolean-gate-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/205766ff1b4cd3f83d78bdf73f4834388a118807acc30f5c9aa081b58a97484a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/205766ff1b4cd3f83d78bdf73f4834388a118807acc30f5c9aa081b58a97484a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23505,7 +23969,7 @@
       "role": "recompile-baseline-intro-conditional-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/275190a02436f97a7136b629f7ba56ef3d64493394034408b03d0db3ee4726da.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/275190a02436f97a7136b629f7ba56ef3d64493394034408b03d0db3ee4726da.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23516,7 +23980,7 @@
       "role": "recompile-baseline-singleton-launcher-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/2bdeab4d7af2d90e53b84636502350b9886dc76eee1a14724bf946e2f9182c2f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/2bdeab4d7af2d90e53b84636502350b9886dc76eee1a14724bf946e2f9182c2f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23527,7 +23991,7 @@
       "role": "recompile-baseline-boomerang-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/3bb433e9522d295f6d0788a9a443d744a7b294d3c9d2580c24e628082599c49d.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/3bb433e9522d295f6d0788a9a443d744a7b294d3c9d2580c24e628082599c49d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23538,7 +24002,7 @@
       "role": "recompile-baseline-p2-delegated-conditions-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/3c7ea2199c4dc65c2e7861a48767f536d0d47e201020422741e716cdaec665a3.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/3c7ea2199c4dc65c2e7861a48767f536d0d47e201020422741e716cdaec665a3.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23549,7 +24013,7 @@
       "role": "recompile-baseline-curry-factory-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/4642ec885b3d6b9d589d1351c4aca212d634a33667f84cb8431b53409a2a6a86.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/4642ec885b3d6b9d589d1351c4aca212d634a33667f84cb8431b53409a2a6a86.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23560,7 +24024,7 @@
       "role": "recompile-baseline-two-signature-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/4d1cf3fe77788b8b0eae4d137e53255d639c861a0964d393220e90fd9956fe47.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/4d1cf3fe77788b8b0eae4d137e53255d639c861a0964d393220e90fd9956fe47.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23571,7 +24035,7 @@
       "role": "recompile-baseline-inner-puzzle-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/544faa46c3bdf76bc7d6fad43c8fb5c45417935c5aff269d308cddadf193472a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/544faa46c3bdf76bc7d6fad43c8fb5c45417935c5aff269d308cddadf193472a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23582,7 +24046,7 @@
       "role": "recompile-baseline-fixed-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/57ab0da61ee5b1a5cbcede1d49a43d02e9f0877228372c81f3427b415c37b2cb.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/57ab0da61ee5b1a5cbcede1d49a43d02e9f0877228372c81f3427b415c37b2cb.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23593,7 +24057,7 @@
       "role": "recompile-baseline-module-factorial-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/65054d4d40f0994930414dee2335c3141ebd96497245c7aa8891605c1a8b1882.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/65054d4d40f0994930414dee2335c3141ebd96497245c7aa8891605c1a8b1882.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23604,7 +24068,7 @@
       "role": "recompile-baseline-p2-singleton-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/68df932f5582c42e317ba7a7491f6a715759671b3088f54399cbe30f770429db.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/68df932f5582c42e317ba7a7491f6a715759671b3088f54399cbe30f770429db.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23615,7 +24079,7 @@
       "role": "recompile-baseline-delegated-puzzle-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/6ec29c8d303800c6a15973a1aafa603542afca41d7cc33d4ce48207804ad5116.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/6ec29c8d303800c6a15973a1aafa603542afca41d7cc33d4ce48207804ad5116.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23626,7 +24090,7 @@
       "role": "recompile-baseline-sha256tree-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/773dc1def22a7239eb0e296b21b83b01b663c78334bf5965c269a88af2cb9826.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/773dc1def22a7239eb0e296b21b83b01b663c78334bf5965c269a88af2cb9826.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23637,7 +24101,7 @@
       "role": "recompile-baseline-precommit-registry-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/7c79dc9ed9d1c294f93c22f6e516eb35a36714850d97734ddf83083ab4a55b13.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/7c79dc9ed9d1c294f93c22f6e516eb35a36714850d97734ddf83083ab4a55b13.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23648,7 +24112,7 @@
       "role": "recompile-baseline-intro-list-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/800eabce1b2f0c7279a5e0888cd0b05b31a7160081f1d410cb0eb48731b54209.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/800eabce1b2f0c7279a5e0888cd0b05b31a7160081f1d410cb0eb48731b54209.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23659,7 +24123,7 @@
       "role": "recompile-baseline-password-coin-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/8c430c2756d8f454ff27a0ce327f1bd1c0ca713c086ff4cd5e535e800f2cb22b.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/8c430c2756d8f454ff27a0ce327f1bd1c0ca713c086ff4cd5e535e800f2cb22b.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23670,7 +24134,7 @@
       "role": "recompile-baseline-registry-initialize-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/9de50067f1dd8fb9df8b4c2ef90531a97e6738df2bcfca62a9e83d04660c46f3.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/9de50067f1dd8fb9df8b4c2ef90531a97e6738df2bcfca62a9e83d04660c46f3.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23681,7 +24145,7 @@
       "role": "recompile-baseline-counter-increment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/a4338ea82ae6cc7dc97d6b08591fa5ea83cf6aa375835f24582555f4a3dd42e2.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/a4338ea82ae6cc7dc97d6b08591fa5ea83cf6aa375835f24582555f4a3dd42e2.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23692,7 +24156,7 @@
       "role": "recompile-baseline-rightmost-tree-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/a62fbf5142a27d69e2d122284d3d480a6cf7e3d92ff1164950e710051bb0ff1a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/a62fbf5142a27d69e2d122284d3d480a6cf7e3d92ff1164950e710051bb0ff1a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23703,7 +24167,7 @@
       "role": "recompile-baseline-cat-genesis-by-coin-id-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/aa640efe1416f8280a95a3564babe6501f88e8ec2f2ce0863e60811969920c47.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/aa640efe1416f8280a95a3564babe6501f88e8ec2f2ce0863e60811969920c47.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23714,7 +24178,7 @@
       "role": "recompile-baseline-p2-conditions-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/ac1bb4e8795595be3f4b7a0c20210b83903f251207165de9803cf64c3d3da8a5.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/ac1bb4e8795595be3f4b7a0c20210b83903f251207165de9803cf64c3d3da8a5.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23725,7 +24189,7 @@
       "role": "recompile-baseline-bounded-counter-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/b993a79db9cf148be1d0ad326899960e61980971b8faba13ff92bb9640690d55.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/b993a79db9cf148be1d0ad326899960e61980971b8faba13ff92bb9640690d55.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23736,7 +24200,7 @@
       "role": "recompile-baseline-insertion-sort-by-keys-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/bd5a344b10d926a7e87a0465efb82a8948cb1329b1641e9a83f02673faa5f869.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/bd5a344b10d926a7e87a0465efb82a8948cb1329b1641e9a83f02673faa5f869.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23747,7 +24211,7 @@
       "role": "recompile-baseline-currying-multiply-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/c92b3d129571dec5620279c853bfc7d2d6ddccf286bc4580b42f75ad7138c184.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/c92b3d129571dec5620279c853bfc7d2d6ddccf286bc4580b42f75ad7138c184.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23758,7 +24222,7 @@
       "role": "recompile-baseline-signature-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/cc0e3541768b6287fb9fd1c6f2e0b8620a4f5b0a7f71235c31207eb42ba424b6.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/cc0e3541768b6287fb9fd1c6f2e0b8620a4f5b0a7f71235c31207eb42ba424b6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23769,7 +24233,7 @@
       "role": "recompile-baseline-curry-hash-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/d210d4e7ea8a0aa9ea065ab43f482b88d77840df769ec23b64d827f1a9e3a043.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/d210d4e7ea8a0aa9ea065ab43f482b88d77840df769ec23b64d827f1a9e3a043.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23780,7 +24244,7 @@
       "role": "recompile-baseline-last-list-element-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/d2d4d3554f686d5842fb236be7a6aa2508937300012d8b0e04790d70650fe387.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/d2d4d3554f686d5842fb236be7a6aa2508937300012d8b0e04790d70650fe387.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23791,7 +24255,7 @@
       "role": "recompile-baseline-recovery-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/d5fc0b7c13ef71c40ef004180665bc1ee4699939958ff023997d5b83b2aa8bdf.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/d5fc0b7c13ef71c40ef004180665bc1ee4699939958ff023997d5b83b2aa8bdf.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23802,7 +24266,7 @@
       "role": "recompile-baseline-prefix-list-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/d9a9980432999db30608a2279bdb9c64249d43c98baf0e749fc091945b868027.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/d9a9980432999db30608a2279bdb9c64249d43c98baf0e749fc091945b868027.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23813,7 +24277,7 @@
       "role": "recompile-baseline-counter-reset-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/da7fd6a3048426960cfde1fb0694ff44a71fa61b05522a2dcbebdbf5b163d0ed.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/da7fd6a3048426960cfde1fb0694ff44a71fa61b05522a2dcbebdbf5b163d0ed.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23824,7 +24288,7 @@
       "role": "recompile-baseline-registry-set-alpha-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/dc473f3f1aeb19e0f1c1e4ae8413cfb5b15ecd4e0b8e68b3fcebf5abffe64e34.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/dc473f3f1aeb19e0f1c1e4ae8413cfb5b15ecd4e0b8e68b3fcebf5abffe64e34.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23835,7 +24299,7 @@
       "role": "recompile-baseline-module-add-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/e08acf40b0af98df7bf901821be3919d399c60d2eefcaa60327e439a14b498ff.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/e08acf40b0af98df7bf901821be3919d399c60d2eefcaa60327e439a14b498ff.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23846,7 +24310,7 @@
       "role": "recompile-baseline-module-times-ten-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/e2bfaf76fc6733564edaa59c982f7f950f9e9d44eedc839db540bdf7d8058f9f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/e2bfaf76fc6733564edaa59c982f7f950f9e9d44eedc839db540bdf7d8058f9f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23857,7 +24321,7 @@
       "role": "recompile-baseline-timelocked-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/e5dcd1fb07372706188bc467b77ff7d077ef0eaf715424a75a5e081b8c153d56.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/e5dcd1fb07372706188bc467b77ff7d077ef0eaf715424a75a5e081b8c153d56.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23868,7 +24332,7 @@
       "role": "recompile-baseline-intro-add-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/eb29e45ff129378bf6df36d75da4defc312a32fb8b592f9c7137914de3ba2fe4.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/eb29e45ff129378bf6df36d75da4defc312a32fb8b592f9c7137914de3ba2fe4.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23879,7 +24343,7 @@
       "role": "recompile-baseline-split-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/eeb9ea2f45256255db417c41785a9540ba8634ae81437dc80ba529648aef6f87.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/eeb9ea2f45256255db417c41785a9540ba8634ae81437dc80ba529648aef6f87.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23890,7 +24354,7 @@
       "role": "recompile-baseline-capped-payment-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/f24a5d1ced57860f7d54fb294c41979fdb23ef41d93e334112a1fb96917ae20c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/f24a5d1ced57860f7d54fb294c41979fdb23ef41d93e334112a1fb96917ae20c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23901,7 +24365,7 @@
       "role": "recompile-baseline-precommit-claim-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/fb754a585c0cef7689c4915f6a02f3a1664bb28510f1a7b6691cb6f286ba272c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/fb754a585c0cef7689c4915f6a02f3a1664bb28510f1a7b6691cb6f286ba272c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23912,7 +24376,7 @@
       "role": "recompile-baseline-registry-set-beta-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/off/48536-1793597156823517000/fdeb5ed31e0d4b2d4210d9db90782cc42fb4d31e0b1bce4d6894795fa507b149.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/off/63573-1793669697589481000/fdeb5ed31e0d4b2d4210d9db90782cc42fb4d31e0b1bce4d6894795fa507b149.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23928,7 +24392,7 @@
         "--manifest-path",
         "/Users/judeallred/code/clispOx/puzzles/Cargo.toml",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on"
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on"
       ],
       "exit_code": 0,
       "stdout": "logs/44-extract-baseline-on.stdout",
@@ -23938,7 +24402,7 @@
       "role": "recompile-baseline-atom-not-equal-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/1b01a9935dd90b5684a21b8f0bfd9799f10477683a9c5bed9b0dd576163b3a8c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/1b01a9935dd90b5684a21b8f0bfd9799f10477683a9c5bed9b0dd576163b3a8c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23949,7 +24413,7 @@
       "role": "recompile-baseline-boolean-gate-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/205766ff1b4cd3f83d78bdf73f4834388a118807acc30f5c9aa081b58a97484a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/205766ff1b4cd3f83d78bdf73f4834388a118807acc30f5c9aa081b58a97484a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23960,7 +24424,7 @@
       "role": "recompile-baseline-intro-conditional-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/275190a02436f97a7136b629f7ba56ef3d64493394034408b03d0db3ee4726da.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/275190a02436f97a7136b629f7ba56ef3d64493394034408b03d0db3ee4726da.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23971,7 +24435,7 @@
       "role": "recompile-baseline-singleton-launcher-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/2bdeab4d7af2d90e53b84636502350b9886dc76eee1a14724bf946e2f9182c2f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/2bdeab4d7af2d90e53b84636502350b9886dc76eee1a14724bf946e2f9182c2f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23982,7 +24446,7 @@
       "role": "recompile-baseline-boomerang-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/3bb433e9522d295f6d0788a9a443d744a7b294d3c9d2580c24e628082599c49d.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/3bb433e9522d295f6d0788a9a443d744a7b294d3c9d2580c24e628082599c49d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -23993,7 +24457,7 @@
       "role": "recompile-baseline-p2-delegated-conditions-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/3c7ea2199c4dc65c2e7861a48767f536d0d47e201020422741e716cdaec665a3.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/3c7ea2199c4dc65c2e7861a48767f536d0d47e201020422741e716cdaec665a3.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24004,7 +24468,7 @@
       "role": "recompile-baseline-curry-factory-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/4642ec885b3d6b9d589d1351c4aca212d634a33667f84cb8431b53409a2a6a86.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/4642ec885b3d6b9d589d1351c4aca212d634a33667f84cb8431b53409a2a6a86.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24015,7 +24479,7 @@
       "role": "recompile-baseline-two-signature-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/4d1cf3fe77788b8b0eae4d137e53255d639c861a0964d393220e90fd9956fe47.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/4d1cf3fe77788b8b0eae4d137e53255d639c861a0964d393220e90fd9956fe47.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24026,7 +24490,7 @@
       "role": "recompile-baseline-inner-puzzle-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/544faa46c3bdf76bc7d6fad43c8fb5c45417935c5aff269d308cddadf193472a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/544faa46c3bdf76bc7d6fad43c8fb5c45417935c5aff269d308cddadf193472a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24037,7 +24501,7 @@
       "role": "recompile-baseline-fixed-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/57ab0da61ee5b1a5cbcede1d49a43d02e9f0877228372c81f3427b415c37b2cb.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/57ab0da61ee5b1a5cbcede1d49a43d02e9f0877228372c81f3427b415c37b2cb.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24048,7 +24512,7 @@
       "role": "recompile-baseline-module-factorial-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/65054d4d40f0994930414dee2335c3141ebd96497245c7aa8891605c1a8b1882.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/65054d4d40f0994930414dee2335c3141ebd96497245c7aa8891605c1a8b1882.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24059,7 +24523,7 @@
       "role": "recompile-baseline-p2-singleton-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/68df932f5582c42e317ba7a7491f6a715759671b3088f54399cbe30f770429db.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/68df932f5582c42e317ba7a7491f6a715759671b3088f54399cbe30f770429db.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24070,7 +24534,7 @@
       "role": "recompile-baseline-delegated-puzzle-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/6ec29c8d303800c6a15973a1aafa603542afca41d7cc33d4ce48207804ad5116.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/6ec29c8d303800c6a15973a1aafa603542afca41d7cc33d4ce48207804ad5116.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24081,7 +24545,7 @@
       "role": "recompile-baseline-sha256tree-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/773dc1def22a7239eb0e296b21b83b01b663c78334bf5965c269a88af2cb9826.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/773dc1def22a7239eb0e296b21b83b01b663c78334bf5965c269a88af2cb9826.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24092,7 +24556,7 @@
       "role": "recompile-baseline-precommit-registry-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/7c79dc9ed9d1c294f93c22f6e516eb35a36714850d97734ddf83083ab4a55b13.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/7c79dc9ed9d1c294f93c22f6e516eb35a36714850d97734ddf83083ab4a55b13.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24103,7 +24567,7 @@
       "role": "recompile-baseline-intro-list-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/800eabce1b2f0c7279a5e0888cd0b05b31a7160081f1d410cb0eb48731b54209.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/800eabce1b2f0c7279a5e0888cd0b05b31a7160081f1d410cb0eb48731b54209.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24114,7 +24578,7 @@
       "role": "recompile-baseline-password-coin-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/8c430c2756d8f454ff27a0ce327f1bd1c0ca713c086ff4cd5e535e800f2cb22b.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/8c430c2756d8f454ff27a0ce327f1bd1c0ca713c086ff4cd5e535e800f2cb22b.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24125,7 +24589,7 @@
       "role": "recompile-baseline-registry-initialize-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/9de50067f1dd8fb9df8b4c2ef90531a97e6738df2bcfca62a9e83d04660c46f3.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/9de50067f1dd8fb9df8b4c2ef90531a97e6738df2bcfca62a9e83d04660c46f3.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24136,7 +24600,7 @@
       "role": "recompile-baseline-counter-increment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/a4338ea82ae6cc7dc97d6b08591fa5ea83cf6aa375835f24582555f4a3dd42e2.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/a4338ea82ae6cc7dc97d6b08591fa5ea83cf6aa375835f24582555f4a3dd42e2.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24147,7 +24611,7 @@
       "role": "recompile-baseline-rightmost-tree-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/a62fbf5142a27d69e2d122284d3d480a6cf7e3d92ff1164950e710051bb0ff1a.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/a62fbf5142a27d69e2d122284d3d480a6cf7e3d92ff1164950e710051bb0ff1a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24158,7 +24622,7 @@
       "role": "recompile-baseline-cat-genesis-by-coin-id-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/aa640efe1416f8280a95a3564babe6501f88e8ec2f2ce0863e60811969920c47.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/aa640efe1416f8280a95a3564babe6501f88e8ec2f2ce0863e60811969920c47.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24169,7 +24633,7 @@
       "role": "recompile-baseline-p2-conditions-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/ac1bb4e8795595be3f4b7a0c20210b83903f251207165de9803cf64c3d3da8a5.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/ac1bb4e8795595be3f4b7a0c20210b83903f251207165de9803cf64c3d3da8a5.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24180,7 +24644,7 @@
       "role": "recompile-baseline-bounded-counter-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/b993a79db9cf148be1d0ad326899960e61980971b8faba13ff92bb9640690d55.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/b993a79db9cf148be1d0ad326899960e61980971b8faba13ff92bb9640690d55.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24191,7 +24655,7 @@
       "role": "recompile-baseline-insertion-sort-by-keys-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/bd5a344b10d926a7e87a0465efb82a8948cb1329b1641e9a83f02673faa5f869.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/bd5a344b10d926a7e87a0465efb82a8948cb1329b1641e9a83f02673faa5f869.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24202,7 +24666,7 @@
       "role": "recompile-baseline-currying-multiply-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/c92b3d129571dec5620279c853bfc7d2d6ddccf286bc4580b42f75ad7138c184.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/c92b3d129571dec5620279c853bfc7d2d6ddccf286bc4580b42f75ad7138c184.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24213,7 +24677,7 @@
       "role": "recompile-baseline-signature-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/cc0e3541768b6287fb9fd1c6f2e0b8620a4f5b0a7f71235c31207eb42ba424b6.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/cc0e3541768b6287fb9fd1c6f2e0b8620a4f5b0a7f71235c31207eb42ba424b6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24224,7 +24688,7 @@
       "role": "recompile-baseline-curry-hash-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/d210d4e7ea8a0aa9ea065ab43f482b88d77840df769ec23b64d827f1a9e3a043.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/d210d4e7ea8a0aa9ea065ab43f482b88d77840df769ec23b64d827f1a9e3a043.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24235,7 +24699,7 @@
       "role": "recompile-baseline-last-list-element-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/d2d4d3554f686d5842fb236be7a6aa2508937300012d8b0e04790d70650fe387.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/d2d4d3554f686d5842fb236be7a6aa2508937300012d8b0e04790d70650fe387.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24246,7 +24710,7 @@
       "role": "recompile-baseline-recovery-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/d5fc0b7c13ef71c40ef004180665bc1ee4699939958ff023997d5b83b2aa8bdf.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/d5fc0b7c13ef71c40ef004180665bc1ee4699939958ff023997d5b83b2aa8bdf.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24257,7 +24721,7 @@
       "role": "recompile-baseline-prefix-list-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/d9a9980432999db30608a2279bdb9c64249d43c98baf0e749fc091945b868027.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/d9a9980432999db30608a2279bdb9c64249d43c98baf0e749fc091945b868027.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24268,7 +24732,7 @@
       "role": "recompile-baseline-counter-reset-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/da7fd6a3048426960cfde1fb0694ff44a71fa61b05522a2dcbebdbf5b163d0ed.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/da7fd6a3048426960cfde1fb0694ff44a71fa61b05522a2dcbebdbf5b163d0ed.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24279,7 +24743,7 @@
       "role": "recompile-baseline-registry-set-alpha-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/dc473f3f1aeb19e0f1c1e4ae8413cfb5b15ecd4e0b8e68b3fcebf5abffe64e34.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/dc473f3f1aeb19e0f1c1e4ae8413cfb5b15ecd4e0b8e68b3fcebf5abffe64e34.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24290,7 +24754,7 @@
       "role": "recompile-baseline-module-add-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/e08acf40b0af98df7bf901821be3919d399c60d2eefcaa60327e439a14b498ff.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/e08acf40b0af98df7bf901821be3919d399c60d2eefcaa60327e439a14b498ff.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24301,7 +24765,7 @@
       "role": "recompile-baseline-module-times-ten-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/e2bfaf76fc6733564edaa59c982f7f950f9e9d44eedc839db540bdf7d8058f9f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/e2bfaf76fc6733564edaa59c982f7f950f9e9d44eedc839db540bdf7d8058f9f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24312,7 +24776,7 @@
       "role": "recompile-baseline-timelocked-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/e5dcd1fb07372706188bc467b77ff7d077ef0eaf715424a75a5e081b8c153d56.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/e5dcd1fb07372706188bc467b77ff7d077ef0eaf715424a75a5e081b8c153d56.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24323,7 +24787,7 @@
       "role": "recompile-baseline-intro-add-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/eb29e45ff129378bf6df36d75da4defc312a32fb8b592f9c7137914de3ba2fe4.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/eb29e45ff129378bf6df36d75da4defc312a32fb8b592f9c7137914de3ba2fe4.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24334,7 +24798,7 @@
       "role": "recompile-baseline-split-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/eeb9ea2f45256255db417c41785a9540ba8634ae81437dc80ba529648aef6f87.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/eeb9ea2f45256255db417c41785a9540ba8634ae81437dc80ba529648aef6f87.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24345,7 +24809,7 @@
       "role": "recompile-baseline-capped-payment-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/f24a5d1ced57860f7d54fb294c41979fdb23ef41d93e334112a1fb96917ae20c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/f24a5d1ced57860f7d54fb294c41979fdb23ef41d93e334112a1fb96917ae20c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24356,7 +24820,7 @@
       "role": "recompile-baseline-precommit-claim-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/fb754a585c0cef7689c4915f6a02f3a1664bb28510f1a7b6691cb6f286ba272c.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/fb754a585c0cef7689c4915f6a02f3a1664bb28510f1a7b6691cb6f286ba272c.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24367,7 +24831,7 @@
       "role": "recompile-baseline-registry-set-beta-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/baseline/on/49394-1793597195913245000/fdeb5ed31e0d4b2d4210d9db90782cc42fb4d31e0b1bce4d6894795fa507b149.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/baseline/on/64713-1793669750881088000/fdeb5ed31e0d4b2d4210d9db90782cc42fb4d31e0b1bce4d6894795fa507b149.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24386,7 +24850,7 @@
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off",
         "--no-optimize"
       ],
       "exit_code": 0,
@@ -24397,7 +24861,7 @@
       "role": "recompile-alpha-drop-send-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24408,7 +24872,7 @@
       "role": "recompile-alpha-drop-create-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24419,7 +24883,7 @@
       "role": "recompile-beta-drop-send-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24430,7 +24894,7 @@
       "role": "recompile-beta-drop-create-off",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24449,7 +24913,7 @@
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on"
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on"
       ],
       "exit_code": 0,
       "stdout": "logs/90-extract-controls-on.stdout",
@@ -24459,7 +24923,7 @@
       "role": "recompile-alpha-drop-send-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24470,7 +24934,7 @@
       "role": "recompile-alpha-drop-create-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24481,7 +24945,7 @@
       "role": "recompile-beta-drop-send-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24492,7 +24956,7 @@
       "role": "recompile-beta-drop-create-on",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.ir.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -24504,9 +24968,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/alpha-drop-send-off.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/alpha-drop-send-off.json",
         "--max-cost",
         "10000000"
       ],
@@ -24519,9 +24983,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/alpha-drop-create-off.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/alpha-drop-create-off.json",
         "--max-cost",
         "10000000"
       ],
@@ -24534,9 +24998,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/beta-drop-send-off.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/beta-drop-send-off.json",
         "--max-cost",
         "10000000"
       ],
@@ -24549,9 +25013,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/off/50262-1793597233341125000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/off/65850-1793669800653541000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/beta-drop-create-off.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/beta-drop-create-off.json",
         "--max-cost",
         "10000000"
       ],
@@ -24564,9 +25028,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/7ed61b9f8e93b1e152900ce01f988d84133b98bd42963170f5d3a31d268ab760.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/alpha-drop-send-on.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/alpha-drop-send-on.json",
         "--max-cost",
         "10000000"
       ],
@@ -24579,9 +25043,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/alpha-drop-create-on.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/alpha-drop-create-on.json",
         "--max-cost",
         "10000000"
       ],
@@ -24594,9 +25058,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/997749aac7ba6f9f4fd71eba7c2d9774d01f88c33b93c00c3fb31f0e415ddbe1.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/beta-drop-send-on.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/beta-drop-send-on.json",
         "--max-cost",
         "10000000"
       ],
@@ -24609,9 +25073,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/bundles/controls/on/50579-1793597239190447000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/bundles/controls/on/66074-1793669806655937000/a4eab608ef235bf67fadd0ac5628d8317f75db6496ce147fcd74f23fbf875c2f.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/inputs/beta-drop-create-on.json",
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/inputs/beta-drop-create-on.json",
         "--max-cost",
         "10000000"
       ],
@@ -24623,7 +25087,7 @@
       "role": "sdk-1",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/examples/registry_controls",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/sdk-request.json"
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/sdk-request.json"
       ],
       "exit_code": 0,
       "stdout": "logs/103-sdk-1.stdout",
@@ -24633,7 +25097,7 @@
       "role": "sdk-2",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/examples/registry_controls",
-        "/Users/judeallred/code/clispOx/target/release47-current-corpus-a01/registry-capture/capture/sdk-request.json"
+        "/Users/judeallred/code/clispOx/target/tutorial48-current-corpus-a02/registry-capture/capture/sdk-request.json"
       ],
       "exit_code": 0,
       "stdout": "logs/104-sdk-2.stdout",

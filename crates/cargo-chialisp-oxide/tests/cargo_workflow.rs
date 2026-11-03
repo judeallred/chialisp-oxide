@@ -734,7 +734,7 @@ fn real_cargo_annotations_features_cache_and_failure_boundaries() {
         std::fs::read(scratch.0.join("artifacts/latest.json")).unwrap()
     );
     for (extra, diagnostic) in [
-        (vec![], "unsupported integer operation"),
+        (vec![], "unsupported MIR value"),
         (vec!["--features", "type-error"], "mismatched types"),
     ] {
         let output = run(&root, &scratch.0, "cargo-invalid", "build", &extra);

@@ -320,12 +320,12 @@ fn byte_tree_ordering_mixed_widths_and_other_operations_remain_rejected_in_dead_
         );
         assert!(p.validate().is_err());
     }
-    for op in [BinaryOp::Div, BinaryOp::Rem, BinaryOp::Shl, BinaryOp::Shr] {
+    for op in [BinaryOp::Shl, BinaryOp::Shr] {
         let p = program(
             Environment::Ignored,
             vec![],
-            u8_type(),
-            bits(op, &u8_type(), int(1), int(1)),
+            Type::Bool,
+            bits(op, &Type::Bool, Expr::Bool { value: true }, int(1)),
             vec![],
         );
         assert!(p.validate().is_err());

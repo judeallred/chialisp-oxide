@@ -356,3 +356,45 @@ fn unused_total_operands_fold_before_physical_frame_limits_apply() {
         &execution::atom(&[]),
     );
 }
+
+#[test]
+fn deep_binary_children_reach_the_existing_typed_depth_limit_on_the_default_stack() {
+    use chialisp_oxide_ir::BinaryOp;
+    let ty = Type::Int {
+        bits: 8,
+        signed: false,
+    };
+    let literal = || Expr::Int {
+        value: "1".into(),
+        ty: ty.clone(),
+    };
+    // Both recursive positions matter: right descent retains the inferred
+    // left result, while left descent has not produced either child type yet.
+    // Validation only; these are not execution or resource-equivalence claims.
+    for kind in [BinaryOp::Div, BinaryOp::Rem, BinaryOp::Shl, BinaryOp::Shr] {
+        for recurse_left in [false, true] {
+            for depth in [255, 256] {
+                let body = (0..depth).fold(literal(), |rest, _| {
+                    let (left, right) = if recurse_left {
+                        (rest, literal())
+                    } else {
+                        (literal(), rest)
+                    };
+                    Expr::Binary {
+                        kind,
+                        ty: ty.clone(),
+                        left: Box::new(left),
+                        right: Box::new(right),
+                    }
+                });
+                let mut p = program(body);
+                p.result = ty.clone();
+                if depth == 255 {
+                    p.validate().unwrap();
+                } else {
+                    invalid(&p, "expression nesting");
+                }
+            }
+        }
+    }
+}

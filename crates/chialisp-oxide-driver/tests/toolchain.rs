@@ -247,7 +247,7 @@ fn print_modes_that_continue_compilation_cannot_bypass_selected_analysis() {
             "{args:?} skipped selected analysis"
         );
         let errors = String::from_utf8_lossy(&output.stderr);
-        assert!(errors.contains("unsupported integer operation"), "{errors}");
+        assert!(errors.contains("unsupported MIR value"), "{errors}");
         assert!(!errors.contains("internal compiler error"), "{errors}");
         assert!(unit.fixture.exports().is_empty());
     }

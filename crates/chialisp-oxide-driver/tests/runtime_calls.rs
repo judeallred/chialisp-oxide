@@ -263,8 +263,8 @@ fn recursive_functions_keep_unsupported_features_and_borrow_errors_fail_closed()
             "generic call",
         ),
         (
-            "#[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u8{if v==0{1}else{invalid(v-1)/v}}",
-            "unsupported integer operation",
+            "#[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u16{if v==0{1}else{invalid(v-1)+(v as u16)}}",
+            "unsupported MIR value",
         ),
         (
             "#[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u8{unsafe{invalid(v)}}",

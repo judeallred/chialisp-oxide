@@ -134,10 +134,15 @@ All signatures, bodies, lexical scopes and global budgets are checked, including
 unused functions and dead branches. Runtime lowering bounds new frame bindings
 and copied types before scope growth; codegen additionally checks serialized
 expansion. These checks bound compilation, not input-dependent execution.
-Projected writes in runtime functions, CFG loops, general allocation, closures, and
-solution-selected application remain unsupported. Constants/promoted MIR stays
-on its bounded acyclic route. Current scalar/tree SMT APIs reject runtime IR;
-finite VM replay does not prove termination or compiler preservation. See
+Projected writes in runtime functions, CFG loops, general allocation and closures
+remain unsupported. Explicit dynamic application uses the reviewed
+[SDK bridge](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md);
+it does not admit arbitrary Rust function pointers or external calls.
+Constants/promoted MIR stays on its bounded acyclic route. Default scalar/tree
+SMT APIs reject runtime IR; the separate
+[acyclic scalar mode](/chialisp-oxide/verification/formal/#check-nonrecursive-scalar-helpers-explicitly)
+admits bounded nonrecursive scalar tables after ABI decoding.
+Finite VM replay does not prove termination or compiler preservation. See
 [the ABI version boundary](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers)
 and [runtime design and tests](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md).
 

@@ -13,6 +13,10 @@ CLVM subset and exports each marked function. This interface remains experimenta
 Clone [the repository](https://github.com/judeallred/chialisp-oxide), then run
 these commands from its root.
 
+Before installing anything, read the [coin model](/chialisp-oxide/start/coin-model/)
+if puzzle hashes, solutions and conditions are unfamiliar. This page ends with
+a local build; it does not deploy or spend a coin.
+
 ## Install the pinned toolchain
 
 Install [rustup](https://rustup.rs/) if it is not available, then let the checked-in
@@ -83,7 +87,20 @@ This is a Cargo-driven extractor and CLVM backend adapter. It does not implement
 `cargo build --target clvm`; target configuration alone does not add a code
 generator or establish supported library semantics.
 
-## Build and validate the real Cargo corpus
+## What you have built
+
+You now have a native-tested Cargo library and an immutable CLVM artifact bundle.
+The `.hex` files are programs, not transactions; no address has been funded.
+The consumer's `pay` accepts a caller-selected amount and pays the fixture
+`0x42…42` destination. That destination is not a wallet you control. Do not fund it.
+
+Continue with [your first fixed payment](/chialisp-oxide/tutorials/first-payment/)
+to read a smaller fixed policy, then [build to coin spend](/chialisp-oxide/start/build-to-spend/)
+for a complete wallet-free simulator exercise and the separate Testnet11 route.
+The sections below are for contributors inspecting the full corpus and site;
+they are not prerequisites for that learning path.
+
+## Contributor task: validate the real Cargo corpus
 
 The laboratory fixtures are modules of the `chialisp-oxide-puzzles` Cargo library.
 They use the real SDK dependency and annotated exports, just like the consumer
@@ -113,7 +130,7 @@ the exact sources, vectors, and metrics for the checked-in run. Direct
 standalone-file extraction remains available only for compiler regressions and
 research, rather than the validated corpus authoring workflow.
 
-## Run the project checks
+## Contributor task: run the project checks
 
 ```sh
 cargo fmt --all --check

@@ -68,5 +68,24 @@ Native comparisons use bounded depths; VM resource exhaustion is inconclusive,
 not policy rejection. The current scalar/tree proof models reject runtime IR;
 finite execution does not prove termination or compiler preservation.
 
-This narrow representation does not support general enums, mutable references,
-allocating output trees, closures, or general runtime program evaluation.
+This narrow representation does not admit general enums, mutable references,
+arbitrary Rust allocation or closures. Opt-in OwnedTree construction and
+explicit program execution through the reviewed apply bridge have their own
+contracts; the raw helpers below use that bridge.
+
+
+## Explicit raw CLVM operators
+
+`raw_clvm` exposes atom/tree operations through ordinary Rust construction and
+`apply`: byte operations, arbitrary-width arithmetic, bitwise operations,
+comparisons, structural operations, group and signature verification, proper-list
+variadic helpers and four-argument softfork guards. These are CLVM contracts,
+not arbitrary Rust integer/slice/crypto-library support. Prefer normal Rust
+values and named conditions unless a raw contract is deliberate.
+
+Native calls require the `vm` feature and use the pinned VM oracle, retaining
+host result storage. They are not independent primitive implementations. Resource
+failures remain inconclusive; existing proof models reject apply. Guarded Keccak
+can assert a digest inside extension 1 but cannot return it from the guard.
+Other flag-gated operations are not silently activated. See the
+[raw-value lesson](https://judeallred.github.io/chialisp-oxide/tutorials/raw-clvm/).

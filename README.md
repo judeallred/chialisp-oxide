@@ -12,6 +12,10 @@ the chia-wallet-sdk transaction simulator.
 ## For AI agents
 
 Start with [the puzzle-authoring guide](docs/llms.md) to use the SDK.
+New to Chia? Follow the [coin model](https://judeallred.github.io/chialisp-oxide/start/coin-model/),
+[Cargo quickstart](https://judeallred.github.io/chialisp-oxide/start/quickstart/) and
+[build-to-spend walkthrough](https://judeallred.github.io/chialisp-oxide/start/build-to-spend/).
+The local exercises need no wallet; building an artifact and funding a coin are separate stages.
 [AGENTS.md](AGENTS.md) covers contributing to the compiler. The documentation
 also publishes a [curated Markdown index](https://judeallred.github.io/chialisp-oxide/llms.txt)
 and [complete rendered Markdown](https://judeallred.github.io/chialisp-oxide/llms-full.txt).
@@ -420,8 +424,10 @@ ability to express an operation, support in this compiler, executable witnesses,
 and missing preservation proofs. Full Chialisp parity is **not yet established**.
 Borrowed raw-tree construction/matching, opt-in owned pair construction, recursive
 direct calls, explicit whole-environment exports, and reviewed SHA-256
-calls are implemented. Arbitrary-precision integers and other cryptographic
-operators remain compiler work; primitive Rust integers must keep their checked
+calls are implemented. Explicit `raw_clvm` helpers also provide arbitrary-width
+atom arithmetic and cryptographic operations through the reviewed `apply` bridge,
+subject to the selected VM profile. Ordinary native Rust big-integer and crypto
+library calls remain unsupported; primitive Rust integers keep their checked
 finite semantics. Reviewed [currying](docs/currying.md) and
 [runtime program application](docs/dynamic-apply.md) have separate explicit
 implementation and validation boundaries.
@@ -520,14 +526,14 @@ nominal domain checks through the real [SDK crate](crates/chialisp-oxide). The
 [compatibility module](sdk/README.md) remains for standalone regression fixtures. General structs
 and enums outside the restricted `Tree`/`OwnedTree` and standard `Option` output shapes, general loops,
 allocation beyond restricted owned-tree construction, arbitrary external calls,
-general references and casts, division/remainder, and other unsupported MIR
+general references and casts, and other unsupported MIR
 remain rejected.
 The 98-entry tutorial/CHIP inventory is a roadmap; it is not a claim that all
 standard puzzles have been reimplemented. A separate
 [example inventory](corpus/tutorial-examples.json) snapshots 12 concrete tutorial
 programs, their source spans/license, a naming variant, and supporting workflow
-gaps. Three Intro expressions now have finite differential evidence; nine
-other programs, the naming variant, and supporting workflows remain unrun.
+gaps. The inventory records each implemented adapter or canonical program separately
+from unported examples and unexecuted supporting workflows.
 The parent Intro page remains partial, and no CHIP migration is complete.
 See the [canonical Intro walkthrough](https://judeallred.github.io/chialisp-oxide/tutorials/canonical-intro/)
 for exact sources, environment contracts, and measured compiler gaps. No production security audit has been

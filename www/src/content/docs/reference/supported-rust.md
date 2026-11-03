@@ -36,10 +36,11 @@ authenticate installed bytes. See
   [optional output lists](/chialisp-oxide/reference/optional-lists/).
 - Local values, tuple fields, comparisons, boolean negation, `if`, integer and
   boolean `match`, and acyclic control flow.
-- Checked `+`, `-`, and `*`; overflow rejects the puzzle.
+- Checked `+`, `-`, `*`, `/` and `%`, plus width-preserving integer shifts;
+  overflow, zero divisors and invalid shift counts reject the puzzle.
 - Built-in integer `&`, `|`, `^` and `!` at each supported signed/unsigned
   width; `bool` also supports strict `&`, `|` and `^`. These do not add
-  wrapping arithmetic or shift support. See [bit masks](#bit-masks-and-evaluation-order).
+  wrapping arithmetic. Checked integer shifts are supported with explicit count guards. See [bit masks](#bit-masks-and-evaluation-order).
 - Plain `assert!` as puzzle rejection. Formatted assertions and panic messages
   are rejected because their formatting calls are outside the current subset.
 - Local/SDK helpers, including lifetime-only generics for borrowed and owned trees. Acyclic
@@ -134,8 +135,8 @@ cargo test --locked -p chialisp-oxide-verifier --test bitwise
 
 A caller can supply any `u8` at this boundary. The assertion rejects unknown
 bits; no Rust type or mask supplies signature authorization, fee policy or
-conservation. Integer shifts, rotations and wrapping addition remain outside
-the supported subset. SHA-256 is available only through the
+conservation. Checked integer shifts are supported; rotations and wrapping
+addition remain outside the supported subset. SHA-256 is available only through the
 [reviewed SDK bridge](/chialisp-oxide/reference/hashing/); it does not admit
 arbitrary cryptographic dependencies or loops.
 
@@ -175,9 +176,14 @@ references. The input-policy attributes are unchanged; see the
 
 Native comparisons use finite depths. Deliberate nontermination runs only inside
 CLVM with a cost bound; resource exhaustion is inconclusive, not policy
-rejection. Current scalar/tree SMT models reject all runtime IR, including dead
-calls and unused tables. Finite witness replay is execution evidence rather than
-a termination or compiler-preservation proof. Durable regressions are documented
+rejection. The default scalar/tree SMT APIs reject runtime IR, including dead
+calls and unused tables. The explicit
+[acyclic scalar mode](/chialisp-oxide/verification/formal/#check-nonrecursive-scalar-helpers-explicitly) admits bounded,
+nonrecursive scalar function tables over its stated typed post-ABI domain; it
+still excludes recursion, SHA, apply, bytes, explicit pairs, optional outputs,
+division/remainder and shifts.
+Finite witness replay is execution evidence rather than a termination or
+compiler-preservation proof. Durable regressions are documented
 in [runtime calls](https://github.com/judeallred/chialisp-oxide/blob/main/docs/runtime-calls.md).
 
 ## Owned tree outputs with the alloc feature
@@ -252,8 +258,7 @@ It does not admit arbitrary enums, mutable references, or allocation. Recursive
 functions can traverse these borrowed values without changing Rust ownership. See the [raw environment ABI](/chialisp-oxide/reference/abi/#explicit-raw-tree-environments).
 
 General references, type/const generic functions, arbitrary external function calls, CFG loops,
-allocation beyond the restricted owned-tree Box route, general structs/enums, casts, floating point, shifts,
-division, and remainder are not implemented in the accepted subset. `usize`
+allocation beyond the restricted owned-tree Box route, general structs/enums, casts, floating point are not implemented in the accepted subset. `usize`
 and `isize` are rejected as ABI types. Unsafe code is forbidden by rustc's
 `-Funsafe-code`, including unsafe code that MIR might otherwise eliminate.
 
@@ -282,6 +287,18 @@ tested lowering.
 Overflow checks and debug assertions are enabled independently of the host
 Cargo profile. `u64::MAX + 1` must not become an unbounded CLVM integer.
 Explicit wrapping and overflowing arithmetic methods are rejected.
+
+The [Rust operator reference](https://doc.rust-lang.org/reference/expressions/operator-expr.html)
+defines the source arithmetic contract.
+
+Checked integer `/` and `%` retain Rust truncation toward zero, including
+rejection for a zero divisor and for signed `MIN / -1` or `MIN % -1`. They are
+not CLVM arbitrary-width floor division. Integer shifts reject negative or
+width-sized counts, discard shifted-out left bits, and use arithmetic right
+shift for signed values. Explicit raw CLVM helpers use tree/atom
+inputs and the reviewed `apply` bridge; their native test route requires the
+`vm` feature and executes the pinned VM. These interfaces have different numeric
+and byte contracts and do not add those operations to the scalar proof models.
 
 Unused failing computations are still significant. If a helper rejects and its
 returned value is unused, strict Rust evaluation requires rejection. The IR's

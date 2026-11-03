@@ -34,3 +34,10 @@ mod apply;
 pub use apply::{ResourceExhausted, apply};
 
 pub mod curry;
+
+/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.
+pub mod raw_clvm;
+
+mod raw_clvm_crypto;
+
+mod raw_clvm_variadic;

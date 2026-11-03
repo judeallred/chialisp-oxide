@@ -5,6 +5,11 @@ description: Use checked subtraction, a bounded caller input, and exact recipien
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+After [validating a caller-selected amount](/chialisp-oxide/tutorials/input-validation/),
+change the output policy: pay two destinations while preserving the entire
+input amount. You will learn why output amounts and recipient identities must
+both be checked.
+
 `FIRST_RECIPIENT` receives `first_amount`; `SECOND_RECIPIENT` receives
 the rest of `COIN_AMOUNT`. Both destination hashes are fixed. The caller selects
 the split, and the input amount is checked by a consensus condition.
@@ -38,10 +43,16 @@ backends against native execution and the independently compiled reference.
 
 ```sh
 cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
-./scripts/chialisp-oxide validate --output corpus/validation.json
+target/debug/chialisp-oxide native split-payment --solution '(500)'
+target/debug/chialisp-oxide native split-payment --solution '(1001)'
 ```
 
-Select `chialisp_oxide_puzzles::split_payment::puzzle` in the Cargo bundle manifest.
+The native replay at 500 returns two 500-mojo payments and the input-amount
+assertion; 1,001 rejects. Native replay does not run the compiled CLVM or check
+ledger conservation. Follow [the selected-export walkthrough](/chialisp-oxide/reference/cli/#execute-a-selected-export),
+selecting `chialisp_oxide_puzzles::split_payment::puzzle` and solution `(500)`,
+to run the newly built CLVM. Its output is still only a list of conditions.
+A complete spend must satisfy those conditions and the ledger's value rules.
 Read [the split-payment report](/chialisp-oxide/lab/split-payment/) for the
 actual accepted/rejected vectors, artifacts, and simulator checks. These
 destinations are fixed teaching values; choosing real recipients requires

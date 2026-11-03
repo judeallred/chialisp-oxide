@@ -1,0 +1,647 @@
+{
+  "schema": 1,
+  "upstream": {
+    "repository": "https://github.com/Chia-Network/clvm_rs",
+    "commit": "78feb9b2b0f9c2a4742af672d5fd43d55a559b23",
+    "crate": "clvmr",
+    "version": "0.21.0",
+    "license": "Apache-2.0",
+    "files_sha256": {
+      "op-tests/test-more-ops.txt": "86a414ca829ce5c1abe0ca62784873b3d9e2343509f10ee9fab7fd8fbbabfe7c",
+      "op-tests/test-blspy-g1.txt": "24300099f98d63787b4a3913a6b3161b9b66a1d564e56267d50d65808f214ebd",
+      "op-tests/test-bls-ops.txt": "8e2bd7164ae827b817488a82388d0f454908f5d8e135976517c7935a4ccf0661",
+      "op-tests/test-blspy-g2.txt": "f45cd9b5868aa0bfa67a09c5a2afff5f45fab4254e53a43be32b60b89c5368c2",
+      "op-tests/test-blspy-verify.txt": "766eea6df16f3c9d3dc5170f6d8f309fc77404faa454ac6691500d38387e653d",
+      "op-tests/test-blspy-pairing.txt": "1f6f8a7efa48eb643b375fd98895b3b7ee512d756ae317ef0de13112c854dac7",
+      "op-tests/test-secp-verify.txt": "7bae1d93d2f63e55ee6513b765c92661dd90dde91455ecba831e6c60def53e14",
+      "src/bls_ops.rs": "52f61c93598e05dfef64bea8d5363b01e56f6007c7b17314b692bbdafaf4a0a7",
+      "src/more_ops.rs": "f84246a40b1b24474073ab56620907ef68755b6d98a860cfb18b1f8210cc32d3",
+      "src/secp_ops.rs": "eb4cc97f8d9cab5917b62cc8c6d00bba423042840f0be58113843e25f418a204",
+      "src/chia_dialect.rs": "dec190ee603880ae0b8a1f19f46d7e9e2c227197c6382b056c8595d4fcfb932f",
+      "src/allocator.rs": "2032b3679aaacae163371b76f7109ab7a0cf8a2cb8a39d85c1e1b4f1d2ef8833",
+      "LICENSE": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+    }
+  },
+  "flags": "clvmr0.21 MEMPOOL_MODE; RELAXED_BLS disabled; NEW_COST_MODEL disabled",
+  "cases": [
+    {
+      "name": "pubkey_for_exp-upstream",
+      "helper": "pubkey_for_exp",
+      "opcode": "1e",
+      "arguments": "(1)",
+      "source": {
+        "file": "op-tests/test-more-ops.txt",
+        "line": 910,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "pubkey_for_exp 1 => 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb | 1326248"
+      },
+      "expected_output": "0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb"
+    },
+    {
+      "name": "pubkey_for_exp-pair-operand",
+      "helper": "pubkey_for_exp",
+      "opcode": "1e",
+      "arguments": "((1 . 2))",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/more_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "point_add-upstream",
+      "helper": "point_add",
+      "opcode": "1d",
+      "arguments": "(0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 0xa73e3a434a117bed5c0eab24dce24b2e03bc75254b878900eb01f98cf389329cdd7d83cd8033475ff1ec6b2e10abbb09)",
+      "source": {
+        "file": "op-tests/test-blspy-g1.txt",
+        "line": 3,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_add 0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 0xa73e3a434a117bed5c0eab24dce24b2e03bc75254b878900eb01f98cf389329cdd7d83cd8033475ff1ec6b2e10abbb09 => 0x932e81cd868b85b0608705ee603f15e9aa087811dae86254e5496008debed51377bc5c19a6ef9db547e3ac3fd7046bdf | 2789534"
+      },
+      "expected_output": "0x932e81cd868b85b0608705ee603f15e9aa087811dae86254e5496008debed51377bc5c19a6ef9db547e3ac3fd7046bdf"
+    },
+    {
+      "name": "point_add-pair-operand",
+      "helper": "point_add",
+      "opcode": "1d",
+      "arguments": "((1 . 2) 0)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/more_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g1_subtract-upstream",
+      "helper": "g1_subtract",
+      "opcode": "31",
+      "arguments": "(0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 0xa73e3a434a117bed5c0eab24dce24b2e03bc75254b878900eb01f98cf389329cdd7d83cd8033475ff1ec6b2e10abbb09)",
+      "source": {
+        "file": "op-tests/test-blspy-g1.txt",
+        "line": 32,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_subtract 0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 0xa73e3a434a117bed5c0eab24dce24b2e03bc75254b878900eb01f98cf389329cdd7d83cd8033475ff1ec6b2e10abbb09 => 0x94fa83a873e3549b553fbca0024a81c109a1a499af990edd669e4dd1707a1faccbabbc5584e7ed47f10eb57ad48552bb | 2789534"
+      },
+      "expected_output": "0x94fa83a873e3549b553fbca0024a81c109a1a499af990edd669e4dd1707a1faccbabbc5584e7ed47f10eb57ad48552bb"
+    },
+    {
+      "name": "g1_subtract-pair-operand",
+      "helper": "g1_subtract",
+      "opcode": "31",
+      "arguments": "((1 . 2) 0)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g1_multiply-upstream",
+      "helper": "g1_multiply",
+      "opcode": "32",
+      "arguments": "(0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 -56)",
+      "source": {
+        "file": "op-tests/test-blspy-g1.txt",
+        "line": 61,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_multiply 0xb756ecad886b575d2c95014c20bcd9b52f1f72e3b5fbc657bacf1e72be707f9aaf76a9156a1628b99d873036beecec10 -56 => 0x9303d1db4e1f65b6b253ac6de90068c0d5f9348234ec518ebaf24542bcddba3d0581d28649085224dec05ddcc27a8c99 | 705990"
+      },
+      "expected_output": "0x9303d1db4e1f65b6b253ac6de90068c0d5f9348234ec518ebaf24542bcddba3d0581d28649085224dec05ddcc27a8c99"
+    },
+    {
+      "name": "g1_multiply-pair-operand",
+      "helper": "g1_multiply",
+      "opcode": "32",
+      "arguments": "((1 . 2) 1)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g1_negate-upstream",
+      "helper": "g1_negate",
+      "opcode": "33",
+      "arguments": "(0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb)",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 188,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_negate_strict 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb => 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb | 1396"
+      },
+      "expected_output": "0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb"
+    },
+    {
+      "name": "g1_negate-pair-operand",
+      "helper": "g1_negate",
+      "opcode": "33",
+      "arguments": "((1 . 2))",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g2_add-upstream",
+      "helper": "g2_add",
+      "opcode": "34",
+      "arguments": "(0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 0xa35068bd876cd804a57e9695ad9585271b20f2a67c0f70a05ec47c597a6c3754083d1a974b6bf9a90c1e4e5208b73d7a120ce4190f328a3b90a15c2c7a7973a5894a8e16a63c36adb4e4995d165192d9b8c26fc15a84655c90a92b846f7952fa)",
+      "source": {
+        "file": "op-tests/test-blspy-g2.txt",
+        "line": 3,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_add 0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 0xa35068bd876cd804a57e9695ad9585271b20f2a67c0f70a05ec47c597a6c3754083d1a974b6bf9a90c1e4e5208b73d7a120ce4190f328a3b90a15c2c7a7973a5894a8e16a63c36adb4e4995d165192d9b8c26fc15a84655c90a92b846f7952fa => 0x9666a3ff8474a9c084fe71d8ad1107f6e89e1bf9fbff0d6e0f20507e79ef4e35783fca3fedbb8f0d0e7f4434b5df37631170fe5be0096fdc72183b2de89aed593060bbc8700df230329afdb9020333007955c4e405a5776f6df81cb39ca55af4 | 3980960"
+      },
+      "expected_output": "0x9666a3ff8474a9c084fe71d8ad1107f6e89e1bf9fbff0d6e0f20507e79ef4e35783fca3fedbb8f0d0e7f4434b5df37631170fe5be0096fdc72183b2de89aed593060bbc8700df230329afdb9020333007955c4e405a5776f6df81cb39ca55af4"
+    },
+    {
+      "name": "g2_add-pair-operand",
+      "helper": "g2_add",
+      "opcode": "34",
+      "arguments": "((1 . 2) 0)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g2_subtract-upstream",
+      "helper": "g2_subtract",
+      "opcode": "35",
+      "arguments": "(0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 0xa35068bd876cd804a57e9695ad9585271b20f2a67c0f70a05ec47c597a6c3754083d1a974b6bf9a90c1e4e5208b73d7a120ce4190f328a3b90a15c2c7a7973a5894a8e16a63c36adb4e4995d165192d9b8c26fc15a84655c90a92b846f7952fa)",
+      "source": {
+        "file": "op-tests/test-blspy-g2.txt",
+        "line": 32,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_subtract 0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 0xa35068bd876cd804a57e9695ad9585271b20f2a67c0f70a05ec47c597a6c3754083d1a974b6bf9a90c1e4e5208b73d7a120ce4190f328a3b90a15c2c7a7973a5894a8e16a63c36adb4e4995d165192d9b8c26fc15a84655c90a92b846f7952fa => 0xb681d21f5b5f31c5dc5a7983992c3be169cbd684a84f4d1ffe0c0c21923f7a023bc57ed4d3c445a3c9709203104e16b5091abec762e3ebc5edc5e7f170a2be4f71e868dc25b90b4c9dd9952edaaff163a177acf977f36e5d66f485fd94962428 | 3980960"
+      },
+      "expected_output": "0xb681d21f5b5f31c5dc5a7983992c3be169cbd684a84f4d1ffe0c0c21923f7a023bc57ed4d3c445a3c9709203104e16b5091abec762e3ebc5edc5e7f170a2be4f71e868dc25b90b4c9dd9952edaaff163a177acf977f36e5d66f485fd94962428"
+    },
+    {
+      "name": "g2_subtract-pair-operand",
+      "helper": "g2_subtract",
+      "opcode": "35",
+      "arguments": "((1 . 2) 0)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g2_multiply-upstream",
+      "helper": "g2_multiply",
+      "opcode": "36",
+      "arguments": "(0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 82)",
+      "source": {
+        "file": "op-tests/test-blspy-g2.txt",
+        "line": 61,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_multiply 0x96bbcfbca241004ba03968b7433664c1b944245828af7a1ebda771495c90d4816508d65db40b601bce51a3689c251f731699411b56e2172dd82eb96f571a691ba2984f1e4e39a05646ceb9c82d1108e78fe3fdfd94cff4fb447efe498dcecc25 82 => 0xafc1f4f785f8b2122e5e3a001405bb21e13c7292a84e3742448bf614bc3f129a117fbc14c4bbcc5f9e3ed06d6fd867c802a0fe0cd20aab3166985b0659874e61cfb8fb0120c517db30e4bf28dd627b5e2217ba59c4a7447431b626169fa57879 | 2100965"
+      },
+      "expected_output": "0xafc1f4f785f8b2122e5e3a001405bb21e13c7292a84e3742448bf614bc3f129a117fbc14c4bbcc5f9e3ed06d6fd867c802a0fe0cd20aab3166985b0659874e61cfb8fb0120c517db30e4bf28dd627b5e2217ba59c4a7447431b626169fa57879"
+    },
+    {
+      "name": "g2_multiply-pair-operand",
+      "helper": "g2_multiply",
+      "opcode": "36",
+      "arguments": "((1 . 2) 1)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g2_negate-upstream",
+      "helper": "g2_negate",
+      "opcode": "37",
+      "arguments": "(0xb3e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8)",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 260,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_negate_strict 0xb3e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 => 0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 | 2164"
+      },
+      "expected_output": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"
+    },
+    {
+      "name": "g2_negate-pair-operand",
+      "helper": "g2_negate",
+      "opcode": "37",
+      "arguments": "((1 . 2))",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_operand_control"
+      }
+    },
+    {
+      "name": "g1_map-upstream",
+      "helper": "g1_map",
+      "opcode": "38",
+      "arguments": "(\"abcdef0123456789\")",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 273,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_map \"abcdef0123456789\" => 0x88e7302bf1fa8fcdecfb96f6b81475c3564d3bcaf552ccb338b1c48b9ba18ab7195c5067fe94fb216478188c0a3bef4a | 195716"
+      },
+      "expected_output": "0x88e7302bf1fa8fcdecfb96f6b81475c3564d3bcaf552ccb338b1c48b9ba18ab7195c5067fe94fb216478188c0a3bef4a"
+    },
+    {
+      "name": "g1_map-pair-message",
+      "helper": "g1_map",
+      "opcode": "38",
+      "arguments": "((1 . 2))",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_message_control"
+      }
+    },
+    {
+      "name": "g1_map_with_dst-upstream",
+      "helper": "g1_map_with_dst",
+      "opcode": "38",
+      "arguments": "(\"abcdef0123456789\" \"BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_AUG_\")",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 275,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_map \"abcdef0123456789\" \"BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_AUG_\" => 0x88e7302bf1fa8fcdecfb96f6b81475c3564d3bcaf552ccb338b1c48b9ba18ab7195c5067fe94fb216478188c0a3bef4a | 195716"
+      },
+      "expected_output": "0x88e7302bf1fa8fcdecfb96f6b81475c3564d3bcaf552ccb338b1c48b9ba18ab7195c5067fe94fb216478188c0a3bef4a"
+    },
+    {
+      "name": "g1_map_with_dst-pair-message",
+      "helper": "g1_map_with_dst",
+      "opcode": "38",
+      "arguments": "((1 . 2) \"DST\")",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_message_control"
+      }
+    },
+    {
+      "name": "g2_map-upstream",
+      "helper": "g2_map",
+      "opcode": "39",
+      "arguments": "(\"abcdef0123456789\")",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 287,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_map \"abcdef0123456789\" => 0x92596412844e12c4733b5a6bfc5727cde4c20b345665d2de99de163266f3ba6a944c6c0fdd9d9fe57b9a4acb769bf3780456f8aab4cd41a70836dba57a5278a85fbd18eb96a2b56cfbda853186c9d190c43e63bc3e6a181aed692e97bbdb1944 | 816196"
+      },
+      "expected_output": "0x92596412844e12c4733b5a6bfc5727cde4c20b345665d2de99de163266f3ba6a944c6c0fdd9d9fe57b9a4acb769bf3780456f8aab4cd41a70836dba57a5278a85fbd18eb96a2b56cfbda853186c9d190c43e63bc3e6a181aed692e97bbdb1944"
+    },
+    {
+      "name": "g2_map-pair-message",
+      "helper": "g2_map",
+      "opcode": "39",
+      "arguments": "((1 . 2))",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_message_control"
+      }
+    },
+    {
+      "name": "g2_map_with_dst-upstream",
+      "helper": "g2_map_with_dst",
+      "opcode": "39",
+      "arguments": "(\"abcdef0123456789\" \"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_\")",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 289,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_map \"abcdef0123456789\" \"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_\" => 0x92596412844e12c4733b5a6bfc5727cde4c20b345665d2de99de163266f3ba6a944c6c0fdd9d9fe57b9a4acb769bf3780456f8aab4cd41a70836dba57a5278a85fbd18eb96a2b56cfbda853186c9d190c43e63bc3e6a181aed692e97bbdb1944 | 816196"
+      },
+      "expected_output": "0x92596412844e12c4733b5a6bfc5727cde4c20b345665d2de99de163266f3ba6a944c6c0fdd9d9fe57b9a4acb769bf3780456f8aab4cd41a70836dba57a5278a85fbd18eb96a2b56cfbda853186c9d190c43e63bc3e6a181aed692e97bbdb1944"
+    },
+    {
+      "name": "g2_map_with_dst-pair-message",
+      "helper": "g2_map_with_dst",
+      "opcode": "39",
+      "arguments": "((1 . 2) \"DST\")",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pair_message_control"
+      }
+    },
+    {
+      "name": "bls_verify-upstream",
+      "helper": "bls_verify",
+      "opcode": "3b",
+      "arguments": "(0x80c37921e62092ef55f85f9eccb21bd80cfaafc0bce9cbdd6999b1a8cabadc8f23720f0261efafaf53cbcc74580b9432007b66d824668900a94934f184bc41bf9ccf9ec141c6f7da610aa7296cd0a181ae8fe176b607aa4c367f15ee0cb985d7 0x8b202593319bce41b090f3309986de59861ab1e2ff32aef871d83f9aac232c7253c01f1f649c6f69879c441286319de4 0x39cb1950dba19a7bee9924b5bd2b29f190ffe4ef)",
+      "source": {
+        "file": "op-tests/test-blspy-verify.txt",
+        "line": 13,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "bls_verify 0x80c37921e62092ef55f85f9eccb21bd80cfaafc0bce9cbdd6999b1a8cabadc8f23720f0261efafaf53cbcc74580b9432007b66d824668900a94934f184bc41bf9ccf9ec141c6f7da610aa7296cd0a181ae8fe176b607aa4c367f15ee0cb985d7 0x8b202593319bce41b090f3309986de59861ab1e2ff32aef871d83f9aac232c7253c01f1f649c6f69879c441286319de4 0x39cb1950dba19a7bee9924b5bd2b29f190ffe4ef => 0 | 4200252"
+      },
+      "expected_output": "0"
+    },
+    {
+      "name": "bls_verify-cryptographic-mismatch",
+      "helper": "bls_verify",
+      "opcode": "3b",
+      "arguments": "(0xa380258fa9faf5e3ee2c370b9c82afe906186fd59ea421cc10ce66ca1d80c796bbff8ddf45202b9e4ad0fd2f80ebac7c13a8da7a0f67d0fe90280229c47797384e1b6bcf935bfed1d439705ad0903be7f655edee92a2d6008e721a7533faf2fd 0x978a639228d981160e524853c021ec9d054ea9f65ba069a5b196b3d81286b93e4163adcc56ef77111fa5eb0b3067e53a 0xa06a42342d34fca7b227498e5d0074465f2e)",
+      "source": {
+        "file": "op-tests/test-blspy-verify.txt",
+        "line": 18,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "bls_verify 0xa380258fa9faf5e3ee2c370b9c82afe906186fd59ea421cc10ce66ca1d80c796bbff8ddf45202b9e4ad0fd2f80ebac7c13a8da7a0f67d0fe90280229c47797384e1b6bcf935bfed1d439705ad0903be7f655edee92a2d6008e721a7533faf2fd 0x978a639228d981160e524853c021ec9d054ea9f65ba069a5b196b3d81286b93e4163adcc56ef77111fa5eb0b3067e53a 0xa06a42342d34fca7b227498e5d0074465f2e => FAIL"
+      },
+      "expected_failure": "BLSVerifyFailed"
+    },
+    {
+      "name": "bls_pairing_identity_two-upstream",
+      "helper": "bls_pairing_identity_two",
+      "opcode": "3a",
+      "arguments": "(0x8b202593319bce41b090f3309986de59861ab1e2ff32aef871d83f9aac232c7253c01f1f649c6f69879c441286319de4 0x942adad4dbeadcfd75aaa11940a5e5e16a8d8e91742029a3944610635ccc0572eceeb1c89d8a0e904c5d30b9497e700312dee7b833535effef24953dbf8f8aa770e2f1a8e01d3b6f6844e01a635ed95664babe9d62a2572651d0258461c8ba00 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0x80c37921e62092ef55f85f9eccb21bd80cfaafc0bce9cbdd6999b1a8cabadc8f23720f0261efafaf53cbcc74580b9432007b66d824668900a94934f184bc41bf9ccf9ec141c6f7da610aa7296cd0a181ae8fe176b607aa4c367f15ee0cb985d7)",
+      "source": {
+        "file": "op-tests/test-blspy-pairing.txt",
+        "line": 13,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "bls_pairing_identity 0x8b202593319bce41b090f3309986de59861ab1e2ff32aef871d83f9aac232c7253c01f1f649c6f69879c441286319de4 0x942adad4dbeadcfd75aaa11940a5e5e16a8d8e91742029a3944610635ccc0572eceeb1c89d8a0e904c5d30b9497e700312dee7b833535effef24953dbf8f8aa770e2f1a8e01d3b6f6844e01a635ed95664babe9d62a2572651d0258461c8ba00 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0x80c37921e62092ef55f85f9eccb21bd80cfaafc0bce9cbdd6999b1a8cabadc8f23720f0261efafaf53cbcc74580b9432007b66d824668900a94934f184bc41bf9ccf9ec141c6f7da610aa7296cd0a181ae8fe176b607aa4c367f15ee0cb985d7 => 0 | 5400000"
+      },
+      "expected_output": "0"
+    },
+    {
+      "name": "bls_pairing_identity_two-cryptographic-mismatch",
+      "helper": "bls_pairing_identity_two",
+      "opcode": "3a",
+      "arguments": "(0x978a639228d981160e524853c021ec9d054ea9f65ba069a5b196b3d81286b93e4163adcc56ef77111fa5eb0b3067e53a 0x814d44114b4d0fcdb4a2f53b1bf9fd3e66f52188ec6b214c29731ba596fc037753e248ed470fc5405bf224685413b33416d1c1b2891f43577824dc1d10000bdd0187495319d293bba96d9635d2eee91c6e92d93927e0a7b5fbad794cc9d15350 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0xa380258fa9faf5e3ee2c370b9c82afe906186fd59ea421cc10ce66ca1d80c796bbff8ddf45202b9e4ad0fd2f80ebac7c13a8da7a0f67d0fe90280229c47797384e1b6bcf935bfed1d439705ad0903be7f655edee92a2d6008e721a7533faf2fd)",
+      "source": {
+        "file": "op-tests/test-blspy-pairing.txt",
+        "line": 18,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "bls_pairing_identity 0x978a639228d981160e524853c021ec9d054ea9f65ba069a5b196b3d81286b93e4163adcc56ef77111fa5eb0b3067e53a 0x814d44114b4d0fcdb4a2f53b1bf9fd3e66f52188ec6b214c29731ba596fc037753e248ed470fc5405bf224685413b33416d1c1b2891f43577824dc1d10000bdd0187495319d293bba96d9635d2eee91c6e92d93927e0a7b5fbad794cc9d15350 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0xa380258fa9faf5e3ee2c370b9c82afe906186fd59ea421cc10ce66ca1d80c796bbff8ddf45202b9e4ad0fd2f80ebac7c13a8da7a0f67d0fe90280229c47797384e1b6bcf935bfed1d439705ad0903be7f655edee92a2d6008e721a7533faf2fd => FAIL"
+      },
+      "expected_failure": "BLSPairingIdentityFailed"
+    },
+    {
+      "name": "bls_pairing_identity-infinity",
+      "helper": "bls_pairing_identity",
+      "opcode": "3a",
+      "arguments": "(0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0xb3e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8)",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pairing_identity_control"
+      },
+      "expected_output": "0"
+    },
+    {
+      "name": "bls_pairing_identity-nonidentity",
+      "helper": "bls_pairing_identity",
+      "opcode": "3a",
+      "arguments": "(0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0xb3e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8)",
+      "source": {
+        "file": "src/bls_ops.rs",
+        "kind": "constructed_pairing_identity_control"
+      },
+      "expected_failure": "BLSPairingIdentityFailed"
+    },
+    {
+      "name": "secp256k1_verify-upstream",
+      "helper": "secp256k1_verify",
+      "opcode": "13d61f00",
+      "arguments": "(0x02888b0c110ef0b4962e3fc6929cbba7a8bb25b4b2c885f55c76365018c909b439 0x74c2941eb2ebe5aa4f2287a4c5e506a6290c045004058de97a7edf0122548668 0x1acb7a6e062e78ccd4237b12c22f02b5a8d9b33cb3ba13c35e88e036baa1cbca75253bb9a96ffc48b43196c69c2972d8f965b1baa4e52348d8081cde65e6c018)",
+      "source": {
+        "file": "op-tests/test-secp-verify.txt",
+        "line": 2,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "secp256k1_verify 0x02888b0c110ef0b4962e3fc6929cbba7a8bb25b4b2c885f55c76365018c909b439 0x74c2941eb2ebe5aa4f2287a4c5e506a6290c045004058de97a7edf0122548668 0x1acb7a6e062e78ccd4237b12c22f02b5a8d9b33cb3ba13c35e88e036baa1cbca75253bb9a96ffc48b43196c69c2972d8f965b1baa4e52348d8081cde65e6c018 => 0 | 1300000"
+      },
+      "expected_output": "0"
+    },
+    {
+      "name": "secp256k1_verify-cryptographic-mismatch",
+      "helper": "secp256k1_verify",
+      "opcode": "13d61f00",
+      "arguments": "(0x02888b0c110ef0b4962e3fc6929cbba7a8bb25b4b2c885f55c76365018c909b439 0x74c2941eb2ebe5aa4f2287a4c5e506a6290c045004058de97a7edf0122548668 0x1acb7a6e062e78ccd4237b12c22f02b5a8d9b33cb3ba13c35e88e036baa1cbca75253bb9a96ffc48b43196c69c2972d8f965b1baa4e52348d8081cde65e6c019)",
+      "source": {
+        "file": "op-tests/test-secp-verify.txt",
+        "line": 3,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "secp256k1_verify 0x02888b0c110ef0b4962e3fc6929cbba7a8bb25b4b2c885f55c76365018c909b439 0x74c2941eb2ebe5aa4f2287a4c5e506a6290c045004058de97a7edf0122548668 0x1acb7a6e062e78ccd4237b12c22f02b5a8d9b33cb3ba13c35e88e036baa1cbca75253bb9a96ffc48b43196c69c2972d8f965b1baa4e52348d8081cde65e6c019 => FAIL"
+      },
+      "expected_failure": "Secp256Failed"
+    },
+    {
+      "name": "secp256r1_verify-upstream",
+      "helper": "secp256r1_verify",
+      "opcode": "1c3a8f00",
+      "arguments": "(0x0437a1674f3883b7171a11a20140eee014947b433723cf9f181a18fee4fcf96056103b3ff2318f00cca605e6f361d18ff0d2d6b817b1fa587e414f8bb1ab60d2b9 0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 0xe8de121f4cceca12d97527cc957cca64a4bcfc685cffdee051b38ee81cb22d7e2c187fec82c731018ed2d56f08a4a5cbc40c5bfe9ae18c02295bb65e7f605ffc)",
+      "source": {
+        "file": "op-tests/test-secp-verify.txt",
+        "line": 36,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "secp256r1_verify 0x0437a1674f3883b7171a11a20140eee014947b433723cf9f181a18fee4fcf96056103b3ff2318f00cca605e6f361d18ff0d2d6b817b1fa587e414f8bb1ab60d2b9 0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 0xe8de121f4cceca12d97527cc957cca64a4bcfc685cffdee051b38ee81cb22d7e2c187fec82c731018ed2d56f08a4a5cbc40c5bfe9ae18c02295bb65e7f605ffc => 0 | 1850000"
+      },
+      "expected_output": "0"
+    },
+    {
+      "name": "secp256r1_verify-cryptographic-mismatch",
+      "helper": "secp256r1_verify",
+      "opcode": "1c3a8f00",
+      "arguments": "(0x0437a1674f3883b7171a11a20140eee014947b433723cf9f181a18fee4fcf96056103b3ff2318f00cca605e6f361d18ff0d2d6b817b1fa587e414f8bb1ab60d2b9 0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 0xe8de121f4cceca12d97527cc957cca64a4bcfc685cffdee051b38ee81cb22d7e2c187fec82c731018ed2d56f08a4a5cbc40c5bfe9ae18c02295bb65e7f605ffd)",
+      "source": {
+        "file": "op-tests/test-secp-verify.txt",
+        "line": 37,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "secp256r1_verify 0x0437a1674f3883b7171a11a20140eee014947b433723cf9f181a18fee4fcf96056103b3ff2318f00cca605e6f361d18ff0d2d6b817b1fa587e414f8bb1ab60d2b9 0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 0xe8de121f4cceca12d97527cc957cca64a4bcfc685cffdee051b38ee81cb22d7e2c187fec82c731018ed2d56f08a4a5cbc40c5bfe9ae18c02295bb65e7f605ffd => FAIL"
+      },
+      "expected_failure": "Secp256Failed"
+    },
+    {
+      "name": "point_add-non-subgroup",
+      "helper": "point_add",
+      "opcode": "1d",
+      "arguments": "(0x800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "kind": "constructed_on_curve_non_subgroup_control",
+        "derivation": "G1 x=4, y=sqrt(68) over BLS12-381 base field; [r]P != infinity. Native checked/unchecked parsing must execute separately before subgroup credit."
+      }
+    },
+    {
+      "name": "g1_subtract-non-subgroup",
+      "helper": "g1_subtract",
+      "opcode": "31",
+      "arguments": "(0x800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "kind": "constructed_on_curve_non_subgroup_control",
+        "derivation": "G1 x=4, y=sqrt(68) over BLS12-381 base field; [r]P != infinity. Native checked/unchecked parsing must execute separately before subgroup credit."
+      }
+    },
+    {
+      "name": "g1_multiply-non-subgroup",
+      "helper": "g1_multiply",
+      "opcode": "32",
+      "arguments": "(0x800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004 1)",
+      "expected_failure": "InvalidAllocArg",
+      "source": {
+        "kind": "constructed_on_curve_non_subgroup_control",
+        "derivation": "G1 x=4, y=sqrt(68) over BLS12-381 base field; [r]P != infinity. Native checked/unchecked parsing must execute separately before subgroup credit."
+      }
+    },
+    {
+      "name": "g1_negate-non-subgroup",
+      "helper": "g1_negate",
+      "opcode": "33",
+      "arguments": "(0x800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004)",
+      "expected_failure": "InvalidOpArg",
+      "source": {
+        "kind": "constructed_on_curve_non_subgroup_control",
+        "derivation": "G1 x=4, y=sqrt(68) over BLS12-381 base field; [r]P != infinity. Native checked/unchecked parsing must execute separately before subgroup credit."
+      }
+    },
+    {
+      "name": "g1_negate-infinity",
+      "helper": "g1_negate",
+      "opcode": "33",
+      "arguments": "(0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "kind": "pinned_canonical_infinity_identity"
+      }
+    },
+    {
+      "name": "g2_negate-infinity",
+      "helper": "g2_negate",
+      "opcode": "37",
+      "arguments": "(0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "kind": "pinned_canonical_infinity_identity"
+      }
+    },
+    {
+      "name": "g1_map_with_dst-nondefault-NUL",
+      "helper": "g1_map_with_dst",
+      "opcode": "38",
+      "arguments": "(\"abcdef0123456789\" \"BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_NUL_\")",
+      "expected_output": "0x8dd8e3a9197ddefdc25dde980d219004d6aa130d1af9b1808f8b2b004ae94484ac62a08a739ec7843388019a79c437b0",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 274,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_map \"abcdef0123456789\" \"BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_NUL_\" => 0x8dd8e3a9197ddefdc25dde980d219004d6aa130d1af9b1808f8b2b004ae94484ac62a08a739ec7843388019a79c437b0 | 195716"
+      }
+    },
+    {
+      "name": "g2_map_with_dst-nondefault-NUL",
+      "helper": "g2_map_with_dst",
+      "opcode": "39",
+      "arguments": "(\"abcdef0123456789\" \"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_\")",
+      "expected_output": "0x8ee1ff66094b8975401c86ad424076d97fed9c2025db5f9dfde6ed455c7bff34b55e96379c1f9ee3c173633587f425e50aed3e807c6c7cd7bed35d40542eee99891955b2ea5321ebde37172e2c01155138494c2d725b03c02765828679bf011e",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 288,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_map \"abcdef0123456789\" \"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_\" => 0x8ee1ff66094b8975401c86ad424076d97fed9c2025db5f9dfde6ed455c7bff34b55e96379c1f9ee3c173633587f425e50aed3e807c6c7cd7bed35d40542eee99891955b2ea5321ebde37172e2c01155138494c2d725b03c02765828679bf011e | 816196"
+      }
+    },
+    {
+      "name": "g1_multiply-scalar-zero",
+      "helper": "g1_multiply",
+      "opcode": "32",
+      "arguments": "(0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 153,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_multiply 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0 => 0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 | 705980"
+      }
+    },
+    {
+      "name": "g1_multiply-scalar-group-order",
+      "helper": "g1_multiply",
+      "opcode": "32",
+      "arguments": "(0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 155,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g1_multiply 0x97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001 => 0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 | 706300"
+      }
+    },
+    {
+      "name": "g2_multiply-scalar-zero",
+      "helper": "g2_multiply",
+      "opcode": "36",
+      "arguments": "(0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 0)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 231,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_multiply 0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 0 => 0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 | 2100960"
+      }
+    },
+    {
+      "name": "g2_multiply-scalar-group-order",
+      "helper": "g2_multiply",
+      "opcode": "36",
+      "arguments": "(0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-bls-ops.txt",
+        "line": 233,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "g2_multiply 0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001 => 0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 | 2101120"
+      }
+    },
+    {
+      "name": "pubkey_for_exp-negative",
+      "helper": "pubkey_for_exp",
+      "opcode": "1e",
+      "arguments": "(-1)",
+      "expected_output": "0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb",
+      "source": {
+        "file": "op-tests/test-more-ops.txt",
+        "line": 915,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "pubkey_for_exp -1 => 0xb7f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb | 1326248"
+      }
+    },
+    {
+      "name": "pubkey_for_exp-group-order",
+      "helper": "pubkey_for_exp",
+      "opcode": "1e",
+      "arguments": "(0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001)",
+      "expected_output": "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "source": {
+        "file": "op-tests/test-more-ops.txt",
+        "line": 922,
+        "kind": "unchanged_upstream_operands_and_expectation",
+        "text": "pubkey_for_exp 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001 => 0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 | 1327426"
+      }
+    }
+  ],
+  "subgroup_control": {
+    "compressed_g1": "800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004",
+    "x": "4",
+    "base_field_p": "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab",
+    "scalar_order_r": "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001",
+    "required_native_controls": [
+      "chia_bls::PublicKey::from_bytes_unchecked succeeds",
+      "unchecked.is_valid() is false",
+      "chia_bls::PublicKey::from_bytes rejects"
+    ]
+  }
+}

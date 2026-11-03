@@ -226,7 +226,99 @@ impl Lower<'_> {
             Lir::Gt(l, r)
         })
     }
+    // Rust divides toward zero, unlike CLVM's floor division. Bind operands
+    // once, divide their nonnegative magnitudes, then restore the quotient sign.
+    // Checking the quotient also rejects MIN % -1, whose mathematical remainder
+    // is zero but which Rust deliberately traps just like MIN / -1.
+    fn division(&mut self, kind: BinaryOp, left: LirId, right: LirId, ty: &Type) -> Result<LirId> {
+        let l = self.alloc(Lir::Path(5u8.into()));
+        let r = self.alloc(Lir::Path(2u8.into()));
+        let zero = self.nil();
+        let l_negative = self.alloc(Lir::Gt(zero, l));
+        let r_negative = self.alloc(Lir::Gt(zero, r));
+        let minus_l = self.alloc(Lir::Sub(vec![zero, l]));
+        let minus_r = self.alloc(Lir::Sub(vec![zero, r]));
+        let abs_l = self.branch(l_negative, minus_l, l);
+        let abs_r = self.branch(r_negative, minus_r, r);
+        let qr = self.alloc(Lir::Divmod(abs_l, abs_r));
+        let magnitude = self.alloc(Lir::First(qr));
+        let same_sign = self.alloc(Lir::Eq(l_negative, r_negative));
+        let negative = self.alloc(Lir::Sub(vec![zero, magnitude]));
+        let quotient = self.branch(same_sign, magnitude, negative);
+        // The inner frame contains the quotient and the already evaluated
+        // operands; no caller environment paths occur in its quoted code.
+        let q = self.alloc(Lir::Path(2u8.into()));
+        let saved_l = self.alloc(Lir::Path(5u8.into()));
+        let saved_r = self.alloc(Lir::Path(11u8.into()));
+        let result = if kind == BinaryOp::Div {
+            q
+        } else {
+            let product = self.alloc(Lir::Mul(vec![saved_r, q]));
+            self.alloc(Lir::Sub(vec![saved_l, product]))
+        };
+        let checked = self.range(q, ty, result)?;
+        let code = self.alloc(Lir::Quote(checked));
+        let frame = self.list(&[quotient, l, r]);
+        let body = self.alloc(Lir::Run(code, frame));
+        let code = self.alloc(Lir::Quote(body));
+        // CLVM evaluates cons tails first. Reverse the physical frame so the
+        // source-left initializer runs before source-right, exactly once each.
+        let frame = self.list(&[right, left]);
+        Ok(self.alloc(Lir::Run(code, frame)))
+    }
+    // Rust shifts reject negative/out-of-width counts, but shifting out high
+    // bits is permitted. The unbounded CLVM result must be narrowed explicitly.
+    fn shift(&mut self, kind: BinaryOp, left: LirId, right: LirId, ty: &Type) -> Result<LirId> {
+        let Type::Int { bits, signed } = ty else {
+            unreachable!("validated shift type")
+        };
+        let l = self.alloc(Lir::Path(5u8.into()));
+        let r = self.alloc(Lir::Path(2u8.into()));
+        let zero = self.nil();
+        let direction = if kind == BinaryOp::Shr {
+            self.alloc(Lir::Sub(vec![zero, r]))
+        } else {
+            r
+        };
+        let shifted = self.alloc(Lir::Ash(l, direction));
+        let result = if kind == BinaryOp::Shl {
+            let modulus = BigInt::from(1u8) << usize::from(*bits);
+            let mask = self.number(&modulus - 1);
+            let masked = self.alloc(Lir::Logand(vec![shifted, mask]));
+            let value = self.alloc(Lir::Path(2u8.into()));
+            let narrowed = if *signed {
+                let positive_max = self.number((&modulus >> 1usize) - 1);
+                let negative = self.alloc(Lir::Gt(value, positive_max));
+                let modulus = self.number(modulus);
+                let signed_value = self.alloc(Lir::Sub(vec![value, modulus]));
+                self.branch(negative, signed_value, value)
+            } else {
+                value
+            };
+            let quoted = self.alloc(Lir::Quote(narrowed));
+            let frame = self.list(&[masked]);
+            self.alloc(Lir::Run(quoted, frame))
+        } else {
+            shifted
+        };
+        let width = self.int(i64::from(*bits));
+        let below_width = self.alloc(Lir::Gt(width, r));
+        let minus_one = self.int(-1);
+        let nonnegative = self.alloc(Lir::Gt(r, minus_one));
+        let checked = self.require(below_width, result);
+        let checked = self.require(nonnegative, checked);
+        let quoted = self.alloc(Lir::Quote(checked));
+        // Cons tails run first: capture left before right once, as in division.
+        let frame = self.list(&[right, left]);
+        Ok(self.alloc(Lir::Run(quoted, frame)))
+    }
     fn binary(&mut self, kind: BinaryOp, l: LirId, r: LirId, ty: &Type) -> Result<LirId> {
+        if matches!(kind, BinaryOp::Shl | BinaryOp::Shr) {
+            return self.shift(kind, l, r, ty);
+        }
+        if matches!(kind, BinaryOp::Div | BinaryOp::Rem) {
+            return self.division(kind, l, r, ty);
+        }
         let root = match kind {
             BinaryOp::Eq => self.alloc(Lir::Eq(l, r)),
             BinaryOp::Ne => {
@@ -691,7 +783,10 @@ fn check_expansion(arena: &Arena<Lir>, root: LirId) -> Result<()> {
             | Lir::Cons(a, b)
             | Lir::Eq(a, b)
             | Lir::Gt(a, b)
-            | Lir::GtBytes(a, b) => (256, vec![*a, *b]),
+            | Lir::GtBytes(a, b)
+            | Lir::Divmod(a, b)
+            | Lir::Div(a, b)
+            | Lir::Ash(a, b) => (256, vec![*a, *b]),
             Lir::Add(args)
             | Lir::Sub(args)
             | Lir::Mul(args)

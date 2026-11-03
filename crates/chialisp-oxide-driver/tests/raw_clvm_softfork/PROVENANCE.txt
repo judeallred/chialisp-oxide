@@ -1,0 +1,31 @@
+Source: https://github.com/Chia-Network/clvm_rs at
+78feb9b2b0f9c2a4742af672d5fd43d55a559b23, clvmr 0.21.0.
+Copyright 2026 Chia Network Inc., Apache-2.0 (license retained).
+The source crate .cargo_vcs_info.json declares that revision. Source-file SHA256
+pins are in softfork-vectors.json. These JSON packaging, numeric-opcode spellings
+and mutation controls are additions by chialisp-oxide contributors.
+
+Pinned semantics and exact-cost sources:
+- src/run_program.rs parse_softfork_arguments, apply_op, exit_guard:
+  four evaluated operands, canonical cost and extension, exact reservation,
+  nested guards, inner result discarded and allocator checkpoint restored.
+- src/run_program.rs quote42 regression: declared160 ->nil,total241;
+  declared159 resource CostExceeded;declared161 SoftforkCostMismatch.
+- src/run_program.rs test_softfork keccak case: "foobar" expected digest,
+  inner program wrapped by(a PRG(q.0)), declared1134,total1215.
+- src/chia_dialect.rs extension1 enables Keccak inside guard;0 BLS;
+  extensions2+ invalid under MEMPOOL_MODE. No activation flags are added.
+
+The helper receives an ordinary proper list of four logical Tree values.
+Physical CLVM paths are2,5,11,23. Values representing program code are data until
+softfork executes them. Arguments themselves evaluate strictly before entry.
+The guard always returns nil; it cannot export a computed Keccak digest.
+Guarded digest checking must compare the expected value and fail inside the
+program. No scalar source arithmetic, generic Rust loop or compiler primitive
+is being admitted by the helper's name.
+
+Exact raw-expression costs are not wrapper costs. The helper tests must execute
+native Tree+apply, both actual Rust compilation modes and separately compiled
+Chialisp, as well as raw-program controls. CostExceeded is Resource/inconclusive
+and must never be counted as a semantic negative. Unimplemented insideextension0
+is a selected-profile limitation, not an invalid Keccak digest observation.

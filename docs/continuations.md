@@ -198,8 +198,16 @@ not add SDK attempts to those historical counts. A reusable generic SDK API, reo
 execution through the new shared Rust adapters remain substantive work. The
 new session never retries a started push automatically, including after a
 missing response. Its simulator tests and local GUI checks do not add live
-network credit to the historical Python trial. Source authentication and
-compiler-preservation credit do not follow. SHA remains
+network credit to the historical Python trial.
+
+The retained artifacts keep their original compiler and driver identities.
+A separate `reader_revalidation` record captures fresh compatibility checks
+against identical IR, program bytes and fixed native/VM/SDK observations.
+An offline re-export of the completed trial updates exporter freshness while
+preserving its raw observations, summary and artifact producer context; it adds
+no live execution credit.
+
+Source authentication and compiler-preservation credit do not follow. SHA remains
 outside models that do not support it; termination/progress models, if added,
 must remain separate from compiler preservation. Liveness, inclusion, finality,
 cross-block atomicity and production safety are not guaranteed.

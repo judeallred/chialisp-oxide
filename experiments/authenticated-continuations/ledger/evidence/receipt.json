@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "offline finite continuation chain and own-reveal actual-source controls; no live-network, generic API or compiler-preservation claim",
   "origin_work": "/Users/judeallred/code/clispOx/target/continuations-next-worktree/target/continuation-source-controls-a07",
-  "spike_receipt_sha256": "843708609d7d9c005d9163cf29399c4f60906c5b6c5038e5cce8ed6db4440d50",
+  "spike_receipt_sha256": "6bdc5d03767412567bb49980b96514123d6808d51985fa7cefd79fd5ee16b42b",
   "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
   "tools": {
     "cargo-chialisp-oxide": "3e8a42fba672dd18c9a3899c1de2790c5978df5997f3a56f6926b76f1ed7a343",
@@ -208,5 +208,19 @@
   "control_sdk_attempts": 16,
   "base_reports_independently_byte_identical": true,
   "control_reports_independently_byte_identical": true,
-  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e"
+  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+  "reader_revalidation": {
+    "protocol": "chialisp-oxide-continuation-reader-revalidation/v1",
+    "scope": "Executed fresh current-source/current-reader compatibility with exact historical IR/blob/tree/native/VM/SDK equality. Historical producer compiler/tools/verifier/source context is unchanged. Repeats add no coverage or live execution credit; source hashes and retained logs do not authenticate execution or prove compiler preservation.",
+    "fresh_capture_receipt_sha256": "86bb924cfc9cfd98a50e0cbfee1483f453e5fae0f8841236d762496689af4a27",
+    "current_tools": {
+      "cargo-chialisp-oxide": "0108a87e9adcd6a499b25de82acd07ea84d3c8843c7dd4ad8fd7acf72599a4d5",
+      "chialisp-oxide": "9a06ab6767596ce68c08ccf7de82336543213532da23180933a3c74c785e498f",
+      "chialisp-oxide-driver": "2c3ea2f7e59ed702ef8588395effba1f7f0a9fe8687285d1387f7b0c3f830dac",
+      "chialisp-oxide-verifier": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7"
+    },
+    "current_ledger_runner_sha256": "15ba3fd2b4060ca26ec96c2c3fb04563d52187b516f2352e3a9b62295e23e2d2",
+    "exact_control_artifact_comparisons": 16,
+    "raw_sdk_reports_unchanged": true
+  }
 }

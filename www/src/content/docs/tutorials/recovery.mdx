@@ -5,6 +5,10 @@ description: Return consensus timelocks, select a recovery key, and verify that 
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+This builds on [signature requirements](/chialisp-oxide/tutorials/signatures/).
+You will combine a key requirement with a time requirement, then distinguish
+an attacker-selected branch from the authority needed to use it.
+
 Time is a condition, not a clock read. A CLVM puzzle cannot inspect the current
 chain timestamp; it returns a requirement for the consensus engine to check.
 
@@ -36,6 +40,25 @@ The `recovery` boolean comes from the solution and is attacker-controlled. That
 is acceptable only because selecting the branch also selects its required key
 and lock. The boolean itself supplies no authority.
 
+## Compare the two returned requirements
+
+From the repository root after the [quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+target/debug/chialisp-oxide native recovery-payment --solution '(() 0xabababababababababababababababababababababababababababababababab)'
+target/debug/chialisp-oxide native recovery-payment --solution '(1 0xabababababababababababababababababababababababababababababababab)'
+```
+
+Here nil `()` encodes false and `1` encodes true. Compare the returned public
+key and absolute-time condition; the destination and amount remain fixed.
+Both native calls can produce conditions immediately. That does not mean the
+recovery spend is valid before its required timestamp, or without its key's
+signature. The ledger evaluates those requirements, rather than the Rust
+function reading a clock. Run the compiled export
+`chialisp_oxide_puzzles::recovery_payment::puzzle` through
+[the selected-export walkthrough](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+with the same solutions to inspect its VM output.
+
 ## Check the complete policy
 
 The ledger scenarios must establish that missing signatures reject, the owner
@@ -48,3 +71,9 @@ Inspect the [timelock report](/chialisp-oxide/lab/timelocked-payment/) and
 [recovery report](/chialisp-oxide/lab/recovery-payment/). A production recovery
 design needs deliberate absolute-versus-relative timing, key management,
 destination policy, and adversarial composition review beyond this fixture.
+
+For a later example that commits the recipient, amount and deadline before
+funding, continue to [claim a payment or return it](/chialisp-oxide/tutorials/boomerang/).
+These recovery fixtures remain local teaching examples; the
+[local lifecycle guide](/chialisp-oxide/reference/lifecycle/) describes which
+specific recipes the deployment tools currently admit.

@@ -125,7 +125,8 @@ finite executions do not prove the compiler bridge. The earlier hand-authored
 Seq8 IR regressions remain separate: they refute treating padded comparison
 literals as interchangeable and replay that witness. The independent helper
 gate also recomputes the byte relation and refutes numeric normalization. The scalar model still rejects
-atom programs, and all current SMT APIs reject runtime IR. No layer establishes
+atom programs, and the default SMT APIs reject runtime IR. The explicit
+acyclic scalar mode also excludes these byte/tree programs. No layer establishes
 compiler preservation, constant-time behavior or universal resource equivalence.
 The [toolchain trust notes](https://github.com/judeallred/chialisp-oxide/blob/main/docs/toolchain-trust.md)
 explain the trusted installed compiler/standard-library assumption and enforced

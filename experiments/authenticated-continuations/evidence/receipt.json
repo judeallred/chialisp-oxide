@@ -64,13 +64,283 @@
   "compiler_source_anchor": "72d3c092ff5ff4084d68cf918122315f27c8fb76",
   "reader_dependencies": {
     "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
-    "scripts/cargo_authoring.py": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494",
+    "scripts/cargo_authoring.py": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e",
     "scripts/cargo_bundle.py": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664",
     "scripts/cargo_source_receipt.py": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f",
     "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
     "scripts/source_walk.py": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423",
-    "scripts/vm_failures.py": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+    "scripts/vm_failures.py": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56"
   },
   "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
-  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e"
+  "verifier_sha256": "92ef4dc6388db93a67d45fcaaccfb462af97ba055e753c9558aeee2bac1cf51e",
+  "reader_revalidation": {
+    "protocol": "chialisp-oxide-continuation-reader-revalidation/v1",
+    "scope": "Executed fresh current-source/current-reader compatibility with exact historical IR/blob/tree/native/VM/SDK equality. Historical producer compiler/tools/verifier/source context is unchanged. Repeats add no coverage or live execution credit; source hashes and retained logs do not authenticate execution or prove compiler preservation.",
+    "fresh_capture_receipt_sha256": "86bb924cfc9cfd98a50e0cbfee1483f453e5fae0f8841236d762496689af4a27",
+    "fresh_commands_sha256": "35087fe4a67a49b1ca379530a17faad8a6237ec1461552e08fbc995cc0a579bb",
+    "historical_reader_dependencies": {
+      "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
+      "scripts/cargo_authoring.py": "2b700831c6182c6a3326be589f81d2ad16bc4b44816c7ae3cceb821925828494",
+      "scripts/cargo_bundle.py": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664",
+      "scripts/cargo_source_receipt.py": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f",
+      "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
+      "scripts/source_walk.py": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423",
+      "scripts/vm_failures.py": "924fabaa74567a1cfe2a823f25bdbed84ecba4b4041430d1ff18e5146c1de18c"
+    },
+    "freshness_scope": "Current reader validation inputs only; historical execution epoch and producer dependency declarations remain unchanged.",
+    "current_source_window": {
+      "Cargo.lock": "9ad8ba11649e8162137a63e55eded5f81c28eee912a566fa4944369929fa7fba",
+      "Cargo.toml": "b25c7bca3ce9bf44c3f0a0d5318a41d621153d258382c9a85e8e217c3a58396c",
+      "crates/chialisp-oxide-simulator/src/lib.rs": "a4af9ada5c3e2bfa9c185f106769b9302273aef71504e5cf00ef278bcb7351d5",
+      "crates/chialisp-oxide-vm/failure-protocol.json": "4df97b3d32f1d68dc06fe7cd0028606ba76bf7c4db62dd87a4a27c0aca9777de",
+      "experiments/authenticated-continuations/Cargo.lock": "a099f259ae65630f1d23bb732a8662c205c41288ed704fb218b6fa81373a2593",
+      "experiments/authenticated-continuations/Cargo.toml": "a813a4e2a16946fc0539bc44e48cfb1fc46f4ce545d7cd3ad8285a4b46379a45",
+      "experiments/authenticated-continuations/admission.py": "94c28dca4a86340476f1b797898e8c4e92b2391b09aac22d60e44046a602c34a",
+      "experiments/authenticated-continuations/bounded_process.py": "07481d6a91dc4d615e2dd5107a1c521468d9976fc389f8168fbb9b8ba139ab1b",
+      "experiments/authenticated-continuations/check_ledger.py": "21a9ca16f4564994c35f1ae6e386c9cb5091a1920a76a569417a894996b3e0f3",
+      "experiments/authenticated-continuations/check_retained.py": "d1d400873ba1b67c410bc2d69669fc2efc32a98a6a1c7c43e333339d7b900151",
+      "experiments/authenticated-continuations/examples/compile_reference.rs": "ffd0704ce8c808f8ff7a0b81b96527725129fe23185729939f96df0b70c526d5",
+      "experiments/authenticated-continuations/fixtures.json": "94e7bd56ec21b3b4539c9e7730d19b10d5fbdcf287e23c025a410cedc9764ed9",
+      "experiments/authenticated-continuations/ledger/Cargo.lock": "e4ae5ec8e80f3b55812c591e56c8a527f381db933cc0f312ac1b033d2b3c3479",
+      "experiments/authenticated-continuations/ledger/Cargo.toml": "3a5ee0b475cbd310c6ff87d6bd285d7449558fa16554ba7331d0744cc832d143",
+      "experiments/authenticated-continuations/ledger/src/bin/prepare-step.rs": "c8108b9077d92c9ee8189925faea784422bc50522bd9b460b11ec8e5dcdd846d",
+      "experiments/authenticated-continuations/ledger/src/controls.rs": "812c05e4662e006fc966fa0875752b470a2d8e0aed3c2bcdbe2ac30a56223b9f",
+      "experiments/authenticated-continuations/ledger/src/main.rs": "19164b89585e6fd8f4a265cfdb96fb5fd4b9ccdaf46a63068bf30a1aa7c5b43f",
+      "experiments/authenticated-continuations/ledger_checks.py": "7818971416fd6ad2c9a52ef38b1e3e73a2585dd3b2e5c8f6bef33d43047c4c73",
+      "experiments/authenticated-continuations/live_report.py": "94653e8ff198f55b172d30be0cb71bb4dcd90c630e46aa028c755224f979cbcb",
+      "experiments/authenticated-continuations/live_workflow.py": "09dd9bd82ec0143475cc2046ff5ec967492c411d748ab1796a9bc4449287b984",
+      "experiments/authenticated-continuations/oracle.py": "021215a31e50789f45899a206e7c80f951d8b8d31bb41a709c31c52cef738307",
+      "experiments/authenticated-continuations/prepare_step.py": "03eda3ba6606d7b029673244fe39e7db85df9ff1d99ab8cd840880f897351837",
+      "experiments/authenticated-continuations/recovery_step.py": "c64cc823ca5837131ced2b697b95d09d4eb2fa7823f573986b663c034a184410",
+      "experiments/authenticated-continuations/reference.clsp": "b94392de705c34404499f2fc2d0395195a545f1b8bf7b84f030c12d76289fbc1",
+      "experiments/authenticated-continuations/replay.py": "a679f7ac44864e88a2dfa2055f9d91fce9dd171a5b691a038c621b8e77e79c37",
+      "experiments/authenticated-continuations/source_controls.py": "047a7c73b85272e43980b710552f36cc6351159453cb7178706a4890dc628f08",
+      "experiments/authenticated-continuations/src/lib.rs": "630892dfd761cfd7d4e8986e08fac5e4424201c04f85d79f248d94b1e09092a3",
+      "experiments/authenticated-continuations/test_bounded_process.py": "b8d7fcf24c6088120c506a238a155927dda577f5b05fd94111c7cc2b60fd6eaa",
+      "experiments/authenticated-continuations/test_ledger.py": "ea566ea9a94cf2bf1891430397dede81c4fdd60f5e1d84ed63d0e114663f0eb6",
+      "experiments/authenticated-continuations/test_live_report.py": "92c75bd2713db00ec0a01706da497f3c26a4c1040565c0d7e0ff7c49fbcef477",
+      "experiments/authenticated-continuations/test_oracle.py": "d82ba66caf90617ad7ec88346e7e09218963cb1d56174fb3d7971c6afd9b2aa1",
+      "experiments/authenticated-continuations/test_retained.py": "8aef4f9101a77109e086c2653ce197d0e714097fe8bcf45c774d47fa11a6056b",
+      "experiments/authenticated-continuations/vm_witnesses.py": "40188f510e15e87393fe075ef950722e25a99ce93802cb25db838939bb2cf05a",
+      "experiments/authenticated-continuations/workflow.py": "4d643b00adcab5d892308b1145cd0451592384e68df1f67c645d66f994d19d48",
+      "experiments/spend-costs/src/measurement.rs": "68fb4f25a936a1dde9ed467eced90370c7ba01ea66c8c45a13e13e105338a651",
+      "rust-toolchain.toml": "721831cbd784ce34469407c6f59b390e9461898524beb2f69b0976c08560491c",
+      "scripts/cargo_authoring.py": "7b8f2a56090de60bfa88d97f4d3d957a9fe7134c629108ca3a7899e95ffafb2e",
+      "scripts/cargo_bundle.py": "76558757e602d049c5be07292ce5084c62bc155a6de5293f9a7d526da5cfc664",
+      "scripts/cargo_source_receipt.py": "23b1a22909857a539ec69de3137d3ac3428fbfe2fa622ec908481c1b8783250f",
+      "scripts/raw_tree.py": "5fa39d413e165cf4eebd1fbc82aaa0211869c20f6df3fe03fa18acd4170be2d2",
+      "scripts/source_walk.py": "baf3fc4a4e4ab68a3b1682c1a3d49bc0014b57347c7da93bb5e5937d34f03423",
+      "scripts/vm_failures.py": "2421284704bd08e7c79747bcadc9b07b77b94767f285df96c60e830be736be56",
+      "target/tutorial48-continuation-refresh-a01/capture.py": "9cd8254f445119bea14849fc1a929a1f520d82af09f89dc2d071b6c27c586e02"
+    },
+    "current_tools": {
+      "cargo-chialisp-oxide": "0108a87e9adcd6a499b25de82acd07ea84d3c8843c7dd4ad8fd7acf72599a4d5",
+      "chialisp-oxide": "9a06ab6767596ce68c08ccf7de82336543213532da23180933a3c74c785e498f",
+      "chialisp-oxide-driver": "2c3ea2f7e59ed702ef8588395effba1f7f0a9fe8687285d1387f7b0c3f830dac",
+      "chialisp-oxide-verifier": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7"
+    },
+    "current_compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
+    "current_ledger_runner_sha256": "15ba3fd2b4060ca26ec96c2c3fb04563d52187b516f2352e3a9b62295e23e2d2",
+    "executed_counts": {
+      "native_tests": 7,
+      "primary_vm_observations": 108,
+      "base_sdk_attempts": 45,
+      "source_control_native_observations": 8,
+      "source_control_primary_vm_observations": 16,
+      "source_control_sdk_attempts": 16
+    },
+    "repetition_scope": "Each base/control SDK report rerun independently; repeats do not add distinct coverage.",
+    "exact_artifact_comparisons": [
+      {
+        "label": "base",
+        "mode": "on",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb",
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "bytes": 7967,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "base",
+        "mode": "off",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955",
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "bytes": 43233,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_opening/original/on",
+        "mode": "on",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb",
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "bytes": 7967,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_opening/original/off",
+        "mode": "off",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955",
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "bytes": 43233,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_opening/mutant/on",
+        "mode": "on",
+        "ir_sha256": "4579f53b8cdf7518e37efe38c6d2471a6c2a58c23dc2a0b38c36b8984bc743b2",
+        "blob_sha256": "f5412a110c18c1923ab1fa40c3fdc4ba1218499a9c254fa31592a023f4fd98c9",
+        "tree_hash": "74fb6aa8790dce74891139b283af90991bb924c749aa29fb51a74ec6ebdd3e50",
+        "bytes": 7563,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_opening/mutant/off",
+        "mode": "off",
+        "ir_sha256": "4579f53b8cdf7518e37efe38c6d2471a6c2a58c23dc2a0b38c36b8984bc743b2",
+        "blob_sha256": "f7c9bad18498c7c08c5f454a490841d65ac17ab191ea2fdb95ca5724d467fd30",
+        "tree_hash": "1e32d4669a108a60b4c6494e58fbc8c8924d2ffb4c9957babb43876e94526782",
+        "bytes": 40753,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_terminal/original/on",
+        "mode": "on",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb",
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "bytes": 7967,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_terminal/original/off",
+        "mode": "off",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955",
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "bytes": 43233,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_terminal/mutant/on",
+        "mode": "on",
+        "ir_sha256": "86574b79ed5e0b99f9323538e61c0bc20ba46090e73d41f7f6f496518d33cc7b",
+        "blob_sha256": "997ee0048fcaf2e8407d72b0b9546882b6aec7c9dca663d635ec8e16e6bd34ed",
+        "tree_hash": "de35028745914d10126bb4b9f0842ebe9024ae4ab7a03cb166675e9b6fff5f70",
+        "bytes": 7807,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_terminal/mutant/off",
+        "mode": "off",
+        "ir_sha256": "86574b79ed5e0b99f9323538e61c0bc20ba46090e73d41f7f6f496518d33cc7b",
+        "blob_sha256": "7a4acdb8fa38cccb56876b878b033b347432bb61bd118d07836198bdaebae0ef",
+        "tree_hash": "f80031915b6873b1f47739f42e5bdbeb7027ada3c85d5dc9f407bdb7bb225ab1",
+        "bytes": 42403,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_amount/original/on",
+        "mode": "on",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb",
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "bytes": 7967,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_amount/original/off",
+        "mode": "off",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955",
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "bytes": 43233,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_amount/mutant/on",
+        "mode": "on",
+        "ir_sha256": "6b3bbeafa6a41b813784dcfc2ac90ff8b1b404e3d08ec897daa0edda57cbcc30",
+        "blob_sha256": "837c039ca62ed685422aae72d3386a68219e95b836125e675a2d5ad6d66afef3",
+        "tree_hash": "6444be7d559275b973414676f36e482f48fa9ee410af46bd7da259569b403f9c",
+        "bytes": 7495,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "drop_amount/mutant/off",
+        "mode": "off",
+        "ir_sha256": "6b3bbeafa6a41b813784dcfc2ac90ff8b1b404e3d08ec897daa0edda57cbcc30",
+        "blob_sha256": "cfd5166b5f364d343b99109365f662a3c163b5bb74325585c9e03165f300890e",
+        "tree_hash": "da28ff5bd3b166564def811a9e78b63849bf97faf48cc1c4fb45fb1fd3281482",
+        "bytes": 40953,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "wrong_successor/original/on",
+        "mode": "on",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "89aba3c87d0c3fa2f7db62bd0ad3f1074fd4ac49d6f4b245f3d585a4f0c560fb",
+        "tree_hash": "b3329cbb066c43c84501a5aaf128343f052dadc6636a58fc35d02b6d333631c4",
+        "bytes": 7967,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "wrong_successor/original/off",
+        "mode": "off",
+        "ir_sha256": "e1af0f6defffb1449c86c0a5efb3662a367d29301a9ec03ef82f244081758f4c",
+        "blob_sha256": "be9f46fefcd859c025a9d9cc753ceb1a608783b85469b8d12d59dc6ad19ac955",
+        "tree_hash": "08cad1983f3f7627f8dd5ffc8f03cedd10278c73c1f0df3d24ff7b9e2856ce68",
+        "bytes": 43233,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "wrong_successor/mutant/on",
+        "mode": "on",
+        "ir_sha256": "2e59956f04e25ab65d02472e87372eede7e8d2bf5be36a40ab3e686867fae132",
+        "blob_sha256": "83c99a3f6d7c978a32337cc94546f9f1a343fc80c84965a6f45ce266418a5bd7",
+        "tree_hash": "24ee42fe24aa9cbd5a7b2219fcbe2bc34ab8e6d683ffcc119752d1873a2b444c",
+        "bytes": 4521,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      },
+      {
+        "label": "wrong_successor/mutant/off",
+        "mode": "off",
+        "ir_sha256": "2e59956f04e25ab65d02472e87372eede7e8d2bf5be36a40ab3e686867fae132",
+        "blob_sha256": "d905d8f6ae59c1ff0876cb36e3f8b84e79f6227c56abf6cc6af81f8f77d57849",
+        "tree_hash": "ecf36af2e945f94aea5a17fc9fdfe19e9b592c03cf1da8a0c6797497896a2ecc",
+        "bytes": 23513,
+        "fresh_verifier_sha256": "b38687df0c8fd9180ef51ff7b839424f298b59103ccf99560c7a313d365cb6f7",
+        "old_ir_and_blob_bytes_exactly_equal": true
+      }
+    ],
+    "result_files": {
+      "vm/reference.clvm.hex": "4a7dfd7cac236c9170128a76cfb4b1b2b225c3f0081626b873ba7c1788fbad78",
+      "vm/vectors.json": "8ee8650f009612f0dc8bdd68348b1eeeaf9eb30c945ea627634cf99e38c45891",
+      "vm/report.json": "3c58eb560b254e61ae72a64fd3ff69eb5a3dbec284d5ac305988fcd4087b1bf8",
+      "vm/rust_on.json": "780ae43c41e80819cc9992600a6f5d42ae9ccdffebe26032e04a384a2ae8b473",
+      "vm/rust_off.json": "af44e3d94dc8f370b2dcce63caf7ecaded0e027d273076e43a4b793ff15a8f19",
+      "vm/chialisp.json": "40988acf8408ca49fa5034722322bfa1336bd0559d8e1f37af46d062dcd98137",
+      "sdk/base-report.json": "74e4a1f0b9570b5b646d9c70e8666e215692710604f2c910c7c756894e7625d6",
+      "sdk/controls-report.json": "decc1e01e59aecec3c29db02888c6cccabf87ca2dd2949f4b15ae8a91031a8b6"
+    }
+  }
 }

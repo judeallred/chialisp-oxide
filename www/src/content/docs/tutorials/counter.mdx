@@ -5,6 +5,12 @@ description: Follow a pure counter through native execution, CLVM, an independen
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+This is an optional arithmetic and verification lesson after
+[input validation](/chialisp-oxide/tutorials/input-validation/). It is not a
+stateful on-chain counter: there is no persistent variable or successor coin.
+For state threaded through real spends, continue later to
+[counter actions](/chialisp-oxide/tutorials/action-counter/).
+
 The bounded counter is deliberately a pure function. It returns an integer,
 not conditions, so it is not submitted as a coin puzzle. This makes it a small
 example for studying arithmetic and model-level reasoning.
@@ -33,6 +39,23 @@ for actual before/after bytes, VM costs and the distinct model-proof boundary.
 The generated corpus sweep exercises values on both sides of the policy
 boundary. This is finite test evidence. The formal companion instead asks a
 solver to find a violation of explicit predicates over the source-derived IR.
+
+## Replay a boundary before reading a proof
+
+After the [quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+target/debug/chialisp-oxide native bounded-counter --solution '(999)'
+target/debug/chialisp-oxide native bounded-counter --solution '(1000)'
+```
+
+The native outputs are accepted 1,000 and a rejected policy outcome,
+respectively. The native replay reports both policy outcomes in JSON; a zero
+process exit status alone does not distinguish them. To compare the emitted
+CLVM, use [the selected-export walkthrough](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+with `chialisp_oxide_puzzles::bounded_counter::puzzle` and those solutions.
+Returning the integer 1,000 still does not create a 1,000-mojo coin: a coin
+puzzle must return the appropriate conditions.
 
 ## Make the specification independent
 

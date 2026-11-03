@@ -219,8 +219,8 @@ fn bottom_does_not_hide_invalid_siblings_types_operations_or_unascribed_aggregat
             bottom(),
             bottom(),
         ),
-        binary(BinaryOp::Div, &u8_type(), bottom(), bottom()),
-        binary(BinaryOp::Shr, &u8_type(), bottom(), bottom()),
+        binary(BinaryOp::Shl, &Type::Bool, bottom(), bottom()),
+        binary(BinaryOp::Shr, &Type::Bool, bottom(), bottom()),
         not(int(0)),
         Expr::Tuple {
             items: vec![bottom()],

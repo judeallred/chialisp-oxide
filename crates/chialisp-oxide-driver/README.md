@@ -102,8 +102,13 @@ The supported subset includes:
   Integer complement preserves its Rust width: unsigned `!` xors with that
   width's maximum; signed `!` xors with -1. Boolean `&` and `|` evaluate both
   operands, unlike `&&` and `||`. User trait names do not grant primitive semantics;
-  local supported implementations retain their actual MIR bodies. Shifts and
-  explicit wrapping operations remain unsupported.
+  local supported implementations retain their actual MIR bodies. Checked shifts
+  retain the left operand width and independently typed integer counts; invalid
+  counts reject, left shifts discard high bits and signed right shifts extend
+  the sign. Explicit wrapping methods remain unsupported.
+- Checked integer division and remainder truncate toward zero and reject zero
+  divisors and signed MIN/-1 for both operations. These are Rust contracts, not
+  arbitrary-width CLVM floor division.
 - Immutable borrowed trees: exactly two enum variants with fields `(&[u8])`
   and `(&Self, &Self)`, one lifetime, ordinary Rust enum representation, and no
   destructor. This validates structure rather than names or discriminant order.
@@ -157,11 +162,18 @@ The supported subset includes:
   Tuple fields and MIR constant array projections are supported; ordinary Rust
   indexing is rejected when it requires an index local or reference.
 
+The closed signed shift-count guard recognizes actual compiler-generated MIR
+metadata with complete scratch-use checks. It preserves the overflow assertion
+at its original location and does not admit a general Rust integer-cast API.
+Explicit facade `raw_clvm` helpers construct trees and call the reviewed apply
+bridge; their atom, crypto and guard semantics are separate from primitive Rust
+operators or arbitrary external-library admission.
+
 Unannotated native functions may use ordinary Rust features, including
 allocation and closures, provided they are not reachable from a puzzle. They
 still undergo Rust checking. General references, type/const generics, other external calls,
-CFG loops, general allocation, ordinary structs/enums, casts, floats, shifts,
-division/remainder, and non-Rust function ABIs are rejected
+CFG loops, general allocation, ordinary structs/enums, general casts, floats,
+and non-Rust function ABIs are rejected
 when encountered in an exported puzzle. Panic messages and formatted
 assertions currently require unsupported Rust formatting calls. Unsafe Rust and
 unstable source features are forbidden across the selected library and SDK by

@@ -36,6 +36,8 @@ fn extracts_checked_rust_with_guards_tuples_and_helper_calls() {
     for fixture in [
         "guarded_payment.rs",
         "arithmetic.rs",
+        "division.rs",
+        "shifts.rs",
         "helpers.rs",
         "branches.rs",
         "bytes.rs",
@@ -88,7 +90,6 @@ fn rejects_features_without_faithful_semantics_with_source_locations() {
         ("generic.rs", "generic puzzle functions"),
         ("unsafe_fn.rs", "declaration of an `unsafe` function"),
         ("floating.rs", "unsupported Rust type"),
-        ("division.rs", "unsupported integer operation"),
         (
             "ignored_parameter.rs",
             "requires a function with no parameters",

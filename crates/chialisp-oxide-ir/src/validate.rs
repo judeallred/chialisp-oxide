@@ -819,46 +819,75 @@ impl Validator<'_> {
                 self.budget.validate_type(ty, 0)?;
                 let l = self.infer(left, parameters, locals, depth + 1)?;
                 let r = self.infer(right, parameters, locals, depth + 1)?;
-                ensure!(
-                    l.as_ref().is_none_or(|left| left == ty)
-                        && r.as_ref().is_none_or(|right| right == ty),
-                    "binary operand type mismatch"
-                );
-                // The explicit operand type also ascribes a rejecting child,
-                // which has no returned value. Still inspect both children and
-                // validate the operation/type below, even when both reject.
-                match kind {
-                    BinaryOp::Eq | BinaryOp::Ne => {
-                        ensure!(
-                            matches!(
-                                ty,
-                                Type::Int { .. } | Type::Bool | Type::Bytes { .. } | Type::Atom
-                            ),
-                            "equality requires scalar"
-                        );
-                        Type::Bool
-                    }
-                    BinaryOp::Lt | BinaryOp::Le | BinaryOp::Gt | BinaryOp::Ge => {
-                        if !matches!(ty, Type::Atom | Type::Bytes { .. }) {
-                            bounds(ty)?;
-                        }
-                        Type::Bool
-                    }
-                    BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul => {
-                        bounds(ty)?;
-                        self.budget.clone_type(ty)?
-                    }
-                    BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor => {
-                        if *ty != Type::Bool {
-                            bounds(ty)?;
-                        }
-                        self.budget.clone_type(ty)?
-                    }
-                    _ => bail!("operation {kind:?} has no validated lowering yet"),
-                }
+                self.binary_result(*kind, ty, l.as_ref(), r.as_ref())?
             }
         };
         Ok(Some(ty))
+    }
+
+    // Complete child inference before entering the arithmetic/type-check frame.
+    // In particular bounds() owns BigInt temporaries: retaining those slots in
+    // infer_non_pair would enlarge every nested Sequence/Binary frame and can
+    // overflow the default native stack before the existing depth-256 error.
+    // This helper never recurses through expressions; the budgets and child
+    // evaluation/validation order remain in the original caller.
+    #[inline(never)]
+    fn binary_result(
+        &mut self,
+        kind: BinaryOp,
+        ty: &Type,
+        left: Option<&Type>,
+        right: Option<&Type>,
+    ) -> Result<Type> {
+        ensure!(
+            left.is_none_or(|left| left == ty)
+                && right.is_none_or(|right| {
+                    if matches!(kind, BinaryOp::Shl | BinaryOp::Shr) {
+                        matches!(right, Type::Int { .. })
+                    } else {
+                        right == ty
+                    }
+                }),
+            "binary operand type mismatch"
+        );
+        // The explicit operand type also ascribes a rejecting child,
+        // which has no returned value. Still inspect both children and
+        // validate the operation/type below, even when both reject.
+        Ok(match kind {
+            BinaryOp::Eq | BinaryOp::Ne => {
+                ensure!(
+                    matches!(
+                        ty,
+                        Type::Int { .. } | Type::Bool | Type::Bytes { .. } | Type::Atom
+                    ),
+                    "equality requires scalar"
+                );
+                Type::Bool
+            }
+            BinaryOp::Lt | BinaryOp::Le | BinaryOp::Gt | BinaryOp::Ge => {
+                if !matches!(ty, Type::Atom | Type::Bytes { .. }) {
+                    bounds(ty)?;
+                }
+                Type::Bool
+            }
+            BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Rem => {
+                bounds(ty)?;
+                self.budget.clone_type(ty)?
+            }
+            BinaryOp::Shl | BinaryOp::Shr => {
+                bounds(ty)?;
+                if let Some(right) = right {
+                    bounds(right)?;
+                }
+                self.budget.clone_type(ty)?
+            }
+            BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor => {
+                if *ty != Type::Bool {
+                    bounds(ty)?;
+                }
+                self.budget.clone_type(ty)?
+            }
+        })
     }
 
     // Keep pair result temporaries outside the general recursive inference

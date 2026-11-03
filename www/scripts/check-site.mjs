@@ -1222,6 +1222,9 @@ try {
   const pagefind = await import(pathToFileURL(path.join(root, 'pagefind/pagefind.js')).href);
   await pagefind.options({ basePath: `${origin}${base}pagefind/`, baseUrl: base, language: 'en' });
   for (const [term, route] of [
+    ['coin puzzle solution', 'start/coin-model/'],
+    ['fund signing', 'start/build-to-spend/'],
+    ['raw CLVM atoms', 'tutorials/raw-clvm/'],
     ['validate inputs commitments', 'validation/inputs/'],
     ['validate conditions authority', 'validation/outputs/'],
     ['review adversarial', 'validation/review/'],

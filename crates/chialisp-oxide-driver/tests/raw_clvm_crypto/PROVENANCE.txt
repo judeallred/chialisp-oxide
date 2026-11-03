@@ -1,0 +1,36 @@
+The unchanged selected operand/result vectors in vectors.json come from:
+https://github.com/Chia-Network/clvm_rs
+commit 78feb9b2b0f9c2a4742af672d5fd43d55a559b23 (clvmr 0.21.0)
+Copyright 2026 Chia Network Inc. Apache License 2.0; accompanying license retained.
+The source crate's .cargo_vcs_info.json declares that revision. Each used upstream
+file has its complete SHA-256 recorded. Each unchanged selected row retains its
+exact original source text and line, while the surrounding JSON and constructed
+negative controls are additions made by chialisp-oxide contributors.
+
+The upstream test-blspy-*.txt files say they were generated with
+ tools/generate-bls-tests.py. This is independent upstream expected-value data;
+executing both wrappers and expectations through the same pinned VM is not an
+independent cryptographic implementation or compiler-preservation proof.
+
+Arguments are proper CLVM assembly lists, without a quote wrapper. Opcode is
+hexadecimal atom bytes, without 0x. expected_output is assembly (0 means nil).
+Failure code expectations are pinned to current clvmr 0.21 MEMPOOL_MODE, with
+strict BLS negate behavior: RELAXED_BLS and NEW_COST_MODEL are absent. Raw CLVM
+operands retain their protocol semantics; no nominal Rust key validity, ownership,
+transaction signature, complete spend, or model proof is inferred.
+
+The constructed G1 subgroup vector is distinct from malformed curve encodings.
+Its x=4 compressed point has an on-curve square root but is not in the prime-order
+subgroup. derive-subgroup.py independently checks the finite-field calculation;
+the integration tests must additionally execute checked and unchecked native
+chia-bls parsing before labeling this vector as an observed subgroup rejection.
+The bytes do not come from an upstream subgroup fixture.
+
+Canonical infinity is c0 followed by 47 zeros (G1) or 95 zeros (G2). These are
+accepted group identities under the pinned historical compatibility contract.
+Do not replace them with all-zero byte arrays or call them invalid keys.
+BLS verify vectors use a nonempty key/message pair; AGG_SIG conditions and empty
+pairing/verification calls do not establish BLS opcode verification coverage.
+
+Source costs retained in original text are upstream operator costs; wrapper
+execution adds costs and must not be asserted equal to these source numbers.

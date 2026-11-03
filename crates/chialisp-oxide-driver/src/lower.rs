@@ -24,6 +24,7 @@ mod newtypes;
 mod optional;
 mod owned;
 mod runtime;
+mod shift_guards;
 mod totality;
 mod trees;
 
@@ -491,8 +492,15 @@ impl<'tcx> Lowerer<'tcx> {
         path.push(block);
         let mut effects = Vec::new();
         let owned = self.owned_plan(body)?;
+        let shift_guard = self.shift_guard(body, block);
         for (statement_index, statement) in data.statements.iter().enumerate() {
             let statement_span = statement.source_info.span;
+            if shift_guard
+                .as_ref()
+                .is_some_and(|plan| plan.skip.contains(&statement_index))
+            {
+                continue;
+            }
             match &statement.kind {
                 StatementKind::Assign(assignment) => {
                     let (place, rvalue) = &**assignment;
@@ -614,7 +622,11 @@ impl<'tcx> Lowerer<'tcx> {
                     target,
                     ..
                 } => {
-                    let mut condition = self.operand(body, cond, &locals, span)?;
+                    let mut condition = if let Some(plan) = &shift_guard {
+                        self.shift_guard_condition(body, plan, &locals, span)?
+                    } else {
+                        self.operand(body, cond, &locals, span)?
+                    };
                     if !expected {
                         condition = Expr::Not {
                             value: Box::new(condition),
@@ -1091,7 +1103,11 @@ impl<'tcx> Lowerer<'tcx> {
                     BinOp::Add | BinOp::AddWithOverflow => BinaryOp::Add,
                     BinOp::Sub | BinOp::SubWithOverflow => BinaryOp::Sub,
                     BinOp::Mul | BinOp::MulWithOverflow => BinaryOp::Mul,
-                    _ => return Err(self.error(span, format!("unsupported integer operation `{op:?}`; wrapping, division and shifts need distinct verified semantics"))),
+                    BinOp::Div => BinaryOp::Div,
+                    BinOp::Rem => BinaryOp::Rem,
+                    BinOp::Shl => BinaryOp::Shl,
+                    BinOp::Shr => BinaryOp::Shr,
+                    _ => return Err(self.error(span, format!("unsupported integer operation `{op:?}`; wrapping operations need distinct verified semantics"))),
                 };
                 let expression = Expr::Binary {
                     kind,

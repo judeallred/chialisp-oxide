@@ -704,7 +704,7 @@ class ComparisonTests(unittest.TestCase):
                      "puzzles/Cargo.toml", "puzzles/lib.rs", "puzzles/fixture_keys.rs", "puzzles/example/puzzle.rs",
                      "puzzles/authoring.json", "crates/chialisp-oxide/Cargo.toml",
                      "crates/chialisp-oxide/src/lib.rs", "crates/chialisp-oxide/src/cons.rs", "crates/chialisp-oxide/src/domain.rs", "crates/chialisp-oxide/src/tree.rs",
-                     "crates/chialisp-oxide/src/owned_tree.rs", "crates/chialisp-oxide/src/hashing.rs",
+                     "crates/chialisp-oxide/src/owned_tree.rs", "crates/chialisp-oxide/src/raw_clvm.rs", "crates/chialisp-oxide/src/raw_clvm_crypto.rs", "crates/chialisp-oxide/src/raw_clvm_variadic.rs", "crates/chialisp-oxide/src/hashing.rs",
                      "crates/chialisp-oxide/src/apply.rs", "crates/chialisp-oxide/src/curry.rs",
                      "crates/chialisp-oxide-macros/Cargo.toml", "crates/chialisp-oxide-macros/src/lib.rs"]
             for path in paths:

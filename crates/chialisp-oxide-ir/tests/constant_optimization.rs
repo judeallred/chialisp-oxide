@@ -691,12 +691,18 @@ fn known_bytes_and_constructor_fields_preserve_padding_high_bits_and_strict_sibl
 #[test]
 fn whole_input_validation_precedes_dead_code_folding() {
     for invalid in [
-        binary(BinaryOp::Div, &u8_type(), int(1), int(0)),
+        binary(BinaryOp::Shl, &Type::Bool, boolean(true), boolean(false)),
         local(999),
         binding(0, Type::Bool, int(1), int(2)),
         binary(BinaryOp::Add, &u8_type(), boolean(false), int(1)),
     ] {
-        let p = ignored(u8_type(), branch(boolean(true), int(7), invalid));
+        // Keep the dead branch's result type correct, so a return-type mismatch
+        // cannot stand in for validating its invalid discarded initializer.
+        let dead = Expr::Sequence {
+            first: Box::new(invalid),
+            then_value: Box::new(int(0)),
+        };
+        let p = ignored(u8_type(), branch(boolean(true), int(7), dead));
         assert!(
             optimize(&p).is_err(),
             "dead code never exempts type/operation validation"

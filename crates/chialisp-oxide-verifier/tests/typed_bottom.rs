@@ -308,3 +308,30 @@ fn bottom_cannot_short_circuit_model_capability_checks_in_the_other_operand() {
     p.validate().unwrap();
     assert!(emit(&p, &scalar_spec).is_err());
 }
+
+#[test]
+fn division_remainder_and_shifts_are_explicitly_outside_current_scalar_models() {
+    let ty = Type::Int {
+        bits: 8,
+        signed: true,
+    };
+    let spec = accept(Predicate::default());
+    for kind in [BinaryOp::Div, BinaryOp::Rem, BinaryOp::Shl, BinaryOp::Shr] {
+        let operation = binary(kind, &ty, integer(&ty, "7"), integer(&ty, "3"));
+        for body in [
+            operation.clone(),
+            sequence(operation.clone(), integer(&ty, "7")),
+            Expr::If {
+                condition: Box::new(boolean(false)),
+                then_value: Box::new(operation),
+                else_value: Box::new(integer(&ty, "7")),
+            },
+            binary(kind, &ty, reject(), reject()),
+        ] {
+            let p = program(vec![], ty.clone(), body);
+            p.validate().unwrap();
+            assert!(emit(&p, &spec).is_err());
+            assert!(chialisp_oxide_verifier::emit_acyclic_scalar(&p, &spec).is_err());
+        }
+    }
+}

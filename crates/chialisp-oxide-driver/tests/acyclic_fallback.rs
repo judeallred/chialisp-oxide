@@ -192,8 +192,8 @@ fn fallback_does_not_hide_unsupported_helpers_or_existing_table_limits() {
     let helpers = SOURCE.replace("#[chialisp_oxide::puzzle]", "");
     for (body, diagnostic) in [
         (
-            "#[inline(never)] fn unsupported(value:u8)->u8 {value / 2} #[chialisp_oxide::puzzle] pub fn bad(value:u8)->u8 {let _checked=dag7(value);unsupported(value)}",
-            "unsupported integer operation",
+            "#[inline(never)] fn unsupported(value:u8)->u16 {value as u16} #[chialisp_oxide::puzzle] pub fn bad(value:u8)->u16 {let _checked=dag7(value);unsupported(value)}",
+            "unsupported MIR value",
         ),
         (
             "#[inline(never)] fn unsupported<T>(value:u8)->u8 {value} #[chialisp_oxide::puzzle] pub fn bad(value:u8)->u8 {let _checked=dag7(value);unsupported::<u8>(value)}",

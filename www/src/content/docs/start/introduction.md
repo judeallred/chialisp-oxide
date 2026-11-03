@@ -1,43 +1,57 @@
 ---
-title: Real Rust, deliberate semantics
-description: What Chialisp Oxide compiles, why Rue is the backend, and how to read the evidence.
+title: Learn to build Chia puzzles in Rust
+description: Start with the Chia coin model, build and test a Cargo puzzle, then understand funding, signing and spending.
 ---
 
 **WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
 
-Chialisp Oxide experiments with compiling a restricted subset of real Rust into
-CLVM for Chia puzzles. Write an ordinary Cargo library, depend on the unpublished
-`chialisp-oxide`, and mark entry functions with `#[chialisp_oxide::puzzle]`. Native Cargo
-checking and tests remain normal Rust; `cargo chialisp-oxide build` additionally validates
-the reachable subset and lowers checked MIR through a pure IR into Rue's
-optimizer and CLVM code generator.
+Chialisp Oxide lets you write experimental Chia puzzle policies in a restricted
+subset of real Rust. This guide starts with the coin being protected, then
+builds a Cargo library, tests its behavior, and explains the separate funding
+and spending workflow. You do not need a wallet for the first lessons.
 
-The restriction is intentional. CLVM evaluates immutable trees; ordinary Rust
-programs can depend on memory, I/O, allocation, target configuration, and
-unwinding. A supported language feature needs an explicit encoding and tested
-semantics before it belongs in a puzzle compiler.
+## Choose your starting point
 
-## Follow one example all the way through
+If Chia is new to you, follow this order:
 
-1. [Try the Cargo prototype](/chialisp-oxide/start/quickstart/) with two annotated functions, features, and generated code.
-2. Read [the ABI](/chialisp-oxide/reference/abi/) before constructing a solution.
-3. Open [the puzzle laboratory](/chialisp-oxide/lab/) to compare native Rust,
-   independently compiled Chialisp, and optimized/unoptimized CLVM.
-4. Inspect ledger checks for signatures, conservation, locks, and rollback.
-5. Read [the security scope](/chialisp-oxide/verification/method/) before extending a policy.
+1. [Understand a Chia coin](/chialisp-oxide/start/coin-model/): puzzle, solution,
+   conditions, address and coin ID; what changes when a coin is spent.
+2. [Try the Cargo prototype](/chialisp-oxide/start/quickstart/): install the
+   pinned tools, run native tests and compile annotated exports.
+3. [Read your first fixed payment](/chialisp-oxide/tutorials/first-payment/):
+   identify its committed recipient, exact amount and permissionless policy.
+4. [Use typed helpers](/chialisp-oxide/tutorials/typed-sdk/), then
+   [validate inputs](/chialisp-oxide/tutorials/input-validation/) and
+   [require signatures](/chialisp-oxide/tutorials/signatures/). Encoding,
+   application rules and authorization are separate responsibilities.
+5. [Follow build to coin spend](/chialisp-oxide/start/build-to-spend/): complete a
+   wallet-free simulator lifecycle, then locate the supported Testnet11 workflow.
 
-## A function result is not a transaction
+If you already know Chialisp, start with the [Cargo quickstart](/chialisp-oxide/start/quickstart/)
+and [ABI](/chialisp-oxide/reference/abi/), then compare the
+[canonical Intro](/chialisp-oxide/tutorials/canonical-intro/) and
+[Using Modules](/chialisp-oxide/tutorials/canonical-modules/) ports. Pure language
+examples can return numbers or trees; a coin-spending policy must return valid
+conditions. These are different kinds of example.
 
-A puzzle returns a list of conditions. The consensus engine interprets those
-conditions in the context of a spend bundle and the coin set. A CLVM evaluation
-can succeed while the transaction fails because a signature is absent, a lock
-has not matured, or more value is created than consumed.
+## What the compiler contributes
 
-This repository exercises both levels. The pure `bounded-counter` example
-and canonical Intro expressions return language values and are explicitly not
-coin-spending policies. A caller-controlled
-boolean gate demonstrates rejection but supplies no authentication. Each lab
-entry states its policy and the obligations outside it.
+Write an ordinary Cargo library, depend on the unpublished `chialisp-oxide`,
+and mark entry functions with `#[chialisp_oxide::puzzle]`. Native Cargo checking
+and tests remain normal Rust. `cargo chialisp-oxide build` additionally validates
+the reachable subset and lowers checked MIR through typed IR and Rue's CLVM
+backend. It produces artifacts, not a deployed coin.
+
+The compiler checks supported Rust semantics and the typed input encoding.
+It cannot choose the right recipient, supply authorization that your policy
+omits, or prove a successful VM result will be a valid transaction. Consensus
+checks the returned conditions in the context of the complete spend.
+
+CLVM evaluates immutable trees. Ordinary Rust can also depend on memory, I/O,
+allocation, target configuration and unwinding; those features need explicit
+encodings and semantics before they belong in a puzzle compiler. See the
+[current functionality map](/chialisp-oxide/reference/chialisp-functionality/)
+for supported operations and remaining gaps.
 
 ## What the current examples represent
 

@@ -5,6 +5,11 @@ description: Explore the capped-payment ABI, canonical integers, branch rejectio
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+After [your first payment](/chialisp-oxide/tutorials/first-payment/) and
+[the Cargo authoring lesson](/chialisp-oxide/tutorials/typed-sdk/), the next
+question is: what may a stranger put in the solution? This lesson separates
+wire decoding from your policy's checks. Neither replaces the other.
+
 For the full policy review, continue with the dedicated guide to
 [inputs and commitments](/chialisp-oxide/validation/inputs/),
 [conditions and authority](/chialisp-oxide/validation/outputs/), and
@@ -58,6 +63,25 @@ reference: it could accept negatives, pairs, extra arguments, or padded atoms.
 These examples explain expected behavior. The actual case outcomes, generated
 range, and backend agreement are rendered from the report in
 [the capped-payment lab](/chialisp-oxide/lab/capped-payment/).
+
+## Try an input, then change one property
+
+From the repository root after the [quickstart](/chialisp-oxide/start/quickstart/):
+
+```sh
+target/debug/chialisp-oxide native capped-payment --solution '(500)'
+target/debug/chialisp-oxide native capped-payment --solution '(1001)'
+target/debug/chialisp-oxide native capped-payment --solution '(0x0001)'
+```
+
+The first native replay returns the conditions. The second fails the amount
+policy; the third fails decoding before that policy runs. Read the JSON
+`status` (`accepted` or `rejected`), rather than treating a completed command as an accepted input.
+These commands call the linked native Rust fixture. To execute your compiled
+CLVM instead, use [the selected-export walkthrough](/chialisp-oxide/reference/cli/#execute-a-selected-export)
+with `chialisp_oxide_puzzles::capped_payment::puzzle` and the same solutions.
+Neither execution submits a transaction or checks its returned conditions
+against a ledger.
 
 ## Define the fee policy deliberately
 

@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "upstream": {
+    "repository": "https://github.com/Chia-Network/clvm_rs",
+    "commit": "78feb9b2b0f9c2a4742af672d5fd43d55a559b23",
+    "crate": "clvmr",
+    "version": "0.21.0",
+    "license": "Apache-2.0",
+    "files_sha256": {
+      "src/run_program.rs": "8212e8f4ce667c443fcd4a46907dcc9e0f2251573ed69a8d47e6ef722ad66c0e",
+      "src/chia_dialect.rs": "dec190ee603880ae0b8a1f19f46d7e9e2c227197c6382b056c8595d4fcfb932f",
+      "src/op_utils.rs": "1c160c01e279045086c024c188908449c415908cb94836511ccd01bbd6c483cd",
+      "src/keccak256_ops.rs": "c68cf06edbbacaa1d928b95c3cc1296a49d436b8e03ff93e9388fed0e77075aa",
+      "LICENSE": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+    }
+  },
+  "flags": "MEMPOOL_MODE without any added flags; NEW_COST_MODEL and RELAXED_BLS absent",
+  "cases": [
+    {
+      "name": "softfork-ext0-quote42",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_output": "()",
+      "note": "Pinned upstream raw expression total241; declared inner+guard cost160. Wrapper adds separate overhead."
+    },
+    {
+      "name": "softfork-ext1-quote42",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 1 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_output": "()"
+    },
+    {
+      "name": "softfork-too-small",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(159 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "CostExceeded",
+      "expected_failure_kind": "Resource"
+    },
+    {
+      "name": "softfork-too-large",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(161 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "SoftforkCostMismatch",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-unknown-extension",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 2 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "UnknownSoftforkExtension",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-cost-zero",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(0 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "CostExceeded",
+      "expected_failure_kind": "Resource"
+    },
+    {
+      "name": "softfork-cost-negative",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(-1 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-cost-padded",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(0x0000a0 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-cost-pair",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "((1 . 2) 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-cost-overflow-u64",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(0x010000000000000000 0 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-extension-negative",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 -1 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-extension-padded",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 0x0001 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-extension-pair",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 (1 . 2) (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-extension-overflow-u32",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 0x0100000000 (q . 42) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-guarded-keccak-assertion",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(1134 1 (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873e)) (q . 0) (q . (x))) (q . 0)) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_output": "()",
+      "note": "Pinned upstream test_softfork keccak assertion; rawtotal1215. Outputnil, notdigest; matchingvalue checked insideguard."
+    },
+    {
+      "name": "softfork-guarded-keccak-wrong-digest",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(1134 1 (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873f)) (q . 0) (q . (x))) (q . 0)) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "Raise",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-guarded-keccak-too-large",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(1135 1 (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873e)) (q . 0) (q . (x))) (q . 0)) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "SoftforkCostMismatch",
+      "expected_failure_kind": "Program"
+    },
+    {
+      "name": "softfork-guarded-keccak-too-small",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(1133 1 (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873e)) (q . 0) (q . (x))) (q . 0)) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "CostExceeded",
+      "expected_failure_kind": "Resource"
+    },
+    {
+      "name": "softfork-guarded-keccak-ext0-unavailable",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(1134 0 (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873e)) (q . 0) (q . (x))) (q . 0)) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "Unimplemented",
+      "expected_failure_kind": "Program",
+      "note": "Profile-unavailable opcode inext0, not a Keccak computation rejectingmessage."
+    },
+    {
+      "name": "softfork-inner-program-failure",
+      "helper": "softfork",
+      "opcode": "24",
+      "arguments": "(160 0 (x) ())",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      },
+      "expected_failure": "Raise",
+      "expected_failure_kind": "Program"
+    }
+  ],
+  "raw_program_cases": [
+    {
+      "name": "raw-softfork-two-args",
+      "program": "(36 (q . 160) (q . 0))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      }
+    },
+    {
+      "name": "raw-softfork-three-args",
+      "program": "(36 (q . 160) (q . 0) (q . (q . 42)))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      }
+    },
+    {
+      "name": "raw-softfork-five-args",
+      "program": "(36 (q . 160) (q . 0) (q . (q . 42)) (q . ()) (q . ()))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_failure": "InvalidOpArg",
+      "expected_failure_kind": "Program",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      }
+    },
+    {
+      "name": "raw-softfork-zero-cost-before-arity",
+      "program": "(36 (q . 0) (q . 0))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_failure": "CostExceeded",
+      "expected_failure_kind": "Resource",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      }
+    },
+    {
+      "name": "raw-softfork-operand-failure-before-guard",
+      "program": "(36 (q . 160) (q . 0) (x) (q . ()))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_failure": "Raise",
+      "expected_failure_kind": "Program",
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "constructed_from_pinned_softfork_contract"
+      }
+    },
+    {
+      "name": "raw-softfork-quote42-exact-cost",
+      "program": "(36 (q . 160) (q . 0) (q . (q . 42)) (q . ()))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_output": "()",
+      "expected_cost": 241,
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "numeric_opcode_equivalent_of_upstream_quote42_test"
+      }
+    },
+    {
+      "name": "raw-softfork-keccak-exact-cost",
+      "program": "(36 (q . 1134) (q . 1) (q . (a (i (= (62 (q . \"foobar\")) (q . 0x38d18acb67d25c8bb9942764b62f18e17054f66a817bd4295423adf9ed98873e)) (q . 0) (q . (x))) (q . 0))) (q . 0))",
+      "environment": "()",
+      "max_cost": 1000000,
+      "expected_output": "()",
+      "expected_cost": 1215,
+      "source": {
+        "file": "src/run_program.rs",
+        "kind": "numeric_opcode_equivalent_of_upstream_test_softfork_keccak"
+      }
+    }
+  ],
+  "physical_argument_paths": [
+    2,
+    5,
+    11,
+    23
+  ],
+  "scope": "Expected pinned VM semantics, not new execution credit. Resource failures are inconclusive, profile-unavailable opcode failures are not policyrejections. softfork success alwaysnil."
+}

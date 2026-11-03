@@ -6,8 +6,8 @@ hero:
   title: WIP prototype — not ready for use
   tagline: Do not use for real funds or production puzzles. Explore an experimental Cargo workflow with annotated Rust functions, a restricted CLVM subset, and inspectable test evidence. The compiler and authoring interface remain prototypes.
   actions:
-    - text: Explore the Cargo prototype
-      link: /chialisp-oxide/start/quickstart/
+    - text: Start learning Chia puzzles
+      link: /chialisp-oxide/start/introduction/
       icon: right-arrow
     - text: Review experimental evidence
       link: /chialisp-oxide/lab/
@@ -22,6 +22,16 @@ import { totals } from '../../lib/data';
 <div className="oxide-home">
 
 <p className="eyebrow">Compiler experiments / executable documentation</p>
+
+## Build your first understanding, then your first puzzle
+
+Start with [the Chia coin model](/chialisp-oxide/start/coin-model/): what a coin
+commits to, what a solution supplies, and how returned conditions control a
+spend. Then [build a normal Cargo library](/chialisp-oxide/start/quickstart/) and
+follow [the path from a build to a coin spend](/chialisp-oxide/start/build-to-spend/).
+The local exercises need no wallet. Compiling creates an artifact; funding its
+puzzle hash creates a coin. The live tooling currently supports specific reviewed
+recipes rather than arbitrary compiled puzzles.
 
 <EvidenceSummary />
 

@@ -42,6 +42,22 @@ around a subset rejection by disabling policy assertions. See
 [quickstart](https://judeallred.github.io/chialisp-oxide/start/quickstart/) and
 [CLI](https://judeallred.github.io/chialisp-oxide/reference/cli/).
 
+## Choose typed Rust or explicit raw operators
+
+Prefer ordinary Rust values and named condition constructors for policy. Checked
+integer division/remainder truncate toward zero; shifts retain fixed widths,
+signed right-shift and invalid-count rejection. These are Rust contracts.
+
+For deliberate CLVM interoperability, `chialisp_oxide::raw_clvm` exposes tree/atom
+operators through ordinary Rust construction and the reviewed apply bridge.
+Its raw integer arithmetic, byte operations and crypto helpers retain the pinned
+VM's contracts. Native oracle calls require `vm`; they execute that VM rather
+than independently reimplementing each primitive. Proper-list helpers quote
+operand data, while explicit softfork deliberately executes its supplied program
+inside a guard. Activation and exact cost rules remain explicit. Do not replace
+a Rust operation with a raw one merely to suppress overflow or ABI checks. See
+[the raw-value lesson](https://judeallred.github.io/chialisp-oxide/tutorials/raw-clvm/).
+
 ## Call an exact registry dependency
 
 For an ordinary Cargo example that applies a retrieved on-chain standard

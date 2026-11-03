@@ -1,0 +1,127 @@
+---
+title: Choose Rust values or raw CLVM atoms
+description: Use explicit raw operator helpers when the policy needs CLVM byte and numeric semantics rather than Rust fixed-width values.
+---
+
+Start with [typed authoring](/chialisp-oxide/tutorials/typed-sdk/) and
+[recursive trees](/chialisp-oxide/tutorials/recursive-trees/). This is an advanced
+interface for deliberate CLVM interoperability, not a replacement for the
+beginner payment workflow.
+
+## Choose the contract before the operator
+
+An ordinary Rust `i64` has a finite range. Its division truncates toward zero,
+and overflow or division by zero rejects in the compiled subset. A raw CLVM
+integer is an atom interpreted by the selected operator: its encoding, signed
+interpretation and resource limits belong to that operator. For example,
+Rust `-7 / 3` is `-2`, while raw CLVM floor division returns `-3`.
+
+Use ordinary Rust arithmetic when that is your policy's contract. Use
+`chialisp_oxide::raw_clvm` explicitly when matching a CLVM operation's contract.
+Do not silently exchange the two to make a test pass.
+
+## Preserve bytes when bytes are the policy
+
+`raw_clvm::byte_concat` concatenates atom payloads without interpreting them as
+integers. `byte_length` counts those bytes; `byte_substr` uses end-exclusive
+CLVM index atoms. Nil and an atom containing one zero byte differ. A pair where
+an atom is required rejects. Returned lengths and substrings are `Tree` values,
+not Rust `usize` values or newly borrowed Rust slices.
+
+Each helper constructs a fixed operator program and its environment using real
+Rust `Tree` constructors, then calls the reviewed `apply` bridge. The compiler
+lowers the helper body rather than granting behavior to its name. The result
+may be a newly generated atom or a pair such as `divmod`'s improper
+`(quotient . remainder)` result.
+
+## Keep the host oracle explicit
+
+Native calls require the facade's `vm` feature and run the pinned CLVM evaluator.
+Its host-only result storage is retained for the oracle's lifetime. This is not
+an allocation-free Rust byte implementation or evidence of a separately
+implemented cryptographic algorithm. Compile puzzle libraries through the normal
+Cargo subset route; use the VM feature for the native oracle separately.
+
+Tests compare actual helper-source compilation in both modes with independent
+Chialisp source compilation. They include byte-preservation, numeric boundaries,
+malformed operands and strictness cases. These are finite execution observations;
+the existing proof models reject dynamic application.
+
+## Do not confuse raw truth with Rust short-circuiting
+
+Raw truth is nil versus non-nil, including pair values. `not`, `any2` and `all2`
+return CLVM Boolean atoms. Both arguments to the two-argument helpers are
+evaluated before the call, including an argument that fails. Rust `||`, `&&` and
+`if` have their ordinary lazy branch semantics instead.
+
+Applied programs also inherit the selected VM dialect and activation rules.
+An operator documented for another dialect is not automatically enabled here.
+Resource exhaustion remains inconclusive as policy-rejection evidence. A raw
+result still needs a policy around authorization, output conditions and costs;
+it does not deploy or validate a complete spend by itself.
+
+
+## Verify a signature operation, not a signature condition
+
+The raw group and verification helpers execute CLVM's point, pairing and
+signature operators. Their pinned tests include valid nonempty signatures,
+wrong messages and invalid encodings. `AGG_SIG_ME` instead returns a condition
+for consensus to verify later. A condition-producing puzzle has not thereby
+performed an on-chain BLS opcode.
+
+Use the exact key, point, scalar, message and DST encodings required by the
+selected helper. Legacy four-byte SECP operators and single-byte flag-gated
+operators have separate activation contracts. A fixture's successful verification
+is neither a new cryptographic proof nor evidence that an arbitrary native
+crypto crate is supported by the Rust frontend.
+
+## Pass variadic operands as data
+
+The `*_list` helpers accept a proper list of already evaluated values. They
+quote each value before constructing the fixed operation. A value shaped like
+an executable program remains data. An improper tail rejects even after a
+truthy `any_list` head or a false `all_list` head. There is no short-circuit
+escape from list validation.
+
+Native proper-list calls preflight the complete expanded input before recursion:
+at most 128 operands, depth 256, 32,768 node occurrences and 1 MiB of atom
+payloads, plus projected copy budgets of 4 million nodes and 16 MiB. Exceeding a
+host bound reports `ResourceExhausted`, not policy rejection. These oracle limits
+are absent from the compiled policy; its VM cost and protocol limits still apply.
+
+Recursive construction and nested apply calls add real costs. The native
+oracle may allocate and retain intermediate trees; host resource exhaustion is
+inconclusive, not a policy rejection. No canonical module identity or equality
+of whole-spend costs follows from matching outputs.
+
+## Keep a softfork assertion inside its guard
+
+`raw_clvm::softfork` takes cost, extension, program and environment as trees.
+All four Rust operands are evaluated before the call; the supplied program
+executes inside the guard. A successful guard always returns nil, discarding
+the program's output. Under the current profile, extension 1 permits a Keccak
+assertion inside that guard. It cannot export the computed digest.
+
+The declared cost must exactly cover the guard entry and inner execution.
+Over-reservation is a typed program failure; under-reservation is a resource
+failure with no policy-rejection credit. The interface does not activate
+disabled modpow or other flag-gated operators. Consult the
+[operator/profile map](/chialisp-oxide/reference/chialisp-functionality/) before
+choosing a protocol or activation context.
+
+
+## Reproduce the helper checks locally
+
+After building the tools in the quickstart, run from the repository root:
+
+```sh
+cargo test -p chialisp-oxide --features vm --test raw_clvm --locked
+cargo test -p chialisp-oxide-driver --test raw_clvm --test raw_clvm_crypto --test raw_clvm_variadic --locked
+cargo test -p chialisp-oxide-driver --test division --test shifts --locked
+```
+
+The driver tests create ordinary Cargo libraries, compile their actual exports
+in both modes and execute the resulting programs. Crypto fixtures retain pinned
+upstream source attribution. The first/rest controls deliberately retain the
+distinction between explicit operator failure and Chialisp's optimized path
+failure. These commands perform local tests; none signs or submits a transaction.

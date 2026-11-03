@@ -5,6 +5,10 @@ description: Compile a small condition-producing Rust function and distinguish t
 
 import SourceComparison from '../../../components/SourceComparison.astro';
 
+If this is your first Chia lesson, read the [coin model](/chialisp-oxide/start/coin-model/)
+and run the [Cargo quickstart](/chialisp-oxide/start/quickstart/) first. No wallet
+is needed here.
+
 This paired fixture is an annotated module in the `chialisp-oxide-puzzles` Cargo library.
 For the SDK dependency and export setup, start with
 [typed SDK authoring](/chialisp-oxide/tutorials/typed-sdk/).
@@ -12,6 +16,10 @@ For the SDK dependency and export setup, start with
 Start with a puzzle that makes exactly two promises: the input coin has amount
 1,000, and the output sends 1,000 to the fixed 32-byte destination `0x42…42`.
 It makes no ownership promise. Anyone may trigger this payment.
+
+The fixed `0x42…42` hash is a teaching fixture, not a destination you control.
+Do not send live funds to it. Funding this puzzle would give anyone permission
+to trigger its fixed payment; the Rust export annotation adds no owner check.
 
 ## Read the Rust result
 
@@ -55,6 +63,15 @@ provide authenticated coin context.
 
 See the [fixed-payment evidence](/chialisp-oxide/lab/fixed-payment/) for measured
 costs, exact compiled bytes and hashes, vectors, and ledger scenario results.
+
+## Follow the lifecycle
+
+A successful build does not create a coin, and `run` does not submit a transaction.
+The [build-to-spend lesson](/chialisp-oxide/start/build-to-spend/) runs a related
+fresh payment recipe through the simulator and explains funding, signing,
+submission and confirmation. That recipe curries a chosen recipient; this
+fixture has its recipient compiled into the module. Both commit the destination
+before funding, but they are different programs with different puzzle hashes.
 
 ## What to change next
 
