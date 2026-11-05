@@ -1043,3 +1043,65 @@ fn coherent_v8_access_attachment_mutations_fail_closed() {
         );
     }
 }
+
+#[test]
+fn portable_v9_keeps_internal_callables_without_a_public_callable_abi() {
+    use chialisp_oxide_ir::{Expr, Function};
+    let callable = Type::Callable {
+        parameters: vec![],
+        result: Box::new(Type::Unit),
+    };
+    let mut program = unit_program();
+    program.functions.push(Function {
+        id: 0,
+        name: "unit".into(),
+        parameters: vec![],
+        result: Type::Unit,
+        body: Expr::Unit,
+    });
+    program.body = Expr::Let {
+        local_id: 0,
+        ty: callable.clone(),
+        value: Box::new(Expr::FunctionRef { function_id: 0 }),
+        body: Box::new(Expr::CallIndirect {
+            callee: Box::new(Expr::Local { local_id: 0 }),
+            arguments: vec![],
+        }),
+    };
+    let manifest = rust_manifest(program);
+    assert_eq!(manifest.rust.as_ref().unwrap().ir_wire_version, 9);
+    let package = admit(&serde_json::to_value(&manifest).unwrap()).unwrap();
+    let replay = verify_package(package.bytes(), &Limits::default()).unwrap();
+    assert_eq!(replay.bytes(), package.bytes());
+    assert_eq!(
+        replay.manifest().rust.as_ref().unwrap().abi.result,
+        AbiType::Unit {}
+    );
+    assert_eq!(
+        replay.manifest().rust.as_ref().unwrap().ir_json,
+        manifest.rust.as_ref().unwrap().ir_json
+    );
+    // These are offline constructed transport controls; the nil artifact fixture
+    // intentionally carries no IR/CLVM equivalence or execution claim.
+    for ty in [
+        callable.clone(),
+        Type::Tuple {
+            items: vec![callable.clone()],
+        },
+        Type::Optional {
+            item: Box::new(callable.clone()),
+        },
+        Type::Pair {
+            first: Box::new(Type::Unit),
+            rest: Box::new(callable),
+        },
+    ] {
+        let error = AbiType::from_validated_ir(&ty).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidManifest);
+        assert!(
+            error
+                .to_string()
+                .contains("internal callables cannot appear")
+        );
+    }
+}

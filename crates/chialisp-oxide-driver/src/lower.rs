@@ -17,6 +17,9 @@ use rustc_span::Span;
 mod applying;
 mod arrays;
 mod byte_comparison;
+mod callables;
+mod captured_closures;
+mod closures;
 mod cons;
 mod constants;
 mod empty_atoms;
@@ -42,6 +45,13 @@ pub struct Lowerer<'tcx> {
     // Tcxt query bodies are immutable and arena-stable for this Lowerer lifetime.
     shift_plans: RefCell<HashMap<(usize, BasicBlock), Option<shift_guards::Plan<'tcx>>>>,
     array_plans: RefCell<HashMap<usize, std::rc::Rc<arrays::Plan>>>,
+    callable_ids: RefCell<HashMap<DefId, usize>>,
+    callable_signature_active: Cell<bool>,
+    zero_promoted: RefCell<HashMap<(DefId, ty::GenericArgsRef<'tcx>, Promoted), &'tcx Body<'tcx>>>,
+    active_zero_promoted: RefCell<Vec<closures::promoted::Context<'tcx>>>,
+    zero_closures: RefCell<HashMap<DefId, std::rc::Rc<closures::Plan<'tcx>>>>,
+    captured_closures: RefCell<HashMap<DefId, std::rc::Rc<captured_closures::Plan<'tcx>>>>,
+    captured_use_plans: RefCell<HashMap<usize, std::rc::Rc<captured_closures::Uses>>>,
     explicit_allocator: Cell<Option<bool>>,
     hash_candidates: RefCell<Option<Result<Vec<DefId>, String>>>,
     hash_primitives: RefCell<HashMap<DefId, Result<(), String>>>,
@@ -54,12 +64,14 @@ struct Environment {
     values: Vec<Option<Expr>>,
     // Compiler pointer metadata stays outside ordinary typed MIR locals.
     boxes: HashMap<Local, std::rc::Rc<Expr>>,
+    captures: HashMap<Local, std::rc::Rc<captured_closures::Value>>,
 }
 impl Environment {
     fn new(count: usize) -> Self {
         Self {
             values: vec![None; count],
             boxes: HashMap::new(),
+            captures: HashMap::new(),
         }
     }
 }
@@ -161,6 +173,13 @@ impl<'tcx> Lowerer<'tcx> {
             owned_plans: RefCell::new(HashMap::new()),
             shift_plans: RefCell::new(HashMap::new()),
             array_plans: RefCell::new(HashMap::new()),
+            callable_ids: RefCell::new(HashMap::new()),
+            callable_signature_active: Cell::new(false),
+            zero_closures: RefCell::new(HashMap::new()),
+            captured_closures: RefCell::new(HashMap::new()),
+            captured_use_plans: RefCell::new(HashMap::new()),
+            zero_promoted: RefCell::new(HashMap::new()),
+            active_zero_promoted: RefCell::new(Vec::new()),
             explicit_allocator: Cell::new(None),
             hash_candidates: RefCell::new(None),
             hash_primitives: RefCell::new(HashMap::new()),
@@ -223,6 +242,10 @@ impl<'tcx> Lowerer<'tcx> {
                     push(then_value);
                 }
                 Expr::Call { arguments, .. } => arguments.iter().for_each(push),
+                Expr::CallIndirect { callee, arguments } => {
+                    push(callee);
+                    arguments.iter().for_each(push);
+                }
                 Expr::Let { value, body, .. } => {
                     push(value);
                     push(body);
@@ -235,6 +258,7 @@ impl<'tcx> Lowerer<'tcx> {
                 | Expr::Unit
                 | Expr::Arg { .. }
                 | Expr::Local { .. }
+                | Expr::FunctionRef { .. }
                 | Expr::Reject { .. } => (),
                 Expr::OptionalNone { .. } => (),
             }
@@ -269,6 +293,13 @@ impl<'tcx> Lowerer<'tcx> {
         for value in locals.boxes.values() {
             self.check_expression(value, span)?;
         }
+        if !locals.captures.is_empty() {
+            self.callable_charge(span, locals.captures.len().saturating_mul(3))?;
+            for value in locals.captures.values() {
+                self.check_expression(&value.code, span)?;
+                self.check_expression(&value.environment, span)?;
+            }
+        }
         Ok(locals.clone())
     }
 
@@ -290,10 +321,20 @@ impl<'tcx> Lowerer<'tcx> {
     pub fn input_ty(&self, ty: Ty<'tcx>, span: Span) -> Result<Type, String> {
         // The version-8 IR records optional entry capability. The complete
         // ordinary type preflight still excludes unsupported Rust payloads.
-        self.ty(ty, span)
+        let lowered = self.ty(ty, span)?;
+        if matches!(lowered, Type::Callable { .. }) {
+            return Err(self.error(
+                span,
+                "callable values are not supported in the public puzzle ABI",
+            ));
+        }
+        Ok(lowered)
     }
 
     fn lower_type(&self, ty: Ty<'tcx>, span: Span, depth: usize) -> Result<(Type, usize), String> {
+        if self.callable_signature_active.get() {
+            self.callable_charge(span, 1)?;
+        }
         if depth >= 32 {
             return Err(self.error(span, "type expansion limit exceeded (depth 32)"));
         }
@@ -307,6 +348,7 @@ impl<'tcx> Lowerer<'tcx> {
                 bits: int.bit_width().ok_or_else(|| self.error(span, "usize is target-dependent and unsupported"))? as u16,
                 signed: false,
             },
+            ty::FnPtr(..) => return self.callable_type(ty, span, depth),
             ty::Tuple(items) if items.is_empty() => Type::Unit,
             ty::Tuple(items) => {
                 if items.len() > 256 {
@@ -316,6 +358,7 @@ impl<'tcx> Lowerer<'tcx> {
                 let mut nodes = 1;
                 for item in items.iter() {
                     let (item, count) = self.lower_type(item, span, depth + 1)?;
+                    if matches!(item, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in tuple fields")); }
                     nodes += count;
                     if nodes > 4_096 {
                         return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)"));
@@ -334,6 +377,8 @@ impl<'tcx> Lowerer<'tcx> {
                     Type::Bytes { len }
                 } else {
                     let (element, nodes) = self.lower_type(*element, span, depth + 1)?;
+                    if matches!(element, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in arrays")); }
+                    if self.callable_signature_active.get() { self.callable_charge(span, nodes.saturating_mul(len.saturating_sub(1)))?; }
                     let nodes = nodes * len + 1;
                     if nodes > 4_096 {
                         return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)"));
@@ -344,6 +389,7 @@ impl<'tcx> Lowerer<'tcx> {
             ty::Adt(..) => {
                 if let Some(shape) = self.optional_shape(ty, span)? {
                     let (item, nodes) = self.lower_type(shape.item, span, depth + 1)?;
+                    if matches!(item, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in Option")); }
                     self.check_cons_components([shape.item, self.tcx.types.unit], span)?;
                     if nodes + 1 > 4_096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
                     return Ok((Type::Optional { item: Box::new(item) }, nodes + 1));
@@ -352,6 +398,7 @@ impl<'tcx> Lowerer<'tcx> {
                     let components = [first, rest];
                     let (first, a) = self.lower_type(first, span, depth + 1)?;
                     let (rest, b) = self.lower_type(rest, span, depth + 1)?;
+                    if matches!(first, Type::Callable { .. }) || matches!(rest, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in pairs")); }
                     self.check_cons_components(components, span)?;
                     if a + b + 1 > 4_096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
                     return Ok((Type::Pair { first: Box::new(first), rest: Box::new(rest) }, a + b + 1));
@@ -363,6 +410,7 @@ impl<'tcx> Lowerer<'tcx> {
                     let mut nodes = 1usize;
                     for field in fields {
                         let (item, count) = self.lower_type(field, span, depth + 1)?;
+                        if matches!(item, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in records")); }
                         nodes += count;
                         if nodes > 4096 { return Err(self.error(span, "type expansion limit exceeded (4,096 nodes)")); }
                         items.push(item);
@@ -370,7 +418,9 @@ impl<'tcx> Lowerer<'tcx> {
                     return Ok((Type::Tuple { items }, nodes));
                 }
                 let inner = self.transparent_inner(ty, span)?.ok_or_else(|| self.error(span, "expected a transparent newtype"))?;
-                return self.lower_type(inner, span, depth + 1);
+                let lowered = self.lower_type(inner, span, depth + 1)?;
+                if matches!(lowered.0, Type::Callable { .. }) { return Err(self.error(span, "callable values cannot be stored in wrappers")); }
+                return Ok(lowered);
             }
             ty::Ref(_, inner, ty::Mutability::Not) if self.shared_tree_or_bytes(ty, span)? => {
                 return self.lower_type(*inner, span, depth + 1);
@@ -406,6 +456,12 @@ impl<'tcx> Lowerer<'tcx> {
 
     fn function_body(&self, id: DefId) -> Result<&'tcx Body<'tcx>, String> {
         let span = self.tcx.def_span(id);
+        if self.tcx.def_kind(id) == rustc_hir::def::DefKind::Closure {
+            if let Some(body) = self.captured_body(id)? {
+                return Ok(body);
+            }
+            return self.closure_body(id);
+        }
         if !id.is_local() && !self.allowed_external(id) {
             return Err(self.error(
                 span,
@@ -422,6 +478,9 @@ impl<'tcx> Lowerer<'tcx> {
             return Err(self.error(span, "generic puzzle functions are unsupported"));
         }
         let signature = self.tcx.fn_sig(id).instantiate_identity().skip_binder();
+        if matches!(signature.output().kind(), ty::FnPtr(..)) {
+            return Err(self.error(span, "functions cannot return callable values"));
+        }
         if signature.abi() != rustc_abi::ExternAbi::Rust {
             return Err(self.error(span, "only ordinary Rust function ABI is supported; FFI exports and calls are unsupported"));
         }
@@ -787,6 +846,9 @@ impl<'tcx> Lowerer<'tcx> {
             Operand::Copy(place) | Operand::Move(place) => self.place(body, *place, locals, span),
             Operand::Constant(constant) => {
                 let rust_ty = constant.const_.ty();
+                if matches!(rust_ty.kind(), ty::FnPtr(..)) {
+                    return Err(self.error(span, "constant or static function-pointer values are unsupported; reify a local function item"));
+                }
                 let ty = self.ty(rust_ty, span)?;
                 if matches!(ty, Type::Optional { .. }) {
                     return self.optional_constant(constant.const_, span);
@@ -849,7 +911,10 @@ impl<'tcx> Lowerer<'tcx> {
     ) -> Result<Expr, String> {
         let plan = self.owned_plan(body)?;
         let captured = plan.roots.get(&place.local);
-        let mut value = if captured.is_some() {
+        let closure_projection = self.captured_projection(body, place, locals, span)?;
+        let mut value = if let Some((value, _, _)) = &closure_projection {
+            value.clone()
+        } else if captured.is_some() {
             if place.projection.first() != Some(&ProjectionElem::Deref) {
                 return Err(self.error(span, "Box pointer metadata cannot be observed as a value"));
             }
@@ -865,15 +930,17 @@ impl<'tcx> Lowerer<'tcx> {
                 .clone()
                 .ok_or_else(|| self.error(span, "MIR reads an uninitialized local"))?
         };
-        let mut current_ty = captured
-            .copied()
+        let mut current_ty = closure_projection
+            .as_ref()
+            .map(|(_, ty, _)| *ty)
+            .or_else(|| captured.copied())
             .unwrap_or(body.local_decls[place.local].ty);
         let mut variant = None;
-        for projection in place
-            .projection
-            .iter()
-            .skip(usize::from(captured.is_some()))
-        {
+        for projection in place.projection.iter().skip(
+            closure_projection
+                .as_ref()
+                .map_or(usize::from(captured.is_some()), |(_, _, skip)| *skip),
+        ) {
             match projection {
                 ProjectionElem::Downcast(_, index)
                     if self.optional_shape(current_ty, span)?.is_some() =>
@@ -1101,6 +1168,9 @@ impl<'tcx> Lowerer<'tcx> {
         locals: &Environment,
         span: Span,
     ) -> Result<Expr, String> {
+        if let Some(value) = self.callable_value(body, value, span)? {
+            return Ok(value);
+        }
         match value {
             Rvalue::Use(operand, _) => self.operand(body, operand, locals, span),
             Rvalue::Ref(_, rustc_middle::mir::BorrowKind::Shared, place)
@@ -1161,6 +1231,12 @@ impl<'tcx> Lowerer<'tcx> {
             Rvalue::BinaryOp(op, operands) => {
                 let (left, right) = &**operands;
                 let left_ty = self.ty(left.ty(&body.local_decls, self.tcx), span)?;
+                if left_ty.contains_callable() {
+                    return Err(self.error(
+                        span,
+                        "function-pointer comparisons, addresses and arithmetic are unsupported",
+                    ));
+                }
                 let kind = match op {
                     BinOp::Eq => BinaryOp::Eq,
                     BinOp::Ne => BinaryOp::Ne,

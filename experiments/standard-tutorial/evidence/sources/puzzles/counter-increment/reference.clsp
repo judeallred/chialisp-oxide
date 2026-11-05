@@ -1,0 +1,21 @@
+; Original independent reference for the finite typed counter-action contract.
+; This is not copied from slot-machine. E is opaque and retained exactly.
+(mod ENV
+  (defun checked_count (N)
+    (if (l N) (x)
+      (if (= N (+ N 0))
+        (if (> N -1)
+          (if (> N 18446744073709551615) (x) N)
+          (x))
+        (x))))
+  (defun increment_truth (TRUTH)
+    (if (l TRUTH)
+      (c (c (f TRUTH)
+              (if (= (checked_count (r TRUTH)) 18446744073709551615)
+                (x)
+                (+ (checked_count (r TRUTH)) 1)))
+         ())
+      (x)))
+  (if (l ENV)
+    (if (r ENV) (x) (increment_truth (f ENV)))
+    (x)))

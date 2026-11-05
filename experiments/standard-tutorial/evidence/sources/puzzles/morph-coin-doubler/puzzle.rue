@@ -1,0 +1,35 @@
+// Independent Rue source translation of the pinned Condition Morphing module.
+// The solution is the complete dotted tail, not one nested argument.
+fn main(inner_puzzle: fn(...solution: Any) -> Any, ...inner_solution: Any) -> Any {
+    morph_conditions(inner_puzzle(...inner_solution))
+}
+
+fn morph_conditions(conditions: Any) -> Any {
+    if conditions is (Any, Any) {
+        (morph_condition(conditions.first), morph_conditions(conditions.rest))
+    } else {
+        // Canonical listp stops on every atom, including non-nil tails.
+        nil
+    }
+}
+
+fn morph_condition(condition: Any) -> Any {
+    assert condition is (Any, Any);
+    let opcode = condition.first;
+    assert opcode is Bytes;
+    // Byte equality matters: padded 0x0033 is not CREATE_COIN here.
+    if opcode == 0x33 {
+        let fields = condition.rest;
+        assert fields is (Any, Any);
+        let puzzle_hash = fields.first;
+        let amount_and_tail = fields.rest;
+        assert amount_and_tail is (Any, Any);
+        let amount = amount_and_tail.first;
+        assert amount is Bytes;
+        // Int is unbounded; padded and negative numeric atoms are admitted.
+        // Exactly three output fields discard memos only for matching 51.
+        (51, (puzzle_hash, ((amount as Int) * 2, nil)))
+    } else {
+        condition
+    }
+}

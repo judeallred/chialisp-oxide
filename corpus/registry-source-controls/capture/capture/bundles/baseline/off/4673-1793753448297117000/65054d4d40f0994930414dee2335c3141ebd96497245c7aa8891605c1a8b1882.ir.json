@@ -1,0 +1,335 @@
+{
+  "ir_version": 4,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_puzzles::module_factorial::puzzle",
+    "parameters": [
+      {
+        "name": "number",
+        "ty": {
+          "kind": "int",
+          "bits": 64,
+          "signed": true
+        }
+      }
+    ],
+    "result": {
+      "kind": "int",
+      "bits": 64,
+      "signed": true
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_puzzles::module_factorial::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          }
+        ],
+        "result": {
+          "kind": "int",
+          "bits": 64,
+          "signed": true
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": true
+          },
+          "value": {
+            "op": "call",
+            "function_id": 1,
+            "arguments": [
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide_puzzles::module_factorial::factorial",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          }
+        ],
+        "result": {
+          "kind": "int",
+          "bits": 64,
+          "signed": true
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "bool"
+          },
+          "value": {
+            "op": "binary",
+            "kind": "gt",
+            "left": {
+              "op": "arg",
+              "index": 0
+            },
+            "right": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": true
+              }
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": true
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "binary",
+              "kind": "eq",
+              "left": {
+                "op": "local",
+                "local_id": 0
+              },
+              "right": {
+                "op": "bool",
+                "value": false
+              },
+              "ty": {
+                "kind": "bool"
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": true
+              }
+            },
+            "else_value": {
+              "op": "let",
+              "local_id": 1,
+              "ty": {
+                "kind": "tuple",
+                "items": [
+                  {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": true
+                  },
+                  {
+                    "kind": "bool"
+                  }
+                ]
+              },
+              "value": {
+                "op": "tuple",
+                "items": [
+                  {
+                    "op": "binary",
+                    "kind": "sub",
+                    "left": {
+                      "op": "arg",
+                      "index": 0
+                    },
+                    "right": {
+                      "op": "int",
+                      "value": "1",
+                      "ty": {
+                        "kind": "int",
+                        "bits": 64,
+                        "signed": true
+                      }
+                    },
+                    "ty": {
+                      "kind": "int",
+                      "bits": 64,
+                      "signed": true
+                    }
+                  },
+                  {
+                    "op": "bool",
+                    "value": false
+                  }
+                ]
+              },
+              "body": {
+                "op": "if",
+                "condition": {
+                  "op": "not",
+                  "value": {
+                    "op": "field",
+                    "value": {
+                      "op": "local",
+                      "local_id": 1
+                    },
+                    "index": 1
+                  }
+                },
+                "then_value": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": true
+                  },
+                  "value": {
+                    "op": "field",
+                    "value": {
+                      "op": "local",
+                      "local_id": 1
+                    },
+                    "index": 0
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "int",
+                      "bits": 64,
+                      "signed": true
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 1,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 2
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 4,
+                      "ty": {
+                        "kind": "tuple",
+                        "items": [
+                          {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": true
+                          },
+                          {
+                            "kind": "bool"
+                          }
+                        ]
+                      },
+                      "value": {
+                        "op": "tuple",
+                        "items": [
+                          {
+                            "op": "binary",
+                            "kind": "mul",
+                            "left": {
+                              "op": "arg",
+                              "index": 0
+                            },
+                            "right": {
+                              "op": "local",
+                              "local_id": 3
+                            },
+                            "ty": {
+                              "kind": "int",
+                              "bits": 64,
+                              "signed": true
+                            }
+                          },
+                          {
+                            "op": "bool",
+                            "value": false
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "if",
+                        "condition": {
+                          "op": "not",
+                          "value": {
+                            "op": "field",
+                            "value": {
+                              "op": "local",
+                              "local_id": 4
+                            },
+                            "index": 1
+                          }
+                        },
+                        "then_value": {
+                          "op": "let",
+                          "local_id": 5,
+                          "ty": {
+                            "kind": "int",
+                            "bits": 64,
+                            "signed": true
+                          },
+                          "value": {
+                            "op": "field",
+                            "value": {
+                              "op": "local",
+                              "local_id": 4
+                            },
+                            "index": 0
+                          },
+                          "body": {
+                            "op": "local",
+                            "local_id": 5
+                          }
+                        },
+                        "else_value": {
+                          "op": "reject",
+                          "message": "puzzles/module-factorial/puzzle.rs:9:9: 9:39: Rust assertion failed"
+                        }
+                      }
+                    }
+                  }
+                },
+                "else_value": {
+                  "op": "reject",
+                  "message": "puzzles/module-factorial/puzzle.rs:9:28: 9:38: Rust assertion failed"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

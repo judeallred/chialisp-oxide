@@ -1,0 +1,6 @@
+// Independent translation of the exact positional tutorial module.
+// Extra fields and improper tails are ignored; the first tree is unchanged.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    environment.first
+}

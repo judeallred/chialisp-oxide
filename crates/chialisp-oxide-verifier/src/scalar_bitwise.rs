@@ -12,6 +12,7 @@ pub(super) fn contains_integer_bitwise(body: &Expr) -> bool {
     let mut pending = vec![body];
     while let Some(expr) = pending.pop() {
         match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return false,
             Expr::Binary {
                 kind: BinaryOp::Bitand | BinaryOp::Bitor | BinaryOp::Bitxor,
                 ty: Type::Int { .. },

@@ -27,6 +27,7 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
         }
         visited += 1;
         let children = match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return false,
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }
             | Expr::Call {
@@ -72,6 +73,7 @@ pub(super) fn allows_recursive_refinement(program: &Program) -> bool {
         }
         let depth = depth + 1;
         match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return false,
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }
             | Expr::Call {

@@ -143,6 +143,10 @@ instead of inferring support from a successful `cargo check`.
   unsupported formatting calls into the reachable graph.
 - Use supported helpers or explicit supported recursion instead of assuming
   iterator chains, arbitrary trait dispatch or cross-crate libraries lower.
+- Concrete local `move` closures can snapshot supported whole-root Copy/drop-free
+  fixed values and immutable SDK Tree values. Keep closure bindings immutable;
+  shared/projected/owned captures and generic `F: Fn` helpers need separate support.
+  Read the [exact callable contract](https://github.com/judeallred/chialisp-oxide/blob/main/docs/local-callables.md).
 - The reviewed borrowed `Tree` and optional `alloc`/`OwnedTree` representations
   are specific exceptions, not support for arbitrary references or allocators.
 - Prefer ordinary implicit `Copy` reuse of SDK values to `.clone()`. Do not

@@ -1,0 +1,438 @@
+{
+  "slug": "counter-increment",
+  "title": "Counter action: checked increment",
+  "kind": "protocol_component",
+  "environment": "strict",
+  "reference_mode": "module",
+  "security_scope": "Original WIP finite counter action, not ready for real funds. Accepts exactly one StateTruth = (opaque ephemeral tree . canonical u64 count), returns the same ephemeral tree and checked count+1 with no conditions. Incrementing u64::MAX rejects. The explicit Cons output is an action result, not a condition list or complete standalone coin puzzle. Canonical action-layer, finalizer and singleton host composition is separate from these original Rust/Chialisp/Rue actions. Standalone VM output does not establish signature validity, complete-spend acceptance, a general registry/slot demo, live Testnet11 use or compiler preservation.",
+  "source_dependencies": [
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Cargo.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hex",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/merkle_utils.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hex",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "puzzles/counter_types.rs"
+  ],
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter/wire.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter/lifecycle.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs"
+  ],
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://github.com/judeallred/chialisp-oxide/issues/14",
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-currying/"
+    ],
+    "source_origin": "The Rust action and independently authored Chialisp/Rue sources implement this original finite teaching contract. They are not copies or ports of the canonical outer action layer, finalizer, singleton or a published counter module. No canonical action module hash is claimed.",
+    "reference_source": {
+      "path": "puzzles/counter-increment/reference.clsp",
+      "sha256": "7bd23a38b708f29be958cb5bd8da6858c00352e1ecc5a218a0a708879f0cb502",
+      "role": "Original independent Chialisp module for the exact finite typed action contract."
+    },
+    "rue_source": {
+      "path": "puzzles/counter-increment/puzzle.rue",
+      "sha256": "24d5e3338975112243e32b68c89116ee92baca9cdb99fcf3c664bb66670bc3a5",
+      "role": "Original independent Rue source, compiled separately with controlled off/on profiles."
+    },
+    "limitations": [
+      "Count is a finite canonical unsigned u64 atom, not the arbitrary state tree admitted by the canonical outer action layer. Nil is canonical zero; padded, negative, oversized and pair counts reject.",
+      "StateTruth is the improper pair (ephemeral . count), while the exact argument environment is a proper list. Arbitrary ephemeral atom bytes and improper tree tails are preserved. This is the default strict typed ABI, not a raw whole-environment export.",
+      "Each action expects nil action_solution after its fixed arguments are curried. Extra arguments and improper argument tails reject; the canonical outer module may ignore other unselected wire data.",
+      "PublicKey checks exactly 48 bytes, not curve membership or signing authority. Actual aggregate signatures are checked by the simulator/consensus lane, separately from raw VM vectors.",
+      "Reset uses the fixed 32-byte intent chialisp-oxide/counter/reset:v1!. Increment then reset and reset then increment may both be authorized and produce different states; no complete-batch or action-order authorization is claimed.",
+      "Canonical SDK host modules have their own published provenance and licenses. Their composition does not mean the outer action layer, finalizer or singleton was implemented in Rust.",
+      "Counter tests do not complete issue #14: the registry/slot and actual slot double-spend milestone remains separate. No BLS theorem, live deployment, compiler-preservation proof or production-readiness claim follows."
+    ],
+    "canonical_host_provenance": {
+      "records": [
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+          "sha256": "aed0e6fe3fb9049be92b3efd832e4d33dce7b45c4f9a6066233e608f3894f50d"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+          "sha256": "2dd3e97ec1fb6e4c5ec401fc75444bd8b62db9e266ea38b19ca6519b082b6f42"
+        }
+      ],
+      "scope": "Separate exact published host sources/artifacts and licenses. Original counter actions are not ports of these hosts. Historical Rue 0.9 reproduction is labeled in the retained provenance; a current source/hash reader adds no execution or compiler-preservation credit."
+    }
+  },
+  "cases": [
+    {
+      "label": "nil-count-0",
+      "solution": "((() . ()) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff800180"
+      }
+    },
+    {
+      "label": "nil-count-1",
+      "solution": "((() . 0x01) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff800280"
+      }
+    },
+    {
+      "label": "nil-count-127",
+      "solution": "((() . 0x7f) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8082008080"
+      }
+    },
+    {
+      "label": "nil-count-128",
+      "solution": "((() . 0x0080) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff8082008180"
+      }
+    },
+    {
+      "label": "nil-count-9223372036854775808",
+      "solution": "((() . 0x008000000000000000) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808900800000000000000180"
+      }
+    },
+    {
+      "label": "nil-count-18446744073709551614",
+      "solution": "((() . 0x00fffffffffffffffe) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff808900ffffffffffffffff80"
+      }
+    },
+    {
+      "label": "nil-count-18446744073709551615",
+      "solution": "((() . 0x00ffffffffffffffff) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "zero-byte-count-0",
+      "solution": "((0x00 . ()) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff000180"
+      }
+    },
+    {
+      "label": "zero-byte-count-1",
+      "solution": "((0x00 . 0x01) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff000280"
+      }
+    },
+    {
+      "label": "zero-byte-count-127",
+      "solution": "((0x00 . 0x7f) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0082008080"
+      }
+    },
+    {
+      "label": "zero-byte-count-128",
+      "solution": "((0x00 . 0x0080) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff0082008180"
+      }
+    },
+    {
+      "label": "zero-byte-count-9223372036854775808",
+      "solution": "((0x00 . 0x008000000000000000) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008900800000000000000180"
+      }
+    },
+    {
+      "label": "zero-byte-count-18446744073709551614",
+      "solution": "((0x00 . 0x00fffffffffffffffe) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff008900ffffffffffffffff80"
+      }
+    },
+    {
+      "label": "zero-byte-count-18446744073709551615",
+      "solution": "((0x00 . 0x00ffffffffffffffff) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper-pair-count-0",
+      "solution": "(((0x61 . 0x7461696c) . ()) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c0180"
+      }
+    },
+    {
+      "label": "improper-pair-count-1",
+      "solution": "(((0x61 . 0x7461696c) . 0x01) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c0280"
+      }
+    },
+    {
+      "label": "improper-pair-count-127",
+      "solution": "(((0x61 . 0x7461696c) . 0x7f) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c82008080"
+      }
+    },
+    {
+      "label": "improper-pair-count-128",
+      "solution": "(((0x61 . 0x7461696c) . 0x0080) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c82008180"
+      }
+    },
+    {
+      "label": "improper-pair-count-9223372036854775808",
+      "solution": "(((0x61 . 0x7461696c) . 0x008000000000000000) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8900800000000000000180"
+      }
+    },
+    {
+      "label": "improper-pair-count-18446744073709551614",
+      "solution": "(((0x61 . 0x7461696c) . 0x00fffffffffffffffe) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff61847461696c8900ffffffffffffffff80"
+      }
+    },
+    {
+      "label": "improper-pair-count-18446744073709551615",
+      "solution": "(((0x61 . 0x7461696c) . 0x00ffffffffffffffff) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nested-list-count-0",
+      "solution": "(((() . (0x00 . ())) . ()) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00800180"
+      }
+    },
+    {
+      "label": "nested-list-count-1",
+      "solution": "(((() . (0x00 . ())) . 0x01) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00800280"
+      }
+    },
+    {
+      "label": "nested-list-count-127",
+      "solution": "(((() . (0x00 . ())) . 0x7f) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008082008080"
+      }
+    },
+    {
+      "label": "nested-list-count-128",
+      "solution": "(((() . (0x00 . ())) . 0x0080) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff008082008180"
+      }
+    },
+    {
+      "label": "nested-list-count-9223372036854775808",
+      "solution": "(((() . (0x00 . ())) . 0x008000000000000000) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808900800000000000000180"
+      }
+    },
+    {
+      "label": "nested-list-count-18446744073709551614",
+      "solution": "(((() . (0x00 . ())) . 0x00fffffffffffffffe) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffff80ff00808900ffffffffffffffff80"
+      }
+    },
+    {
+      "label": "nested-list-count-18446744073709551615",
+      "solution": "(((() . (0x00 . ())) . 0x00ffffffffffffffff) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-zero-byte",
+      "solution": "((() . 0x00) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-padded-zero",
+      "solution": "((() . 0x0000) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-padded-one",
+      "solution": "((() . 0x0001) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-negative",
+      "solution": "((() . 0xff) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-u64-plus-one",
+      "solution": "((() . 0x010000000000000000) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-nine-byte-high",
+      "solution": "((() . 0x010000000000000000) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-wide-padded",
+      "solution": "((() . 0x0000000000000000000000000000000000000000000000000000000000000000) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-pair",
+      "solution": "((() . (() . ())) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-count-list",
+      "solution": "((() . (0x01 . ())) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-truth-nil",
+      "solution": "(() . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-truth-atom",
+      "solution": "(0x78 . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-truth-proper-two-list",
+      "solution": "((() . (0x01 . ())) . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-environment-nil",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-environment-atom",
+      "solution": "0x78",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-environment-missing",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-environment-extra",
+      "solution": "((() . 0x01) . (() . ()))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid-environment-improper-tail",
+      "solution": "((() . 0x01) . 0x6261642d7461696c)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "opaque-1024-byte-ephemeral",
+      "solution": "((0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 . 0x01) . ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffffc400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000280"
+      }
+    }
+  ]
+}

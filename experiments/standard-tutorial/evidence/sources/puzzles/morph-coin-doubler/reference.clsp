@@ -1,0 +1,47 @@
+; Using the dot here means that the inner solution is the rest of the parameters. This avoids the need to nest parentheses.
+(mod (INNER_PUZZLE . inner_solution)
+
+    ; Doubles the amount of CREATE_COIN conditions.
+    (defun morph-condition (condition)
+
+        ; Checks if the opcode is 51, which is CREATE_COIN.
+        (if (= (f condition) 51)
+
+            ; Create a new condition similar to the original.
+            (list
+                ; It's still the same opcode.
+                51
+
+                ; The second value, the puzzle hash, is also the same.
+                (f (r condition))
+
+                ; The third value, the amount, is doubled.
+                (* (f (r (r condition))) 2)
+            )
+
+            ; If it's not the right opcode, leave it untouched.
+            condition
+        )
+    )
+
+    ; Goes through every condition and morphs it.
+    (defun morph-conditions (conditions)
+
+        ; If there are conditions left in the list.
+        (if (l conditions)
+            (c
+                ; Morph the first condition.
+                (morph-condition (f conditions))
+
+                ; Then morph the rest and form a list.
+                (morph-conditions (r conditions))
+            )
+
+            ; Otherwise, the output has ended.
+            ()
+        )
+    )
+
+    ; Morph the conditions output from the inner puzzle.
+    (morph-conditions (a INNER_PUZZLE inner_solution))
+)

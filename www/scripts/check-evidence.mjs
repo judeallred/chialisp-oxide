@@ -337,6 +337,10 @@ const executionPaths = [
   "crates/chialisp-oxide-driver/src/exports.rs",
   "crates/chialisp-oxide-driver/src/lower.rs",
   "crates/chialisp-oxide-driver/src/lower/byte_comparison.rs",
+  "crates/chialisp-oxide-driver/src/lower/callables.rs",
+  "crates/chialisp-oxide-driver/src/lower/closures.rs",
+  "crates/chialisp-oxide-driver/src/lower/closures/promoted.rs",
+  "crates/chialisp-oxide-driver/src/lower/closures/tests.rs",
   "crates/chialisp-oxide-driver/src/lower/cons.rs",
   "crates/chialisp-oxide-driver/src/lower/constants.rs",
   "crates/chialisp-oxide-driver/src/lower/empty_atoms.rs",
@@ -369,6 +373,8 @@ const executionPaths = [
   "crates/chialisp-oxide-driver/tests/fixtures/branches.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/bytes.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/casts.rs",
+  "crates/chialisp-oxide-driver/tests/fixtures/local_callables.rs",
+  "crates/chialisp-oxide-driver/tests/fixtures/noncapturing_closures.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/constant_bytes.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/division.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/expression_blowup.rs",
@@ -411,6 +417,9 @@ const executionPaths = [
   "crates/chialisp-oxide-driver/tests/fixtures/unused_arithmetic.rs",
   "crates/chialisp-oxide-driver/tests/fixtures/wrapping.rs",
   "crates/chialisp-oxide-driver/tests/frontend.rs",
+  "crates/chialisp-oxide-driver/tests/local_callables.rs",
+  "crates/chialisp-oxide-driver/tests/noncapturing_closures.rs",
+  "crates/chialisp-oxide-driver/tests/support/callable_fixture.rs",
   "crates/chialisp-oxide-driver/tests/hashing.rs",
   "crates/chialisp-oxide-driver/tests/hashing/library.rs",
   "crates/chialisp-oxide-driver/tests/newtypes.rs",
@@ -433,6 +442,7 @@ const executionPaths = [
   "crates/chialisp-oxide-driver/tests/toolchain/transitive.rs",
   "crates/chialisp-oxide-ir/Cargo.toml",
   "crates/chialisp-oxide-ir/src/lib.rs",
+  "crates/chialisp-oxide-ir/src/callables.rs",
   "crates/chialisp-oxide-ir/src/lower.rs",
   "crates/chialisp-oxide-ir/src/lower/limits.rs",
   "crates/chialisp-oxide-ir/src/lower/runtime.rs",
@@ -449,6 +459,7 @@ const executionPaths = [
   "crates/chialisp-oxide-ir/tests/atom_ordering.rs",
   "crates/chialisp-oxide-ir/tests/bitwise.rs",
   "crates/chialisp-oxide-ir/tests/casts.rs",
+  "crates/chialisp-oxide-ir/tests/callables.rs",
   "crates/chialisp-oxide-ir/tests/compilation_limits.rs",
   "crates/chialisp-oxide-ir/tests/cons.rs",
   "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
@@ -507,6 +518,7 @@ const executionPaths = [
   "crates/chialisp-oxide-verifier/tests/bitwise_inputs.rs",
   "crates/chialisp-oxide-verifier/tests/cons.rs",
   "crates/chialisp-oxide-verifier/tests/casts.rs",
+  "crates/chialisp-oxide-verifier/tests/callables.rs",
   "crates/chialisp-oxide-verifier/tests/existing_queries.rs",
   "crates/chialisp-oxide-verifier/tests/fixtures/acyclic-source/src/lib.rs",
   "crates/chialisp-oxide-verifier/tests/fixtures/acyclic-source/src/main.rs",
@@ -879,7 +891,34 @@ for (const snippet of snippets) {
   const text = lines.slice(source.start_line - 1, source.end_line).join('');
   assert.equal(createHash('sha256').update(text).digest('hex'), source.sha256, `${snippet.id}: canonical source span changed`);
 }
-const rawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const legacyRawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const modernTutorialCounts = { 'modern-let-product': 15, 'modern-named-map': 17, 'modern-lambda-map': 17 };
+const canonicalRawTutorialCounts = { ...legacyRawTutorialCounts, 'standard-delegated-hidden': 45 };
+const rawTutorialCounts = { ...canonicalRawTutorialCounts, ...modernTutorialCounts };
+const modernProvider = JSON.parse(await read('corpus/reference-providers/chialisp-0.4.6-cl24.json'));
+function checkModernProvider(puzzle, manifest) {
+  assert.equal(puzzle.reference_dialect, 'modern-cl24-v1');
+  assert.equal(manifest.reference_dialect, 'modern-cl24-v1');
+  assert.deepEqual(puzzle.reference_provider, modernProvider, 'Actual embedded provider must match the reviewed descriptor');
+  assert.deepEqual(manifest.provenance.reference_provider, modernProvider);
+  const provider = puzzle.reference_provider;
+  assert.equal(provider.protocol, 'chialisp-oxide-reference-modern-cl24/v1');
+  assert.equal(provider.compiler, 'chialisp 0.4.6');
+  assert.equal(provider.crate.name, 'chialisp');
+  assert.equal(provider.crate.version, '0.4.6');
+  assert.equal(provider.crate.checksum, 'c991ea839bb6e2299bd3600b786381c4c1b08f6780800719a24c5d33157cb3e2');
+  assert.equal(provider.crate.vcs_revision, '32254c8402a3b277b43b1bdad743781f15433b80');
+  const { name, content, sha256, ...flags } = provider.dialect;
+  assert.equal(name, '*standard-cl-24*');
+  assert.deepEqual(flags, { stepping: 24, strict: true, int_fix: true, extra_numeric_constants: false });
+  assert.equal(sha256, 'd8c0eca00f44247f73ec6f129d15ee115514e08a443344747fb09f16e9ca68bb');
+  assert.equal(createHash('sha256').update(content).digest('hex'), sha256);
+  assert.equal(provider.macros.name, '*macros*');
+  assert.equal(provider.macros.sha256, '4dcba426c34e872616c7aa3d05eab95714b6b09d6ef4a01c67ae7ca66eb7c339');
+  assert.equal(createHash('sha256').update(provider.macros.content).digest('hex'), provider.macros.sha256);
+  assert.deepEqual(puzzle.reference_includes ?? {}, {}, 'Embedded marker is not a caller filesystem include map');
+  assert.deepEqual(manifest.reference_includes ?? {}, {});
+}
 const rawTutorialContract = { abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module', claim_scope: 'executed_raw_differential_cases_only', ledger: 'not_claimed', compiler_preservation: 'not_claimed', whole_page_completed: false };
 const selectedIncludeRoot = 'corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/';
 const selectedIncludePins = { 'condition_codes.clib': '891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f', 'sha256tree.clib': 'eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e' };
@@ -887,6 +926,8 @@ function checkRawTutorial(example, puzzle, manifest, span) {
   const slug = puzzle.slug;
   assert(Object.hasOwn(rawTutorialCounts, slug), 'Unreviewed raw tutorial promotion');
   assert.equal(example.id, `chialisp-example:${slug}`);
+  assert.equal(example.kind, Object.hasOwn(modernTutorialCounts, slug) ? 'module' : 'puzzle');
+  if (Object.hasOwn(modernTutorialCounts, slug)) checkModernProvider(puzzle, manifest);
   assert.deepEqual(example.validation_contract, rawTutorialContract, `${slug}: changed raw claim contract`);
   assert.equal(example.source_adaptation.operation, 'extract_complete_chialisp_module');
   assert.equal(puzzle.environment, 'raw');
@@ -917,9 +958,18 @@ function checkRawTutorial(example, puzzle, manifest, span) {
   assert.deepEqual(puzzle.simulator_comparisons, []);
   for (const field of ['curried_instances', 'curried_examples', 'module_identity']) assert.equal(puzzle[field], undefined, `${slug}: unreviewed instance or module claim`);
   const signed = ['inner-require-signature', 'morph-any-with-signature'].includes(slug);
-  const includes = signed ? Object.fromEntries(Object.keys(selectedIncludePins).map(name => [name, selectedIncludeRoot + name])) : {};
+  const standard = slug === 'standard-delegated-hidden';
+  const includes = standard ? { 'condition_codes.clvm': selectedIncludeRoot + 'condition_codes.clib' } : signed ? Object.fromEntries(Object.keys(selectedIncludePins).map(name => [name, selectedIncludeRoot + name])) : {};
   assert.deepEqual(puzzle.reference_includes ?? {}, includes, `${slug}: selected include bindings`);
   assert.deepEqual(manifest.reference_includes ?? {}, includes);
+  if (standard) {
+    const resolution = puzzle.provenance.include_resolution;
+    assert.equal(resolution.repository, 'https://github.com/Chia-Network/chia_puzzles');
+    assert.equal(resolution.revision, 'cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8');
+    assert(resolution.contract.includes('does not establish the tutorial used these include bytes'), 'Explicit tutorial include-alias limitation');
+    assert.deepEqual(resolution.files.map(file => [file.name, file.snapshot, file.sha256]), [['condition_codes.clvm', includes['condition_codes.clvm'], selectedIncludePins['condition_codes.clib']]]);
+    assert(puzzle.source_dependencies.some(source => source.path === includes['condition_codes.clvm'] && source.sha256 === selectedIncludePins['condition_codes.clib']), 'Selected standard include bytes');
+  }
   if (signed) {
     const resolution = puzzle.provenance.include_resolution;
     assert.equal(resolution.repository, 'https://github.com/Chia-Network/chia_puzzles');
@@ -989,6 +1039,13 @@ for (const example of tutorialExamples.examples) {
       ([, p, m]) => { m.generated_suite = 'invented-suite'; },
     ];
     if (manifest.reference_includes) controls.push(([, p]) => { p.reference_includes['sha256tree.clib'] = 'another-source.clib'; });
+    if (Object.hasOwn(modernTutorialCounts, puzzle.slug)) controls.push(
+      ([, p]) => { delete p.reference_provider; },
+      ([, p]) => { p.reference_provider.dialect.content += '\n'; },
+      ([, p]) => { p.reference_provider.dialect.int_fix = false; },
+      ([, p]) => { p.reference_provider.macros.content = '()'; },
+      ([, , m]) => { m.reference_dialect = 'invented-modern-profile'; },
+    );
     for (const corrupt of controls) {
       const candidate = structuredClone([example, puzzle, manifest]);
       corrupt(candidate);
@@ -1070,8 +1127,10 @@ for (const example of tutorialExamples.examples) {
   canonicalPorts++;
 }
 assert.equal(canonicalPorts, report.puzzles.filter(puzzle => puzzle.provenance.classification === 'canonical_tutorial_port').length, 'Untracked canonical-port claim in report');
-assert.equal(rawTutorials, 4, 'All four reviewed raw tutorial modules must have fresh promotions');
-assert.equal(Object.values(rawTutorialCounts).reduce((sum, count) => sum + count, 0), 83);
+assert.equal(rawTutorials, 8, 'Only the five selected classic raw and three reviewed modern raw modules may be promoted');
+assert.equal(Object.values(legacyRawTutorialCounts).reduce((sum, count) => sum + count, 0), 83);
+assert.equal(Object.values(canonicalRawTutorialCounts).reduce((sum, count) => sum + count, 0), 128);
+assert.equal(Object.values(modernTutorialCounts).reduce((sum, count) => sum + count, 0), 49);
 console.log(`Evidence current: ${slugs.size} Cargo three-language comparisons, matching validation/proof input hashes, vectors/outcomes, ledger scenarios, and proof sources`);
 console.log(`Tutorial sources current: ${tutorialExamples.examples.length} programs, ${canonicalPorts} exact canonical ports, pinned pages/license, and ${snippets.length} exact source spans`);
 

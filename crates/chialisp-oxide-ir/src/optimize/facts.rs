@@ -179,6 +179,9 @@ impl Analysis {
         self.charge(1)?;
         let mut value = Value::default();
         let result = match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+                anyhow::bail!("callable facts are not admitted")
+            }
             Expr::OptionalNone { .. }
             | Expr::OptionalIsSome(_)
             | Expr::OptionalValue(_)

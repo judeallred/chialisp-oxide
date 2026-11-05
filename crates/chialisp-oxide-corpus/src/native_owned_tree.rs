@@ -63,6 +63,42 @@ pub(super) fn preflight_morph(a: &Allocator, conditions: NodePtr) -> Result<()> 
     Ok(())
 }
 
+/// Bound only values that the fixed increment map could allocate as owned
+/// output. The caller first preflights/decodes the complete borrowed environment
+/// (including ignored tails) through native_hash. Pair-valued elements fail raw
+/// addition before their payload can enter an owned constructor; non-nil tails
+/// fail after the already charged prefix. Old owned-output limits stay intact.
+pub(super) fn preflight_increment(a: &Allocator, environment: NodePtr) -> Result<()> {
+    let SExp::Pair(mut values, _) = a.sexp(environment) else {
+        return Ok(());
+    };
+    let mut pairs = 0usize;
+    let mut bytes = 0usize;
+    while let SExp::Pair(first, rest) = a.sexp(values) {
+        if matches!(a.sexp(first), SExp::Pair(_, _)) {
+            return Ok(());
+        }
+        pairs += 1;
+        ensure!(
+            pairs <= MAX_DEPTH,
+            "native increment mapping output depth exceeded"
+        );
+        ensure!(
+            pairs.saturating_mul(2).saturating_add(1) <= MAX_NODES,
+            "native increment mapping output node budget exceeded"
+        );
+        bytes = bytes
+            .saturating_add(a.atom(first).as_ref().len())
+            .saturating_add(1);
+        ensure!(
+            bytes <= MAX_ATOM_BYTES,
+            "native increment mapping output atom budget exceeded"
+        );
+        values = rest;
+    }
+    Ok(())
+}
+
 /// A proper left spine of length n places the complete final tail n levels down.
 /// An improper left tree fails before constructing a result; its whole input
 /// still needs the ordinary preflight because native unwinding drops that tree.
@@ -102,6 +138,34 @@ pub(super) fn preflight_sort(a: &Allocator, sorted: NodePtr, insertions: NodePtr
             );
             rest = next;
         }
+    }
+    Ok(())
+}
+
+/// Bound the tutorial's selected output before any recursive owned construction.
+/// Whole borrowed input has already passed native_hash, including ignored tails.
+/// These codec limits are outside policy-panic handling and add no VM rejection.
+pub(super) fn preflight_standard(
+    a: &Allocator,
+    synthetic: NodePtr,
+    conditions: NodePtr,
+    delegated: bool,
+) -> Result<()> {
+    let conditions = preflight(a, conditions)?;
+    if delegated {
+        let key = preflight(a, synthetic)?;
+        ensure!(
+            key.depth + 3 <= MAX_DEPTH && conditions.depth < MAX_DEPTH,
+            "native standard output depth exceeded"
+        );
+        ensure!(
+            key.nodes + conditions.nodes + 7 <= MAX_NODES,
+            "native standard output nodes exceeded"
+        );
+        ensure!(
+            key.atom_bytes + conditions.atom_bytes + 33 <= MAX_ATOM_BYTES,
+            "native standard output atom bytes exceeded"
+        );
     }
     Ok(())
 }
@@ -202,6 +266,45 @@ mod tests {
             };
         }
         tree
+    }
+
+    #[test]
+    fn standard_signature_output_precharges_both_selected_children() {
+        let mut a = Allocator::new();
+        let atom = a.new_atom(&[1]).unwrap();
+        let mut key = atom;
+        for _ in 0..125 {
+            key = a.new_pair(atom, key).unwrap();
+        }
+        preflight_standard(&a, key, NodePtr::NIL, true).unwrap();
+        key = a.new_pair(atom, key).unwrap();
+        assert!(preflight(&a, key).is_ok());
+        assert!(
+            preflight_standard(&a, key, NodePtr::NIL, true)
+                .unwrap_err()
+                .to_string()
+                .contains("output depth")
+        );
+        let mut wide = atom;
+        for _ in 0..12 {
+            wide = a.new_pair(wide, wide).unwrap();
+        }
+        assert!(preflight(&a, wide).is_ok());
+        assert!(
+            preflight_standard(&a, wide, wide, true)
+                .unwrap_err()
+                .to_string()
+                .contains("output nodes")
+        );
+        let large = a.new_atom(&vec![1; MAX_ATOM_BYTES / 2]).unwrap();
+        assert!(
+            preflight_standard(&a, large, large, true)
+                .unwrap_err()
+                .to_string()
+                .contains("output atom bytes")
+        );
+        // A hidden result receives no signature-prefix or unused-key charge.
+        preflight_standard(&a, key, atom, false).unwrap();
     }
 
     #[test]

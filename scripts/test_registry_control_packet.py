@@ -16,6 +16,61 @@ import registry_control_packet as packet
 
 class TransportBoundaries(unittest.TestCase):
 
+    def test_only_bound_sdk_stdout_roles_share_the_unchanged_report(self):
+        with tempfile.TemporaryDirectory(prefix='registry-sdk-stdout-') as name:
+            root = Path(name)
+            payload = b'{"independently_captured":true}\n'
+            logical = ['capture/capture/sdk-1.json', 'capture/capture/sdk-2.json',
+                       'capture/capture/logs/119-sdk-1.stdout',
+                       'capture/capture/logs/120-sdk-2.stdout',
+                       'capture/capture/logs/unrelated.stdout']
+            plan = []
+            for number, path in enumerate(logical):
+                source = root / str(number)
+                source.write_bytes(payload)
+                plan.append((str(source), path))
+            origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
+            origins['capture_sources'] = ['/opaque/one.py', '/opaque/two.py', '/opaque/three.py']
+            stdout = tuple(logical[2:4])
+            with patch.object(packet, 'validate', side_effect=lambda stage: packet.Packet(stage)):
+                packet.install(plan, root / 'packet', origins, sdk_stdout_paths=stdout)
+            admitted = packet.Packet(root / 'packet')
+            self.assertEqual(admitted.index['aliases'], {path: logical[0] for path in logical[1:4]})
+            self.assertTrue((root / 'packet' / logical[4]).is_file())
+            self.assertTrue(all(admitted.raw(path) == payload for path in logical))
+            index = admitted.index
+            index['aliases'][logical[4]] = logical[0]
+            (root / 'packet' / logical[4]).unlink()
+            index['files'] = [row for row in index['files'] if row['path'] != logical[4]]
+            (root / 'packet' / 'report.json').write_bytes(packet.encode(index))
+            with self.assertRaisesRegex(ValueError, 'production aliases only exact SDK'):
+                packet.Packet(root / 'packet')
+            # A changed independently captured stdout cannot be replaced by a report.
+            Path(plan[3][0]).write_bytes(b'x' * len(payload))
+            with self.assertRaisesRegex(ValueError, 'byte-identical SDK repeat/stdout'), patch.object(packet, 'validate') as validate:
+                packet.install(plan, root / 'unequal', origins, sdk_stdout_paths=stdout)
+            validate.assert_not_called()
+            self.assertFalse((root / 'unequal').exists())
+
+    def test_stdout_aliases_still_precharge_all_physical_bytes_before_reads(self):
+        with tempfile.TemporaryDirectory(prefix='registry-sdk-stdout-precharge-') as name:
+            root = Path(name)
+            logical = ['capture/capture/sdk-1.json', 'capture/capture/sdk-2.json',
+                       'capture/capture/logs/119-sdk-1.stdout',
+                       'capture/capture/logs/120-sdk-2.stdout', 'capture/extra.json']
+            plan = []
+            for number, path in enumerate(logical):
+                source = root / str(number)
+                source.write_bytes(b'x' * 70)
+                plan.append((str(source), path))
+            origins = {key: '/opaque/' + key for key in packet.ORIGINS if key != 'drafts'}
+            origins['capture_sources'] = ['/opaque/one.py', '/opaque/two.py', '/opaque/three.py']
+            with patch.object(packet, 'MAX_TOTAL', 100), patch.object(packet, 'regular_read') as read:
+                with self.assertRaisesRegex(ValueError, 'precharge'):
+                    packet.install(plan, root / 'packet', origins, sdk_stdout_paths=tuple(logical[2:4]))
+            read.assert_not_called()
+            self.assertFalse((root / 'packet').exists())
+
     def test_installer_aliases_only_the_exact_independently_captured_sdk_repeat(self):
         with tempfile.TemporaryDirectory(prefix='registry-sdk-repeat-') as name:
             root = Path(name)

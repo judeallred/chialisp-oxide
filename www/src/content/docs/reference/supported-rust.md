@@ -52,6 +52,15 @@ authenticate installed bytes. See
 - Local/SDK helpers, including lifetime-only generics for borrowed and owned trees. Acyclic
   source graphs inline into expressions; self, mutual, and non-tail recursion
   use a closed runtime function table. Type/const generic functions remain rejected.
+- Immutable internal local function pointers may select among fully validated safe local
+  function items or checked noncapturing closures coerced to function pointers,
+  and pass to local helpers. Version-9 records their closed target dispatch.
+  A separate concrete move-closure route admits whole-root Copy/drop-free primitive,
+  fixed tuple/array and actual immutable SDK Tree captures with creation snapshots.
+  Exported callable ABI, callable returns/storage, shared/projected/owned/custom-ADT
+  captures, closure joins/escapes and general `Fn` traits,
+  pointer comparisons and address conversions remain rejected. See
+  [the callable contract](https://github.com/judeallred/chialisp-oxide/blob/main/docs/local-callables.md).
 - Named scalar/fixed-byte constants and bounded nested tuple, array, `Cons`, named-record
   and transparent-wrapper constants: policy terms, typed amounts, hashes and public
   fixture keys. See [named aggregate constants](#named-aggregate-constants).
@@ -305,11 +314,17 @@ callee starts with fresh locals; branch selection remains lazy.
 Runtime functions support the named-record field updates described above. For
 a tuple, array or transparent wrapper used on its own, construct and assign a
 complete replacement instead. Constants and promoted shared
-values retain their bounded acyclic lowering path. CFG loops and closure
-captures remain unsupported. Dynamic CLVM application is available through the
+values retain their bounded acyclic lowering path. CFG loops and broader shared,
+projected or owned closure captures remain unsupported. Dynamic CLVM application is available through the
 [narrow SDK `apply` bridge](https://github.com/judeallred/chialisp-oxide/blob/main/docs/dynamic-apply.md)
-over admitted borrowed trees; this does not add arbitrary Rust dependency or
-function-pointer calls. Restricted owned tree construction is described below.
+over admitted borrowed trees; this does not broaden Rust dependency admission.
+The separate version-9 [local callable profile](https://github.com/judeallred/chialisp-oxide/blob/main/docs/local-callables.md)
+admits immutable pointers to checked safe local function items and checked
+zero-environment closures coerced to those pointers, including direct helper
+parameters. Concrete local `move` captures use an explicit immutable environment
+argument through the same v9 operations; only actual core Fn calls for that
+closed capture profile are admitted. Generic Fn helpers and other direct closure
+profiles remain excluded. Restricted owned tree construction is described below.
 Runtime recursion does not bypass rustc borrow checking or permit escaping local
 references. The input-policy attributes are unchanged; see the
 [version-4 wire contract](/chialisp-oxide/reference/abi/#ir-version-4-and-export-markers).

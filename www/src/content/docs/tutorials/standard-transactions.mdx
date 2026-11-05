@@ -1,0 +1,23 @@
+---
+title: Spend through the delegated or hidden tutorial policy
+description: Follow synthetic-key commitments, delegated signatures and hidden-program authorization through the pinned tutorial and its separate simulator evidence.
+---
+
+import { Content as StandardTutorial } from '../../../../../docs/standard-tutorial.md';
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles } from '../../../lib/data';
+import StandardTutorialEvidence from '../../../components/StandardTutorialEvidence.astro';
+
+export const standardPuzzle = puzzles.find(puzzle => puzzle.slug === 'standard-delegated-hidden');
+
+<StandardTutorial />
+
+## Compare the three source programs
+
+{standardPuzzle ? <SourceComparison slug="standard-delegated-hidden" /> : <p>
+  The exact pinned Chialisp module, actual Cargo Rust export and independently
+  authored Rue source are prepared. Fresh retained integration is pending;
+  source presence alone is not an executed result or a completed wallet policy.
+</p>}
+
+<StandardTutorialEvidence />

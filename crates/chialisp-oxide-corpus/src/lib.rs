@@ -15,6 +15,7 @@ mod native_tree;
 mod p2_delegated_conditions;
 mod p2_singleton;
 mod password;
+mod reference_provider;
 mod registry_sidecar;
 mod spends;
 pub use action_registry::{
@@ -79,6 +80,10 @@ pub const PUZZLES: &[&str] = &[
     "inner-any-conditions",
     "inner-require-signature",
     "morph-any-with-signature",
+    "modern-let-product",
+    "modern-named-map",
+    "modern-lambda-map",
+    "standard-delegated-hidden",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -198,6 +203,8 @@ pub struct Manifest {
     #[serde(default)]
     pub reference_includes: BTreeMap<String, String>,
     #[serde(default)]
+    pub reference_dialect: Option<String>,
+    #[serde(default)]
     pub native_sources: Vec<String>,
     #[serde(default)]
     pub validation_max_cost: Option<u64>,
@@ -300,6 +307,10 @@ pub struct PuzzleReport {
     pub reference: String,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub reference_includes: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_dialect: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_provider: Option<serde_json::Value>,
     pub rue: RueSource,
     pub source_dependencies: Vec<SourceDependency>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -564,12 +575,32 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         &manifest.reference_includes,
         &source_dependencies,
     )?;
-    let original = match manifest.reference_mode {
-        ReferenceMode::Module if !includes.is_empty() => {
-            chialisp_oxide_reference::compile_with_includes(&reference, &includes)
+    let reference_provider = match manifest.reference_dialect.as_deref() {
+        None => None,
+        Some("modern-cl24-v1") => {
+            ensure!(
+                matches!(manifest.reference_mode, ReferenceMode::Module) && includes.is_empty(),
+                "closed modern cl24 requires a module without caller includes"
+            );
+            let provider = reference_provider::modern_cl24_record()?;
+            ensure!(
+                manifest.provenance.get("reference_provider") == Some(&provider),
+                "modern reference manifest differs from the actual embedded provider"
+            );
+            Some(provider)
         }
-        ReferenceMode::Module => chialisp_oxide_reference::compile(&reference),
-        ReferenceMode::Expression => chialisp_oxide_reference::compile_expression(&reference),
+        Some(_) => anyhow::bail!("unknown reference dialect profile"),
+    };
+    let original = if reference_provider.is_some() {
+        chialisp_oxide_reference::compile_modern_cl24(&reference)
+    } else {
+        match manifest.reference_mode {
+            ReferenceMode::Module if !includes.is_empty() => {
+                chialisp_oxide_reference::compile_with_includes(&reference, &includes)
+            }
+            ReferenceMode::Module => chialisp_oxide_reference::compile(&reference),
+            ReferenceMode::Expression => chialisp_oxide_reference::compile_expression(&reference),
+        }
     }
     .with_context(|| format!("compile Chialisp {slug}"))?;
     let programs = vec![
@@ -874,6 +905,8 @@ pub fn validate(slug: &str, program: &Program) -> Result<PuzzleReport> {
         source,
         reference,
         reference_includes: manifest.reference_includes,
+        reference_dialect: manifest.reference_dialect,
+        reference_provider,
         rue,
         source_dependencies,
         native_sources,

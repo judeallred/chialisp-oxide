@@ -1,0 +1,11 @@
+{
+  "snapshot": "fn main(base: Int) -> List<Int> { [base + 1, base + 2, base + 100] }",
+  "copies": "fn main(base: Int) -> List<Int> { [base + 2, base + 3, base * 4] }",
+  "capture_order": "fn main(a: Int, b: Int) -> Int { b + a + 3 }",
+  "whole_tuple": "fn main(v: Any) -> Any { v }",
+  "borrowed": "fn main(v: Any) -> Any { v }",
+  "unused_capture": "fn main(flag: Bool) -> Int { assert flag; 99 }",
+  "lazy_body": "fn main(value: Int) -> Int { 99 }",
+  "call_order": "fn main(value: Int, tree: Any) -> Int { assert false; 1 }",
+  "fresh_frames": "fn main(first: Int, second: Int) -> List<Int> { [first + 1, second + 1] }"
+}

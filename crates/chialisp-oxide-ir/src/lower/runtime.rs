@@ -84,6 +84,7 @@ fn projection_preflight(program: &Program) -> bool {
             }
         };
         let bounded = match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => false,
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }
             | Expr::Call {
@@ -182,6 +183,7 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
     while let Some(expression) = pending.pop() {
         helper_charge(work, 1)?;
         match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return Ok(false),
             Expr::OptionalIsSome(_)
             | Expr::OptionalValue(_)
             | Expr::IntCast(_)
@@ -203,6 +205,7 @@ fn pair_free_helper(function: &crate::Function, work: &mut usize) -> Result<bool
             _ => (),
         }
         let children = match expression {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return Ok(false),
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }
             | Expr::Call {
@@ -301,6 +304,7 @@ struct Runtime<'a, 'p> {
     // atoms and explicit dynamic Apply operands never enter this collection.
     chunks: bool,
     continuations: Vec<LirId>,
+    callable_references: Vec<usize>,
 }
 
 type Continuation<'a, 'p, 'c> =
@@ -341,6 +345,10 @@ impl<'a, 'p> Runtime<'a, 'p> {
             } else if let Type::Optional { item } = ty {
                 self.charge(1)?;
                 pending.push(item);
+            } else if let Type::Callable { parameters, result } = ty {
+                self.charge(parameters.len() + 1)?;
+                pending.extend(parameters);
+                pending.push(result);
             }
         }
         Ok(())
@@ -877,6 +885,50 @@ impl<'a, 'p> Runtime<'a, 'p> {
                 let body = self.expression(then_value, &next)?;
                 self.continuation(value, body)?
             }
+            Expr::FunctionRef { function_id } => self.lower.number((*function_id).into()),
+            Expr::CallIndirect { callee, arguments } => {
+                let Some(callable) =
+                    self.lower
+                        .program
+                        .type_of_scoped(callee, scope.parameters, &scope.locals)?
+                else {
+                    return self.expression(callee, scope);
+                };
+                let program = self.lower.program;
+                self.charge(self.callable_references.len())?;
+                let references = self.callable_references.clone();
+                let targets =
+                    program.match_callable_targets(&callable, &references, |n| self.charge(n))?;
+                ensure!(!targets.is_empty(), "indirect call has no closed target");
+                self.charge(1 + arguments.len() + targets.len().saturating_mul(8))?;
+                let mut operands = Vec::with_capacity(1 + arguments.len());
+                operands.push(callee.as_ref());
+                operands.extend(arguments);
+                self.values(
+                    &operands,
+                    scope,
+                    &mut vec![],
+                    &mut |this, scope, bindings| {
+                        let tag = this.value(scope, bindings[0])?;
+                        let values = bindings[1..]
+                            .iter()
+                            .map(|binding| this.value(scope, *binding))
+                            .collect::<Result<Vec<_>>>()?;
+                        let arguments = this.arguments(&values);
+                        let table = this.table();
+                        let frame = this.lower.alloc(Lir::Cons(table, arguments));
+                        let mut result = this.lower.reject();
+                        for target in targets.iter().rev() {
+                            let code = this.code_slot(*target)?;
+                            let run = this.lower.alloc(Lir::Run(code, frame));
+                            let expected = this.lower.number((*target).into());
+                            let matches = this.lower.alloc(Lir::Eq(tag, expected));
+                            result = this.lower.branch(matches, run, result);
+                        }
+                        Ok(result)
+                    },
+                )?
+            }
             Expr::Call {
                 function_id,
                 arguments,
@@ -1078,7 +1130,8 @@ pub(super) fn bootstrap(
     // Every preflighted body can use branch-local Tree facts. Explicit pair
     // operands retain strict captures and every v5 call keeps proper argument
     // frames; these facts do not admit compact unary layouts or Pair rewrites.
-    let preflighted = !program.uses_optional()
+    let preflighted = !program.uses_callables()
+        && !program.uses_optional()
         && !program.uses_casts()
         && guarded_projections
         && projection_preflight(program);
@@ -1100,7 +1153,11 @@ pub(super) fn bootstrap(
         atom_work: 0,
         chunks,
         continuations: vec![],
+        callable_references: vec![],
     };
+    if program.uses_callables() {
+        runtime.callable_references = program.callable_references(|n| runtime.charge(n))?;
+    }
     if chunks {
         // The new representation owns this vector and one quote per function.
         runtime.charge(program.functions.len().saturating_mul(2))?;

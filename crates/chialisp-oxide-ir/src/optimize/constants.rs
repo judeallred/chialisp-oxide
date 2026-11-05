@@ -269,6 +269,9 @@ fn expression(expr: &Expr, bindings: &mut Vec<Binding>, budget: &mut Budget) -> 
     // bodies. This separate work/copy budget also charges scans/substitution.
     budget.work(1 + bindings.len())?;
     let (expr, known, total) = match expr {
+        Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+            anyhow::bail!("callable constant refinement is not admitted")
+        }
         Expr::OptionalNone { .. }
         | Expr::OptionalIsSome(_)
         | Expr::OptionalValue(_)
@@ -670,6 +673,9 @@ fn uses_local(expr: &Expr, id: usize, budget: &mut Budget) -> Result<bool> {
     while let Some(expr) = pending.pop() {
         budget.work(1)?;
         match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+                anyhow::bail!("callable local refinement is not admitted")
+            }
             Expr::Local { local_id } if *local_id == id => return Ok(true),
             Expr::Tuple { items }
             | Expr::Sha256 { parts: items }

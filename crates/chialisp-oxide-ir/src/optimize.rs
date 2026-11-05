@@ -14,7 +14,7 @@ pub(crate) struct Plan {
 
 pub(crate) fn plan(program: &Program) -> Result<Plan> {
     program.validate()?;
-    if program.uses_optional() || program.uses_casts() {
+    if program.uses_optional() || program.uses_casts() || program.uses_callables() {
         // Optional output constructors are executable but have no admitted
         // refinement/inlining rules yet. Validate and charge before cloning;
         // retain every strict initializer and every unused table body.
@@ -365,7 +365,9 @@ fn expression(expr: Expr, tree_arguments: u64) -> (Expr, u64) {
             let (value, facts) = boxed(*value, tree_arguments);
             (Expr::AtomIsEmpty { value }, facts)
         }
-        expr @ (Expr::Atom { .. }
+        expr @ (Expr::FunctionRef { .. }
+        | Expr::CallIndirect { .. }
+        | Expr::Atom { .. }
         | Expr::OptionalNone { .. }
         | Expr::OptionalSome { .. }
         | Expr::OptionalIsSome(_)

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-standard-tutorial-ledger/v1",
+  "status": "source_runner_implemented",
+  "slug": "standard-delegated-hidden",
+  "request_protocol": "chialisp-oxide-standard-tutorial-ledger-request/v1",
+  "runner": "crates/chialisp-oxide-corpus/examples/standard_tutorial_ledger.rs",
+  "preparer": "experiments/standard-tutorial/prepare_request.py",
+  "lock": "Cargo.lock",
+  "source_provenance": "puzzles/standard-delegated-hidden/puzzle.json",
+  "lane_order": [
+    "rust-off",
+    "rust-on",
+    "chialisp",
+    "rue-off",
+    "rue-on"
+  ],
+  "expected_per_run": {
+    "builds": 5,
+    "scenario_groups": 15,
+    "direct_fixture_funding_coins": 15,
+    "transaction_attempts": 80,
+    "accepted": 15,
+    "typed_consensus_rejected": 45,
+    "runtime_umbrellas": 20,
+    "retained_primary_observations": 85
+  },
+  "retained_evidence": "experiments/standard-tutorial/evidence/receipt.json",
+  "scope": "Dedicated wallet-free committed-instance SDK lane. Five direct fixture groups of three coins; template/native/primary/SDK scopes remain distinct. Runtime umbrellas and repeats add no semantic rejection or unique-coverage credit. Full source/module/tool/capture bindings are required for retained promotion. No whole-page, canonical-module identity, live-network, execution-authentication or compiler-preservation claim.",
+  "capture_protocol": "chialisp-oxide-standard-tutorial-capture/v1",
+  "reader": "experiments/standard-tutorial/check.py",
+  "capture": "experiments/standard-tutorial/capture.py"
+}

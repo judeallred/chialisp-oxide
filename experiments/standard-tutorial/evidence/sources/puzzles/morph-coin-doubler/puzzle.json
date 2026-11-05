@@ -1,0 +1,319 @@
+{
+  "slug": "morph-coin-doubler",
+  "title": "Canonical condition morphing: double payment requests",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Exact raw-environment translation of the pinned tutorial outer module. Applies the chosen inner program to the complete environment tail, doubles arbitrary-width signed CREATE_COIN amount atoms and discards its remaining fields; other conditions preserve exact trees. Any atom terminates the conditions list. This does not authorize the inner program, create funds, preserve memos, validate condition schemas or establish a valid spend. Native raw helpers execute the pinned VM and are not an independent implementation of the primitives. Finite differential observations do not prove compiler preservation.",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/owned_tree.rs",
+    "crates/chialisp-oxide/src/apply.rs",
+    "crates/chialisp-oxide/src/raw_clvm.rs",
+    "crates/chialisp-oxide/src/raw_clvm_variadic.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:morph-coin-doubler",
+    "references": [
+      "https://chialisp.com/chialisp-condition-morphing/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md#L17-L63"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-concepts/condition-morphing.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md",
+      "sha256": "574a9d19ed7ac9e45800c813bbfaddfde572e70112ebad4e89599bb041b9f9a2",
+      "git_blob_sha1": "4a9ad465a096596995f0dd9fe586d9a0f2792f44",
+      "start_line": 17,
+      "end_line": 63
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/morph-coin-doubler/reference.clsp",
+      "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79",
+      "description": "Exact inclusive pinned code-fence lines with original comments and LF; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "The module hash differs across independently compiled languages; no unchanged canonical Rust module identity is claimed.",
+      "No complete-spend or signature evidence is credited by these template cases. Doubling requests requires adequate funding and consensus validation.",
+      "Memos and any extra matching-condition fields are discarded exactly as in the original.",
+      "Host output preflight is a separate bounded VM execution before native owned-tree construction; exhaustion is inconclusive. All current proof models reject apply/runtime tree programs.",
+      "Rue shape assertions may have different typed rejection codes from canonical f/r failures; no failure-code equivalence is claimed."
+    ]
+  },
+  "cases": [
+    {
+      "label": "double one payment",
+      "solution": "((1 . ((51 0x11 7))) 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff0e8080"
+      }
+    },
+    {
+      "label": "mixed conditions and memo removal",
+      "solution": "((1 . ((73 7) (51 0x11 7 (0x00)) (60 0x80))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff49ff0780ffff33ff11ff0e80ffff3cff81808080"
+      }
+    },
+    {
+      "label": "negative amount",
+      "solution": "((1 . ((51 0x11 -7))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff81f28080"
+      }
+    },
+    {
+      "label": "padded amount",
+      "solution": "((1 . ((51 0x11 0x0007))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff0e8080"
+      }
+    },
+    {
+      "label": "padded negative amount",
+      "solution": "((1 . ((51 0x11 0xffff))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff81fe8080"
+      }
+    },
+    {
+      "label": "padded zero amount",
+      "solution": "((1 . ((51 0x11 0x0000))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff808080"
+      }
+    },
+    {
+      "label": "signed carry",
+      "solution": "((1 . ((51 0x11 127))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff8200fe8080"
+      }
+    },
+    {
+      "label": "unsigned looking byte is negative",
+      "solution": "((1 . ((51 0x11 0x80))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff82ff008080"
+      }
+    },
+    {
+      "label": "arbitrary hash tree preserved",
+      "solution": "((1 . ((51 (1 . 2) 3))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ffff0102ff068080"
+      }
+    },
+    {
+      "label": "padded opcode left untouched",
+      "solution": "((1 . ((0x0033 0x11 7 99))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff820033ff11ff07ff638080"
+      }
+    },
+    {
+      "label": "nonpayment arbitrary improper condition",
+      "solution": "((1 . ((50 . 7))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff320780"
+      }
+    },
+    {
+      "label": "nonpayment program-shaped data",
+      "solution": "((1 . ((60 (8)))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff3cffff08808080"
+      }
+    },
+    {
+      "label": "nonempty atom stops conditions",
+      "solution": "((1 . 0x00))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "padded atom stops conditions",
+      "solution": "((1 . 0x0000))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "improper condition list ending discarded",
+      "solution": "((1 . ((51 0x11 3) . 0x0080)))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff068080"
+      }
+    },
+    {
+      "label": "identity receives complete dotted solution",
+      "solution": "(1 (51 0x11 3) (73 6))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff0680ffff49ff068080"
+      }
+    },
+    {
+      "label": "identity receives improper solution",
+      "solution": "(1 (51 0x11 3) . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff068080"
+      }
+    },
+    {
+      "label": "empty identity solution",
+      "solution": "(1)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "nil inner program",
+      "solution": "(())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "inner raise",
+      "solution": "((8))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "malformed whole environment",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom whole environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "condition atom rejects",
+      "solution": "((1 . (7)))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "condition nil rejects",
+      "solution": "((1 . (())))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "condition opcode pair rejects",
+      "solution": "((1 . (((51) 0x11 7))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing puzzle hash",
+      "solution": "((1 . ((51))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing amount",
+      "solution": "((1 . ((51 0x11))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper amount tail",
+      "solution": "((1 . ((51 0x11 . 7))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "pair amount rejects",
+      "solution": "((1 . ((51 0x11 (7)))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "amount 0",
+      "solution": "((1 . ((51 0x11 0))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff808080"
+      }
+    },
+    {
+      "label": "amount 1",
+      "solution": "((1 . ((51 0x11 1))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff028080"
+      }
+    },
+    {
+      "label": "amount 340282366920938463463374607431768211456",
+      "solution": "((1 . ((51 0x11 340282366920938463463374607431768211456))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff9102000000000000000000000000000000008080"
+      }
+    },
+    {
+      "label": "amount 115792089237316195423570985008687907853269984665640564039457584007913129639937",
+      "solution": "((1 . ((51 0x11 115792089237316195423570985008687907853269984665640564039457584007913129639937))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ffa10200000000000000000000000000000000000000000000000000000000000000028080"
+      }
+    },
+    {
+      "label": "amount -115792089237316195423570985008687907853269984665640564039457584007913129639936",
+      "solution": "((1 . ((51 0x11 -115792089237316195423570985008687907853269984665640564039457584007913129639936))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ffa1fe00000000000000000000000000000000000000000000000000000000000000008080"
+      }
+    }
+  ],
+  "generated_suite": "raw-environment-v1"
+}

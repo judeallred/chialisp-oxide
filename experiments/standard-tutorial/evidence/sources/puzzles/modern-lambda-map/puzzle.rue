@@ -1,0 +1,17 @@
+// Independent recursive translation of the fixed source lambda's semantics.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    map_increment(environment.first)
+}
+
+fn map_increment(values: Any) -> Any {
+    if values is nil {
+        nil
+    } else {
+        assert values is (Any, Any);
+        let value = values.first;
+        assert value is Bytes;
+        let incremented = (value as Int) + 1;
+        (incremented, map_increment(values.rest))
+    }
+}

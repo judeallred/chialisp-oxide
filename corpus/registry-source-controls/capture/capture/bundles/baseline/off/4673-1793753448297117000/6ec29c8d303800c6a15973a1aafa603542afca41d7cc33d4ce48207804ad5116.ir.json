@@ -1,0 +1,83 @@
+{
+  "ir_version": 4,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_puzzles::delegated_puzzle::puzzle",
+    "parameters": [
+      {
+        "name": "inner_puzzle",
+        "ty": {
+          "kind": "tree"
+        }
+      },
+      {
+        "name": "inner_solution",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tree"
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        },
+        {
+          "op": "arg",
+          "index": 1
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_puzzles::delegated_puzzle::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "apply",
+            "program": {
+              "op": "arg",
+              "index": 0
+            },
+            "environment": {
+              "op": "arg",
+              "index": 1
+            }
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      }
+    ]
+  }
+}

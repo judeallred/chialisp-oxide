@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "mode": "cargo_library",
+  "package": "chialisp-oxide-puzzles",
+  "manifest": "puzzles/Cargo.toml",
+  "library": "puzzles/lib.rs",
+  "exports": {
+    "atom-not-equal": {
+      "entry": "chialisp_oxide_puzzles::atom_not_equal::puzzle",
+      "source": "puzzles/atom-not-equal/puzzle.rs"
+    },
+    "boolean-gate": {
+      "entry": "chialisp_oxide_puzzles::boolean_gate::puzzle",
+      "source": "puzzles/boolean-gate/puzzle.rs"
+    },
+    "boomerang": {
+      "entry": "chialisp_oxide_puzzles::boomerang::puzzle",
+      "source": "puzzles/boomerang/puzzle.rs"
+    },
+    "bounded-counter": {
+      "entry": "chialisp_oxide_puzzles::bounded_counter::puzzle",
+      "source": "puzzles/bounded-counter/puzzle.rs"
+    },
+    "capped-payment": {
+      "entry": "chialisp_oxide_puzzles::capped_payment::puzzle",
+      "source": "puzzles/capped-payment/puzzle.rs"
+    },
+    "cat-genesis-by-coin-id": {
+      "entry": "chialisp_oxide_puzzles::cat_genesis_by_coin_id::puzzle",
+      "source": "puzzles/cat-genesis-by-coin-id/puzzle.rs"
+    },
+    "counter-increment": {
+      "entry": "chialisp_oxide_puzzles::counter_increment::puzzle",
+      "source": "puzzles/counter-increment/puzzle.rs"
+    },
+    "counter-reset": {
+      "entry": "chialisp_oxide_puzzles::counter_reset::puzzle",
+      "source": "puzzles/counter-reset/puzzle.rs"
+    },
+    "curry-factory": {
+      "entry": "chialisp_oxide_puzzles::curry_factory::puzzle",
+      "source": "puzzles/curry-factory/puzzle.rs"
+    },
+    "curry-hash": {
+      "entry": "chialisp_oxide_puzzles::curry_hash::puzzle",
+      "source": "puzzles/curry-hash/puzzle.rs"
+    },
+    "currying-multiply": {
+      "entry": "chialisp_oxide_puzzles::currying_multiply::puzzle",
+      "source": "puzzles/currying-multiply/puzzle.rs"
+    },
+    "delegated-puzzle": {
+      "entry": "chialisp_oxide_puzzles::delegated_puzzle::puzzle",
+      "source": "puzzles/delegated-puzzle/puzzle.rs"
+    },
+    "fixed-payment": {
+      "entry": "chialisp_oxide_puzzles::fixed_payment::puzzle",
+      "source": "puzzles/fixed-payment/puzzle.rs"
+    },
+    "inner-any-conditions": {
+      "entry": "chialisp_oxide_puzzles::inner_any_conditions::puzzle",
+      "source": "puzzles/inner-any-conditions/puzzle.rs"
+    },
+    "inner-puzzle": {
+      "entry": "chialisp_oxide_puzzles::inner_puzzle::puzzle",
+      "source": "puzzles/inner-puzzle/puzzle.rs"
+    },
+    "inner-require-signature": {
+      "entry": "chialisp_oxide_puzzles::inner_require_signature::puzzle",
+      "source": "puzzles/inner-require-signature/puzzle.rs"
+    },
+    "insertion-sort-by-keys": {
+      "entry": "chialisp_oxide_puzzles::insertion_sort_by_keys::puzzle",
+      "source": "puzzles/insertion-sort-by-keys/puzzle.rs"
+    },
+    "intro-add": {
+      "entry": "chialisp_oxide_puzzles::intro_add::puzzle",
+      "source": "puzzles/intro-add/puzzle.rs"
+    },
+    "intro-conditional": {
+      "entry": "chialisp_oxide_puzzles::intro_conditional::puzzle",
+      "source": "puzzles/intro-conditional/puzzle.rs"
+    },
+    "intro-list": {
+      "entry": "chialisp_oxide_puzzles::intro_list::puzzle",
+      "source": "puzzles/intro-list/puzzle.rs"
+    },
+    "last-list-element": {
+      "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
+      "source": "puzzles/last-list-element/puzzle.rs"
+    },
+    "modern-lambda-map": {
+      "entry": "chialisp_oxide_puzzles::modern_lambda_map::puzzle",
+      "source": "puzzles/modern-lambda-map/puzzle.rs"
+    },
+    "modern-let-product": {
+      "entry": "chialisp_oxide_puzzles::modern_let_product::puzzle",
+      "source": "puzzles/modern-let-product/puzzle.rs"
+    },
+    "modern-named-map": {
+      "entry": "chialisp_oxide_puzzles::modern_named_map::puzzle",
+      "source": "puzzles/modern-named-map/puzzle.rs"
+    },
+    "module-add": {
+      "entry": "chialisp_oxide_puzzles::module_add::puzzle",
+      "source": "puzzles/module-add/puzzle.rs"
+    },
+    "module-factorial": {
+      "entry": "chialisp_oxide_puzzles::module_factorial::puzzle",
+      "source": "puzzles/module-factorial/puzzle.rs"
+    },
+    "module-times-ten": {
+      "entry": "chialisp_oxide_puzzles::module_times_ten::puzzle",
+      "source": "puzzles/module-times-ten/puzzle.rs"
+    },
+    "morph-any-with-signature": {
+      "entry": "chialisp_oxide_puzzles::morph_any_with_signature::puzzle",
+      "source": "puzzles/morph-any-with-signature/puzzle.rs"
+    },
+    "morph-coin-doubler": {
+      "entry": "chialisp_oxide_puzzles::morph_coin_doubler::puzzle",
+      "source": "puzzles/morph-coin-doubler/puzzle.rs"
+    },
+    "p2-conditions": {
+      "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
+      "source": "puzzles/p2-conditions/puzzle.rs"
+    },
+    "p2-delegated-conditions": {
+      "entry": "chialisp_oxide_puzzles::p2_delegated_conditions::puzzle",
+      "source": "puzzles/p2-delegated-conditions/puzzle.rs"
+    },
+    "p2-singleton": {
+      "entry": "chialisp_oxide_puzzles::p2_singleton::puzzle",
+      "source": "puzzles/p2-singleton/puzzle.rs"
+    },
+    "password-coin": {
+      "entry": "chialisp_oxide_puzzles::password_coin::puzzle",
+      "source": "puzzles/password-coin/puzzle.rs"
+    },
+    "precommit-claim": {
+      "entry": "chialisp_oxide_puzzles::precommit_claim::puzzle",
+      "source": "puzzles/precommit-claim/puzzle.rs"
+    },
+    "precommit-registry": {
+      "entry": "chialisp_oxide_puzzles::precommit_registry::puzzle",
+      "source": "puzzles/precommit-registry/puzzle.rs"
+    },
+    "prefix-list": {
+      "entry": "chialisp_oxide_puzzles::prefix_list::puzzle",
+      "source": "puzzles/prefix-list/puzzle.rs"
+    },
+    "recovery-payment": {
+      "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
+      "source": "puzzles/recovery-payment/puzzle.rs"
+    },
+    "registry-initialize": {
+      "entry": "chialisp_oxide_puzzles::registry_initialize::puzzle",
+      "source": "puzzles/registry-initialize/puzzle.rs"
+    },
+    "registry-set-alpha": {
+      "entry": "chialisp_oxide_puzzles::registry_set_alpha::puzzle",
+      "source": "puzzles/registry-set-alpha/puzzle.rs"
+    },
+    "registry-set-beta": {
+      "entry": "chialisp_oxide_puzzles::registry_set_beta::puzzle",
+      "source": "puzzles/registry-set-beta/puzzle.rs"
+    },
+    "rightmost-tree": {
+      "entry": "chialisp_oxide_puzzles::rightmost_tree::puzzle",
+      "source": "puzzles/rightmost-tree/puzzle.rs"
+    },
+    "sha256tree": {
+      "entry": "chialisp_oxide_puzzles::sha256tree::puzzle",
+      "source": "puzzles/sha256tree/puzzle.rs"
+    },
+    "signature-payment": {
+      "entry": "chialisp_oxide_puzzles::signature_payment::puzzle",
+      "source": "puzzles/signature-payment/puzzle.rs"
+    },
+    "singleton-launcher": {
+      "entry": "chialisp_oxide_puzzles::singleton_launcher::puzzle",
+      "source": "puzzles/singleton-launcher/puzzle.rs"
+    },
+    "split-payment": {
+      "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
+      "source": "puzzles/split-payment/puzzle.rs"
+    },
+    "standard-delegated-hidden": {
+      "entry": "chialisp_oxide_puzzles::standard_delegated_hidden::puzzle",
+      "source": "puzzles/standard-delegated-hidden/puzzle.rs"
+    },
+    "timelocked-payment": {
+      "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
+      "source": "puzzles/timelocked-payment/puzzle.rs"
+    },
+    "two-signature-payment": {
+      "entry": "chialisp_oxide_puzzles::two_signature_payment::puzzle",
+      "source": "puzzles/two-signature-payment/puzzle.rs"
+    }
+  },
+  "inputs": [
+    ".cargo/config.toml",
+    "Cargo.lock",
+    "Cargo.toml",
+    "corpus/reference-providers/chialisp-0.4.6-cl24.json",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_puzzle_or_hidden_puzzle.clsp.hex",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_launcher.clsp.hex",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_top_layer_v1_1.clsp",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_top_layer_v1_1.clsp.hex",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/singleton_truths.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/utility_macros.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/LICENSE",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/curry-and-treehash.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/utility_macros.clib",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/commit.git",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/source-inventory.json",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/tree.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Cargo.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/commit.git",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/common_types.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue.hex",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue.hex",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/merkle_utils.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hash",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue.hex",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/source-inventory.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/tree.json",
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/examples/p2_singleton/codec.rs",
+    "crates/chialisp-oxide-corpus/examples/p2_singleton/modules.rs",
+    "crates/chialisp-oxide-corpus/examples/p2_singleton_controls.rs",
+    "crates/chialisp-oxide-corpus/examples/p2_singleton_ledger.rs",
+    "crates/chialisp-oxide-corpus/examples/p2_singleton_probe.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter/lifecycle.rs",
+    "crates/chialisp-oxide-corpus/src/action_counter/wire.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/adversarial.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/fixtures.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/lifecycle.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/source_controls.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/wire.rs",
+    "crates/chialisp-oxide-corpus/src/boomerang.rs",
+    "crates/chialisp-oxide-corpus/src/boomerang/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail/lifecycle.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
+    "crates/chialisp-oxide-corpus/src/p2_delegated_conditions/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/p2_singleton.rs",
+    "crates/chialisp-oxide-corpus/src/p2_singleton/codec.rs",
+    "crates/chialisp-oxide-corpus/src/p2_singleton/modules.rs",
+    "crates/chialisp-oxide-corpus/src/password.rs",
+    "crates/chialisp-oxide-corpus/src/password/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/reference_provider.rs",
+    "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
+    "crates/chialisp-oxide-corpus/src/spends.rs",
+    "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
+    "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
+    "crates/chialisp-oxide-macros/Cargo.toml",
+    "crates/chialisp-oxide-macros/src/lib.rs",
+    "crates/chialisp-oxide-reference/src/modern_cl24.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/examples/p2_singleton_cost.rs",
+    "crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide/Cargo.toml",
+    "crates/chialisp-oxide/src/apply.rs",
+    "crates/chialisp-oxide/src/coin_context.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/curry.rs",
+    "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/owned_tree.rs",
+    "crates/chialisp-oxide/src/raw_clvm.rs",
+    "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+    "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "experiments/precommit-controls/naive.clsp",
+    "puzzles/Cargo.toml",
+    "puzzles/atom-not-equal/generated-cases.json",
+    "puzzles/atom-not-equal/puzzle.rs",
+    "puzzles/authoring.json",
+    "puzzles/boolean-gate/puzzle.rs",
+    "puzzles/boomerang/puzzle.json",
+    "puzzles/boomerang/puzzle.rs",
+    "puzzles/boomerang/puzzle.rue",
+    "puzzles/boomerang/reference.clsp",
+    "puzzles/bounded-counter/puzzle.rs",
+    "puzzles/capped-payment/puzzle.rs",
+    "puzzles/cat-genesis-by-coin-id/puzzle.json",
+    "puzzles/cat-genesis-by-coin-id/puzzle.rs",
+    "puzzles/cat-genesis-by-coin-id/puzzle.rue",
+    "puzzles/cat-genesis-by-coin-id/reference.clsp",
+    "puzzles/counter-increment/puzzle.json",
+    "puzzles/counter-increment/puzzle.rs",
+    "puzzles/counter-increment/puzzle.rue",
+    "puzzles/counter-increment/reference.clsp",
+    "puzzles/counter-reset/puzzle.json",
+    "puzzles/counter-reset/puzzle.rs",
+    "puzzles/counter-reset/puzzle.rue",
+    "puzzles/counter-reset/reference.clsp",
+    "puzzles/counter_types.rs",
+    "puzzles/curry-factory/puzzle.rs",
+    "puzzles/curry-hash/puzzle.rs",
+    "puzzles/currying-multiply/puzzle.rs",
+    "puzzles/delegated-puzzle/puzzle.rs",
+    "puzzles/fixed-payment/puzzle.rs",
+    "puzzles/fixture_keys.rs",
+    "puzzles/inner-any-conditions/puzzle.json",
+    "puzzles/inner-any-conditions/puzzle.rs",
+    "puzzles/inner-any-conditions/puzzle.rue",
+    "puzzles/inner-any-conditions/reference.clsp",
+    "puzzles/inner-puzzle/puzzle.rs",
+    "puzzles/inner-require-signature/puzzle.json",
+    "puzzles/inner-require-signature/puzzle.rs",
+    "puzzles/inner-require-signature/puzzle.rue",
+    "puzzles/inner-require-signature/reference.clsp",
+    "puzzles/insertion-sort-by-keys/generated-cases.json",
+    "puzzles/insertion-sort-by-keys/puzzle.rs",
+    "puzzles/intro-add/puzzle.rs",
+    "puzzles/intro-conditional/puzzle.rs",
+    "puzzles/intro-list/puzzle.rs",
+    "puzzles/last-list-element/puzzle.rs",
+    "puzzles/lib.rs",
+    "puzzles/modern-lambda-map/puzzle.json",
+    "puzzles/modern-lambda-map/puzzle.rs",
+    "puzzles/modern-lambda-map/puzzle.rue",
+    "puzzles/modern-lambda-map/reference.clsp",
+    "puzzles/modern-let-product/puzzle.json",
+    "puzzles/modern-let-product/puzzle.rs",
+    "puzzles/modern-let-product/puzzle.rue",
+    "puzzles/modern-let-product/reference.clsp",
+    "puzzles/modern-named-map/puzzle.json",
+    "puzzles/modern-named-map/puzzle.rs",
+    "puzzles/modern-named-map/puzzle.rue",
+    "puzzles/modern-named-map/reference.clsp",
+    "puzzles/module-add/puzzle.rs",
+    "puzzles/module-factorial/puzzle.rs",
+    "puzzles/module-times-ten/puzzle.rs",
+    "puzzles/morph-any-with-signature/puzzle.json",
+    "puzzles/morph-any-with-signature/puzzle.rs",
+    "puzzles/morph-any-with-signature/puzzle.rue",
+    "puzzles/morph-any-with-signature/reference.clsp",
+    "puzzles/morph-coin-doubler/puzzle.json",
+    "puzzles/morph-coin-doubler/puzzle.rs",
+    "puzzles/morph-coin-doubler/puzzle.rue",
+    "puzzles/morph-coin-doubler/reference.clsp",
+    "puzzles/p2-conditions/puzzle.rs",
+    "puzzles/p2-delegated-conditions/independent-vectors.json",
+    "puzzles/p2-delegated-conditions/mutation-recipes.json",
+    "puzzles/p2-delegated-conditions/puzzle.json",
+    "puzzles/p2-delegated-conditions/puzzle.rs",
+    "puzzles/p2-delegated-conditions/puzzle.rue",
+    "puzzles/p2-delegated-conditions/reference.clsp",
+    "puzzles/p2-singleton/puzzle.rs",
+    "puzzles/p2-singleton/vectors.json",
+    "puzzles/p2-singleton/vectors.py",
+    "puzzles/password-coin/generated-cases.json",
+    "puzzles/password-coin/puzzle.rs",
+    "puzzles/precommit-claim/puzzle.json",
+    "puzzles/precommit-claim/puzzle.rs",
+    "puzzles/precommit-claim/puzzle.rue",
+    "puzzles/precommit-claim/reference.clsp",
+    "puzzles/precommit-registry/puzzle.json",
+    "puzzles/precommit-registry/puzzle.rs",
+    "puzzles/precommit-registry/puzzle.rue",
+    "puzzles/precommit-registry/reference.clsp",
+    "puzzles/precommit_recipe.rs",
+    "puzzles/prefix-list/generated-cases.json",
+    "puzzles/prefix-list/puzzle.rs",
+    "puzzles/recovery-payment/puzzle.rs",
+    "puzzles/registry-initialize/puzzle.json",
+    "puzzles/registry-initialize/puzzle.rs",
+    "puzzles/registry-initialize/puzzle.rue",
+    "puzzles/registry-initialize/reference.clsp",
+    "puzzles/registry-set-alpha/puzzle.json",
+    "puzzles/registry-set-alpha/puzzle.rs",
+    "puzzles/registry-set-alpha/puzzle.rue",
+    "puzzles/registry-set-alpha/reference.clsp",
+    "puzzles/registry-set-beta/puzzle.json",
+    "puzzles/registry-set-beta/puzzle.rs",
+    "puzzles/registry-set-beta/puzzle.rue",
+    "puzzles/registry-set-beta/reference.clsp",
+    "puzzles/registry_recipe.rs",
+    "puzzles/rightmost-tree/puzzle.rs",
+    "puzzles/sha256tree/generated-cases.json",
+    "puzzles/sha256tree/puzzle.rs",
+    "puzzles/signature-payment/puzzle.rs",
+    "puzzles/singleton-launcher/puzzle.rs",
+    "puzzles/split-payment/puzzle.rs",
+    "puzzles/standard-delegated-hidden/fixture_public.json",
+    "puzzles/standard-delegated-hidden/puzzle.rs",
+    "puzzles/tests/modern_tutorials.rs",
+    "puzzles/tests/standard_tutorial.rs",
+    "puzzles/timelocked-payment/puzzle.rs",
+    "puzzles/two-signature-payment/puzzle.rs",
+    "rust-toolchain.toml"
+  ]
+}

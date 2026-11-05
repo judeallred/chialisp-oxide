@@ -75,6 +75,14 @@ def validate(inventory: dict, root: Path = ROOT) -> list[str]:
                     "examples": ["chialisp-example:currying-multiply"],
                     "scope": "typed_module_adapter_and_page_argument_instances_only",
                 },
+                "chialisp:modern-chialisp": {
+                    "examples": ["chialisp-example:modern-let-product", "chialisp-example:modern-named-map", "chialisp-example:modern-lambda-map"],
+                    "scope": "three_closed_modern_cl24_modules_with_embedded_provider_only",
+                },
+                "chialisp:primitives/standard-transactions": {
+                    "examples": ["chialisp-example:standard-delegated-hidden"],
+                    "scope": "individual_raw_standard_tutorial_module_with_selected_include_only",
+                },
                 "chialisp:chialisp-concepts/inner-puzzles": {
                     "examples": ["chialisp-example:inner-require-signature", "chialisp-example:inner-any-conditions"],
                     "scope": "individual_raw_modules_with_selected_includes_only",

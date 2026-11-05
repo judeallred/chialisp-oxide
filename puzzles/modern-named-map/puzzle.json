@@ -1,0 +1,224 @@
+{
+  "slug": "modern-named-map",
+  "title": "Modern named-function list mapping",
+  "kind": "pure_function",
+  "environment": "raw",
+  "reference_dialect": "modern-cl24-v1",
+  "security_scope": "Exact raw positional translation of one closed modern-cl24 tutorial module. Original source unchanged, atom bytes interpreted by raw CLVM arithmetic; list maps use nil-only truth and reject non-nil atom tails. Fixed function translation is distinct from Rust closure admission. No complete spend or preservation proof.",
+  "generated_suite": "raw-environment-v1",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/apply.rs",
+    "crates/chialisp-oxide/src/raw_clvm.rs",
+    "crates/chialisp-oxide/src/raw_clvm_variadic.rs",
+    "crates/chialisp-oxide/src/owned_tree.rs",
+    "crates/chialisp-oxide-reference/src/modern_cl24.rs",
+    "corpus/reference-providers/chialisp-0.4.6-cl24.json"
+  ],
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/native_owned_tree.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:modern-named-map",
+    "references": [
+      "https://chialisp.com/modern-chialisp/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/modern-chialisp.md#L250-L264"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/modern-chialisp.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/modern-chialisp.md",
+      "sha256": "b32a9b2e2780e4ac5205a2b78178b8e46f02c4a02d602c296b1fc3f32e4a30b8",
+      "git_blob_sha1": "5265628175a86528d3a1d5c3b5e19fc39053aed4",
+      "start_line": 250,
+      "end_line": 264
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/modern-named-map/reference.clsp",
+      "sha256": "9cfea3fb7f48d8440917d01496a59bd893476dfc625cf422bfad817e94d1037a",
+      "description": "Exact complete pinned source fence including the original *standard-cl-24* marker; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "This is one exact modern source program, not the complete modern Chialisp page or support for arbitrary modern includes.",
+      "The reference uses only a closed actual Chialisp 0.4.6 embedded cl24 provider contract. No filesystem include is invented.",
+      "Arithmetic remains arbitrary-width signed CLVM atom arithmetic, including padded encodings, through explicit raw helpers rather than ordinary fixed-width Rust operations.",
+      "Named/lambda mapping is a translation of a fixed closed source function; it grants no arbitrary Rust closure/function-pointer/generic admission.",
+      "Host output preflight is outside the policy-panic adapter; resource exhaustion is inconclusive. Native raw helpers use the pinned VM and are not independent implementations of arithmetic.",
+      "No complete-spend, module-hash identity, whole-page completion or compiler-preservation claim follows from finite observations."
+    ],
+    "reference_provider": {
+      "protocol": "chialisp-oxide-reference-modern-cl24/v1",
+      "compiler": "chialisp 0.4.6",
+      "crate": {
+        "name": "chialisp",
+        "version": "0.4.6",
+        "checksum": "c991ea839bb6e2299bd3600b786381c4c1b08f6780800719a24c5d33157cb3e2",
+        "vcs_revision": "32254c8402a3b277b43b1bdad743781f15433b80",
+        "license": "Apache-2.0",
+        "compiler_source_sha256": "0f33b01d833654f9efcd63e54feb088e3922811d2d76dbff7787d00884e9a441",
+        "dialect_source_sha256": "447e99fa538fd5d9a30a12c610e713740e0343592bbf7f20595a539a9c99c01f",
+        "preprocessor_source_sha256": "5ec1f0e836b25da5e52fb2da045b5babe3ac033b6799564dc3991675ee77f050",
+        "license_sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a"
+      },
+      "dialect": {
+        "name": "*standard-cl-24*",
+        "content": "(\n    (defconstant *chialisp-version* 24)\n)",
+        "sha256": "d8c0eca00f44247f73ec6f129d15ee115514e08a443344747fb09f16e9ca68bb",
+        "stepping": 24,
+        "strict": true,
+        "int_fix": true,
+        "extra_numeric_constants": false
+      },
+      "macros": {
+        "name": "*macros*",
+        "content": "(\n(defmac __chia__primitive__if (A B C)\n  (qq (a (i (unquote A) (com (unquote B)) (com (unquote C))) @))\n  )\n\n(defun __chia__if (ARGS)\n  (__chia__primitive__if (r (r (r ARGS)))\n    (qq (a (i (unquote (f ARGS)) (com (unquote (f (r ARGS)))) (com (unquote (__chia__if (r (r ARGS)))))) @))\n    (qq (a (i (unquote (f ARGS)) (com (unquote (f (r ARGS)))) (com (unquote (f (r (r ARGS)))))) @))\n    )\n  )\n\n(defmac if ARGS (__chia__if ARGS))\n\n(defun __chia__compile-list (args)\n  (if args\n    (c 4 (c (f args) (c (__chia__compile-list (r args)) ())))\n    ()\n    )\n  )\n\n(defmac list ARGS (__chia__compile-list ARGS))\n\n(defun-inline / (A B) (f (divmod A B)))\n)\n",
+        "sha256": "4dcba426c34e872616c7aa3d05eab95714b6b09d6ef4a01c67ae7ca66eb7c339"
+      },
+      "scope": "Actual embedded API bytes checked against reviewed pins; closed cl24 reads only. Package/source metadata and freshness do not authenticate installed code, execution or compiler preservation. No filesystem include or general modern include support."
+    }
+  },
+  "cases": [
+    {
+      "label": "page list",
+      "solution": "((1 2 3))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff02ff03ff0480"
+      }
+    },
+    {
+      "label": "empty list",
+      "solution": "(())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "nil element",
+      "solution": "((()))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff0180"
+      }
+    },
+    {
+      "label": "negative and padded elements",
+      "solution": "((-2 0xffff 0x0000 0x0001 0x7f))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff81ffff80ff01ff02ff82008080"
+      }
+    },
+    {
+      "label": "beyond u128",
+      "solution": "((340282366920938463463374607431768211456))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff91010000000000000000000000000000000180"
+      }
+    },
+    {
+      "label": "negative beyond i128",
+      "solution": "((-340282366920938463463374607431768211456))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff91ff0000000000000000000000000000000180"
+      }
+    },
+    {
+      "label": "extra args ignored",
+      "solution": "((1 2) 8 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff02ff0380"
+      }
+    },
+    {
+      "label": "improper environment tail ignored",
+      "solution": "((1 2) . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff02ff0380"
+      }
+    },
+    {
+      "label": "nonempty zero list atom rejects",
+      "solution": "(0x00)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "padded zero list atom rejects",
+      "solution": "(0x0000)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "truthy atom list rejects",
+      "solution": "(7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper list tail rejects",
+      "solution": "((1 . 9))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nonempty zero tail rejects",
+      "solution": "((1 . 0x00))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "program-shaped pair element rejects",
+      "solution": "(((8)))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "pair element rejects",
+      "solution": "(((1 . 2)))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing argument",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ]
+}

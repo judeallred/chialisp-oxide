@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "protocol": "chialisp-oxide-p2dc-source-mutations/v1",
+  "source": "puzzles/p2-delegated-conditions/puzzle.rs",
+  "source_sha256": "8503a4c04ab10f3273b771e1fd378082b8b3b5230c5b708931818486046b89aa",
+  "scope": "Closed actual Rust source substitutions for later fresh native/Cargo OFF/ON counterexample execution. Recipes and independent expectations alone add no executed-source credit. Each mutant still has to pass ordinary Rust checks; resource failures are inconclusive.",
+  "mutations": [
+    {
+      "name": "wrong_atom_domain",
+      "before": "const ATOM_DOMAIN: [u8; 1] = [1];",
+      "after": "const ATOM_DOMAIN: [u8; 1] = [2];",
+      "witness": "named-key0-conditions0",
+      "distinguishing": "accepted_output_differs"
+    },
+    {
+      "name": "wrong_conditions_tail",
+      "before": "                rest: conditions,",
+      "after": "                rest: environment,",
+      "witness": "named-key0-conditions0",
+      "distinguishing": "accepted_output_differs"
+    },
+    {
+      "name": "reject_ignored_improper_tail",
+      "before": "pub fn puzzle<'a>(environment: &'a Tree<'a>) -> DelegatedConditions<'a> {\n",
+      "after": "pub fn puzzle<'a>(environment: &'a Tree<'a>) -> DelegatedConditions<'a> {\n    assert!(matches!(environment, Tree::Pair(_, Tree::Pair(_, Tree::Atom([])))));\n",
+      "witness": "ignored-outer-tail3",
+      "distinguishing": "conclusive_program_rejection"
+    }
+  ]
+}

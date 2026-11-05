@@ -1,0 +1,89 @@
+{
+  "name": "chialisp_oxide_puzzles::boolean_gate::puzzle",
+  "parameters": [
+    {
+      "name": "allow",
+      "ty": {
+        "kind": "bool"
+      }
+    }
+  ],
+  "result": {
+    "kind": "tuple",
+    "items": [
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "bytes",
+            "len": 32
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      }
+    ]
+  },
+  "body": {
+    "op": "if",
+    "condition": {
+      "op": "binary",
+      "kind": "eq",
+      "left": {
+        "op": "arg",
+        "index": 0
+      },
+      "right": {
+        "op": "bool",
+        "value": false
+      },
+      "ty": {
+        "kind": "bool"
+      }
+    },
+    "then_value": {
+      "op": "reject",
+      "message": "puzzles/boolean-gate/puzzle.rs:9:5: 9:19: Rust panic/assertion rejects the puzzle"
+    },
+    "else_value": {
+      "op": "tuple",
+      "items": [
+        {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "int",
+              "value": "51",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            {
+              "op": "bytes",
+              "hex": "4242424242424242424242424242424242424242424242424242424242424242"
+            },
+            {
+              "op": "int",
+              "value": "1000",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

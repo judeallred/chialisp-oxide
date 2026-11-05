@@ -205,6 +205,23 @@ class CargoBundleTests(unittest.TestCase):
                 self.assertEqual(path.read_bytes(), payload)
                 fixture.load(selected_entry=f"controls::{'two' if name == 'one' else 'one'}")
 
+    def test_v9_internal_callable_envelope_retains_exact_transport_bytes(self):
+        fixture = self.fixture()
+        for name in ["one", "two"]:
+            program = {"ir_version": 9, "environment": "strict", "program": {
+                "name": f"controls::{name}", "parameters": [], "result": {"kind": "unit"},
+                "body": {"op": "call_indirect", "callee": {"op": "function_ref", "function_id": 0}, "arguments": []},
+                "functions": [{"id": 0, "name": "unit", "parameters": [], "result": {"kind": "unit"}, "body": {"op": "unit"}}]}}
+            path = fixture.bundle / f"{name}.ir.json"
+            fixture.write(path, program)
+            payload = path.read_bytes()
+            loaded = fixture.load(selected_entry=f"controls::{name}")
+            self.assertEqual(loaded.program, program)
+            self.assertEqual(loaded.ir_sha256, hashlib.sha256(payload).hexdigest())
+            self.assertEqual(path.read_bytes(), payload)
+        # This reader checks attachment identity only. Full callable admission
+        # belongs to the Rust Program/package reader, not this Python transport.
+
     def test_v6_optional_export_body_is_transport_not_program_validation(self):
         fixture = self.fixture()
         program = {"ir_version": 6, "environment": "strict", "program": {
@@ -223,8 +240,8 @@ class CargoBundleTests(unittest.TestCase):
 
     def test_v5_v6_v7_v8_envelope_fields_and_environment_are_closed(self):
         mutations = {
-            "unknown version": lambda p: p.update(ir_version=9),
-            "future v9": lambda p: p.update(ir_version=9),
+            "unknown version": lambda p: p.update(ir_version=10),
+            "future v11": lambda p: p.update(ir_version=11),
             "boolean version": lambda p: p.update(ir_version=True),
             "float version": lambda p: p.update(ir_version=float(p["ir_version"])),
             "string version": lambda p: p.update(ir_version=str(p["ir_version"])),
@@ -318,7 +335,7 @@ class CargoBundleTests(unittest.TestCase):
             "missing artifact": lambda f: f.manifest["entries"][1].pop("artifact"),
             "wrong optimization": lambda f: f.manifest["entries"][1]["artifact"].update(optimize_lir=False),
             "malformed options": lambda f: f.manifest.update(cargo_options="--locked"),
-            "unsupported IR version": lambda f: f.write(f.bundle / "two.ir.json", {"ir_version": 9, "environment": "raw", "program": f.program}),
+            "unsupported IR version": lambda f: f.write(f.bundle / "two.ir.json", {"ir_version": 10, "environment": "raw", "program": f.program}),
             "mixed wire": lambda f: f.write(f.bundle / "two.ir.json", f.program | {"environment": "raw"}),
         }
         for name, mutate in mutations.items():

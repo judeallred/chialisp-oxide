@@ -1,3 +1,4 @@
+import { readStandardTutorialDownloads, checkStandardTutorialDisplay } from '../src/lib/standard-tutorial.mjs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { checkBuiltContinuation } from './test-continuations.mjs';
 import { checkBuiltStateful } from './test-stateful-evidence.mjs';
@@ -1079,7 +1080,22 @@ const tutorialExamples = JSON.parse(await readFile(path.join(root, 'reports/tuto
 const coverage = await html(path.join(root, 'coverage/index.html'));
 const introIds = new Set(['chialisp-example:intro-list', 'chialisp-example:intro-add', 'chialisp-example:intro-conditional']);
 const moduleIds = new Set(['chialisp-example:module-add', 'chialisp-example:module-times-ten', 'chialisp-example:module-factorial', 'chialisp-example:currying-multiply']);
-const rawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const legacyRawTutorialCounts = { 'morph-coin-doubler': 34, 'inner-any-conditions': 12, 'inner-require-signature': 19, 'morph-any-with-signature': 18 };
+const modernTutorialCounts = { 'modern-let-product': 15, 'modern-named-map': 17, 'modern-lambda-map': 17 };
+const canonicalRawTutorialCounts = { ...legacyRawTutorialCounts, 'standard-delegated-hidden': 45 };
+const rawTutorialCounts = { ...canonicalRawTutorialCounts, ...modernTutorialCounts };
+const modernProvider = JSON.parse(await readFile(new URL('../../corpus/reference-providers/chialisp-0.4.6-cl24.json', import.meta.url), 'utf8'));
+function checkModernProviderDisplay(markup, puzzle) {
+  assert.equal(puzzle.reference_dialect, 'modern-cl24-v1');
+  assert.deepEqual(puzzle.reference_provider, modernProvider);
+  const provider = puzzle.reference_provider;
+  const note = markup.match(/<p\b[^>]*data-reference-provider="chialisp-oxide-reference-modern-cl24\/v1"[^>]*>([\s\S]*?)<\/p>/)?.[1];
+  assert(note, `${puzzle.slug}: missing actual embedded provider display`);
+  const text = decodeAttribute(note.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ');
+  for (const value of [provider.compiler, provider.dialect.name, provider.macros.name, provider.dialect.sha256, provider.macros.sha256, 'without filesystem include fallback', 'does not add general modern include support']) assert(text.includes(value), `${puzzle.slug}: missing visible provider value/limit ${value}`);
+  assert(note.includes(`data-provider-dialect-sha256="${provider.dialect.sha256}"`));
+  assert(note.includes(`data-provider-macros-sha256="${provider.macros.sha256}"`));
+}
 const rawTutorialIds = Object.keys(rawTutorialCounts).map(slug => `chialisp-example:${slug}`);
 const rawTutorialContract = { abi: 'raw_one_tree', environment: 'raw', reference_mode: 'module', claim_scope: 'executed_raw_differential_cases_only', ledger: 'not_claimed', compiler_preservation: 'not_claimed', whole_page_completed: false };
 function visibleMain(markup) {
@@ -1098,6 +1114,7 @@ function checkRawLesson(markup, slugs, witnesses) {
     const puzzle = validation.puzzles.find(puzzle => puzzle.slug === slug);
     assert(puzzle?.validated, `${slug}: lesson must use a validated report row`);
     for (const source of [puzzle.reference, puzzle.source, puzzle.rue.source]) assert(copies.includes(normalizedCode(source)), `${slug}: lesson source differs from executed source`);
+    if (Object.hasOwn(modernTutorialCounts, slug)) checkModernProviderDisplay(markup, puzzle);
   }
   for (const witness of witnesses) assert(text.includes(witness), `Missing visible raw tutorial witness: ${witness}`);
   return text;
@@ -1153,6 +1170,7 @@ for (const example of tutorialExamples.examples) {
       assert(detail.includes('Original Chialisp module') && detail.includes('Environment contract: raw tree.'), `${puzzle.slug}: missing complete-module/raw labels`);
       assert.equal(puzzle.cases.length, rawTutorialCounts[puzzle.slug]);
       assert.equal(puzzle.generated_cases, 2059);
+      if (Object.hasOwn(modernTutorialCounts, puzzle.slug)) checkModernProviderDisplay(detail, puzzle);
       const text = visibleMain(detail);
       assert(text.includes(`${puzzle.cases.length} named vectors`) && text.includes('2,059 generated inputs'), `${puzzle.slug}: visible metric values must match named/generated coverage`);
       assert(text.includes('not a coin puzzle'), `${puzzle.slug}: template output must not claim a complete spend`);
@@ -1191,10 +1209,14 @@ for (const example of tutorialExamples.examples) {
   }
 }
 assert.deepEqual(implementedExamples.sort(), [...introIds, ...moduleIds, 'chialisp-example:password-coin', ...rawTutorialIds].sort(), 'Only reviewed exact canonical examples may be promoted');
-assert.equal(Object.keys(rawTutorialCounts).reduce((sum, slug) => sum + validation.puzzles.find(puzzle => puzzle.slug === slug).cases.length, 0), 83, 'Raw tutorial named vectors must remain separately counted');
+assert.equal(Object.keys(legacyRawTutorialCounts).reduce((sum, slug) => sum + validation.puzzles.find(puzzle => puzzle.slug === slug).cases.length, 0), 83, 'Legacy raw tutorial counts must remain unchanged');
+assert.equal(Object.keys(canonicalRawTutorialCounts).reduce((sum, slug) => sum + validation.puzzles.find(puzzle => puzzle.slug === slug).cases.length, 0), 128, 'Five classic raw tutorials retain their own named count');
+assert.equal(Object.keys(modernTutorialCounts).reduce((sum, slug) => sum + validation.puzzles.find(puzzle => puzzle.slug === slug).cases.length, 0), 49, 'Three modern source programs must retain their own named count');
 for (const lesson of [
+  { route: 'tutorials/modern-bindings-and-maps', slugs: Object.keys(modernTutorialCounts), witnesses: ['nil-only truth', 'do not compile a Rust closure or function pointer', 'same selected transformation', 'without a wallet', 'resource or infrastructure exhaustion is inconclusive'], corruption: ['nil-only truth', 'numeric-zero termination'] },
   { route: 'tutorials/inner-puzzles', slugs: ['inner-any-conditions', 'inner-require-signature', 'morph-any-with-signature'], witnesses: ['complete tail', 'input solution', 'different hashes', 'does not apply an inner program', 'not pin their revision', 'does not sign anything', 'no curried-instance or complete-spend credit'], corruption: ['input solution', 'output conditions'] },
   { route: 'tutorials/condition-morphing', slugs: ['morph-coin-doubler'], witnesses: ['Memos are discarded', '0x0033', '2^128', '2^129', 'the atom tail is discarded', 'cannot fund that output', 'does not commit to an authorized inner policy'], corruption: ['Memos are discarded', 'Memos are retained'] },
+  { route: 'tutorials/standard-transactions', slugs: ['standard-delegated-hidden'], witnesses: ['signed CLVM integer semantics', "solution’s hash is not separately signed", 'the hidden-key check runs', 'before the hidden program is selected', 'The hidden program must enforce the intended authorization itself'], corruption: ['the hidden-key check runs', 'the applied program runs first'] },
 ]) {
   const filename = path.join(root, lesson.route, 'index.html');
   assert(built.includes(filename), `Missing ${lesson.route}`);
@@ -1210,6 +1232,13 @@ for (const lesson of [
   const changedSource = markup.replace(/\bdata-code="([^"]*)"/g, (whole, encoded) => normalizedCode(decodeAttribute(encoded).replaceAll('\x7f', '\n')) === source ? 'data-code="altered source"' : whole);
   assert.notEqual(changedSource, markup, `${lesson.route}: source corruption must modify actual copy payload`);
   assert.throws(() => checkRawLesson(changedSource, lesson.slugs, lesson.witnesses), assert.AssertionError, 'Changed actual source escaped display gate');
+  if (lesson.slugs.some(slug => Object.hasOwn(modernTutorialCounts, slug))) {
+    assert.equal([...markup.matchAll(/data-reference-provider="chialisp-oxide-reference-modern-cl24\/v1"/g)].length, 3, 'Each modern source comparison needs its actual provider');
+    const pin = modernProvider.dialect.sha256;
+    const changedVisibleHash = markup.replaceAll(`>${pin}</code>`, `>${'0'.repeat(64)}</code>`);
+    assert.notEqual(changedVisibleHash, markup, 'Provider corruption must modify actual displayed bytes');
+    assert.throws(() => checkRawLesson(changedVisibleHash, lesson.slugs, lesson.witnesses), assert.AssertionError, 'Changed visible provider hash escaped display gate');
+  }
 }
 assert(built.includes(path.join(root, 'tutorials/canonical-intro/index.html')), 'Missing canonical Intro tutorial');
 assert(built.includes(path.join(root, 'tutorials/canonical-modules/index.html')), 'Missing canonical Using Modules tutorial');
@@ -1421,3 +1450,67 @@ try {
 }
 
 console.log(`PASS: ${pages.length} pages, ${checkedLinks} local links/assets/fragments, ${checkedSourceCopies} original source-copy payloads, ${publishedReports.length} JSON reports, ${structuralBasenames.length} exact structural downloads, ${byteDownloads.length} exact byte-proof downloads, ${acyclicDisplay.downloads} exact acyclic downloads with ${acyclicDisplay.sourceCopies} source/spec copies, ${sourceDataDownloads.length} exact source-data downloads with ${sourceBudgetRoutes.size} source-page budgets (512KiB except the P2lab1MiB), ${byteVmRuns} typed byte-proof VM observations, exact password module/instance counts and typed rows, ${dedicatedCounts.attempts} separate P2 singleton and ${delegatedCounts.attempts} delegated-conditions actual recorded submissions with ${protocolDisplayControls} display corruption controls, ${costRows.length} before/after optimization rows with ${costDisplayControls} display corruption controls, ${previewControls} bounded-preview corruption controls, and live Pagefind queries`);
+
+const standardSdkDownloads = await readStandardTutorialDownloads();
+const standardSdkEvidence = standardSdkDownloads.evidence;
+for (const file of standardSdkDownloads.downloads) {
+  assert.deepEqual(await readFile(path.join(root, 'reports/standard-tutorial', file.path)), standardSdkDownloads.payloads.get(file.path), 'Standard tutorial download differs from the admitted complete packet');
+}
+assert.deepEqual(await readFile(path.join(root, 'reports/standard-tutorial.json')), Buffer.from(JSON.stringify(standardSdkEvidence)), 'Standard tutorial summary differs from the current admitted evidence');
+const standardSdkPage = await html(path.join(root, 'tutorials/standard-transactions/index.html'));
+checkStandardTutorialDisplay(standardSdkPage, standardSdkEvidence);
+for (const [label, bad] of [
+  ['missing SDK section', standardSdkPage.replace('data-standard-sdk="current"', 'data-standard-sdk="missing"')],
+  ['changed SDK count', standardSdkPage.replace('data-standard-count="sdk_attempts" data-value="80"', 'data-standard-count="sdk_attempts" data-value="81"')],
+  ['changed SDK scope', standardSdkPage.replaceAll('no semantic rejection credit', 'complete semantic rejection credit')],
+]) {
+  assert.notEqual(bad, standardSdkPage, `No-op standard SDK display corruption: ${label}`);
+  assert.throws(() => checkStandardTutorialDisplay(bad, standardSdkEvidence), assert.AssertionError, `Accepted corrupt standard SDK display: ${label}`);
+}
+
+// Constructed visibility controls only; no SDK, VM, current-reader or layout credit.
+(() => {
+  const counts = { sdk_attempts: 80, sdk_accepted: 15, sdk_typed_rejected: 45, sdk_runtime_umbrellas: 20, fixture_coins: 15, primary_observations: 85 };
+  const evidence = { status: 'recorded_standard_tutorial_consistency_checked' };
+  const cells = Object.entries(counts).map(([name, value]) => `<dd data-standard-count="${name}" data-value="${value}">${value}</dd>`).join('');
+  const section = `<section data-standard-sdk="current"><h2>Recorded simulator observations</h2><dl>${cells}</dl><p>GeneratorRuntimeError: no semantic rejection credit; no BLS verification; No live network.</p></section>`;
+  const fixture = `<html><body><main><article>${section}</article></main></body></html>`;
+  const cell = '<dd data-standard-count="sdk_attempts" data-value="80">80</dd>';
+  const changedCell = contents => fixture.replace(cell, `<dd data-standard-count="sdk_attempts" data-value="80">${contents}</dd>`);
+  assert.deepEqual(checkStandardTutorialDisplay(fixture, evidence), { visible_counts: 6, execution_credit: false });
+  assert.deepEqual(checkStandardTutorialDisplay(changedCell('<span>8</span><strong>0</strong><span hidden>ignored</span><svg><text>999</text></svg>'), evidence), { visible_counts: 6, execution_credit: false }, 'Ignore inert/hidden decoration, retain actual visible digits');
+  const corruptions = [
+    ['hidden count cell', fixture.replace(cell, cell.replace('<dd ', '<dd hidden '))],
+    ['aria-hidden count cell', fixture.replace(cell, cell.replace('<dd ', '<dd aria-hidden="true" '))],
+    ['display-none count cell', fixture.replace(cell, cell.replace('<dd ', '<dd style="display: none !important" '))],
+    ['hiding count class', fixture.replace(cell, cell.replace('<dd ', '<dd class="hidden" '))],
+    ['hidden count descendant', changedCell('<span hidden>80</span>')],
+    ['aria-hidden count descendant', changedCell('<span aria-hidden="true">80</span>')],
+    ['opacity-zero count descendant', changedCell('<span style="opacity:0.00">80</span>')],
+    ['sr-only count descendant', changedCell('<span class="sr-only">80</span>')],
+    ['inert script count descendant', changedCell('<script type="text/plain">80</script>')],
+    ['inert template count descendant', changedCell('<template>80</template>')],
+    ['hidden SDK section', fixture.replace('<section ', '<section hidden ' )],
+    ['hidden ancestor', fixture.replace('<article>', '<article hidden>')],
+    ['inert ancestor', fixture.replace('<article>', '<article inert>')],
+    ['hiding ancestor class', fixture.replace('<article>', '<article class="invisible">')],
+    ['visibility-hidden ancestor', fixture.replace('<article>', '<article style="visibility:hidden">')],
+    ['hidden scope descendant', fixture.replace('No live network.', '<span hidden>No live network.</span>')],
+    ['aria-hidden scope descendant', fixture.replace('no BLS verification', '<span aria-hidden="true">no BLS verification</span>')],
+    ['inert scope descendant', fixture.replace('No live network.', '<noscript>No live network.</noscript>')],
+    ['duplicate SDK section', fixture.replace(section, section + section)],
+    ['duplicate count', fixture.replace(cell, cell + cell)],
+    ['unknown extra count', fixture.replace('</dl>', '<dd data-standard-count="extra" data-value="0">0</dd></dl>')],
+    ['metadata-only count', changedCell('')],
+    ['wrong visible count', changedCell('81')],
+    ['hidden correct count cannot rescue visible wrong count', changedCell('<span hidden>80</span>81')],
+  ];
+  for (const [label, bad] of corruptions) {
+    assert.notEqual(bad, fixture, `No-op constructed standard display corruption: ${label}`);
+    assert.throws(() => checkStandardTutorialDisplay(bad, evidence), assert.AssertionError, `Accepted constructed standard display corruption: ${label}`);
+  }
+  assert.throws(() => checkStandardTutorialDisplay('x'.repeat(16 * 1024 * 1024 + 1), evidence), /Bounded actual standard HTML/);
+  assert.throws(() => checkStandardTutorialDisplay('<div>'.repeat(257) + section + '</div>'.repeat(257), evidence), /Standard display DOM depth limit/);
+  console.log(`PASS standard constructed display: ${corruptions.length} visibility/inventory corruptions, byte/depth bounds, and visible nested text; no SDK/VM or browser-layout credit`);
+})();
+// End constructed standard visibility controls.

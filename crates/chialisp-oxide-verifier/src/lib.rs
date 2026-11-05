@@ -279,6 +279,7 @@ impl Translation {
     }
     fn input(&mut self, ty: &Type, name: &str) -> Result<Value> {
         Ok(match ty {
+            Type::Callable { .. } => bail!("callable values have no admitted proof model"),
             Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
             Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
             Type::Int { .. } => {
@@ -333,6 +334,9 @@ impl Translation {
     }
     fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+                bail!("callable values have no admitted proof model")
+            }
             Expr::OptionalNone { .. }
             | Expr::OptionalSome { .. }
             | Expr::OptionalIsSome(_)
@@ -586,6 +590,7 @@ impl Translation {
 
 fn default_value(ty: &Type) -> Result<Value> {
     Ok(match ty {
+        Type::Callable { .. } => bail!("callable values have no admitted proof model"),
         Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
         Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
         Type::Int { .. } => Value::Int("0".into()),
@@ -604,6 +609,10 @@ fn default_value(ty: &Type) -> Result<Value> {
 /// Expression-model preflight must examine the whole Program, not just the
 /// reachable entry expression: an unused table or dead branch is still v4 IR.
 fn require_expression_model(program: &Program, model: &str) -> Result<()> {
+    ensure!(
+        !program.uses_callables(),
+        "callable values have no admitted proof model"
+    );
     ensure!(
         !program.uses_casts(),
         "integer casts are not modeled by this proof API"
@@ -790,6 +799,7 @@ fn witness_value(
     values: &BTreeMap<String, SExpression>,
 ) -> Result<WitnessValue> {
     Ok(match ty {
+        Type::Callable { .. } => bail!("callable values have no admitted proof model"),
         Type::Optional { .. } => bail!("optional outputs have no admitted proof model"),
         Type::Pair { .. } => bail!("typed wire pairs have no admitted proof model"),
         Type::Int { .. } => {

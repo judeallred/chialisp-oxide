@@ -1,0 +1,32 @@
+// Original independent finite registry initializer; not canonical SLOT.
+type State = (Int, (Bytes32, Bytes32));
+type Truth = (Any, State);
+fn canonical_bool(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length == 0 || encoded == 0x01;
+    value
+}
+fn entry_hash(name: Bytes32, value: Bytes32) -> Bytes32 {
+    sha256(0x02 + sha256(0x01 + name) + sha256(0x01 + value))
+}
+fn slot_hash(first: Bytes32, entry: Bytes32) -> Bytes32 {
+    curry_tree_hash(first, [tree_hash_atom(entry)])
+}
+
+const ALPHA: Bytes32 = 0x9489db9a064d172982734919528b3a7f5e204b93e55f277866c51ee50c6ce500;
+const BETA: Bytes32 = 0x4189b73b237d357f207cda7acb86b7e5fbff7ae29850dd036f35f2f24a26d0e0;
+const ZERO: Bytes32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+fn main(...environment: Any) -> Any {
+    assert environment is (Bytes32, (Truth, nil));
+    let first = environment.first;
+    let truth = environment.rest.first;
+    let initialized = canonical_bool(truth.rest.first);
+    assert truth.first is nil;
+    assert initialized == 0;
+    let alpha = entry_hash(ALPHA, ZERO);
+    let beta = entry_hash(BETA, ZERO);
+    ((0x01, (1, (alpha, beta))), [
+        CreateCoin { puzzle_hash: slot_hash(first, alpha), amount: 0, memos: Memos { value: [first] } },
+        CreateCoin { puzzle_hash: slot_hash(first, beta), amount: 0, memos: Memos { value: [first] } },
+    ])
+}

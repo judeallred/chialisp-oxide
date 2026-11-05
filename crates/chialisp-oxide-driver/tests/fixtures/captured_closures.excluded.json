@@ -1,0 +1,70 @@
+[
+  {
+    "label": "shared capture",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=|n:u64|x+n;f(1)}"
+  },
+  {
+    "label": "projected capture",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let pair=(x,2u8);let f=move ||pair.0;f()}"
+  },
+  {
+    "label": "move Cell Fn no-drop",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let cell=std::cell::Cell::new(x);let f=move ||{let v=cell.get();cell.set(v+1);v};f()}"
+  },
+  {
+    "label": "FnMut",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let mut sum=x;let mut f=|n:u64|{sum+=n;sum};f(1)}"
+  },
+  {
+    "label": "owned Fn capture",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let s=String::from(\"abc\");let f=move ||x+s.len() as u64;f()}"
+  },
+  {
+    "label": "FnOnce capture",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let s=String::from(\"abc\");let f=move ||{let _moved=s;x};f()}"
+  },
+  {
+    "label": "explicit closure reference",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||x;let r=&f;r()}"
+  },
+  {
+    "label": "tuple storage",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||x;let v=(f,);v.0()}"
+  },
+  {
+    "label": "optional storage",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||x;let v=Some(f);match v{Some(g)=>g(),None=>0}}"
+  },
+  {
+    "label": "mutable closure local",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let mut f=move ||x;f()}"
+  },
+  {
+    "label": "conditional join",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||x;let g=if x==0{f}else{f};g()}"
+  },
+  {
+    "label": "nested captured closure",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||{let inner=move ||x;inner()};f()}"
+  },
+  {
+    "label": "captured callback",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let pointer:fn(u64)->u64=|n|n+1;let f=move ||pointer(x);f()}"
+  },
+  {
+    "label": "unused invalid closure",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let f=move ||{let s=String::from(\"a\");x+s.len() as u64};let _=f;x}"
+  },
+  {
+    "label": "unit referenced capture",
+    "source": "#[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{let unit=();let f=move ||{let _=&unit;x};f()}"
+  },
+  {
+    "label": "generic Fn helper",
+    "source": "fn invoke<F:Fn(u64)->u64>(f:F)->u64{f(1)} #[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{invoke(move |n|x+n)}"
+  },
+  {
+    "label": "escaping closure helper",
+    "source": "fn make(x:u64)->impl Fn(u64)->u64{move |n|x+n} #[chialisp_oxide::puzzle] pub fn puzzle(x:u64)->u64{make(x)(1)}"
+  }
+]

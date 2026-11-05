@@ -1,0 +1,27 @@
+; Original independent reference, including the finite Rust ABI input contract.
+; Authorization is coin-bound reset capability, not complete-batch authorization.
+(mod ENV
+  (defun checked_count (N)
+    (if (l N) (x)
+      (if (= N (+ N 0))
+        (if (> N -1)
+          (if (> N 18446744073709551615) (x) N)
+          (x))
+        (x))))
+  (defun reset_truth (OWNER TRUTH)
+    (if (l OWNER) (x)
+      (if (= (strlen OWNER) 48)
+        (if (l TRUTH)
+          ; Use the validated count in a true range predicate so strict
+          ; validation remains required even though the returned count is zero.
+          (if (> (checked_count (r TRUTH)) -1)
+            (c (c (f TRUTH) ())
+               (list (list 50 OWNER "chialisp-oxide/counter/reset:v1!")))
+            (x))
+          (x))
+        (x))))
+  (if (l ENV)
+    (if (l (r ENV))
+      (if (r (r ENV)) (x) (reset_truth (f ENV) (f (r ENV))))
+      (x))
+    (x)))

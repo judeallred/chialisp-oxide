@@ -1,0 +1,262 @@
+//! Pure, typed expression IR between checked Rust MIR and Rue's CLVM backend.
+mod callables;
+mod lower;
+mod optimize;
+mod validate;
+mod wire;
+pub use lower::compile;
+pub use optimize::optimize;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum Type {
+    /// An arbitrary immutable CLVM atom; all bytes are significant.
+    Atom,
+    /// An arbitrary immutable CLVM atom/pair tree.
+    Tree,
+    Bool,
+    Int {
+        bits: u16,
+        signed: bool,
+    },
+    Bytes {
+        len: usize,
+    },
+    Tuple {
+        items: Vec<Type>,
+    },
+    /// Exactly one wire pair; its tail need not terminate in nil.
+    Pair {
+        first: Box<Type>,
+        rest: Box<Type>,
+    },
+    /// Nil for None, a one-item list for Some. Inputs/inspection require v8.
+    Optional {
+        item: Box<Type>,
+    },
+    /// Internal-only compiler-owned local function identity; never a public ABI value.
+    Callable {
+        parameters: Vec<Type>,
+        result: Box<Type>,
+    },
+    Unit,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Parameter {
+    pub name: String,
+    pub ty: Type,
+}
+/// How the entry point consumes the untrusted CLVM environment.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Environment {
+    /// Decode an exact, proper list of typed Rust arguments, including arity zero.
+    #[default]
+    Strict,
+    /// A genuinely nullary function deliberately accepts every CLVM tree.
+    Ignored,
+    /// Pass the complete CLVM environment to one tree parameter without decoding.
+    Raw,
+}
+impl Environment {
+    pub fn is_strict(&self) -> bool {
+        *self == Self::Strict
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Program {
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub result: Type,
+    pub body: Expr,
+    pub environment: Environment,
+    /// A closed, compiler-owned function table; IDs equal their table indices.
+    pub functions: Vec<Function>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Function {
+    pub id: usize,
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub result: Type,
+    pub body: Expr,
+}
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum BinaryOp {
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Rem,
+    Bitand,
+    Bitor,
+    Bitxor,
+    Shl,
+    Shr,
+}
+/// Closed semantics for the newly introduced integer-cast payload only.
+/// Other, historical expression payloads retain their existing reader contract.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct IntegerCast {
+    pub value: Box<Expr>,
+    #[serde(deserialize_with = "cast_integer_type")]
+    pub source: Type,
+    #[serde(deserialize_with = "cast_integer_type")]
+    pub target: Type,
+}
+fn cast_integer_type<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Type, D::Error> {
+    #[derive(Deserialize)]
+    #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+    enum Primitive {
+        Int { bits: u16, signed: bool },
+    }
+    let Primitive::Int { bits, signed } = Primitive::deserialize(deserializer)?;
+    Ok(Type::Int { bits, signed })
+}
+/// Closed payload for the v8 optional-value inspection nodes. Historical
+/// expression/type payloads retain their existing reader contract.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OptionalAccess {
+    pub value: Box<Expr>,
+}
+#[derive(Debug, Clone, Deserialize)]
+#[serde(tag = "op", rename_all = "snake_case")]
+pub enum Expr {
+    /// Primitive fixed-width Rust integer `as`, not a type retag or ABI cast.
+    /// Requires the strict version-7 capability; source/target are both checked.
+    IntCast(IntegerCast),
+    /// Presence of an evaluated optional value; no payload truthiness coercion.
+    OptionalIsSome(OptionalAccess),
+    /// The payload of Some. Evaluating this projection on None rejects.
+    OptionalValue(OptionalAccess),
+    /// Explicit optional values require strict version-6 lowering.
+    OptionalNone {
+        item: Type,
+    },
+    OptionalSome {
+        value: Box<Expr>,
+    },
+    /// Typed pairs require strict version-5 lowering.
+    Pair {
+        first: Box<Expr>,
+        rest: Box<Expr>,
+    },
+    PairFirst {
+        value: Box<Expr>,
+    },
+    PairRest {
+        value: Box<Expr>,
+    },
+    /// SHA256 of ordered atom payloads. Strict operand binding requires v4.
+    Sha256 {
+        parts: Vec<Expr>,
+    },
+    /// CLVM `a`: apply an untrusted program tree to an environment tree. Both
+    /// operands bind strictly in order; the result is an arbitrary tree.
+    /// Requires version-4 runtime lowering and no proof model admits it.
+    Apply {
+        program: Box<Expr>,
+        environment: Box<Expr>,
+    },
+    /// A compiler-owned target in the validated closed local function table.
+    FunctionRef {
+        function_id: usize,
+    },
+    /// Strictly capture the callee, then each argument, before closed dispatch.
+    CallIndirect {
+        callee: Box<Expr>,
+        arguments: Vec<Expr>,
+    },
+    Call {
+        function_id: usize,
+        arguments: Vec<Expr>,
+    },
+    Let {
+        local_id: usize,
+        ty: Type,
+        value: Box<Expr>,
+        body: Box<Expr>,
+    },
+    Local {
+        local_id: usize,
+    },
+    Atom {
+        hex: String,
+    },
+    /// Test atom byte length, without integer coercion or truthiness folding.
+    AtomIsEmpty {
+        value: Box<Expr>,
+    },
+    TreeAtom {
+        value: Box<Expr>,
+    },
+    TreeAtomValue {
+        value: Box<Expr>,
+    },
+    TreePair {
+        first: Box<Expr>,
+        rest: Box<Expr>,
+    },
+    TreeIsPair {
+        value: Box<Expr>,
+    },
+    TreeFirst {
+        value: Box<Expr>,
+    },
+    TreeRest {
+        value: Box<Expr>,
+    },
+    Unit,
+    Bool {
+        value: bool,
+    },
+    Int {
+        value: String,
+        ty: Type,
+    },
+    Bytes {
+        hex: String,
+    },
+    Arg {
+        index: usize,
+    },
+    Tuple {
+        items: Vec<Expr>,
+    },
+    Binary {
+        kind: BinaryOp,
+        left: Box<Expr>,
+        right: Box<Expr>,
+        ty: Type,
+    },
+    Not {
+        value: Box<Expr>,
+    },
+    If {
+        condition: Box<Expr>,
+        then_value: Box<Expr>,
+        else_value: Box<Expr>,
+    },
+    Reject {
+        message: String,
+    },
+    Field {
+        value: Box<Expr>,
+        index: usize,
+    },
+    Sequence {
+        first: Box<Expr>,
+        then_value: Box<Expr>,
+    },
+}

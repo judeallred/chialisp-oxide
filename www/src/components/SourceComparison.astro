@@ -39,6 +39,12 @@ const dependencyLanguage = (filename: string) => filename.endsWith('.json') ? 'j
     {' '}<a href={canonical.source.url}>Inspect its exact upstream source span.</a></p>}
   {canonicalModule && <p class="source-note">The original upstream module is retained byte for byte, without an adapter or added argument guard. The raw environment contract and published module identity are recorded separately from finite behavioral comparisons.</p>}
   {Object.keys(puzzle.reference_includes ?? {}).length > 0 && <p class="source-note" data-reference-includes>The independent reference compiler binds each include to its exact recorded supporting file: {Object.entries(puzzle.reference_includes ?? {}).map(([name, filename], index) => <>{index > 0 ? '; ' : ''}<code>{name}</code>{' → '}<code>{filename}</code></>)}. Undeclared includes fail.</p>}
+  {puzzle.reference_provider && <p class="source-note" data-reference-provider={puzzle.reference_provider.protocol}>
+    Closed embedded provider: <code>{puzzle.reference_provider.compiler}</code>, dialect <code>{puzzle.reference_provider.dialect.name}</code>.
+    {' '}The actual embedded dialect bytes have SHA-256 <code data-provider-dialect-sha256={puzzle.reference_provider.dialect.sha256}>{puzzle.reference_provider.dialect.sha256}</code>;
+    {' '}the strict macro prelude <code>{puzzle.reference_provider.macros.name}</code> has SHA-256 <code data-provider-macros-sha256={puzzle.reference_provider.macros.sha256}>{puzzle.reference_provider.macros.sha256}</code>.
+    {' '}These two embedded reads are admitted without filesystem include fallback. This profile does not add general modern include support, authenticate execution or prove compiler preservation.
+  </p>}
   {helper && <p class="source-note">The original helper is retained verbatim inside the displayed module wrapper. {helper.source} Finite behavioral comparisons do not claim identity with a published standalone module.</p>}
   {dependencies.length > 0 && <div class="source-dependencies">
     <p class="source-note">Supporting files are recorded separately so fixture data and helper definitions do not obscure the puzzle policy.</p>

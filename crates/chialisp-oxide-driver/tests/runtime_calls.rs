@@ -255,8 +255,8 @@ fn recursive_functions_keep_unsupported_features_and_borrow_errors_fail_closed()
             "loops are unsupported",
         ),
         (
-            "#[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u8{let function:fn(u8)->u8=invalid;function(v)}",
-            "indirect function calls",
+            "#[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u8{let mut function:fn(u8)->u8=invalid;function(v)}",
+            "callable source bindings must be immutable",
         ),
         (
             "fn rec<T>(v:T)->T{rec(v)} #[chialisp_oxide::puzzle]pub fn invalid(v:u8)->u8{rec(v)}",

@@ -69,6 +69,7 @@ impl Budget {
 /// Bound every child-list growth before extending a borrowed traversal.
 fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget) -> Option<()> {
     let count = match expr {
+        Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return None,
         Expr::Tuple { items }
         | Expr::Sha256 { parts: items }
         | Expr::Call {
@@ -108,6 +109,7 @@ fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, budget: &mut Budget
     budget.work(count)?;
     (count <= MAX_NODES.saturating_sub(pending.len())).then_some(())?;
     match expr {
+        Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return None,
         Expr::Tuple { items }
         | Expr::Sha256 { parts: items }
         | Expr::Call {
@@ -280,6 +282,7 @@ impl Rewriter<'_> {
     ) -> Option<Expr> {
         self.budget.node(depth)?;
         Some(match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return None,
             Expr::OptionalNone { .. }
             | Expr::OptionalIsSome(_)
             | Expr::OptionalValue(_)
@@ -512,6 +515,7 @@ fn frames(
     budget.work(1)?;
     (depth <= MAX_DEPTH && live <= MAX_BINDINGS && pending <= MAX_BINDINGS).then_some(())?;
     match expr {
+        Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => None,
         Expr::OptionalNone { .. }
         | Expr::OptionalIsSome(_)
         | Expr::OptionalValue(_)
@@ -647,6 +651,7 @@ fn prune(program: &mut Program, budget: &mut Budget) -> Option<()> {
         budget.work(1)?;
         (depth <= MAX_DEPTH).then_some(())?;
         match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => return None,
             Expr::OptionalNone { .. }
             | Expr::OptionalIsSome(_)
             | Expr::OptionalValue(_)

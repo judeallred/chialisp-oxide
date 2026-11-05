@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "protocol": "chia-consensus-0.36.1/v1",
+  "stage": "consensus",
+  "codes": [
+    "BadAggregateSignature",
+    "AssertSecondsAbsoluteFailed",
+    "AssertMyAmountFailed",
+    "DoubleSpend",
+    "MintingCoin",
+    "AssertCoinAnnouncementFailed",
+    "MessageNotSentOrReceived",
+    "InvalidPuzzleHash",
+    "InvalidCoinAmount",
+    "AssertBeforeSecondsAbsoluteFailed",
+    "AssertHeightRelativeFailed"
+  ],
+  "scenarios": {
+    "missing signature rejected with rollback": [
+      "BadAggregateSignature"
+    ],
+    "single signer rejected": [
+      "BadAggregateSignature"
+    ],
+    "early spend rejected, time advanced": [
+      "AssertSecondsAbsoluteFailed"
+    ],
+    "valid spend produces exact recipients and total": [],
+    "double spend rejected with rollback": [
+      "DoubleSpend"
+    ],
+    "wrong coin amount rejected with rollback": [
+      "AssertMyAmountFailed"
+    ],
+    "recovery requires both delay and recovery key": [
+      "AssertSecondsAbsoluteFailed",
+      "BadAggregateSignature"
+    ],
+    "underfunded coin rejected with rollback": [
+      "MintingCoin"
+    ],
+    "surplus input becomes an implicit fee": [],
+    "launcher creates exact child and bound announcement": [],
+    "missing launcher announcement rejected with rollback": [
+      "AssertCoinAnnouncementFailed"
+    ],
+    "launcher announcement binds all three selected fields": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "ignored launcher tail preserves spend and commitment": [],
+    "launcher overmint rejected with rollback": [
+      "MintingCoin"
+    ],
+    "launcher pair destination rejected by consensus": [
+      "InvalidPuzzleHash"
+    ],
+    "launcher pair amount rejected by consensus": [
+      "InvalidCoinAmount"
+    ],
+    "launcher replay rejected with rollback": [
+      "DoubleSpend"
+    ],
+    "different launcher coin cannot satisfy announcement": [
+      "AssertCoinAnnouncementFailed"
+    ],
+    "claim one block before minimum age rejected": [
+      "AssertHeightRelativeFailed"
+    ],
+    "registry and precommit each require the other": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "changed destination, key or salt matches no precommit": [
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed",
+      "AssertCoinAnnouncementFailed"
+    ],
+    "owner signature required": [
+      "BadAggregateSignature"
+    ],
+    "refund before refund age rejected": [
+      "AssertHeightRelativeFailed"
+    ],
+    "mature signed claim pays treasury and owner receipt": [],
+    "spent registry slot cannot register again": [
+      "DoubleSpend"
+    ],
+    "permissionless refund only at refund age": [
+      "AssertHeightRelativeFailed"
+    ],
+    "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)": [
+      "DoubleSpend"
+    ],
+    "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)": [
+      "AssertHeightRelativeFailed"
+    ],
+    "refund after successful completion rejected even at refund age": [
+      "DoubleSpend"
+    ]
+  },
+  "puzzles": {
+    "fixed-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "capped-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "split-payment": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "timelocked-payment": [
+      {
+        "name": "early spend rejected, time advanced",
+        "codes": [
+          "AssertSecondsAbsoluteFailed"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "signature-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "two-signature-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "single signer rejected",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      }
+    ],
+    "recovery-payment": [
+      {
+        "name": "missing signature rejected with rollback",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "wrong coin amount rejected with rollback",
+        "codes": [
+          "AssertMyAmountFailed"
+        ]
+      },
+      {
+        "name": "recovery requires both delay and recovery key",
+        "codes": [
+          "AssertSecondsAbsoluteFailed",
+          "BadAggregateSignature"
+        ]
+      }
+    ],
+    "boolean-gate": [
+      {
+        "name": "valid spend produces exact recipients and total",
+        "codes": []
+      },
+      {
+        "name": "double spend rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "underfunded coin rejected with rollback",
+        "codes": [
+          "MintingCoin"
+        ]
+      },
+      {
+        "name": "surplus input becomes an implicit fee",
+        "codes": []
+      }
+    ],
+    "singleton-launcher": [
+      {
+        "name": "launcher creates exact child and bound announcement",
+        "codes": []
+      },
+      {
+        "name": "missing launcher announcement rejected with rollback",
+        "codes": [
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "launcher announcement binds all three selected fields",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "different launcher coin cannot satisfy announcement",
+        "codes": [
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "ignored launcher tail preserves spend and commitment",
+        "codes": []
+      },
+      {
+        "name": "launcher overmint rejected with rollback",
+        "codes": [
+          "MintingCoin"
+        ]
+      },
+      {
+        "name": "launcher pair destination rejected by consensus",
+        "codes": [
+          "InvalidPuzzleHash"
+        ]
+      },
+      {
+        "name": "launcher pair amount rejected by consensus",
+        "codes": [
+          "InvalidCoinAmount"
+        ]
+      },
+      {
+        "name": "launcher replay rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      }
+    ],
+    "precommit-claim": [
+      {
+        "name": "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "registry and precommit each require the other",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "changed destination, key or salt matches no precommit",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "owner signature required",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "refund before refund age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "mature signed claim pays treasury and owner receipt",
+        "codes": []
+      },
+      {
+        "name": "spent registry slot cannot register again",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "refund after successful completion rejected even at refund age",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "permissionless refund only at refund age",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      }
+    ],
+    "precommit-registry": [
+      {
+        "name": "naive one-step copied intent wins when attacker is submitted first (simulator ordering only)",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "claim one block before minimum age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "copied intent with a fresh genuine precommit cannot win immediately (simulator ordering only)",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "registry and precommit each require the other",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "changed destination, key or salt matches no precommit",
+        "codes": [
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed",
+          "AssertCoinAnnouncementFailed"
+        ]
+      },
+      {
+        "name": "owner signature required",
+        "codes": [
+          "BadAggregateSignature"
+        ]
+      },
+      {
+        "name": "refund before refund age rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "mature signed claim pays treasury and owner receipt",
+        "codes": []
+      },
+      {
+        "name": "spent registry slot cannot register again",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "refund after successful completion rejected even at refund age",
+        "codes": [
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "permissionless refund only at refund age",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      }
+    ]
+  }
+}

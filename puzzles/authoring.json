@@ -89,6 +89,18 @@
       "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
       "source": "puzzles/last-list-element/puzzle.rs"
     },
+    "modern-lambda-map": {
+      "entry": "chialisp_oxide_puzzles::modern_lambda_map::puzzle",
+      "source": "puzzles/modern-lambda-map/puzzle.rs"
+    },
+    "modern-let-product": {
+      "entry": "chialisp_oxide_puzzles::modern_let_product::puzzle",
+      "source": "puzzles/modern-let-product/puzzle.rs"
+    },
+    "modern-named-map": {
+      "entry": "chialisp_oxide_puzzles::modern_named_map::puzzle",
+      "source": "puzzles/modern-named-map/puzzle.rs"
+    },
     "module-add": {
       "entry": "chialisp_oxide_puzzles::module_add::puzzle",
       "source": "puzzles/module-add/puzzle.rs"
@@ -173,6 +185,10 @@
       "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
       "source": "puzzles/split-payment/puzzle.rs"
     },
+    "standard-delegated-hidden": {
+      "entry": "chialisp_oxide_puzzles::standard_delegated_hidden::puzzle",
+      "source": "puzzles/standard-delegated-hidden/puzzle.rs"
+    },
     "timelocked-payment": {
       "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
       "source": "puzzles/timelocked-payment/puzzle.rs"
@@ -186,6 +202,7 @@
     ".cargo/config.toml",
     "Cargo.lock",
     "Cargo.toml",
+    "corpus/reference-providers/chialisp-0.4.6-cl24.json",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/curry-and-treehash.clib",
     "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
@@ -257,6 +274,7 @@
     "crates/chialisp-oxide-corpus/src/lib.rs",
     "crates/chialisp-oxide-corpus/src/native.rs",
     "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
     "crates/chialisp-oxide-corpus/src/native_tree.rs",
     "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
     "crates/chialisp-oxide-corpus/src/p2_delegated_conditions/ledger.rs",
@@ -265,12 +283,14 @@
     "crates/chialisp-oxide-corpus/src/p2_singleton/modules.rs",
     "crates/chialisp-oxide-corpus/src/password.rs",
     "crates/chialisp-oxide-corpus/src/password/ledger.rs",
+    "crates/chialisp-oxide-corpus/src/reference_provider.rs",
     "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
     "crates/chialisp-oxide-corpus/src/spends.rs",
     "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
     "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
     "crates/chialisp-oxide-macros/Cargo.toml",
     "crates/chialisp-oxide-macros/src/lib.rs",
+    "crates/chialisp-oxide-reference/src/modern_cl24.rs",
     "crates/chialisp-oxide-simulator/Cargo.toml",
     "crates/chialisp-oxide-simulator/examples/p2_singleton_cost.rs",
     "crates/chialisp-oxide-simulator/p2-singleton-rejection-protocol.json",
@@ -336,6 +356,18 @@
     "puzzles/intro-list/puzzle.rs",
     "puzzles/last-list-element/puzzle.rs",
     "puzzles/lib.rs",
+    "puzzles/modern-lambda-map/puzzle.json",
+    "puzzles/modern-lambda-map/puzzle.rs",
+    "puzzles/modern-lambda-map/puzzle.rue",
+    "puzzles/modern-lambda-map/reference.clsp",
+    "puzzles/modern-let-product/puzzle.json",
+    "puzzles/modern-let-product/puzzle.rs",
+    "puzzles/modern-let-product/puzzle.rue",
+    "puzzles/modern-let-product/reference.clsp",
+    "puzzles/modern-named-map/puzzle.json",
+    "puzzles/modern-named-map/puzzle.rs",
+    "puzzles/modern-named-map/puzzle.rue",
+    "puzzles/modern-named-map/reference.clsp",
     "puzzles/module-add/puzzle.rs",
     "puzzles/module-factorial/puzzle.rs",
     "puzzles/module-times-ten/puzzle.rs",
@@ -390,6 +422,10 @@
     "puzzles/signature-payment/puzzle.rs",
     "puzzles/singleton-launcher/puzzle.rs",
     "puzzles/split-payment/puzzle.rs",
+    "puzzles/standard-delegated-hidden/fixture_public.json",
+    "puzzles/standard-delegated-hidden/puzzle.rs",
+    "puzzles/tests/modern_tutorials.rs",
+    "puzzles/tests/standard_tutorial.rs",
     "puzzles/timelocked-payment/puzzle.rs",
     "puzzles/two-signature-payment/puzzle.rs",
     "rust-toolchain.toml"

@@ -236,6 +236,15 @@ export interface PuzzleReport {
   environment?: 'ignored' | 'raw';
   reference_mode?: 'expression';
   reference_includes?: Record<string, string>;
+  reference_dialect?: 'modern-cl24-v1';
+  reference_provider?: {
+    protocol: string;
+    compiler: string;
+    crate: { name: string; version: string; checksum: string; vcs_revision: string; license: string };
+    dialect: { name: string; content: string; sha256: string; stepping: number; strict: boolean; int_fix: boolean; extra_numeric_constants: boolean };
+    macros: { name: string; content: string; sha256: string };
+    scope: string;
+  };
   native_sources?: { path: string; sha256: string }[];
   validation_max_cost?: number;
   resource_controls?: { max_cost: number; cases: CaseReport[] };

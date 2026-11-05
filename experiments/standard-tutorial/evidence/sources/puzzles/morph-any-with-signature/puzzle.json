@@ -1,0 +1,221 @@
+{
+  "slug": "morph-any-with-signature",
+  "title": "Sign the tree hash of arbitrary conditions",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Exact raw positional tutorial wrapper prepending AGG_SIG_ME over the original conditions tree hash. Public key is an unrestricted supplied tree; conditions retain exact atom bytes and improper tails. Requires separately committed key and actual BLS/consensus checks for a coin policy.",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:morph-any-with-signature",
+    "references": [
+      "https://chialisp.com/chialisp-condition-morphing/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md#L75-L83"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-concepts/condition-morphing.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/condition-morphing.md",
+      "sha256": "574a9d19ed7ac9e45800c813bbfaddfde572e70112ebad4e89599bb041b9f9a2",
+      "git_blob_sha1": "4a9ad465a096596995f0dd9fe586d9a0f2792f44",
+      "start_line": 75,
+      "end_line": 83
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/morph-any-with-signature/reference.clsp",
+      "sha256": "72d729066874ed1d69b6a58c8c7cea1dfc2b685f2f6ab7d48783f05c1a559311",
+      "description": "Exact inclusive pinned code-fence lines with original comments and LF; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "Original argument selection is preserved: ignored tails are not strict typed argument validation. Arbitrary trees and exact atom bytes are data.",
+      "Module identities differ across independently compiled languages; no unchanged canonical Rust module hash is claimed.",
+      "No curried instance, complete spend, signature validation or compiler-preservation credit follows from these template cases.",
+      "Rue assertions may have different typed failure codes from canonical projections; failure-code/order and resource-threshold equivalence are not claimed."
+    ],
+    "include_resolution": {
+      "contract": "The tutorial names unversioned include files. This comparison explicitly selects the already retained chia-puzzles revision below; this is not evidence that the tutorial used that exact revision. The original module text remains unchanged.",
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "semantics": "AGG_SIG_ME = 50; sha256tree hashes 01 followed by exact atom bytes or 02 followed by child hashes.",
+      "license_snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "files": [
+        {
+          "name": "condition_codes.clib",
+          "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+          "sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f",
+          "git_blob_sha1": "a6a5d22b5883487b87b51f5cf3f66d63440d68cf"
+        },
+        {
+          "name": "sha256tree.clib",
+          "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+          "sha256": "eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e",
+          "git_blob_sha1": "c374eb3e1d83139ed477cad7353a4c52606cacdd"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "label": "nil conditions",
+      "solution": "(0x11 ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "nonempty zero conditions",
+      "solution": "(0x11 0x00)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa047dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f2548000"
+      }
+    },
+    {
+      "label": "canonical one conditions",
+      "solution": "(0x11 1)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28001"
+      }
+    },
+    {
+      "label": "padded one conditions",
+      "solution": "(0x11 0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa085f90dfea1d8027e1463e5ca971a250110a20df0119d204a74220bc63516d15b80820001"
+      }
+    },
+    {
+      "label": "non UTF8 conditions",
+      "solution": "(0x11 0xff0080)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa011b7b29c6aa43cc1fcc3361ac17bf9195eb017349e555ee50a68e3c55652e69d8083ff0080"
+      }
+    },
+    {
+      "label": "arbitrary improper conditions",
+      "solution": "(0x11 (1 . 2))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa048f6eb3dcb192667016ff10dac09fb21b9388f18d91a863a270f4a91477e852880ff0102"
+      }
+    },
+    {
+      "label": "proper one element list",
+      "solution": "(0x11 (1))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0ba4484b961b7a2369d948d06c55b64bdbfaffb326bc13b490ab1215dd33d8d4680ff0180"
+      }
+    },
+    {
+      "label": "payment with memos",
+      "solution": "(0x11 ((51 0x22 7 (0x00))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04a5e209f75dd3628ee4373d2dc08bc61c44fd1623ed023f7b956a8cff9fabd4880ffff33ff22ff07ffff00808080"
+      }
+    },
+    {
+      "label": "pair public key",
+      "solution": "((1 . 2) ((51 0x22 7)))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ffff0102ffa0372ff8d7bdc6a26ffc7605a874955b95897ca99daff88ab6a2737eebc1386cb180ffff33ff22ff078080"
+      }
+    },
+    {
+      "label": "nil public key",
+      "solution": "(() ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff80ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "short padded public key",
+      "solution": "(0x0001 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff820001ffa0ca6c6588fa01171b200740344d354e8548b7470061fb32a34f4feee470ec281f8007"
+      }
+    },
+    {
+      "label": "extra fields ignored",
+      "solution": "(0x11 7 (8) 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0ca6c6588fa01171b200740344d354e8548b7470061fb32a34f4feee470ec281f8007"
+      }
+    },
+    {
+      "label": "improper extra tail ignored",
+      "solution": "(0x11 7 . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0ca6c6588fa01171b200740344d354e8548b7470061fb32a34f4feee470ec281f8007"
+      }
+    },
+    {
+      "label": "program shaped conditions are data",
+      "solution": "(0x11 ((8)))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0b64da1bfc9b1d3c3be09121df4c030a056aa5778abaa8763316ecf35dab4dca180ffff088080"
+      }
+    },
+    {
+      "label": "missing conditions",
+      "solution": "(0x11)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper missing conditions",
+      "solution": "(0x11 . 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nil environment",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ],
+  "reference_includes": {
+    "condition_codes.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "sha256tree.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+  },
+  "generated_suite": "raw-environment-v1"
+}

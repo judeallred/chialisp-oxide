@@ -5,6 +5,11 @@
 # Their hashes and line spans are checked by the offline inventory validator.
 corpus/upstream/** -whitespace
 
+# Complete canonical modern source spans retain their original blank-line spaces.
+puzzles/modern-let-product/reference.clsp -whitespace
+puzzles/modern-named-map/reference.clsp -whitespace
+puzzles/modern-lambda-map/reference.clsp -whitespace
+
 # Retained case-study observations include exact upstream bytes, process logs
 # and a deliberately whitespace-only oversized checkpoint refusal input.
 corpus/xchandles-premine-history-v2/** -whitespace

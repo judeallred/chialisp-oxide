@@ -1,0 +1,418 @@
+{
+  "slug": "standard-delegated-hidden",
+  "title": "Tutorial standard delegated or hidden puzzle",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Original synthetic-key tutorial: delegate with AGG_SIG_ME over the exact program tree hash, or validate the hidden-program key relation before applying it. Synthetic key must be committed before funding; this template alone authorizes neither user-selected key nor an unrestricted hidden program.",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/owned_tree.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "crates/chialisp-oxide/src/apply.rs",
+    "crates/chialisp-oxide/src/raw_clvm.rs",
+    "crates/chialisp-oxide/src/raw_clvm_crypto.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "puzzles/standard-delegated-hidden/fixture_public.json"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:standard-delegated-hidden",
+    "references": [
+      "https://chialisp.com/standard-transactions/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/primitives/standard-transactions.md#L53-L119"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/primitives/standard-transactions.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/primitives/standard-transactions.md",
+      "sha256": "ec5f3b53f6e1e888d2991b9fde262bc89da242bc19b44caebb962a76efd542bd",
+      "git_blob_sha1": "8329acf5344106c90f4a1df44293866566dcd8f6",
+      "start_line": 53,
+      "end_line": 119
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/standard-delegated-hidden/reference.clsp",
+      "sha256": "b9912d72349fb7d489981b4c01ed5604bf66febb84f3030fd26f655bcb687095",
+      "description": "Exact inclusive pinned code-fence lines with original comments and LF; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "Exact four-positional-field raw ABI; extra proper or improper tails after the selected solution are ignored. Arbitrary tree outputs and synthetic-key trees on the delegated path are not consensus conditions or key validation.",
+      "This is an unchanged tutorial module under an explicit selected include resolution; no claim of byte/hash identity with the published canonical Chia standard module or whole tutorial-page completion.",
+      "Both independent SDK fixture derivation and native raw group/apply helpers use pinned implementations; finite comparisons do not prove cryptography or compiler preservation.",
+      "The hidden path adds no signature condition: the committed hidden puzzle must enforce its own intended authorization. The delegated path signs the program hash, not its solution hash.",
+      "Template VM/native vectors establish no curried-instance, BLS signature verification, consensus or live-network evidence. Rue shape assertions can differ in failure codes/order; resource failures remain inconclusive."
+    ],
+    "include_resolution": {
+      "contract": "The unchanged tutorial spells condition_codes.clvm without a revision. This comparison explicitly resolves that logical include name to the retained chia-puzzles condition_codes.clib below. The alias changes no module source bytes and does not establish the tutorial used these include bytes.",
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "semantics": "AGG_SIG_ME = 50. The original inline SHA256 tree algorithm is retained in the complete module.",
+      "license_snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "files": [
+        {
+          "name": "condition_codes.clvm",
+          "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+          "sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f",
+          "git_blob_sha1": "a6a5d22b5883487b87b51f5cf3f66d63440d68cf"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "label": "delegated identity nil",
+      "solution": "(0x11 () 1 ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28080"
+      }
+    },
+    {
+      "label": "delegated identity nonempty zero",
+      "solution": "(0x11 () 1 0x00)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28000"
+      }
+    },
+    {
+      "label": "delegated identity padded",
+      "solution": "(0x11 () 1 0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b280820001"
+      }
+    },
+    {
+      "label": "delegated identity improper",
+      "solution": "(0x11 () 1 (7 . 8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b280ff0708"
+      }
+    },
+    {
+      "label": "delegated identity program-shaped data",
+      "solution": "(0x11 () 1 (8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b280ff0880"
+      }
+    },
+    {
+      "label": "delegated identity negative",
+      "solution": "(0x11 () 1 -1)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28081ff"
+      }
+    },
+    {
+      "label": "delegated arbitrary synthetic key nil",
+      "solution": "(() () 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff80ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "delegated arbitrary synthetic key pair",
+      "solution": "((1 . 2) () 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ffff0102ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "delegated arbitrary synthetic key padded",
+      "solution": "(0x0001 () 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff820001ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "delegated arbitrary synthetic key public fixture",
+      "solution": "(0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a () 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ffb0a010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3affa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "delegated nil program",
+      "solution": "(0x11 () () (8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "delegated padded program hash differs",
+      "solution": "(0x11 () 0x0001 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa085f90dfea1d8027e1463e5ca971a250110a20df0119d204a74220bc63516d15b8007"
+      }
+    },
+    {
+      "label": "delegated quoted conditions ignores solution",
+      "solution": "(0x11 () (1 . ((51 0x11 7))) (8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa00857b24b05122255c4da1deb3a97edb871339f3574e7008a46ff7218eafb687980ffff33ff11ff078080"
+      }
+    },
+    {
+      "label": "delegated quoted improper result",
+      "solution": "(0x11 () (1 . (7 . 8)) ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0aa6329bc73f55c520d761fb270c70af1deaf8a1fc337c8e27cb2e02e61cb308480ff0708"
+      }
+    },
+    {
+      "label": "delegated ignored extra fields",
+      "solution": "(0x11 () 1 7 8 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "delegated ignored improper tail",
+      "solution": "(0x11 () 1 7 . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b28007"
+      }
+    },
+    {
+      "label": "hidden matching 1 solution ()",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "hidden matching 1 solution 0x0001",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "820001"
+      }
+    },
+    {
+      "label": "hidden matching 1 solution (7 . 8)",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 (7 . 8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff0708"
+      }
+    },
+    {
+      "label": "hidden matching () solution (8)",
+      "solution": "(0xa7420e66ff9d9a306e0b037d9b4d7450d34a4140a26ef729465070adb3c4fb403bcf90d18be1a13d75ad5ceef62730fc 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a () (8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "hidden matching 0x0001 solution 7",
+      "solution": "(0xa701c80b2bace05d6443e4473bdfaba87b9b57a353f0bca442c803042d1fc08a478bc1560a94f4afc6be63789bc5381f 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 0x0001 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "07"
+      }
+    },
+    {
+      "label": "hidden matching (1 . ((51 0x11 7))) solution (8)",
+      "solution": "(0x956b2737aad545ec4d55aad6c34760d4ba6c8de69c4588a4f7eee8d0173dd889eb7f372e30a42255dc3f579567a37252 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a (1 . ((51 0x11 7))) (8))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff078080"
+      }
+    },
+    {
+      "label": "hidden matching (1 . (7 . 8)) solution ()",
+      "solution": "(0x8e3ddade26186408236054b2c01e08f8c7a80781ed2e3b98c5e75e0d628eae979ef894d0f9686ba4511ee5bc3b4048c8 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a (1 . (7 . 8)) ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff0708"
+      }
+    },
+    {
+      "label": "hidden matching (1 . 0x00) solution ()",
+      "solution": "(0xa198e505f819f8c8c1cc2536d94161eeb404c803760dda7900b7aa2c6418c21387d9910a89415c888f24433a42d87648 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a (1 . 0x00) ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "00"
+      }
+    },
+    {
+      "label": "hidden ignored improper environment tail",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 7 . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "07"
+      }
+    },
+    {
+      "label": "wrong synthetic key",
+      "solution": "(0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "different program hash",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 0x0001 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nil synthetic key",
+      "solution": "(() 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "pair synthetic key",
+      "solution": "((1 . 2) 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "pair original key",
+      "solution": "(0xb90cf490d6b15ad0a61943b73cb7b53ec261e2149dabd076ff74ebd0371769916f5927fffb75215063439a5445dd40a7 (1 . 2) 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nonempty zero original is true",
+      "solution": "(0x11 0x00 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "padded zero original is true",
+      "solution": "(0x11 0x0000 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "invalid original point",
+      "solution": "(0x11 0x11 1 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "delegated program raises",
+      "solution": "(0x11 () (8) ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "delegated missing path",
+      "solution": "(0x11 () 5 ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "hidden mismatch skips applied failure",
+      "solution": "(0x11 0x11 (8) ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "hidden mismatch skips path failure",
+      "solution": "(0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 5 ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "hidden mismatch skips divergent applied program",
+      "solution": "(0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a (2 1 1) (2 1 1))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "matching hidden program raises",
+      "solution": "(0x8086f4c775403e01100d9f20b40192dc59b85718fb669f610f35bf47b0571133a76430e05d255dfc03141dacc5af3919 0xa010d140e7c43146b5bb59695e6c444abbb62e964a535d0034351a90d1192bff0130de95f9bbc58af254c4dab4e65d3a (8) ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing solution",
+      "solution": "(0x11 () 1)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper missing solution",
+      "solution": "(0x11 () 1 . 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing program",
+      "solution": "(0x11 ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing original",
+      "solution": "(0x11)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nil environment",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ],
+  "reference_includes": {
+    "condition_codes.clvm": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"
+  },
+  "generated_suite": "raw-environment-v1"
+}

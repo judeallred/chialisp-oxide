@@ -1,0 +1,19 @@
+// Independent closed named-function translation, preserving nil-only truth.
+fn main(...environment: Any) -> Any {
+    assert environment is (Any, Any);
+    map_add_one(environment.first)
+}
+
+fn add_one(value: Any) -> Int {
+    assert value is Bytes;
+    (value as Int) + 1
+}
+
+fn map_add_one(values: Any) -> Any {
+    if values is nil {
+        nil
+    } else {
+        assert values is (Any, Any);
+        (add_one(values.first), map_add_one(values.rest))
+    }
+}

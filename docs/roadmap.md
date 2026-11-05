@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 44 annotated exports of the real
+The latest local capture covers 48 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -19,9 +19,10 @@ commitment fixture whose curried instances run only the committed program, and
 the original boomerang payment with fixed terms committed before funding,
 the original precommit claim/registry pair, the canonical genesis-by-coin-ID CAT TAIL,
 two original counter actions, and three fixed two-name registry actions, plus four exact raw-tree modules from the
-Inner Puzzles and Condition Morphing tutorials. Their finite template comparisons
+Inner Puzzles and Condition Morphing tutorials, three modern-cl24 binding/map modules,
+and the standard delegated/hidden module. Their finite template comparisons
 add no complete-spend or whole-page completion credit.
-Its repeated report records 1,024 named and 35,517 generated inputs across native Rust and five
+Its repeated report records 1,118 named and 43,753 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -103,6 +104,9 @@ establish CATalog, XCHandles, live Testnet11 or compiler-preservation claims.
 - Local nongeneric named records, bounded aggregate constants and literal
   fixed-array reads, with native/reference/both-mode regressions. Dynamic indexing,
   general collections and source loops remain open.
+- Closed local function-pointer values, checked noncapturing closure coercions and
+  concrete immutable whole-root move captures, with version-9 runtime dispatch, exact target/body admission and separate source/VM
+  regressions. Generic Fn helpers and callable public ABI remain outside this profile.
 - Bounded standard Rust `Option<T>` with nil/singleton encoding
   and optional `Cons` tails, described in [optional-lists.md](https://judeallred.github.io/chialisp-oxide/reference/optional-lists/).
   Versions 6/7 preserve output construction and opaque helper passing; version 8

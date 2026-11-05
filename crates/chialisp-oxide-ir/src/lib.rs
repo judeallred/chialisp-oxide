@@ -1,4 +1,5 @@
 //! Pure, typed expression IR between checked Rust MIR and Rue's CLVM backend.
+mod callables;
 mod lower;
 mod optimize;
 mod validate;
@@ -33,6 +34,11 @@ pub enum Type {
     /// Nil for None, a one-item list for Some. Inputs/inspection require v8.
     Optional {
         item: Box<Type>,
+    },
+    /// Internal-only compiler-owned local function identity; never a public ABI value.
+    Callable {
+        parameters: Vec<Type>,
+        result: Box<Type>,
     },
     Unit,
 }
@@ -162,6 +168,15 @@ pub enum Expr {
     Apply {
         program: Box<Expr>,
         environment: Box<Expr>,
+    },
+    /// A compiler-owned target in the validated closed local function table.
+    FunctionRef {
+        function_id: usize,
+    },
+    /// Strictly capture the callee, then each argument, before closed dispatch.
+    CallIndirect {
+        callee: Box<Expr>,
+        arguments: Vec<Expr>,
     },
     Call {
         function_id: usize,

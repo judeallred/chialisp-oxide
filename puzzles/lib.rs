@@ -114,3 +114,13 @@ pub mod precommit_registry;
 
 #[path = "cat-genesis-by-coin-id/puzzle.rs"]
 pub mod cat_genesis_by_coin_id;
+
+#[path = "modern-lambda-map/puzzle.rs"]
+pub mod modern_lambda_map;
+#[path = "modern-let-product/puzzle.rs"]
+pub mod modern_let_product;
+#[path = "modern-named-map/puzzle.rs"]
+pub mod modern_named_map;
+
+#[path = "standard-delegated-hidden/puzzle.rs"]
+pub mod standard_delegated_hidden;

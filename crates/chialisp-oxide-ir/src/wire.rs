@@ -76,7 +76,9 @@ impl Serialize for Program {
         self.validate().map_err(S::Error::custom)?;
         if self.uses_runtime() {
             return RuntimeEnvelopeRef {
-                ir_version: if self.uses_optional_access() {
+                ir_version: if self.uses_callables() {
+                    9
+                } else if self.uses_optional_access() {
                     8
                 } else if self.uses_casts() {
                     7
@@ -128,17 +130,19 @@ impl<'de> Deserialize<'de> for Program {
             optional_capability,
             cast_capability,
             access_capability,
+            callable_capability,
         ) = match Wire::deserialize(deserializer)? {
             Wire::Runtime(envelope) => {
-                if !matches!(envelope.ir_version, 4..=8) {
+                if !matches!(envelope.ir_version, 4..=9) {
                     return Err(D::Error::custom(
-                        "function metadata requires IR version 4, 5, 6, 7 or 8",
+                        "function metadata requires IR version 4, 5, 6, 7, 8 or 9",
                     ));
                 }
                 let pair_capability = envelope.ir_version == 5;
                 let optional_capability = envelope.ir_version == 6;
                 let cast_capability = envelope.ir_version == 7;
                 let access_capability = envelope.ir_version == 8;
+                let callable_capability = envelope.ir_version == 9;
                 let fields = envelope.program;
                 (
                     Self {
@@ -154,6 +158,7 @@ impl<'de> Deserialize<'de> for Program {
                     optional_capability,
                     cast_capability,
                     access_capability,
+                    callable_capability,
                 )
             }
             Wire::Strict(fields) => (
@@ -165,6 +170,7 @@ impl<'de> Deserialize<'de> for Program {
                     environment: Environment::Strict,
                     functions: vec![],
                 },
+                false,
                 false,
                 false,
                 false,
@@ -195,26 +201,36 @@ impl<'de> Deserialize<'de> for Program {
                     false,
                     false,
                     false,
+                    false,
                 )
             }
         };
-        if program.uses_optional_access() != access_capability {
+        if program.uses_callables() != callable_capability {
+            return Err(D::Error::custom(
+                "callable capability requires IR version 9, and version 9 requires callable values",
+            ));
+        }
+        if !callable_capability && program.uses_optional_access() != access_capability {
             return Err(D::Error::custom(
                 "optional inputs or inspection require IR version 8, and version 8 requires that capability",
             ));
         }
-        if !access_capability && program.uses_casts() != cast_capability {
+        if !callable_capability && !access_capability && program.uses_casts() != cast_capability {
             return Err(D::Error::custom(
                 "integer casts require IR version 7, and version 7 requires an integer cast",
             ));
         }
-        if !access_capability && !cast_capability && program.uses_optional() != optional_capability
+        if !callable_capability
+            && !access_capability
+            && !cast_capability
+            && program.uses_optional() != optional_capability
         {
             return Err(D::Error::custom(
                 "optional output capability requires IR version 6, and version 6 requires optional values",
             ));
         }
-        if !access_capability
+        if !callable_capability
+            && !access_capability
             && !cast_capability
             && !optional_capability
             && program.uses_pairs() != pair_capability
@@ -223,7 +239,12 @@ impl<'de> Deserialize<'de> for Program {
                 "typed pair capability requires IR version 5, and version 5 requires typed pairs",
             ));
         }
-        if pair_capability || optional_capability || cast_capability || access_capability {
+        if pair_capability
+            || optional_capability
+            || cast_capability
+            || access_capability
+            || callable_capability
+        {
             program.validate().map_err(D::Error::custom)?;
         }
         if !runtime && program.uses_runtime() {
@@ -342,6 +363,15 @@ impl Serialize for Expr {
                 "apply",
                 ("program", program),
                 ("environment", environment),
+            ),
+            Expr::FunctionRef { function_id } => {
+                node1(serializer, "function_ref", ("function_id", function_id))
+            }
+            Expr::CallIndirect { callee, arguments } => node2(
+                serializer,
+                "call_indirect",
+                ("callee", callee),
+                ("arguments", arguments),
             ),
             Expr::Call {
                 function_id,

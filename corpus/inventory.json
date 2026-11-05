@@ -460,11 +460,20 @@
         "license": "Apache-2.0"
       },
       "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
-      "implementation_status": "planned",
+      "implementation_status": "in_progress",
       "validation_status": "not_run",
       "puzzle_references": [],
       "local_examples": [],
-      "evidence": []
+      "evidence": [],
+      "example_coverage": {
+        "inventory": "corpus/tutorial-examples.json",
+        "implemented_examples": [
+          "chialisp-example:modern-let-product",
+          "chialisp-example:modern-named-map",
+          "chialisp-example:modern-lambda-map"
+        ],
+        "scope": "three_closed_modern_cl24_modules_with_embedded_provider_only"
+      }
     },
     {
       "id": "chialisp:operators",
@@ -709,7 +718,7 @@
         "license": "Apache-2.0"
       },
       "inventory_status": "page_indexed_examples_not_exhaustively_enumerated",
-      "implementation_status": "planned",
+      "implementation_status": "in_progress",
       "validation_status": "not_run",
       "puzzle_references": [
         {
@@ -720,7 +729,14 @@
         }
       ],
       "local_examples": [],
-      "evidence": []
+      "evidence": [],
+      "example_coverage": {
+        "inventory": "corpus/tutorial-examples.json",
+        "implemented_examples": [
+          "chialisp-example:standard-delegated-hidden"
+        ],
+        "scope": "individual_raw_standard_tutorial_module_with_selected_include_only"
+      }
     },
     {
       "id": "chialisp:syntax",

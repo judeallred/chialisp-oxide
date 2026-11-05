@@ -13,6 +13,7 @@ const titles = new Map([
   [realpathSync(new URL('../../../docs/reveal-inspection.md', import.meta.url)), 'Inspect reveals and bind standard modules'],
   [realpathSync(new URL('../../../docs/roadmap.md', import.meta.url)), 'Current status'],
   [realpathSync(new URL('../../../docs/optional-lists.md', import.meta.url)), 'Standard Rust Option inputs and output lists'],
+  [realpathSync(new URL('../../../docs/standard-tutorial.md', import.meta.url)), 'Spend through the delegated or hidden tutorial policy'],
   [realpathSync(new URL('../../../docs/llms.md', import.meta.url)), 'Writing puzzles with chialisp-oxide'],
 ]);
 

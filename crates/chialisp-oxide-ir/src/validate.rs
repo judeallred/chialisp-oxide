@@ -49,6 +49,20 @@ impl Budget {
         ensure!(self.types <= MAX_TYPE_NODES, "IR type node budget exceeded");
         self.work(1)?;
         match ty {
+            Type::Callable { parameters, result } => {
+                ensure!(
+                    depth == 0,
+                    "callables cannot be stored in aggregate or callable signatures"
+                );
+                ensure!(
+                    parameters.len() <= MAX_PARAMETERS,
+                    "too many callable parameters"
+                );
+                for parameter in parameters {
+                    self.validate_type(parameter, depth + 1)?;
+                }
+                self.validate_type(result, depth + 1)?;
+            }
             Type::Int { .. } => {
                 bounds(ty)?;
             }
@@ -80,6 +94,10 @@ impl Budget {
                 pending.extend([first.as_ref(), rest.as_ref()]);
             } else if let Type::Optional { item } = ty {
                 pending.push(item);
+            } else if let Type::Callable { parameters, result } = ty {
+                self.work(parameters.len() + 1)?;
+                pending.extend(parameters);
+                pending.push(result);
             }
         }
         Ok(ty.clone())
@@ -102,6 +120,10 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
         | Expr::Call {
             arguments: items, ..
         } => pending.extend(items),
+        Expr::CallIndirect { callee, arguments } => {
+            pending.push(callee);
+            pending.extend(arguments);
+        }
         Expr::Apply {
             program: left,
             environment: right,
@@ -145,7 +167,8 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
             pending.push(value);
             pending.push(body);
         }
-        Expr::OptionalNone { .. }
+        Expr::FunctionRef { .. }
+        | Expr::OptionalNone { .. }
         | Expr::Atom { .. }
         | Expr::Bytes { .. }
         | Expr::Int { .. }
@@ -157,13 +180,14 @@ pub(crate) fn children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>) {
     }
 }
 
-fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited: usize) -> bool {
-    let count = match expr {
+pub(crate) fn child_count(expr: &Expr) -> usize {
+    match expr {
         Expr::Tuple { items }
         | Expr::Sha256 { parts: items }
         | Expr::Call {
             arguments: items, ..
         } => items.len(),
+        Expr::CallIndirect { arguments, .. } => 1 + arguments.len(),
         Expr::Apply { .. }
         | Expr::Binary { .. }
         | Expr::TreePair { .. }
@@ -185,7 +209,8 @@ fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited:
         | Expr::PairFirst { .. }
         | Expr::PairRest { .. }
         | Expr::TreeRest { .. } => 1,
-        Expr::OptionalNone { .. }
+        Expr::FunctionRef { .. }
+        | Expr::OptionalNone { .. }
         | Expr::Atom { .. }
         | Expr::Bytes { .. }
         | Expr::Int { .. }
@@ -194,7 +219,14 @@ fn capability_children<'a>(expr: &'a Expr, pending: &mut Vec<&'a Expr>, visited:
         | Expr::Local { .. }
         | Expr::Unit
         | Expr::Reject { .. } => 0,
-    };
+    }
+}
+pub(crate) fn capability_children<'a>(
+    expr: &'a Expr,
+    pending: &mut Vec<&'a Expr>,
+    visited: usize,
+) -> bool {
+    let count = child_count(expr);
     if count > MAX_EXPRESSION_NODES.saturating_sub(visited + pending.len()) {
         return false;
     }
@@ -412,7 +444,8 @@ impl Program {
     /// Runtime constructs and strict multipart hashes require version 4,
     /// regardless of entry policy. This traversal never follows calls.
     pub fn uses_runtime(&self) -> bool {
-        if !self.functions.is_empty()
+        if self.uses_callables()
+            || !self.functions.is_empty()
             || self.uses_pairs()
             || self.uses_optional()
             || self.uses_casts()
@@ -540,6 +573,7 @@ impl Program {
         let mut validator = Validator {
             program: self,
             budget: Budget::default(),
+            reified_targets: None,
         };
         validator
             .budget
@@ -555,6 +589,15 @@ impl Program {
                 .budget
                 .signature(&function.name, &function.parameters, &function.result)?;
         }
+        ensure!(
+            !self.result.contains_callable()
+                && !self.parameters.iter().any(|p| p.ty.contains_callable()),
+            "callable values cannot appear in public ABI"
+        );
+        ensure!(
+            self.functions.iter().all(|f| !f.result.contains_callable()),
+            "functions cannot return callable values"
+        );
         let ty = validator.infer(&self.body, &self.parameters, &mut Vec::new(), 0)?;
         ensure!(
             ty.is_none() || ty.as_ref() == Some(&self.result),
@@ -589,6 +632,7 @@ impl Program {
         let mut validator = Validator {
             program: self,
             budget: Budget::default(),
+            reified_targets: None,
         };
         for parameter in parameters {
             validator.budget.validate_type(&parameter.ty, 0)?;
@@ -607,6 +651,7 @@ impl Program {
 struct Validator<'a> {
     program: &'a Program,
     budget: Budget,
+    reified_targets: Option<Vec<usize>>,
 }
 impl Validator<'_> {
     fn infer(
@@ -627,6 +672,10 @@ impl Validator<'_> {
         // Every node still pays the same depth/node/work checks above exactly
         // once, and every child re-enters this dispatcher in its own scope.
         match expr {
+            Expr::FunctionRef { function_id } => self.infer_function_ref(*function_id),
+            Expr::CallIndirect { callee, arguments } => {
+                self.infer_indirect(callee, arguments, parameters, locals, depth)
+            }
             Expr::IntCast(crate::IntegerCast {
                 value,
                 source,
@@ -739,6 +788,109 @@ impl Validator<'_> {
         Ok(Some(result))
     }
 
+    // Callable inference owns signature/dispatch temporaries only for callable
+    // nodes. Keeping these out of infer_non_pair preserves the old default-stack
+    // depth budget for deeply nested unrelated arithmetic.
+    #[inline(never)]
+    fn infer_function_ref(&mut self, function_id: usize) -> Result<Option<Type>> {
+        let function = self
+            .program
+            .functions
+            .get(function_id)
+            .ok_or_else(|| anyhow::anyhow!("invalid callable function {function_id}"))?;
+        ensure!(
+            function.id == function_id,
+            "callable function IDs must be dense"
+        );
+        ensure!(
+            function.parameters.len() <= MAX_PARAMETERS,
+            "too many reified target parameters"
+        );
+        // type_of() is also public without a preceding whole-Program validate.
+        // Bound target metadata before capability scans or signature cloning.
+        for parameter in &function.parameters {
+            self.budget.validate_type(&parameter.ty, 0)?;
+        }
+        self.budget.validate_type(&function.result, 0)?;
+        ensure!(
+            !function.result.contains_callable()
+                && function
+                    .parameters
+                    .iter()
+                    .all(|p| !p.ty.contains_callable()),
+            "reified targets cannot have callable signatures"
+        );
+        let mut arguments = Vec::with_capacity(function.parameters.len());
+        for parameter in &function.parameters {
+            arguments.push(self.budget.clone_type(&parameter.ty)?);
+        }
+        Ok(Some(Type::Callable {
+            parameters: arguments,
+            result: Box::new(self.budget.clone_type(&function.result)?),
+        }))
+    }
+    #[inline(never)]
+    fn infer_indirect(
+        &mut self,
+        callee: &Expr,
+        arguments: &[Expr],
+        parameters: &[Parameter],
+        locals: &mut Vec<(usize, Type)>,
+        depth: usize,
+    ) -> Result<Option<Type>> {
+        ensure!(
+            arguments.len() <= MAX_PARAMETERS,
+            "too many indirect call arguments"
+        );
+        let callee_type = self.infer(callee, parameters, locals, depth + 1)?;
+        let Some(Type::Callable {
+            parameters: expected,
+            result,
+        }) = callee_type
+        else {
+            // Rejecting callees still require every argument to be validated.
+            if callee_type.is_none() {
+                for argument in arguments {
+                    self.infer(argument, parameters, locals, depth + 1)?;
+                }
+                return Ok(None);
+            }
+            bail!("indirect call requires a callable operand");
+        };
+        ensure!(
+            arguments.len() == expected.len(),
+            "indirect call argument count mismatch"
+        );
+        for (argument, ty) in arguments.iter().zip(&expected) {
+            let actual = self.infer(argument, parameters, locals, depth + 1)?;
+            ensure!(
+                actual.is_none() || actual.as_ref() == Some(ty),
+                "indirect call argument type mismatch"
+            );
+        }
+        let callable = Type::Callable {
+            parameters: expected,
+            result,
+        };
+        if self.reified_targets.is_none() {
+            let budget = &mut self.budget;
+            self.reified_targets = Some(self.program.callable_references(|n| budget.work(n))?);
+        }
+        let budget = &mut self.budget;
+        let targets = self.program.match_callable_targets(
+            &callable,
+            self.reified_targets.as_deref().unwrap(),
+            |n| budget.work(n),
+        )?;
+        ensure!(
+            !targets.is_empty(),
+            "indirect call has no declared reified target"
+        );
+        let Type::Callable { result, .. } = callable else {
+            unreachable!()
+        };
+        Ok(Some(*result))
+    }
     fn infer_non_pair(
         &mut self,
         expr: &Expr,
@@ -780,6 +932,9 @@ impl Validator<'_> {
                     );
                 }
                 Type::Tree
+            }
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+                unreachable!("callable nodes use dedicated inference helpers")
             }
             Expr::Call {
                 function_id,
@@ -928,10 +1083,14 @@ impl Validator<'_> {
                 ensure!(items.len() <= 256, "tuple too large");
                 let mut types = Vec::with_capacity(items.len());
                 for item in items {
-                    types.push(
-                        self.infer(item, parameters, locals, depth + 1)?
-                            .ok_or_else(|| anyhow::anyhow!("diverging tuple field"))?,
+                    let item = self
+                        .infer(item, parameters, locals, depth + 1)?
+                        .ok_or_else(|| anyhow::anyhow!("diverging tuple field"))?;
+                    ensure!(
+                        !item.contains_callable(),
+                        "callable aggregate storage is unsupported"
                     );
+                    types.push(item);
                 }
                 Type::Tuple { items: types }
             }
@@ -1076,6 +1235,10 @@ impl Validator<'_> {
         let (Some(first), Some(rest)) = (first, rest) else {
             return Ok(None);
         };
+        ensure!(
+            !first.contains_callable() && !rest.contains_callable(),
+            "callable aggregate storage is unsupported"
+        );
         Ok(Some(Type::Pair {
             first: Box::new(first),
             rest: Box::new(rest),

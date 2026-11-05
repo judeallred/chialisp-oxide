@@ -1,0 +1,10 @@
+// Independent raw positional translation; Int preserves unbounded arithmetic.
+fn main(...environment: Any) -> Int {
+    assert environment is (Any, Any);
+    let value = environment.first;
+    assert value is Bytes;
+    let z = value as Int;
+    let x = z + 1;
+    let y = z - 1;
+    x * y
+}

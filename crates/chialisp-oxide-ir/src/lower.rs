@@ -132,6 +132,7 @@ impl Lower<'_> {
     }
     fn decode(&mut self, value: LirId, ty: &Type, yes: LirId) -> Result<LirId> {
         Ok(match ty {
+            Type::Callable { .. } => anyhow::bail!("callable values have no public ABI decoder"),
             Type::Tree => yes,
             Type::Atom => self.scalar(value, yes),
             Type::Unit => {
@@ -443,7 +444,11 @@ impl Lower<'_> {
             Expr::Int { value, .. } => self.number(value.parse()?),
             Expr::Bytes { hex } => self.bytes(hex::decode(hex)?),
             Expr::Arg { index } => self.args[*index],
-            Expr::Call { .. } | Expr::Let { .. } | Expr::Local { .. } => {
+            Expr::FunctionRef { .. }
+            | Expr::CallIndirect { .. }
+            | Expr::Call { .. }
+            | Expr::Let { .. }
+            | Expr::Local { .. } => {
                 anyhow::bail!("runtime nodes require the version-4 lowering")
             }
             Expr::Reject { .. } => self.reject(),

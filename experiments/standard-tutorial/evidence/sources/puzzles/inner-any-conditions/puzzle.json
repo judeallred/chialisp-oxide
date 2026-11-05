@@ -1,0 +1,146 @@
+{
+  "slug": "inner-any-conditions",
+  "title": "Return arbitrary supplied conditions",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Exact raw positional tutorial module returning its first supplied tree unchanged. No authorization, condition validation or complete-spend credit.",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:inner-any-conditions",
+    "references": [
+      "https://chialisp.com/chialisp-inner-puzzles/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md#L52-L54"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-concepts/inner-puzzles.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md",
+      "sha256": "e5e23b0a2dbd6848c1a48418509005b56466105fa49621a41e38b0ade8a4e603",
+      "git_blob_sha1": "46763db27714fb8c853edd9bfb73e0a3288b54d6",
+      "start_line": 52,
+      "end_line": 54
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/inner-any-conditions/reference.clsp",
+      "sha256": "184fdc539df817ffe54ce82db2bfe2f852669a678f205ff7a755f5f23ce1d87d",
+      "description": "Exact inclusive pinned code-fence lines with original comments and LF; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "Original argument selection is preserved: ignored tails are not strict typed argument validation. Arbitrary trees and exact atom bytes are data.",
+      "Module identities differ across independently compiled languages; no unchanged canonical Rust module hash is claimed.",
+      "No curried instance, complete spend, signature validation or compiler-preservation credit follows from these template cases.",
+      "Rue assertions may have different typed failure codes from canonical projections; failure-code/order and resource-threshold equivalence are not claimed."
+    ]
+  },
+  "cases": [
+    {
+      "label": "nil conditions",
+      "solution": "(())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "nonempty zero atom",
+      "solution": "(0x00)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "00"
+      }
+    },
+    {
+      "label": "padded integer bytes",
+      "solution": "(0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "820001"
+      }
+    },
+    {
+      "label": "negative bytes",
+      "solution": "(0xffff)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "82ffff"
+      }
+    },
+    {
+      "label": "non UTF8 bytes",
+      "solution": "(0xff0080)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "83ff0080"
+      }
+    },
+    {
+      "label": "arbitrary improper tree",
+      "solution": "((1 . 2))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ff0102"
+      }
+    },
+    {
+      "label": "condition list",
+      "solution": "(((51 0x11 7)))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff33ff11ff078080"
+      }
+    },
+    {
+      "label": "program shaped data",
+      "solution": "(((8)))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff088080"
+      }
+    },
+    {
+      "label": "extra environment arguments ignored",
+      "solution": "(7 8 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "07"
+      }
+    },
+    {
+      "label": "improper environment tail ignored",
+      "solution": "(0x0080 . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "820080"
+      }
+    },
+    {
+      "label": "nil environment",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ],
+  "generated_suite": "raw-environment-v1"
+}

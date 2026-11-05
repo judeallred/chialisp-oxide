@@ -1,0 +1,377 @@
+{
+  "slug": "cat-genesis-by-coin-id",
+  "title": "Canonical genesis-by-coin-ID CAT TAIL",
+  "kind": "protocol_component",
+  "environment": "raw",
+  "security_scope": "Exact published raw genesis-by-coin-ID TAIL. Separate five-build CAT2 simulator lifecycle uses signed standard-wallet counterparts. Local finite tests do not establish Sage interoperability, live Testnet11 deployment, exhaustive authorization or compiler preservation.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/LICENSE",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_v2.clsp.hex",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/curry-and-treehash.clib",
+    "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/utility_macros.clib"
+  ],
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail.rs",
+    "crates/chialisp-oxide-corpus/src/cat_genesis_tail/lifecycle.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json"
+  ],
+  "reference_includes": {
+    "cat_truths.clib": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib"
+  },
+  "provenance": {
+    "classification": "canonical_puzzle_port",
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "d122456feeef55708d354a065623037bfa010714",
+      "source_path": "puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+      "snapshot": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+      "sha256": "1914e2d935d0b8d8b514e0d9c07098ce488000a7bcf1b826266cab5e3a265d82",
+      "git_blob_sha1": "ac2ae60b18a01a2b8165ed77514a58139710e0d8",
+      "root_tree_sha1": "89e5f55c5afdde2c436b9a2c08b8e30ecf11eb62"
+    },
+    "license": {
+      "spdx": "Apache-2.0",
+      "snapshot": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/LICENSE",
+      "sha256": "d2db94fa34f37910c925ac45d98084a41c1bcb08296eb5525ead62e9f26aeb75",
+      "git_blob_sha1": "ef0cf9fb38e4a29b044ac2d48873ae03c9f80a6b",
+      "scope": "Exact retained repository license; no independent per-file legal review."
+    },
+    "commit": {
+      "snapshot": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/commit.git",
+      "sha256": "542f5b33c048f6abdebe9d6ed5482f5c9c009ca45c93521c3e123f665654ddd1",
+      "git_commit_sha1": "d122456feeef55708d354a065623037bfa010714",
+      "root_tree_sha1": "89e5f55c5afdde2c436b9a2c08b8e30ecf11eb62",
+      "verification": "Retained raw Git commit checked; no local signature trust claim."
+    },
+    "tree": {
+      "manifest": "corpus/upstream/published-puzzles/Chia-Network--chia_puzzles/d122456feeef55708d354a065623037bfa010714/tree.json",
+      "sha256": "e3983e72f648a10e1c8bdf0e7ac9e2d333933521ae2e93df1a7c492411105906",
+      "root_tree_sha1": "89e5f55c5afdde2c436b9a2c08b8e30ecf11eb62",
+      "scope": "Complete pinned Git tree; selected source/include/license/artifact membership checked."
+    },
+    "source_adaptation": {
+      "kind": "none",
+      "reference": "puzzles/cat-genesis-by-coin-id/reference.clsp",
+      "reference_sha256": "1914e2d935d0b8d8b514e0d9c07098ce488000a7bcf1b826266cab5e3a265d82",
+      "description": "Exact published 499-byte source. No exact tuple, proper tail, amount, integer or 32-byte ID check added."
+    },
+    "include_dependencies": [
+      {
+        "name": "cat_truths.clib",
+        "snapshot": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/cat_truths.clib",
+        "sha256": "6dd8c22abf35e750cefda8005f3540078bd7f63749f38af6b0ae47e962fbbb9b",
+        "git_blob_sha1": "563ec65f3a56b382685974c2d3fc86dc8de6aec9"
+      }
+    ],
+    "upstream_artifact": {
+      "path": "corpus/upstream/chia-puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+      "source_url": "https://raw.githubusercontent.com/Chia-Network/chia_puzzles/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+      "source_sha256": "00cb7c17f4bf44ce835930f7d6a9d02c1b811e3cb0966e0482cf46338c960235",
+      "git_blob_sha1": "fe7dc034ad0e81fd6cc0b81ca00a43f99a4093bb",
+      "clvm_hex": "ff02ffff03ff2fffff01ff0880ffff01ff02ffff03ffff09ff2dff0280ff80ffff01ff088080ff018080ff0180",
+      "bytes": 45,
+      "tree_hash": "493afb89eed93ab86741b2aa61b8f5de495d33ff9b781dfc8919e602b2afa150"
+    },
+    "module_identity_obligation": "Canonical compiler reproduces the exact published 45-byte module/hash. Rust and Rue retain distinct measured module hashes and asset IDs.",
+    "limitations": [
+      "Unused Truths fields, arguments and improper tails remain opaque; genesis/parent equality compares arbitrary atom bytes.",
+      "Native panics and actual typed VM failure codes are separate observations. Rejection agreement does not imply fault-order identity.",
+      "Canonical CAT2 outer module and standard wallet are host counterparts, not Rust source ports. Live funding, external signing, Sage and Testnet11 acceptance remain open.",
+      "Host resource bounds and VM exhaustion are inconclusive, not policy rejection or compiled guards."
+    ],
+    "references": [
+      "https://github.com/Chia-Network/chia_puzzles/blob/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp",
+      "https://github.com/Chia-Network/chia_puzzles/blob/d122456feeef55708d354a065623037bfa010714/puzzles/cat_puzzles/genesis_by_coin_id.clsp.hex",
+      "https://github.com/Chia-Network/chia_puzzles/blob/d122456feeef55708d354a065623037bfa010714/LICENSE"
+    ]
+  },
+  "cases": [
+    {
+      "label": "equal-32-byte-parent",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-0",
+      "solution": "(() . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (() . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-1",
+      "solution": "(0xa5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-31",
+      "solution": "(0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-33",
+      "solution": "(0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-256",
+      "solution": "(0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-257",
+      "solution": "(0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-arbitrary-width-1024",
+      "solution": "(0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xa5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-parent-single-zero",
+      "solution": "(0x00 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x00 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-parent-padded-zero",
+      "solution": "(0x0000 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x0000 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "equal-parent-signed-looking",
+      "solution": "(0xff80 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0xff80 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "mismatched-parent",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x2222222222222222222222222222222222222222222222222222222222222222 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nil-parent-is-not-zero-byte",
+      "solution": "(() . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x00 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "zero-byte-parent-is-not-padded-zero",
+      "solution": "(0x00 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x0000 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "non-nil-delta-one",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (0x01 . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "non-nil-delta-zero-byte",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (0x00 . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "non-nil-delta-padded-zero",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (0x0000 . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "non-nil-delta-signed-looking",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (0xff . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "non-nil-delta-pair",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . ((() . ()) . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "five-fields-no-final-arguments",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "improper-unused-environment-tail",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . 0xff00)))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "arbitrary-unused-values",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . (((() . 0xff) . ((0x00 . 0x01) . (0x1111111111111111111111111111111111111111111111111111111111111111 . (0x00 . 0xff)))) . ((() . 0xff) . (0xff00 . (() . (0xff . 0x00))))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "80"
+      }
+    },
+    {
+      "label": "malformed-truths-nil",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . (() . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "malformed-truths-atom",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . (0xff . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "malformed-truths-one-cell",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((() . ()) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "malformed-truths-two-cells",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((() . (() . ())) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "malformed-truths-improper-second-tail",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((() . (() . 0xff)) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "parent-is-pair",
+      "solution": "(0x1111111111111111111111111111111111111111111111111111111111111111 . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . ((() . ()) . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "genesis-is-pair",
+      "solution": "((() . ()) . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . (0x1111111111111111111111111111111111111111111111111111111111111111 . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "both-equality-operands-pairs",
+      "solution": "((() . ()) . ((0x756e757365642d6361742d737472756374 . (0x756e757365642d6d792d6964 . ((() . ()) . 0x756e757365642d636f696e2d7461696c))) . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "delta-guard-precedes-malformed-truths",
+      "solution": "((() . ()) . (() . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (0x00 . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "parent-projection-precedes-genesis-atom-check",
+      "solution": "((() . ()) . (() . (0x756e757365642d706172656e742d69732d636174 . (0x756e757365642d6c696e65616765 . (() . (0x756e757365642d696e6e65722d636f6e646974696f6e73 . (0x756e757365642d66696e616c2d617267 . ())))))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "environment-nil",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "environment-atom",
+      "solution": "0xff",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "environment-one-cell",
+      "solution": "(() . ())",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "environment-missing-delta",
+      "solution": "(() . (() . (() . (() . ()))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "environment-improper-before-delta",
+      "solution": "(() . (() . (() . (() . 0xff))))",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ]
+}

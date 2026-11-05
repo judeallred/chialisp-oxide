@@ -170,6 +170,9 @@ impl Translation {
     }
     pub(crate) fn expression(&mut self, expr: &Expr) -> Result<Evaluated> {
         let (success, value) = match expr {
+            Expr::FunctionRef { .. } | Expr::CallIndirect { .. } => {
+                bail!("callable values have no admitted proof model")
+            }
             Expr::Sha256 { .. } => bail!("structural SMT does not model SHA256 semantics"),
             Expr::IntCast(_) => bail!("integer casts are not modeled"),
             Expr::Apply { .. } => bail!("structural SMT does not model dynamic application"),

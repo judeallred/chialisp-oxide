@@ -1,0 +1,695 @@
+{
+  "ir_version": 4,
+  "environment": "strict",
+  "program": {
+    "name": "chialisp_oxide_puzzles::curry_factory::puzzle",
+    "parameters": [
+      {
+        "name": "module",
+        "ty": {
+          "kind": "tree"
+        }
+      },
+      {
+        "name": "parameter",
+        "ty": {
+          "kind": "tree"
+        }
+      }
+    ],
+    "result": {
+      "kind": "tree"
+    },
+    "body": {
+      "op": "call",
+      "function_id": 0,
+      "arguments": [
+        {
+          "op": "arg",
+          "index": 0
+        },
+        {
+          "op": "arg",
+          "index": 1
+        }
+      ]
+    },
+    "functions": [
+      {
+        "id": 0,
+        "name": "chialisp_oxide_puzzles::curry_factory::puzzle",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "call",
+            "function_id": 1,
+            "arguments": [
+              {
+                "op": "arg",
+                "index": 0
+              }
+            ]
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "tree"
+            },
+            "value": {
+              "op": "call",
+              "function_id": 1,
+              "arguments": [
+                {
+                  "op": "arg",
+                  "index": 1
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "tree"
+              },
+              "value": {
+                "op": "call",
+                "function_id": 2,
+                "arguments": [
+                  {
+                    "op": "local",
+                    "local_id": 0
+                  },
+                  {
+                    "op": "local",
+                    "local_id": 1
+                  }
+                ]
+              },
+              "body": {
+                "op": "local",
+                "local_id": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 1,
+        "name": "chialisp_oxide_puzzles::curry_factory::owned",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "int",
+            "bits": 8,
+            "signed": false
+          },
+          "value": {
+            "op": "if",
+            "condition": {
+              "op": "tree_is_pair",
+              "value": {
+                "op": "arg",
+                "index": 0
+              }
+            },
+            "then_value": {
+              "op": "int",
+              "value": "1",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            },
+            "else_value": {
+              "op": "int",
+              "value": "0",
+              "ty": {
+                "kind": "int",
+                "bits": 8,
+                "signed": false
+              }
+            }
+          },
+          "body": {
+            "op": "if",
+            "condition": {
+              "op": "not",
+              "value": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              }
+            },
+            "then_value": {
+              "op": "let",
+              "local_id": 6,
+              "ty": {
+                "kind": "atom"
+              },
+              "value": {
+                "op": "tree_atom_value",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 7,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_atom",
+                  "value": {
+                    "op": "local",
+                    "local_id": 6
+                  }
+                },
+                "body": {
+                  "op": "local",
+                  "local_id": 7
+                }
+              }
+            },
+            "else_value": {
+              "op": "if",
+              "condition": {
+                "op": "tree_is_pair",
+                "value": {
+                  "op": "arg",
+                  "index": 0
+                }
+              },
+              "then_value": {
+                "op": "let",
+                "local_id": 1,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "tree_first",
+                  "value": {
+                    "op": "arg",
+                    "index": 0
+                  }
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 2,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_rest",
+                    "value": {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 3,
+                    "ty": {
+                      "kind": "tree"
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 1,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 1
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 4,
+                      "ty": {
+                        "kind": "tree"
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 1,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 2
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 5,
+                        "ty": {
+                          "kind": "tree"
+                        },
+                        "value": {
+                          "op": "tree_pair",
+                          "first": {
+                            "op": "local",
+                            "local_id": 3
+                          },
+                          "rest": {
+                            "op": "local",
+                            "local_id": 4
+                          }
+                        },
+                        "body": {
+                          "op": "local",
+                          "local_id": 5
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else_value": {
+                "op": "reject",
+                "message": "puzzles/curry-factory/puzzle.rs:11:11: 11:16: unreachable Rust path"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "chialisp_oxide::curry::curry",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "tree_atom",
+            "value": {
+              "op": "atom",
+              "hex": "01"
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "tree"
+            },
+            "value": {
+              "op": "call",
+              "function_id": 3,
+              "arguments": [
+                {
+                  "op": "arg",
+                  "index": 1
+                },
+                {
+                  "op": "local",
+                  "local_id": 0
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "tree"
+              },
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "atom",
+                  "hex": "01"
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 4,
+                  "arguments": [
+                    {
+                      "op": "local",
+                      "local_id": 2
+                    },
+                    {
+                      "op": "arg",
+                      "index": 0
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_atom",
+                    "value": {
+                      "op": "atom",
+                      "hex": ""
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "tree"
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 4,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 1
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 4
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "tree"
+                      },
+                      "value": {
+                        "op": "tree_atom",
+                        "value": {
+                          "op": "atom",
+                          "hex": "02"
+                        }
+                      },
+                      "body": {
+                        "op": "let",
+                        "local_id": 7,
+                        "ty": {
+                          "kind": "tree"
+                        },
+                        "value": {
+                          "op": "call",
+                          "function_id": 4,
+                          "arguments": [
+                            {
+                              "op": "local",
+                              "local_id": 3
+                            },
+                            {
+                              "op": "local",
+                              "local_id": 5
+                            }
+                          ]
+                        },
+                        "body": {
+                          "op": "let",
+                          "local_id": 8,
+                          "ty": {
+                            "kind": "tree"
+                          },
+                          "value": {
+                            "op": "call",
+                            "function_id": 4,
+                            "arguments": [
+                              {
+                                "op": "local",
+                                "local_id": 6
+                              },
+                              {
+                                "op": "local",
+                                "local_id": 7
+                              }
+                            ]
+                          },
+                          "body": {
+                            "op": "local",
+                            "local_id": 8
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "name": "chialisp_oxide::curry::curried_environment",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "tree_atom",
+            "value": {
+              "op": "atom",
+              "hex": "01"
+            }
+          },
+          "body": {
+            "op": "let",
+            "local_id": 1,
+            "ty": {
+              "kind": "tree"
+            },
+            "value": {
+              "op": "call",
+              "function_id": 4,
+              "arguments": [
+                {
+                  "op": "local",
+                  "local_id": 0
+                },
+                {
+                  "op": "arg",
+                  "index": 0
+                }
+              ]
+            },
+            "body": {
+              "op": "let",
+              "local_id": 2,
+              "ty": {
+                "kind": "tree"
+              },
+              "value": {
+                "op": "tree_atom",
+                "value": {
+                  "op": "atom",
+                  "hex": ""
+                }
+              },
+              "body": {
+                "op": "let",
+                "local_id": 3,
+                "ty": {
+                  "kind": "tree"
+                },
+                "value": {
+                  "op": "call",
+                  "function_id": 4,
+                  "arguments": [
+                    {
+                      "op": "arg",
+                      "index": 1
+                    },
+                    {
+                      "op": "local",
+                      "local_id": 2
+                    }
+                  ]
+                },
+                "body": {
+                  "op": "let",
+                  "local_id": 4,
+                  "ty": {
+                    "kind": "tree"
+                  },
+                  "value": {
+                    "op": "tree_atom",
+                    "value": {
+                      "op": "atom",
+                      "hex": "04"
+                    }
+                  },
+                  "body": {
+                    "op": "let",
+                    "local_id": 5,
+                    "ty": {
+                      "kind": "tree"
+                    },
+                    "value": {
+                      "op": "call",
+                      "function_id": 4,
+                      "arguments": [
+                        {
+                          "op": "local",
+                          "local_id": 1
+                        },
+                        {
+                          "op": "local",
+                          "local_id": 3
+                        }
+                      ]
+                    },
+                    "body": {
+                      "op": "let",
+                      "local_id": 6,
+                      "ty": {
+                        "kind": "tree"
+                      },
+                      "value": {
+                        "op": "call",
+                        "function_id": 4,
+                        "arguments": [
+                          {
+                            "op": "local",
+                            "local_id": 4
+                          },
+                          {
+                            "op": "local",
+                            "local_id": 5
+                          }
+                        ]
+                      },
+                      "body": {
+                        "op": "local",
+                        "local_id": 6
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "name": "chialisp_oxide::curry::owned::pair",
+        "parameters": [
+          {
+            "name": "arg0",
+            "ty": {
+              "kind": "tree"
+            }
+          },
+          {
+            "name": "arg1",
+            "ty": {
+              "kind": "tree"
+            }
+          }
+        ],
+        "result": {
+          "kind": "tree"
+        },
+        "body": {
+          "op": "let",
+          "local_id": 0,
+          "ty": {
+            "kind": "tree"
+          },
+          "value": {
+            "op": "tree_pair",
+            "first": {
+              "op": "arg",
+              "index": 0
+            },
+            "rest": {
+              "op": "arg",
+              "index": 1
+            }
+          },
+          "body": {
+            "op": "local",
+            "local_id": 0
+          }
+        }
+      }
+    ]
+  }
+}

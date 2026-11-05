@@ -173,6 +173,11 @@ class Packet:
             relative(name)
             relative(target)
             require(name not in self.rows and name != 'report.json' and (target in self.rows) and ('/bundles/' not in name) and (not name.startswith('controls/')), 'one-step nonbundle nonsource aliases')
+            if self.index['protocol'] == PRODUCTION_PROTOCOL:
+                require(target == 'capture/capture/sdk-1.json' and
+                        (name == 'capture/capture/sdk-2.json' or
+                         re.fullmatch(r'capture/capture/logs/[0-9]{2,3}-sdk-[12]\.stdout', name)),
+                        'production aliases only exact SDK repeat/stdout roles')
         actual = discover(self.root)
         require({p.relative_to(self.root).as_posix() for p in actual} == set(self.rows) | {'report.json'}, 'exact physical inventory')
         remaining = MAX_TOTAL
@@ -420,7 +425,8 @@ def recorded_semantics(packet):
             packet.raw('capture/capture/' + name)
             alllogs.add('capture/capture/' + name)
         by_role[row['role']] = row
-    require({n for n in packet.rows if n.startswith('capture/capture/logs/')} == alllogs and {n for n in packet.rows if n.startswith('capture/capture/command-records/')} == allrecords, 'closed complete command/log inventory')
+    logical_names = set(packet.rows) | set(packet.index['aliases'])
+    require({n for n in logical_names if n.startswith('capture/capture/logs/')} == alllogs and {n for n in logical_names if n.startswith('capture/capture/command-records/')} == allrecords, 'closed complete command/log inventory')
     expected_roles = {'compiler', 'driver', 'source-recipes', 'sdk-1', 'sdk-2'}
     require(by_role['compiler']['argv'] == ['rustup', 'run', 'nightly-2026-07-14', 'rustc', '-vV'] and by_role['driver']['argv'] == [capture['tools']['chialisp-oxide-driver']['path'], '--compiler-version'], 'exact compiler version commands')
     require(by_role['source-recipes']['argv'] == ['python3', '-B', packet.index['origins']['controls'] + '/verify_sources.py'], 'exact recipe verification command')
@@ -509,7 +515,7 @@ def validate(root, *, current_callback=None):
     semantics = recorded_semantics(packet)
     return {'status': 'recorded_consistency_checked', 'physical_files': len(packet.rows) + 1, 'bytes': sum((p.stat().st_size for p in discover(packet.root))), **bundles, **semantics, 'index_sha256': digest(regular_read(packet.root / 'report.json')), 'downloads': [{'path': 'report.json', **identity(regular_read(packet.root / 'report.json'))}, *packet.index['files']], 'current_callback_executed': current_callback is not None, 'scope': 'Recorded source/native/template/SDK/complete-command and complete Cargo inventory consistency. Actual Program validation/recompilation are retained observations, not new reader execution. No authentication, proof or complete-corpus/current publication credit without the external current gate.'}
 
-def install(plan, destination, origins):
+def install(plan, destination, origins, *, sdk_stdout_paths=()):
     """Materialize unchanged declared inputs only after complete bounded precharge."""
     require(type(plan) is list and 0 < len(plan) < MAX_FILES, 'plan count')
     protocol = PROTOCOL if set(origins) == ORIGINS else PRODUCTION_PROTOCOL
@@ -525,10 +531,17 @@ def install(plan, destination, origins):
         require(stat.S_ISREG(s.st_mode) and s.st_nlink == 1 and (0 <= s.st_size <= MAX_FILE), 'complete input precharge before read/copy')
         rows.append((p, name, s.st_size))
     # Both SDK processes still execute and retain their own command receipts.
-    # The existing transport supports a one-step repeat alias; never use it for
-    # bundle inventories, source files, arbitrary equal logs, or historical data.
+    # Share only the repeated SDK report and its two exact command stdout roles.
+    # Keep bundle inventories, source files, other logs and history physical.
     first, second = 'capture/capture/sdk-1.json', 'capture/capture/sdk-2.json'
     aliases = {second: first} if protocol == PRODUCTION_PROTOCOL and {first, second} <= names else {}
+    require(type(sdk_stdout_paths) is tuple and len(sdk_stdout_paths) in (0, 2),
+            'exact optional pair of SDK stdout roles')
+    if sdk_stdout_paths:
+        require(aliases and all(name in names and re.fullmatch(
+            rf'capture/capture/logs/[0-9]{{2,3}}-sdk-{number}\.stdout', name)
+            for number, name in enumerate(sdk_stdout_paths, 1)), 'declared SDK stdout roles')
+        aliases.update({name: first for name in sdk_stdout_paths})
     total = 0
     for _, name, n in rows:
         if name not in aliases:
@@ -536,12 +549,14 @@ def install(plan, destination, origins):
             total += n
     sdk_bytes = None
     if aliases:
-        repeated = {name: (p, n) for p, name, n in rows if name in (first, second)}
-        require(repeated[first][1] == repeated[second][1], 'byte-identical SDK repeat before alias')
-        # Aggregate physical bytes were charged above. This single separately
-        # captured repeat adds at most MAX_FILE bytes to bounded source reads.
+        repeated = {name: (p, n) for p, name, n in rows if name == first or name in aliases}
+        require(all(repeated[first][1] == repeated[name][1] for name in aliases),
+                'byte-identical SDK repeat/stdout before alias')
+        # Physical bytes were charged above; at most three independently retained
+        # SDK roles add MAX_FILE each to bounded source reads, without allocation.
         sdk_bytes = regular_read(*repeated[first])
-        require(regular_read(*repeated[second]) == sdk_bytes, 'byte-identical SDK repeat before alias')
+        require(all(regular_read(*repeated[name]) == sdk_bytes for name in aliases),
+                'byte-identical SDK repeat/stdout before alias')
     physical = [(p, name, n) for p, name, n in rows if name not in aliases]
     identities = [{'path': name, **identity(regular_read(p, n))} for p, name, n in physical]
     index = {'protocol': protocol, 'profile': PROFILE, 'origins': origins, 'files': identities, 'aliases': aliases, 'scope': SCOPE}
@@ -553,7 +568,8 @@ def install(plan, destination, origins):
     stage = Path(tempfile.mkdtemp(prefix='.registry-packet-', dir=destination.parent))
     try:
         if aliases:
-            require(regular_read(*repeated[second]) == sdk_bytes, 'SDK repeat changed before materialization')
+            require(all(regular_read(*repeated[name]) == sdk_bytes for name in aliases),
+                    'SDK repeat/stdout changed before materialization')
         for (p, name, n), want in zip(physical, identities, strict=True):
             data = regular_read(p, n)
             require(identity(data) == {'bytes': want['bytes'], 'sha256': want['sha256']}, 'source quiet during materialization')
@@ -623,7 +639,17 @@ def install_capture(source_root, capture_root, native_dir, last_dir, base_dir, d
         actual = Path(absolute(row['path']))
         require(identity(regular_read(actual)) == {'bytes': row['bytes'], 'sha256': row['sha256']}, 'capture code unchanged before packaging')
         plan.append((str(actual), code_prefix + '/' + str(number) + '-' + actual.name))
-    return install(sorted(plan, key=lambda row: row[1]), destination, origins)
+    require(type(record['commands']) is list and len(record['commands']) <= MAX_FILES and
+            all(type(row) is dict and type(row.get('role')) is str for row in record['commands']),
+            'bounded recorded command roles')
+    sdk_commands = [row for row in record['commands'] if row['role'] in ('sdk-1', 'sdk-2')]
+    require([row['role'] for row in sdk_commands] == ['sdk-1', 'sdk-2'] and
+            all(row['exit_code'] == 0 for row in sdk_commands), 'two successful SDK stdout command bindings')
+    stdout_paths = tuple('capture/capture/' + relative(row['stdout']) for row in sdk_commands)
+    # The complete recorded-semantic reader independently checks these exact
+    # paths against the command receipts and each SDK report after installation.
+    return install(sorted(plan, key=lambda row: row[1]), destination, origins,
+                   sdk_stdout_paths=stdout_paths if code_key == 'capture_sources' else ())
 
 def corruption_controls(root):
     """Construct private retained-record mutations after complete caller admission.
@@ -711,13 +737,21 @@ def corruption_controls(root):
                     if name.startswith(prefix + '/'):
                         patch_relations(capture, origins[prefix] + '/' + name[len(prefix) + 1:], data)
             put(capture_name, capture)
-            before = {name: regular_read(copied / name) for name in set(changed) | set(renames)}
+            # A coherent command shuffle renames logical SDK stdout aliases too;
+            # it must not materialize duplicate payloads or lose their bindings.
+            aliases = index_value['aliases']
+            require(not set(changed).intersection(aliases), 'payload controls mutate physical roles')
+            before = {name: regular_read(copied / name)
+                      for name in (set(changed) | set(renames)) - set(aliases)}
             value = decode_json(index_raw)
             for name, data in changed.items():
                 (copied / name).write_bytes(data)
             for old, new in renames.items():
-                (copied / old).unlink()
-                (copied / new).write_bytes(before[old])
+                if old not in aliases:
+                    (copied / old).unlink()
+                    (copied / new).write_bytes(before[old])
+            value['aliases'] = {renames.get(name, name): renames.get(target, target)
+                                for name, target in aliases.items()}
             for row in value['files']:
                 row['path'] = renames.get(row['path'], row['path'])
                 if row['path'] in changed:
@@ -726,8 +760,9 @@ def corruption_controls(root):
             try:
                 reject(label, lambda: checker(copied), expected)
             finally:
-                for name in renames.values():
-                    (copied / name).unlink()
+                for old, new in renames.items():
+                    if old not in aliases:
+                        (copied / new).unlink()
                 for name, data in before.items():
                     (copied / name).write_bytes(data)
                 (copied / 'report.json').write_bytes(index_raw)

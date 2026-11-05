@@ -1,0 +1,43 @@
+//! Types and pure helpers shared by native Rust tests and CLVM compilation.
+//!
+//! Nominal types prevent source-level domain swaps. Their public constructors
+//! establish no cryptographic or protocol invariant. The CLVM ABI validates the
+//! inner representation, not a runtime nominal tag or constructor predicate.
+#![no_std]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+pub use chialisp_oxide_macros::puzzle;
+
+mod domain;
+pub use domain::*;
+
+mod tree;
+pub use tree::*;
+
+mod cons;
+pub use cons::Cons;
+
+#[cfg(feature = "alloc")]
+mod owned_tree;
+#[cfg(feature = "alloc")]
+pub use owned_tree::*;
+
+mod hashing;
+pub use hashing::{sha256, sha256_parts};
+
+mod coin_context;
+pub use coin_context::*;
+
+mod apply;
+pub use apply::{ResourceExhausted, apply};
+
+pub mod curry;
+
+/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.
+pub mod raw_clvm;
+
+mod raw_clvm_crypto;
+
+mod raw_clvm_variadic;

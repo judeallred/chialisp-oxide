@@ -1,0 +1,12 @@
+{
+  "snapshot": "(mod (N) (list (+ N 1) (+ N 2) (+ N 100)))",
+  "copies": "(mod (N) (list (+ N 2) (+ N 3) (* N 4)))",
+  "capture_order": "(mod (A B) (+ B A 3))",
+  "fixed": "(mod (B) (+ (concat 0x00 (substr B 1 2)) 2))",
+  "whole_tuple": "(mod (V) V)",
+  "borrowed": "(mod (V) V)",
+  "unused_capture": "(mod (C) (if C 99 (x)))",
+  "lazy_body": "(mod (N) 99)",
+  "call_order": "(mod (N T) (x))",
+  "fresh_frames": "(mod (A B) (list (+ A 1) (+ B 1)))"
+}

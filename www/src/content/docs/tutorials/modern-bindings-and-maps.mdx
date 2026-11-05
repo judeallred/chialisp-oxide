@@ -1,0 +1,173 @@
+---
+title: Follow modern bindings and list maps
+description: Translate three exact modern-cl24 examples while preserving unbounded arithmetic, nil-only list truth and a closed embedded reference-provider contract.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import { puzzles } from '../../../lib/data';
+
+export const modernLet = puzzles.find(puzzle => puzzle.slug === 'modern-let-product');
+export const modernNamedMap = puzzles.find(puzzle => puzzle.slug === 'modern-named-map');
+export const modernLambdaMap = puzzles.find(puzzle => puzzle.slug === 'modern-lambda-map');
+
+**WIP prototype. Not ready for use with funds or production puzzles.**
+
+Start with the [Cargo quickstart](/chialisp-oxide/start/quickstart/),
+[recursive trees](/chialisp-oxide/tutorials/recursive-trees/) and
+[Rust versus raw CLVM values](/chialisp-oxide/tutorials/raw-clvm/). These examples
+return a number or a list of numbers, rather than spending conditions. They
+are useful local programs without a wallet.
+
+The pinned [Modern Chialisp page](https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/modern-chialisp.md)
+introduces local bindings, function values and lambdas. This lesson selects
+three complete source fences from that page. Their Rust translations preserve
+each fixed program's behavior through explicit raw operators. They do not add
+general Rust callable values or complete the upstream page.
+
+## Name two strict intermediate values
+
+The first module reads `Z`, binds `X = Z + 1` and `Y = Z - 1`, then returns
+`X * Y`. Its page input `(5)` returns 24.
+
+{modernLet ? <SourceComparison slug="modern-let-product" /> : <p>
+  Sources for <code>modern-let-product</code> are prepared. Fresh retained
+  validation is pending; the comparison will appear after official report
+  capture and promotion. Source presence is not executed evidence.
+</p>}
+
+Rust's ordinary `let` bindings make the evaluation steps readable. Arithmetic
+here deliberately uses the raw helper API: Chialisp interprets signed numeric
+atoms without a Rust integer-width bound. Replacing them with `u64` operations
+would change which inputs and results are possible.
+
+Predict these results before running the compiled program:
+
+- `(0x0005)` still returns 24: numeric operators accept padded atoms.
+- `(0x00)` returns -1: this nonempty zero atom is numerically zero.
+- `(-5)` returns 24; `(1)` and `(-1)` return zero.
+- A value above `u128::MAX` still has a mathematical result.
+- `((5))` rejects: a pair is not a numeric atom.
+
+The module selects the first environment field. Extra fields and improper
+environment tails are ignored, while a missing first field rejects. The raw
+Rust export preserves this positional contract; it does not add the default
+strict typed argument-list decoder.
+
+## Map a fixed named function across a list
+
+The second source defines `add-one`, passes that function to `map`, and applies
+it to the selected list. The page input `((1 2 3))` returns `(2 3 4)`.
+
+{modernNamedMap ? <SourceComparison slug="modern-named-map" /> : <p>
+  Sources for <code>modern-named-map</code> are prepared. Fresh retained
+  validation is pending; the comparison will appear after report integration.
+</p>}
+
+The Rust translation uses a named recursive helper for this particular
+`add-one` operation. `OwnedTree` constructs the new list; raw addition produces
+each new numeric atom. No arbitrary callback is selected by the caller.
+
+This source tests **nil-only truth**, not `listp`. Only the empty atom stops
+mapping. A nonempty atom such as `0x00` is true, so the original enters its
+body and fails when it projects the first or rest of that atom. Likewise,
+`((1 . 9))` rejects instead of silently discarding its tail. Compare that with
+the [coin-doubler's atom-tail truncation](/chialisp-oxide/tutorials/condition-morphing/).
+
+An empty element inside a proper list has a different role: it is numeric
+zero and becomes one. Thus `((() 0x0001 -1 127))` returns `(1 2 () 128)`.
+The result's nil element is the canonical numeric zero. A pair element such
+as `(((8)))` rejects as arithmetic data; it is not executed as a program.
+
+## Compare the exact lambda-source counterpart
+
+The third original replaces the named function value with a lambda whose body
+adds one. It is a separate source program with the same selected transformation.
+
+{modernLambdaMap ? <SourceComparison slug="modern-lambda-map" /> : <p>
+  Sources for <code>modern-lambda-map</code> are prepared. Fresh retained
+  validation is pending; the comparison will appear after report integration.
+</p>}
+
+These ports do not compile a Rust closure or function pointer. The Rust helper
+specializes one fixed source lambda. Independently compiling the original
+Chialisp lambda and authored Rue source checks the chosen program, not a
+general higher-order Rust feature. The named and lambda sources have separate
+provenance; their shared behavior does not count as two new compiler capabilities.
+
+The compiler separately supports checked local function values and noncapturing
+closure coercions; see [Supported Rust](/chialisp-oxide/reference/supported-rust/).
+The Rust ports above keep the fixed helpers whose behavior is measured here.
+
+## Resolve the actual embedded dialect explicitly
+
+All three original spans retain `(include *standard-cl-24*)`. This marker selects
+a dialect embedded in the locked Chialisp 0.4.6 reference compiler; it is not a
+file retrieved from the tutorial's repository.
+
+The comparison uses the explicit `modern-cl24-v1` profile. It reads the actual
+public `KNOWN_DIALECTS` entry and strict `ADVANCED_MACROS` prelude, checks their
+bytes and dialect flags against reviewed pins, and records those identities.
+The source comparison above displays the actual retained provider hashes.
+Unknown includes fail even if matching files exist on disk, including during
+nested compilation. The separate classic include resolver keeps its own
+contract; this route does not enable arbitrary modern includes.
+
+Package checksums and source metadata describe the selected provider. They do
+not authenticate installed binaries, prior execution or compiler preservation.
+Similarly, the native raw arithmetic oracle uses the pinned VM; it is not a
+second independent implementation of integer arithmetic.
+
+## Run the actual Cargo sources, then their emitted programs
+
+With the pinned tools installed, run from the repository root:
+
+```sh
+cargo test -p chialisp-oxide-puzzles --test modern_tutorials --locked
+cargo test -p chialisp-oxide-reference modern_cl24 --locked
+cargo chialisp-oxide build --manifest-path puzzles/Cargo.toml --locked
+```
+
+Native tests call the actual puzzle library; the reference tests exercise the
+embedded provider and its refusal controls. The last command separately checks
+the supported CLVM subset and publishes a bundle. Use Python 3 to select the
+three positive examples from that bundle:
+
+```sh
+python3 - <<'PYTHON'
+import json
+from pathlib import Path
+import subprocess
+
+root = Path('target/chialisp-oxide/artifacts')
+pointer = json.loads((root / 'latest.json').read_text())
+manifest_path = root / pointer['manifest']
+manifest = json.loads(manifest_path.read_text())
+for module, solution in [('modern_let_product', '(5)'),
+                         ('modern_named_map', '((1 2 3))'),
+                         ('modern_lambda_map', '((1 2 3))')]:
+    name = f'chialisp_oxide_puzzles::{module}::puzzle'
+    entry = next(item for item in manifest['entries'] if item['entry'] == name)
+    print(name, solution, flush=True)
+    subprocess.run(['target/debug/chialisp-oxide', 'run',
+                    str(manifest_path.parent / entry['clvm']),
+                    '--solution', solution, '--max-cost', '10000000'], check=True)
+PYTHON
+```
+
+Expect numeric 24, then `(2 3 4)` twice, in serialized `output_hex` fields.
+Change a map input to `(())`, then `(0x00)` and `((1 . 9))`; predict which
+returns an empty list and which fail. CLI failures exit with status 2, so the
+Python runner deliberately stops on them. Inspect the typed failure kind:
+resource or infrastructure exhaustion is inconclusive, not policy rejection.
+Different languages may report different projection failure codes.
+
+The native adapter bounds the complete borrowed environment before policy
+execution and bounds potential owned output before constructing it. Ignored
+tails still count toward host input limits; only values that can become owned
+list output count toward that output budget. These host bounds do not become
+compiled policy guards or evidence of equivalent resource thresholds.
+
+The manifests declare exact expected named results and the shared bounded raw
+input sweep. The retained comparisons cover both Rust and
+Rue modes plus Chialisp. They do not establish a valid spend, whole-page
+completion, termination for arbitrary inputs or a compiler-preservation proof.

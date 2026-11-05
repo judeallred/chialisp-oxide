@@ -240,10 +240,12 @@ impl<'tcx> Lowerer<'tcx> {
         if !value.def.is_local() && !self.allowed_external(value.def) {
             return Err(self.error(span, "borrowed constants must be local or chialisp_oxide"));
         }
-        if value
-            .args
-            .iter()
-            .any(|argument| argument.as_region().is_none())
+        let closure_context = self.closure_promoted_context(value, span)?;
+        if closure_context.is_none()
+            && value
+                .args
+                .iter()
+                .any(|argument| argument.as_region().is_none())
         {
             return Err(self.error(
                 span,
@@ -279,14 +281,34 @@ impl<'tcx> Lowerer<'tcx> {
             }
             stack.push(key);
         }
-        let body = if let Some(promoted) = value.promoted {
-            &self.tcx.promoted_mir(value.def)[promoted]
-        } else {
-            self.tcx.mir_for_ctfe(value.def)
-        };
-        let result = self.lower_body(body, vec![], &mut Vec::new());
+        let result = (|| {
+            let body = if let Some(promoted) = value.promoted {
+                let bodies = self.tcx.promoted_mir(value.def);
+                let source = bodies.get(promoted).ok_or_else(|| {
+                    self.error(
+                        span,
+                        "borrowed promoted index is outside its original owner",
+                    )
+                })?;
+                if let Some(context) = closure_context {
+                    self.instantiate_closure_promoted(source, promoted, context, span)?
+                } else {
+                    source
+                }
+            } else {
+                self.tcx.mir_for_ctfe(value.def)
+            };
+            if let Some(context) = closure_context {
+                self.active_zero_promoted.borrow_mut().push(context);
+            }
+            let result = self.lower_body(body, vec![], &mut Vec::new());
+            if closure_context.is_some() {
+                self.active_zero_promoted.borrow_mut().pop();
+            }
+            result.map_err(Into::<String>::into)
+        })();
         self.constants.borrow_mut().pop();
-        result.map_err(Into::into)
+        result
     }
 
     pub(super) fn tree_discriminant_value(

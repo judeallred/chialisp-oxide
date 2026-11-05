@@ -1,0 +1,162 @@
+{
+  "slug": "registry-set-beta",
+  "title": "Original registry action: set beta",
+  "kind": "protocol_component",
+  "environment": "strict",
+  "reference_mode": "module",
+  "security_scope": "WIP original finite two-name teaching action; not ready for real funds. Action output is truth plus conditions, not a complete standalone coin puzzle. Dedicated composed protocol validation is required.",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://github.com/judeallred/chialisp-oxide/issues/14"
+    ],
+    "source_origin": "Original fixed alpha/beta teaching registry action; independent finite Rust, Chialisp and Rue implementations. Not a canonical port, XCHandles or CATalog.",
+    "reference_source": {
+      "path": "puzzles/registry-set-beta/reference.clsp",
+      "sha256": "2f72899633ba271cea57103006cb4e8f142d104416773ed2a5e85d7d31007c12",
+      "role": "Original independent strict finite Chialisp module."
+    },
+    "rue_source": {
+      "path": "puzzles/registry-set-beta/puzzle.rue",
+      "sha256": "99fbdfa8d9cfb55e690eda210f4e1450a2d5c9e3358911119cf76cbea5b65535",
+      "role": "Original independent Rue source; off/on compiled separately."
+    },
+    "canonical_host_provenance": {
+      "records": [
+        {
+          "path": "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+          "sha256": "aed0e6fe3fb9049be92b3efd832e4d33dce7b45c4f9a6066233e608f3894f50d"
+        },
+        {
+          "path": "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+          "sha256": "2dd3e97ec1fb6e4c5ec401fc75444bd8b62db9e266ea38b19ca6519b082b6f42"
+        }
+      ],
+      "scope": "Separate exact published host sources/artifacts and licenses. Original registry actions are not ports of these hosts. Historical Rue 0.9 reproduction is labeled in retained provenance; source/hash readers add no execution or compiler-preservation credit."
+    },
+    "limitations": [
+      "Isolated-worktree integration. Earlier native, frontend/VM and five-build SDK research is historical preintegration evidence; these installed exports require fresh complete Cargo bundle admission and integrated corpus/protocol captures before current execution credit.",
+      "Strict proper argument list with nested improper Cons pairs. Values and commitments are exactly 32 bytes; bool only nil/01. Full opaque ephemeral tree remains attacker-controlled.",
+      "Initializer is permissionless, requires uninitialized state, replaces both entries with fixed zero values, and emits two zero-amount slots. Sets commit an owner and require one actual coin-bound aggregate signature.",
+      "One action per controller spend: ephemeral must be nil; output ephemeral is atom 01. No-op updates are permitted.",
+      "PublicKey length is not curve membership or authority. Standalone VM output is not a complete spend; ledger outcomes, reference-only experiments and native calls have separate counts.",
+      "Nonce canonical atom 434f5852454731; decimal string 18946064195602225 exceeds the JavaScript safe integer range.",
+      "Original actions inherit no upstream license grant. Canonical hosts retain the Slot Machine Prosperity Public License 3.0.0/Cargo MIT discrepancy and separate wallet SDK Apache-2.0 license; no upstream relicense or legal compatibility conclusion is established.",
+      "No live Testnet11 use, Rust implementation of canonical SLOT, BLS theorem, compiler-preservation proof, general registry or issue #14 completion follows."
+    ],
+    "authoring_adaptation": "Five custom assertion messages were removed and one panic!(literal) became panic!() in the shared recipe. Predicates, source order, ABI, constants and all independent vectors are unchanged; native panic text is intentionally not preserved. This original-source adaptation grants no compiler exception."
+  },
+  "source_dependencies": [
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/LICENSE",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/action_layer_puzzle.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/default_finalizer.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/crates/chia-sdk-types/src/puzzles/action_layer/slot.rs",
+    "corpus/upstream/chia-wallet-sdk/e9a08f6e54ea5132f7da06327836a3b386a944b1/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Cargo.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/LICENSE.md",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/Rue.toml",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/provenance.json",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/action.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/finalizer.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/merkle_utils.rue",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/singleton/slot.rue",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "puzzles/registry_recipe.rs",
+    "crates/chialisp-oxide/src/curry.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "corpus/upstream/slot-machine/6edc94856306d0f77e065c6c99aacf1055e51e2f/rue-puzzles/common_types.rue"
+  ],
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/wire.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/lifecycle.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/adversarial.rs",
+    "crates/chialisp-oxide-corpus/src/action_registry/fixtures.rs",
+    "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
+    "puzzles/registry-initialize/reference.clsp",
+    "puzzles/registry-set-alpha/reference.clsp",
+    "puzzles/registry-set-beta/reference.clsp"
+  ],
+  "cases": [
+    {
+      "label": "beta-zero-to-value",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x2222222222222222222222222222222222222222222222222222222222222222 . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff01ff01ffa0ae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0a070db697898c0ffe168d4b94ad422ca13c3a38a93a59a125a83f2b34d788dc4ebffff42ff12ff80ffa03094c4a232f748f3803d7aaf15a36747b1a8ff662f406e048032f4bebe7f82af80ffff33ffa077a579beb971a83157edcd53bc6e66f32a0853efca4dafb9b22d569869ad3c76ff80ffffa06be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed8080ffff32ffb0b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4ffa00bdec561b606ccdc241e8203299d113973fc848aeac2f13e1d5b85964b6b2bf48080"
+      }
+    },
+    {
+      "label": "beta-wrong-old-value",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x1111111111111111111111111111111111111111111111111111111111111111 . (0x2222222222222222222222222222222222222222222222222222222222222222 . ())))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "beta-uninitialized",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (() . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x1111111111111111111111111111111111111111111111111111111111111111 . ())))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "beta-nonempty-zero-ephemeral",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((0x00 . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x1111111111111111111111111111111111111111111111111111111111111111 . ())))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "beta-pair-ephemeral",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . (((() . 0x00) . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x1111111111111111111111111111111111111111111111111111111111111111 . ())))))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "beta-noop-value",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x70db697898c0ffe168d4b94ad422ca13c3a38a93a59a125a83f2b34d788dc4eb))) . (0x2222222222222222222222222222222222222222222222222222222222222222 . (0x2222222222222222222222222222222222222222222222222222222222222222 . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff01ff01ffa0ae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0a070db697898c0ffe168d4b94ad422ca13c3a38a93a59a125a83f2b34d788dc4ebffff42ff12ff80ffa077a579beb971a83157edcd53bc6e66f32a0853efca4dafb9b22d569869ad3c7680ffff33ffa077a579beb971a83157edcd53bc6e66f32a0853efca4dafb9b22d569869ad3c76ff80ffffa06be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed8080ffff32ffb0b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4ffa00573e0ec92d85a3cfb8302c9c1378e4e2ba53cbc72929cfac3b569555ef275b08080"
+      }
+    },
+    {
+      "label": "beta-noop-zero",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x0000000000000000000000000000000000000000000000000000000000000000 . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff01ff01ffa0ae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0a01cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902affff42ff12ff80ffa03094c4a232f748f3803d7aaf15a36747b1a8ff662f406e048032f4bebe7f82af80ffff33ffa03094c4a232f748f3803d7aaf15a36747b1a8ff662f406e048032f4bebe7f82afff80ffffa06be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed8080ffff32ffb0b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4ffa053a838fc205dab81223c81eca73ae7fc5083e5f9ebe8c012d6bfe6e4413ada028080"
+      }
+    },
+    {
+      "label": "beta-update-value",
+      "solution": "(0xb1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x70db697898c0ffe168d4b94ad422ca13c3a38a93a59a125a83f2b34d788dc4eb))) . (0x2222222222222222222222222222222222222222222222222222222222222222 . (0x1111111111111111111111111111111111111111111111111111111111111111 . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff01ff01ffa0ae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0a0622c9f779db9a465ec857fc6233739346678b17b7aae64b425adef4430caa876ffff42ff12ff80ffa077a579beb971a83157edcd53bc6e66f32a0853efca4dafb9b22d569869ad3c7680ffff33ffa0f8b6f638946b0f18f7af4ff07a4cf1ebf6ab35175e8732f29358c9c9dcb3d428ff80ffffa06be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed8080ffff32ffb0b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4ffa0d05adb5217d570cdb086010acd3538c965b01ece68f84d7486be2274b33fa6eb8080"
+      }
+    },
+    {
+      "label": "beta-different-owner-condition",
+      "solution": "(0x222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222 . (0x6be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed . ((() . (0x01 . (0xae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0 . 0x1cd0b0354d1e397f64fd862732ac38ab1145817b05a15166d3bbeec95ccf902a))) . (0x0000000000000000000000000000000000000000000000000000000000000000 . (0x2222222222222222222222222222222222222222222222222222222222222222 . ())))))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff01ff01ffa0ae069554a3a80c0b2bd54d930e7a01e51e017ca240271c9bf2430751d76aafc0a070db697898c0ffe168d4b94ad422ca13c3a38a93a59a125a83f2b34d788dc4ebffff42ff12ff80ffa03094c4a232f748f3803d7aaf15a36747b1a8ff662f406e048032f4bebe7f82af80ffff33ffa077a579beb971a83157edcd53bc6e66f32a0853efca4dafb9b22d569869ad3c76ff80ffffa06be26d6ab1d647133f55449b06a8a5ae2bb7a9736727a1c0520e13d99f9985ed8080ffff32ffb0222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222ffa00bdec561b606ccdc241e8203299d113973fc848aeac2f13e1d5b85964b6b2bf48080"
+      }
+    }
+  ]
+}

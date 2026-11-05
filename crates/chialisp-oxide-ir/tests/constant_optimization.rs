@@ -61,6 +61,11 @@ fn contains(expr: &Expr, predicate: impl Fn(&Expr) -> bool) -> bool {
             return true;
         }
         match expr {
+            Expr::FunctionRef { .. } => (),
+            Expr::CallIndirect { callee, arguments } => {
+                pending.push(callee);
+                pending.extend(arguments);
+            }
             Expr::IntCast(cast) => pending.push(&cast.value),
             Expr::OptionalIsSome(access) | Expr::OptionalValue(access) => {
                 pending.push(&access.value)

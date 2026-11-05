@@ -96,6 +96,27 @@ fn program(name: &str, version: u32) -> Program {
                 },
             });
         }
+        9 => {
+            result.functions.push(chialisp_oxide_ir::Function {
+                id: 0,
+                name: "local_unit".into(),
+                parameters: vec![],
+                result: Type::Unit,
+                body: Expr::Unit,
+            });
+            result.body = Expr::Let {
+                local_id: 0,
+                ty: Type::Callable {
+                    parameters: vec![],
+                    result: Box::new(Type::Unit),
+                },
+                value: Box::new(Expr::FunctionRef { function_id: 0 }),
+                body: Box::new(Expr::CallIndirect {
+                    callee: Box::new(Expr::Local { local_id: 0 }),
+                    arguments: vec![],
+                }),
+            };
+        }
         _ => unreachable!(),
     }
     result
@@ -864,7 +885,7 @@ fn v2_rejects_source_symlinks_without_opening_their_targets() {
 
 #[test]
 fn admits_all_current_ir_profiles_and_keeps_exact_import_bytes() {
-    for version in 1..=8 {
+    for version in 1..=9 {
         for optimize in [false, true] {
             let fixture = Fixture::new(version, optimize);
             let ir = std::fs::read(fixture.root.join("one.ir.json")).unwrap();
@@ -1089,7 +1110,7 @@ fn rejects_ir_capability_and_environment_corruptions() {
         let mut ir = fixture.ir("two");
         let expected = match mutation {
             "unknown-version" => {
-                ir["ir_version"] = 9.into();
+                ir["ir_version"] = 10.into();
                 ErrorKind::UnsupportedVersion
             }
             "boolean-version" => {

@@ -1,0 +1,11 @@
+; Original deliberately vulnerable teaching control, not a canonical registry.
+; The single public name is fixed, but the first signed submission may choose
+; its owner and destination. A copied public registration intent therefore
+; provides everything another owner needs to submit first.
+(mod (NAME OWNER_KEY DESTINATION)
+  (if (= NAME "alice")
+    (list
+      (list 73 1)
+      (list 50 OWNER_KEY (sha256 NAME DESTINATION))
+      (list 51 DESTINATION 1))
+    (x)))

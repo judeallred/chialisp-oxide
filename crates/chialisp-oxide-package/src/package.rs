@@ -93,8 +93,8 @@ pub enum AbiType {
 impl AbiType {
     // Called only after bounded JSON parsing and complete Program validation.
     // Consequently this conversion never traverses arbitrary host-created types.
-    fn from_validated_ir(ty: &Type) -> Self {
-        match ty {
+    fn from_validated_ir(ty: &Type) -> Result<Self> {
+        Ok(match ty {
             Type::Atom => Self::Atom {},
             Type::Tree => Self::Tree {},
             Type::Bool => Self::Bool {},
@@ -104,17 +104,25 @@ impl AbiType {
             },
             Type::Bytes { len } => Self::Bytes { len: *len },
             Type::Tuple { items } => Self::Tuple {
-                items: items.iter().map(Self::from_validated_ir).collect(),
+                items: items
+                    .iter()
+                    .map(Self::from_validated_ir)
+                    .collect::<Result<_>>()?,
             },
             Type::Pair { first, rest } => Self::Pair {
-                first: Box::new(Self::from_validated_ir(first)),
-                rest: Box::new(Self::from_validated_ir(rest)),
+                first: Box::new(Self::from_validated_ir(first)?),
+                rest: Box::new(Self::from_validated_ir(rest)?),
             },
             Type::Optional { item } => Self::Optional {
-                item: Box::new(Self::from_validated_ir(item)),
+                item: Box::new(Self::from_validated_ir(item)?),
             },
             Type::Unit => Self::Unit {},
-        }
+            Type::Callable { .. } => {
+                return Err(invalid(
+                    "internal callables cannot appear in a portable public ABI",
+                ));
+            }
+        })
     }
 }
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -147,20 +155,22 @@ fn deserialize_abi_environment<'de, D: serde::Deserializer<'de>>(
     )
 }
 impl StructuralAbi {
-    fn from_program(program: &Program) -> Self {
-        Self {
+    fn from_program(program: &Program) -> Result<Self> {
+        Ok(Self {
             protocol: ABI_PROTOCOL.into(),
             environment: program.environment,
             parameters: program
                 .parameters
                 .iter()
-                .map(|p| AbiParameter {
-                    name: p.name.clone(),
-                    ty: AbiType::from_validated_ir(&p.ty),
+                .map(|p| {
+                    Ok(AbiParameter {
+                        name: p.name.clone(),
+                        ty: AbiType::from_validated_ir(&p.ty)?,
+                    })
                 })
-                .collect(),
-            result: AbiType::from_validated_ir(&program.result),
-        }
+                .collect::<Result<_>>()?,
+            result: AbiType::from_validated_ir(&program.result)?,
+        })
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -313,7 +323,7 @@ fn read_ir(text: &str, limits: &Limits) -> Result<(Program, u32)> {
             .and_then(|n| u32::try_from(n).ok())
             .ok_or_else(|| invalid("IR wire version must be an integer"))?,
     };
-    if !(1..=8).contains(&version) {
+    if !(1..=9).contains(&version) {
         return Err(Error::new(
             ErrorKind::UnsupportedVersion,
             "unsupported IR wire version",
@@ -352,7 +362,7 @@ fn check_rust(
     let (program, version) = read_ir(&rust.ir_json, limits)?;
     if program.name != rust.entry
         || version != rust.ir_wire_version
-        || StructuralAbi::from_program(&program) != rust.abi
+        || StructuralAbi::from_program(&program)? != rust.abi
     {
         return Err(invalid(
             "Rust export/IR version/structural ABI attachment mismatch",
@@ -800,7 +810,7 @@ pub(crate) fn from_rust_bundle(
         entry,
         ir_sha256: digest(ir_json.as_bytes()),
         ir_wire_version: version,
-        abi: StructuralAbi::from_program(&program),
+        abi: StructuralAbi::from_program(&program)?,
         ir_json,
         bundle_manifest_sha256: digest(bundle_manifest_json.as_bytes()),
         bundle_manifest_json,

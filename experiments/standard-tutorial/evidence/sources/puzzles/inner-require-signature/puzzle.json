@@ -1,0 +1,229 @@
+{
+  "slug": "inner-require-signature",
+  "title": "Signature wrapper around a runtime inner puzzle",
+  "kind": "pure_function",
+  "environment": "raw",
+  "security_scope": "Exact raw dotted tutorial wrapper signing the complete inner solution tree hash and applying the supplied inner program to that same tree. The public key and inner program are untrusted until separately committed. Returned tails may be arbitrary trees; emission of a signature condition is not signature verification. Native apply runs the pinned VM, not an independent implementation.",
+  "validation_max_cost": 10000000,
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+    "crates/chialisp-oxide/src/apply.rs"
+  ],
+  "provenance": {
+    "classification": "canonical_tutorial_port",
+    "example_id": "chialisp-example:inner-require-signature",
+    "references": [
+      "https://chialisp.com/chialisp-inner-puzzles/",
+      "https://github.com/Chia-Network/chialisp-web/blob/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md#L19-L28"
+    ],
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chialisp-web",
+      "revision": "dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8",
+      "source_path": "docs/chialisp-concepts/inner-puzzles.md",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/docs/chialisp-concepts/inner-puzzles.md",
+      "sha256": "e5e23b0a2dbd6848c1a48418509005b56466105fa49621a41e38b0ade8a4e603",
+      "git_blob_sha1": "46763db27714fb8c853edd9bfb73e0a3288b54d6",
+      "start_line": 19,
+      "end_line": 28
+    },
+    "license": {
+      "path": "LICENSE",
+      "snapshot": "corpus/upstream/chialisp-web/dcf06c14836c7ad3f486a5bea36c5a812fd9a5e8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "spdx": "Apache-2.0"
+    },
+    "source_adaptation": {
+      "kind": "exact_source_span",
+      "snapshot": "puzzles/inner-require-signature/reference.clsp",
+      "sha256": "2eed40a54e4d5d6d8485d7148c2b9ea642b7e24a2d603ea30ba7bfd675351d15",
+      "description": "Exact inclusive pinned code-fence lines with original comments and LF; no wrapper or source rewrite."
+    },
+    "limitations": [
+      "Original argument selection is preserved: ignored tails are not strict typed argument validation. Arbitrary trees and exact atom bytes are data.",
+      "Module identities differ across independently compiled languages; no unchanged canonical Rust module hash is claimed.",
+      "No curried instance, complete spend, signature validation or compiler-preservation credit follows from these template cases.",
+      "Rue assertions may have different typed failure codes from canonical projections; failure-code/order and resource-threshold equivalence are not claimed."
+    ],
+    "include_resolution": {
+      "contract": "The tutorial names unversioned include files. This comparison explicitly selects the already retained chia-puzzles revision below; this is not evidence that the tutorial used that exact revision. The original module text remains unchanged.",
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "semantics": "AGG_SIG_ME = 50; sha256tree hashes 01 followed by exact atom bytes or 02 followed by child hashes.",
+      "license_snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "files": [
+        {
+          "name": "condition_codes.clib",
+          "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+          "sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f",
+          "git_blob_sha1": "a6a5d22b5883487b87b51f5cf3f66d63440d68cf"
+        },
+        {
+          "name": "sha256tree.clib",
+          "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib",
+          "sha256": "eb75275835724f5c6c7c715290c3f33883b81fc71906c8864c6b6aa4fedb3e4e",
+          "git_blob_sha1": "c374eb3e1d83139ed477cad7353a4c52606cacdd"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "label": "identity nil solution",
+      "solution": "(0x11 1)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "identity atom solution",
+      "solution": "(0x11 1 . 0x00)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa047dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f2548000"
+      }
+    },
+    {
+      "label": "identity padded solution",
+      "solution": "(0x11 1 . 0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa085f90dfea1d8027e1463e5ca971a250110a20df0119d204a74220bc63516d15b80820001"
+      }
+    },
+    {
+      "label": "identity negative solution",
+      "solution": "(0x11 1 . 0xffff)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa016936d11fec03b650b80969a5865726bfb4cc002f91f436fc7ea45269a57f0b38082ffff"
+      }
+    },
+    {
+      "label": "identity non UTF8 solution",
+      "solution": "(0x11 1 . 0xff0080)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa011b7b29c6aa43cc1fcc3361ac17bf9195eb017349e555ee50a68e3c55652e69d8083ff0080"
+      }
+    },
+    {
+      "label": "identity complete proper solution",
+      "solution": "(0x11 1 (51 0x22 7) (73 7))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0d6c571e10cd5bd288589012cb894ce3ca6bf1fcdec25e798f7a114bceb974dc580ffff33ff22ff0780ffff49ff078080"
+      }
+    },
+    {
+      "label": "identity improper solution",
+      "solution": "(0x11 1 (51 0x22 7) . 9)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0908a00dde32156489baa538a7ff1e380ac58113f9d022592757bbb0bd00bf9de80ffff33ff22ff078009"
+      }
+    },
+    {
+      "label": "quoted output differs from signed solution",
+      "solution": "(0x11 (1 . ((51 0x22 7))) 99)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa0d8ec88b88ccb7c78a7845f15d924055c974f41b29a125496d1794691c49f9e0b80ffff33ff22ff078080"
+      }
+    },
+    {
+      "label": "quoted nil with nil solution",
+      "solution": "(0x11 (1))",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "quoted nil with zero atom solution",
+      "solution": "(0x11 (1) . 0x00)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa047dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f2548080"
+      }
+    },
+    {
+      "label": "quoted arbitrary output tree",
+      "solution": "(0x11 (1 . (7 . 8)) . 0x0001)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa085f90dfea1d8027e1463e5ca971a250110a20df0119d204a74220bc63516d15b80ff0708"
+      }
+    },
+    {
+      "label": "pair public key",
+      "solution": "((1 . 2) 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ffff0102ffa0570f091c7ebd8e22424633ff16aa49cc59d3a90aa80e55fc5596209d24c04a8a80ff0780"
+      }
+    },
+    {
+      "label": "nil public key",
+      "solution": "(() 1 7)",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff80ffa0570f091c7ebd8e22424633ff16aa49cc59d3a90aa80e55fc5596209d24c04a8a80ff0780"
+      }
+    },
+    {
+      "label": "nil inner program",
+      "solution": "(0x11 ())",
+      "expected": {
+        "status": "accepted",
+        "output_hex": "ffff32ff11ffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a8080"
+      }
+    },
+    {
+      "label": "inner raise",
+      "solution": "(0x11 (8))",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "missing inner program",
+      "solution": "(0x11)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "improper missing inner program",
+      "solution": "(0x11 . 7)",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "nil environment",
+      "solution": "()",
+      "expected": {
+        "status": "rejected"
+      }
+    },
+    {
+      "label": "atom environment",
+      "solution": "7",
+      "expected": {
+        "status": "rejected"
+      }
+    }
+  ],
+  "reference_includes": {
+    "condition_codes.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+    "sha256tree.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/sha256tree.clib"
+  },
+  "generated_suite": "raw-environment-v1"
+}

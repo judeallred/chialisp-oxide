@@ -5,8 +5,8 @@
   "scope": "WIP prototype, not ready for real funds. Five actual source-derived Rust exports in both compiler modes, one native test group with nine output observations, eighteen retained primary VM observations and eighteen separate SDK consensus attempts. Each mutant is funded under its own compiled curried reveal. No Rue or Chialisp mutant execution, generic ledger group, exhaustive security, authenticated execution, BLS/Optional/ledger model proof or compiler-preservation credit.",
   "context": {
     "source_root": "/Users/judeallred/code/clispOx",
-    "package_root": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-package",
-    "capture_root": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture",
+    "package_root": "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-package",
+    "capture_root": "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "toolchain": "nightly-2026-07-14",
     "source_window": {
@@ -100,6 +100,18 @@
             "entry": "chialisp_oxide_puzzles::last_list_element::puzzle",
             "source": "puzzles/last-list-element/puzzle.rs"
           },
+          "modern-lambda-map": {
+            "entry": "chialisp_oxide_puzzles::modern_lambda_map::puzzle",
+            "source": "puzzles/modern-lambda-map/puzzle.rs"
+          },
+          "modern-let-product": {
+            "entry": "chialisp_oxide_puzzles::modern_let_product::puzzle",
+            "source": "puzzles/modern-let-product/puzzle.rs"
+          },
+          "modern-named-map": {
+            "entry": "chialisp_oxide_puzzles::modern_named_map::puzzle",
+            "source": "puzzles/modern-named-map/puzzle.rs"
+          },
           "module-add": {
             "entry": "chialisp_oxide_puzzles::module_add::puzzle",
             "source": "puzzles/module-add/puzzle.rs"
@@ -184,6 +196,10 @@
             "entry": "chialisp_oxide_puzzles::split_payment::puzzle",
             "source": "puzzles/split-payment/puzzle.rs"
           },
+          "standard-delegated-hidden": {
+            "entry": "chialisp_oxide_puzzles::standard_delegated_hidden::puzzle",
+            "source": "puzzles/standard-delegated-hidden/puzzle.rs"
+          },
           "timelocked-payment": {
             "entry": "chialisp_oxide_puzzles::timelocked_payment::puzzle",
             "source": "puzzles/timelocked-payment/puzzle.rs"
@@ -200,11 +216,15 @@
           },
           {
             "path": "Cargo.lock",
-            "sha256": "54b8404458e0fd80df1885bcede99ace1841df01ddd96c806442f94454cd58e5"
+            "sha256": "23b3b40f03c007003c913f243c3e2dd250b8c1eb0d8e1640e77c240c1bf37edc"
           },
           {
             "path": "Cargo.toml",
             "sha256": "b25c7bca3ce9bf44c3f0a0d5318a41d621153d258382c9a85e8e217c3a58396c"
+          },
+          {
+            "path": "corpus/reference-providers/chialisp-0.4.6-cl24.json",
+            "sha256": "7750422b3d5214ea000096d0e9a2bf840034560879a2462437ecf80335d9edc8"
           },
           {
             "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
@@ -480,15 +500,19 @@
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-            "sha256": "737730574fbbdc5af5548edec131c85ecf680278d59887e7b854e6d9795739fc"
+            "sha256": "866840b79c605499a5fcfd48a80d221a796539b7fb5c5c6a66f3d09cc2cdc672"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/native.rs",
-            "sha256": "698966441910d4173ed539619e124e999b20c9af07bdca70f0647dbd8dbd4e3c"
+            "sha256": "24a6519114d8eb9502b9b3be3a5bdb4dfe945198466bdcb4ea707da570bd5911"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
             "sha256": "149ddf15c2cb6b75ad30534fd239cbf0ed2f082a0cf02cf5d87f6de4426100b6"
+          },
+          {
+            "path": "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
+            "sha256": "bf9f6d7027ab148875d7f175a4f44b0fb006a77ed49a0b614f622dd563eee4fb"
           },
           {
             "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -523,6 +547,10 @@
             "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
           },
           {
+            "path": "crates/chialisp-oxide-corpus/src/reference_provider.rs",
+            "sha256": "6bec28dbc0ad473b42e3960e502277f44ba7856f7febab7f0030d224d22935ea"
+          },
+          {
             "path": "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
             "sha256": "7decfb55d54bb26cef0965021f8da88edbb49f8d08cc7d2e0628ed2972144744"
           },
@@ -545,6 +573,10 @@
           {
             "path": "crates/chialisp-oxide-macros/src/lib.rs",
             "sha256": "294568717be93cfc65149899acdc4e480349ad43e0afd44b7b84de7c43c2d40f"
+          },
+          {
+            "path": "crates/chialisp-oxide-reference/src/modern_cl24.rs",
+            "sha256": "4a42c211a99e90b69af9dad5abaab2f038fdc4957e05cd02b616561fd0f50238"
           },
           {
             "path": "crates/chialisp-oxide-simulator/Cargo.toml",
@@ -636,7 +668,7 @@
           },
           {
             "path": "puzzles/authoring.json",
-            "sha256": "61c0bc2bf20dfd3f0918ebc66e35768470e4488009ce7fa32b23ff11a637b7ba"
+            "sha256": "182b43ef5d6c3034044530c14fd4e170e9aa0cc50ad613bb9a654f65b49fd002"
           },
           {
             "path": "puzzles/boolean-gate/puzzle.rs",
@@ -804,7 +836,55 @@
           },
           {
             "path": "puzzles/lib.rs",
-            "sha256": "1bbd9f5fc9e1f293bed3399e3d5f2f7df906ce2af0e4157f6394cf299c465862"
+            "sha256": "68c92c3dfeaeff6bb97961fad78fd935d06e5ed793faf4b4c3890db0509a0ac7"
+          },
+          {
+            "path": "puzzles/modern-lambda-map/puzzle.json",
+            "sha256": "37db835a6a4881100f7c61df390c7270d02f9361524d2f37d4dc23537efaace3"
+          },
+          {
+            "path": "puzzles/modern-lambda-map/puzzle.rs",
+            "sha256": "a1da6176c7527e9e366d02a4dc5a2bf5c9793271e38058af0821d18c32e9b4f5"
+          },
+          {
+            "path": "puzzles/modern-lambda-map/puzzle.rue",
+            "sha256": "0a39146683b07788b516b650fa26905b4016ddcb2f54721b2ac96129dbe41410"
+          },
+          {
+            "path": "puzzles/modern-lambda-map/reference.clsp",
+            "sha256": "38f79fceafa7a119d4a0f90f479b641c84697a27154b103fd8133b07b2812e94"
+          },
+          {
+            "path": "puzzles/modern-let-product/puzzle.json",
+            "sha256": "4af928d6df5cfe6f918a46a252cd1ee1a1bdadf1c63f7ebd855a79ba4dc1c820"
+          },
+          {
+            "path": "puzzles/modern-let-product/puzzle.rs",
+            "sha256": "b7285c5707bf2bbb343dde4da9a22f369bd9c931724c4dfe92bc9e67a777a32d"
+          },
+          {
+            "path": "puzzles/modern-let-product/puzzle.rue",
+            "sha256": "728029af5e728f0dc0273cd3e7ade6647789dbb61b555c543d9e979bca068e7f"
+          },
+          {
+            "path": "puzzles/modern-let-product/reference.clsp",
+            "sha256": "52e1d47807b9f5b2dc525d38440513199638b79ed500938f6b20869ffd666671"
+          },
+          {
+            "path": "puzzles/modern-named-map/puzzle.json",
+            "sha256": "76331863f9897c2ce4ecfef51835e8562a870f3bdd144e9790b08184f51b8923"
+          },
+          {
+            "path": "puzzles/modern-named-map/puzzle.rs",
+            "sha256": "d00f721e385eada6572f0666dbeb9e116ffe386f8408f4d3b86ea28a98ccec5c"
+          },
+          {
+            "path": "puzzles/modern-named-map/puzzle.rue",
+            "sha256": "70302570c1fb3e8a1f2d72fb1653b08a673148f5a2ffd33f781448241321c46f"
+          },
+          {
+            "path": "puzzles/modern-named-map/reference.clsp",
+            "sha256": "9cfea3fb7f48d8440917d01496a59bd893476dfc625cf422bfad817e94d1037a"
           },
           {
             "path": "puzzles/module-add/puzzle.rs",
@@ -1023,6 +1103,22 @@
             "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
           },
           {
+            "path": "puzzles/standard-delegated-hidden/fixture_public.json",
+            "sha256": "a7d5795ba57a1320f0727047fca9094a723bd9147e12b4ccb801a2ee889cf89d"
+          },
+          {
+            "path": "puzzles/standard-delegated-hidden/puzzle.rs",
+            "sha256": "9fb660a23bf4aabad3c3d68f3f7f1e311e895c675762f47d9a095ce8c769dedf"
+          },
+          {
+            "path": "puzzles/tests/modern_tutorials.rs",
+            "sha256": "bce95696ac54a650f4b25185b3c9f212f8de2a78d247bac39daf565d6069827d"
+          },
+          {
+            "path": "puzzles/tests/standard_tutorial.rs",
+            "sha256": "808cae35a35d0767c61e09bdad6cc2feeb5f4d43488a2a2871f414c61404265a"
+          },
+          {
             "path": "puzzles/timelocked-payment/puzzle.rs",
             "sha256": "dcaf5ffa041c01ac1c627a04b593ea4ed8486207ccfc2ed528f9011aca6a7682"
           },
@@ -1043,11 +1139,15 @@
         },
         {
           "path": "Cargo.lock",
-          "sha256": "54b8404458e0fd80df1885bcede99ace1841df01ddd96c806442f94454cd58e5"
+          "sha256": "23b3b40f03c007003c913f243c3e2dd250b8c1eb0d8e1640e77c240c1bf37edc"
         },
         {
           "path": "Cargo.toml",
           "sha256": "b25c7bca3ce9bf44c3f0a0d5318a41d621153d258382c9a85e8e217c3a58396c"
+        },
+        {
+          "path": "corpus/reference-providers/chialisp-0.4.6-cl24.json",
+          "sha256": "7750422b3d5214ea000096d0e9a2bf840034560879a2462437ecf80335d9edc8"
         },
         {
           "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
@@ -1350,6 +1450,10 @@
           "sha256": "3fa4c66c6ebd7a4f2b53abac9ccaef043bff1e8d55f63efc513f4f93eebde62e"
         },
         {
+          "path": "crates/chialisp-oxide-corpus/examples/standard_tutorial_ledger.rs",
+          "sha256": "8568f8618457f8a63dd9786b6c176e2aa5ea7229c46b66ea8bf7fdeb9dddfa63"
+        },
+        {
           "path": "crates/chialisp-oxide-corpus/src/action_counter.rs",
           "sha256": "037581447295c0d48ac30998e81859d2ca60b231e75dfdc39ef522a9ac81926c"
         },
@@ -1415,11 +1519,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "737730574fbbdc5af5548edec131c85ecf680278d59887e7b854e6d9795739fc"
+          "sha256": "866840b79c605499a5fcfd48a80d221a796539b7fb5c5c6a66f3d09cc2cdc672"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "698966441910d4173ed539619e124e999b20c9af07bdca70f0647dbd8dbd4e3c"
+          "sha256": "24a6519114d8eb9502b9b3be3a5bdb4dfe945198466bdcb4ea707da570bd5911"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -1427,11 +1531,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_owned_tests.rs",
-          "sha256": "0e73f08d1c78261b6396464689a94c73f4894bb56375ec27df7f78feb3aad36c"
+          "sha256": "9a3ebd29cfcd1abbc19cc59947c5f65e1e62b43d8ecd932cd5bb72c82ee4c5ec"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_owned_tree.rs",
-          "sha256": "da18ac591aa2534f84c793b07c62b06de47ed3be83036b0277d6566c4871030c"
+          "sha256": "bf9f6d7027ab148875d7f175a4f44b0fb006a77ed49a0b614f622dd563eee4fb"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_tree.rs",
@@ -1466,6 +1570,10 @@
           "sha256": "e28c7862838b771f152cf2701ba50b7f41de09ee148fd32383a46d2a8bfed798"
         },
         {
+          "path": "crates/chialisp-oxide-corpus/src/reference_provider.rs",
+          "sha256": "6bec28dbc0ad473b42e3960e502277f44ba7856f7febab7f0030d224d22935ea"
+        },
+        {
           "path": "crates/chialisp-oxide-corpus/src/registry_sidecar.rs",
           "sha256": "7decfb55d54bb26cef0965021f8da88edbb49f8d08cc7d2e0628ed2972144744"
         },
@@ -1483,7 +1591,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/Cargo.toml",
-          "sha256": "26f1360d9103d413be163f7143e12cf382c6976b93531e200ac5e8e7a33a0f85"
+          "sha256": "82184762c35e10f034eb1454efb77258f46656b61e89de62ba215afa85921b8f"
         },
         {
           "path": "crates/chialisp-oxide-driver/build.rs",
@@ -1499,7 +1607,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower.rs",
-          "sha256": "c8030da557c5c39bee61a14713199c9f633296a0cfe1cfd98eec2c36b590f1c9"
+          "sha256": "1c3aee8c6c543e10779205a5d22e950c92ca8189de3c288e740736cfbcc018a4"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/applying.rs",
@@ -1512,6 +1620,38 @@
         {
           "path": "crates/chialisp-oxide-driver/src/lower/byte_comparison.rs",
           "sha256": "f5b31da343d7742b2def8705d9be62fb61d00337861248d7d4ed4a55b4fd621d"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/callables.rs",
+          "sha256": "beccc150e5d9e096c36c6f111dbe6abf72af86992a63fe03d971997d04ca1b91"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/captured_closures/metadata.rs",
+          "sha256": "69e3787793d03da124e068ee6a77bfd37038a92702731cbe66be0d5af9a6a213"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/captured_closures/mod.rs",
+          "sha256": "6dde41c53c7b8bfbb8cb6d0ad0832e8ff1f82693977a3643a09cec788357c65a"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/captured_closures/tests.rs",
+          "sha256": "3dfaca056399021cf1e5bf170bd3c7a95fc7225055b0186b568f7d1ac4f37d27"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/captured_closures/uses.rs",
+          "sha256": "4b61ec42e3a36dd498f20067727ad57e245d5467deab3b038cb8c3ac3b611470"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/closures.rs",
+          "sha256": "d78a9cbb442d2fd6d3b4135d55f627d53926d943bea8fa33936fd1a8548e9eba"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/closures/promoted.rs",
+          "sha256": "83b80782573d0b8ea90b6f344e952b943e075564d3e971cd4ee9a2ee3b862829"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/src/lower/closures/tests.rs",
+          "sha256": "36a49a4363d4c1cdf867c3ae4e4da5f2deac23cfde1b1e01d90855aaf91c00d7"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/cons.rs",
@@ -1567,7 +1707,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/runtime.rs",
-          "sha256": "e40c17e3ec0ff6dd43eab022477fa7961655ad6104e490c9fda0599ee5a7fdaf"
+          "sha256": "84ffadbd85c9edf3b9a31a7d22a8dd82907f19638aff606ea0d4a2d3851b4cbd"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/shift_guards.rs",
@@ -1583,7 +1723,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/src/lower/trees.rs",
-          "sha256": "e276e8466d37e43bca7209c16f9d9220f6b6f11219ee9f70e51af0d3232357f2"
+          "sha256": "2fed71919b10b3c6c0ddc61aca7ac2fd19a57ddd6b1b3daaab53a83df0715387"
         },
         {
           "path": "crates/chialisp-oxide-driver/src/main.rs",
@@ -1636,6 +1776,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/byte_ordering.rs",
           "sha256": "59543d0d60832903fe50ce80460f2cad31c0bc8cfbb1c46048bec20e06d6f38a"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/captured_closures.rs",
+          "sha256": "8dc67d877d9b495f0da66c6858d9091d79308337994710da96990307cd73e4bd"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/cargo_mode.rs",
@@ -1694,6 +1838,14 @@
           "sha256": "4983392b562209641d49884e850c31bd2b379886521309b26640c1279ed4216b"
         },
         {
+          "path": "crates/chialisp-oxide-driver/tests/fixtures/captured_closures.rs",
+          "sha256": "5fb8fe4284b82bfc25924ee1e8db6e33b85017ccb1a39d2a440e367b61e3897d"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/fixtures/captured_closures_abi_control.rs",
+          "sha256": "b759cc6d20cc693124f3f354c7aa64b407771fa5e42e67b60a10da266f50c95a"
+        },
+        {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/casts.rs",
           "sha256": "732993c107af28ad66c6369a2eae90000f224597d681d7cfc6906b167c69294a"
         },
@@ -1736,6 +1888,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/lazy_arithmetic.rs",
           "sha256": "769b1c2eaea7e94a78804852475b7f8cbc8035251103ab8db68690a0fdc7c9d0"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/fixtures/local_callables.rs",
+          "sha256": "98a9041b4db7afd29d5fe1ab6e94fb9969e4a55ced563e6875c8fbde52055199"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/loops.rs",
@@ -1800,6 +1956,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/newtype_zero_sized.rs",
           "sha256": "abd768f6b405b244a22280a2ceab3014a1773b54dd3538309c200a7b5bb020ec"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/fixtures/noncapturing_closures.rs",
+          "sha256": "e2718c9f395d5aaa0d42769b76d8ef36c395e233d8d41c144ebdb916f1f426ff"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/fixtures/optional_inputs.rs",
@@ -1890,6 +2050,10 @@
           "sha256": "9f6b08c791487920912b6dad6065cb8db2f8c7111d6f71e3e16da6efee82fb9f"
         },
         {
+          "path": "crates/chialisp-oxide-driver/tests/local_callables.rs",
+          "sha256": "16d5555456559ee05da70743d815e655facb925bf461872f602167745e96ac40"
+        },
+        {
           "path": "crates/chialisp-oxide-driver/tests/named_conditions.rs",
           "sha256": "c846c89431de878f5f3ac26b88540e30180f056b57f32b0378a73f52e17ab7ca"
         },
@@ -1916,6 +2080,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/newtypes.rs",
           "sha256": "f48059c39deee1f945d1a9606af8e6c914915a18941f12dcede06a4ff26384b0"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/noncapturing_closures.rs",
+          "sha256": "8cd59577b8d48d64968810eba97ae76a36019ed0314dd8481dec2753119ccb6e"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/optional_inputs.rs",
@@ -1967,7 +2135,7 @@
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/runtime_calls.rs",
-          "sha256": "44272716d84f0c8277765cac6ba8f8f3dc67f0767daa7c9a7637dde3aae067e8"
+          "sha256": "66390c1986be947d140d919085bb488cda1c522ab86c798cf5de780530c6d950"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/shifts.rs",
@@ -1976,6 +2144,10 @@
         {
           "path": "crates/chialisp-oxide-driver/tests/source_receipt_exports.rs",
           "sha256": "28ea11674597afd74292a41ad6dcaf76ab5bb35dfc9b2ffcdc04b53a47673856"
+        },
+        {
+          "path": "crates/chialisp-oxide-driver/tests/support/callable_fixture.rs",
+          "sha256": "6d47a3c9fdd0d8f076fadce89ba6c9baf27828a81985429f3353fd8052eae850"
         },
         {
           "path": "crates/chialisp-oxide-driver/tests/support/mod.rs",
@@ -2022,12 +2194,16 @@
           "sha256": "dcb1c36d93459e3d81b6f2ca678887bff51fc97349df25deb460de6caf865348"
         },
         {
+          "path": "crates/chialisp-oxide-ir/src/callables.rs",
+          "sha256": "b8004bb952346b6b09f8d9c3cd0d619a0d50d3f222d0dbe75af8afd3e31ad68e"
+        },
+        {
           "path": "crates/chialisp-oxide-ir/src/lib.rs",
-          "sha256": "17a8571077f4adeed64c96d53877e3b7bc19f86ec76e77a72a7ff48924123c16"
+          "sha256": "596e2e6ca97a111843fbf9d33507379a6e2bc2fe04ef7adc4d5cfa1e3095a700"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower.rs",
-          "sha256": "55760ad5fa420d36db5073f201f6f669fc27771a389ce4dfdf14ba961d33f236"
+          "sha256": "42bfc31068c75011647018a33d8b53a773b8991ed878f523e1ba4658f0f18243"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/chunks_tests.rs",
@@ -2043,27 +2219,27 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/lower/runtime.rs",
-          "sha256": "0993e88a55d542e42c0f3d4057398fd3b0de2637afe20f535aeb8545691ecc42"
+          "sha256": "eb8a9040fe91585862c1f5255d6ff2dec704c74a02e7d8be30cae232e7d0b25e"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize.rs",
-          "sha256": "68b58b8318304e9ba96b88aba34476d154182533abf3b3da1257d9ab900c9e3f"
+          "sha256": "239d3c2f66a0f2d3ec00d1a644aff0b8c736d1ff77bc0aaeabf3b31b4062085a"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize/budget.rs",
-          "sha256": "c596dab9e8f31d7fb5da0b6faec5cff7e5c0d117459740ce6105c64e7bf6528d"
+          "sha256": "e2372458e5a8a0c6a840d939b691cd8b729799d726f7d5601fa58ad687edb607"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize/constants.rs",
-          "sha256": "96a5b27af1996608b25b19c04dca6480a243e67c0591779295f26993e8ac92d8"
+          "sha256": "062ec4ea1e07fd14b76ceeb41e6380e004c9fb5fc40903df057d2d67abbb3192"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize/facts.rs",
-          "sha256": "91fd124d1a6fa61d4f2c42c24480c36d4eb843be38798e2ece0f81844719874e"
+          "sha256": "52b95d13897271d595d9e4dee7c46657a62daadc0e9aa5e243fa7685fee75948"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize/inline.rs",
-          "sha256": "b2827610562286c40316cb1fd3955f8df4b64a9c4003a47cac6394e6d599d5a3"
+          "sha256": "0a270cbeb186b222ac4c40ec48dd8cd21b14566b49e50adb2545e134ed644281"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/optimize/intervals.rs",
@@ -2071,11 +2247,11 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/src/validate.rs",
-          "sha256": "da86f610a6ce0cbf75bc66ae6f2b6a33af182ed991ee1ce185de14ef12122515"
+          "sha256": "dafb7f4d5b2d2dc8a89140e3a6a5ee05644c55d9ad9a1fa1de1d4f6160105423"
         },
         {
           "path": "crates/chialisp-oxide-ir/src/wire.rs",
-          "sha256": "fc8a3aba62a5d0ea6710decf106161bdbccd9548f584ecac0f78a10c575eaa40"
+          "sha256": "f17fd39343d597fed7cb50799ae13547537cfd7606d6af421b7176ac31decce9"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/apply.rs",
@@ -2098,6 +2274,10 @@
           "sha256": "4f28e50af61d79a6357941fcb0a5de192398c67260a43c81bae4fb24a366b76c"
         },
         {
+          "path": "crates/chialisp-oxide-ir/tests/callables.rs",
+          "sha256": "32131bd65dd26e5b776c07338a60898f8825e9fc0520fbfcd45b9020fbb6e276"
+        },
+        {
           "path": "crates/chialisp-oxide-ir/tests/casts.rs",
           "sha256": "ec8f261c20b570b25ddea539cb76e8614f3523fa29e27e33e79f5bf1edd00eb4"
         },
@@ -2111,7 +2291,7 @@
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/constant_optimization.rs",
-          "sha256": "1be22806404deebb1cce059970b3a6508f53a19fbd61961d353474975ce47689"
+          "sha256": "7715da06dbdc18a37c2416e03da38b513bec83b4eeafa2083d2d47e1a648dc51"
         },
         {
           "path": "crates/chialisp-oxide-ir/tests/constructed_atoms.rs",
@@ -2547,11 +2727,11 @@
         },
         {
           "path": "crates/chialisp-oxide-package/src/bundle.rs",
-          "sha256": "4924f8856435675ead65f23fbf7597ec4e0a48bafc02d15572549f05c0ab7ab9"
+          "sha256": "bbc57c6ec988b562acd1b2e9cc68d7c5dd6e15d65e041c88e6444ee9a69bb981"
         },
         {
           "path": "crates/chialisp-oxide-package/src/bundle/tests.rs",
-          "sha256": "f78581c62b1ca94fa89d9fc5ed4b669b77424c67dc79bf08317e7fe29729eefd"
+          "sha256": "10875f88cb2b95d6436b5c40da2168ad2028d3a8f7f3260219cf0fdf37e8168a"
         },
         {
           "path": "crates/chialisp-oxide-package/src/codegen.rs",
@@ -2727,11 +2907,11 @@
         },
         {
           "path": "crates/chialisp-oxide-package/src/package.rs",
-          "sha256": "3f55f44c7340202daef18876d0d389786cdf106defe668e697c92491c36c9a44"
+          "sha256": "3e3048f458fa2aa441fb8d040273deb471e048bc72167cf8731797b0cd9acc51"
         },
         {
           "path": "crates/chialisp-oxide-package/src/package_tests.rs",
-          "sha256": "42d0e470da022e3fe87275b29b93935d9d72dc9d023b27418558fafde9682d0d"
+          "sha256": "c01d1506f81d15b352db5f4f9b92abe7805bc19a71f203ab4c1240f237a8131e"
         },
         {
           "path": "crates/chialisp-oxide-package/src/receipt.rs",
@@ -2787,7 +2967,11 @@
         },
         {
           "path": "crates/chialisp-oxide-reference/src/lib.rs",
-          "sha256": "c5f8676b2945d5a2162772ffbfd8be63a35aef57ea1f85f236dcd3ad48adc706"
+          "sha256": "f9c773a104fd462387bdeee0efab0eb0de114ee609383ed43cb3c706e8f493f8"
+        },
+        {
+          "path": "crates/chialisp-oxide-reference/src/modern_cl24.rs",
+          "sha256": "4a42c211a99e90b69af9dad5abaab2f038fdc4957e05cd02b616561fd0f50238"
         },
         {
           "path": "crates/chialisp-oxide-rue/Cargo.toml",
@@ -2851,7 +3035,7 @@
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/acyclic.rs",
-          "sha256": "86f1844f58feafa2c416ee09323769151bc6711ed9100d82a1131f15f6eb8ba9"
+          "sha256": "781225a758fda554adad9d91830a6520016306bfbbce95a14c5a4a272b3c2a3e"
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/bin/chialisp-oxide-tree-reference.rs",
@@ -2859,7 +3043,7 @@
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/lib.rs",
-          "sha256": "b88d342397cebeed8ce770a7dd3b844b502e075ffc814455da4081ae893b565e"
+          "sha256": "0b3a4675f72bc14f58b02111f8a411138f53c0372bd8b780bfe868a213b5fe87"
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/main.rs",
@@ -2875,7 +3059,7 @@
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/scalar_bitwise.rs",
-          "sha256": "e47077ec0687d2ef5808c7afba5b5ffd11266f778c8f510137d5dd1bc7045b51"
+          "sha256": "a757512f285092248182b4d89759e196129f60b4eba3162b139c99d208e0149c"
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/structural_boolean.rs",
@@ -2883,7 +3067,7 @@
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/tree.rs",
-          "sha256": "b6b9cc3d2fa0e45934c7fb2720eecaceb0d1df3e32660668b0bdd4e8082b9518"
+          "sha256": "e6ab9aa121e4116975fa4b53db1f4057e9f6ee415b19f65844bd093d8a6b569b"
         },
         {
           "path": "crates/chialisp-oxide-verifier/src/tree_witness.rs",
@@ -2908,6 +3092,10 @@
         {
           "path": "crates/chialisp-oxide-verifier/tests/bitwise_inputs.rs",
           "sha256": "ad04038af3d939a4317d6191a89ba2d811b7c9a0133fc38f1f00eaf43af88542"
+        },
+        {
+          "path": "crates/chialisp-oxide-verifier/tests/callables.rs",
+          "sha256": "59ec996d35cfd0c278b333667c613c2c336f57851bcedebc4d195847b8c34c92"
         },
         {
           "path": "crates/chialisp-oxide-verifier/tests/casts.rs",
@@ -3123,7 +3311,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "61c0bc2bf20dfd3f0918ebc66e35768470e4488009ce7fa32b23ff11a637b7ba"
+          "sha256": "182b43ef5d6c3034044530c14fd4e170e9aa0cc50ad613bb9a654f65b49fd002"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -3291,7 +3479,55 @@
         },
         {
           "path": "puzzles/lib.rs",
-          "sha256": "1bbd9f5fc9e1f293bed3399e3d5f2f7df906ce2af0e4157f6394cf299c465862"
+          "sha256": "68c92c3dfeaeff6bb97961fad78fd935d06e5ed793faf4b4c3890db0509a0ac7"
+        },
+        {
+          "path": "puzzles/modern-lambda-map/puzzle.json",
+          "sha256": "37db835a6a4881100f7c61df390c7270d02f9361524d2f37d4dc23537efaace3"
+        },
+        {
+          "path": "puzzles/modern-lambda-map/puzzle.rs",
+          "sha256": "a1da6176c7527e9e366d02a4dc5a2bf5c9793271e38058af0821d18c32e9b4f5"
+        },
+        {
+          "path": "puzzles/modern-lambda-map/puzzle.rue",
+          "sha256": "0a39146683b07788b516b650fa26905b4016ddcb2f54721b2ac96129dbe41410"
+        },
+        {
+          "path": "puzzles/modern-lambda-map/reference.clsp",
+          "sha256": "38f79fceafa7a119d4a0f90f479b641c84697a27154b103fd8133b07b2812e94"
+        },
+        {
+          "path": "puzzles/modern-let-product/puzzle.json",
+          "sha256": "4af928d6df5cfe6f918a46a252cd1ee1a1bdadf1c63f7ebd855a79ba4dc1c820"
+        },
+        {
+          "path": "puzzles/modern-let-product/puzzle.rs",
+          "sha256": "b7285c5707bf2bbb343dde4da9a22f369bd9c931724c4dfe92bc9e67a777a32d"
+        },
+        {
+          "path": "puzzles/modern-let-product/puzzle.rue",
+          "sha256": "728029af5e728f0dc0273cd3e7ade6647789dbb61b555c543d9e979bca068e7f"
+        },
+        {
+          "path": "puzzles/modern-let-product/reference.clsp",
+          "sha256": "52e1d47807b9f5b2dc525d38440513199638b79ed500938f6b20869ffd666671"
+        },
+        {
+          "path": "puzzles/modern-named-map/puzzle.json",
+          "sha256": "76331863f9897c2ce4ecfef51835e8562a870f3bdd144e9790b08184f51b8923"
+        },
+        {
+          "path": "puzzles/modern-named-map/puzzle.rs",
+          "sha256": "d00f721e385eada6572f0666dbeb9e116ffe386f8408f4d3b86ea28a98ccec5c"
+        },
+        {
+          "path": "puzzles/modern-named-map/puzzle.rue",
+          "sha256": "70302570c1fb3e8a1f2d72fb1653b08a673148f5a2ffd33f781448241321c46f"
+        },
+        {
+          "path": "puzzles/modern-named-map/reference.clsp",
+          "sha256": "9cfea3fb7f48d8440917d01496a59bd893476dfc625cf422bfad817e94d1037a"
         },
         {
           "path": "puzzles/module-add/puzzle.rs",
@@ -3510,12 +3746,28 @@
           "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
         },
         {
+          "path": "puzzles/standard-delegated-hidden/fixture_public.json",
+          "sha256": "a7d5795ba57a1320f0727047fca9094a723bd9147e12b4ccb801a2ee889cf89d"
+        },
+        {
+          "path": "puzzles/standard-delegated-hidden/puzzle.rs",
+          "sha256": "9fb660a23bf4aabad3c3d68f3f7f1e311e895c675762f47d9a095ce8c769dedf"
+        },
+        {
           "path": "puzzles/tests/condition_morphing.rs",
           "sha256": "82b750b6d4d73bac49dad9e7dde0849eba73a5236337c013eb65ed1ae42a5b41"
         },
         {
+          "path": "puzzles/tests/modern_tutorials.rs",
+          "sha256": "bce95696ac54a650f4b25185b3c9f212f8de2a78d247bac39daf565d6069827d"
+        },
+        {
           "path": "puzzles/tests/policies.rs",
           "sha256": "bcbad17a69b7392707b11802bc6d8d1ca1a1ee7d74e9ed22c696711b04196686"
+        },
+        {
+          "path": "puzzles/tests/standard_tutorial.rs",
+          "sha256": "808cae35a35d0767c61e09bdad6cc2feeb5f4d43488a2a2871f414c61404265a"
         },
         {
           "path": "puzzles/tests/tutorial_inner.rs",
@@ -3575,7 +3827,7 @@
         },
         {
           "path": "scripts/cargo_bundle.py",
-          "sha256": "72963c54bcdf1e214912103f553a238b4fb84610c73244f1c55650f791eda847"
+          "sha256": "47b5dfab50646fc5013b752b5044b38bf264a3f4bb2f9c4ed22310c40ab499d9"
         },
         {
           "path": "scripts/cargo_source_receipt.py",
@@ -3747,7 +3999,7 @@
         },
         {
           "path": "scripts/corpus_append.py",
-          "sha256": "661bfec76c5cfde36d4f0d8958d1dc3400003e9f6e4698a02d128c2793f22202"
+          "sha256": "6e43a87150d3ad9ffbd4e9ccfe5901e1cf282b63dd952d6e56240632fa5123ad"
         },
         {
           "path": "scripts/corpus_compiler_transition.py",
@@ -3843,7 +4095,7 @@
         },
         {
           "path": "scripts/port_evidence.py",
-          "sha256": "048d6f6cac0d4bc511b31052c03ecaeccb46815ab31ecf8b685022627414d463"
+          "sha256": "9731a8aaf7ce4f686edaea2d604608083d70eeffe017b88ade5694fc8cf206f9"
         },
         {
           "path": "scripts/port_oracles.py",
@@ -3879,7 +4131,7 @@
         },
         {
           "path": "scripts/registry_control_packet.py",
-          "sha256": "017902863b003eb3b129a9343a24cf311d663c50755e5f354a8b1a48cec00e26"
+          "sha256": "3b64a4634bbf70396ff2e82b8bdf4aa50c498cdc11add322c8e6a8d7303d126a"
         },
         {
           "path": "scripts/registry_protocol.py",
@@ -3967,7 +4219,7 @@
         },
         {
           "path": "scripts/test_cargo_bundle.py",
-          "sha256": "52de486529bdd311c3e8803e329fa4a86f24253fcd36ef2662525094daa401d6"
+          "sha256": "8c99b13e55e748c69294c6c09e56d0f11dc6673753e6196ffd664246cacfccda"
         },
         {
           "path": "scripts/test_cargo_source_receipt.py",
@@ -4055,7 +4307,7 @@
         },
         {
           "path": "scripts/test_registry_control_packet.py",
-          "sha256": "eaf41166ba6232893637d2cf8ae3071b7115f0014823792cde45c3f9d54c9a18"
+          "sha256": "9eba7bd8868179f4d8100bbd0a786a69ed70e0b0cb3441742a72da6c98bcbdcb"
         },
         {
           "path": "scripts/test_registry_protocol.py",
@@ -4103,7 +4355,7 @@
         },
         {
           "path": "scripts/vm_failures.py",
-          "sha256": "e1e4dc55b0d0822e06a4548f203d90f6a72513e22428a810d46985758ce94d38"
+          "sha256": "d05f6c9f5bc76e9fac0340ed298f5313c1be08ace1bc6ee92a0fe030bc1c31e9"
         },
         {
           "path": "scripts/xchandles_history.py",
@@ -4198,24 +4450,24 @@
     "tools": {
       "cargo-chialisp-oxide": {
         "path": "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
-        "sha256": "aa3acbdf98951b4edae1379c067cff1022e8bdaae7ac27204a82ce294284fecc"
+        "sha256": "7aa598e6ec275c77caeea84e5f9825a0bc05688ab8a6432379c85318671cb2cc"
       },
       "chialisp-oxide-driver": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-driver",
-        "sha256": "c581aeba0de6410f95e7d018aff8af78c77e6fb7dd4a4553cc2c06cf6f59c703"
+        "sha256": "c19f5aef70e522aa694b3b1f7aea5590514c1c03f98592ee708636fd7e5ef1b3"
       },
       "chialisp-oxide": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-        "sha256": "f1d5e78d51d768ee5f4f40c10bf4c7a7b2f1c7c651002a78321387044e24b872"
+        "sha256": "f96f6af8232eff9d41c22e4b56fe4d5107284632b2d87f254e584eddd0ef5c4a"
       },
       "chialisp-oxide-verifier": {
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "sha256": "acc1fd87c77d488762353475acb78e6678c39b058f7dd1937ab492989a2f3cb2"
+        "sha256": "9d408c7554caade790f5d510b56d07270621f4539da9958e0454ba72f3edbdb4"
       }
     },
     "last_host_window": {
-      "path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-last-host.json",
-      "sha256": "73863bd22869044fad27a0ab2456d5d8ab573d30d92d403eb79274b4a159e9f9"
+      "path": "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-last-host.json",
+      "sha256": "09cff022a0b2173558197ee3a1a4a4e9d144f545bba53dc06a0941c225e62bb2"
     }
   },
   "prepared": {
@@ -4488,7 +4740,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -4498,16 +4750,16 @@
     "native_test_groups": 1,
     "native_policy_observations": 9,
     "log": "native.log",
-    "log_sha256": "9aa4f3f2eb51cf775fa8258e11610b27cfb0dc602b60dee566253a1f7d757895",
+    "log_sha256": "d44e248771addbd198f025d56e104fdeb74b88aaffe47a649e4e2bb8e33930ac",
     "ledger_binary": {
-      "path": "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-native-target/debug/examples/ledger",
-      "sha256": "ade446dc9d764d572bd7e3c93788c055816c7f531f6d6a704133640f11b8e333"
+      "path": "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-native-target/debug/examples/ledger",
+      "sha256": "207009f32482fc19305df581aa9bb4b68aa15da4a3bbde37c19daa4e7d9858ee"
     }
   },
   "bundles": {
     "off": {
       "manifest": "bundles/off/manifest.json",
-      "manifest_sha256": "10cc3a7ddaf1eeb7b048c9d71e10dce5685badeb18c2e9e099f65f3bfa99b4ef",
+      "manifest_sha256": "1d44ad0a27db8de2069e2e4cd6fa347dc207e5436d637721479ba4b7b5732851",
       "recompiled": [
         {
           "entry": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
@@ -4603,7 +4855,7 @@
     },
     "on": {
       "manifest": "bundles/on/manifest.json",
-      "manifest_sha256": "47cfd4fe79a1aa61c76f5d14376e308fbbacc8821f771aa47faefd9aee26d9fe",
+      "manifest_sha256": "d2204616b1d6ef9148986b9d34bf1c3f5e060a9cb21a8894ddb27d4638913005",
       "recompiled": [
         {
           "entry": "chialisp_oxide_boomerang_controls::equivalent::puzzle",
@@ -5569,26 +5821,26 @@
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-package/Cargo.toml",
         "--package",
         "chialisp-oxide-boomerang-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/fresh-off",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/fresh-off",
         "--no-optimize"
       ],
       "exit_code": 0,
       "stdout": "logs/00.stdout",
-      "stdout_sha256": "6eb7044f694203a3a404743d3af8cbbc888117b2efcea9bf91d537a0be1cf908",
+      "stdout_sha256": "6c0e9ce98e30d20cd25d27c7ce463ea891d7c391e9cd3f5a4e07c72f76a045a5",
       "stderr": "logs/00.stderr",
-      "stderr_sha256": "290a7124ef2cab115db1cffa35d4a7532a11129ede9c5922d1024429714eb521"
+      "stderr_sha256": "723ab261a37fd406b3a0ce2dfc79b4c8650777f9bd574524627a85ba09ed6ac1"
     },
     {
       "role": "recompile-off-equivalent",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/off/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/off/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5601,7 +5853,7 @@
       "role": "recompile-off-drop_claim_signature",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/off/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/off/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5614,7 +5866,7 @@
       "role": "recompile-off-early_refund",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/off/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/off/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5627,7 +5879,7 @@
       "role": "recompile-off-late_claim",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/off/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/off/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5640,7 +5892,7 @@
       "role": "recompile-off-original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/off/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/off/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5654,9 +5906,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-original-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-original-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5671,9 +5923,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-original-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-original-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5688,9 +5940,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-original-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-original-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -5705,9 +5957,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-equivalent-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-equivalent-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5722,9 +5974,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-equivalent-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-equivalent-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5739,9 +5991,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-equivalent-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-equivalent-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -5756,9 +6008,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/drop_claim_signature.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/drop_claim_signature.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5773,9 +6025,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/late_claim.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/late_claim.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-late_claim-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-late_claim-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5790,9 +6042,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/off/early_refund.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/off/early_refund.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/off-early_refund-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/off-early_refund-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -5809,25 +6061,25 @@
         "build",
         "--artifact-only",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-package/Cargo.toml",
         "--package",
         "chialisp-oxide-boomerang-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/fresh-on"
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/fresh-on"
       ],
       "exit_code": 0,
       "stdout": "logs/15.stdout",
-      "stdout_sha256": "26cdfdfb9c6833126fa5cf1ea81918d11c651385fff0c91f965ca7516624b3df",
+      "stdout_sha256": "c6dbd190b3cce93eb3944f9e8f76fdb464d4a5c795670359d096270904e3ba27",
       "stderr": "logs/15.stderr",
-      "stderr_sha256": "290a7124ef2cab115db1cffa35d4a7532a11129ede9c5922d1024429714eb521"
+      "stderr_sha256": "84b687947ea1cf773fa4f30a27e522d340845599bba55a2792e37f2b96c148d8"
     },
     {
       "role": "recompile-on-equivalent",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5840,7 +6092,7 @@
       "role": "recompile-on-drop_claim_signature",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/on/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/on/8b24605fba8fc49a106a16d65ab4a5c2e5c2ccacec1aae6639c397ef8683b6f6.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5853,7 +6105,7 @@
       "role": "recompile-on-early_refund",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/on/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/on/9e964d2b4517764b16cb19557f2ce93b2b80f0ab9cad0fa8e15bf3961a75f279.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5866,7 +6118,7 @@
       "role": "recompile-on-late_claim",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/on/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/on/ba254c6e87f3319aff9ad84f6aaed02fdafe855179c9d5b91f06dc865299db5a.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5879,7 +6131,7 @@
       "role": "recompile-on-original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/bundles/on/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/bundles/on/c39c7fccfb96c690e84350f5c9d00bf7d0d8af78ba406fc3229b051a2992228d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5893,9 +6145,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-original-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-original-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5910,9 +6162,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-original-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-original-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5927,9 +6179,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/original.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/original.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-original-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-original-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -5944,9 +6196,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-equivalent-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-equivalent-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5961,9 +6213,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-equivalent-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-equivalent-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -5978,9 +6230,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/equivalent.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/equivalent.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-equivalent-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-equivalent-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -5995,9 +6247,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/drop_claim_signature.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/drop_claim_signature.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-drop_claim_signature-timely_unsigned_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-drop_claim_signature-timely_unsigned_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -6012,9 +6264,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/late_claim.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/late_claim.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-late_claim-signed_late_claim.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-late_claim-signed_late_claim.json",
         "--max-cost",
         "1000000"
       ],
@@ -6029,9 +6281,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/instances/on/early_refund.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/instances/on/early_refund.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/inputs/on-early_refund-early_unsigned_refund.json",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/inputs/on-early_refund-early_unsigned_refund.json",
         "--max-cost",
         "1000000"
       ],
@@ -6044,8 +6296,8 @@
     {
       "role": "sdk-ledger",
       "argv": [
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-native-target/debug/examples/ledger",
-        "/Users/judeallred/code/clispOx/target/buildout50-current-corpus-a03/boomerang-capture/ledger-request.json"
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-native-target/debug/examples/ledger",
+        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/boomerang-capture/ledger-request.json"
       ],
       "exit_code": 0,
       "stdout": "logs/30.stdout",
@@ -6097,7 +6349,7 @@
     },
     {
       "path": "bundles/off/manifest.json",
-      "sha256": "10cc3a7ddaf1eeb7b048c9d71e10dce5685badeb18c2e9e099f65f3bfa99b4ef"
+      "sha256": "1d44ad0a27db8de2069e2e4cd6fa347dc207e5436d637721479ba4b7b5732851"
     },
     {
       "path": "bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.clvm.hex",
@@ -6141,7 +6393,7 @@
     },
     {
       "path": "bundles/on/manifest.json",
-      "sha256": "47cfd4fe79a1aa61c76f5d14376e308fbbacc8821f771aa47faefd9aee26d9fe"
+      "sha256": "d2204616b1d6ef9148986b9d34bf1c3f5e060a9cb21a8894ddb27d4638913005"
     },
     {
       "path": "inputs/off-drop_claim_signature-timely_unsigned_claim.json",
@@ -6257,7 +6509,7 @@
     },
     {
       "path": "last-host-window.json",
-      "sha256": "73863bd22869044fad27a0ab2456d5d8ab573d30d92d403eb79274b4a159e9f9"
+      "sha256": "09cff022a0b2173558197ee3a1a4a4e9d144f545bba53dc06a0941c225e62bb2"
     },
     {
       "path": "ledger-request.json",
@@ -6269,11 +6521,11 @@
     },
     {
       "path": "logs/00.stderr",
-      "sha256": "290a7124ef2cab115db1cffa35d4a7532a11129ede9c5922d1024429714eb521"
+      "sha256": "723ab261a37fd406b3a0ce2dfc79b4c8650777f9bd574524627a85ba09ed6ac1"
     },
     {
       "path": "logs/00.stdout",
-      "sha256": "6eb7044f694203a3a404743d3af8cbbc888117b2efcea9bf91d537a0be1cf908"
+      "sha256": "6c0e9ce98e30d20cd25d27c7ce463ea891d7c391e9cd3f5a4e07c72f76a045a5"
     },
     {
       "path": "logs/01.stderr",
@@ -6389,11 +6641,11 @@
     },
     {
       "path": "logs/15.stderr",
-      "sha256": "290a7124ef2cab115db1cffa35d4a7532a11129ede9c5922d1024429714eb521"
+      "sha256": "84b687947ea1cf773fa4f30a27e522d340845599bba55a2792e37f2b96c148d8"
     },
     {
       "path": "logs/15.stdout",
-      "sha256": "26cdfdfb9c6833126fa5cf1ea81918d11c651385fff0c91f965ca7516624b3df"
+      "sha256": "c6dbd190b3cce93eb3944f9e8f76fdb464d4a5c795670359d096270904e3ba27"
     },
     {
       "path": "logs/16.stderr",
@@ -6525,27 +6777,27 @@
     },
     {
       "path": "native-logs/2.log",
-      "sha256": "358a057419efe496dadfe8d3aac8a71e80092802bc908062c3bca17958240738"
+      "sha256": "05c2da48bdc019099c33dfdaca6b39f70c3e92b16fa207f9fbf518896615dee1"
     },
     {
       "path": "native-logs/3.log",
-      "sha256": "9aa4f3f2eb51cf775fa8258e11610b27cfb0dc602b60dee566253a1f7d757895"
+      "sha256": "d44e248771addbd198f025d56e104fdeb74b88aaffe47a649e4e2bb8e33930ac"
     },
     {
       "path": "native-logs/4.log",
-      "sha256": "8560c27e6bc1fe26d3868cf0144fe7402b375000dd78edf1a1063c35478d24b9"
+      "sha256": "2864100b907b3b08976351277ef5416185fefb31f212ea3420a51dec8f8b6a94"
     },
     {
       "path": "native-logs/5.log",
-      "sha256": "d7dae192715495fa89ccbe279af3efb9792c1dae1768228e369035e68a1df673"
+      "sha256": "f4403412cb20dc7d8a0a94c08c9c8853e4bac9b3e8489158834f30512311ed97"
     },
     {
       "path": "native-receipt.json",
-      "sha256": "3a2230b2dffdcace4839155ee8cc12c720ea71cc32c1ba3af9e56db63d7ebf1c"
+      "sha256": "af9704076cc321d2eeb87ae3177872f3a920e5d00be2e3222361bce2f3eac278"
     },
     {
       "path": "native.log",
-      "sha256": "9aa4f3f2eb51cf775fa8258e11610b27cfb0dc602b60dee566253a1f7d757895"
+      "sha256": "d44e248771addbd198f025d56e104fdeb74b88aaffe47a649e4e2bb8e33930ac"
     },
     {
       "path": "package/Cargo.lock",

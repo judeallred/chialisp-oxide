@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "protocol": "chia-consensus-0.36.1/p2-singleton-v1",
+  "stage": "consensus",
+  "codes": [
+    "AssertCoinAnnouncementFailed",
+    "AssertMyAmountFailed",
+    "AssertMyCoinIdFailed",
+    "AssertMyParentIdFailed",
+    "AssertPuzzleAnnouncementFailed",
+    "BadAggregateSignature",
+    "DoubleSpend",
+    "WrongPuzzleHash"
+  ],
+  "negatives": [
+    {
+      "name": "missing singleton participant",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "missing p2 participant with independently balanced singleton",
+      "code": "AssertCoinAnnouncementFailed"
+    },
+    {
+      "name": "wrong inner-puzzle hash",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "wrong my_id with announcement otherwise matched",
+      "code": "AssertMyCoinIdFailed"
+    },
+    {
+      "name": "another p2 coin ID cannot identify this input",
+      "code": "AssertMyCoinIdFailed"
+    },
+    {
+      "name": "wrong singleton puzzle-announcement message",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "wrong dollar announcement binding",
+      "code": "AssertCoinAnnouncementFailed"
+    },
+    {
+      "name": "wrong p2 issuer in reciprocal coin announcement",
+      "code": "AssertCoinAnnouncementFailed"
+    },
+    {
+      "name": "wrong singleton module identity",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "wrong launcher identity",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "wrong launcher puzzle hash",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "another puzzle cannot issue the singleton announcement",
+      "code": "AssertPuzzleAnnouncementFailed"
+    },
+    {
+      "name": "omitted signature submitted to consensus",
+      "code": "BadAggregateSignature"
+    },
+    {
+      "name": "nonempty genesis signature cannot authorize singleton spend",
+      "code": "BadAggregateSignature"
+    },
+    {
+      "name": "signed continuation recipient cannot be changed",
+      "code": "BadAggregateSignature"
+    },
+    {
+      "name": "singleton asserted input amount must match",
+      "code": "AssertMyAmountFailed"
+    },
+    {
+      "name": "different-language reveal submitted to consensus",
+      "code": "WrongPuzzleHash"
+    }
+  ],
+  "lifecycle_rejections": [
+    {
+      "name": "joint-spend replay",
+      "code": "DoubleSpend"
+    },
+    {
+      "name": "Eve proof cannot spend the next singleton",
+      "code": "AssertMyParentIdFailed"
+    }
+  ],
+  "accepted_receipts": [
+    "genesis",
+    "joint",
+    "lineage"
+  ]
+}

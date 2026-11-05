@@ -228,7 +228,7 @@ bridge; their atom, crypto and guard semantics are separate from primitive Rust
 operators or arbitrary external-library admission.
 
 Unannotated native functions may use ordinary Rust features, including
-allocation and closures, provided they are not reachable from a puzzle. They
+general allocation and unsupported closure profiles, provided they are not reachable from a puzzle. They
 still undergo Rust checking. General references, type/const generics, other external calls,
 CFG loops, general allocation, ordinary structs/enums, casts outside that
 fixed-width integer profile, floats, and non-Rust function ABIs are rejected
@@ -267,7 +267,7 @@ supported signatures and calls before selecting the lowering route. Acyclic
 graphs retain legacy expression extraction. A graph containing recursion becomes
 a dense function table, with the source entry at ID zero and each body lowered
 once in its own argument scope. Shared tree/byte references retain their checked
-Rust lifetime/ownership boundary; no mutable references or closure captures are
+Rust lifetime/ownership boundary; no mutable references or general closure captures are
 introduced. Supported constants/promoted bodies use the separate legacy
 acyclic lowering path. Runtime projected assignments are explicitly rejected.
 
@@ -341,3 +341,21 @@ programs because successful-evaluation facts do not establish prompt rejection
 before divergence; Rue LIR optimization still runs in the optimized mode. Checked projections retain atom rejection when a redundant guard
 is removed. This measured identity for one factory does not establish general
 module compatibility or compiler preservation.
+
+## Internal local callables
+
+Version-9 lowering admits immutable function-pointer values reified from actual
+safe local function items and validated zero-environment closures coerced to
+ordinary function pointers, including direct local helper parameters. It validates
+every target body and preserves strict callee/argument captures and fresh frames.
+Callables cannot enter the public ABI or be returned/stored in containers.
+A separate concrete `move` closure route admits whole-root Copy/drop-free
+primitive, fixed tuple/array and actual immutable SDK Tree captures. It validates
+original upvar types, creation order, compiler receiver references and exact core
+Fn identity before emitting paired immutable code/environment bindings and v9
+indirect calls with an explicit environment argument. Mutable/interior-mutable,
+shared/projected, custom-ADT, owned/drop and callable captures, nested captures,
+closure escapes/joins, generic Fn/FnMut/FnOnce APIs, address/comparison operations,
+foreign/unsafe signatures and general dependency admission remain closed.
+See [the exact callable contract](../../docs/local-callables.md) and the actual
+Cargo `local_callables`, `noncapturing_closures` and `captured_closures` tests for source/native/independent-reference scope.

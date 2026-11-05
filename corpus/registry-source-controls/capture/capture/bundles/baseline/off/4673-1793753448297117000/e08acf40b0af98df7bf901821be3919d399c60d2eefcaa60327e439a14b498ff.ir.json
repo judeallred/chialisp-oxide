@@ -1,0 +1,86 @@
+{
+  "name": "chialisp_oxide_puzzles::module_add::puzzle",
+  "parameters": [
+    {
+      "name": "first",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": true
+      }
+    },
+    {
+      "name": "second",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": true
+      }
+    }
+  ],
+  "result": {
+    "kind": "int",
+    "bits": 64,
+    "signed": true
+  },
+  "body": {
+    "op": "sequence",
+    "first": {
+      "op": "tuple",
+      "items": [
+        {
+          "op": "binary",
+          "kind": "add",
+          "left": {
+            "op": "arg",
+            "index": 0
+          },
+          "right": {
+            "op": "arg",
+            "index": 1
+          },
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": true
+          }
+        },
+        {
+          "op": "bool",
+          "value": false
+        }
+      ]
+    },
+    "then_value": {
+      "op": "if",
+      "condition": {
+        "op": "not",
+        "value": {
+          "op": "bool",
+          "value": false
+        }
+      },
+      "then_value": {
+        "op": "binary",
+        "kind": "add",
+        "left": {
+          "op": "arg",
+          "index": 0
+        },
+        "right": {
+          "op": "arg",
+          "index": 1
+        },
+        "ty": {
+          "kind": "int",
+          "bits": 64,
+          "signed": true
+        }
+      },
+      "else_value": {
+        "op": "reject",
+        "message": "puzzles/module-add/puzzle.rs:6:5: 6:19: Rust assertion failed"
+      }
+    }
+  }
+}

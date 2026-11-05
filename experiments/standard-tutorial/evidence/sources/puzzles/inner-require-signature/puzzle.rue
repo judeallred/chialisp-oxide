@@ -1,0 +1,20 @@
+// Independent raw dotted-environment translation; no key-length restriction.
+const ATOM_DOMAIN: Bytes = 0x01;
+const PAIR_DOMAIN: Bytes = 0x02;
+
+fn main(public_key: Any, inner_puzzle: fn(...solution: Any) -> Any, ...inner_solution: Any) -> Any {
+    let message = hash_tree(inner_solution);
+    let conditions = inner_puzzle(...inner_solution);
+    ((50, (public_key, (message, nil))), conditions)
+}
+
+fn hash_tree(value: Any) -> Bytes32 {
+    if value is (Any, Any) {
+        let first_hash = hash_tree(value.first);
+        let rest_hash = hash_tree(value.rest);
+        sha256(...[PAIR_DOMAIN, first_hash, rest_hash])
+    } else {
+        assert value is Bytes;
+        sha256(...[ATOM_DOMAIN, value])
+    }
+}

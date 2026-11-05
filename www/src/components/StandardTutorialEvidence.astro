@@ -1,0 +1,41 @@
+---
+import { puzzles } from '../lib/data';
+import { readStandardTutorialEvidence } from '../lib/standard-tutorial.mjs';
+const required = puzzles.some(puzzle => puzzle.slug === 'standard-delegated-hidden');
+interface Download { path: string; bytes: number; sha256: string }
+interface Evidence { status: string; scope: string[]; downloads: Download[] }
+const evidence = await readStandardTutorialEvidence({ required }) as Evidence;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const fields = [
+  ['sdk_attempts', 'SDK submissions', 80], ['sdk_accepted', 'Accepted SDK submissions', 15],
+  ['sdk_typed_rejected', 'Exact typed consensus rejections', 45], ['sdk_runtime_umbrellas', 'GeneratorRuntimeError umbrellas', 20],
+  ['fixture_coins', 'Directly minted fixture coins', 15], ['primary_observations', 'Retained primary VM observations', 85],
+];
+const corePaths = new Set([
+  'receipt.json', 'template-report.json', 'request.json', 'report.json', 'report-repeat.json',
+  'source-before.json', 'source-after.json', 'tools-before.json', 'tools-after.json',
+]);
+const coreDownloads = evidence.downloads.filter(file => corePaths.has(file.path));
+if (evidence.status !== 'pending_current_capture' && coreDownloads.length !== corePaths.size) {
+  throw new Error('Complete standard tutorial core reports required');
+}
+---
+{evidence.status === 'pending_current_capture' ? <aside data-standard-sdk="pending">
+  Fresh merged-source simulator capture is pending. The earlier isolated reports
+  are not presented as current evidence here.
+</aside> : <section data-standard-sdk="current">
+  <h2>Recorded simulator observations</h2>
+  <dl>{fields.map(([name, label, value]) => <div><dt>{label}</dt><dd data-standard-count={name} data-value={value}>{value}</dd></div>)}</dl>
+  <p>The five builds cover 15 scenario groups. The 85 primary observations contain
+    65 accepted outputs and 20 program failures; they are separate from template
+    comparisons and SDK submissions. GeneratorRuntimeError gives no semantic
+    rejection credit. The recorded checker performs no BLS verification. No live
+    network or wallet action is recorded.</p>
+  <ul>{evidence.scope.map(scope => <li>{scope}</li>)}</ul>
+  <p><a href={`${base}reports/standard-tutorial.json`}>Read the checked summary</a></p>
+  <p><a href={`${base}reports/standard-tutorial/receipt.json`} download>Download the complete packet inventory</a>
+    for all {evidence.downloads.length} files and their byte counts and hashes.</p>
+  <details><summary>Core reports ({coreDownloads.length} selected downloads)</summary>
+    <ul>{coreDownloads.map(file => <li><a href={`${base}reports/standard-tutorial/${file.path.split('/').map(encodeURIComponent).join('/')}`} download>{file.path}</a> ({file.bytes} bytes; SHA-256 <code>{file.sha256}</code>)</li>)}</ul>
+  </details>
+</section>}

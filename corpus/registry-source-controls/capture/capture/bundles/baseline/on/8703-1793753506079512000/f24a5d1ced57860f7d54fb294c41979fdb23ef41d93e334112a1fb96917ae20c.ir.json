@@ -1,0 +1,142 @@
+{
+  "name": "chialisp_oxide_puzzles::capped_payment::puzzle",
+  "parameters": [
+    {
+      "name": "amount",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": false
+      }
+    }
+  ],
+  "result": {
+    "kind": "tuple",
+    "items": [
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      },
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "bytes",
+            "len": 32
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      }
+    ]
+  },
+  "body": {
+    "op": "if",
+    "condition": {
+      "op": "binary",
+      "kind": "eq",
+      "left": {
+        "op": "binary",
+        "kind": "le",
+        "left": {
+          "op": "arg",
+          "index": 0
+        },
+        "right": {
+          "op": "int",
+          "value": "1000",
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        },
+        "ty": {
+          "kind": "int",
+          "bits": 64,
+          "signed": false
+        }
+      },
+      "right": {
+        "op": "bool",
+        "value": false
+      },
+      "ty": {
+        "kind": "bool"
+      }
+    },
+    "then_value": {
+      "op": "reject",
+      "message": "puzzles/capped-payment/puzzle.rs:14:5: 14:44: Rust panic/assertion rejects the puzzle"
+    },
+    "else_value": {
+      "op": "tuple",
+      "items": [
+        {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "int",
+              "value": "73",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            {
+              "op": "int",
+              "value": "1000",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            }
+          ]
+        },
+        {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "int",
+              "value": "51",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            {
+              "op": "bytes",
+              "hex": "4242424242424242424242424242424242424242424242424242424242424242"
+            },
+            {
+              "op": "arg",
+              "index": 0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

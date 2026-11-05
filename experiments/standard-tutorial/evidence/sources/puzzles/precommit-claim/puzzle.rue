@@ -1,0 +1,40 @@
+// Original teaching comparison of the precommit claim/refund policy.
+// WIP prototype; not ready to secure real funds.
+type Terms = (Bytes32, (Bytes32, (Bytes32, nil)));
+
+const REGISTRATION_PRICE: Int = 1000;
+const MINIMUM_AGE: Int = 2;
+const REFUND_AGE: Int = 8;
+const TREASURY: Bytes32 = 0x7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e;
+// UTF-8 "chialisp-oxide/precommit/v1/ready", "/refunded" and "/accept".
+const READY_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f7265616479;
+const REFUNDED_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f726566756e646564;
+const ACCEPT_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f707265636f6d6d69742f76312f616363657074;
+
+fn main(...environment: Any) -> List<Condition> {
+    // Validate every field on both paths, including the unused registry on refund.
+    assert environment is (Terms, (Bool, (Bytes32, nil)));
+    let terms = environment.first;
+    let registry = terms.first;
+    let commitment = terms.rest.first;
+    let refund_to = terms.rest.rest.first;
+    let claim = environment.rest.first;
+    let me = environment.rest.rest.first;
+
+    if claim {
+        [AssertMyCoinId { coin_id: me },
+         AssertMyAmount { amount: REGISTRATION_PRICE },
+         AssertHeightRelative { height: MINIMUM_AGE },
+         CreateCoin { puzzle_hash: TREASURY, amount: REGISTRATION_PRICE },
+         CreateCoinAnnouncement { message: sha256(...[READY_DOMAIN, commitment, me]) },
+         AssertCoinAnnouncement {
+             id: sha256(...[registry, sha256(...[ACCEPT_DOMAIN, commitment, me])]),
+         }]
+    } else {
+        [AssertMyCoinId { coin_id: me },
+         AssertMyAmount { amount: REGISTRATION_PRICE },
+         AssertHeightRelative { height: REFUND_AGE },
+         CreateCoin { puzzle_hash: refund_to, amount: REGISTRATION_PRICE },
+         CreateCoinAnnouncement { message: sha256(...[REFUNDED_DOMAIN, commitment, me]) }]
+    }
+}

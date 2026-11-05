@@ -1,0 +1,185 @@
+{
+  "slug": "p2-delegated-conditions",
+  "title": "Canonical delegated conditions: raw module and owner-key instances",
+  "kind": "protocol_component",
+  "environment": "raw",
+  "security_scope": "Exact published raw delegated-conditions module plus separately tested owner-committed instances. Two pair projections select arbitrary public-key and conditions trees; the remaining tail is ignored. Output is one AGG_SIG_ME condition followed by the unchanged conditions tree. Funding the uncurried module leaves key selection to the spender. Finite native/VM/SDK tests do not prove compiler preservation, exhaustive authorization or production readiness.",
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/tree.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "puzzles/p2-delegated-conditions/independent-vectors.json",
+    "puzzles/p2-delegated-conditions/mutation-recipes.json",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+    "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"
+  ],
+  "native_sources": [
+    "crates/chialisp-oxide-corpus/Cargo.toml",
+    "crates/chialisp-oxide-corpus/build.rs",
+    "crates/chialisp-oxide-corpus/src/lib.rs",
+    "crates/chialisp-oxide-corpus/src/native.rs",
+    "crates/chialisp-oxide-corpus/src/native_hash.rs",
+    "crates/chialisp-oxide-corpus/src/native_tree.rs",
+    "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
+    "crates/chialisp-oxide-corpus/src/p2_delegated_conditions/ledger.rs",
+    "crates/chialisp-oxide-simulator/Cargo.toml",
+    "crates/chialisp-oxide-simulator/src/lib.rs",
+    "crates/chialisp-oxide-simulator/rejection-protocol.json"
+  ],
+  "reference_includes": {
+    "condition_codes.clib": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib"
+  },
+  "provenance": {
+    "classification": "canonical_puzzle_port",
+    "upstream": {
+      "repository": "https://github.com/Chia-Network/chia_puzzles",
+      "revision": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "source_path": "puzzles/p2_delegated_conditions.clsp",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
+      "source_sha256": "a73671d6fe8f33bfc5e10b44b4ce96a30d2d4089a9c9f4df4350d7b18925d907",
+      "git_blob_sha1": "5be64e2deaca4b5e050a88ec71caeaf648e82d03",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d"
+    },
+    "license": {
+      "spdx": "Apache-2.0",
+      "source_path": "LICENSE",
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE",
+      "sha256": "7db0cf1060026bf2a544ea29cf9a96fba7d3781f93a1d06d6fee18251f1c207a",
+      "git_blob_sha1": "37b84d60dd8a34d854a41e94c34eaf587648ac6c",
+      "scope": "Exact retained repository license; no independent per-file legal review."
+    },
+    "commit": {
+      "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/commit.git",
+      "sha256": "68502b042abaad03f35dd59c0fce3d7d1ce000c1302ccf50c762a955b2ec4215",
+      "git_commit_sha1": "cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d",
+      "verification": "Retained raw Git object checked; no local signature trust claim."
+    },
+    "tree": {
+      "manifest": "corpus/upstream/published-puzzles/Chia-Network--chia_puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/tree.json",
+      "sha256": "9900f500c6397560e20046c5bf4d4016a651f9000d6893512317ce6067c7842d",
+      "root_tree_sha1": "e131409ed769ef4def743d4ebbcf859b40fcec2d",
+      "scope": "Complete pinned tree; source/include/license/published artifact blob membership checked."
+    },
+    "source_adaptation": {
+      "kind": "none",
+      "reference": "puzzles/p2-delegated-conditions/reference.clsp",
+      "reference_sha256": "a73671d6fe8f33bfc5e10b44b4ce96a30d2d4089a9c9f4df4350d7b18925d907",
+      "description": "Exact375-byte published module. No wrapper, key-width check, list-tail restriction or source rewrite is added."
+    },
+    "include_dependencies": [
+      {
+        "name": "condition_codes.clib",
+        "snapshot": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/condition_codes.clib",
+        "sha256": "891ea562e6fdb783bcfceea0cdea92318acfe4a67c4b6deb238d5fc4af15377f",
+        "git_blob_sha1": "a6a5d22b5883487b87b51f5cf3f66d63440d68cf"
+      }
+    ],
+    "upstream_artifact": {
+      "path": "corpus/upstream/chia-puzzles/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+      "source_url": "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+      "source_sha256": "cc06953dcac90df9455d02105e5003df615cd73c78f116fffd47a68fb80a983c",
+      "git_blob_sha1": "46f9abe76535644320ae9811679c024c39a6f0fb",
+      "clvm_hex": "ff02ffff01ff04ffff04ff04ffff04ff05ffff04ffff02ff06ffff04ff02ffff04ff0bff80808080ff80808080ff0b80ffff04ffff01ff32ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff06ffff04ff02ffff04ff09ff80808080ffff02ff06ffff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080",
+      "bytes": 137,
+      "tree_hash": "0ff94726f1a8dea5c3f70d3121945190778d3b2b3fcda3735a1f290977e98341"
+    },
+    "module_identity_obligation": "The canonical compiler must reproduce the published137-byte module and hash. Rust and Rue retain their own measured hashes; output agreement does not make reveals interchangeable.",
+    "references": [
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/puzzles/p2_delegated_conditions.clsp.hex",
+      "https://github.com/Chia-Network/chia_puzzles/blob/cfe5ced68af8b5e9d5e2cc66071bbe6497f9eda8/LICENSE"
+    ],
+    "limitations": [
+      "This raw template receives a caller-chosen public-key tree. Only separately funded owner-key-curried instances commit an owner; the uncurried accepted key-selection controls are intentional policy counterexamples.",
+      "Arbitrary key/conditions trees and ignored improper tails remain raw data. Raw VM output is not automatically a valid condition list, BLS public key, signature or authorized spend.",
+      "Native missing-projection panics, canonical PathIntoAtom and actual Rust/Rue fault codes are recorded separately. Finite output/rejection comparisons do not claim typed-fault identity or compiler preservation.",
+      "Host codec bounds and VM resource limits are not added source guards or policy rejections. SHA/recursive/Pair IR remains outside current proof models.",
+      "Five-build dedicated SDK attempts are counted separately from ordinary named/generated comparisons and repeats. Full simulator Eq is checked in memory; serialized flags are not independent state proofs or authentication."
+    ]
+  },
+  "cases": [
+    {
+      "label": "named-key0-conditions0",
+      "solution": "(() . (() . ()))"
+    },
+    {
+      "label": "named-key0-conditions1",
+      "solution": "(() . (0x00 . ()))"
+    },
+    {
+      "label": "named-key0-conditions2",
+      "solution": "(() . (0x000001 . ()))"
+    },
+    {
+      "label": "named-key0-conditions6",
+      "solution": "(() . (((0x50 . (0x05 . ())) . ()) . ()))"
+    },
+    {
+      "label": "named-key1-conditions4",
+      "solution": "(0x00 . ((0x01 . 0x02) . ()))"
+    },
+    {
+      "label": "named-key2-conditions3",
+      "solution": "(0x0001 . (0xff . ()))"
+    },
+    {
+      "label": "named-key3-conditions7",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x00 . (0x01 . ()))) . 0xff) . ()))"
+    },
+    {
+      "label": "named-key4-conditions0",
+      "solution": "(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff . (() . ()))"
+    },
+    {
+      "label": "named-key5-conditions5",
+      "solution": "((0x01 . 0x02) . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . ()))"
+    },
+    {
+      "label": "named-key6-conditions8",
+      "solution": "((0x00 . (0xff . ())) . (((() . ()) . (() . ())) . ()))"
+    },
+    {
+      "label": "ignored-outer-tail0",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . 0x00))"
+    },
+    {
+      "label": "ignored-outer-tail1",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . 0xff))"
+    },
+    {
+      "label": "ignored-outer-tail2",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . (0x01 . 0x02)))"
+    },
+    {
+      "label": "ignored-outer-tail3",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . (((0x33 . (0x4242424242424242424242424242424242424242424242424242424242424242 . (0x03e8 . ()))) . ()) . (0x09 . (0x08 . ()))))"
+    },
+    {
+      "label": "generated-127",
+      "solution": "(((0x96ff01c20ba00fd389576256968ae630321ff8851630c8c7a132c72919f3ccb6 . 0x62d30d) . 0x07dc) . (((((0x3510f944103ac9aaf315a96b5d5d66e924ba5bafec08efcc8ac0849a1412ca4c . (0x23584e2abcfa8e9f2baf9123bf3115aba9db020b6f06290d336e53a2fbe6dd . 0x8db86f9c9f6298b06ef34610cb3d3a3ae341d90473f496ff9eb0ef842939972b)) . (0x96b4d1def25fe24fa3f402e46fbbbc99112c82a2e6c9ae4cc565c9744e99749e . 0x7746f4)) . (((0xcffb3f8959ed4113bad26806178b3f7490e4930022008941ca030c6bee15fc . 0x2804b7cab6c85dcf9b21b76874ed022d9781e25dba4db159dbfc40929ff42c) . 0xf5880bfaadf47ddf90601bd9ed41db88c47093c2ab906c1dc453d67ed7b5f4) . ((0x6029135ead2dff240e5a2206317ccbd3e0f720be11abed01ac757a001baa78 . ()) . 0xd6aa))) . ((() . ((0x5b7c6df30ec01346a45c219dd3758767bfaab8392fe96383d456a147f94e7842 . 0x13) . (0x71baa771959965e619cfc3b72c3f33a9e065f04d93ccb288550f9311409c99a2 . 0x29bc75ca5dd21a762305be29631c71068aa7e6657154e449d0a2f27bc8bc26b9a9fc08aedc481d551070c286c7d449adee8e4dc6da0e034794b6a8edad40dc774c))) . 0x73dd1d5dcc9387375a78f26ebcf5f1752246e57edfbfd954e8f7afdb05fb87f5)) . ((0x25ce . ()) . (0xb93c77e8b62c623156e18cf501ed1384fa3fbbaf332b11cc67e8d565f2db3277acfd4f2be919fe0affef18deaa39f1b5 . 0x821d31))))"
+    },
+    {
+      "label": "missing-projection-0",
+      "solution": "()"
+    },
+    {
+      "label": "missing-projection-1",
+      "solution": "0x00"
+    },
+    {
+      "label": "missing-projection-2",
+      "solution": "0x01"
+    },
+    {
+      "label": "missing-projection-3",
+      "solution": "(() . ())"
+    },
+    {
+      "label": "missing-projection-4",
+      "solution": "(0x424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242424242 . 0xff)"
+    }
+  ]
+}

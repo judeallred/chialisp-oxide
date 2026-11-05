@@ -22,6 +22,11 @@ use clvmr_reference::{
 
 mod includes;
 pub use includes::compile_with_includes;
+mod modern_cl24;
+pub use modern_cl24::{
+    MODERN_CL24_CRATE_CHECKSUM, MODERN_CL24_NAME, MODERN_CL24_PROTOCOL, MODERN_CL24_VCS_REVISION,
+    ModernCl24Provider, compile_modern_cl24, modern_cl24_provider,
+};
 
 /// Exact independently maintained reference compiler used for evidence reports.
 pub const COMPILER_VERSION: &str = "chialisp 0.4.6";

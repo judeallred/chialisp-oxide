@@ -129,6 +129,11 @@ jobs:
         run: |
           python3 corpus/validate_tutorial_examples.py
           python3 corpus/validate_tutorial_examples.py --self-test
+      - name: Check recorded standard tutorial SDK evidence (no new SDK execution)
+        run: |
+          python3 -B -m unittest discover -s experiments/standard-tutorial -p test_capture.py
+          python3 -B experiments/standard-tutorial/check.py --self-test
+          python3 -B -m unittest discover -s experiments/standard-tutorial -p test_sdk_reader.py
       - run: python3 scripts/check-proofs.py
       - name: Check canonical integer byte model and counterexamples
         run: |
@@ -312,9 +317,11 @@ jobs:
           first, second = [json.loads((root / f'cat-check-{n}.json').read_text()) for n in (1, 2)]
           assert first['status'] == second['status'] == 'passed'
           assert first['source_identity'] == second['source_identity']
+          expected_exports = len(json.loads(Path('puzzles/authoring.json').read_text())['exports'])
+          assert expected_exports > 0
           for report in (first, second):
               assert {row['lane'] for row in report['bundles']} == {'rust_off', 'rust_on'}
-              assert all(row['exports_admitted'] == row['exports_recompiled'] == 40 for row in report['bundles'])
+              assert all(row['exports_admitted'] == row['exports_recompiled'] == expected_exports for row in report['bundles'])
           assert [row['complete_inventory_sha256'] for row in first['bundles']] == [row['complete_inventory_sha256'] for row in second['bundles']]
           PYTHON
       - uses: actions/upload-artifact@v7

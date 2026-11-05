@@ -108,6 +108,42 @@ def check_pins(provenance, reader=read_source, label="provenance"):
     return checked
 
 
+MODERN_PROVIDER_PATH = "corpus/reference-providers/chialisp-0.4.6-cl24.json"
+
+
+def check_reference_provider(puzzle, manifest, reader=read_source):
+    profile = manifest.get("reference_dialect")
+    require(puzzle.get("reference_dialect") == profile,
+            f"{manifest['slug']}: changed reference dialect profile")
+    if profile is None:
+        require("reference_provider" not in puzzle,
+                f"{manifest['slug']}: undeclared embedded provider")
+        return
+    require(profile == "modern-cl24-v1" and manifest.get("reference_mode", "module") == "module"
+            and not manifest.get("reference_includes"),
+            "Closed cl24 profile is distinct from arbitrary modern includes")
+    expected = load_json(reader(MODERN_PROVIDER_PATH))
+    require(puzzle.get("reference_provider") == expected
+            and manifest["provenance"].get("reference_provider") == expected,
+            "Actual embedded reference provider differs from declared profile")
+    require(expected["protocol"] == "chialisp-oxide-reference-modern-cl24/v1"
+            and expected["compiler"] == "chialisp 0.4.6"
+            and expected["crate"]["checksum"] == "c991ea839bb6e2299bd3600b786381c4c1b08f6780800719a24c5d33157cb3e2"
+            and expected["crate"]["vcs_revision"] == "32254c8402a3b277b43b1bdad743781f15433b80",
+            "Unreviewed embedded provider package identity")
+    dialect = expected["dialect"]
+    require(dialect["name"] == "*standard-cl-24*"
+            and type(dialect["stepping"]) is int and dialect["stepping"] == 24
+            and dialect["strict"] is True and dialect["int_fix"] is True
+            and dialect["extra_numeric_constants"] is False,
+            "Embedded cl24 dialect flags changed")
+    for key, pin in (("dialect", "d8c0eca00f44247f73ec6f129d15ee115514e08a443344747fb09f16e9ca68bb"),
+                     ("macros", "4dcba426c34e872616c7aa3d05eab95714b6b09d6ef4a01c67ae7ca66eb7c339")):
+        require(digest(expected[key]["content"].encode()) == expected[key]["sha256"] == pin,
+                f"Embedded {key} API byte identity changed")
+    require(expected["macros"]["name"] == "*macros*", "Unreviewed macro provider")
+
+
 def check_identity(puzzle, manifest, reader=read_source):
     slug = manifest["slug"]
     for field in ("slug", "title", "kind", "security_scope", "provenance"):
@@ -310,6 +346,7 @@ def validate_port(report, slug, *, expected=None, reader=read_source, generated=
         require(generated == declared, f"{slug}: generated suite/count conflict")
     pins = check_pins(manifest["provenance"], reader, slug) if require_pins else 0
     check_identity(puzzle, manifest, reader)
+    check_reference_provider(puzzle, manifest, reader)
     check_artifacts(puzzle)
     identity = check_module_identity(puzzle, manifest)
     check_dependencies(puzzle, manifest, report["authoring"], reader)
@@ -396,6 +433,15 @@ def self_test_port(report, slug, validate, *, reader=read_source):
         ("invented ledger claim", lambda p: p["simulator"].append({"name": "invented", "passed": True})),
         ("invented module identity", lambda p: p.update(module_identity={"upstream_hex": "80", "upstream_tree_hash": "0" * 64, "comparisons": []})),
     ]
+    if manifest.get("reference_dialect") is not None:
+        report_mutations += [
+            ("missing reference provider", lambda p: p.pop("reference_provider")),
+            ("changed reference profile", lambda p: p.update(reference_dialect="invented-modern-profile")),
+            ("changed embedded dialect bytes", lambda p: p["reference_provider"]["dialect"].update(content="()")),
+            ("changed embedded macro bytes", lambda p: p["reference_provider"]["macros"].update(content="()")),
+            ("changed embedded dialect flag", lambda p: p["reference_provider"]["dialect"].update(int_fix=False)),
+            ("invented caller includes", lambda p: p.update(reference_includes={"other.clib": "other.clib"})),
+        ]
     if accepted_case is not None:
         report_mutations += [
             ("flipped native outcome", lambda p: p["cases"][accepted_case].update(native={"status": "rejected"})),

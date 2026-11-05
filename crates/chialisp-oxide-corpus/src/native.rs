@@ -476,6 +476,139 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
     let _scope = NativePanicScope::enter();
     let mut a = Allocator::new();
     let env = rue_clvm::assemble(&mut a, solution)?;
+    if matches!(
+        slug,
+        "modern-let-product" | "modern-named-map" | "modern-lambda-map"
+    ) {
+        let arena = bumpalo::Bump::new();
+        // Decode only borrowed input after checking the complete environment,
+        // including ignored tails. Then bound possible owned output before
+        // entering the policy adapter; malformed pair elements are not copied.
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        if slug != "modern-let-product" {
+            super::native_owned_tree::preflight_increment(&a, env)?;
+        }
+        if slug == "modern-let-product" {
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                chialisp_oxide_puzzles::modern_let_product::puzzle(tree)
+            }));
+            return match result {
+                Ok(value) => Ok(Some(output(value)?)),
+                Err(payload) => {
+                    ensure!(
+                        !payload.is::<chialisp_oxide::ResourceExhausted>(),
+                        "native modern arithmetic resource limit is inconclusive"
+                    );
+                    Ok(None)
+                }
+            };
+        }
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            if slug == "modern-named-map" {
+                chialisp_oxide_puzzles::modern_named_map::puzzle(tree)
+            } else {
+                chialisp_oxide_puzzles::modern_lambda_map::puzzle(tree)
+            }
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(payload) => {
+                ensure!(
+                    !payload.is::<chialisp_oxide::ResourceExhausted>(),
+                    "native modern mapping resource limit is inconclusive"
+                );
+                Ok(None)
+            }
+        };
+    }
+    if slug == "standard-delegated-hidden" {
+        let arena = bumpalo::Bump::new();
+        let tree = super::native_hash::decode(&arena, &a, env)?;
+        // Check the actual hidden guard before preflighting a selected result.
+        // Native source primitives and this extra host check use the same VM;
+        // neither execution is an independent group/arithmetic implementation.
+        if let SExp::Pair(synthetic, tail) = a.sexp(env)
+            && let SExp::Pair(original, tail) = a.sexp(tail)
+            && let SExp::Pair(program, tail) = a.sexp(tail)
+            && let SExp::Pair(solution, _) = a.sexp(tail)
+        {
+            let delegated =
+                matches!(a.sexp(original), SExp::Atom) && a.atom(original).as_ref().is_empty();
+            let selected = if delegated {
+                true
+            } else {
+                let Tree::Pair(key_tree, tail) = *tree else {
+                    unreachable!()
+                };
+                let Tree::Pair(original_tree, tail) = *tail else {
+                    unreachable!()
+                };
+                let Tree::Pair(program_tree, _) = *tail else {
+                    unreachable!()
+                };
+                match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    chialisp_oxide_puzzles::standard_delegated_hidden::hidden_key_matches(
+                        key_tree,
+                        original_tree,
+                        program_tree,
+                    )
+                })) {
+                    Ok(matches) => matches,
+                    Err(payload) => {
+                        ensure!(
+                            payload
+                                .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                                .is_none(),
+                            "native standard hidden-key preflight was inconclusive"
+                        );
+                        false
+                    }
+                }
+            };
+            if selected {
+                match clvmr::run_program(
+                    &mut a,
+                    &clvmr::ChiaDialect::new(clvmr::MEMPOOL_MODE),
+                    program,
+                    solution,
+                    10_000_000,
+                ) {
+                    Ok(result) => {
+                        super::native_owned_tree::preflight_standard(
+                            &a, synthetic, result.1, delegated,
+                        )?;
+                    }
+                    Err(error) => ensure!(
+                        chialisp_oxide_vm::classify_failure(&error).is_program_rejection(),
+                        "native standard applied-result preflight was inconclusive: {error:?}"
+                    ),
+                }
+            }
+        }
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            chialisp_oxide_puzzles::standard_delegated_hidden::puzzle(tree)
+        }));
+        return match result {
+            Ok(value) => {
+                let mut output = Allocator::new();
+                let node = super::native_owned_tree::encode(&mut output, value)?;
+                Ok(Some(node_to_bytes(&output, node)?))
+            }
+            Err(payload) => {
+                ensure!(
+                    payload
+                        .downcast_ref::<chialisp_oxide::ResourceExhausted>()
+                        .is_none(),
+                    "native standard evaluator exhausted its host ceiling"
+                );
+                Ok(None)
+            }
+        };
+    }
     if slug == "morph-coin-doubler" {
         let arena = bumpalo::Bump::new();
         // Inputs are borrowed, so use the whole borrowed-tree limit. Only the
@@ -1025,6 +1158,10 @@ mod tests {
                 "morph-coin-doubler",
                 include_str!("../../../puzzles/morph-coin-doubler/puzzle.json"),
             ),
+            (
+                "standard-delegated-hidden",
+                include_str!("../../../puzzles/standard-delegated-hidden/puzzle.json"),
+            ),
         ] {
             let manifest: serde_json::Value = serde_json::from_str(manifest).unwrap();
             for case in manifest["cases"].as_array().unwrap() {
@@ -1040,6 +1177,31 @@ mod tests {
                     _ => panic!("unsupported expected status"),
                 }
             }
+        }
+    }
+
+    #[test]
+    fn standard_hidden_guard_precedes_explosive_applied_output_preflight() {
+        let source = "(mod (N) (defun duplicate (N) (if (> N 0) (duplicate_next (duplicate (- N 1))) ())) (defun duplicate_next (X) (c X X)) (duplicate N))";
+        let program = chialisp_oxide_reference::compile(source).unwrap();
+        let assembly =
+            chialisp_oxide_backend_experiment::artifact("host-output-control", true, &program)
+                .unwrap()
+                .disassembly;
+        // The applied output is an exponentially shared DAG. The complete
+        // input is small; delegated evaluation must report host codec error.
+        let delegated = format!("(0x11 () {assembly} (15))");
+        let error = super::execute("standard-delegated-hidden", &delegated)
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("native owned-tree nodes exceed"), "{error}");
+        // Malformed hidden keys reject before this unselected result exists.
+        for original in ["0x11", "(1 . 2)", "0x00"] {
+            let hidden = format!("(0x11 {original} {assembly} (15))");
+            assert_eq!(
+                super::execute("standard-delegated-hidden", &hidden).unwrap(),
+                None
+            );
         }
     }
 

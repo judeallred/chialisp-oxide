@@ -154,7 +154,7 @@ support is grounded in the [frontend subset](../crates/chialisp-oxide-driver/REA
 | `mod`, `defun`, inline functions, constants | Cargo modules, functions, constants | Annotated free functions, nongeneric local/SDK helpers, scalar/fixed-byte constants and bounded tuple/array/`Cons`/named-record/transparent-wrapper constants | Broader owned/reference/enum constants, external-call semantics, and preserved module boundaries where observable |
 | `include`, macros, quasiquote/unquote | Cargo dependencies and Rust compile-time expansion | Cargo expansion remains real Rust; marker macro exports functions | Reproducible input capture and semantics of generated code; not automatic Chialisp macro compatibility |
 | Recursion, recursive lists, iteration | Ordinary Rust recursion/collections | Self/mutual and non-tail direct calls via v4 function tables and strict bindings; pinned `last_inner` and owned `prefix` helper adapters; general allocation/loops rejected | Further published helpers, broader collections, termination/resource and compiler-preservation proofs |
-| Lambdas, closures, function values | Rust functions/closures | Reachable generic/closure/indirect calls rejected | Captured environment representation, indirect calls, trait/generic resolution, and function identity |
+| Lambdas, closures, function values | Closed immutable local function pointers and move captures | V9 local targets, zero-environment closure-to-pointer coercions and concrete whole-root Copy/drop-free move snapshots; strict explicit environment arguments and fresh frames | Shared/projected/owned/custom-ADT captures, closure escapes/joins, generic Fn traits, public callable ABI/storage/returns and broader dependencies remain open |
 | Currying, tree hashes, singleton/inner-puzzle composition | Explicit program trees and curry/tree-hash algorithms | Recursive tree hashing, launcher and pay-to-singleton source ports, finite actual singleton composition, separately validated host-curried password instances, an [exact retrieved standard-module host binding](reveal-inspection.md) with opaque delegated programs, and `chialisp_oxide::curry` (hash arithmetic ported from the pinned `curry-and-treehash.clib` with the `curry-hash` fixture validated against the include itself; owned-tree `curry` construction with native oracle tests, corpus cross-checks of the canonical `currying-multiply` page-argument instances in five builds, and the compiled `curry-factory` program factory with second-stage applications); see [currying](currying.md) | Broader typed authoring, canonical instance identity, full singleton lifecycle and adversarial composition tests; Rust module identities still differ |
 | Conditions and wallet protocols | Typed condition builders and transaction validation | Named SDK constructors for payments, signatures, amount/identity assertions, announcements, height/time bounds and selected messages, with selected complete-spend scenarios | Broader conditions/types, cross-coin invariants, replay/lineage/authorization checks, and consensus vectors |
 | Costs and consensus acceptance | Pinned VM plus consensus validator | Primary VM costs, selected ledger scenarios and 15 selected whole-bundle conditions measurements; signature verification belongs to separate SDK admissions | Broader whole-spend cost coverage, activation rules, resource-equivalence criteria, and realistic maximum inputs |
@@ -294,8 +294,13 @@ also require distinct treatment:
 - `mod`, destructured/dotted argument patterns, named helpers, `defun`,
   `defun-inline`, recursion, and function/lambda environments: Rust has
   functions and pattern matching. Borrowed recursive trees and direct recursive
-  calls are supported with finite execution witnesses. Closures and indirect
-  function values remain unsupported; finite agreement proves no termination.
+  calls are supported with finite execution witnesses. V9 also admits closed
+  immutable local function-pointer values with fully validated local targets,
+  including checked zero-environment closure-to-pointer coercions. Concrete whole-root
+  immutable move captures use the same v9 operations with an explicit environment
+  argument. Shared/projected/owned captures, generic Fn APIs and callable
+  ABI/storage/returns remain unsupported.
+  See [local callables](local-callables.md); finite agreement proves no termination.
 - `defconstant`, `defconst`, `let`, `let*`, `assign`, `assign-inline`, and
   `assign-lambda`: preserve binding, evaluation, staging, and failure order.
   Similar Rust syntax does not establish matching semantics.
@@ -337,8 +342,8 @@ establish extension or cost correctness.
 
 ## Current priorities and retained implementation history
 
-The current release covers 40 annotated Cargo exports; see [the current status](roadmap.md)
-for the active case counts and separately scoped protocol lanes. The preceding signed release
+The current annotated Cargo exports and their measured case counts are listed in
+[the current status](roadmap.md), alongside the separately scoped protocol lanes. The preceding signed release
 passed 1,121 workspace tests. The batch-two and Spuds experiments now compile
 in both Rust modes through a bounded compiler-owned continuation-table retry;
 their native, VM, signed SDK and source-control evidence is separate from the

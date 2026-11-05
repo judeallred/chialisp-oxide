@@ -1,0 +1,249 @@
+{
+  "name": "chialisp_oxide_puzzles::split_payment::puzzle",
+  "parameters": [
+    {
+      "name": "first_amount",
+      "ty": {
+        "kind": "int",
+        "bits": 64,
+        "signed": false
+      }
+    }
+  ],
+  "result": {
+    "kind": "tuple",
+    "items": [
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      },
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "bytes",
+            "len": 32
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      },
+      {
+        "kind": "tuple",
+        "items": [
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          },
+          {
+            "kind": "bytes",
+            "len": 32
+          },
+          {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        ]
+      }
+    ]
+  },
+  "body": {
+    "op": "if",
+    "condition": {
+      "op": "binary",
+      "kind": "eq",
+      "left": {
+        "op": "binary",
+        "kind": "le",
+        "left": {
+          "op": "arg",
+          "index": 0
+        },
+        "right": {
+          "op": "int",
+          "value": "1000",
+          "ty": {
+            "kind": "int",
+            "bits": 64,
+            "signed": false
+          }
+        },
+        "ty": {
+          "kind": "int",
+          "bits": 64,
+          "signed": false
+        }
+      },
+      "right": {
+        "op": "bool",
+        "value": false
+      },
+      "ty": {
+        "kind": "bool"
+      }
+    },
+    "then_value": {
+      "op": "reject",
+      "message": "puzzles/split-payment/puzzle.rs:14:5: 14:50: Rust panic/assertion rejects the puzzle"
+    },
+    "else_value": {
+      "op": "sequence",
+      "first": {
+        "op": "tuple",
+        "items": [
+          {
+            "op": "binary",
+            "kind": "sub",
+            "left": {
+              "op": "int",
+              "value": "1000",
+              "ty": {
+                "kind": "int",
+                "bits": 64,
+                "signed": false
+              }
+            },
+            "right": {
+              "op": "arg",
+              "index": 0
+            },
+            "ty": {
+              "kind": "int",
+              "bits": 64,
+              "signed": false
+            }
+          },
+          {
+            "op": "bool",
+            "value": false
+          }
+        ]
+      },
+      "then_value": {
+        "op": "if",
+        "condition": {
+          "op": "not",
+          "value": {
+            "op": "bool",
+            "value": false
+          }
+        },
+        "then_value": {
+          "op": "tuple",
+          "items": [
+            {
+              "op": "tuple",
+              "items": [
+                {
+                  "op": "int",
+                  "value": "73",
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                },
+                {
+                  "op": "int",
+                  "value": "1000",
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                }
+              ]
+            },
+            {
+              "op": "tuple",
+              "items": [
+                {
+                  "op": "int",
+                  "value": "51",
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                },
+                {
+                  "op": "bytes",
+                  "hex": "4242424242424242424242424242424242424242424242424242424242424242"
+                },
+                {
+                  "op": "arg",
+                  "index": 0
+                }
+              ]
+            },
+            {
+              "op": "tuple",
+              "items": [
+                {
+                  "op": "int",
+                  "value": "51",
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                },
+                {
+                  "op": "bytes",
+                  "hex": "4343434343434343434343434343434343434343434343434343434343434343"
+                },
+                {
+                  "op": "binary",
+                  "kind": "sub",
+                  "left": {
+                    "op": "int",
+                    "value": "1000",
+                    "ty": {
+                      "kind": "int",
+                      "bits": 64,
+                      "signed": false
+                    }
+                  },
+                  "right": {
+                    "op": "arg",
+                    "index": 0
+                  },
+                  "ty": {
+                    "kind": "int",
+                    "bits": 64,
+                    "signed": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "else_value": {
+          "op": "reject",
+          "message": "puzzles/split-payment/puzzle.rs:15:44: 15:86: Rust assertion failed"
+        }
+      }
+    }
+  }
+}

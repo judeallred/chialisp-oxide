@@ -115,3 +115,46 @@ fn malformed_abi_and_nonempty_zero_list_terminators_are_policy_rejections() {
         Some(serialized("0x0000"))
     );
 }
+
+#[test]
+fn modern_maps_preflight_ignored_siblings_and_resource_growth_before_policy() {
+    let deep = spine(256, true, "()");
+    let amount = format!("0x7f{}", "ff".repeat(1_048_575));
+    for slug in ["modern-named-map", "modern-lambda-map"] {
+        for input in [format!("(() . {deep})"), format!("(7 . {deep})")] {
+            let error = native::execute(slug, &input)
+                .expect_err("ignored/malformed siblings must be bounded outside policy catch");
+            assert!(error.to_string().contains("depth"), "{error:#}");
+        }
+        let input = format!("(({amount}))");
+        fits_alone(&input);
+        let error = native::execute(slug, &input)
+            .expect_err("projected increment-byte growth is an inconclusive host bound");
+        assert!(
+            error.to_string().contains("output atom budget"),
+            "{error:#}"
+        );
+        // The shared generic suite contains this deep invalid first element.
+        // It must reach its semantic failure rather than acquire an owned-input
+        // bound: arbitrary nested input payloads are only borrowed.
+        let invalid_element = spine(128, true, "0x0001");
+        assert_eq!(
+            native::execute(slug, &format!("({invalid_element} . 0x0000)")).unwrap(),
+            None
+        );
+        let ignored = spine(128, true, "0x0001");
+        assert_eq!(
+            native::execute(slug, &format!("(() . {ignored})")).unwrap(),
+            Some(serialized("()"))
+        );
+        assert_eq!(native::execute(slug, "(0x00)").unwrap(), None);
+        assert_eq!(
+            native::execute(slug, "(() . 0x00)").unwrap(),
+            Some(serialized("()"))
+        );
+        assert_eq!(
+            native::execute(slug, "((0x0001 -1 127))").unwrap(),
+            Some(serialized("(2 () 128)"))
+        );
+    }
+}

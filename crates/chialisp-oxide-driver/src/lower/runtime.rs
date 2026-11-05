@@ -55,10 +55,47 @@ impl<'tcx> Lowerer<'tcx> {
         let mut has_named_struct = false;
         let mut has_array_bindings = false;
         let mut has_array_initializers = false;
+        let mut has_callable = false;
+        let mut callable_targets = Vec::<(DefId, Type, usize)>::new();
+        let mut indirect_calls = Vec::<(usize, Type, usize, Span)>::new();
         let mut pair_local_work = 0usize;
         while current < functions.len() {
             let body = self.function_body(functions[current])?;
             self.runtime_signature(body)?;
+            let captured = self.captured_references(body)?;
+            let reified = self.callable_references(functions[current], body)?;
+            for (definition, signature, size) in captured.into_iter().chain(reified) {
+                has_callable = true;
+                let callee = if let Some(index) = ids.get(&definition) {
+                    *index
+                } else {
+                    if functions.len() >= MAX_DISCOVERED_FUNCTIONS {
+                        return Err(
+                            self.error(body.span, "callable discovery exceeded 256 functions")
+                        );
+                    }
+                    let index = functions.len();
+                    functions.push(definition);
+                    ids.insert(definition, index);
+                    edges.push(vec![]);
+                    index
+                };
+                edges[current].push(callee);
+                self.callable_charge(body.span, callable_targets.len())?;
+                if let Some((_, previous, previous_size)) =
+                    callable_targets.iter().find(|(id, _, _)| *id == definition)
+                {
+                    self.callable_charge(body.span, size.saturating_add(*previous_size))?;
+                    if *previous != signature {
+                        return Err(self.error(
+                            body.span,
+                            "one local function was reified with different callable signatures",
+                        ));
+                    }
+                } else {
+                    callable_targets.push((definition, signature, size));
+                }
+            }
             let array_plan = self.array_plan(body)?;
             has_array_bindings |= !array_plan.indices.is_empty();
             has_array_initializers |= array_plan.has_initializers;
@@ -137,11 +174,40 @@ impl<'tcx> Lowerer<'tcx> {
                         target,
                         ..
                     } => {
-                        let ty::FnDef(id, generic_args) =
-                            func.ty(&body.local_decls, self.tcx).kind()
-                        else {
+                        let function_ty = func.ty(&body.local_decls, self.tcx);
+                        if matches!(function_ty.kind(), ty::FnPtr(..)) {
+                            has_callable = true;
+                            let (signature, size) = self.callable_type(function_ty, span, 0)?;
+                            if indirect_calls.len() >= 10_000 {
+                                return Err(
+                                    self.error(span, "callable call-site discovery limit exceeded")
+                                );
+                            }
+                            indirect_calls.push((current, signature, size, span));
+                            pending.push(target.ok_or_else(|| {
+                                self.error(span, "indirect calls must return a supported value")
+                            })?);
+                            continue;
+                        }
+                        let ty::FnDef(id, generic_args) = function_ty.kind() else {
                             return Err(self.error(span, "indirect function calls are unsupported"));
                         };
+                        if let Some(definition) =
+                            self.captured_call(body, func, args, *destination, span)?
+                        {
+                            has_callable = true;
+                            let callee = *ids.get(&definition).ok_or_else(|| {
+                                self.error(
+                                    span,
+                                    "captured helper is absent from its validated function graph",
+                                )
+                            })?;
+                            edges[current].push(callee);
+                            pending.push(target.ok_or_else(|| {
+                                self.error(span, "captured Fn calls must return")
+                            })?);
+                            continue;
+                        }
                         let name = self.tcx.def_path_str(*id);
                         if self.panic_function(*id) {
                             continue;
@@ -236,6 +302,32 @@ impl<'tcx> Lowerer<'tcx> {
             }
             current += 1;
         }
+        for (caller, signature, size, span) in indirect_calls {
+            let mut matched = false;
+            for (definition, target_signature, target_size) in &callable_targets {
+                self.callable_charge(span, size.saturating_add(*target_size).saturating_add(1))?;
+                if *target_signature == signature {
+                    matched = true;
+                    edges[caller].push(ids[definition]);
+                }
+            }
+            if !matched {
+                return Err(self.error(
+                    span,
+                    "indirect call has no reified local target of its exact signature",
+                ));
+            }
+        }
+        if has_callable {
+            // This intentionally checks every local owner in the selected
+            // profile, including source bindings optimized out of MIR. It does
+            // not map diagnostic names/spans onto lowered MIR locals.
+            for definition in &functions {
+                if definition.is_local() {
+                    self.immutable_callable_owner(*definition, self.tcx.def_span(*definition))?;
+                }
+            }
+        }
         // Kahn's algorithm detects self/mutual cycles without recursively
         // traversing the source graph on the host stack.
         let mut incoming = vec![0usize; functions.len()];
@@ -268,6 +360,7 @@ impl<'tcx> Lowerer<'tcx> {
             && !has_optional
             && !has_integer_cast
             && !has_named_struct
+            && !has_callable
         {
             for definition in &functions {
                 let body = self.function_body(*definition)?;
@@ -297,6 +390,7 @@ impl<'tcx> Lowerer<'tcx> {
             && !has_integer_cast
             && !has_named_struct
             && !has_array_bindings
+            && !has_callable
             && (!acyclic_fallback || functions.len() == 1)
         {
             return Ok(vec![]);
@@ -308,11 +402,15 @@ impl<'tcx> Lowerer<'tcx> {
             ));
         }
         let mut lowered = Vec::new();
+        if has_callable {
+            self.callable_charge(self.tcx.def_span(entry), ids.len())?;
+            self.callable_ids.replace(ids.clone());
+        }
         for (id, definition) in functions.into_iter().enumerate() {
             let body = self.function_body(definition)?;
             let (parameters, result) = self.runtime_signature(body)?;
             let mut locals = super::Environment::new(body.local_decls.len());
-            for (index, local) in body.args_iter().enumerate() {
+            for (index, local) in self.runtime_user_args(body).enumerate() {
                 locals[local.index()] = Some(Expr::Arg { index });
             }
             let runtime = Runtime {
@@ -345,6 +443,9 @@ impl<'tcx> Lowerer<'tcx> {
     }
 
     fn runtime_signature(&self, body: &Body<'tcx>) -> Result<(Vec<Parameter>, Type), String> {
+        if let Some(signature) = self.closure_signature(body)? {
+            return Ok(signature);
+        }
         if body.arg_count > 64 || body.local_decls.len() > 2_048 {
             return Err(self.error(
                 body.span,
@@ -361,7 +462,11 @@ impl<'tcx> Lowerer<'tcx> {
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
-        Ok((parameters, self.ty(body.return_ty(), body.span)?))
+        let result = self.ty(body.return_ty(), body.span)?;
+        if matches!(result, Type::Callable { .. }) {
+            return Err(self.error(body.span, "functions cannot return callable values"));
+        }
+        Ok((parameters, result))
     }
 
     fn runtime_bind(
@@ -527,6 +632,39 @@ impl<'tcx> Lowerer<'tcx> {
                         }
                         continue;
                     }
+                    if let Some(action) =
+                        self.captured_assignment(body, *place, rvalue, statement_span)?
+                    {
+                        use super::captured_closures::{Assignment, Value};
+                        self.callable_charge(statement_span, 3)?;
+                        let value=match action {
+                            Assignment::Construct(definition)=>{
+                                let plan=self.captured_plan(definition).expect("validated capture plan");
+                                let Rvalue::Aggregate(_,operands)=rvalue else{unreachable!()};
+                                self.callable_charge(statement_span,plan.size+operands.len())?;
+                                let mut items=Vec::new();
+                                let Type::Tuple{items:types}=&plan.environment else{unreachable!()};
+                                for (operand,ty) in operands.iter().zip(types) {
+                                    self.charge_captured_operand(body,operand,&locals,statement_span)?;
+                                    let value=self.operand(body,operand,&locals,statement_span)?;
+                                    self.callable_charge(statement_span,plan.size)?;
+                                    items.push(self.runtime_value(value,ty.clone(),&mut bindings,runtime,statement_span)?);
+                                }
+                                let environment=self.runtime_value(Expr::Tuple{items},plan.environment.clone(),&mut bindings,runtime,statement_span)?;
+                                let function_id=*runtime.ids.get(&definition).ok_or_else(||self.error(statement_span,"capture code is absent from validated function graph"))?;
+                                let code=self.runtime_value(Expr::FunctionRef{function_id},plan.logical.clone(),&mut bindings,runtime,statement_span)?;
+                                std::rc::Rc::new(Value{definition,environment,code})
+                            }
+                            Assignment::Copy(source)|Assignment::Reference(source)=>{
+                                std::rc::Rc::clone(locals.captures.get(&source).ok_or_else(||self.error(statement_span,"capture copy/reference precedes initialized paired code/environment"))?)
+                            }
+                        };
+                        locals.captures.insert(place.local, value);
+                        continue;
+                    }
+                    if self.metadata_closure_assignment(body, *place, rvalue, statement_span)? {
+                        continue;
+                    }
                     if !place.projection.is_empty()
                         && self
                             .named_struct_fields(body.local_decls[place.local].ty, statement_span)?
@@ -664,50 +802,78 @@ impl<'tcx> Lowerer<'tcx> {
                     target,
                     ..
                 } => {
-                    let ty::FnDef(id, _) = func.ty(&body.local_decls, self.tcx).kind() else {
-                        return Err(self.error(span, "indirect function calls are unsupported"));
-                    };
-                    if self.panic_function(*id) {
-                        Expr::Reject {
-                            message: self.error(span, "Rust panic/assertion rejects the puzzle"),
+                    let function_ty = func.ty(&body.local_decls, self.tcx);
+                    if let Some(definition) =
+                        self.captured_call(body, func, args, *destination, span)?
+                    {
+                        let plan = self
+                            .captured_plan(definition)
+                            .expect("validated captured Fn plan");
+                        let receiver = match &args[0].node {
+                            rustc_middle::mir::Operand::Copy(p)
+                            | rustc_middle::mir::Operand::Move(p)
+                                if p.projection.is_empty() =>
+                            {
+                                p.local
+                            }
+                            _ => {
+                                return Err(self.error(
+                                    span,
+                                    "capture receiver must be a closed compiler autoref local",
+                                ));
+                            }
+                        };
+                        let value = std::rc::Rc::clone(locals.captures.get(&receiver).ok_or_else(
+                            || self.error(span, "capture call receiver is uninitialized"),
+                        )?);
+                        if value.definition != definition {
+                            return Err(
+                                self.error(span, "capture call code/environment identity mismatch")
+                            );
                         }
-                    } else if self.hash_primitive(body, func, args, *destination, span)? {
-                        let parts = args
-                            .iter()
-                            .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
-                            .collect::<Result<Vec<_>, _>>()?;
-                        self.runtime_bind(
-                            body,
-                            (
-                                *destination,
-                                Type::Bytes { len: 32 },
-                                Expr::Sha256 { parts },
-                            ),
-                            &mut locals,
+                        self.callable_charge(span, plan.size + plan.inputs.len() + 3)?;
+                        let Type::Callable { parameters, result } = &plan.logical else {
+                            unreachable!()
+                        };
+                        let callee = self.runtime_value(
+                            value.code.clone(),
+                            plan.logical.clone(),
                             &mut bindings,
                             runtime,
                             span,
                         )?;
-                        self.runtime_block(
-                            body,
-                            target.ok_or_else(|| self.error(span, "native SHA256 must return"))?,
-                            locals,
-                            path,
+                        let environment = self.runtime_value(
+                            value.environment.clone(),
+                            plan.environment.clone(),
+                            &mut bindings,
                             runtime,
-                            patterns,
-                        )?
-                    } else if self.apply_primitive(body, func, args, *destination, span)? {
-                        let program = self.operand(body, &args[0].node, &locals, args[0].span)?;
-                        let environment =
+                            span,
+                        )?;
+                        let arguments_tuple =
                             self.operand(body, &args[1].node, &locals, args[1].span)?;
+                        let mut arguments = vec![environment];
+                        for (index, ty) in parameters.iter().skip(1).enumerate() {
+                            self.callable_charge(span, plan.size + plan.inputs.len() + 1)?;
+                            let value = Expr::Field {
+                                value: Box::new(arguments_tuple.clone()),
+                                index,
+                            };
+                            arguments.push(self.runtime_value(
+                                value,
+                                ty.clone(),
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?);
+                        }
                         self.runtime_bind(
                             body,
                             (
                                 *destination,
-                                Type::Tree,
-                                Expr::Apply {
-                                    program: Box::new(program),
-                                    environment: Box::new(environment),
+                                *result.clone(),
+                                Expr::CallIndirect {
+                                    callee: Box::new(callee),
+                                    arguments,
                                 },
                             ),
                             &mut locals,
@@ -717,81 +883,206 @@ impl<'tcx> Lowerer<'tcx> {
                         )?;
                         self.runtime_block(
                             body,
-                            target.ok_or_else(|| self.error(span, "native apply must return"))?,
-                            locals,
-                            path,
-                            runtime,
-                            patterns,
-                        )?
-                    } else if self.box_constructor(body, func, args, *destination, span)? {
-                        let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
-                        self.runtime_bind(
-                            body,
-                            (*destination, Type::Tree, value),
-                            &mut locals,
-                            &mut bindings,
-                            runtime,
-                            span,
-                        )?;
-                        self.runtime_block(
-                            body,
-                            target.ok_or_else(|| self.error(span, "Box::new must return"))?,
-                            locals,
-                            path,
-                            runtime,
-                            patterns,
-                        )?
-                    } else if let Some(comparison) =
-                        self.byte_comparison(body, func, args, *destination, span)?
-                    {
-                        let left = self.operand(body, &args[0].node, &locals, args[0].span)?;
-                        let right = self.operand(body, &args[1].node, &locals, args[1].span)?;
-                        let value = comparison.expression(left, right);
-                        self.runtime_bind(
-                            body,
-                            (*destination, Type::Bool, value),
-                            &mut locals,
-                            &mut bindings,
-                            runtime,
-                            span,
-                        )?;
-                        self.runtime_block(
-                            body,
                             target
-                                .ok_or_else(|| self.error(span, "byte comparison must return"))?,
+                                .ok_or_else(|| self.error(span, "capture Fn call must return"))?,
+                            locals,
+                            path,
+                            runtime,
+                            patterns,
+                        )?
+                    } else if matches!(function_ty.kind(), ty::FnPtr(..)) {
+                        let (signature, size) = self.callable_type(function_ty, span, 0)?;
+                        let Type::Callable { parameters, result } = signature else {
+                            unreachable!("validated callable signature")
+                        };
+                        if args.len() != parameters.len() {
+                            return Err(self.error(span, "indirect call argument count mismatch"));
+                        }
+                        // Capture the callable at the original MIR call operand,
+                        // then each argument once in source order before dispatch.
+                        let callee = self.operand(body, func, &locals, span)?;
+                        self.callable_charge(span, size)?;
+                        let callee = self.runtime_value(
+                            callee,
+                            Type::Callable {
+                                parameters: parameters.clone(),
+                                result: result.clone(),
+                            },
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        let mut arguments = Vec::new();
+                        for (argument, ty) in args.iter().zip(parameters) {
+                            let value =
+                                self.operand(body, &argument.node, &locals, argument.span)?;
+                            arguments.push(self.runtime_value(
+                                value,
+                                ty,
+                                &mut bindings,
+                                runtime,
+                                argument.span,
+                            )?);
+                        }
+                        self.runtime_bind(
+                            body,
+                            (
+                                *destination,
+                                *result,
+                                Expr::CallIndirect {
+                                    callee: Box::new(callee),
+                                    arguments,
+                                },
+                            ),
+                            &mut locals,
+                            &mut bindings,
+                            runtime,
+                            span,
+                        )?;
+                        self.runtime_block(
+                            body,
+                            target.ok_or_else(|| self.error(span, "indirect calls must return"))?,
                             locals,
                             path,
                             runtime,
                             patterns,
                         )?
                     } else {
-                        let function_id = runtime.ids.get(id).copied().ok_or_else(|| {
-                            self.error(
-                                span,
-                                "runtime call is absent from the validated function table",
-                            )
-                        })?;
-                        let arguments = args
-                            .iter()
-                            .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
-                            .collect::<Result<Vec<_>, _>>()?;
-                        let value = Expr::Call {
-                            function_id,
-                            arguments,
+                        let ty::FnDef(id, _) = func.ty(&body.local_decls, self.tcx).kind() else {
+                            return Err(self.error(span, "indirect function calls are unsupported"));
                         };
-                        let ty = self.ty(destination.ty(&body.local_decls, self.tcx).ty, span)?;
-                        self.runtime_bind(
-                            body,
-                            (*destination, ty, value),
-                            &mut locals,
-                            &mut bindings,
-                            runtime,
-                            span,
-                        )?;
-                        let target = target.ok_or_else(|| {
-                            self.error(span, "diverging helper calls are unsupported")
-                        })?;
-                        self.runtime_block(body, target, locals, path, runtime, patterns)?
+                        if self.panic_function(*id) {
+                            Expr::Reject {
+                                message: self
+                                    .error(span, "Rust panic/assertion rejects the puzzle"),
+                            }
+                        } else if self.hash_primitive(body, func, args, *destination, span)? {
+                            let parts = args
+                                .iter()
+                                .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
+                                .collect::<Result<Vec<_>, _>>()?;
+                            self.runtime_bind(
+                                body,
+                                (
+                                    *destination,
+                                    Type::Bytes { len: 32 },
+                                    Expr::Sha256 { parts },
+                                ),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?;
+                            self.runtime_block(
+                                body,
+                                target
+                                    .ok_or_else(|| self.error(span, "native SHA256 must return"))?,
+                                locals,
+                                path,
+                                runtime,
+                                patterns,
+                            )?
+                        } else if self.apply_primitive(body, func, args, *destination, span)? {
+                            let program =
+                                self.operand(body, &args[0].node, &locals, args[0].span)?;
+                            let environment =
+                                self.operand(body, &args[1].node, &locals, args[1].span)?;
+                            self.runtime_bind(
+                                body,
+                                (
+                                    *destination,
+                                    Type::Tree,
+                                    Expr::Apply {
+                                        program: Box::new(program),
+                                        environment: Box::new(environment),
+                                    },
+                                ),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?;
+                            self.runtime_block(
+                                body,
+                                target
+                                    .ok_or_else(|| self.error(span, "native apply must return"))?,
+                                locals,
+                                path,
+                                runtime,
+                                patterns,
+                            )?
+                        } else if self.box_constructor(body, func, args, *destination, span)? {
+                            let value = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                            self.runtime_bind(
+                                body,
+                                (*destination, Type::Tree, value),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?;
+                            self.runtime_block(
+                                body,
+                                target.ok_or_else(|| self.error(span, "Box::new must return"))?,
+                                locals,
+                                path,
+                                runtime,
+                                patterns,
+                            )?
+                        } else if let Some(comparison) =
+                            self.byte_comparison(body, func, args, *destination, span)?
+                        {
+                            let left = self.operand(body, &args[0].node, &locals, args[0].span)?;
+                            let right = self.operand(body, &args[1].node, &locals, args[1].span)?;
+                            let value = comparison.expression(left, right);
+                            self.runtime_bind(
+                                body,
+                                (*destination, Type::Bool, value),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?;
+                            self.runtime_block(
+                                body,
+                                target.ok_or_else(|| {
+                                    self.error(span, "byte comparison must return")
+                                })?,
+                                locals,
+                                path,
+                                runtime,
+                                patterns,
+                            )?
+                        } else {
+                            let function_id = runtime.ids.get(id).copied().ok_or_else(|| {
+                                self.error(
+                                    span,
+                                    "runtime call is absent from the validated function table",
+                                )
+                            })?;
+                            let arguments = args
+                                .iter()
+                                .map(|arg| self.operand(body, &arg.node, &locals, arg.span))
+                                .collect::<Result<Vec<_>, _>>()?;
+                            let value = Expr::Call {
+                                function_id,
+                                arguments,
+                            };
+                            let ty =
+                                self.ty(destination.ty(&body.local_decls, self.tcx).ty, span)?;
+                            self.runtime_bind(
+                                body,
+                                (*destination, ty, value),
+                                &mut locals,
+                                &mut bindings,
+                                runtime,
+                                span,
+                            )?;
+                            let target = target.ok_or_else(|| {
+                                self.error(span, "diverging helper calls are unsupported")
+                            })?;
+                            self.runtime_block(body, target, locals, path, runtime, patterns)?
+                        }
                     }
                 }
                 TerminatorKind::Unreachable => Expr::Reject {

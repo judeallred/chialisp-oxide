@@ -278,6 +278,10 @@ fn preflight(program: &Program, budget: &mut Budget) -> Result<Vec<usize>> {
     // Validation of the WHOLE IR precedes graph construction or model admission.
     program.validate().context("invalid IR")?;
     ensure!(
+        !program.uses_callables(),
+        "callable values have no admitted proof model"
+    );
+    ensure!(
         !program.uses_casts(),
         "integer casts are not modeled by this proof API"
     );

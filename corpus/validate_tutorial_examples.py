@@ -27,6 +27,7 @@ PROGRAM_IDS = {
     "intro-list", "intro-add", "intro-conditional", "module-add", "module-times-ten",
     "module-factorial", "password-coin", "currying-multiply", "inner-require-signature",
     "inner-any-conditions", "morph-coin-doubler", "morph-any-with-signature",
+    "modern-let-product", "modern-named-map", "modern-lambda-map", "standard-delegated-hidden",
 }
 EXPECTATIONS = {"intro-list": "(1 2 3)", "intro-add": "5", "intro-conditional": "100"}
 EXPECTED_HEX = {"intro-list": "ff01ff02ff0380", "intro-add": "05", "intro-conditional": "64"}
@@ -239,11 +240,19 @@ def check_module_promotion(row, excerpt, report, root):
     }, f"{slug}: changed ABI/result/proof-scope claim")
 
 
+MODERN_PROMOTIONS = {
+    "modern-let-product": ("docs/modern-chialisp.md", 159, 167),
+    "modern-named-map": ("docs/modern-chialisp.md", 250, 264),
+    "modern-lambda-map": ("docs/modern-chialisp.md", 280, 292),
+}
+
+
 RAW_PROMOTIONS = {
     "inner-any-conditions": ("docs/chialisp-concepts/inner-puzzles.md", 52, 54),
     "inner-require-signature": ("docs/chialisp-concepts/inner-puzzles.md", 19, 28),
     "morph-coin-doubler": ("docs/chialisp-concepts/condition-morphing.md", 17, 63),
     "morph-any-with-signature": ("docs/chialisp-concepts/condition-morphing.md", 75, 83),
+    "standard-delegated-hidden": ("docs/primitives/standard-transactions.md", 53, 119),
 }
 
 
@@ -286,13 +295,13 @@ def check_raw_upstream(row, provenance):
 
 
 def check_raw_promotion(row, excerpt, report, root):
-    """Reuse the shared port evidence gate for four exact tutorial modules."""
+    """Reuse the shared port evidence gate for the selected exact tutorial modules."""
     import port_evidence
     slug = row["id"].split(":", 1)[1]
     source = row["source"]
-    require((source["path"], source["start_line"], source["end_line"]) == RAW_PROMOTIONS[slug],
+    require((source["path"], source["start_line"], source["end_line"]) == (MODERN_PROMOTIONS if slug in MODERN_PROMOTIONS else RAW_PROMOTIONS)[slug],
             f"{slug}: promotion requires the complete reviewed module span")
-    require(row["kind"] == "puzzle" and row["implementation_status"] == "implemented"
+    require(row["kind"] == ("module" if slug in MODERN_PROMOTIONS else "puzzle") and row["implementation_status"] == "implemented"
             and row["validation_status"] == "differential_only"
             and not any(key in row for key in ("validated", "passed", "executed")),
             f"{slug}: unreviewed promotion state")
@@ -325,7 +334,7 @@ def check_promotion(row, excerpt, report, root):
     if row["id"] == "chialisp-example:password-coin":
         return check_password_promotion(row, excerpt, report, root)
     slug = row["id"].split(":", 1)[1]
-    if slug in RAW_PROMOTIONS:
+    if slug in RAW_PROMOTIONS or slug in MODERN_PROMOTIONS:
         return check_raw_promotion(row, excerpt, report, root)
     if slug in MODULE_PROMOTIONS:
         return check_module_promotion(row, excerpt, report, root)
@@ -452,9 +461,15 @@ def validate(inventory, root=ROOT, upstream_tree=None):
             "Tutorial revision/repository/tree pin changed without review")
     require(inventory["snapshot_root"] == SNAPSHOT, "Unexpected pinned snapshot root")
     index = load(root / "corpus/inventory.json")
-    parents = {entry["id"]: entry for entry in index["entries"] if entry["kind"] == "tutorial"}
+    parents = {entry["id"]: entry for entry in index["entries"] if entry["kind"] == "tutorial" or entry["id"] in {"chialisp:modern-chialisp", "chialisp:primitives/standard-transactions"}}
     pages = inventory["pages"]
-    require(len(pages) == 8 and len({page["id"] for page in pages}) == 8, "Expected eight unique tutorial pages")
+    require({page["id"] for page in pages} == {
+        "chialisp:chialisp-concepts/condition-morphing", "chialisp:chialisp-concepts/currying",
+        "chialisp:chialisp-concepts/inner-puzzles", "chialisp:chialisp-primer/bls-signatures",
+        "chialisp:chialisp-primer/first-smart-coin", "chialisp:chialisp-primer/intro",
+        "chialisp:chialisp-primer/testnet-setup", "chialisp:chialisp-primer/using-modules",
+        "chialisp:modern-chialisp", "chialisp:primitives/standard-transactions",
+    } and len(pages) == 10, "Expected the eight original selected pages plus modern and standard pages")
     page_by_id, page_by_path, blobs, expected_files = {}, {}, {}, set()
     for page in pages:
         identity, source = page["id"], page["source"]
@@ -481,7 +496,7 @@ def validate(inventory, root=ROOT, upstream_tree=None):
     blobs["LICENSE"] = license["git_blob_sha1"]
     expected_files.add(license["snapshot"])
     actual_files = {str(path.relative_to(root)) for path in (root / SNAPSHOT).rglob("*") if path.is_file()}
-    require(actual_files == expected_files, "Snapshot must contain exactly eight pages and the upstream license")
+    require(actual_files == expected_files, "Snapshot must contain exactly ten selected pages and the upstream license")
 
     identifiers, covered = set(page_by_id), {identity: [] for identity in page_by_id}
 
@@ -510,7 +525,7 @@ def validate(inventory, root=ROOT, upstream_tree=None):
 
     examples = inventory["examples"]
     require({row["id"] for row in examples} == {f"chialisp-example:{identity}" for identity in PROGRAM_IDS}
-            and len(examples) == 12, "Distinct program inventory changed without review")
+            and len(examples) == 16, "Distinct program inventory changed without review")
     variants, report = [], None
     for row in examples:
         require(row["kind"] in ("closed_expression", "module", "puzzle") and row["feasibility"] and row["semantic_gaps"],
@@ -521,7 +536,7 @@ def validate(inventory, root=ROOT, upstream_tree=None):
         if representation == "shell_command":
             require(re.fullmatch(r"run '\(.+\)'\n?", excerpt), "Closed-expression source must be the pinned single run command")
         else:
-            require("(mod " in excerpt, "Module source body is missing")
+            require(re.search(r"\(mod\s", excerpt), "Module source body is missing")
         promoted = row["implementation_status"] != "not_started" or row["validation_status"] != "not_run"
         if promoted:
             if report is None:
@@ -534,8 +549,18 @@ def validate(inventory, root=ROOT, upstream_tree=None):
         require(row["external_includes"] == re.findall(r"\(include\s+([^\s()]+)\)", excerpt), "Include declarations do not match pinned code")
         for include in row["external_includes"]:
             dependency = inventory["external_dependencies"][include]
-            require(dependency["status"] == "unresolved" and dependency["revision"] is None and dependency["sha256"] is None,
-                    "Unversioned tutorial includes must not be claimed pinned")
+            if include == "*standard-cl-24*":
+                require(row["id"].split(":", 1)[1] in MODERN_PROMOTIONS
+                        and dependency["status"] == "embedded_provider_selected"
+                        and dependency["revision"] == "32254c8402a3b277b43b1bdad743781f15433b80"
+                        and dependency["sha256"] == "d8c0eca00f44247f73ec6f129d15ee115514e08a443344747fb09f16e9ca68bb"
+                        and dependency["provider"] == "corpus/reference-providers/chialisp-0.4.6-cl24.json",
+                        "Modern marker requires the explicitly reviewed embedded provider")
+                require(load(confined_file(root, dependency["provider"]))["protocol"]
+                        == "chialisp-oxide-reference-modern-cl24/v1", "Wrong embedded provider descriptor")
+            else:
+                require(dependency["status"] == "unresolved" and dependency["revision"] is None and dependency["sha256"] is None,
+                        "Unversioned tutorial includes must not be claimed pinned")
         short_id = row["id"].split(":", 1)[1]
         observations = row["proposed_observations"]
         if short_id in EXPECTATIONS:
@@ -578,7 +603,7 @@ def validate(inventory, root=ROOT, upstream_tree=None):
                             f"Unclassified fenced tutorial material: {page_id}:{opening}")
                     opening = None
         require(opening is None, f"Unclosed source code fence: {page_id}")
-    require(inventory["scope"]["program_count"] == 12 and inventory["scope"]["variant_count"] == 1,
+    require(inventory["scope"]["program_count"] == 16 and inventory["scope"]["variant_count"] == 1,
             "Program/variant totals must not count workflows or compiled outputs")
     initial = [f"chialisp-example:{identity}" for identity in EXPECTATIONS]
     require(inventory.get("initial_port_slice", inventory["recommended_next"]) == initial,
