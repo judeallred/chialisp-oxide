@@ -5,7 +5,7 @@
   "scope": "Four actual Rust source exports: four native output observations, eight primary-VM output observations and eight separate SDK submissions in two compiler modes. Each SDK mutant is funded under its own compiled reveal and composes with an independently compiled Chialisp counterpart. Rejected SDK submissions require exact consensus codes and full in-memory simulator equality. Recorded readers do not authenticate execution or prove BLS, SHA, fairness, liveness, absence of attacks or compiler preservation.",
   "context": {
     "source_root": "/Users/judeallred/code/clispOx",
-    "package_root": "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-package",
+    "package_root": "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-package",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "toolchain": "nightly-2026-07-14",
     "tools": {
@@ -3008,7 +3008,7 @@
         },
         {
           "path": "crates/chialisp-oxide-rue/tests/corpus.rs",
-          "sha256": "82e72b38b38ad91f2e109962e872535d3a1d33cd960c57264d70a6b99f616cfd"
+          "sha256": "7fceae9d9338a1aa4c29da82f70ea572224038dd14d44adfa6756da52098123c"
         },
         {
           "path": "crates/chialisp-oxide-rue/tests/diagnostics.rs",
@@ -4016,7 +4016,7 @@
         },
         {
           "path": "scripts/corpus_append.py",
-          "sha256": "6e43a87150d3ad9ffbd4e9ccfe5901e1cf282b63dd952d6e56240632fa5123ad"
+          "sha256": "18a998ed7a6370f220a42c8dc2316ce5dc6160c7a6a322d3698a113feead7724"
         },
         {
           "path": "scripts/corpus_compiler_transition.py",
@@ -4490,12 +4490,12 @@
       }
     ],
     "log": "native.log",
-    "log_sha256": "722d68217b75c43c48d11a8df0b7a11f93a20dc7f9c4df3e105bc7d785dddf42"
+    "log_sha256": "f5ab1e0a1abfc42263f7005295dd415ace416963bbfd2b9ae82333832f5f02fd"
   },
   "bundles": {
     "off": {
       "manifest": "bundles/off/manifest.json",
-      "manifest_sha256": "cf70859d0b854f670d3bf51b38108c5b1dd7cdc15bd0484d9a7ef78abca022df",
+      "manifest_sha256": "3c018cb27adef2e287470872e99447a61969ce5f9e06f08b0e24cc1b3891a17d",
       "recompiled": [
         {
           "name": "claim_original",
@@ -4569,7 +4569,7 @@
     },
     "on": {
       "manifest": "bundles/on/manifest.json",
-      "manifest_sha256": "c26a7df7f19b442f638dad6f6f42f2df7345baeb76f5898445ffc89045da51a8",
+      "manifest_sha256": "8ec42ab1984c1aa8c1559ab8eb44182b698e8ecb4ae48cf709e9d37762300c49",
       "recompiled": [
         {
           "name": "claim_original",
@@ -4913,13 +4913,13 @@
         "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-package/Cargo.toml",
         "--package",
         "chialisp-oxide-precommit-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture-work/fresh-off",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture-work/fresh-off",
         "--no-optimize"
       ],
       "exit_code": 0,
@@ -4930,7 +4930,7 @@
       "role": "recompile-off-claim_original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4942,9 +4942,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/off-claim_original.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/off-claim_original.json",
         "--max-cost",
         "10000000"
       ],
@@ -4956,7 +4956,7 @@
       "role": "recompile-off-claim_drop_age",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4968,9 +4968,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/off-claim_drop_age.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/off-claim_drop_age.json",
         "--max-cost",
         "10000000"
       ],
@@ -4982,7 +4982,7 @@
       "role": "recompile-off-registry_original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -4994,9 +4994,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/off-registry_original.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/off-registry_original.json",
         "--max-cost",
         "10000000"
       ],
@@ -5008,7 +5008,7 @@
       "role": "recompile-off-registry_drop_signature",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5020,9 +5020,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/off/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/off/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/off-registry_drop_signature.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/off-registry_drop_signature.json",
         "--max-cost",
         "10000000"
       ],
@@ -5036,13 +5036,13 @@
         "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-package/Cargo.toml",
         "--package",
         "chialisp-oxide-precommit-controls",
         "--locked",
         "--offline",
         "--output-dir",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture-work/fresh-on"
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture-work/fresh-on"
       ],
       "exit_code": 0,
       "stdout": "logs/09.stdout",
@@ -5052,7 +5052,7 @@
       "role": "recompile-on-claim_original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5064,9 +5064,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/c6c722600c54938b98218d47ff359a2b0259cdca8eb5a53b032ea716b7fec5e5.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/on-claim_original.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/on-claim_original.json",
         "--max-cost",
         "10000000"
       ],
@@ -5078,7 +5078,7 @@
       "role": "recompile-on-claim_drop_age",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5090,9 +5090,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/dec502d8f2ef55218fbf5be3202cb6e2847126d0b008ec2523281c7470a5e33d.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/on-claim_drop_age.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/on-claim_drop_age.json",
         "--max-cost",
         "10000000"
       ],
@@ -5104,7 +5104,7 @@
       "role": "recompile-on-registry_original",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5116,9 +5116,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/d08b5e6308c862c0d7de9306064c12e717b8ab6897e38d55fad735c22455522f.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/on-registry_original.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/on-registry_original.json",
         "--max-cost",
         "10000000"
       ],
@@ -5130,7 +5130,7 @@
       "role": "recompile-on-registry_drop_signature",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.ir.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.ir.json",
         "--artifacts"
       ],
       "exit_code": 0,
@@ -5142,9 +5142,9 @@
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
         "run-batch",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/bundles/on/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.clvm.hex",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/bundles/on/49b2a6ab1b3e9059beb437ea80eb5f6518a497099ed02c0e8e4a038726341f49.clvm.hex",
         "--solutions",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/inputs/on-registry_drop_signature.json",
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/inputs/on-registry_drop_signature.json",
         "--max-cost",
         "10000000"
       ],
@@ -5156,7 +5156,7 @@
       "role": "sdk-ledger",
       "argv": [
         "/Users/judeallred/code/clispOx/target/debug/examples/precommit_controls",
-        "/Users/judeallred/code/clispOx/target/buildout56-current-corpus-a04/precommit-capture/ledger-request.json"
+        "/Users/judeallred/code/clispOx/target/capture-20261113b/precommit-capture/ledger-request.json"
       ],
       "exit_code": 0,
       "stdout": "logs/18.stdout",
@@ -5230,7 +5230,7 @@
     },
     {
       "path": "bundles/off/manifest.json",
-      "sha256": "cf70859d0b854f670d3bf51b38108c5b1dd7cdc15bd0484d9a7ef78abca022df"
+      "sha256": "3c018cb27adef2e287470872e99447a61969ce5f9e06f08b0e24cc1b3891a17d"
     },
     {
       "path": "bundles/off/source-632c2ebe9fd3f54eeb80e6242e3fcea3625cb06a020b0f036fb0bbc0af61e1e3.bin",
@@ -5249,12 +5249,12 @@
       "sha256": "c7dad6c3afe5702f769214a0adddfc58a967add21b75d89c1ec928e0677f6434"
     },
     {
-      "path": "bundles/off/source-dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f.bin",
-      "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
+      "path": "bundles/off/source-db590449758301f0cafd23ea54ba9662a6c09c3164c9e7b0c4df854b8aaf03c5.bin",
+      "sha256": "db590449758301f0cafd23ea54ba9662a6c09c3164c9e7b0c4df854b8aaf03c5"
     },
     {
-      "path": "bundles/off/source-dd2b0a14e23f687dd20e523269a24299db502ead7fb42a50807b6eeeafc3d4f6.bin",
-      "sha256": "dd2b0a14e23f687dd20e523269a24299db502ead7fb42a50807b6eeeafc3d4f6"
+      "path": "bundles/off/source-dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f.bin",
+      "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
     },
     {
       "path": "bundles/off/source-e46b83bc22ebf5ec9e3a5bd3054c45719e1d91dfd61ad0dcfd2aa6f368881908.bin",
@@ -5330,7 +5330,7 @@
     },
     {
       "path": "bundles/on/manifest.json",
-      "sha256": "c26a7df7f19b442f638dad6f6f42f2df7345baeb76f5898445ffc89045da51a8"
+      "sha256": "8ec42ab1984c1aa8c1559ab8eb44182b698e8ecb4ae48cf709e9d37762300c49"
     },
     {
       "path": "bundles/on/source-632c2ebe9fd3f54eeb80e6242e3fcea3625cb06a020b0f036fb0bbc0af61e1e3.bin",
@@ -5349,12 +5349,12 @@
       "sha256": "c7dad6c3afe5702f769214a0adddfc58a967add21b75d89c1ec928e0677f6434"
     },
     {
-      "path": "bundles/on/source-dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f.bin",
-      "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
+      "path": "bundles/on/source-db590449758301f0cafd23ea54ba9662a6c09c3164c9e7b0c4df854b8aaf03c5.bin",
+      "sha256": "db590449758301f0cafd23ea54ba9662a6c09c3164c9e7b0c4df854b8aaf03c5"
     },
     {
-      "path": "bundles/on/source-dd2b0a14e23f687dd20e523269a24299db502ead7fb42a50807b6eeeafc3d4f6.bin",
-      "sha256": "dd2b0a14e23f687dd20e523269a24299db502ead7fb42a50807b6eeeafc3d4f6"
+      "path": "bundles/on/source-dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f.bin",
+      "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
     },
     {
       "path": "bundles/on/source-e46b83bc22ebf5ec9e3a5bd3054c45719e1d91dfd61ad0dcfd2aa6f368881908.bin",
@@ -5398,7 +5398,7 @@
     },
     {
       "path": "last-host-window.json",
-      "sha256": "799f154a3548aa3ebadb0444ce482e43334a9441a0c919dff14586a4bb89b821"
+      "sha256": "c0066b1be6a63f7cd41cdde56bf41e95150c57e673b222a5a5dfba46c199506b"
     },
     {
       "path": "ledger-request.json",
@@ -5410,11 +5410,11 @@
     },
     {
       "path": "logs/00.stderr",
-      "sha256": "a79f963dec95e07c2685a3d10f6bfdbd94d3a822d017de72f6e322f1844273ce"
+      "sha256": "9affbf79b0e1a729b64b815309c8ee115254e75463a87071e96f2f450eb8182d"
     },
     {
       "path": "logs/00.stdout",
-      "sha256": "259de084bc55dc38cd23dfb49920528e3c16ef5853f8aee53e4114a859d64a48"
+      "sha256": "92061385567085352e0e6f7a89053c5d8c7b81ffced7b4d3177ed0faf6ae5365"
     },
     {
       "path": "logs/01.stderr",
@@ -5482,11 +5482,11 @@
     },
     {
       "path": "logs/09.stderr",
-      "sha256": "e643a76697a6142be997a5f712eaea122cf856a8021dcdf73089237a2567ab60"
+      "sha256": "48a6b37a14cd338bcec004653a7cbfc81d310885f6cf1ff8133016e8134011a3"
     },
     {
       "path": "logs/09.stdout",
-      "sha256": "859b15ef1ed9614b9ba40c5280384f0db47f9eb2e05e142cae1a789593bed55a"
+      "sha256": "a0bedf5ca6bda9404c2d9f8a66d3e0cac2279faddb5d24799bebc07df1d7ea2b"
     },
     {
       "path": "logs/10.stderr",
@@ -5566,27 +5566,27 @@
     },
     {
       "path": "native-logs/1.log",
-      "sha256": "5e1fdd503405e9e3cb755526e1a6a4b44177e615963f933ddf9797be5c5084a9"
+      "sha256": "26001e80704ced73afc5c59bce47231f5a522aae0ec5f82ca8bb1cec241958ec"
     },
     {
       "path": "native-logs/2.log",
-      "sha256": "722d68217b75c43c48d11a8df0b7a11f93a20dc7f9c4df3e105bc7d785dddf42"
+      "sha256": "f5ab1e0a1abfc42263f7005295dd415ace416963bbfd2b9ae82333832f5f02fd"
     },
     {
       "path": "native-logs/3.log",
-      "sha256": "e47405eca2621e11d788a6160d9086dac46c6a27c2af0c9a670efb81ee61d5e1"
+      "sha256": "ba8f1a27c16af4d31c27f873ab6746e91ae8c1d4f7efc5f8f5738cbb52286fb6"
     },
     {
       "path": "native-receipt.json",
-      "sha256": "b2218e7d38be336cf4da254265d899bd4f195ea61530739e9f0ae436114bb083"
+      "sha256": "8577bff001fc1f5a5867203cf6b5496ce968fff6a33d44c7e0d5349d2f609f69"
     },
     {
       "path": "native.log",
-      "sha256": "722d68217b75c43c48d11a8df0b7a11f93a20dc7f9c4df3e105bc7d785dddf42"
+      "sha256": "f5ab1e0a1abfc42263f7005295dd415ace416963bbfd2b9ae82333832f5f02fd"
     },
     {
       "path": "package/Cargo.lock",
-      "sha256": "dd2b0a14e23f687dd20e523269a24299db502ead7fb42a50807b6eeeafc3d4f6"
+      "sha256": "db590449758301f0cafd23ea54ba9662a6c09c3164c9e7b0c4df854b8aaf03c5"
     },
     {
       "path": "package/Cargo.toml",
