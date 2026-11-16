@@ -8,11 +8,16 @@ use clvmr::{
 };
 use serde_json::{Value, json};
 
+/// The corpus default budget, matching `chialisp_oxide_backend_experiment::MAX_COST`.
+const DEFAULT_MAX_COST: u64 = 1_000_000;
+/// The largest per-puzzle `validation_max_cost` the corpus validator admits.
+const MAX_VALIDATION_COST: u64 = 10_000_000;
+
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn execute(program: &[u8], solution: &str) -> Value {
+fn execute(program: &[u8], solution: &str, max_cost: u64, context: &str) -> Value {
     let mut allocator = Allocator::new();
     let program = node_from_bytes(&mut allocator, program).unwrap();
     let environment = rue_clvm::assemble(&mut allocator, solution).unwrap();
@@ -21,7 +26,7 @@ fn execute(program: &[u8], solution: &str) -> Value {
         &ChiaDialect::new(MEMPOOL_MODE),
         program,
         environment,
-        1_000_000,
+        max_cost,
     ) {
         Ok(output) => json!({
             "status": "accepted",
@@ -31,7 +36,7 @@ fn execute(program: &[u8], solution: &str) -> Value {
             let failure = classify_failure(&error);
             assert!(
                 failure.is_program_rejection(),
-                "inconclusive VM failure: {failure:?}: {error:?}"
+                "{context}: inconclusive VM failure: {failure:?}: {error:?}"
             );
             json!({ "status": "rejected" })
         }
@@ -49,6 +54,14 @@ fn all_authored_rue_sources_match_recorded_native_outputs_and_rejections() {
     for puzzle in puzzles {
         let slug = puzzle["slug"].as_str().unwrap();
         let path = root().join("puzzles").join(slug).join("puzzle.rue");
+        // Use the same budget the validator recorded the native and Rust runs under.
+        let max_cost = match &puzzle["validation_max_cost"] {
+            Value::Null => DEFAULT_MAX_COST,
+            declared => declared
+                .as_u64()
+                .filter(|cost| (1..=MAX_VALIDATION_COST).contains(cost))
+                .unwrap_or_else(|| panic!("{slug}: invalid validation_max_cost {declared}")),
+        };
         for optimize in [false, true] {
             let program = compile_file(&path, optimize)
                 .unwrap_or_else(|error| panic!("{slug} optimize={optimize}: {error:#}"));
@@ -66,7 +79,12 @@ fn all_authored_rue_sources_match_recorded_native_outputs_and_rejections() {
                     &case["native"]
                 };
                 assert_eq!(
-                    &execute(&program, solution),
+                    &execute(
+                        &program,
+                        solution,
+                        max_cost,
+                        &format!("{slug} optimize={optimize}, {}", case["label"]),
+                    ),
                     expected,
                     "{slug} optimize={optimize}, {}: {solution}",
                     case["label"],
@@ -89,8 +107,8 @@ fn actual_rue_lir_toggle_changes_a_nonconstant_policy() {
     assert_ne!(unoptimized, optimized);
     for solution in ["(128)", "(0x0080)", "(0x0001)", "(0x0000)", "(1 . 2)"] {
         assert_eq!(
-            execute(&unoptimized, solution),
-            execute(&optimized, solution),
+            execute(&unoptimized, solution, DEFAULT_MAX_COST, "unoptimized"),
+            execute(&optimized, solution, DEFAULT_MAX_COST, "optimized"),
             "LIR mode changed {solution}",
         );
     }
