@@ -30,8 +30,21 @@
 - `scripts/capture-current-corpus.sh` performs the complete capture in the only
   consistent order (LAST host build, validation twice, bundles, sidecar,
   `--record` and pin, delegated packet, derived reports, then a host rebuild
-  and the fresh-bundle gates before any builder relinks the driver). Use it
-  instead of ad hoc sequences; it still requires the pinned Lean binary.
+  and the fresh-bundle gates before any builder relinks the driver), then the
+  stateful (continuation-batches, spuds, stateful-ledger) and standard tutorial
+  packets from the final tools and bundles. Use it instead of ad hoc sequences;
+  it still requires the pinned Lean binary. It refuses any Cargo `build-dir`
+  override (environment, `$CARGO_HOME` or ancestor `.cargo/config.toml`)
+  before every step, because redirected build output fails isolated-target
+  gates and leaks host paths into retained logs. Its stateful SDK steps have
+  900 s limits; capture on an uncontended host rather than raising them.
+- Before committing any edit to a hashed source, run
+  `python3 scripts/check-evidence-freshness.py` (a few seconds of Cargo-free
+  work). It lists every retained packet whose current-source pins matched
+  `--base` (default HEAD; use the last commit whose CI passed) but no longer
+  match the working tree, with the command that refreshes each. Pins that
+  already differed at the base are frozen baselines or history and are never
+  reported. It is a planning aid: the dedicated packet gates still decide.
 - Recapture `corpus/corpus-append-existing-p2-controls.json` with
   `scripts/capture-p2-controls.py` whenever any workspace source changes; its
   window hashes the complete reviewed workspace.

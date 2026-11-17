@@ -17,21 +17,53 @@
 #   9. derived reports: error study, IR/tree/byte proofs, acyclic-scalar and
 #      Lean records (the Lean binary must be the pinned 4.35.0 release);
 #  10. a host rebuild, fresh bundles and the fresh-bundle gates, because the
-#      derived-report producers relink the driver (CI runs them in this order).
+#      derived-report producers relink the driver (CI runs them in this order);
+#  11. the stateful (continuation-batches, spuds, stateful-ledger) and standard
+#      tutorial packets, which also pin current sources, from the final tools
+#      and the step-10 bundles; then scripts/check-evidence-freshness.py.
 # The script stops at the first failure. It never pushes, never edits sources
 # beyond the recorded profiles, and establishes no execution authentication.
+#
+# Cargo must place build output under each requested target directory. A
+# `build.build-dir` override (for example a cache tool editing the global
+# Cargo config) breaks isolated-target gates and leaks host paths into
+# retained logs, so it is refused before every step.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT=$(pwd)
 WORK=${CAPTURE_WORK:-"$ROOT/target/capture-current-corpus"}
 LEAN=${LEAN:-lean}
 DRIVER=target/debug/chialisp-oxide-driver
+
+require_default_build_dir() {
+  if [[ -n "${CARGO_BUILD_BUILD_DIR:-}" ]]; then
+    echo "CARGO_BUILD_BUILD_DIR is set; unset it before capturing." >&2
+    exit 1
+  fi
+  local configs=("${CARGO_HOME:-$HOME/.cargo}/config.toml" "${CARGO_HOME:-$HOME/.cargo}/config")
+  local dir=$ROOT
+  while :; do
+    configs+=("$dir/.cargo/config.toml" "$dir/.cargo/config")
+    [[ "$dir" == / ]] && break
+    dir=$(dirname "$dir")
+  done
+  local config
+  for config in "${configs[@]}"; do
+    # Dotted (`build.build-dir =`) or table (`[build]` then `build-dir =`) forms.
+    if [[ -f "$config" ]] && grep -Eq '^[[:space:]]*(build\.)?build-dir[[:space:]]*=' "$config"; then
+      echo "Cargo build-dir override is active in $config; disable it for the capture (see docs/agent-rules/current-evidence.md)." >&2
+      exit 1
+    fi
+  done
+}
+
+require_default_build_dir
 if [[ -e "$WORK" || -L "$WORK" ]]; then
   echo "Capture path already exists: $WORK. Choose a new CAPTURE_WORK; prior runs are preserved." >&2
   exit 1
 fi
 mkdir -p "$WORK"
-step() { echo; echo "##### $*"; }
+step() { require_default_build_dir; echo; echo "##### $*"; }
 
 step "format check and initial host build"
 cargo fmt --all --check
@@ -262,5 +294,27 @@ python3 scripts/check-runtime-refinement.py --self-test --replay $FRESH > "$WORK
 step "complete generator costs (isolated Cargo package; no host-driver rebuild)"
 cargo build --manifest-path experiments/spend-costs/Cargo.toml --locked --target-dir "$WORK/spend-costs-target"
 python3 experiments/spend-costs/check.py --self-test --record --execute "$WORK/spend-costs-target/debug/chialisp-oxide-spend-costs" --output "$WORK/generator-cost-execution" > "$WORK/gate-generator-costs.log"
+
+HOST=$(rustc -vV | sed -n 's/^host: //p')
+step "stateful continuation, spuds and ledger packets (final tools)"
+# The SDK steps have 900 s limits; on a contended host they time out. Rerun
+# from here with a new CAPTURE_WORK only after the earlier steps' output is kept.
+python3 -B experiments/stateful-ledger/ci.py --tools "$ROOT/target/debug" --expected-host "$HOST" --output "$WORK/stateful"
+python3 -B experiments/stateful-ledger/ci.py --check "$WORK/stateful/ledger/receipt.json" > "$WORK/gate-stateful-capture.log"
+rm -rf experiments/continuation-batches/success-evidence experiments/continuation-batches/source-controls \
+  experiments/spuds/success-evidence experiments/spuds/source-controls experiments/stateful-ledger/evidence
+python3 -B experiments/stateful-ledger/ci.py --promote "$WORK/stateful" > "$WORK/gate-stateful-promote.log"
+python3 -B experiments/stateful-ledger/ci.py --check experiments/stateful-ledger/evidence/receipt.json > "$WORK/gate-stateful-installed.log"
+
+step "standard tutorial packet (final tools and step-10 bundles)"
+python3 -B experiments/standard-tutorial/capture.py --execute --rust-off "$WORK/puzzles-off" --rust-on "$WORK/puzzles-on" \
+  --tools "$ROOT/target/debug" --expected-host "$HOST" --output "$WORK/standard-tutorial"
+python3 -B experiments/standard-tutorial/check.py --packet "$WORK/standard-tutorial" --current --self-test > "$WORK/gate-standard-tutorial-capture.log"
+rm -rf experiments/standard-tutorial/evidence
+cp -R "$WORK/standard-tutorial" experiments/standard-tutorial/evidence
+python3 -B experiments/standard-tutorial/check.py --current --self-test > "$WORK/gate-standard-tutorial-installed.log"
+
+step "every current-source packet matches the working tree"
+python3 scripts/check-evidence-freshness.py --base HEAD
 echo
 echo "Capture complete. Review the diff, then run the remaining CI gates and the site pipeline (pnpm --dir www check && build && test:site) before committing."
