@@ -86,6 +86,7 @@ pub const PUZZLES: &[&str] = &[
     "standard-delegated-hidden",
     "ordered-payout",
     "spuds",
+    "raffle",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

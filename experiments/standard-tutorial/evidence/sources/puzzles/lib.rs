@@ -130,3 +130,6 @@ pub mod ordered_payout;
 
 #[path = "spuds/puzzle.rs"]
 pub mod spuds;
+
+#[path = "raffle/puzzle.rs"]
+pub mod raffle;

@@ -1,0 +1,72 @@
+---
+title: Run a commit-reveal raffle
+description: Draw one winner from four committed entrants, refund through an ordered payout queue, and see exactly what the draw does not guarantee.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+CLVM has no on-chain randomness. This original teaching raffle for
+[#11](https://github.com/judeallred/chialisp-oxide/issues/11) gets its draw from
+secrets the four entrants commit to before the raffle coin exists. It is a
+finite example with a fixed roster, not an unbiasable lottery.
+
+## Read the policy in three languages
+
+<SourceComparison slug="raffle" />
+
+## Commit first, reveal together
+
+Each entrant picks a random 32-byte salt and publishes only its commitment,
+`sha256("chialisp-oxide/raffle/v1/commit" || salt)`. The raffle coin then
+curries one proper list and holds exactly four 1,000-mojo tickets:
+
+```text
+(ORDERED_PAYOUT_MODULE (PAYOUT_1 COMMIT_1) (PAYOUT_2 COMMIT_2) (PAYOUT_3 COMMIT_3) (PAYOUT_4 COMMIT_4))
+```
+
+The solution is `(DRAW (SALT_1 SALT_2 SALT_3 SALT_4))`.
+
+- **Draw** (before the coin is ten blocks old): every salt must open its
+  commitment. The seed hashes all four salts in roster order, and the winner is
+  `seed[31] % 4`. Because four divides 256, every entrant is equally likely for a
+  uniformly random seed. The winner receives all 4,000 mojos.
+- **Refund** (at or after ten blocks): the pot moves into an
+  [ordered-payout](/chialisp-oxide/tutorials/ordered-payout/) queue that repays
+  each entrant one ticket over four spends. The salts are still decoded, then
+  ignored.
+
+The two paths assert opposite relative ages, so they can never both be valid at
+the same time.
+
+<ValidationCases slug="raffle" labels={["draw selects entrant 1", "refund queues one ticket back to every entrant", "swapped salts rejected", "late fifth entrant rejected"]} />
+
+## Run it in the simulator
+
+The corpus plays two raffles in the SDK simulator for the Rust, Chialisp and Rue
+builds. The first is drawn: an early refund fails with
+`AssertHeightRelativeFailed`, the drawn entrant receives the pot, and a replay
+fails with `DoubleSpend`. The second is never drawn: a late draw fails with
+`AssertBeforeHeightRelativeFailed`, the refund creates the queue, and four queue
+spends repay every entrant. Each rejected bundle leaves the simulator unchanged.
+
+## Fairness assumptions
+
+Read these before reusing the pattern:
+
+- **Withholding.** All four salts are revealed in one spend, so whoever
+  assembles them sees the outcome before anyone else. If they would lose, they
+  can refuse to submit and wait for the refund. They cannot pick the winner, but
+  they can cancel the raffle at no cost, because nothing penalizes withholding.
+- **Secret, random salts.** A salt that is guessable, or revealed early, lets
+  others predict the draw before committing. The chain checks only that each
+  salt is 32 bytes. The fixture salts are public test data.
+- **Host checks before funding.** The roster is fixed, so there is no late or
+  double entry, but the host must confirm the four payout hashes are distinct,
+  the pot is exactly 4,000 mojos, and the module field names the selected
+  ordered-payout artifact.
+- **Scope.** SHA-256 is an assumption, and proof models do not cover this
+  export. These finite vectors and simulator runs are observations, not a proof
+  that the raffle is unbiasable or that anyone will draw or refund.

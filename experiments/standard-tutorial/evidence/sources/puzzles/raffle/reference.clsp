@@ -1,0 +1,100 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not ready for real funds.
+; Exact template environment:
+;   ((ORDERED_MODULE (PH1 C1) (PH2 C2) (PH3 C3) (PH4 C4)) DRAW (S1 S2 S3 S4)).
+(mod environment
+  (defconstant CREATE_COIN 51)
+  (defconstant CREATE_COIN_ANNOUNCEMENT 60)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant ASSERT_HEIGHT_RELATIVE 82)
+  (defconstant ASSERT_BEFORE_HEIGHT_RELATIVE 86)
+  (defconstant POT 4000)
+  (defconstant REFUND_AGE 10)
+  (defconstant COMMIT_DOMAIN "chialisp-oxide/raffle/v1/commit")
+  (defconstant DRAW_DOMAIN "chialisp-oxide/raffle/v1/draw")
+  (defconstant REFUND_INTENT "chialisp-oxide/raffle/v1/refund!")
+  (defconstant QUEUE_DOMAIN "chialisp-oxide/ordered-payout/v1/1000:")
+
+  ; Only fixed arities are used; nonempty zero/padded tails are not nil.
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun sized (value width)
+    (if (l value) () (= (strlen value) width)))
+
+  (defun entry_ok (entry)
+    (if (exact_list entry 2)
+      (all (sized (f entry) 32) (sized (f (r entry)) 32))
+      ()))
+
+  (defun salts_ok (salts)
+    (if (exact_list salts 4)
+      (all (sized (f salts) 32) (sized (f (r salts)) 32)
+           (sized (f (r (r salts))) 32) (sized (f (r (r (r salts)))) 32))
+      ()))
+
+  (defun ah (value) (sha256 1 value))
+  (defun ph (left right) (sha256 2 left right))
+
+  ; Tree hash of (a (q . MODULE) (c (q . TERMS) 1)); MODULE is already a tree hash.
+  (defun curried (module terms_hash)
+    (ph (ah 2)
+      (ph (ph (ah 1) module)
+        (ph (ph (ah 4) (ph (ph (ah 1) terms_hash) (ph (ah 1) (ah ())))) (ah ())))))
+
+  ; Refund queue: ordered-payout instance curried with (MODULE HEAD).
+  (defun refund_queue (module p1 p2 p3 p4)
+    (curried module
+      (ph (ah module)
+        (ph (ah (sha256 QUEUE_DOMAIN p1
+                  (sha256 QUEUE_DOMAIN p2
+                    (sha256 QUEUE_DOMAIN p3
+                      (sha256 QUEUE_DOMAIN p4 (sha256 QUEUE_DOMAIN "end"))))))
+            (ah ())))))
+
+  (defun pick (index p1 p2 p3 p4)
+    (if (= index 0) p1 (if (= index 1) p2 (if (= index 2) p3 p4))))
+
+  (defun settle (seed index p1 p2 p3 p4)
+    (list (list ASSERT_MY_AMOUNT POT)
+          (list ASSERT_BEFORE_HEIGHT_RELATIVE REFUND_AGE)
+          (list CREATE_COIN (pick index p1 p2 p3 p4) POT)
+          (list CREATE_COIN_ANNOUNCEMENT seed)))
+
+  ; seed[31] % 4 is the low two bits of the seed's final byte; logand keeps
+  ; them correctly even when that one-byte atom reads as a negative integer.
+  (defun settle_seed (seed e1 e2 e3 e4)
+    (settle seed (logand (substr seed 31 32) 3) (f e1) (f e2) (f e3) (f e4)))
+
+  (defun draw_path (e1 e2 e3 e4 s1 s2 s3 s4)
+    (if (all (= (sha256 COMMIT_DOMAIN s1) (f (r e1))) (= (sha256 COMMIT_DOMAIN s2) (f (r e2)))
+             (= (sha256 COMMIT_DOMAIN s3) (f (r e3))) (= (sha256 COMMIT_DOMAIN s4) (f (r e4))))
+      (settle_seed (sha256 DRAW_DOMAIN (sha256 s1 s2) (sha256 s3 s4)) e1 e2 e3 e4)
+      (x)))
+
+  (defun refund_path (module e1 e2 e3 e4)
+    (list (list ASSERT_MY_AMOUNT POT)
+          (list ASSERT_HEIGHT_RELATIVE REFUND_AGE)
+          (list CREATE_COIN (refund_queue module (f e1) (f e2) (f e3) (f e4)) POT)
+          (list CREATE_COIN_ANNOUNCEMENT REFUND_INTENT)))
+
+  (defun checked (terms draw salts)
+    (if (all (sized (f terms) 32) (entry_ok (f (r terms))) (entry_ok (f (r (r terms))))
+             (entry_ok (f (r (r (r terms))))) (entry_ok (f (r (r (r (r terms)))))) (salts_ok salts))
+      (if (l draw) (x)
+        (if (= draw 1)
+          (draw_path (f (r terms)) (f (r (r terms))) (f (r (r (r terms)))) (f (r (r (r (r terms)))))
+                     (f salts) (f (r salts)) (f (r (r salts))) (f (r (r (r salts)))))
+          (if (= draw ())
+            (refund_path (f terms) (f (r terms)) (f (r (r terms))) (f (r (r (r terms)))) (f (r (r (r (r terms))))))
+            (x))))
+      (x)))
+
+  (if (exact_list environment 3)
+    (if (exact_list (f environment) 5)
+      (checked (f environment) (f (r environment)) (f (r (r environment))))
+      (x))
+    (x))
+)

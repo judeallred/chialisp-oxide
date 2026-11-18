@@ -1,11 +1,19 @@
 {
-  "role": "recompile-alpha-drop-create-off",
+  "role": "extract-controls-off",
   "argv": [
-    "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
-    "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-capture/capture/bundles/controls/off/44651-1794988714474546000/b4a9a27df693ed7ead12b668d6dde8b51440dac664f55758d5f1f5adf47c224d.ir.json",
-    "--artifacts"
+    "/Users/judeallred/code/clispOx/target/debug/cargo-chialisp-oxide",
+    "build",
+    "--manifest-path",
+    "/Users/judeallred/code/clispOx/experiments/action-registry-source-controls/Cargo.toml",
+    "--package",
+    "chialisp-oxide-registry-controls",
+    "--locked",
+    "--offline",
+    "--output-dir",
+    "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-capture/capture/bundles/controls/off",
+    "--no-optimize"
   ],
   "exit_code": 0,
-  "stdout": "logs/107-recompile-alpha-drop-create-off.stdout",
-  "stderr": "logs/107-recompile-alpha-drop-create-off.stderr"
+  "stdout": "logs/107-extract-controls-off.stdout",
+  "stderr": "logs/107-extract-controls-off.stderr"
 }

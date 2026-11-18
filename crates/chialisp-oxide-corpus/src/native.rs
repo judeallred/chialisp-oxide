@@ -1112,6 +1112,38 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                     Amount::from_mojos(uint(&a, args[3])?),
                 ))
             }
+            "raffle" => {
+                ensure!(args.len() == 3, "arity");
+                let terms = self::args(&a, args[0])?;
+                ensure!(terms.len() == 5, "terms arity");
+                let entry = |node| -> Result<(PuzzleHash, Message32)> {
+                    let fields = self::args(&a, node)?;
+                    ensure!(fields.len() == 2, "entry arity");
+                    Ok((
+                        PuzzleHash(fixed_atom(&a, fields[0])?),
+                        Message32(fixed_atom(&a, fields[1])?),
+                    ))
+                };
+                let salts = self::args(&a, args[2])?;
+                ensure!(salts.len() == 4, "salts arity");
+                let salt = |node| -> Result<Message32> { Ok(Message32(fixed_atom(&a, node)?)) };
+                output(chialisp_oxide_puzzles::raffle::puzzle(
+                    (
+                        PuzzleHash(fixed_atom(&a, terms[0])?),
+                        entry(terms[1])?,
+                        entry(terms[2])?,
+                        entry(terms[3])?,
+                        entry(terms[4])?,
+                    ),
+                    boolean(&a, args[1])?,
+                    (
+                        salt(salts[0])?,
+                        salt(salts[1])?,
+                        salt(salts[2])?,
+                        salt(salts[3])?,
+                    ),
+                ))
+            }
             "spuds" => {
                 ensure!(args.len() == 4, "arity");
                 let terms = self::args(&a, args[0])?;

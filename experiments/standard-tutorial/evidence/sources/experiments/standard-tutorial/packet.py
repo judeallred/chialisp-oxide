@@ -130,7 +130,7 @@ def validate_authoring(authoring):
             and authoring['manifest'] == 'puzzles/Cargo.toml' and authoring['library'] == 'puzzles/lib.rs',
             'exact captured Cargo authoring profile')
     exports = authoring['exports']
-    require(type(exports) is dict and len(exports) == 50, 'bounded complete50 exports')
+    require(type(exports) is dict and len(exports) == 51, 'bounded complete51 exports')
     entries = set()
     required = set(ROOT_SOURCES) | {'puzzles/authoring.json', 'puzzles/Cargo.toml', 'puzzles/lib.rs'}
     for slug, row in exports.items():
@@ -335,7 +335,7 @@ def bundle(packet, lane, template):
     optimize = lane == 'rust-on'
     declared = cargo_bundle._preflight_ir_declarations(manifest, reader, optimize)
     exports = packet.index['authoring']['exports']
-    require(len(exports) == 50 and set(declared) == {r['entry'] for r in exports.values()}, 'complete50 export identity')
+    require(len(exports) == 51 and set(declared) == {r['entry'] for r in exports.values()}, 'complete51 export identity')
     loaded, paths, required = {}, set(), {'manifest.json'}
     for row in manifest['entries']:
         value = cargo_bundle._artifact_details(row, packet.root / folder, reader, paths, optimize, 2, ir_declaration=declared[row['entry']])
@@ -426,7 +426,7 @@ def validate(root, *, current_root=None):
         full = corpus_report.decode(full_raw)
         require(sha(full_raw) == origin['full_report_sha256'], 'current complete report digest differs')
         cargo_authoring.check_recorded(full['authoring'], current_root, [p['slug'] for p in full['puzzles']])
-        require(len(full['puzzles']) == 50 and port_evidence.puzzle_row(full, SLUG) == template, 'current50 template relation')
+        require(len(full['puzzles']) == 51 and port_evidence.puzzle_row(full, SLUG) == template, 'current51 template relation')
         current = True
     downloads = [{'path': 'receipt.json', 'bytes': len(read(packet.root / 'receipt.json')), 'sha256': sha(read(packet.root / 'receipt.json'))}, *({'path': name, **row} for name, row in packet.rows.items())]
     return {'status': 'recorded_standard_tutorial_consistency_checked', 'protocol': PROTOCOL, 'current_source_checked': current,

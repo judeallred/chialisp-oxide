@@ -171,6 +171,11 @@
       "slug": "spuds",
       "entry": "chialisp_oxide_puzzles::spuds::puzzle",
       "source": "puzzles/spuds/puzzle.rs"
+    },
+    {
+      "slug": "raffle",
+      "entry": "chialisp_oxide_puzzles::raffle::puzzle",
+      "source": "puzzles/raffle/puzzle.rs"
     }
   ],
   "source_transition": {
@@ -692,6 +697,22 @@
         "sha256": "dbf10614d52ac06e04a146a505ce0e48d8744a23b7b97ed762894ad358dc938f"
       },
       {
+        "path": "puzzles/raffle/puzzle.json",
+        "sha256": "c7296de7b3ec585c6302f2a2a085da947cb8907f8f8470215b9d705c9722be4e"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rs",
+        "sha256": "290437c63b1fa43d035b5f500480967d7055837ab2aae36961f32cc595026f74"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rue",
+        "sha256": "361503d9907b58dcbfa9f8727354caad7d9cd0cca4bb032b53cbea13901bde9d"
+      },
+      {
+        "path": "puzzles/raffle/reference.clsp",
+        "sha256": "a736a0df1fa5ecd8c3d79380fea69997e97e3c0dcd84f8d1dd9cd4af2b7a6749"
+      },
+      {
         "path": "puzzles/registry-initialize/puzzle.json",
         "sha256": "5ce28348b3c5e1e4633d612e7ad46fc28591343347c78bfe117a5b107e882d62"
       },
@@ -795,12 +816,12 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
         "before_sha256": "f92debb74c44befc9235a63e85cf9a7006ce715dd7a08a42003493a5e7a76814",
-        "after_sha256": "faae2f69d447e95208f2c28668dd38e3cf60258af1c0e9d555de2743be167806"
+        "after_sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
         "before_sha256": "0f913a4eeda2d462de237baff8bc811f9d99b2062292c0b79d5ffd69fc23c448",
-        "after_sha256": "4a8fa5c088929281995d8251254ebceb1dde9c85e0696fe2d9c5780faeafd1ad"
+        "after_sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
@@ -815,12 +836,12 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
         "before_sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7",
-        "after_sha256": "bf09aeebee30122feef48c8b8b6036ef7f435c594af281c8d47b17357b151aae"
+        "after_sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
         "before_sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5",
-        "after_sha256": "da540a1c1845f864b0d54681e962c1348f14babb01805b2ec4ccfb66463c3c67"
+        "after_sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -850,12 +871,12 @@
       {
         "path": "puzzles/authoring.json",
         "before_sha256": "a2bd0f0da6a5cebb91647f46371c0332b9d749d91708f1473d84771d0081a6a5",
-        "after_sha256": "a50564036303e0d080e9c718337e527cea8f116710e380d11002339f931d9ec9"
+        "after_sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
       },
       {
         "path": "puzzles/lib.rs",
         "before_sha256": "6c83b23757ed8ed34c7a1ec62a92f9e821f5b36c0e96e7b4d27a332ad005fec1",
-        "after_sha256": "59a145a712ef8ccecb0fa3ee3f7676e91ef207e02993c2060c32f0eb6ed8c491"
+        "after_sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
       }
     ],
     "embedded_native_paths": [
@@ -896,9 +917,9 @@
     ]
   },
   "reviewed_after": {
-    "report_sha256": "e267aa742235a0f765846e5dc0a41818420234b89e00e1b4b06aa0d1c130f5ce",
-    "canonical_report_sha256": "4d1b01a16eba7602327fb961e317595075486b146c8207e7417079b9d394e35b",
-    "controls_sha256": "4279a417557f36849d231ad6597f360556ef7379e37e219b52258780f6545aac",
+    "report_sha256": "efae89153b8a02d95e78c5857a535323f8f67278c92aac8f885becc6e959cc5a",
+    "canonical_report_sha256": "8ec687a7fbbf57e1cbb310890800018786a2573c0ef1256be6f8eda79ab491ba",
+    "controls_sha256": "57b256345b97252892ca8fc0e4744ba7cad2051afcb19c8f51c5f03ce7c8d9df",
     "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
     "added_puzzles": [
       {
@@ -935,7 +956,7 @@
       },
       {
         "slug": "boomerang",
-        "sha256": "20934d6c596201da34e198e827f33822ccb743ac8573cbcc13c33d632a8fdfad"
+        "sha256": "71748d05ae5a1ea3528403da29fab7df0fbb3bac4d31515a8258448951facad3"
       },
       {
         "slug": "precommit-claim",
@@ -947,27 +968,27 @@
       },
       {
         "slug": "cat-genesis-by-coin-id",
-        "sha256": "ac12a175f6fa582fa981962f10e2c63563b644b6b8a873299cbeece7e8c4da9a"
+        "sha256": "2af0f06e8e2f0d05a1274ac86e3fd4076cee7890433f2d3badf42205b9862aa5"
       },
       {
         "slug": "counter-increment",
-        "sha256": "52360511e9314af895eed4a9fcc9aaa2238c0c31f2efc046fa3e666e3a51aec0"
+        "sha256": "87a59468ffb7d7f80111c7b771d21485c0b880f8db4e913da319ccc37fb16cf2"
       },
       {
         "slug": "counter-reset",
-        "sha256": "76c1a852dc6ee2bb75080dc6fe6d0a336407894ccc327ab4ce91a1006c27cc9f"
+        "sha256": "541869996d009b74fe5daef4f08282f31b14f17ee0a38fe5807ec6f9e6f6c51c"
       },
       {
         "slug": "registry-initialize",
-        "sha256": "9db54afdffa2aa87cd21dc2a7c68d9bb0ba88d8dd96236072de69981dfdfa9e2"
+        "sha256": "02f446a7ded6a6bc00cb377251277e3d4e23e8961d75ad572f1c83e3814ccccd"
       },
       {
         "slug": "registry-set-alpha",
-        "sha256": "deca34f603fb3da87080cf994357539baf1a5c0cf15aab803c845b686924e6fd"
+        "sha256": "7618f2d76ac33d43f45a5fc1dc7f41b783e2211ebeef915c7bd7997fc132d3c6"
       },
       {
         "slug": "registry-set-beta",
-        "sha256": "dee0c5673cb859457e490c8eed5bc6216692a84764fe8c3591eae149ef6aa284"
+        "sha256": "1d2fd61a9e4cccb5ed5c8ffc7343c1b2f30506f6db20b33d916bd122ce837301"
       },
       {
         "slug": "morph-coin-doubler",
@@ -987,15 +1008,15 @@
       },
       {
         "slug": "modern-let-product",
-        "sha256": "d462bd40912c66bbfa2f875ff0ab6ef4e21608d55e6c8208efd116d5f738959f"
+        "sha256": "acb6c64c9c72c1082f654ef823fc956dce7e5084bca4363d2484c950f6ff4cf2"
       },
       {
         "slug": "modern-named-map",
-        "sha256": "68dce696a826ff59a8dbb37c29e1e8afe2d58958c244a335361d62dc26fa97b9"
+        "sha256": "27bb7f4c975bdb3aa4f622398554eac076d2137ffddd0ec62ed5dd7887e91ba8"
       },
       {
         "slug": "modern-lambda-map",
-        "sha256": "5f2b305a155054714d36bcf020d990c9e22822ec409e93971581e1b1c6651046"
+        "sha256": "c827bf81fb548df18041311ad037050f70e99d0553e1dd7875c60685235dfb7a"
       },
       {
         "slug": "standard-delegated-hidden",
@@ -1008,6 +1029,10 @@
       {
         "slug": "spuds",
         "sha256": "0b62c2f8950069cd54d0821e1973dc848d0c8ded75734f5b571ac781a08f7ed7"
+      },
+      {
+        "slug": "raffle",
+        "sha256": "d5b8720cfb0243e7f25cfc649e3748579eb956dc2445923e9fa61b2d00229934"
       }
     ],
     "raw_ir": [
@@ -1160,6 +1185,10 @@
         "sha256": "d38305dcb6f26c6037743dab949225353d484c6352bf063231631d86a6696c67"
       },
       {
+        "entry": "chialisp_oxide_puzzles::raffle::puzzle",
+        "sha256": "65285b686c11f58d7135b8013720ea72e6e040ff945dc9cdd8ebcccfddee05ad"
+      },
+      {
         "entry": "chialisp_oxide_puzzles::recovery_payment::puzzle",
         "sha256": "5847c067fb389413e5426eeb1494d9827b7e28a7653bd936a843f93668272c8d"
       },
@@ -1214,7 +1243,7 @@
     ],
     "bundles": {
       "on": {
-        "manifest_sha256": "61ddcfa25c0a0c84f2c7b6df17a167fcfc8e3186fe30693daf070b67d31f14e5",
+        "manifest_sha256": "2eb428efcd1460ef3ff43c1ad12558fe1db2732606830720ecf690d50ef601ea",
         "optimize_lir": true,
         "cargo_options": [
           "--manifest-path",
@@ -1225,7 +1254,7 @@
         ]
       },
       "off": {
-        "manifest_sha256": "e2f93b304088f663d91abf91676714bbd58e42ecbf3eecf92d9fe87cceb0cdd8",
+        "manifest_sha256": "2ab15ff41435b1d2f392696f32e746b3ed31d967d85c39d582b8f6b85a115f28",
         "optimize_lir": false,
         "cargo_options": [
           "--manifest-path",

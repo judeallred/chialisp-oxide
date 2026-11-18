@@ -120,6 +120,13 @@
     ],
     "replaying the consumed claim is rejected with rollback": [
       "DoubleSpend"
+    ],
+    "a draw pays the drawn entrant and an early refund or replay is rejected": [
+      "AssertHeightRelativeFailed",
+      "DoubleSpend"
+    ],
+    "after the refund age a draw is rejected and the refund queue repays every entrant": [
+      "AssertBeforeHeightRelativeFailed"
     ]
   },
   "puzzles": {
@@ -543,6 +550,21 @@
         "name": "replaying the consumed claim is rejected with rollback",
         "codes": [
           "DoubleSpend"
+        ]
+      }
+    ],
+    "raffle": [
+      {
+        "name": "a draw pays the drawn entrant and an early refund or replay is rejected",
+        "codes": [
+          "AssertHeightRelativeFailed",
+          "DoubleSpend"
+        ]
+      },
+      {
+        "name": "after the refund age a draw is rejected and the refund queue repays every entrant",
+        "codes": [
+          "AssertBeforeHeightRelativeFailed"
         ]
       }
     ]

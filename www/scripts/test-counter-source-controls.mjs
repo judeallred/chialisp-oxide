@@ -25,7 +25,7 @@ function indexFixture(){return{protocol:counterPacketProtocol,profile:{...counte
 const positive=indexFixture();checkCounterPacketIndex(positive,Buffer.from(JSON.stringify(positive)));
 let profileControls=0;
 for(const mutate of [
-  value=>{value.profile.max_files=true;},value=>{value.profile.max_total_bytes=32*1024*1024;},
+  value=>{value.profile.max_files=true;},value=>{value.profile.max_total_bytes=64*1024*1024;},
   value=>{value.files[0].path='../escape';},value=>{value.files.push({...value.files[0]});},
   value=>{value.files[0].bytes=counterPacketProfile.max_file_bytes+1;},value=>{value.files[0].bytes=true;},
   value=>{value.aliases['raw/item.json']='raw/item.json';},value=>{value.aliases['protocol/repeat.json']='missing.json';},

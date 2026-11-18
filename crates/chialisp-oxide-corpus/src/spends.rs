@@ -6,6 +6,7 @@ use chialisp_oxide_simulator::{
 use serde::Serialize;
 mod ordered_payout;
 mod precommit;
+mod raffle;
 mod singleton;
 mod spuds;
 #[derive(Serialize)]
@@ -54,6 +55,9 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     }
     if slug == "spuds" {
         return spuds::validate(code);
+    }
+    if slug == "raffle" {
+        return raffle::validate(code);
     }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {

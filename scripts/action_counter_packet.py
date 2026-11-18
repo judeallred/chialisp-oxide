@@ -35,9 +35,10 @@ from registry_codegen_evidence import require
 from action_counter_provenance import check as check_provenance
 
 PROTOCOL = "chialisp-oxide-action-counter-packet/v1"
-MAX_FILES = 1024
+# Raised from 1024 files / 16 MiB before the 50-export corpus filled the budget.
+MAX_FILES = 2048
 MAX_FILE = 2 * 1024 * 1024
-MAX_TOTAL = 16 * 1024 * 1024
+MAX_TOTAL = 32 * 1024 * 1024
 PROFILE = {"max_files": MAX_FILES, "max_file_bytes": MAX_FILE, "max_total_bytes": MAX_TOTAL}
 SCOPE = "Recorded consistency only. Host origins are opaque relation metadata, never paths followed by this reader. Repeat aliases retain exact bytes and add no scenario coverage. No execution authentication, compiler-preservation or production-readiness claim."
 

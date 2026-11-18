@@ -1,14 +1,14 @@
 {
   "status": "passed_capture_consistency",
   "source_root": "/Users/judeallred/code/clispOx",
-  "native_dir": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-native",
-  "last_dir": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-last",
-  "base_report": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/report.json",
+  "native_dir": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-native",
+  "last_dir": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-last",
+  "base_report": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/report.json",
   "scope": "Capture consistency and finite local observations; no execution authentication, whole-corpus execution, live chain, BLS/security or compiler-preservation credit.",
   "native": {
     "receipt": {
-      "bytes": 2787,
-      "sha256": "88f66201e4d5a8cf7d139b9ca0f25437a6507530bb292cf1ec4b6cb884605cbe"
+      "bytes": 2786,
+      "sha256": "717f57105d8ff4065af6aae1552a8a14736b68307ba017ec7d0fe3cd4a00cd0b"
     },
     "sources": [
       {
@@ -498,13 +498,13 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "bytes": 36708,
-        "sha256": "faae2f69d447e95208f2c28668dd38e3cf60258af1c0e9d555de2743be167806"
+        "bytes": 36722,
+        "sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "bytes": 65822,
-        "sha256": "4a8fa5c088929281995d8251254ebceb1dde9c85e0696fe2d9c5780faeafd1ad"
+        "bytes": 67229,
+        "sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -573,8 +573,8 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-        "bytes": 9785,
-        "sha256": "bf09aeebee30122feef48c8b8b6036ef7f435c594af281c8d47b17357b151aae"
+        "bytes": 9868,
+        "sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/ordered_payout.rs",
@@ -585,6 +585,11 @@
         "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
         "bytes": 20232,
         "sha256": "3c02d4c32aa1a8dd69d8586cdbba72fd9489895b81bbcb3e19ab3cf8dfab0061"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/spends/raffle.rs",
+        "bytes": 8663,
+        "sha256": "4d3e5cfd9a9f379ccb1fede7b4a61ec968135e033b6b504e7861cc73c5d7f10e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
@@ -2688,8 +2693,8 @@
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-        "bytes": 14417,
-        "sha256": "da540a1c1845f864b0d54681e962c1348f14babb01805b2ec4ccfb66463c3c67"
+        "bytes": 15115,
+        "sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -3193,8 +3198,8 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "bytes": 22074,
-        "sha256": "a50564036303e0d080e9c718337e527cea8f116710e380d11002339f931d9ec9"
+        "bytes": 22333,
+        "sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.json",
@@ -3613,8 +3618,8 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "bytes": 3393,
-        "sha256": "59a145a712ef8ccecb0fa3ee3f7676e91ef207e02993c2060c32f0eb6ed8c491"
+        "bytes": 3439,
+        "sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
       },
       {
         "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -3977,6 +3982,26 @@
         "sha256": "2d9bf20728e252132d362d5d825e5ec5d359c2a65a8e5c4d73a9c1d656b4125f"
       },
       {
+        "path": "puzzles/raffle/puzzle.json",
+        "bytes": 29960,
+        "sha256": "c7296de7b3ec585c6302f2a2a085da947cb8907f8f8470215b9d705c9722be4e"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rs",
+        "bytes": 4215,
+        "sha256": "290437c63b1fa43d035b5f500480967d7055837ab2aae36961f32cc595026f74"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rue",
+        "bytes": 4222,
+        "sha256": "361503d9907b58dcbfa9f8727354caad7d9cd0cca4bb032b53cbea13901bde9d"
+      },
+      {
+        "path": "puzzles/raffle/reference.clsp",
+        "bytes": 4155,
+        "sha256": "a736a0df1fa5ecd8c3d79380fea69997e97e3c0dcd84f8d1dd9cd4af2b7a6749"
+      },
+      {
         "path": "puzzles/recovery-payment/puzzle.json",
         "bytes": 1326,
         "sha256": "1dcfca53b292361917b34ab77b57c1d11b722b9e1d6c038791c4cbdec3b7b9db"
@@ -4288,8 +4313,8 @@
       },
       {
         "path": "scripts/action_counter_packet.py",
-        "bytes": 31440,
-        "sha256": "0760056ee240191164540cdecdaae3bb68ead5c121137722d546c9ec7cbe61a9"
+        "bytes": 31521,
+        "sha256": "4e4d7bafc8f4d380dab3cd2b19c93003266b61031c2972411616c626c2df97ee"
       },
       {
         "path": "scripts/action_counter_packet_controls.py",
@@ -4559,7 +4584,7 @@
       {
         "path": "scripts/corpus_append.py",
         "bytes": 29279,
-        "sha256": "3282d637058cc8e232368637e78b4c0b8eb7b917c2c85f4eb77f3e3850779901"
+        "sha256": "ad3a4432fbad17634c0480e98bc3dce630ca3098bb6b47ac2ad51c13a87d1759"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -4693,8 +4718,8 @@
       },
       {
         "path": "scripts/port_oracles.py",
-        "bytes": 3755,
-        "sha256": "0bdd75aa5e13eba32949a9a16ebef850471d9f712c21fbc465cac92de6399366"
+        "bytes": 3922,
+        "sha256": "ba158d2a2eea030354176dac0628dcab527ef58f74f391108d2e2461f081651e"
       },
       {
         "path": "scripts/precommit_oracle.py",
@@ -4705,6 +4730,11 @@
         "path": "scripts/precommit_source_controls.py",
         "bytes": 32349,
         "sha256": "f2c45f7c31483478bdadf80d6c8b0950cb283fc037211a3f5719a3dec4a597f0"
+      },
+      {
+        "path": "scripts/raffle_oracle.py",
+        "bytes": 3084,
+        "sha256": "e6e97351f9622844372bdf33d255b8418a5766d1dd874a02ba1eed4702791bd3"
       },
       {
         "path": "scripts/raw_tree.py",
@@ -4888,8 +4918,8 @@
       },
       {
         "path": "scripts/test_ledger_components.py",
-        "bytes": 10747,
-        "sha256": "2584777357d8a3bd1281980ddedf5c43b5714d68ea77afe1e31f448f53bc5cbf"
+        "bytes": 10765,
+        "sha256": "3bf6c9cebd31a8bbbfe1f0b1348e1e7d574f54daaf42d121a98c7856dc1c6fdb"
       },
       {
         "path": "scripts/test_p2_append_migration.py",
@@ -5221,7 +5251,7 @@
   "last": {
     "receipt": {
       "bytes": 593,
-      "sha256": "402b19b7d8ac8f86efaad44be58779f80b1433fb42b8f883c59ff57877346004"
+      "sha256": "5074df2b03b0941cc6ee72a6b13119a3dfac91739f4c1d331e6c5b281a6e250f"
     },
     "sources": [
       {
@@ -5711,13 +5741,13 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "bytes": 36708,
-        "sha256": "faae2f69d447e95208f2c28668dd38e3cf60258af1c0e9d555de2743be167806"
+        "bytes": 36722,
+        "sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "bytes": 65822,
-        "sha256": "4a8fa5c088929281995d8251254ebceb1dde9c85e0696fe2d9c5780faeafd1ad"
+        "bytes": 67229,
+        "sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -5786,8 +5816,8 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-        "bytes": 9785,
-        "sha256": "bf09aeebee30122feef48c8b8b6036ef7f435c594af281c8d47b17357b151aae"
+        "bytes": 9868,
+        "sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/ordered_payout.rs",
@@ -5798,6 +5828,11 @@
         "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
         "bytes": 20232,
         "sha256": "3c02d4c32aa1a8dd69d8586cdbba72fd9489895b81bbcb3e19ab3cf8dfab0061"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/spends/raffle.rs",
+        "bytes": 8663,
+        "sha256": "4d3e5cfd9a9f379ccb1fede7b4a61ec968135e033b6b504e7861cc73c5d7f10e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
@@ -7901,8 +7936,8 @@
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-        "bytes": 14417,
-        "sha256": "da540a1c1845f864b0d54681e962c1348f14babb01805b2ec4ccfb66463c3c67"
+        "bytes": 15115,
+        "sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -8406,8 +8441,8 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "bytes": 22074,
-        "sha256": "a50564036303e0d080e9c718337e527cea8f116710e380d11002339f931d9ec9"
+        "bytes": 22333,
+        "sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.json",
@@ -8826,8 +8861,8 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "bytes": 3393,
-        "sha256": "59a145a712ef8ccecb0fa3ee3f7676e91ef207e02993c2060c32f0eb6ed8c491"
+        "bytes": 3439,
+        "sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
       },
       {
         "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -9190,6 +9225,26 @@
         "sha256": "2d9bf20728e252132d362d5d825e5ec5d359c2a65a8e5c4d73a9c1d656b4125f"
       },
       {
+        "path": "puzzles/raffle/puzzle.json",
+        "bytes": 29960,
+        "sha256": "c7296de7b3ec585c6302f2a2a085da947cb8907f8f8470215b9d705c9722be4e"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rs",
+        "bytes": 4215,
+        "sha256": "290437c63b1fa43d035b5f500480967d7055837ab2aae36961f32cc595026f74"
+      },
+      {
+        "path": "puzzles/raffle/puzzle.rue",
+        "bytes": 4222,
+        "sha256": "361503d9907b58dcbfa9f8727354caad7d9cd0cca4bb032b53cbea13901bde9d"
+      },
+      {
+        "path": "puzzles/raffle/reference.clsp",
+        "bytes": 4155,
+        "sha256": "a736a0df1fa5ecd8c3d79380fea69997e97e3c0dcd84f8d1dd9cd4af2b7a6749"
+      },
+      {
         "path": "puzzles/recovery-payment/puzzle.json",
         "bytes": 1326,
         "sha256": "1dcfca53b292361917b34ab77b57c1d11b722b9e1d6c038791c4cbdec3b7b9db"
@@ -9501,8 +9556,8 @@
       },
       {
         "path": "scripts/action_counter_packet.py",
-        "bytes": 31440,
-        "sha256": "0760056ee240191164540cdecdaae3bb68ead5c121137722d546c9ec7cbe61a9"
+        "bytes": 31521,
+        "sha256": "4e4d7bafc8f4d380dab3cd2b19c93003266b61031c2972411616c626c2df97ee"
       },
       {
         "path": "scripts/action_counter_packet_controls.py",
@@ -9772,7 +9827,7 @@
       {
         "path": "scripts/corpus_append.py",
         "bytes": 29279,
-        "sha256": "3282d637058cc8e232368637e78b4c0b8eb7b917c2c85f4eb77f3e3850779901"
+        "sha256": "ad3a4432fbad17634c0480e98bc3dce630ca3098bb6b47ac2ad51c13a87d1759"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -9906,8 +9961,8 @@
       },
       {
         "path": "scripts/port_oracles.py",
-        "bytes": 3755,
-        "sha256": "0bdd75aa5e13eba32949a9a16ebef850471d9f712c21fbc465cac92de6399366"
+        "bytes": 3922,
+        "sha256": "ba158d2a2eea030354176dac0628dcab527ef58f74f391108d2e2461f081651e"
       },
       {
         "path": "scripts/precommit_oracle.py",
@@ -9918,6 +9973,11 @@
         "path": "scripts/precommit_source_controls.py",
         "bytes": 32349,
         "sha256": "f2c45f7c31483478bdadf80d6c8b0950cb283fc037211a3f5719a3dec4a597f0"
+      },
+      {
+        "path": "scripts/raffle_oracle.py",
+        "bytes": 3084,
+        "sha256": "e6e97351f9622844372bdf33d255b8418a5766d1dd874a02ba1eed4702791bd3"
       },
       {
         "path": "scripts/raw_tree.py",
@@ -10101,8 +10161,8 @@
       },
       {
         "path": "scripts/test_ledger_components.py",
-        "bytes": 10747,
-        "sha256": "2584777357d8a3bd1281980ddedf5c43b5714d68ea77afe1e31f448f53bc5cbf"
+        "bytes": 10765,
+        "sha256": "3bf6c9cebd31a8bbbfe1f0b1348e1e7d574f54daaf42d121a98c7856dc1c6fdb"
       },
       {
         "path": "scripts/test_p2_append_migration.py",
@@ -10388,8 +10448,8 @@
       {
         "name": "chialisp-oxide",
         "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-        "bytes": 40105792,
-        "sha256": "1d514e24bbe4f635554f8ba44ea2b66463e4504e18c616357e19a353ddb578e0"
+        "bytes": 40208016,
+        "sha256": "66a3223c48743d0c9abbd0636f861b567f7dd27b816119358548b7aa5823c213"
       },
       {
         "name": "chialisp-oxide-verifier",
@@ -10400,69 +10460,69 @@
       {
         "name": "examples/registry_controls",
         "path": "/Users/judeallred/code/clispOx/target/debug/examples/registry_controls",
-        "bytes": 18605184,
-        "sha256": "fa5e1223627e343e0446915ee3c5678fe0fd7a072bcdf03ebf4aaca64248f33a"
+        "bytes": 18604464,
+        "sha256": "20367a3aa61d7ad4aa7fb9f0a757cbb91a55dc99d7ac70cc9db75799393cd32c"
       }
     ]
   },
   "base": [
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/report.json",
-      "bytes": 672506,
-      "sha256": "9d5aa38d5464d03e5f7828f48462f138d5ae36a345fd5b1a75952d6af8d73582"
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/report.json",
+      "bytes": 673159,
+      "sha256": "e0420348ed340db66211b6cd9d9c44febc77053cb9d88d74cfad1dd8777bf4ea"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/index.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/index.json",
       "bytes": 21998,
       "sha256": "df627332458a71083647819a2e37c5a53070f5c32d86955c3d7b99137a017960"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rust-off-ordinary.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rust-off-ordinary.json",
       "bytes": 379090,
       "sha256": "03d5ab42e0e1a97de5ebe614bf8d9d7bcf5068cea6a9ba7be15aed221caeafe7"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rust-off-adversarial.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rust-off-adversarial.json",
       "bytes": 410640,
       "sha256": "2c5309d8eb23ee0ad4ad22e22a58de97fc5f038676db1b79f08c1c17d8c7e6dc"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rust-on-ordinary.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rust-on-ordinary.json",
       "bytes": 224064,
       "sha256": "4a788fe28a045dab7d6d9db2f048b3070b0733e6bc1446685be875d729d78778"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rust-on-adversarial.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rust-on-adversarial.json",
       "bytes": 242070,
       "sha256": "9864463080fcf13239656e63f9c1f60526d94f329c14801c9e451ce31372fc0d"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/chialisp-ordinary.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/chialisp-ordinary.json",
       "bytes": 135642,
       "sha256": "568238828b1ce611adc08107029c87b67f84ef0201de77dca92d693aefad0524"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/chialisp-adversarial.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/chialisp-adversarial.json",
       "bytes": 145976,
       "sha256": "a45cc13da13448aa545bab7a18b80d15016415a56b84e8e2910279047bd19be6"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rue-off-ordinary.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rue-off-ordinary.json",
       "bytes": 152501,
       "sha256": "d8a5feb2dc93842528fa5e71fddfc7b04e5fa7bb818267de8c9932b65ebc13aa"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rue-off-adversarial.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rue-off-adversarial.json",
       "bytes": 164379,
       "sha256": "fb348ed1f4156b4b4837f39ff3d05620b465746f65b336da0fc3b19abea1eef9"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rue-on-ordinary.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rue-on-ordinary.json",
       "bytes": 138208,
       "sha256": "0327053d0f29aca9d732b4cf9e954b90714bb4318ccccc17ee166b9747aed2e2"
     },
     {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-spuds3/registry-base/registry-slot-protocol/rue-on-adversarial.json",
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/registry-base/registry-slot-protocol/rue-on-adversarial.json",
       "bytes": 148806,
       "sha256": "f0d4fd797553ef400e38ecad4271be72a04eee151f6fc17a3a25ee35fd6873ae"
     }

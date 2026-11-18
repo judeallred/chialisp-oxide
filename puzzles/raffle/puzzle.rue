@@ -1,0 +1,93 @@
+// Original teaching comparison of the fixed four-entrant raffle (#11).
+// WIP prototype; not ready to secure real funds.
+type Entry = (Bytes32, (Bytes32, nil));
+type Salts = (Bytes32, (Bytes32, (Bytes32, (Bytes32, nil))));
+
+const POT: Int = 4000;
+const REFUND_AGE: Int = 10;
+// UTF-8 "chialisp-oxide/raffle/v1/commit", "/draw", "/refund!" and the
+// ordered-payout queue domain "chialisp-oxide/ordered-payout/v1/1000:".
+const COMMIT_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f726166666c652f76312f636f6d6d6974;
+const DRAW_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f726166666c652f76312f64726177;
+const REFUND_INTENT: Bytes32 = 0x636869616c6973702d6f786964652f726166666c652f76312f726566756e6421;
+const QUEUE_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f6f7264657265642d7061796f75742f76312f313030303a;
+const END_SUFFIX: Bytes = 0x656e64;
+
+fn main(...environment: Any) -> List<Condition> {
+    // Strict whole environment: (terms draw salts); refund still validates salts.
+    // Checked in layers: one nested assertion exceeds Rue's type-check depth.
+    assert environment is (Any, (Bool, (Salts, nil)));
+    let terms = environment.first;
+    assert terms is (Bytes32, (Any, (Any, (Any, (Any, nil)))));
+    assert terms.rest.first is Entry;
+    assert terms.rest.rest.first is Entry;
+    assert terms.rest.rest.rest.first is Entry;
+    assert terms.rest.rest.rest.rest.first is Entry;
+    let ordered = terms.first;
+    let e1 = terms.rest.first;
+    let e2 = terms.rest.rest.first;
+    let e3 = terms.rest.rest.rest.first;
+    let e4 = terms.rest.rest.rest.rest.first;
+    let draw = environment.rest.first;
+    let salts = environment.rest.rest.first;
+
+    if draw {
+        let s1 = salts.first;
+        let s2 = salts.rest.first;
+        let s3 = salts.rest.rest.first;
+        let s4 = salts.rest.rest.rest.first;
+        assert sha256(...[COMMIT_DOMAIN, s1]) == e1.rest.first;
+        assert sha256(...[COMMIT_DOMAIN, s2]) == e2.rest.first;
+        assert sha256(...[COMMIT_DOMAIN, s3]) == e3.rest.first;
+        assert sha256(...[COMMIT_DOMAIN, s4]) == e4.rest.first;
+        let seed = sha256(...[DRAW_DOMAIN, sha256(...[s1, s2]), sha256(...[s3, s4])]);
+        // The low two bits of the final seed byte, read as an unsigned byte.
+        let last = substr(seed, 31, 32);
+        let winner = pick(low_bits(last), e1.first, e2.first, e3.first, e4.first);
+        [AssertMyAmount { amount: POT },
+         AssertBeforeHeightRelative { height: REFUND_AGE },
+         CreateCoin { puzzle_hash: winner, amount: POT },
+         CreateCoinAnnouncement { message: seed }]
+    } else {
+        [AssertMyAmount { amount: POT },
+         AssertHeightRelative { height: REFUND_AGE },
+         CreateCoin { puzzle_hash: refund_queue(ordered, e1.first, e2.first, e3.first, e4.first), amount: POT },
+         CreateCoinAnnouncement { message: REFUND_INTENT }]
+    }
+}
+
+// Unsigned value of one byte, then its low two bits.
+fn low_bits(byte: Bytes) -> Int {
+    let unsigned = (0x00 + byte) as Int;
+    unsigned % 4
+}
+
+fn pick(index: Int, p1: Bytes32, p2: Bytes32, p3: Bytes32, p4: Bytes32) -> Bytes32 {
+    if index == 0 { p1 } else if index == 1 { p2 } else if index == 2 { p3 } else { p4 }
+}
+
+fn atom_hash(value: Bytes) -> Bytes32 {
+    sha256(...[0x01, value])
+}
+
+fn pair_hash(left: Bytes32, right: Bytes32) -> Bytes32 {
+    sha256(...[0x02, left, right])
+}
+
+fn item(recipient: Bytes32, next: Bytes32) -> Bytes32 {
+    sha256(...[QUEUE_DOMAIN, recipient, next])
+}
+
+// The ordered-payout instance curried with (module head) for the four payouts.
+fn refund_queue(module: Bytes32, p1: Bytes32, p2: Bytes32, p3: Bytes32, p4: Bytes32) -> Bytes32 {
+    let head = item(p1, item(p2, item(p3, item(p4, sha256(...[QUEUE_DOMAIN, END_SUFFIX])))));
+    let nil_hash = atom_hash(nil as Bytes);
+    let terms = pair_hash(atom_hash(module), pair_hash(atom_hash(head), nil_hash));
+    let quoted_terms = pair_hash(atom_hash(0x01), terms);
+    let environment = pair_hash(
+        atom_hash(0x04),
+        pair_hash(quoted_terms, pair_hash(atom_hash(0x01), nil_hash)),
+    );
+    let quoted_module = pair_hash(atom_hash(0x01), module);
+    pair_hash(atom_hash(0x02), pair_hash(quoted_module, pair_hash(environment, nil_hash)))
+}

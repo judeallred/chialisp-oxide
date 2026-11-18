@@ -41,6 +41,7 @@ export default defineConfig({
           { label: 'Commit, wait and reveal', slug: 'tutorials/precommit' },
           { label: 'Pay a queue across spends', slug: 'tutorials/ordered-payout' },
           { label: 'Play a hot-potato pot game', slug: 'tutorials/spuds' },
+          { label: 'Run a commit-reveal raffle', slug: 'tutorials/raffle' },
           { label: 'Checked arithmetic', slug: 'tutorials/counter' },
           { label: 'Port the canonical Intro', slug: 'tutorials/canonical-intro' },
           { label: 'Port the Using Modules programs', slug: 'tutorials/canonical-modules' },

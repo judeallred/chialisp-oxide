@@ -173,6 +173,11 @@ One accepted nonterminal step costs 84,498 (Rust on), 61,555 (Chialisp) and
 this export are not yet measured; the batch-one experiment's generator
 measurements remain separate.
 
+The [`raffle`](https://judeallred.github.io/chialisp-oxide/tutorials/raffle/) export
+(#11) reuses this queue for refunds. Its refund path creates one ordered-payout
+instance holding the whole pot, which then repays each entrant one ticket, so a
+policy with a variable number of payees can still return a fixed condition list.
+
 Compiler features for #16: no new feature was needed. The export uses the
 existing SHA bridge, curry hash arithmetic, checked `u64` arithmetic, the
 strict typed ABI and optional output lists (`Option<CreateCoin>`). Dynamic

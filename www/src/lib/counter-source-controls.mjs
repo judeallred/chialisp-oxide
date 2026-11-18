@@ -12,7 +12,7 @@ import { catTreeHash } from '../../scripts/cat-protocol.mjs';
 
 export const counterPacketProtocol = 'chialisp-oxide-action-counter-packet/v1';
 export const counterPacketPath = 'corpus/action-counter-source-controls';
-export const counterPacketProfile = {max_files:1024,max_file_bytes:2*1024*1024,max_total_bytes:16*1024*1024};
+export const counterPacketProfile = {max_files:2048,max_file_bytes:2*1024*1024,max_total_bytes:32*1024*1024};
 export const counterPacketScope = 'Recorded consistency only. Host origins are opaque relation metadata, never paths followed by this reader. Repeat aliases retain exact bytes and add no scenario coverage. No execution authentication, compiler-preservation or production-readiness claim.';
 export const counterPacketModes = ['off','on','chialisp','rue-off','rue-on'];
 export const counterControlCounts = {originalGroups:5,originalAttempts:185,originalAccepted:80,originalTyped:75,originalRuntime:30,originalPrimary:195,mutantGroups:4,mutantAttempts:8,mutantFunding:4,mutantTransitions:4,mutantPrimary:12,attempts:193,accepted:88,typed:75,runtime:30,primary:207,nativeGroups:3,nativeCalls:177,nativeAdapters:120,raw:891,rawOriginal:495,rawMutant:396};
@@ -46,7 +46,7 @@ function opaqueOrigin(value){assert(typeof value==='string'&&value.length<=1024&
 export function checkCounterPacketIndex(index,indexBytes) {
   closed(index,['protocol','profile','origin_raw','origin_protocol','origin_root','files','aliases','scope']);assert.equal(index.protocol,counterPacketProtocol);assert.deepEqual(index.profile,counterPacketProfile);assert.equal(index.scope,counterPacketScope);
   for(const key of ['origin_raw','origin_protocol','origin_root'])opaqueOrigin(index[key]);
-  assert(Array.isArray(index.files)&&index.files.length<1024&&indexBytes.length<=counterPacketProfile.max_file_bytes);let remaining=counterPacketProfile.max_total_bytes-indexBytes.length;const names=new Set();
+  assert(Array.isArray(index.files)&&index.files.length<counterPacketProfile.max_files&&indexBytes.length<=counterPacketProfile.max_file_bytes);let remaining=counterPacketProfile.max_total_bytes-indexBytes.length;const names=new Set();
   for(const row of index.files){closed(row,['path','bytes','sha256']);relative(row.path);assert(row.path!=='report.json'&&!names.has(row.path));assert(Number.isSafeInteger(row.bytes)&&row.bytes>=0&&row.bytes<=counterPacketProfile.max_file_bytes&&row.bytes<=remaining);assert(/^[a-f0-9]{64}$/.test(row.sha256));remaining-=row.bytes;names.add(row.path);}
   assert(index.aliases&&typeof index.aliases==='object'&&!Array.isArray(index.aliases)&&Object.keys(index.aliases).length<=1024);
   for(const [name,target] of Object.entries(index.aliases)){relative(name);relative(target);assert(name!=='report.json'&&!names.has(name)&&names.has(target)&&!name.includes('/bundle-'),'One-step aliases stay in the index');}
