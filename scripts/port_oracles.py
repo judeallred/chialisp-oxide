@@ -28,6 +28,37 @@ def _ordered_payout():
     return ordered_payout_oracle
 
 
+@lru_cache(maxsize=1)
+def _spuds_recipe():
+    return runpy.run_path(str(ROOT / "experiments/spuds/oracle.py"))
+
+
+def _spuds(solution):
+    """Strict typed decoding around the independent experiments/spuds host recipe."""
+    p = _precommit()
+    arguments = p.fields(raw_tree.parse(solution), 4)
+    if arguments is None:
+        return {"status": "rejected"}
+    terms, take, next_key, next_payout = arguments
+    terms = p.fields(terms, 4)
+    if terms is None or take not in (b"", b"\1"):
+        return {"status": "rejected"}
+    module, key, payout, round_atom = terms
+    if type(round_atom) is not bytes or len(round_atom) > 2:
+        return {"status": "rejected"}
+    round_value = int.from_bytes(round_atom, "big", signed=True) if round_atom else 0
+    if not 0 <= round_value <= 255 or p.integer(round_value) != round_atom:
+        return {"status": "rejected"}
+    if not all(type(v) is bytes for v in (module, key, payout, next_key, next_payout)):
+        return {"status": "rejected"}
+    try:
+        conditions = _spuds_recipe()["step"](module, key, payout, round_value, take == b"\1", next_key, next_payout)
+    except ValueError:
+        return {"status": "rejected"}
+    encoded = [p.proper(*(bytes.fromhex(x) if type(x) is str else p.integer(x) for x in row)) for row in conditions]
+    return {"status": "accepted", "output_hex": raw_tree.serialize(p.proper(*encoded)).hex()}
+
+
 def _factories():
     return runpy.run_path(str(ROOT / "scripts/check-canonical-factories.py"))
 
@@ -54,4 +85,5 @@ PORTS = {
     "precommit-registry": {"expected": lambda solution: _precommit().expected("precommit-registry", solution),
                            "generated": lambda: []},
     "ordered-payout": {"expected": lambda solution: _ordered_payout().expected(solution), "generated": lambda: []},
+    "spuds": {"expected": _spuds, "generated": lambda: []},
 }

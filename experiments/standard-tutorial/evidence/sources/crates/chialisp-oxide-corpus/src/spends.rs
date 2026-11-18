@@ -7,6 +7,7 @@ use serde::Serialize;
 mod ordered_payout;
 mod precommit;
 mod singleton;
+mod spuds;
 #[derive(Serialize)]
 pub struct Scenario {
     pub name: String,
@@ -50,6 +51,9 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     }
     if slug == "ordered-payout" {
         return ordered_payout::validate(code);
+    }
+    if slug == "spuds" {
+        return spuds::validate(code);
     }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {

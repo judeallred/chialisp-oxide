@@ -231,8 +231,8 @@ class TransportBoundaries(unittest.TestCase):
                 packet.Packet(directory)
 
     def test_executable_ceiling_is_separate_from_unchanged_packet_member_limit(self):
-        self.assertEqual(packet.PROFILE, {'max_files': 1024, 'max_file_bytes': 2 * 1024 * 1024,
-                                         'max_total_bytes': 16 * 1024 * 1024})
+        self.assertEqual(packet.PROFILE, {'max_files': 2048, 'max_file_bytes': 2 * 1024 * 1024,
+                                         'max_total_bytes': 32 * 1024 * 1024})
         self.assertEqual(packet.MAX_EXECUTABLE, 512 * 1024 * 1024)
         with tempfile.TemporaryDirectory(prefix='registry-host-large-') as name:
             executable = Path(name) / 'large-script'

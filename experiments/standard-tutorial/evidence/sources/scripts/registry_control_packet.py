@@ -11,9 +11,10 @@ from cargo_source_receipt import decode_json, validate_receipt
 import cargo_bundle
 PROTOCOL = 'chialisp-oxide-registry-controls-packet/v1'
 PRODUCTION_PROTOCOL = 'chialisp-oxide-registry-controls-packet/v2'
-MAX_FILES = 1024
+# Raised from 1024 files / 16 MiB when the 50-export corpus filled both budgets.
+MAX_FILES = 2048
 MAX_FILE = 2 * 1024 * 1024
-MAX_TOTAL = 16 * 1024 * 1024
+MAX_TOTAL = 32 * 1024 * 1024
 # Explicit caller-selected host executables are not transport members. Cargo
 # legitimately hardlinks its built binaries; retain the already reviewed host
 # executable ceiling without changing any packet/member/aggregate allowance.

@@ -1,0 +1,62 @@
+---
+title: Pay an authenticated queue across spends
+description: Split a committed payout queue into one spend per recipient with the reusable continuation helpers and a consensus-checked amount.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+Some work does not fit in one spend. This original teaching policy for
+[#16](https://github.com/judeallred/chialisp-oxide/issues/16) pays a committed,
+ordered list of recipients one per spend. Each spend recreates the same coin
+for the rest of the queue, so no spender can skip, reorder, inject or end early.
+
+## Read the policy in three languages
+
+<SourceComparison slug="ordered-payout" />
+
+The export uses the facade’s `chialisp_oxide::continuation` helpers:
+
+- `queue_item(domain, recipient, next)` and `queue_end(domain)` build the
+  queue’s hash chain;
+- `list_hash_2` hashes the curried `(module head)` list;
+- `self_curried(module, terms_hash)` gives the successor’s puzzle hash.
+
+They are ordinary functions over the reviewed SHA bridge, not compiler
+intrinsics, and they choose no policy. Order, funds and termination stay
+explicit in the export.
+
+## Let consensus count the remaining work
+
+A funded instance curries only its own module hash and the digest of the
+remaining queue. The spender supplies `(RECIPIENT NEXT MY_AMOUNT)`, and the
+policy emits `ASSERT_MY_AMOUNT(MY_AMOUNT)`, so consensus checks the amount
+instead of the puzzle trusting it:
+
+- the opening must hash to the committed head;
+- the final step (`NEXT` is the terminal digest) requires exactly one 1,000-mojo
+  payout and creates no successor;
+- a nonterminal step requires at least two payouts and recreates the module
+  curried with `NEXT` and the amount minus one payout.
+
+Because the budget is the coin’s value, the curried state holds no counter and
+the queue needs no on-chain length table. The host must check before funding
+that the coin holds one payout per recipient and that the module field names
+the selected artifact; a mis-funded instance can become permanently stuck.
+
+<ValidationCases slug="ordered-payout" labels={["first of three pays and continues with two payouts", "final step pays and creates no continuation", "skipped item rejected", "early end with terminal next rejected"]} />
+
+## Advance a real chain
+
+The corpus funds an actual self-curried instance in the SDK simulator for the
+Rust, Chialisp and Rue builds. Three steps pay every recipient in order across
+mined blocks. A misstated amount with a valid opening fails with
+`AssertMyAmountFailed`, and replaying a consumed step fails with `DoubleSpend`;
+each rejected bundle leaves the simulator unchanged.
+
+Advancement is permissionless: a third party can race a valid step but cannot
+change the recipients, order or amounts. Nothing guarantees that anyone
+advances the queue, inclusion or cross-block atomicity, and these finite
+observations are not a compiler-preservation proof.

@@ -1,0 +1,82 @@
+---
+title: Play a hot-potato pot game
+description: Follow a finite self-recreating pot coin whose signed takes grow the pot and reset its timer until the last holder claims.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+
+**WIP prototype. Not ready for use. Do not use for real funds or production puzzles.**
+
+Spuds is a small original teaching game for
+[#10](https://github.com/judeallred/chialisp-oxide/issues/10). One coin is the
+pot. A player *takes* the potato by adding exactly 1,000 mojos and becoming the
+holder, which recreates the coin and restarts its five-block window. If nobody
+takes it again within that window, the last holder *claims* the whole pot.
+
+The policy is an ordinary Rust Cargo export with nominal SDK values and named
+condition constructors. Native `cargo check` and `cargo test` check Rust; the
+additional `cargo chialisp-oxide check` checks this prototype’s supported CLVM
+subset. Neither establishes that the game is fair or secure.
+
+## Read the policy in three languages
+
+<SourceComparison slug="spuds" />
+
+The Rust export and Chialisp reference were promoted unchanged from the
+original [`experiments/spuds`](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/spuds)
+policy; the Rue port is a separate independent translation. The Python oracle
+reuses that experiment’s host recipe, which computes every successor hash and
+intent message with `hashlib`.
+
+## State lives in the curried terms
+
+A funded pot curries one proper list as its single argument:
+
+```text
+(MODULE_HASH HOLDER_KEY HOLDER_PAYOUT_HASH ROUND)
+```
+
+Round *r* holds exactly *r* × 1,000 mojos, up to round 8. The remaining solution
+is `(TAKE NEXT_KEY NEXT_PAYOUT_HASH)`. Every path returns the same six
+conditions:
+
+1. `AGG_SIG_ME` for that path’s key and intent message;
+2. `ASSERT_MY_AMOUNT` for the round’s exact pot;
+3. `ASSERT_HEIGHT_RELATIVE(1)`, a minimum one-block coin age;
+4. a take’s `ASSERT_BEFORE_HEIGHT_RELATIVE(5)`, or a claim’s `ASSERT_HEIGHT_RELATIVE(5)`;
+5. one `CREATE_COIN`: the next round’s pot on a take, or the whole pot to the
+   holder’s committed payout hash on a claim;
+6. `CREATE_COIN_ANNOUNCEMENT` with the same intent message.
+
+A take is signed by the **new** holder over the successor’s puzzle hash, so the
+signature names exactly which pot they are taking and who receives it. The
+extra 1,000 mojos must come from another coin in the same bundle; the pot only
+asserts its own amount and creates a larger successor.
+
+<ValidationCases slug="spuds" labels={["take round 1 emits required topup and reset state", "claim round 1 emits age/signature conditions, not consensus execution", "take at cap", "padded round"]} />
+
+## Consensus enforces the rules
+
+The puzzle only emits conditions. Signatures, ages and the bundle’s value
+balance are checked by consensus, so the corpus also plays an actual game in
+the SDK simulator for the Rust, Chialisp and Rue builds:
+
+- a take with no signature fails with `BadAggregateSignature`, and one with no
+  top-up coin fails with `MintingCoin`;
+- two signed takes grow the pot from 1,000 to 3,000 mojos across blocks, and a
+  claim before the window closes fails with `AssertHeightRelativeFailed`;
+- after the window a take fails with `AssertBeforeHeightRelativeFailed`, and the
+  last holder claims all 3,000 mojos;
+- replaying the consumed claim fails with `DoubleSpend`.
+
+Every rejected bundle must leave the simulator state exactly unchanged.
+
+## What the game does not guarantee
+
+Takes race. Anyone with a key can sign a take for themselves, and block
+producers can order or censor competing takes, so the outcome is exposed to
+MEV. There is no open bidding, refund or share for the previous holder, and the
+host must check before funding that the module field names the selected
+artifact. These finite vectors and simulator runs are recorded observations,
+not a fairness, liveness or compiler-preservation proof.

@@ -1,0 +1,84 @@
+// Original teaching comparison of the finite Spuds hot-potato policy (#10).
+// WIP prototype; not ready to secure real funds.
+type Terms = (Bytes32, (PublicKey, (Bytes32, (Int, nil))));
+
+const MINIMUM_RAISE: Int = 1000;
+const MAXIMUM_ROUND: Int = 8;
+const MINIMUM_AGE: Int = 1;
+const TAKE_WINDOW: Int = 5;
+// UTF-8 "chialisp-oxide/spuds/take:v1" and "chialisp-oxide/spuds/claim:v1".
+const TAKE_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f73707564732f74616b653a7631;
+const CLAIM_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f73707564732f636c61696d3a7631;
+
+fn main(...environment: Any) -> List<Condition> {
+    // Strict whole environment: ((module key payout round) take next_key next_payout).
+    // Claims still validate the two next-holder fields, then ignore them.
+    assert environment is (Terms, (Bool, (PublicKey, (Bytes32, nil))));
+    let terms = environment.first;
+    let module = terms.first;
+    let holder_key = terms.rest.first;
+    let holder_payout = terms.rest.rest.first;
+    let round = canonical_u8(terms.rest.rest.rest.first);
+    let take = environment.rest.first;
+    let next_key = environment.rest.rest.first;
+    let next_payout = environment.rest.rest.rest.first;
+
+    assert round >= 1;
+    assert round <= MAXIMUM_ROUND;
+    let amount = round * MINIMUM_RAISE;
+    if take {
+        assert round < MAXIMUM_ROUND;
+        let successor = instance(module, next_key, next_payout, round + 1);
+        let message = sha256(...[TAKE_DOMAIN, successor]);
+        [AggSigMe { public_key: next_key, message: message },
+         AssertMyAmount { amount: amount },
+         AssertHeightRelative { height: MINIMUM_AGE },
+         AssertBeforeHeightRelative { height: TAKE_WINDOW },
+         CreateCoin { puzzle_hash: successor, amount: amount + MINIMUM_RAISE },
+         CreateCoinAnnouncement { message: message }]
+    } else {
+        let message = sha256(CLAIM_DOMAIN);
+        [AggSigMe { public_key: holder_key, message: message },
+         AssertMyAmount { amount: amount },
+         AssertHeightRelative { height: MINIMUM_AGE },
+         AssertHeightRelative { height: TAKE_WINDOW },
+         CreateCoin { puzzle_hash: holder_payout, amount: amount },
+         CreateCoinAnnouncement { message: message }]
+    }
+}
+
+// Strict typed u8: canonical, nonnegative and at most 255; padded atoms reject.
+fn canonical_u8(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length <= 2;
+    assert value >= 0;
+    assert value <= 255;
+    assert encoded.length == 0
+        || substr(encoded, 0, 1) != 0x00
+        || (encoded.length > 1 && (substr(encoded, 1, 2) as Int) < 0);
+    value
+}
+
+fn atom_hash(value: Bytes) -> Bytes32 {
+    sha256(...[0x01, value])
+}
+
+fn pair_hash(left: Bytes32, right: Bytes32) -> Bytes32 {
+    sha256(...[0x02, left, right])
+}
+
+// Tree hash of (a (q . module) (c (q . (module key payout round)) 1)).
+fn instance(module: Bytes32, key: PublicKey, payout: Bytes32, round: Int) -> Bytes32 {
+    let nil_hash = atom_hash(nil as Bytes);
+    let terms = pair_hash(atom_hash(module),
+        pair_hash(atom_hash(key as Bytes),
+            pair_hash(atom_hash(payout),
+                pair_hash(atom_hash(round as Bytes), nil_hash))));
+    let quoted_terms = pair_hash(atom_hash(0x01), terms);
+    let environment = pair_hash(
+        atom_hash(0x04),
+        pair_hash(quoted_terms, pair_hash(atom_hash(0x01), nil_hash)),
+    );
+    let quoted_module = pair_hash(atom_hash(0x01), module);
+    pair_hash(atom_hash(0x02), pair_hash(quoted_module, pair_hash(environment, nil_hash)))
+}

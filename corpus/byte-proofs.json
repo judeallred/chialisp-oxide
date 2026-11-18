@@ -226,6 +226,10 @@
       "ordered-payout": {
         "entry": "chialisp_oxide_puzzles::ordered_payout::puzzle",
         "source": "puzzles/ordered-payout/puzzle.rs"
+      },
+      "spuds": {
+        "entry": "chialisp_oxide_puzzles::spuds::puzzle",
+        "source": "puzzles/spuds/puzzle.rs"
       }
     },
     "sources": [
@@ -519,11 +523,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "ac3ce25e6ba6c2de0013afe05d2df5445be3aca826e894f9f5659e18062bdde7"
+        "sha256": "faae2f69d447e95208f2c28668dd38e3cf60258af1c0e9d555de2743be167806"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "13909bf1a1c57c8614713dce6b7336081fbbeafaa2bbea8b657e11c843cd5c75"
+        "sha256": "4a8fa5c088929281995d8251254ebceb1dde9c85e0696fe2d9c5780faeafd1ad"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -575,7 +579,7 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-        "sha256": "8c31ce729e819a17f7a134e207470d8e1a9214759939fdfbc8a66dcb4b7b53ef"
+        "sha256": "bf09aeebee30122feef48c8b8b6036ef7f435c594af281c8d47b17357b151aae"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
@@ -611,11 +615,11 @@
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-        "sha256": "da378f20f33b4f6f5675da66aac2003c3e476d0fabe6b81b45ba2de08dbfa64a"
+        "sha256": "da540a1c1845f864b0d54681e962c1348f14babb01805b2ec4ccfb66463c3c67"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
-        "sha256": "a4af9ada5c3e2bfa9c185f106769b9302273aef71504e5cf00ef278bcb7351d5"
+        "sha256": "29bcec10c5acc61c49fa78f56054fd558c910742f6b893ce4869cda371141549"
       },
       {
         "path": "crates/chialisp-oxide/Cargo.toml",
@@ -691,7 +695,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "eb4e66cc4afd61e65ba950861b61139d474f78fa70692c3e45306ae1c8ad936d"
+        "sha256": "a50564036303e0d080e9c718337e527cea8f116710e380d11002339f931d9ec9"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -859,7 +863,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "ac78d215304a05a3b06c8199e750c7160c086b302189e9e74225e8d1a46424ff"
+        "sha256": "59a145a712ef8ccecb0fa3ee3f7676e91ef207e02993c2060c32f0eb6ed8c491"
       },
       {
         "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -1140,6 +1144,22 @@
       {
         "path": "puzzles/split-payment/puzzle.rs",
         "sha256": "8db8796012db61e62fbd167527bda65b8da9c6c9263a2afe56e3cc43ab6af9bd"
+      },
+      {
+        "path": "puzzles/spuds/puzzle.json",
+        "sha256": "e3c06aea05c90f5a893de0b668d34f9ec0790884092e077d2b7aca3a64bce391"
+      },
+      {
+        "path": "puzzles/spuds/puzzle.rs",
+        "sha256": "bc0715c4f200d103ec3b693fd4398cecaab4c603a72108ffb2b57005ae8e3909"
+      },
+      {
+        "path": "puzzles/spuds/puzzle.rue",
+        "sha256": "5fa3a6343400cb5214f3c6ae78c967f1475881c39c738ffea1097029c85581a2"
+      },
+      {
+        "path": "puzzles/spuds/reference.clsp",
+        "sha256": "a838c8f1310763e3e5f5bc1fed24b3ef5ab176b40577d235064d8799938a7104"
       },
       {
         "path": "puzzles/standard-delegated-hidden/fixture_public.json",
@@ -1484,7 +1504,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/off/manifest.json",
-      "sha256": "5191b0b748b51b1ebfddd828df32d027284bf9407b048cfd7847e7045d857eee"
+      "sha256": "e9f3cb6d989602fc15050236855fdd834bab9c4083260b57e8ff31dc7f041f56"
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/on/84008f3a1e2c28ed0c88781c1b80b226712490e8b10b326ec2230088bf831086.clvm.hex",
@@ -1528,7 +1548,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/bundles/on/manifest.json",
-      "sha256": "b120583f31e8b8ec8987a9c7881384c97e5a138e215869099f7399d4f35d79aa"
+      "sha256": "4a7eeb081c0942d390b485606a7134d9c5c5999b85fb12cda7c93504c4816798"
     },
     {
       "path": "corpus/boomerang-source-controls/inputs/off-drop_claim_signature-timely_unsigned_claim.json",
@@ -1644,7 +1664,7 @@
     },
     {
       "path": "corpus/boomerang-source-controls/last-host-window.json",
-      "sha256": "22c206c55761327d596ab2e8ea6f919318a3cb0b923fa27cd6006f3df45417bf"
+      "sha256": "e061d7b0fc3762102688dedc050ebc1c333fa800857bf9f9983b7a9f546a88a7"
     },
     {
       "path": "corpus/boomerang-source-controls/ledger-request.json",
@@ -1656,11 +1676,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/logs/00.stderr",
-      "sha256": "dc5047e57833f537d6762f5bd92fadf1edc2585e0d7d007a24d6d31a41254618"
+      "sha256": "931b98fb0b4bbc89a5ef954ed5004f60a6183192e2a339f62e0b3babd2f6aa4e"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/00.stdout",
-      "sha256": "49a3021c7de7e051937c62c6964f810499d01e6d524583b839418d240759f926"
+      "sha256": "ffa8e4a116fb6ae5edf8587b808656fb5214936d6e0c6f98ced6ddec7ef6cbac"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/01.stderr",
@@ -1776,11 +1796,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/logs/15.stderr",
-      "sha256": "dc5047e57833f537d6762f5bd92fadf1edc2585e0d7d007a24d6d31a41254618"
+      "sha256": "ee78b518572858459bcb15f7b706d897025f384de5913b73b5ee342f0d45aa7e"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/15.stdout",
-      "sha256": "a6e52557870906c96e1efb2fee98da4a12b549bd23f4dc67f874c3338196dfc8"
+      "sha256": "ccf9df44581732d77105b695d26c90511b0fc88c3ecf1337d536a5d831360dae"
     },
     {
       "path": "corpus/boomerang-source-controls/logs/16.stderr",
@@ -1912,27 +1932,27 @@
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/2.log",
-      "sha256": "d92b4034478826f4979e6c52d628435eeb10c69b8fb6079d74402b0e4db11ad4"
+      "sha256": "a32eea75c8a1e6c33d5c4e25913e63d554d16e8d90c77dff396fd64f496531c2"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/3.log",
-      "sha256": "b4f319aeb9f0a10e6ad5bace02809f041fd7b7aa750957868ad72510c903e1f4"
+      "sha256": "f6ae3234c952065e1d2d90e6a4f522e5163d9e18aa15aa4fb64ebcc9ca61a7ee"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/4.log",
-      "sha256": "35f2d9ba8b19648a803ab3a522706228e409f1226dac596e9b634791413db99a"
+      "sha256": "be264499b31792e2174526de230c152466b6dec6a57ecb48a11cd53b2521c464"
     },
     {
       "path": "corpus/boomerang-source-controls/native-logs/5.log",
-      "sha256": "299f16a2c523be18fef769975d2df00e0505521db047540feea3a74b94666887"
+      "sha256": "d7dae192715495fa89ccbe279af3efb9792c1dae1768228e369035e68a1df673"
     },
     {
       "path": "corpus/boomerang-source-controls/native-receipt.json",
-      "sha256": "d0705ffaa6aac2af9467daf88954ebd388dfb4439a501ca8fa1fca9351b9d589"
+      "sha256": "e45b75764ce4e0a6072aba5edaa050456dc29adba64477f02b845bdff1a6deef"
     },
     {
       "path": "corpus/boomerang-source-controls/native.log",
-      "sha256": "b4f319aeb9f0a10e6ad5bace02809f041fd7b7aa750957868ad72510c903e1f4"
+      "sha256": "f6ae3234c952065e1d2d90e6a4f522e5163d9e18aa15aa4fb64ebcc9ca61a7ee"
     },
     {
       "path": "corpus/boomerang-source-controls/package/Cargo.lock",
@@ -1984,11 +2004,11 @@
     },
     {
       "path": "corpus/boomerang-source-controls/report.json",
-      "sha256": "8bc012f79604d6a038a0a79600dfd34f056a4205c9384b6a7ef97be2ff4648ca"
+      "sha256": "802ed82b2c8c8782a439e386fe42cd90a6a4777f254881427b8f2fd637277dd3"
     },
     {
       "path": "corpus/cat-genesis-source-controls/artifacts.json",
-      "sha256": "7a784c16046b58623806757ad9a886b5b0316d48b97bb727262bd6b68b4b7ce9"
+      "sha256": "2d4546dcf51a1d3b9daa2c2d4246940e4069e7ba44464889213b90f9d02a19b3"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/b1f2f325a4f75483f6cc7b7efb32944875ca17b79fd0e0302e91fd0dbc9da3f4.clvm.hex",
@@ -2016,7 +2036,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/manifest.json",
-      "sha256": "dfc7ba84f4f74eb873df68b0412ba2e431d4a98c5c5ddc9d29cf4269f0b106ef"
+      "sha256": "f6b25020df1555886e6049b408358ee5af7226bcf3c3ac5a371c74850a0565b1"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-off/source-1a28a3633cfa9d3e3d40784ac0e5977bd056a490be663a2b90e0e1ce74ca03a8.bin",
@@ -2068,7 +2088,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-on/manifest.json",
-      "sha256": "f4a9f38002d6fd447e38afafd5828633168be9a005e868d7ec32f5545ecb19d2"
+      "sha256": "5b79ec5d8bd31a1c5649c62717ef340c50307b2ade023131cfa4634709a0ec48"
     },
     {
       "path": "corpus/cat-genesis-source-controls/bundle-on/source-1a28a3633cfa9d3e3d40784ac0e5977bd056a490be663a2b90e0e1ce74ca03a8.bin",
@@ -2096,11 +2116,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/capture.json",
-      "sha256": "da650d11efaf176d528f507390b44e0dd0b37d1813b9dd66cd4fc9a257bb5fe3"
+      "sha256": "fa7b7969e2caeb4c6786a9b8d6063f157a65a1c737839a27819dd3df1ecc52fc"
     },
     {
       "path": "corpus/cat-genesis-source-controls/compiler-query.command.json",
-      "sha256": "3382d73428b73d51cef86e2a32dffb8c1701b33b3e1440c4112c195b4c4d8d69"
+      "sha256": "ddf7dac38c2c527308b6b393eb321982ec500434ed7c2f1ceb5431801f5834d7"
     },
     {
       "path": "corpus/cat-genesis-source-controls/compiler-query.stderr",
@@ -2112,7 +2132,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/driver-query.command.json",
-      "sha256": "c092b66ab34f86c9b5253bef13b745f5576c292caf6712ccdc0ecdfd26ac20e5"
+      "sha256": "d1803472e4c0dfc2b31b182dd2df0dc4c87c86bef7ef44c254494529fcd7c9f8"
     },
     {
       "path": "corpus/cat-genesis-source-controls/driver-query.stderr",
@@ -2124,47 +2144,47 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/execution.json",
-      "sha256": "d50fc69fc6c0026d354a8b733ae7e9559d53f159f165fe4aca4f5cefff9a0c1f"
+      "sha256": "692a361a4d31441a23b3428a8d09b002fa0cd43abfc87da19426f58601ecfb13"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.command.json",
-      "sha256": "441f5d77d8e989c514fce5aa69bf1094c5a66a006d3e231e821ed78f582652c1"
+      "sha256": "268771d0694da25c670c14bdd78fbee4bd829aeac7177cd2e0942d0b65d82940"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.stderr",
-      "sha256": "4ad4baeef5c6a4003050776d3920346d463d705c6187b494d5ff635e90cac43b"
+      "sha256": "453c2fbfe0addbea42c58dd7ed4ca8b8220313164d09fcb1a3473d2a0071bff8"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-off.stdout",
-      "sha256": "c7d7516b2f5c75fd00d87927a2f4c7fdeffdd89867f95d7a96d729a105db0168"
+      "sha256": "f730467c337f1bf72a85dd2fd45065f561e0332f26434c09c12d95a7d7f0eeda"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.command.json",
-      "sha256": "0687a3bc10b3f4cb23bdb21866a91d203a3b415ebfd322890a1e5b7b07100b5f"
+      "sha256": "894f06a20069c4f0a2bb689a73d0160dfa90afc969de29d0daa12bccfbb72c3b"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.stderr",
-      "sha256": "7bf03263b6e4e9e75226a5aebb84f08e701a92597a5b43f0a4dc6c0a9c00513b"
+      "sha256": "02167b9373bfb9feba71f6694f0e305b4789a5416649a4c38f7324dc0d2e73ba"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-on.stdout",
-      "sha256": "079ce339a4ab353d945be0ba95b4fd8532fec9bb6224aa1f6b6e2b7f7d77836e"
+      "sha256": "f9cbcdc54add6c8f1447624e0812777d8a60c4762e75bf1f7aa0a5a4c9ccf25e"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-window-after.json",
-      "sha256": "fd661f02918da31634347e617dd41c2ee8a2934a59ef4ec9ccb7d47fe5dae554"
+      "sha256": "d1d57f5862134af85d8163a0d093a1a479c6b029f9bf289d726e7101f638e105"
     },
     {
       "path": "corpus/cat-genesis-source-controls/extract-window-before.json",
-      "sha256": "fd661f02918da31634347e617dd41c2ee8a2934a59ef4ec9ccb7d47fe5dae554"
+      "sha256": "d1d57f5862134af85d8163a0d093a1a479c6b029f9bf289d726e7101f638e105"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.command.json",
-      "sha256": "2ef790f109218a6cf460c71f99b4134c86d4e6275e465f99345eb6e5ed5ed98f"
+      "sha256": "66d71fc18f60d5d3ae8013cb8dc8214fe236b00656555f5ddd143a35c37fb42d"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.stderr",
-      "sha256": "8950be1e8f4499f41b8e38ef15f09a0e2671be53a43aa5dec4d794320908881d"
+      "sha256": "c2ccae29be8ebbd8973f3201e5f6646ec32bdad22fe9c3866ff8d1618ed74896"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-build.stdout",
@@ -2172,11 +2192,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.command.json",
-      "sha256": "691ad32269db46aba882946ef61b4b9935a22408b1ed7794104a0310a72cc7f5"
+      "sha256": "2cf015ba14f439583028b4f9937752f601df9dcc5ecc40b1fe478bd1f498a57e"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.stderr",
-      "sha256": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36"
+      "sha256": "f591e097f22f91dd5c31fbbf7e587d80c0a4e0ed594f9c9012a544f38c52d926"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-clippy.stdout",
@@ -2184,7 +2204,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-fmt.command.json",
-      "sha256": "ea99f200b84ad6760c7ad8a5217ffb6d8c8c85b4bec28df313701167900a4df3"
+      "sha256": "46b3370b37b383550d41e067609815cfc6a832142377951cf3534115e4e7b76e"
     },
     {
       "path": "corpus/cat-genesis-source-controls/host-fmt.stderr",
@@ -2196,11 +2216,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.command.json",
-      "sha256": "23c465ad982e3ff9b9c42db013f6a4e9e9ef389b23b67569ca051ba5a7ff8c7c"
+      "sha256": "c610765262d9b6590149278b2170e19394ae84d3d3306169214b2e45a2c415d2"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.stderr",
-      "sha256": "32d47f791eadf1ea833d9f8c84fbfea5cab1f438e113e93be05bd5b908e1c2ac"
+      "sha256": "8950be1e8f4499f41b8e38ef15f09a0e2671be53a43aa5dec4d794320908881d"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-clippy.stdout",
@@ -2208,7 +2228,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-fmt.command.json",
-      "sha256": "51e578df73acd8607fb28e6036dd38636e4a7fdf3a8442c3976f1303403e0761"
+      "sha256": "f475fbd5a7645f798809552fd72df5c622fd105bd9fa8c72fe93ccfb5ec711ac"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-fmt.stderr",
@@ -2220,35 +2240,35 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.command.json",
-      "sha256": "c3420bdaa75df5b0c40945967bbe8eb367ea247b5cef143de2c11138a000faf9"
+      "sha256": "7a3908989724e3a7d544ccec88f501a83456b01c1d498beed53d021919f166f0"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.stderr",
-      "sha256": "6df065e8bb4572027f49887eaea6ba1c21263148afa69a7d9dc9b90295b77957"
+      "sha256": "212a2460523523fa6cadb5f47fc6ed0575586208cd7d940cfe6f6e67c79cbd73"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-tests.stdout",
-      "sha256": "5e02d250f9a6aa54ce57c91cbcb49c918bd0f20fce67f5ddcfd58143db4a1aff"
+      "sha256": "e55a868880d80c0593b70354c9eabd6a3a36038e65a11b93cb7fb73f99fab34f"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-window-after.json",
-      "sha256": "bc47cc1d2d68925781abf1c9c873ddf160a6bb6d90515398bbe82d2f5531cd6e"
+      "sha256": "d23b60aae08b2cfac1fd83c09fbd07bea8b5ea37fd262e85f0ac92337e47e80b"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native-window-before.json",
-      "sha256": "bc47cc1d2d68925781abf1c9c873ddf160a6bb6d90515398bbe82d2f5531cd6e"
+      "sha256": "d23b60aae08b2cfac1fd83c09fbd07bea8b5ea37fd262e85f0ac92337e47e80b"
     },
     {
       "path": "corpus/cat-genesis-source-controls/native.json",
-      "sha256": "cb66c77f352896d5ee4f95efe844604468d5b51f33e790489ab316f509b21344"
+      "sha256": "f4edb78f142ebdf6a9f2618c83fe9fccd8cd567b5f1a80f4ebaf3c8d89e41ba6"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.command.json",
-      "sha256": "666e6ab02057a743e98ef7b06287325750077803288bbbdca52c5f492a2c935d"
+      "sha256": "c49eb6371420d2ab66b39500708e216bdb4804e740982ddcf54fbe8be8aa3dba"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.stderr",
-      "sha256": "6451a5b05caa45cac6f0130a41a2f58941f817f028a137ab9ff6fe94d9ef5a87"
+      "sha256": "95a446dcf2e3b9f1a3a948610ddf38e24f623d49e1b0f8dc3783f1f6b9cad0fa"
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepare-lock.stdout",
@@ -2256,7 +2276,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/prepared.json",
-      "sha256": "1f977740db6d28482f93693ae2552d54975949e95fd3865a9d544091b072cf9c"
+      "sha256": "25cbe538d7e49ea3f74260c06f088b96e0ff2df3354845f5e5d3aca44c6876ad"
     },
     {
       "path": "corpus/cat-genesis-source-controls/project/Cargo.lock",
@@ -2292,7 +2312,7 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/recorded-reader.command.json",
-      "sha256": "fd51f42956410c5f0ef73482387b14a73c0fbfa227272c50d754146ced77a4bf"
+      "sha256": "30298a05503b01624725440a306ce1d1dc2f70a1e06fd02955583948360afa53"
     },
     {
       "path": "corpus/cat-genesis-source-controls/recorded-reader.stderr",
@@ -2304,11 +2324,11 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/report.json",
-      "sha256": "27c088c81307cee31fbb13741112ef595f13051d9b90b1c6e2feda3e2fb91d11"
+      "sha256": "5b250d9446f88ec7184903bf83cf2b6d5a35676bd2f3b5028eb1a532b045d2ef"
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt1.command.json",
-      "sha256": "861c4213165700c0c2e4064dc1443182a816b8f8363bee2821bea1a593bbdeda"
+      "sha256": "1a7d2ba3cfdbaf40a4281cf954a4ecae5ee65577ffe6860f8ed2e4ed2f00a30c"
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt1.stderr",
@@ -2316,23 +2336,23 @@
     },
     {
       "path": "corpus/cat-genesis-source-controls/rust-lifecycle-attempt2.command.json",
-      "sha256": "fe0c49d6623d4d24609d78d54ae62b1ad57953a688c59a1fd07f39272b9c18c3"
+      "sha256": "67ed06d7519a46654aefac1f61c0c3d5518930e569235ff60047f4d18c7b16ec"
     },
     {
       "path": "corpus/cat-genesis-source-controls/sdk-window-after.json",
-      "sha256": "ee63faeef1da2666144afa5e55086c32b5abd9b379d7a052c34510ea95899531"
+      "sha256": "af632712cfbe7373894d1be6e20b47ee8b654a006ab35a81d37e024fac7c070c"
     },
     {
       "path": "corpus/cat-genesis-source-controls/sdk-window-before.json",
-      "sha256": "ee63faeef1da2666144afa5e55086c32b5abd9b379d7a052c34510ea95899531"
+      "sha256": "af632712cfbe7373894d1be6e20b47ee8b654a006ab35a81d37e024fac7c070c"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.command.json",
-      "sha256": "5ce7e185d802cca64a9fc9db26a4fb02564f9420cc8249ba3b505949cef648d9"
+      "sha256": "422e192c6d5893af4817b848fa7efe97890a92a64ff2a5eb5e11071dcc2b50ab"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.stderr",
-      "sha256": "97c2d0deaeaef83148e05d62d6225e4b864c60a6bed066b5179fce6cb2461c9c"
+      "sha256": "1a98b483f0a149d41429fd448c3ad9c717e0a295d3bc8c884c8e5ae4f8af8b73"
     },
     {
       "path": "corpus/cat-genesis-source-controls/subset-check.stdout",
@@ -2352,7 +2372,7 @@
     },
     {
       "path": "corpus/corpus-append-existing-p2-controls.json",
-      "sha256": "d66b69acb482f2195d357a2fde7a25209adb4ae72b614c54a4239f0d6a26402a"
+      "sha256": "4279a417557f36849d231ad6597f360556ef7379e37e219b52258780f6545aac"
     },
     {
       "path": "corpus/corpus-append-existing-p2-costs.json",
@@ -2360,7 +2380,7 @@
     },
     {
       "path": "corpus/corpus-append.json",
-      "sha256": "7347347701942518b57870dfe4185ffd6b5f9ca056fca3fd9c244a7282f3d0a6"
+      "sha256": "516388798c269954e494156b99ceb9b57bff537fe276f9a4ddaae4bc31078322"
     },
     {
       "path": "corpus/cost-optimization-baseline.json",
@@ -2456,7 +2476,7 @@
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/off/manifest.json",
-      "sha256": "63d974ad174c36ce6f8350e6abe48d50c8e01380707470f0c969c8d9abd40bec"
+      "sha256": "4f4f3ae9689d2c80668bf1a6f24286c5b013dfb18bad8fd0867310f8ddb5beb6"
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/on/0f9f2343653ef3065f4e21b1069a9e94a1a9d10a332588afbb893bf8669f70b7.clvm.hex",
@@ -2492,19 +2512,19 @@
     },
     {
       "path": "corpus/p2dc-source-controls/bundles/on/manifest.json",
-      "sha256": "9afb0c85483d5ef5004a4fbd102dd7b4aa37584996d27c6ec588fb4b65c88a69"
+      "sha256": "75f5e9f5567c05792337207d7517ccb8951294468fc2802781d5ab475bd9b132"
     },
     {
       "path": "corpus/p2dc-source-controls/last-host-window.json",
-      "sha256": "3dbf7e3b4e181ea36abfb7c8aac8c95b643280baea2b6d4c3fd1331c052dda16"
+      "sha256": "1b06915f08d1c698074101971cd9d51e5d6e5bcf9619fa68a82e4f24a49b01c8"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/00.stderr",
-      "sha256": "95d9fb59ec072d86cb98cc342121e1e9604c8ecb0c27cd6617351a6fdfa14a2a"
+      "sha256": "cd3bc10c6ce3622708775890459a53a1655f244ce2184905bed49fc9e98b22b4"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/00.stdout",
-      "sha256": "41eebb98c7541551ae113d524bf14bf70a53b1eba10c628f61ed7df140d87d5d"
+      "sha256": "56d980fcf50cb1545dbf5418762387b4a9331fa5ba629e6f14b793768b81217b"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/01.stderr",
@@ -2588,11 +2608,11 @@
     },
     {
       "path": "corpus/p2dc-source-controls/logs/11.stderr",
-      "sha256": "04689d2653bd3ced955cb66928d94bbb0173acb903704ea309a34abad8729940"
+      "sha256": "aecd5da50ae57227dd086001374f5e6d27de5827686ce5dab3cb8e65769d78bd"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/11.stdout",
-      "sha256": "35903f2d990b3147b76722aad40ff2e026b8b9931c8be0fbb7ce116f94103a91"
+      "sha256": "0ebe9ee2e1e2d3730de5126c38bc9038451b7f5a9905b6630b6cb0708d9e0017"
     },
     {
       "path": "corpus/p2dc-source-controls/logs/12.stderr",
@@ -2676,11 +2696,11 @@
     },
     {
       "path": "corpus/p2dc-source-controls/native-receipt.json",
-      "sha256": "64dd3bbaa70823bd9e641b9229c9183197c833f0ba5fdcf8b55771263be86a9a"
+      "sha256": "8488d6f30b4d3cc392f1c6679b3c318a8a9cf232e35eacbd354e1f16659fef5c"
     },
     {
       "path": "corpus/p2dc-source-controls/native.log",
-      "sha256": "b37b0e6e93dbcc836fd4fd78c852e5a1b7d058d98e2af96d6bb2fb0ca7dc33d0"
+      "sha256": "99566ba686f58a13f2249ec3cbb6f4e17ef27e00ba2523c0bcb26d05d3230346"
     },
     {
       "path": "corpus/p2dc-source-controls/off-baseline-reject_ignored_improper_tail-solution.json",
@@ -2768,7 +2788,7 @@
     },
     {
       "path": "corpus/p2dc-source-controls/report.json",
-      "sha256": "f60a29ab12a241d1bb73bc89b940bd641c3d294028d49cee3749e0872c36573b"
+      "sha256": "fedcb473c13cfdf0383694412e81028b9e2b31286b35ce9972a4ee3d3dfffd9f"
     },
     {
       "path": "corpus/runtime-composition-baseline.json",
@@ -2976,7 +2996,7 @@
     },
     {
       "path": "corpus/validation.json",
-      "sha256": "35d39a8004c70fb67f17ecf339a00707561665a91f39237140cce595915e4855"
+      "sha256": "e267aa742235a0f765846e5dc0a41818420234b89e00e1b4b06aa0d1c130f5ce"
     },
     {
       "path": "crates/cargo-chialisp-oxide/Cargo.toml",
@@ -3144,11 +3164,11 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-      "sha256": "ac3ce25e6ba6c2de0013afe05d2df5445be3aca826e894f9f5659e18062bdde7"
+      "sha256": "faae2f69d447e95208f2c28668dd38e3cf60258af1c0e9d555de2743be167806"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native.rs",
-      "sha256": "13909bf1a1c57c8614713dce6b7336081fbbeafaa2bbea8b657e11c843cd5c75"
+      "sha256": "4a8fa5c088929281995d8251254ebceb1dde9c85e0696fe2d9c5780faeafd1ad"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -3204,7 +3224,7 @@
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-      "sha256": "8c31ce729e819a17f7a134e207470d8e1a9214759939fdfbc8a66dcb4b7b53ef"
+      "sha256": "bf09aeebee30122feef48c8b8b6036ef7f435c594af281c8d47b17357b151aae"
     },
     {
       "path": "crates/chialisp-oxide-corpus/src/spends/ordered_payout.rs",
@@ -3217,6 +3237,10 @@
     {
       "path": "crates/chialisp-oxide-corpus/src/spends/singleton.rs",
       "sha256": "e745d63ce22bdccb9ffad2515e307b70e7ff4f0f0bb5a9b181e86106422aa88b"
+    },
+    {
+      "path": "crates/chialisp-oxide-corpus/src/spends/spuds.rs",
+      "sha256": "56243aaab721eef638b10fed6cf286f8436801104c4067186688467f1b96f841"
     },
     {
       "path": "crates/chialisp-oxide-driver/Cargo.toml",
@@ -4320,11 +4344,11 @@
     },
     {
       "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-      "sha256": "da378f20f33b4f6f5675da66aac2003c3e476d0fabe6b81b45ba2de08dbfa64a"
+      "sha256": "da540a1c1845f864b0d54681e962c1348f14babb01805b2ec4ccfb66463c3c67"
     },
     {
       "path": "crates/chialisp-oxide-simulator/src/lib.rs",
-      "sha256": "a4af9ada5c3e2bfa9c185f106769b9302273aef71504e5cf00ef278bcb7351d5"
+      "sha256": "29bcec10c5acc61c49fa78f56054fd558c910742f6b893ce4869cda371141549"
     },
     {
       "path": "crates/chialisp-oxide-simulator/tests/wrong_key_signature.rs",
@@ -4768,7 +4792,7 @@
     },
     {
       "path": "puzzles/authoring.json",
-      "sha256": "eb4e66cc4afd61e65ba950861b61139d474f78fa70692c3e45306ae1c8ad936d"
+      "sha256": "a50564036303e0d080e9c718337e527cea8f116710e380d11002339f931d9ec9"
     },
     {
       "path": "puzzles/boolean-gate/puzzle.json",
@@ -4956,7 +4980,7 @@
     },
     {
       "path": "puzzles/lib.rs",
-      "sha256": "ac78d215304a05a3b06c8199e750c7160c086b302189e9e74225e8d1a46424ff"
+      "sha256": "59a145a712ef8ccecb0fa3ee3f7676e91ef207e02993c2060c32f0eb6ed8c491"
     },
     {
       "path": "puzzles/p2-conditions/puzzle.json",
@@ -5236,7 +5260,7 @@
     },
     {
       "path": "scripts/cat_genesis_evidence.py",
-      "sha256": "7ce51dadaad317a590eb1d04aff9f7dc6449c96872a0b4b6c0515d0831bbe1d0"
+      "sha256": "1ab9cd51809f6c0cbcbde212093077a807a0f9340fdbfeab54da9e0f6636614f"
     },
     {
       "path": "scripts/cat_source_controls.py",
@@ -5312,7 +5336,7 @@
     },
     {
       "path": "scripts/corpus_append.py",
-      "sha256": "b4bda3d4d5382557cc7cc7ff513b1ec664871907b7416cc0e44c987fd66c8c9e"
+      "sha256": "3282d637058cc8e232368637e78b4c0b8eb7b917c2c85f4eb77f3e3850779901"
     },
     {
       "path": "scripts/hashing_provenance.py",

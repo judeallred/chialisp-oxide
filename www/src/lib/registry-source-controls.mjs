@@ -9,7 +9,7 @@ import { repository } from './p2-costs.mjs';
 
 export const registryControlPacket = 'corpus/registry-source-controls';
 export const registryControlCounts = Object.freeze({groups:8,setup_sdk_attempts:16,setup_primary_observations:24,mutation_sdk_attempts:8,mutation_primary_observations:12,accepted_sdk_attempts:24});
-const profile = {files:1024,member:2*1024*1024,total:16*1024*1024};
+const profile = {files:2048,member:2*1024*1024,total:32*1024*1024};
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const names = ['alpha-drop-send','alpha-drop-create','beta-drop-send','beta-drop-create'];
 function relative(value) { assert(typeof value==='string'&&value.length>0&&value.length<=512&&!value.includes('\\')&&!path.isAbsolute(value)&&value.split('/').every(part=>part&&part!=='.'&&part!=='..'));return value; }

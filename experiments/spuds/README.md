@@ -1,7 +1,10 @@
 # Spuds: finite hot-potato source experiment
 
 **WIP prototype. Not ready for use or real funds.** This normal unpublished
-Cargo library is an original teaching policy for issue #10. It has no singleton,
+Cargo library is an original teaching policy for issue #10. The same policy is
+now also the paired-corpus [`spuds`](../../puzzles/spuds/puzzle.rs) export, with
+an independent Rue port and its own simulator game lane; this experiment keeps
+its separately captured evidence. It has no singleton,
 CAT, standard wallet integration or live-network lane. The current
 [successful capture](success-evidence/receipt.json) contains fresh complete Cargo
 bundles in both Rust modes and 51 executed primary-VM vectors per mode beside

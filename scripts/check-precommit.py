@@ -12,6 +12,7 @@ import tempfile
 
 import precommit_source_controls as controls
 import port_evidence
+import corpus_report
 import precommit_oracle
 
 
@@ -27,7 +28,7 @@ def main():
     packet = controls.load(args.source_controls)
     result = controls.validate(packet, args.source_controls.resolve().parent)
     if not args.source_controls_only:
-        report = controls.load(args.report)
+        report = corpus_report.decode(controls.read(args.report, corpus_report.REPORT_LIMIT))
         port_evidence.check_header(report)
         for slug in ("precommit-claim", "precommit-registry"):
             expected = lambda solution, slug=slug: precommit_oracle.expected(slug, solution)

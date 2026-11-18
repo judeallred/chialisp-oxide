@@ -70,8 +70,8 @@ class LedgerComponentDispatch(unittest.TestCase):
                 patch.object(counter, 'validate_report', side_effect=checked_pair) as pair_checked, \
                 patch.object(registry, 'validate_report', side_effect=checked_registry) as registry_checked:
             counts = self.check(self.actual)
-        # 40 retained generic scenario groups, 11 for each precommit slug and 3 for ordered-payout.
-        self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40 + 2 * 11 + 3))
+        # 40 retained generic scenario groups, 11 for each precommit slug, 3 for ordered-payout and 4 for spuds.
+        self.assertEqual(counts, (len(self.actual['puzzles']), sum(len(p['cases']) for p in self.actual['puzzles']), 40 + 2 * 11 + 3 + 4))
         self.assertEqual(old.call_count, 1)
         self.assertEqual(new.call_count, 1)
         self.assertEqual(cat_checked.call_count, 1)

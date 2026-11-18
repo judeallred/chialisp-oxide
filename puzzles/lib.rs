@@ -127,3 +127,6 @@ pub mod standard_delegated_hidden;
 
 #[path = "ordered-payout/puzzle.rs"]
 pub mod ordered_payout;
+
+#[path = "spuds/puzzle.rs"]
+pub mod spuds;

@@ -13,7 +13,8 @@
     "InvalidPuzzleHash",
     "InvalidCoinAmount",
     "AssertBeforeSecondsAbsoluteFailed",
-    "AssertHeightRelativeFailed"
+    "AssertHeightRelativeFailed",
+    "AssertBeforeHeightRelativeFailed"
   ],
   "scenarios": {
     "missing signature rejected with rollback": [
@@ -105,6 +106,19 @@
     ],
     "three-step queue pays every recipient in order across blocks and leaves no successor": [],
     "replaying a consumed step is rejected with rollback": [
+      "DoubleSpend"
+    ],
+    "takes require the new holder's signature and an external top-up": [
+      "BadAggregateSignature",
+      "MintingCoin"
+    ],
+    "two signed takes grow the pot across blocks and an early claim is rejected": [
+      "AssertHeightRelativeFailed"
+    ],
+    "after the window a take is rejected and the last holder claims the whole pot": [
+      "AssertBeforeHeightRelativeFailed"
+    ],
+    "replaying the consumed claim is rejected with rollback": [
       "DoubleSpend"
     ]
   },
@@ -500,6 +514,33 @@
       },
       {
         "name": "replaying a consumed step is rejected with rollback",
+        "codes": [
+          "DoubleSpend"
+        ]
+      }
+    ],
+    "spuds": [
+      {
+        "name": "takes require the new holder's signature and an external top-up",
+        "codes": [
+          "BadAggregateSignature",
+          "MintingCoin"
+        ]
+      },
+      {
+        "name": "two signed takes grow the pot across blocks and an early claim is rejected",
+        "codes": [
+          "AssertHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "after the window a take is rejected and the last holder claims the whole pot",
+        "codes": [
+          "AssertBeforeHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "replaying the consumed claim is rejected with rollback",
         "codes": [
           "DoubleSpend"
         ]

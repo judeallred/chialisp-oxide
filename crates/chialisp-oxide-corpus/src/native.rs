@@ -1112,6 +1112,23 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                     Amount::from_mojos(uint(&a, args[3])?),
                 ))
             }
+            "spuds" => {
+                ensure!(args.len() == 4, "arity");
+                let terms = self::args(&a, args[0])?;
+                ensure!(terms.len() == 4, "terms arity");
+                let round = u8::try_from(uint(&a, terms[3])?)?;
+                output(chialisp_oxide_puzzles::spuds::puzzle(
+                    (
+                        PuzzleHash(fixed_atom(&a, terms[0])?),
+                        public_key(&a, terms[1])?,
+                        PuzzleHash(fixed_atom(&a, terms[2])?),
+                        round,
+                    ),
+                    boolean(&a, args[1])?,
+                    public_key(&a, args[2])?,
+                    PuzzleHash(fixed_atom(&a, args[3])?),
+                ))
+            }
             "curry-hash" => {
                 ensure!(args.len() == 2, "arity");
                 output(chialisp_oxide_puzzles::curry_hash::puzzle(

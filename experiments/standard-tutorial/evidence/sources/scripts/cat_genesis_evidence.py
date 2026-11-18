@@ -13,6 +13,7 @@ import sys
 
 from registry_codegen_evidence import read, require
 import port_evidence
+import corpus_report
 
 ROOT = Path(__file__).resolve().parents[1]
 SLUG = "cat-genesis-by-coin-id"
@@ -218,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("--report", type=Path, default=ROOT / "corpus/validation.json")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
-    report = port_evidence.load_json(read(args.report))
+    report = port_evidence.load_json(read(args.report, corpus_report.REPORT_LIMIT))
     selected = [p for p in report["puzzles"] if p["slug"] == SLUG]
     require(len(selected) == 1, "exactly one actual CAT component required")
     result = validate_component(selected[0])
