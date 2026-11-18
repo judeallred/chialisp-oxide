@@ -14,6 +14,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from cargo_source_receipt import decode_json, validate_receipt
+import corpus_report
 import cargo_bundle
 import cargo_authoring
 import port_evidence
@@ -129,7 +130,7 @@ def validate_authoring(authoring):
             and authoring['manifest'] == 'puzzles/Cargo.toml' and authoring['library'] == 'puzzles/lib.rs',
             'exact captured Cargo authoring profile')
     exports = authoring['exports']
-    require(type(exports) is dict and len(exports) == 48, 'bounded complete48 exports')
+    require(type(exports) is dict and len(exports) == 49, 'bounded complete49 exports')
     entries = set()
     required = set(ROOT_SOURCES) | {'puzzles/authoring.json', 'puzzles/Cargo.toml', 'puzzles/lib.rs'}
     for slug, row in exports.items():
@@ -334,7 +335,7 @@ def bundle(packet, lane, template):
     optimize = lane == 'rust-on'
     declared = cargo_bundle._preflight_ir_declarations(manifest, reader, optimize)
     exports = packet.index['authoring']['exports']
-    require(len(exports) == 48 and set(declared) == {r['entry'] for r in exports.values()}, 'complete48 export identity')
+    require(len(exports) == 49 and set(declared) == {r['entry'] for r in exports.values()}, 'complete49 export identity')
     loaded, paths, required = {}, set(), {'manifest.json'}
     for row in manifest['entries']:
         value = cargo_bundle._artifact_details(row, packet.root / folder, reader, paths, optimize, 2, ir_declaration=declared[row['entry']])
@@ -422,10 +423,10 @@ def validate(root, *, current_root=None):
         for path, digest in before.items():
             require(sha(current_read(current_root, path)) == digest, 'current declared source differs: ' + path)
         full_raw = read(current_root / 'corpus/validation.json', 32 * 1024 * 1024)
-        full = decode_json(full_raw)
+        full = corpus_report.decode(full_raw)
         require(sha(full_raw) == origin['full_report_sha256'], 'current complete report digest differs')
         cargo_authoring.check_recorded(full['authoring'], current_root, [p['slug'] for p in full['puzzles']])
-        require(len(full['puzzles']) == 48 and port_evidence.puzzle_row(full, SLUG) == template, 'current48 template relation')
+        require(len(full['puzzles']) == 49 and port_evidence.puzzle_row(full, SLUG) == template, 'current49 template relation')
         current = True
     downloads = [{'path': 'receipt.json', 'bytes': len(read(packet.root / 'receipt.json')), 'sha256': sha(read(packet.root / 'receipt.json'))}, *({'path': name, **row} for name, row in packet.rows.items())]
     return {'status': 'recorded_standard_tutorial_consistency_checked', 'protocol': PROTOCOL, 'current_source_checked': current,

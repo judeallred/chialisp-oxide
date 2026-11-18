@@ -33,7 +33,7 @@ async function boundedRead(filename, maximum = 16 * 1024 * 1024) {
 }
 
 const filename = requestedReport ? path.resolve(requestedReport) : fileURLToPath(new URL('../../corpus/validation.json',import.meta.url));
-const report = JSON.parse(await boundedRead(filename));
+const report = JSON.parse(await boundedRead(filename, 32 * 1024 * 1024));
 const rows = counterSlugs.map(slug => {const selected = report.puzzles.filter(puzzle => puzzle.slug === slug); assert.equal(selected.length,1,`Missing actual counter capture ${slug}; use --report for an explicit partial capture`); return selected[0];});
 const checked = checkCounterPair(rows);
 assert.deepEqual(Object.fromEntries(['groups','attempts','accepted','rejected','runtime_umbrellas','vm'].map(key => [key,checked[key]])),{groups:10,attempts:60,accepted:30,rejected:20,runtime_umbrellas:10,vm:70});
@@ -106,7 +106,7 @@ if (built) {
     const markup = (await boundedRead(new URL(`../dist/${route}/index.html`,import.meta.url))).toString('utf8');
     checkCounterDisplay(markup,rows,route.startsWith('lab/') ? route.split('/')[1] : undefined);
   }
-  const published = JSON.parse(await boundedRead(new URL('../dist/reports/validation.json',import.meta.url)));
+  const published = JSON.parse(await boundedRead(new URL('../dist/reports/validation.json',import.meta.url), 32 * 1024 * 1024));
   for (const row of rows) assert.deepEqual(published.puzzles.find(puzzle => puzzle.slug === row.slug)?.protocol_validation,row.protocol_validation,'Published counter journal differs from the current corpus');
 }
 assert.equal(counterModes.length,5);

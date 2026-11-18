@@ -98,6 +98,14 @@
     ],
     "refund after successful completion rejected even at refund age": [
       "DoubleSpend"
+    ],
+    "a misstated coin amount with a valid opening is rejected by consensus with rollback": [
+      "AssertMyAmountFailed",
+      "AssertMyAmountFailed"
+    ],
+    "three-step queue pays every recipient in order across blocks and leaves no successor": [],
+    "replaying a consumed step is rejected with rollback": [
+      "DoubleSpend"
     ]
   },
   "puzzles": {
@@ -475,6 +483,25 @@
         "name": "permissionless refund only at refund age",
         "codes": [
           "AssertHeightRelativeFailed"
+        ]
+      }
+    ],
+    "ordered-payout": [
+      {
+        "name": "a misstated coin amount with a valid opening is rejected by consensus with rollback",
+        "codes": [
+          "AssertMyAmountFailed",
+          "AssertMyAmountFailed"
+        ]
+      },
+      {
+        "name": "three-step queue pays every recipient in order across blocks and leaves no successor",
+        "codes": []
+      },
+      {
+        "name": "replaying a consumed step is rejected with rollback",
+        "codes": [
+          "DoubleSpend"
         ]
       }
     ]

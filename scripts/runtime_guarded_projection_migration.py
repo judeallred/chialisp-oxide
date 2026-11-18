@@ -45,7 +45,8 @@ def read(path, *, limit=4 * 1024 * 1024):
 
 def report_payload(filename):
     """Bound report IO; concurrent input mutation remains a caller assumption."""
-    filename, limit = Path(filename), 16 * 1024 * 1024
+    # The active complete corpus report bound; immutable checkpoints pass their own limit.
+    filename, limit = Path(filename), 32 * 1024 * 1024
     descriptor = os.open(filename, os.O_RDONLY | os.O_NONBLOCK)
     try:
         info = os.fstat(descriptor)

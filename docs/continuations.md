@@ -2,8 +2,11 @@
 
 **WIP exploration and narrow prototypes. Not ready for use or real funds.**
 This records the explicit teaching experiments for
-[#16](https://github.com/judeallred/chialisp-oxide/issues/16). A generic continuation SDK type and automatic splitting
-remain unimplemented. The shared Rust CLI/GUI now has a purpose-specific
+[#16](https://github.com/judeallred/chialisp-oxide/issues/16). Small reviewed
+helper functions in `chialisp_oxide::continuation` and the paired-corpus
+[`ordered-payout`](#reusable-helpers-and-the-ordered-payout-export) export now
+package the queue commitment and self-curried successor. A generic `Step<State>`
+type and automatic splitting remain unimplemented. The shared Rust CLI/GUI now has a purpose-specific
 batch-one session for fresh planning, funding, fee sponsorship, monitoring and
 process recovery; see [the lifecycle commands](https://judeallred.github.io/chialisp-oxide/reference/lifecycle/#authenticated-continuation-cli-and-gui). An isolated [ordered-payout ABI/hash spike](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/authenticated-continuations)
 supplies a concrete annotated export, independent host oracle and native
@@ -113,6 +116,68 @@ omit abort and clearly disclose that funds remain committed until valid steps
 are advanced. An abort/refund extension must commit its destination and deadline
 before funding, define its interaction with outstanding work, and test both
 sides of the exact height boundary. It must not add an informal owner drain.
+
+## Reusable helpers and the ordered-payout export
+
+The three concrete experiments each hand-wrote the same scaffolding: a
+proper-list tree hash and standard curry for the successor, and a domain-tagged
+hash-chain queue. The facade now provides those pieces as ordinary concrete
+functions over the reviewed SHA bridge. The compiler lowers their bodies, and
+their names grant no behavior:
+
+- `queue_item(domain, recipient, next)` and `queue_end(domain)` give the item
+  and terminal digests. The terminal preimage is shorter than any item's.
+- `list_hash_2` and `list_hash_3` give proper-list tree hashes from element hashes.
+- `self_curried(module, terms_hash)` gives the standard one-parameter curried
+  puzzle hash of the same module with new terms.
+
+There are deliberately no traits, generics or `Step<State>` enum, which the
+supported subset does not admit.
+
+The `ordered-payout` export is the first user. It is an ordinary
+`chialisp-oxide-puzzles` export checked by the shared port-evidence gates, not
+another isolated experiment. It curries only `(module, head)`. The spender
+supplies `(recipient, next, my_amount)`, and `ASSERT_MY_AMOUNT` makes consensus
+check the amount, so the remaining budget is the coin's value instead of a
+curried counter:
+
+- the opening must hash to the committed head;
+- the final step (next is the terminal digest) requires exactly one payout;
+- a nonterminal step requires at least two payouts and recreates the module
+  curried with `next` and the amount minus one payout.
+
+With correct funding (one payout per queued recipient and a module field that
+names the selected artifact, both host preflight checks), no spender can skip,
+reorder, inject or end early. This design needs no integer-to-atom hashing, so
+the queue has no on-chain length bound. The earlier experiments' literal 1..=8
+count tables, and the narrow integer-atom-hash kernel the draft proposal
+considered for replacing them, are both unnecessary. A mis-funded instance can
+become permanently stuck; the puzzle cannot detect that before it is spent.
+
+Its manifest records 32 named vectors checked against an independent Python
+oracle on native Rust, both Rust CLVM modes, independently compiled Chialisp
+and the Rue port in both modes. The vectors cover skipped, reordered and
+injected items, wrong next digests, early ends, amount boundaries, and padded,
+negative, oversized and malformed fields. A ledger lane funds a real
+self-curried instance and advances three successor coins across mined blocks
+for the Rust, Chialisp and Rue builds. It also submits misstated-amount and
+replayed-step bundles, each with its exact typed consensus code
+(`AssertMyAmountFailed`, `DoubleSpend`) and full simulator equality.
+Puzzle-level raises remain VM-vector evidence, not ledger rejection credit.
+
+Measured at introduction, the optimized Rust module is 6,217 bytes against
+1,474 for the independent Chialisp and 1,838 for optimized Rue. That is the
+same size gap tracked by [#6](https://github.com/judeallred/chialisp-oxide/issues/6).
+One accepted nonterminal step costs 84,498 (Rust on), 61,555 (Chialisp) and
+55,402 (Rue on) in the primary VM. Generator bytes and whole-spend cost for
+this export are not yet measured; the batch-one experiment's generator
+measurements remain separate.
+
+Compiler features for #16: no new feature was needed. The export uses the
+existing SHA bridge, curry hash arithmetic, checked `u64` arithmetic, the
+strict typed ABI and optional output lists (`Option<CreateCoin>`). Dynamic
+apply and singleton wrapping are not needed for an unauthenticated
+permissionless queue.
 
 ## Existing pieces and unresolved features
 

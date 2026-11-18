@@ -125,7 +125,7 @@ class SchemaAndRestoration(unittest.TestCase):
         profile = migration.load()
         if profile['status'] != migration.FINAL:
             self.skipTest('profile pending; final-only pins not recorded')
-        payload = migration.read('corpus/validation.json')
+        payload = migration.read('corpus/validation.json', limit=migration.REPORT_LIMIT)
         report = json.loads(payload)
         migration.reviewed_after(report)
         migration.check_report_bytes(payload, report)
@@ -164,7 +164,7 @@ class SchemaAndRestoration(unittest.TestCase):
         profile = migration.load()
         if profile['status'] != migration.FINAL:
             self.skipTest('profile pending; chain projection requires a reviewed capture')
-        report = json.loads(migration.read('corpus/validation.json'))
+        report = json.loads(migration.read('corpus/validation.json', limit=migration.REPORT_LIMIT))
         self.assertIs(cost.current22_migration(report), migration)
         checkpoint = cost.composition_checkpoint(report)
         self.assertEqual(cost.sha(cost.canonical(checkpoint)), migration.outer.BEFORE_CANONICAL)

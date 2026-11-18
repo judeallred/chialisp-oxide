@@ -124,3 +124,6 @@ pub mod modern_named_map;
 
 #[path = "standard-delegated-hidden/puzzle.rs"]
 pub mod standard_delegated_hidden;
+
+#[path = "ordered-payout/puzzle.rs"]
+pub mod ordered_payout;

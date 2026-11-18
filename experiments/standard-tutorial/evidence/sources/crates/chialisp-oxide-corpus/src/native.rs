@@ -1098,6 +1098,20 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                     ),
                 ))
             }
+            "ordered-payout" => {
+                ensure!(args.len() == 4, "arity");
+                let terms = self::args(&a, args[0])?;
+                ensure!(terms.len() == 2, "terms arity");
+                output(chialisp_oxide_puzzles::ordered_payout::puzzle(
+                    (
+                        PuzzleHash(fixed_atom(&a, terms[0])?),
+                        Message32(fixed_atom(&a, terms[1])?),
+                    ),
+                    PuzzleHash(fixed_atom(&a, args[1])?),
+                    Message32(fixed_atom(&a, args[2])?),
+                    Amount::from_mojos(uint(&a, args[3])?),
+                ))
+            }
             "curry-hash" => {
                 ensure!(args.len() == 2, "arity");
                 output(chialisp_oxide_puzzles::curry_hash::puzzle(

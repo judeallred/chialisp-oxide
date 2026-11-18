@@ -117,6 +117,10 @@
         "entry": "chialisp_oxide_puzzles::morph_coin_doubler::puzzle",
         "source": "puzzles/morph-coin-doubler/puzzle.rs"
       },
+      "ordered-payout": {
+        "entry": "chialisp_oxide_puzzles::ordered_payout::puzzle",
+        "source": "puzzles/ordered-payout/puzzle.rs"
+      },
       "p2-conditions": {
         "entry": "chialisp_oxide_puzzles::p2_conditions::puzzle",
         "source": "puzzles/p2-conditions/puzzle.rs"
@@ -489,11 +493,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "866840b79c605499a5fcfd48a80d221a796539b7fb5c5c6a66f3d09cc2cdc672"
+        "sha256": "ac3ce25e6ba6c2de0013afe05d2df5445be3aca826e894f9f5659e18062bdde7"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "24a6519114d8eb9502b9b3be3a5bdb4dfe945198466bdcb4ea707da570bd5911"
+        "sha256": "13909bf1a1c57c8614713dce6b7336081fbbeafaa2bbea8b657e11c843cd5c75"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -545,7 +549,7 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-        "sha256": "ecb0f09a4e216747220883af980ca2aa4d6308d270b2f86c79ddd7b25f692549"
+        "sha256": "8c31ce729e819a17f7a134e207470d8e1a9214759939fdfbc8a66dcb4b7b53ef"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
@@ -581,7 +585,7 @@
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-        "sha256": "efbaf3b4d0245d0430821a62ce37c07c338bbc8146d3be2f36f5aff3b88d1936"
+        "sha256": "da378f20f33b4f6f5675da66aac2003c3e476d0fabe6b81b45ba2de08dbfa64a"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -604,6 +608,10 @@
         "sha256": "8e624e3d9f888b2de8d713bbe4ddfaa19bc9d08747ddd3e6c8cc2fda05cc99a2"
       },
       {
+        "path": "crates/chialisp-oxide/src/continuation.rs",
+        "sha256": "b4c64d763c736b4474d3580cc80a284102794bd0f8a185de914c6c35e2dfcc1f"
+      },
+      {
         "path": "crates/chialisp-oxide/src/curry.rs",
         "sha256": "c4358f195d7f96c9b040df8a1f2d8928d41675836f8327f8bda50b7dd556c10d"
       },
@@ -617,7 +625,7 @@
       },
       {
         "path": "crates/chialisp-oxide/src/lib.rs",
-        "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede"
+        "sha256": "cae19838c21ceacf400aff4b25f5c57aaa6dfc0b6929196fae4ce1ac6ef9b73c"
       },
       {
         "path": "crates/chialisp-oxide/src/owned_tree.rs",
@@ -657,7 +665,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "182b43ef5d6c3034044530c14fd4e170e9aa0cc50ad613bb9a654f65b49fd002"
+        "sha256": "eb4e66cc4afd61e65ba950861b61139d474f78fa70692c3e45306ae1c8ad936d"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -825,7 +833,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "68c92c3dfeaeff6bb97961fad78fd935d06e5ed793faf4b4c3890db0509a0ac7"
+        "sha256": "ac78d215304a05a3b06c8199e750c7160c086b302189e9e74225e8d1a46424ff"
       },
       {
         "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -918,6 +926,22 @@
       {
         "path": "puzzles/morph-coin-doubler/reference.clsp",
         "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
+      },
+      {
+        "path": "puzzles/ordered-payout/puzzle.json",
+        "sha256": "7fa148f3220ed8fdc30dbe28584e3e3942d7216ad1859dd90729d57904ed88a1"
+      },
+      {
+        "path": "puzzles/ordered-payout/puzzle.rs",
+        "sha256": "b6d52c008f8e2db1a538cc9813f8c71f7162b513abc83a26c4b07ab9c330cbd5"
+      },
+      {
+        "path": "puzzles/ordered-payout/puzzle.rue",
+        "sha256": "766deba1aa69669a56469c057a4e08a6b585b7b9ba35a3c36f698429f1ca214a"
+      },
+      {
+        "path": "puzzles/ordered-payout/reference.clsp",
+        "sha256": "449cd1d2c8a52f1d67a0e07d5d53a77013a4471352f3ce1bde08a7ad9b13a96e"
       },
       {
         "path": "puzzles/p2-conditions/puzzle.rs",
@@ -4696,8 +4720,8 @@
       "source_dependencies": [
         {
           "path": "crates/chialisp-oxide/src/lib.rs",
-          "sha256": "c4d282b189ec287d8168cb93b6723e15766a3d9328af7e3e17fccf195ff10ede",
-          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
+          "sha256": "cae19838c21ceacf400aff4b25f5c57aaa6dfc0b6929196fae4ce1ac6ef9b73c",
+          "source": "//! Types and pure helpers shared by native Rust tests and CLVM compilation.\n//!\n//! Nominal types prevent source-level domain swaps. Their public constructors\n//! establish no cryptographic or protocol invariant. The CLVM ABI validates the\n//! inner representation, not a runtime nominal tag or constructor predicate.\n#![no_std]\n\n#[cfg(feature = \"alloc\")]\nextern crate alloc;\n\npub use chialisp_oxide_macros::puzzle;\n\nmod domain;\npub use domain::*;\n\nmod tree;\npub use tree::*;\n\nmod cons;\npub use cons::Cons;\n\n#[cfg(feature = \"alloc\")]\nmod owned_tree;\n#[cfg(feature = \"alloc\")]\npub use owned_tree::*;\n\nmod hashing;\npub use hashing::{sha256, sha256_parts};\n\nmod coin_context;\npub use coin_context::*;\n\nmod apply;\npub use apply::{ResourceExhausted, apply};\n\npub mod curry;\n\n/// Queue commitments and self-curried successors for explicit continuations.\npub mod continuation;\n\n/// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.\npub mod raw_clvm;\n\nmod raw_clvm_crypto;\n\nmod raw_clvm_variadic;\n"
         },
         {
           "path": "crates/chialisp-oxide/src/tree.rs",

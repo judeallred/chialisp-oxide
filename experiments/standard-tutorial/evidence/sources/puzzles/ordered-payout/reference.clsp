@@ -1,0 +1,81 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not ready for real funds.
+; Exact template environment: ((MODULE HEAD) RECIPIENT NEXT MY_AMOUNT).
+(mod environment
+  (defconstant CREATE_COIN 51)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant PAYOUT 1000)
+  (defconstant U64_MAX 18446744073709551615)
+  (defconstant DOMAIN "chialisp-oxide/ordered-payout/v1/1000:")
+
+  ; Only fixed arities are used; nonempty zero/padded tails are not nil.
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun fixed_bytes (value width)
+    (if (l value) (x)
+      (if (= (strlen value) width) 1 (x))))
+
+  ; Canonical, nonnegative and within u64; padded atoms reject.
+  (defun checked_u64 (value)
+    (if (l value) (x)
+      (if (= value (+ value 0))
+        (if (> value -1)
+          (if (> value U64_MAX) (x) value)
+          (x))
+        (x))))
+
+  (defun atom_hash (value) (sha256 1 value))
+  (defun pair_hash (left right) (sha256 2 left right))
+
+  ; Tree hash of (a (q . MODULE) (c (q . TERMS) 1)) from the two hashes.
+  (defun curried (module_hash terms_hash)
+    (pair_hash (atom_hash 2)
+      (pair_hash (pair_hash (atom_hash 1) module_hash)
+        (pair_hash
+          (pair_hash (atom_hash 4)
+            (pair_hash (pair_hash (atom_hash 1) terms_hash)
+              (pair_hash (atom_hash 1) (atom_hash ()))))
+          (atom_hash ())))))
+
+  ; MODULE is already the module's tree hash; TERMS is the list (MODULE NEXT).
+  (defun successor (module next)
+    (curried module
+      (pair_hash (atom_hash module) (pair_hash (atom_hash next) (atom_hash ())))))
+
+  (defun pay (module recipient next amount)
+    (if (= next (sha256 DOMAIN "end"))
+      (if (= amount PAYOUT)
+        (list (list ASSERT_MY_AMOUNT amount) (list CREATE_COIN recipient PAYOUT))
+        (x))
+      (if (> amount (- (* 2 PAYOUT) 1))
+        (list
+          (list ASSERT_MY_AMOUNT amount)
+          (list CREATE_COIN recipient PAYOUT)
+          (list CREATE_COIN (successor module next) (- amount PAYOUT)))
+        (x))))
+
+  (defun step ((module head) recipient next amount)
+    (if (= (sha256 DOMAIN recipient next) head)
+      (pay module recipient next amount)
+      (x)))
+
+  (defun checked ((module head) recipient next amount)
+    (if (fixed_bytes module 32)
+      (if (fixed_bytes head 32)
+        (if (fixed_bytes recipient 32)
+          (if (fixed_bytes next 32)
+            (step (list module head) recipient next (checked_u64 amount))
+            (x))
+          (x))
+        (x))
+      (x)))
+
+  (if (exact_list environment 4)
+    (if (exact_list (f environment) 2)
+      (checked (f environment) (f (r environment)) (f (r (r environment))) (f (r (r (r environment)))))
+      (x))
+    (x))
+)

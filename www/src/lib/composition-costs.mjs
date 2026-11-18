@@ -22,7 +22,7 @@ const fields = (value, keys) => assert.deepEqual(Object.keys(value).sort(), [...
 
 export function compositionCostEvidence(inputs) {
   fields(inputs, ['validation', 'active-validation', 'retained-validation', 'corpus-profile', 'append-profile', 'checkpoint', 'source-profile', 'before-costs', ...compositionArtifacts.map(row => row.basename)]);
-  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (['validation','active-validation','retained-validation','checkpoint'].includes(key) ? 16 : 4) * 1024 * 1024);
+  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (key === 'active-validation' ? 32 : ['validation','retained-validation','checkpoint'].includes(key) ? 16 : 4) * 1024 * 1024);
   const data = Object.fromEntries(Object.entries(inputs).map(([key, bytes]) => [key, parse(bytes)]));
   const profile = data['profile.json'], context = compositionCheckpoint(profile, inputs.checkpoint), after = profile.reviewed_after;
   fields(after, ['report_sha256','canonical_report_sha256','p2_sha256','protocol_sha256','raw_ir_sha256','metrics_sha256','controls_sha256','bundles','delta']);
@@ -128,7 +128,7 @@ export function compositionCostEvidence(inputs) {
 export async function readCompositionCostInputs(candidate) {
   return readCostInputs(candidate, [
     ['validation', 'corpus/checkpoints/runtime-composition-validation.json', 16 * 1024 * 1024],
-    ['active-validation', 'corpus/validation.json', 16 * 1024 * 1024],
+    ['active-validation', 'corpus/validation.json', 32 * 1024 * 1024],
     ['append-profile', 'corpus/p2-delegated-conditions-append-baseline.json', 4 * 1024 * 1024],
     ['retained-validation', 'corpus/checkpoints/p2dc-append-validation.json', 16 * 1024 * 1024],
     ['corpus-profile', 'corpus/corpus-append.json', 4 * 1024 * 1024],

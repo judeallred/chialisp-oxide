@@ -67,7 +67,7 @@ class GuardedProfile(unittest.TestCase):
             path.write_bytes(b"")
             with self.assertRaisesRegex(ValueError, "byte bound"): migration.report_payload(path)
             with path.open("wb") as stream:
-                stream.seek(16 * 1024 * 1024)
+                stream.seek(32 * 1024 * 1024)
                 stream.write(b"x")
             with patch.object(migration.os, "fdopen", side_effect=AssertionError("read before size preflight")), \
                     self.assertRaisesRegex(ValueError, "byte bound"):

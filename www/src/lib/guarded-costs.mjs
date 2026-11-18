@@ -21,7 +21,7 @@ const fields = (value, keys) => assert.deepEqual(Object.keys(value).sort(), [...
 
 export function guardedCostEvidence(inputs) {
   fields(inputs, ['validation', 'checkpoint', 'source-profile', 'before-costs', ...guardedArtifacts.map(row => row.basename)]);
-  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (['validation','checkpoint'].includes(key) ? 16 : 4) * 1024 * 1024);
+  for (const [key, bytes] of Object.entries(inputs)) assert(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= (key === 'validation' ? 32 : key === 'checkpoint' ? 16 : 4) * 1024 * 1024);
   const data = Object.fromEntries(Object.entries(inputs).map(([key, bytes]) => [key, parse(bytes)]));
   const profile = data['profile.json'], context = guardedCheckpoint(profile, inputs.checkpoint), after = profile.reviewed_after;
   fields(after, ['report_sha256','canonical_report_sha256','p2_sha256','protocol_sha256','raw_ir_sha256','metrics_sha256','controls_sha256','bundles','delta']);
@@ -59,7 +59,7 @@ export function guardedCostEvidence(inputs) {
 }
 export async function readGuardedCostInputs(candidate) {
   return readCostInputs(candidate, [
-    ['validation', 'corpus/validation.json', 16 * 1024 * 1024],
+    ['validation', 'corpus/validation.json', 32 * 1024 * 1024],
     ['checkpoint', checkpointArtifact.path, 16 * 1024 * 1024],
     ['source-profile', 'corpus/p2-source-cost-baseline.json', 4 * 1024 * 1024],
     ['before-costs', 'corpus/p2-singleton-costs.json', 4 * 1024 * 1024],

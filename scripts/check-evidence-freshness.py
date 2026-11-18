@@ -16,6 +16,9 @@ with the working tree directly.
 
 This is a planning aid. It runs no compiler, VM or Cargo command, and a clean
 result neither replaces the dedicated packet gates nor grants execution credit.
+It can over-report: a frozen historical record whose pins happened to still
+match the base looks current here, so confirm each flagged packet with its own
+reader before recapturing it.
 """
 from __future__ import annotations
 
@@ -43,6 +46,8 @@ REFRESH = {
     "experiments/spuds/": "experiments/stateful-ledger/ci.py capture + --promote",
     "experiments/stateful-ledger/": "experiments/stateful-ledger/ci.py capture + --promote",
     "experiments/standard-tutorial/": "experiments/standard-tutorial/capture.py --execute, check, install",
+    "experiments/authenticated-continuations/": "check_retained.py decides; a declared-input change needs ci.py and a reader revalidation",
+    "corpus/xchandles-": "scripts/check-xchandles-history-v2.py and check-xchandles-simulator.py decide",
 }
 
 

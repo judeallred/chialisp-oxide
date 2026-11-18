@@ -35,6 +35,9 @@ pub use apply::{ResourceExhausted, apply};
 
 pub mod curry;
 
+/// Queue commitments and self-curried successors for explicit continuations.
+pub mod continuation;
+
 /// Explicit CLVM byte, integer and boolean operators through the reviewed VM bridge.
 pub mod raw_clvm;
 

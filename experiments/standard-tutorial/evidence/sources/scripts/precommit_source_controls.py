@@ -14,6 +14,7 @@ import tomllib
 import cargo_authoring
 import cargo_bundle
 from cargo_source_receipt import decode_json
+import corpus_report
 import raw_tree
 import precommit_oracle as oracle
 from source_walk import WalkLimits, source_files
@@ -225,7 +226,8 @@ def reference_hashes():
     The ledger runner separately compiles the sources and must match these
     exact retained tree identities on every actual source-control attempt.
     """
-    report = load(ROOT / "corpus/validation.json")
+    # The active complete corpus report has its own larger bound.
+    report = corpus_report.decode(read(ROOT / "corpus/validation.json", corpus_report.REPORT_LIMIT))
     result = {}
     for name in ("claim", "registry"):
         rows = [row for row in report["puzzles"] if row["slug"] == "precommit-" + name]

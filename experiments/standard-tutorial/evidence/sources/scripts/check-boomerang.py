@@ -15,15 +15,19 @@ import unittest
 import boomerang_evidence as evidence
 
 
+# The active complete corpus report bound (immutable checkpoints keep their own).
+REPORT_LIMIT = 32 * 1024 * 1024
+
+
 def read_report(path):
     descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
     try:
         metadata = os.fstat(descriptor)
-        evidence.require(stat.S_ISREG(metadata.st_mode) and 0 < metadata.st_size <= 16 * 1024 * 1024,
+        evidence.require(stat.S_ISREG(metadata.st_mode) and 0 < metadata.st_size <= REPORT_LIMIT,
                          "Boomerang report must be a bounded regular file")
         with os.fdopen(descriptor, "rb", closefd=False) as stream:
-            payload = stream.read(16 * 1024 * 1024 + 1)
-        evidence.require(len(payload) <= 16 * 1024 * 1024, "Boomerang report byte bound")
+            payload = stream.read(REPORT_LIMIT + 1)
+        evidence.require(len(payload) <= REPORT_LIMIT, "Boomerang report byte bound")
         return evidence.load(payload)
     finally:
         os.close(descriptor)

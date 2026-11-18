@@ -7,7 +7,7 @@ functionality map is [chialisp-functionality.md](https://github.com/judeallred/c
 
 ## Current evidence
 
-The latest local capture covers 48 annotated exports of the real
+The latest local capture covers 49 annotated exports of the real
 `chialisp-oxide-puzzles` Cargo library: the retained 23-export
 delegated-conditions corpus, the three pinned Using Modules programs through
 declared signed 64-bit typed adapters, the original delegated-puzzle fixture
@@ -20,9 +20,10 @@ the original boomerang payment with fixed terms committed before funding,
 the original precommit claim/registry pair, the canonical genesis-by-coin-ID CAT TAIL,
 two original counter actions, and three fixed two-name registry actions, plus four exact raw-tree modules from the
 Inner Puzzles and Condition Morphing tutorials, three modern-cl24 binding/map modules,
-and the standard delegated/hidden module. Their finite template comparisons
+the standard delegated/hidden module, and the original ordered-payout
+continuation built on the `chialisp_oxide::continuation` helpers. Their finite template comparisons
 add no complete-spend or whole-page completion credit.
-Its repeated report records 1,118 named and 43,753 generated inputs across native Rust and five
+Its repeated report records 1,150 named and 43,753 generated inputs across native Rust and five
 CLVM builds (Rust off/on, independent Chialisp, Rue off/on). The generic
 corpus append root (`scripts/corpus_append.py`, profile
 `corpus/corpus-append.json`) admits the current report, restores the retained
@@ -30,8 +31,8 @@ corpus append root (`scripts/corpus_append.py`, profile
 byte-for-byte and projects the older history; new exports extend profile data
 instead of adding migration modules.
 
-Sixty-two complete-spend scenario groups run for each selected Rust, Chialisp or Rue build
-through chia-wallet-sdk's simulator (186 ledger scenario runs), plus the
+Sixty-five complete-spend scenario groups run for each selected Rust, Chialisp or Rue build
+through chia-wallet-sdk's simulator (195 ledger scenario runs), plus the
 dedicated pay-to-singleton (110 submissions), delegated-conditions (60) and
 password-instance (21) and boomerang-instance (145) ledger suites, each with exact typed consensus
 rejections and in-memory rollback checks. A separate actual Rust source-control

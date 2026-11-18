@@ -170,6 +170,15 @@ committed hashes before applying inner programs. Program identity alone does
 not authorize a spender. Hash exact structured encodings; do not concatenate
 variable-length fields ambiguously or confuse an atom with a number.
 
+For work split across spends, `chialisp_oxide::continuation` has queue digest
+helpers (`queue_item`, `queue_end`), proper-list hashes (`list_hash_2`,
+`list_hash_3`) and `self_curried` for the successor puzzle hash. Start from
+[`puzzles/ordered-payout/puzzle.rs`](https://github.com/judeallred/chialisp-oxide/blob/main/puzzles/ordered-payout/puzzle.rs)
+and the [continuation design](https://judeallred.github.io/chialisp-oxide/reference/continuations/).
+Keep order, funds and termination explicit in the export. Bind state the
+spender supplies, such as the coin's own amount, with a condition consensus
+checks (`ASSERT_MY_AMOUNT`) instead of trusting it.
+
 Returned conditions are policy. Review signature binding, coin context,
 recipient, output amounts, fees, time units and every branch. Returning an inner
 program's conditions delegates authority to it. Typed constructors do not

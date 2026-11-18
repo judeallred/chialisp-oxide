@@ -103,7 +103,7 @@ let cached;
 export async function readRegistryProtocol(options={}){
   const load=()=>{
     const sourceRoot=options.sourceRoot??root,sidecarRoot=options.sidecarRoot??path.join(sourceRoot,'corpus');
-    const report=options.report??JSON.parse(readRegistryBytes(path.join(sourceRoot,'corpus/validation.json'),registryLimits.total));
+    const report=options.report??JSON.parse(readRegistryBytes(path.join(sourceRoot,'corpus/validation.json'),registryLimits.report));
     const selected=report.puzzles.filter(p=>registrySlugs.includes(p.slug));if(!selected.length)return null;assert.equal(selected.length,3,'Partial registry report cannot render');
     try{lstatSync(path.join(sidecarRoot,'registry-slot-protocol/index.json'));}catch(error){if(error.code==='ENOENT')return null;throw error;}
     const admitted=checkRegistryReport(report,{sidecarRoot}),transport=checkRegistryTransport(report,{sidecarRoot}),payloads=new Map(),indexItem=selected[0].protocol_validation.index;

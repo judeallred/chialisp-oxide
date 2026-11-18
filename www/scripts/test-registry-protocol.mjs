@@ -45,12 +45,12 @@ try{
   const missing={simulator:report.simulator,puzzles:report.puzzles.slice(1)};
   assert.throws(()=>checkProtocolReport(missing,options));assert.throws(()=>checkLedgerReport(missing,options));controls+=2;
   assert.deepEqual(checkProtocolReport({puzzles:[]}),{groups:0,attempts:0,accepted:0,rejected:0,codes:{}});
-  if(reportPath){const bytes=readFileSync(reportPath);assert(bytes.length<=registryLimits.total);const actual=JSON.parse(bytes),opts={sidecarRoot:path.dirname(reportPath)};checkRegistryReport(actual,opts);checkLedgerReport(actual,opts);checkProtocolReport(actual,opts);console.log('PASS explicit report complete registry transport/Python admission and generic dispatch; recorded readers only.');}
+  if(reportPath){const bytes=readFileSync(reportPath);assert(bytes.length<=registryLimits.report);const actual=JSON.parse(bytes),opts={sidecarRoot:path.dirname(reportPath)};checkRegistryReport(actual,opts);checkLedgerReport(actual,opts);checkProtocolReport(actual,opts);console.log('PASS explicit report complete registry transport/Python admission and generic dispatch; recorded readers only.');}
   console.log(`PASS ${controls} constructed registry transport/dispatch controls; no current execution or independently complete JS semantics credit.`);
 }finally{rmSync(directory,{recursive:true,force:true});}
 
 
-const options=reportPath?{report:JSON.parse(readRegistryBytes(reportPath,registryLimits.total)),sidecarRoot:path.dirname(reportPath)}:{};
+const options=reportPath?{report:JSON.parse(readRegistryBytes(reportPath,registryLimits.report)),sidecarRoot:path.dirname(reportPath)}:{};
 const evidence=await readRegistryProtocol(options);
 if(built)assert(evidence,'Current complete registry packet missing: pending local UI cannot pass the built publication gate');
 if(evidence){
@@ -93,7 +93,7 @@ if(evidence){
     try{for(let entry;(entry=directory.readSync())!==null;){assert(names.length<11,'Built registry download inventory exceeds11');assert(entry.isFile()&&!entry.isSymbolicLink());names.push('registry-slot-protocol/'+entry.name);}}finally{directory.closeSync();}
     assert.deepEqual(names.sort(),[...evidence.physicalNames].sort(),'Missing or extra physical registry downloads');
     for(const name of evidence.physicalNames){const expected=evidence.payloads.get(name),actual=readRegistryBytes(path.join(evidence.sourceRoot,'www/dist/reports',name),registryLimits.member);assert(actual.equals(expected),`Built registry bytes changed: ${name}`);assert.equal(sha(actual),sha(expected));}
-    const published=JSON.parse(readRegistryBytes(path.join(evidence.sourceRoot,'www/dist/reports/validation.json'),registryLimits.total));
+    const published=JSON.parse(readRegistryBytes(path.join(evidence.sourceRoot,'www/dist/reports/validation.json'),registryLimits.report));
     for(const slug of registrySlugs)assert.deepEqual(published.puzzles.find(p=>p.slug===slug).protocol_validation,evidence.report.puzzles.find(p=>p.slug===slug).protocol_validation);
   }
   console.log(`PASS ${registryMetadataCorruptions.length} registry projection, ${visibleControls.length} visible controls, exact route boundaries and oversized-section rejection${built?', four actual built views (tutorial512KiB/labs2MiB, protocol sections512KiB) and eleven byte-exact physical downloads':'; constructed markup only'}. Complete Python admission remains required; no new execution credit.`);

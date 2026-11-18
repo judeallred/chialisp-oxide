@@ -25,6 +25,8 @@ TRANSPORT = 'registry-slot-sidecars/v1'
 INDEX = 'registry-slot-protocol/index.json'
 MEMBER_LIMIT = 2 * 1024 * 1024
 TOTAL_LIMIT = 16 * 1024 * 1024
+# The active complete corpus report, distinct from sidecar/journal members.
+REPORT_LIMIT = 32 * 1024 * 1024
 OWNER = 'b1b01d4389e60a12b1c9312312f706825184320ed91f2a8f16510cbea3ea900f4e6b465a045781841997b209017fb6a4'
 CANONICAL = (
     ('action_layer', 630, 'afa03f2903f9e4a293523237799074b13ab2361f250df10de5df884b0b09a22b'),
@@ -73,8 +75,8 @@ def no_float(_):
     raise ValueError('float/nonfinite registry JSON forbidden')
 
 
-def json_value(data):
-    require(type(data) is bytes and 0 < len(data) <= TOTAL_LIMIT, 'bounded JSON input')
+def json_value(data, limit=TOTAL_LIMIT):
+    require(type(data) is bytes and 0 < len(data) <= limit, 'bounded JSON input')
     # Charge lexical depth before the recursive standard JSON parser.
     depth = 0
     tokens = 0
@@ -780,21 +782,21 @@ def main():
     require(bool(args.report) != args.stdin, 'choose one report input')
     if args.stdin:
         import sys
-        data = sys.stdin.buffer.read(TOTAL_LIMIT + 1)
+        data = sys.stdin.buffer.read(REPORT_LIMIT + 1)
     else:
-        require(args.report.stat().st_size <= TOTAL_LIMIT, 'bounded main report')
+        require(args.report.stat().st_size <= REPORT_LIMIT, 'bounded main report')
         data = args.report.read_bytes()
     sidecar_root = args.sidecar_root or (args.report.parent if args.report else ROOT / 'corpus')
-    result = validate_report(json_value(data), sidecar_root=sidecar_root)
+    result = validate_report(json_value(data, REPORT_LIMIT), sidecar_root=sidecar_root)
     if args.self_test:
-        result['corruption_controls'] = self_test(json_value(data), sidecar_root=sidecar_root)
+        result['corruption_controls'] = self_test(json_value(data, REPORT_LIMIT), sidecar_root=sidecar_root)
     if args.repeat_report:
         require(args.report is not None, 'repeat requires file report')
-        require(args.repeat_report.stat().st_size <= TOTAL_LIMIT, 'bounded repeat report')
+        require(args.repeat_report.stat().st_size <= REPORT_LIMIT, 'bounded repeat report')
         repeated = args.repeat_report.read_bytes()
-        validate_report(json_value(repeated), sidecar_root=args.repeat_report.parent)
+        validate_report(json_value(repeated, REPORT_LIMIT), sidecar_root=args.repeat_report.parent)
         require(data == repeated, 'byte-identical independent main report repeat')
-        document = json_value(data)
+        document = json_value(data, REPORT_LIMIT)
         index_item = next(p for p in document['puzzles'] if p['slug'] == SLUGS[0])['protocol_validation']['index']
         first_index = read_member(sidecar_root / INDEX, index_item)
         second_index = read_member(args.repeat_report.parent / INDEX, index_item)

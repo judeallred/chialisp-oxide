@@ -23,6 +23,11 @@ def _precommit():
     return precommit_oracle
 
 
+def _ordered_payout():
+    import ordered_payout_oracle
+    return ordered_payout_oracle
+
+
 def _factories():
     return runpy.run_path(str(ROOT / "scripts/check-canonical-factories.py"))
 
@@ -48,4 +53,5 @@ PORTS = {
                         "generated": lambda: []},
     "precommit-registry": {"expected": lambda solution: _precommit().expected("precommit-registry", solution),
                            "generated": lambda: []},
+    "ordered-payout": {"expected": lambda solution: _ordered_payout().expected(solution), "generated": lambda: []},
 }

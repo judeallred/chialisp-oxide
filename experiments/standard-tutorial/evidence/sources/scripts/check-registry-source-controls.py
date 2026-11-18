@@ -21,10 +21,12 @@ sys.path.insert(0, str(root / 'scripts'))
 import registry_control_packet as p
 import cargo_authoring, cargo_bundle, registry_protocol, port_evidence
 from cargo_source_receipt import decode_json
+import corpus_report
 from vm_failures import PROTOCOL
 
 def current(packet):
-    report = decode_json(p.regular_read(args.report, 16 * 1024 * 1024))
+    # The active complete corpus report bound.
+    report = corpus_report.decode(p.regular_read(args.report, corpus_report.REPORT_LIMIT))
     declared = cargo_authoring.snapshot(root)
     exports = declared['exports']
     p.require(type(exports) is dict and 0 < len(exports) <= cargo_bundle.MAX_EXPORTS, 'bounded complete current authoring declaration')

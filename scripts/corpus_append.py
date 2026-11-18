@@ -26,7 +26,7 @@ import p2_singleton_evidence as ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = 'corpus/corpus-append.json'
-PIN = 'f803b6a94df883ffbb8c20f54c13011677a0201d354c51b25487f793c0b712da'
+PIN = '7347347701942518b57870dfe4185ffd6b5f9ca056fca3fd9c244a7282f3d0a6'
 PENDING = 'pending_capture_and_review'
 FINAL = 'reviewed_final'
 PROTOCOL = 'chialisp-oxide-corpus-append/v1'
@@ -46,6 +46,10 @@ SCOPE = ('Reviewed current corpus admission over the retained complete delegated
 require, sha, canonical, same = cost.require, cost.sha, cost.canonical, cost.same
 report_payload = composition.report_payload
 SLUG_PATTERN = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+
+
+# The active complete corpus report; every other input keeps the 16 MiB default.
+REPORT_LIMIT = 32 * 1024 * 1024
 
 
 def read(path, limit=16 * 1024 * 1024):

@@ -84,6 +84,7 @@ pub const PUZZLES: &[&str] = &[
     "modern-named-map",
     "modern-lambda-map",
     "standard-delegated-hidden",
+    "ordered-payout",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

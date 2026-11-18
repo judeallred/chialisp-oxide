@@ -13,7 +13,7 @@ const sha = (bytes: Uint8Array | string) => createHash('sha256').update(bytes).d
 async function artifacts() {
   const inputs = await readCostInputs(undefined,[
     ['active','corpus/checkpoints/p2dc-append-validation.json',16*1024*1024],
-    ['current','corpus/validation.json',16*1024*1024],
+    ['current','corpus/validation.json',32*1024*1024],
     ['corpus-profile.json','corpus/corpus-append.json',4*1024*1024],
     ['composition','corpus/runtime-composition-baseline.json',4*1024*1024],
     ...definitions,

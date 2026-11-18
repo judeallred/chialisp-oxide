@@ -53,7 +53,8 @@ report_payload = guarded.report_payload
 
 
 def read(path, *, limit=4 * 1024 * 1024):
-    return report_payload(contained_file(ROOT, path)) if limit == 16 * 1024 * 1024 else _small(path, limit)
+    # report_payload bounds the active report; every caller's own limit still applies.
+    return _small(path, limit)
 
 
 def _small(path, limit):

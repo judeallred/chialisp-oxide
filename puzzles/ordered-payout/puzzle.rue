@@ -1,0 +1,63 @@
+// Original teaching comparison of the ordered-payout continuation policy.
+// WIP prototype; not ready to secure real funds.
+type Terms = (Bytes32, (Bytes32, nil));
+
+const PAYOUT: Int = 1000;
+// UTF-8 "chialisp-oxide/ordered-payout/v1/1000:" and "end".
+const DOMAIN: Bytes = 0x636869616c6973702d6f786964652f6f7264657265642d7061796f75742f76312f313030303a;
+const END_SUFFIX: Bytes = 0x656e64;
+
+fn main(...environment: Any) -> List<Condition> {
+    // Strict whole environment: ((module head) recipient next my_amount).
+    assert environment is (Terms, (Bytes32, (Bytes32, (Int, nil))));
+    let terms = environment.first;
+    let module = terms.first;
+    let head = terms.rest.first;
+    let recipient = environment.rest.first;
+    let next = environment.rest.rest.first;
+    let amount = canonical_u64(environment.rest.rest.rest.first);
+
+    assert sha256(...[DOMAIN, recipient, next]) == head;
+    if next == sha256(...[DOMAIN, END_SUFFIX]) {
+        assert amount == PAYOUT;
+        [AssertMyAmount { amount: amount },
+         CreateCoin { puzzle_hash: recipient, amount: PAYOUT }]
+    } else {
+        assert amount >= PAYOUT * 2;
+        [AssertMyAmount { amount: amount },
+         CreateCoin { puzzle_hash: recipient, amount: PAYOUT },
+         CreateCoin { puzzle_hash: successor(module, next), amount: amount - PAYOUT }]
+    }
+}
+
+fn canonical_u64(value: Int) -> Int {
+    let encoded = value as Bytes;
+    assert encoded.length <= 9;
+    assert value >= 0;
+    assert value <= 18446744073709551615;
+    assert encoded.length == 0
+        || substr(encoded, 0, 1) != 0x00
+        || (encoded.length > 1 && (substr(encoded, 1, 2) as Int) < 0);
+    value
+}
+
+fn atom_hash(value: Bytes) -> Bytes32 {
+    sha256(...[0x01, value])
+}
+
+fn pair_hash(left: Bytes32, right: Bytes32) -> Bytes32 {
+    sha256(...[0x02, left, right])
+}
+
+// Tree hash of (a (q . module) (c (q . (module next)) 1)); module is a tree hash.
+fn successor(module: Bytes32, next: Bytes32) -> Bytes32 {
+    let nil_hash = atom_hash(nil as Bytes);
+    let terms = pair_hash(atom_hash(module), pair_hash(atom_hash(next), nil_hash));
+    let quoted_terms = pair_hash(atom_hash(0x01), terms);
+    let environment = pair_hash(
+        atom_hash(0x04),
+        pair_hash(quoted_terms, pair_hash(atom_hash(0x01), nil_hash)),
+    );
+    let quoted_module = pair_hash(atom_hash(0x01), module);
+    pair_hash(atom_hash(0x02), pair_hash(quoted_module, pair_hash(environment, nil_hash)))
+}

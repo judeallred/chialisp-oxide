@@ -11,7 +11,7 @@ import { catTreeHash } from './cat-protocol.mjs';
 export const registrySlugs = ['registry-initialize','registry-set-alpha','registry-set-beta'];
 export const registryTransport = 'registry-slot-sidecars/v1';
 export const registryModes = [['rust_mir',false,'rust-off'],['rust_mir',true,'rust-on'],['chialisp',true,'chialisp'],['rue_source',false,'rue-off'],['rue_source',true,'rue-on']];
-export const registryLimits = Object.freeze({ member:2*1024*1024,total:16*1024*1024,files:11,module:1024*1024,moduleInventory:9*1024*1024 });
+export const registryLimits = Object.freeze({ member:2*1024*1024,total:16*1024*1024,report:32*1024*1024,files:11,module:1024*1024,moduleInventory:9*1024*1024 });
 const root = fileURLToPath(new URL('../../',import.meta.url));
 const indexName = 'registry-slot-protocol/index.json';
 const sha = value => createHash('sha256').update(value).digest('hex');
@@ -52,7 +52,7 @@ export function checkRegistryTransport(report,{sidecarRoot=path.join(root,'corpu
 
 export function checkRegistryReport(report,options={}){
   const transport=checkRegistryTransport(report,options),input=JSON.stringify(report);
-  assert(Buffer.byteLength(input)<=registryLimits.total,'Bounded registry main report');
+  assert(Buffer.byteLength(input)<=registryLimits.report,'Bounded registry main report');
   const admitted=JSON.parse(execFileSync('python3',['-B','scripts/registry_protocol.py','--stdin','--sidecar-root',transport.sidecarRoot],{cwd:root,input,encoding:'utf8',stdio:['pipe','pipe','pipe'],timeout:120000,maxBuffer:256*1024,env:{...process.env,PYTHONDONTWRITEBYTECODE:'1'}}));
   assert.equal(admitted.protocol,registryTransport);assert.equal(admitted.status,'recorded_consistency_checked');assert.equal(admitted.files,registryLimits.files);assert.equal(admitted.bytes,transport.bytes);assert.equal(admitted.index_sha256,transport.indexSHA);
   return admitted;

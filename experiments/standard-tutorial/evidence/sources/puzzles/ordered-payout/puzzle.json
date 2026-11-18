@@ -1,0 +1,161 @@
+{
+  "slug": "ordered-payout",
+  "title": "Ordered payout queue: one authenticated continuation step",
+  "kind": "coin_puzzle",
+  "security_scope": "Original WIP teaching policy for issue #16, not ready for real funds. A funded instance curries one proper list (its own module hash, the digest of the remaining queue). Each spend opens the head as sha256(domain || recipient || next), pays that recipient exactly 1000 mojos and, unless next is the queue's terminal digest, recreates the same module curried with next and the remaining funds. The spender supplies the coin's amount and ASSERT_MY_AMOUNT makes consensus check it; a nonterminal step requires at least two payouts and the final step exactly one. With correct funding (amount equal to 1000 mojos times the queue length, and a module field naming the selected artifact, both checked by the host before funding) no spender can skip, reorder, inject or end early. Advancement is permissionless; nothing guarantees anyone advances the queue, inclusion, cross-block atomicity, or recovery of funds from a mis-funded instance.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-currying/",
+      "https://github.com/judeallred/chialisp-oxide/issues/16"
+    ],
+    "source_origin": "All four paired source files (Rust export, independent Chialisp reference, Rue port and Python oracle) are original implementations of this explicit teaching contract. It is a new policy built on the reviewed chialisp_oxide::continuation helpers, not a re-port of the retained batch-one, batch-two or spuds experiments.",
+    "limitations": [
+      "One fixed 1000-mojo payout per spend; no reserve, fee, refund or abort branch. Funds stay committed until valid steps are advanced.",
+      "Funding correctness is a host preflight. An instance funded with the wrong amount or a module field that does not name the selected artifact can become permanently stuck; the puzzle cannot detect either before it is spent.",
+      "Consensus prevents spending a coin twice, but a third party can race or accelerate a valid step. It cannot change the recipients, order or amounts.",
+      "SHA-256 collision and preimage resistance are assumptions. Proof models do not cover SHA, this export or the multi-coin chain."
+    ]
+  },
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/hashing.rs",
+    "crates/chialisp-oxide/src/curry.rs",
+    "crates/chialisp-oxide/src/continuation.rs"
+  ],
+  "cases": [
+    {
+      "label": "first of three pays and continues with two payouts",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "middle step pays and continues with one payout",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57) 0x2222222222222222222222222222222222222222222222222222222222222222 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082 2000)"
+    },
+    {
+      "label": "final step pays and creates no continuation",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 1000)"
+    },
+    {
+      "label": "single-item queue pays once and ends",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xeef8c26774e56b98709c66775e0d61399432ee4c22be90aada42f123aa15ece0) 0x1111111111111111111111111111111111111111111111111111111111111111 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 1000)"
+    },
+    {
+      "label": "largest u64 amount continues with checked remainder",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 18446744073709551615)"
+    },
+    {
+      "label": "exactly two payouts is the smallest nonterminal amount",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 2000)"
+    },
+    {
+      "label": "skipped item rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x2222222222222222222222222222222222222222222222222222222222222222 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082 3000)"
+    },
+    {
+      "label": "reordered item rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x2222222222222222222222222222222222222222222222222222222222222222 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "injected recipient rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x4444444444444444444444444444444444444444444444444444444444444444 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "wrong next digest rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082 3000)"
+    },
+    {
+      "label": "early end with terminal next rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 1000)"
+    },
+    {
+      "label": "final step with excess funds rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 2000)"
+    },
+    {
+      "label": "final step one mojo short rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 999)"
+    },
+    {
+      "label": "final step one mojo over rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 1001)"
+    },
+    {
+      "label": "nonterminal step one mojo short of two payouts rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 1999)"
+    },
+    {
+      "label": "nonterminal step with one payout rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 1000)"
+    },
+    {
+      "label": "zero amount rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 0)"
+    },
+    {
+      "label": "padded amount rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 0x0003e8)"
+    },
+    {
+      "label": "negative amount rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 -1000)"
+    },
+    {
+      "label": "amount above u64 rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 0x010000000000000000)"
+    },
+    {
+      "label": "pair amount rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082) 0x3333333333333333333333333333333333333333333333333333333333333333 0x85a545cca3b718fa6396cd1f922a941511f79992ed648a8a9679b67e4de8ef90 (1000))"
+    },
+    {
+      "label": "short module rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "long head rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae82200) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "pair recipient rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) (0x1111111111111111111111111111111111111111111111111111111111111111) 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "nil next rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 () 3000)"
+    },
+    {
+      "label": "improper terms rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa . 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "three-field terms rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822 1) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000)"
+    },
+    {
+      "label": "missing amount rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57)"
+    },
+    {
+      "label": "extra argument rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000 1)"
+    },
+    {
+      "label": "improper environment tail rejected",
+      "solution": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x1111111111111111111111111111111111111111111111111111111111111111 0xde42d112d2c16a28a6814494ce3d1f80831d304c0437e8fdaadce302c772ba57 3000 . 1)"
+    },
+    {
+      "label": "nil environment rejected",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejected",
+      "solution": "1"
+    }
+  ]
+}

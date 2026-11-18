@@ -17,6 +17,7 @@ import sys
 
 import packet
 from cargo_source_receipt import decode_json
+import corpus_report
 import cargo_authoring
 import cargo_bundle
 
@@ -71,8 +72,8 @@ def main():
     out = args.output.resolve()
     packet.require(out.is_relative_to(ROOT / 'target') and not out.exists(), 'fresh target-only capture output')
     full_raw = packet.read(args.report.resolve(), 32 * 1024 * 1024)
-    full = decode_json(full_raw)
-    packet.require(len(full['puzzles']) == 48, 'official complete current48 report required')
+    full = corpus_report.decode(full_raw)
+    packet.require(len(full['puzzles']) == 49, 'official complete current49 report required')
     authoring = cargo_authoring.snapshot(ROOT)
     cargo_authoring.check_recorded(full['authoring'], ROOT, [p['slug'] for p in full['puzzles']])
     compiler = subprocess.check_output(['rustup', 'run', 'nightly-2026-07-14', 'rustc', '-vV'], cwd=ROOT, timeout=30).decode()

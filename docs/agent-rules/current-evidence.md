@@ -45,6 +45,10 @@
   match the working tree, with the command that refreshes each. Pins that
   already differed at the base are frozen baselines or history and are never
   reported. It is a planning aid: the dedicated packet gates still decide.
+- Readers bound the active complete report `corpus/validation.json` at 32 MiB
+  (raised from 16 MiB when the 49th export pushed it past 16 MiB). Immutable
+  checkpoints, sidecars and journals keep their own smaller bounds. Raise a
+  bound deliberately at every reader of that file, never by removing it.
 - Recapture `corpus/corpus-append-existing-p2-controls.json` with
   `scripts/capture-p2-controls.py` whenever any workspace source changes; its
   window hashes the complete reviewed workspace.

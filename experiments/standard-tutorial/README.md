@@ -55,7 +55,7 @@ are separate work. No source hash or retained report authenticates execution,
 installed binaries, cryptography, nominal Rust types or compiler preservation.
 
 The integrated capture command defaults to a plan and runs no tools. After the
-final merged source is frozen and the complete current 48-export corpus and both
+final merged source is frozen and the complete current 49-export corpus and both
 complete schema-2 Cargo bundles are freshly captured, run:
 
 ```sh
