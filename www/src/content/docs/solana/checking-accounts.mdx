@@ -1,0 +1,35 @@
+---
+title: Checking accounts
+description: Solana's account checks beside strict typed decoding of an untrusted Chia solution.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="basics/checking-accounts/native/program/src/lib.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="capped-payment" />
+
+## Validate the solution, not accounts
+
+The Solana example checks that the accounts it received are what it expects:
+the right owner, signer status and so on, because a caller can pass any account.
+
+A Chia puzzle has the same problem with a different shape: its whole solution is
+an untrusted CLVM tree chosen by the spender. chialisp-oxide’s default typed ABI
+decodes that tree strictly. Here `amount: Amount` must be a canonical,
+nonnegative integer that fits a `u64`, with no padding, before the function body
+runs, and the body then checks the policy (`amount` at most the cap). Malformed,
+padded or oversized solutions are rejected, and the corpus vectors exercise
+them.
+
+Strict decoding is not a policy. This export lets the caller choose any amount up
+to the cap, and the unpaid remainder becomes a fee. See
+[validate untrusted inputs](/chialisp-oxide/tutorials/input-validation/) for
+more.

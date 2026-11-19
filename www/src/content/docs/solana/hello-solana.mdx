@@ -1,0 +1,33 @@
+---
+title: Hello Solana
+description: Solana's hello-world entrypoint beside the smallest useful Chia puzzle, which returns conditions instead of logging.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="basics/hello-solana/native/program/src/lib.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="fixed-payment" />
+
+## A puzzle is a function from solution to conditions
+
+The Solana entrypoint receives a program ID, accounts and instruction data, and
+proves it ran by writing log lines. A Chia puzzle receives only its solution,
+and the only thing it can do is return a condition list. This export ignores
+its input entirely and returns two conditions: assert that the coin holds 1,000
+mojos, and create a 1,000-mojo coin for a fixed recipient.
+
+That also means this puzzle is permissionless. Anyone can spend a coin locked by
+it, because nothing in the conditions requires a signature. The
+[Transfer SOL](/chialisp-oxide/solana/transfer-sol/) lesson adds one.
+
+Note the attribute: `#[chialisp_oxide::puzzle]` marks an ordinary Rust function
+for CLVM compilation, much as `entrypoint!` marks the Solana program’s entry.
+Native `cargo test` still runs it as normal Rust.

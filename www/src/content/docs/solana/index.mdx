@@ -1,0 +1,46 @@
+---
+title: For Solana developers
+description: Map Solana's onboarding programs onto Chia's coin model, with each Chia side a verified corpus export written in Rust.
+---
+
+**WIP prototype. Not ready for use. These pages teach the model; they do not recommend deploying.**
+
+Solana developers already write Rust, so chialisp-oxide will look familiar. The
+model underneath will not. This track pairs Solana’s own
+[program examples](https://github.com/solana-developers/program-examples)
+(native versions, MIT License, pinned at commit `6e8ceab5`) with Chia puzzles
+written in Rust. The Solana side is shown verbatim. Each Chia side is a real
+export from this repository’s validated corpus, with its own vectors, compiled
+artifacts and simulator spends.
+
+## The shifts to keep in mind
+
+- **Coins, not accounts.** A Solana program reads and writes account data that
+  outlives each instruction. A Chia coin is spent exactly once. Its puzzle
+  decides which new coins the spend creates, and any “state” is curried into
+  those new coins’ puzzle hashes.
+- **The puzzle is the program and the owner.** There is no separate program ID
+  that owns accounts. A coin’s puzzle hash *is* its lock, and two coins with the
+  same puzzle hash run the same code.
+- **Signers become conditions.** `is_signer` checks become `AGG_SIG_ME`
+  conditions that consensus verifies, bound to the specific coin.
+- **No logs, just conditions.** A puzzle returns a list of conditions. There is
+  no `msg!` output; what you can observe is which coins were created and which
+  conditions the spend asserted.
+- **Cost instead of compute units.** CLVM cost and serialized size are charged
+  per spend, and a spend is accepted or rejected whole.
+
+## Lessons
+
+| Solana example | Chia corpus export | What changes |
+| --- | --- | --- |
+| [Hello Solana](/chialisp-oxide/solana/hello-solana/) | `fixed-payment` | The smallest useful program returns conditions instead of logging |
+| [Counter](/chialisp-oxide/solana/counter/) | `bounded-counter` | Account data becomes curried state in a recreated coin |
+| [Transfer SOL](/chialisp-oxide/solana/transfer-sol/) | `signature-payment` | A signer check becomes a coin-bound signature condition |
+| [Checking accounts](/chialisp-oxide/solana/checking-accounts/) | `capped-payment` | Account checks become strict typed decoding of an untrusted solution |
+| [Program-derived addresses](/chialisp-oxide/solana/program-derived-addresses/) | `curry-hash` | A PDA becomes a curried puzzle hash anyone can recompute |
+
+Later lessons can build on existing corpus exports: the
+[CAT TAIL](/chialisp-oxide/tutorials/cat-genesis-tail/) for SPL tokens and
+[commit-wait-reveal](/chialisp-oxide/tutorials/precommit/) for contested
+registrations.

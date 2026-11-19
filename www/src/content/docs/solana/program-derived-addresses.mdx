@@ -1,0 +1,33 @@
+---
+title: Program-derived addresses
+description: Solana's PDA creation beside a curried puzzle hash, the deterministic address of a Chia coin with state.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="basics/program-derived-addresses/native/program/src/instructions/create.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="curry-hash" />
+
+## A curried puzzle hash is a deterministic address
+
+A PDA is an address derived from a program ID and seeds, with no private key,
+that only the program can sign for. Clients recompute it to find the account.
+
+On Chia, a module plus its curried parameters determine a puzzle hash, and that
+hash is the address coins are locked to. This export computes it from the
+module’s tree hash and the parameter’s tree hash, exactly as a parent puzzle does
+when it creates a child with new state. Anyone can recompute the address from
+the module and parameters, and there is no key: the puzzle’s own code is the only
+thing that decides how such a coin is spent.
+
+This is how the [ordered payout queue](/chialisp-oxide/tutorials/ordered-payout/)
+and [hot-potato game](/chialisp-oxide/tutorials/spuds/) find their successor
+coins: they hash their own module curried with the next state.

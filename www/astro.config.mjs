@@ -77,6 +77,14 @@ export default defineConfig({
           { label: 'Multi-Sig Wallet', slug: 'evm/multi-sig' },
           { label: 'Time Lock', slug: 'evm/time-lock' },
         ] },
+        { label: 'For Solana developers', items: [
+          { label: 'Overview', slug: 'solana' },
+          { label: 'Hello Solana', slug: 'solana/hello-solana' },
+          { label: 'Counter', slug: 'solana/counter' },
+          { label: 'Transfer SOL', slug: 'solana/transfer-sol' },
+          { label: 'Checking accounts', slug: 'solana/checking-accounts' },
+          { label: 'Program-derived addresses', slug: 'solana/program-derived-addresses' },
+        ] },
         { label: 'Case studies and protocol analysis', items: [
           { label: 'XCHandles premine cascade', slug: 'case-studies/xchandles-premine' },
         ] },

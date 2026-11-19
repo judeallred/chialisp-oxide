@@ -1,0 +1,47 @@
+---
+// Render a pinned upstream teaching file verbatim, after checking its bytes
+// against the track's provenance record. Display only: nothing here is compiled
+// or executed, and the build fails if any pinned byte changes.
+import { Code } from '@astrojs/starlight/components';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
+import { repository } from '../lib/p2-costs.mjs';
+
+const tracks = {
+  evm: {
+    directory: 'www/src/tracks/evm/upstream/Cyfrin--solidity-by-example.github.io',
+    commit: '5bcdca0239409d7336a07b66a6fca8d0bcc710e6',
+    lang: 'solidity',
+    label: 'Solidity by Example',
+    attribution: 'MIT License, © 2018 Tasuku Nakamura',
+  },
+  solana: {
+    directory: 'www/src/tracks/solana/upstream/solana-developers--program-examples',
+    commit: '6e8ceab52632c70a246d30178851821340c39bfa',
+    lang: 'rust',
+    label: 'Solana program examples',
+    attribution: 'MIT License, © 2026 Solana Foundation',
+  },
+} as const;
+
+interface Props { track: keyof typeof tracks; path: string; title?: string }
+const { track, path: file, title } = Astro.props;
+const config = tracks[track];
+if (!config) throw new Error(`Unknown pinned-source track: ${track}`);
+const base = path.join(await repository(), config.directory, config.commit);
+const provenance = JSON.parse(readFileSync(path.join(base, 'provenance.json'), 'utf8'));
+if (provenance.commit !== config.commit || provenance.license !== 'MIT') throw new Error(`Unexpected ${track} provenance`);
+const row = provenance.files.find((entry: { path: string }) => entry.path === file);
+if (!row) throw new Error(`Unpinned ${track} source: ${file}`);
+const raw = readFileSync(path.join(base, file));
+if (raw.length !== row.bytes || createHash('sha256').update(raw).digest('hex') !== row.sha256) {
+  throw new Error(`Pinned ${track} source changed: ${file}`);
+}
+const source = raw.toString('utf8');
+const href = `${provenance.repository}/blob/${config.commit}/${file}`;
+---
+<div data-pinned-source={`${track}:${file}`}>
+  <Code code={source} lang={config.lang} title={title ?? file} wrap preserveIndent />
+  <p class="quiet">Verbatim from <a href={href}>{config.label}</a> at commit <code>{config.commit.slice(0, 12)}</code> ({config.attribution}). Shown for comparison; not compiled or executed here.</p>
+</div>

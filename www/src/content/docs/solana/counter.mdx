@@ -1,0 +1,36 @@
+---
+title: Counter
+description: Solana's account-backed counter beside a checked Rust increment, and how Chia keeps state across transactions.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="basics/counter/native/program/src/state.rs" />
+
+<PinnedSource track="solana" path="basics/counter/native/program/src/lib.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="bounded-counter" />
+
+## Account data becomes a recreated coin
+
+The Solana program deserializes a `Counter` from account data, increments it and
+writes it back into the same account. The account persists; the program is
+stateless.
+
+Chia has no writable accounts. This export is the arithmetic alone: a checked
+increment with an explicit limit, where overflow rejects the spend as it would
+panic in Solana. To keep the count across transactions, curry it into a coin’s
+puzzle and have each spend create the next coin with the incremented value. The
+[hot-potato game](/chialisp-oxide/tutorials/spuds/) and the
+[ordered payout queue](/chialisp-oxide/tutorials/ordered-payout/) are corpus
+exports built exactly that way.
+
+The old coin is gone after each spend, so the coin ID changes every time. To
+follow the “same” counter you track its lineage, or wrap it in a singleton.

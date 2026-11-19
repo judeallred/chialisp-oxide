@@ -1,0 +1,34 @@
+---
+title: Transfer SOL
+description: Solana's lamport transfer beside a Chia coin that pays out only with the owner's signature.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="basics/transfer-sol/native/program/src/processor.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="signature-payment" />
+
+## A signer check becomes a signature condition
+
+The Solana processor moves lamports between accounts, either through the System
+Program (which checks that the payer signed) or by adjusting balances of
+accounts the program owns.
+
+A Chia coin cannot be partially debited. Spending it destroys the whole coin,
+and its puzzle decides what new coins exist afterwards. This export returns
+`AGG_SIG_ME(OWNER, message)` together with a payment to a fixed recipient.
+Consensus accepts the spend only if the transaction carries the owner’s
+signature over that message, bound to this coin and network; without it, the
+spend is rejected.
+
+Any value the conditions don’t pay out becomes a transaction fee. That is why
+puzzles assert their own amount and create change coins explicitly. See
+[split a payment](/chialisp-oxide/tutorials/split-payment/).
