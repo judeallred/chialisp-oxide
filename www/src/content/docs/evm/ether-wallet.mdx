@@ -1,0 +1,34 @@
+---
+title: Ether Wallet
+description: Owner-only withdrawals in Solidity beside a Chia coin that pays out only with the owner's signature.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import SoliditySource from '../../../components/SoliditySource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<SoliditySource path="contracts/src/app/ether-wallet/EtherWallet.sol" />
+
+## Chia (Rust)
+
+<SourceComparison slug="signature-payment" />
+
+## The ownership check moves into a condition
+
+The contract stores `owner` and compares it with `msg.sender` on `withdraw`.
+Chia has no sender. This puzzle instead returns `AGG_SIG_ME(OWNER, message)`,
+and consensus accepts the spend only if the transaction carries the owner’s BLS
+signature over that message, bound to this exact coin and network. A spend
+without the signature is rejected by consensus, not by puzzle code.
+
+The wallet is also not one long-lived account. Each coin is spent once. The
+Chia version pays a fixed amount to a fixed recipient; a real wallet uses the
+standard puzzle, which lets the owner sign arbitrary conditions. See
+[delegate or reveal a hidden puzzle](/chialisp-oxide/tutorials/standard-transactions/)
+for that design.
+
+`receive()` has no equivalent: anyone can create a coin locked by your puzzle
+hash, and that is how you receive funds.

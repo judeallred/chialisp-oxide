@@ -1,0 +1,35 @@
+---
+title: Counter
+description: Solidity's Counter beside a checked Rust increment, and where persistent state lives on Chia.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import SoliditySource from '../../../components/SoliditySource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<SoliditySource path="contracts/src/first-app/Counter.sol" />
+
+## Chia (Rust)
+
+<SourceComparison slug="bounded-counter" />
+
+## What carries over, and what doesn’t
+
+The arithmetic carries over. Rust’s ordinary `counter + 1` is checked, so an
+overflow rejects the spend, the same way Solidity 0.8 reverts. The corpus export
+also enforces an explicit limit.
+
+The storage does not. `count` in the contract is a slot that every caller reads
+and writes. A Chia puzzle has no storage: this export is a pure function from
+the solution to a result. To keep a counter across transactions, curry its
+value into a coin’s puzzle and recreate the coin with the next value on every
+spend. The [hot-potato game](/chialisp-oxide/tutorials/spuds/) and the
+[ordered payout queue](/chialisp-oxide/tutorials/ordered-payout/) are corpus
+exports that do exactly that, and each spend of them is a separate, signed or
+permissionless transaction rather than a method call.
+
+There is also no free `get()`. Reading Chia state means looking up the current
+unspent coin and its puzzle, off chain.

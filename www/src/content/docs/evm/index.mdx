@@ -1,0 +1,51 @@
+---
+title: For EVM developers
+description: Map familiar Solidity teaching contracts onto Chia's coin model, with each Chia side a verified corpus export.
+---
+
+**WIP prototype. Not ready for use. These pages teach the model; they do not recommend deploying.**
+
+If you know Solidity, the hardest part of Chia is not syntax but the state model.
+This track pairs well-known
+[Solidity by Example](https://github.com/Cyfrin/solidity-by-example.github.io)
+contracts (MIT License, pinned at commit `5bcdca02`) with Chia puzzles written in
+Rust. The Solidity side is shown verbatim. Each Chia side is a real export from
+this repository’s validated corpus, with its own vectors, compiled artifacts and
+simulator spends.
+
+## The shifts to keep in mind
+
+- **No global storage.** An Ethereum contract owns mutable storage. On Chia,
+  value lives in *coins*, and each coin is locked by a puzzle. State is whatever
+  the puzzle curries into its own puzzle hash. To “update” it, you spend the
+  coin and create a new one.
+- **No `msg.sender`.** A puzzle authorizes a spend by emitting conditions that
+  consensus checks, such as `AGG_SIG_ME`, which requires a signature bound to
+  this coin and network. Announcements and messages coordinate several coins.
+- **No reentrancy, different bugs.** A spend runs once and returns a condition
+  list; there is no call back into a half-updated contract. The classic Chia
+  mistakes are instead conditions that don’t bind what you think: an unsigned
+  output, a missing amount check, or an announcement another coin can satisfy.
+- **Cost instead of gas.** CLVM cost and serialized size are charged per spend.
+  There is no gas refund or out-of-gas partial execution: a spend is accepted
+  or rejected whole.
+
+## Lessons
+
+| Solidity | Chia corpus export | What changes |
+| --- | --- | --- |
+| [Counter](/chialisp-oxide/evm/counter/) | `bounded-counter` | Checked arithmetic is the same idea; persistent state needs a coin |
+| [Ether Wallet](/chialisp-oxide/evm/ether-wallet/) | `signature-payment` | Ownership is a signature condition, not `msg.sender` |
+| [Multi-Sig Wallet](/chialisp-oxide/evm/multi-sig/) | `two-signature-payment` | Approvals are signatures on one spend, not stored votes |
+| [Time Lock](/chialisp-oxide/evm/time-lock/) | `timelocked-payment` | Time is a consensus-checked condition, not `block.timestamp` logic |
+
+Later lessons can build on corpus exports that already exist: the
+[CAT TAIL](/chialisp-oxide/tutorials/cat-genesis-tail/) for ERC-20,
+[commit-wait-reveal](/chialisp-oxide/tutorials/precommit/) for blind auctions,
+and the [ordered payout queue](/chialisp-oxide/tutorials/ordered-payout/) for
+batched transfers.
+
+Rust and the compiler rule out some mistakes, such as integer overflow
+(rejected at runtime) and malformed argument shapes, but not policy mistakes.
+See the [error study](/chialisp-oxide/verification/error-study/) for the exact
+evidence behind that claim.

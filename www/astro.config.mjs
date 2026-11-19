@@ -70,6 +70,13 @@ export default defineConfig({
           { label: 'Measure whole transaction costs', slug: 'tutorials/transaction-costs' },
           { label: 'Execute compressed generators', slug: 'tutorials/generator-costs' },
         ] },
+        { label: 'For EVM developers', items: [
+          { label: 'Overview', slug: 'evm' },
+          { label: 'Counter', slug: 'evm/counter' },
+          { label: 'Ether Wallet', slug: 'evm/ether-wallet' },
+          { label: 'Multi-Sig Wallet', slug: 'evm/multi-sig' },
+          { label: 'Time Lock', slug: 'evm/time-lock' },
+        ] },
         { label: 'Case studies and protocol analysis', items: [
           { label: 'XCHandles premine cascade', slug: 'case-studies/xchandles-premine' },
         ] },

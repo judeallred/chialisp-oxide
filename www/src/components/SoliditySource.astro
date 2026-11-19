@@ -1,0 +1,29 @@
+---
+// Render a pinned upstream Solidity teaching file verbatim, after checking its
+// bytes against the track's provenance record. Display only: nothing here is
+// compiled or executed.
+import { Code } from '@astrojs/starlight/components';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
+import { repository } from '../lib/p2-costs.mjs';
+
+interface Props { path: string; title?: string }
+const { path: file, title } = Astro.props;
+const commit = '5bcdca0239409d7336a07b66a6fca8d0bcc710e6';
+const base = path.join(await repository(), 'www/src/tracks/evm/upstream/Cyfrin--solidity-by-example.github.io', commit);
+const provenance = JSON.parse(readFileSync(path.join(base, 'provenance.json'), 'utf8'));
+if (provenance.commit !== commit || provenance.license !== 'MIT') throw new Error('Unexpected EVM track provenance');
+const row = provenance.files.find((entry: { path: string }) => entry.path === file);
+if (!row) throw new Error(`Unpinned Solidity source: ${file}`);
+const raw = readFileSync(path.join(base, file));
+if (raw.length !== row.bytes || createHash('sha256').update(raw).digest('hex') !== row.sha256) {
+  throw new Error(`Pinned Solidity source changed: ${file}`);
+}
+const source = raw.toString('utf8');
+const href = `${provenance.repository}/blob/${commit}/${file}`;
+---
+<div data-solidity-source={file}>
+  <Code code={source} lang="solidity" title={title ?? file.split('/').pop()} wrap preserveIndent />
+  <p class="quiet">Verbatim from <a href={href}>Solidity by Example</a> at commit <code>{commit.slice(0, 12)}</code> (MIT License, © 2018 Tasuku Nakamura). Shown for comparison; not compiled or executed here.</p>
+</div>

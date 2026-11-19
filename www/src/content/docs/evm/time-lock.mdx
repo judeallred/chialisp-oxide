@@ -1,0 +1,34 @@
+---
+title: Time Lock
+description: A queued, delayed call in Solidity beside a Chia coin that consensus refuses to spend before a timestamp.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import SoliditySource from '../../../components/SoliditySource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<SoliditySource path="contracts/src/app/time-lock/TimeLock.sol" />
+
+## Chia (Rust)
+
+<SourceComparison slug="timelocked-payment" />
+
+## Time is a condition, not a branch
+
+The contract stores queued transaction IDs and checks `block.timestamp` against
+them when `execute` is called, reverting if it is too early or too late.
+
+The Chia puzzle never reads the clock. It returns
+`ASSERT_SECONDS_ABSOLUTE(UNLOCK_AT)`, and consensus rejects the whole spend if
+the block’s timestamp is earlier. Relative delays use
+`ASSERT_HEIGHT_RELATIVE` or `ASSERT_SECONDS_RELATIVE`, measured from when the coin
+was created; deadlines use the matching `ASSERT_BEFORE_*` conditions. The
+[raffle](/chialisp-oxide/tutorials/raffle/) and
+[one-armed bandit](/chialisp-oxide/tutorials/one-armed-bandit/) use a pair of
+these to make two paths valid at different times.
+
+There is no queue to manage: the delay is part of the coin’s own puzzle, fixed
+when the coin is created.

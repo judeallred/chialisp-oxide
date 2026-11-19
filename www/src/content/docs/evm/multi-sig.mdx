@@ -1,0 +1,32 @@
+---
+title: Multi-Sig Wallet
+description: Stored confirmations in Solidity beside a Chia spend that needs two signatures at once.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import SoliditySource from '../../../components/SoliditySource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<SoliditySource path="contracts/src/app/multi-sig-wallet/MultiSigWallet.sol" />
+
+## Chia (Rust)
+
+<SourceComparison slug="two-signature-payment" />
+
+## Approvals are signatures on one spend
+
+The contract keeps a list of transactions and a confirmation count in storage,
+and each owner calls `confirmTransaction` in a separate transaction before
+anyone calls `executeTransaction`.
+
+The Chia version needs no stored votes. One spend returns two `AGG_SIG_ME`
+conditions, one per signer, over the same coin-bound message. The signers
+combine their signatures off chain into one aggregate, and consensus checks both
+in the same transaction. A spend with only one signature is rejected by
+consensus.
+
+This export is a fixed 2-of-2 policy with both keys named in the puzzle. A
+general m-of-n policy with changeable owners is not in the corpus yet.
