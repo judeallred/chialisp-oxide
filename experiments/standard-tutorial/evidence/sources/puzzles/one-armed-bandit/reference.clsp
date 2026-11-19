@@ -1,0 +1,68 @@
+; Original teaching reference, independently compiled from this Chialisp source.
+; WIP prototype, not ready for real funds. Testnet teaching only.
+; Exact template environment: ((HOUSE COMMITMENT PLAYER SALT) RESOLVE SEED).
+(mod environment
+  (defconstant CREATE_COIN 51)
+  (defconstant ASSERT_MY_AMOUNT 73)
+  (defconstant ASSERT_HEIGHT_RELATIVE 82)
+  (defconstant ASSERT_BEFORE_HEIGHT_RELATIVE 86)
+  (defconstant BET 1000)
+  (defconstant PULL_TOTAL 8000)
+  (defconstant RESOLVE_WINDOW 10)
+  (defconstant JACKPOT_BELOW 16)
+  (defconstant PAIR_BELOW 64)
+  (defconstant SEED_DOMAIN "chialisp-oxide/bandit/v1/seed:00")
+  (defconstant SPIN_DOMAIN "chialisp-oxide/bandit/v1/spin:00")
+
+  ; Only fixed arities are used; nonempty zero/padded tails are not nil.
+  (defun exact_list (value remaining)
+    (if (= remaining 0)
+      (if (l value) () (= value ()))
+      (if (l value) (exact_list (r value) (- remaining 1)) ())))
+
+  (defun sized (value width)
+    (if (l value) () (= (strlen value) width)))
+
+  ; Named thresholds: in this compiler a bare 64 literal in operator position
+  ; was emitted as environment path 1, so every threshold is a constant.
+  ; The outcome byte as an unsigned integer 0..255.
+  (defun spin_value (revealed salt)
+    (logand (substr (sha256 SPIN_DOMAIN revealed salt) 31 32) 255))
+
+  (defun winnings (revealed salt)
+    (if (> JACKPOT_BELOW (spin_value revealed salt)) (* BET 7)
+      (if (> PAIR_BELOW (spin_value revealed salt)) (* BET 2) 0)))
+
+  (defun pay (house player won)
+    (if won
+      (list (list ASSERT_MY_AMOUNT PULL_TOTAL)
+            (list ASSERT_BEFORE_HEIGHT_RELATIVE RESOLVE_WINDOW)
+            (list CREATE_COIN house (- PULL_TOTAL won))
+            (list CREATE_COIN player won))
+      (list (list ASSERT_MY_AMOUNT PULL_TOTAL)
+            (list ASSERT_BEFORE_HEIGHT_RELATIVE RESOLVE_WINDOW)
+            (list CREATE_COIN house PULL_TOTAL))))
+
+  (defun settle ((house commitment player salt) resolve seed)
+    (if (= resolve 1)
+      (if (= (sha256 SEED_DOMAIN seed) commitment)
+        (pay house player (winnings seed salt))
+        (x))
+      (if (= resolve ())
+        (list (list ASSERT_MY_AMOUNT PULL_TOTAL)
+              (list ASSERT_HEIGHT_RELATIVE RESOLVE_WINDOW)
+              (list CREATE_COIN player PULL_TOTAL))
+        (x))))
+
+  (defun checked (terms resolve seed)
+    (if (all (sized (f terms) 32) (sized (f (r terms)) 32) (sized (f (r (r terms))) 32)
+             (sized (f (r (r (r terms)))) 32) (sized seed 32) (not (l resolve)))
+      (settle terms resolve seed)
+      (x)))
+
+  (if (exact_list environment 3)
+    (if (exact_list (f environment) 4)
+      (checked (f environment) (f (r environment)) (f (r (r environment))))
+      (x))
+    (x))
+)

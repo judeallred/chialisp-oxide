@@ -127,6 +127,15 @@
     ],
     "after the refund age a draw is rejected and the refund queue repays every entrant": [
       "AssertBeforeHeightRelativeFailed"
+    ],
+    "three pulls pay a loss, a pair and a jackpot by the paytable across blocks": [],
+    "an early timeout claim, a misfunded pull and a late resolve are rejected": [
+      "AssertHeightRelativeFailed",
+      "AssertMyAmountFailed",
+      "AssertBeforeHeightRelativeFailed"
+    ],
+    "a withholding house forfeits the whole pull and a replay is rejected": [
+      "DoubleSpend"
     ]
   },
   "puzzles": {
@@ -565,6 +574,26 @@
         "name": "after the refund age a draw is rejected and the refund queue repays every entrant",
         "codes": [
           "AssertBeforeHeightRelativeFailed"
+        ]
+      }
+    ],
+    "one-armed-bandit": [
+      {
+        "name": "three pulls pay a loss, a pair and a jackpot by the paytable across blocks",
+        "codes": []
+      },
+      {
+        "name": "an early timeout claim, a misfunded pull and a late resolve are rejected",
+        "codes": [
+          "AssertHeightRelativeFailed",
+          "AssertMyAmountFailed",
+          "AssertBeforeHeightRelativeFailed"
+        ]
+      },
+      {
+        "name": "a withholding house forfeits the whole pull and a replay is rejected",
+        "codes": [
+          "DoubleSpend"
         ]
       }
     ]

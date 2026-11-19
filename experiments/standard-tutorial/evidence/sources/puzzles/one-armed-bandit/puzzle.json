@@ -1,0 +1,140 @@
+{
+  "slug": "one-armed-bandit",
+  "title": "One-armed bandit: one committed pull",
+  "kind": "coin_puzzle",
+  "security_scope": "Original WIP teaching game for issue #20, testnet teaching only and not ready for real funds. One pull coin holds exactly 8,000 mojos (the player's 1,000-mojo bet plus the house reserve) and curries one proper list: house payout hash, sha256(seed domain || house seed), player payout hash and the player's 32-byte salt. The house publishes its seed commitment before the player picks a salt. Before the coin is ten blocks old the house may resolve by revealing the seed: the outcome byte sha256(spin domain || seed || salt)[31] pays 7 bets below 16, 2 bets below 64 and nothing otherwise (expected return 208/256 = 81.25%), and the house receives the rest. At or after ten blocks the player may claim the whole pull, so a house that withholds its reveal forfeits its reserve. Consensus enforces ages and amounts; the puzzle only emits conditions.",
+  "environment": "strict",
+  "reference_mode": "module",
+  "provenance": {
+    "classification": "original teaching implementation",
+    "references": [
+      "https://chialisp.com/conditions/",
+      "https://chialisp.com/chialisp-currying/",
+      "https://github.com/judeallred/chialisp-oxide/issues/20"
+    ],
+    "source_origin": "All four paired source files (Rust export, independent Chialisp reference, Rue port and Python oracle) are original implementations of this explicit teaching contract. No published slot-machine puzzle is copied or ported; the slug avoids the unrelated slot-machine action-layer name.",
+    "limitations": [
+      "The house must use a fresh unpredictable seed for every pull. A reused or guessable seed lets the player choose a winning salt; the puzzle cannot detect reuse.",
+      "The player must pick the salt only after the commitment is published; the commitment and salt are both curried when the pull coin is created.",
+      "One fixed bet and paytable; there is no bankroll singleton, multi-line reels or house close-out here. The host funds each pull with exactly the bet plus reserve.",
+      "SHA-256 is an assumption; proof models do not cover SHA or this game. The stated return is exact arithmetic over the paytable, not a fairness proof."
+    ]
+  },
+  "source_dependencies": [
+    "crates/chialisp-oxide/src/lib.rs",
+    "crates/chialisp-oxide/src/domain.rs",
+    "crates/chialisp-oxide/src/coin_context.rs",
+    "crates/chialisp-oxide/src/cons.rs",
+    "crates/chialisp-oxide/src/hashing.rs"
+  ],
+  "cases": [
+    {
+      "label": "losing pull pays the house the whole pull",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "pair pays the player two bets and the house the rest",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00015a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "jackpot pays the player seven bets and the house the rest",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00165a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "timeout pays the player the whole pull",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) () 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "timeout ignores the decoded seed",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) () 0x0000000000000000000000000000000000000000000000000000000000000000)"
+    },
+    {
+      "label": "replayed seed is accepted; the house must never reuse one",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00165a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "house reveal not matching its commitment rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00165a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f)"
+    },
+    {
+      "label": "player cannot swap the salt after the reveal",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0xc0b6b5600fc18661930520dfeffc1dcd8f3da33e7846290e5372a9fd9e33c006 0x5050505050505050505050505050505050505050505050505050505050505050 0x00165a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "resolve bool two rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 2 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "padded true rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 0x0001 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "nonempty zero false rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 0x00 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "pair bool rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) (1) 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "short house payout rejected",
+      "solution": "((0x48484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "long commitment rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac00 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "short player payout rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x50505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "long salt rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a00) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "short seed rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "short seed rejected on timeout",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) () 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "pair seed rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 (0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e))"
+    },
+    {
+      "label": "three-field terms rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "five-field terms rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a 1) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "improper terms rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 . 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "missing seed rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1)"
+    },
+    {
+      "label": "extra environment field rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e 1)"
+    },
+    {
+      "label": "improper environment rejected",
+      "solution": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 . 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)"
+    },
+    {
+      "label": "nil environment rejected",
+      "solution": "()"
+    },
+    {
+      "label": "atom environment rejected",
+      "solution": "1"
+    }
+  ]
+}

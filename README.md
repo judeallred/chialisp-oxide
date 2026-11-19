@@ -170,18 +170,19 @@ conditions with owner-key and signature/reveal checks, and an original boomerang
 payment with terms committed before funding, the original precommit claim/registry
 pair, a canonical genesis-by-coin-ID CAT TAIL, two original counter actions, three original fixed two-name registry actions, four canonical raw-tree modules from the Inner Puzzles and Condition Morphing tutorials, three exact modern-cl24 binding/map modules, the standard delegated/hidden tutorial module, and the original ordered-payout
 continuation built on the `chialisp_oxide::continuation` helpers, the original Spuds
-hot-potato game, and the original four-entrant commit-reveal raffle. The
+hot-potato game, the original four-entrant commit-reveal raffle, and the original
+one-armed-bandit pull. The
 Intro ports preserve the exact original expressions and ignored environments
 through explicit parameterless annotations. The Using Modules ports compile the
 original modules unchanged and declare, per case, every result where the
 original's unbounded positional reading differs from the typed Rust adapter;
 those declarations bind only Chialisp and Rue, never Rust CLVM. The corpus
 checks native execution,
-1,231 explicit vectors and 43,753 generated integer/tree/byte cases against five CLVM
-builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Seventy-one
-complete-spend scenario groups run for each selected language build (213 ledger
+1,258 explicit vectors and 43,753 generated integer/tree/byte cases against five CLVM
+builds: Chialisp, Rust off/on, and independently compiled Rue off/on. Seventy-four
+complete-spend scenario groups run for each selected language build (222 ledger
 scenario runs). The eight original condition-producing teaching fixtures,
-singleton launcher, precommit pair, ordered-payout continuation, Spuds game and raffle have these generic ledger scenarios; pure language results and program
+singleton launcher, precommit pair, ordered-payout continuation, Spuds game, raffle and one-armed bandit have these generic ledger scenarios; pure language results and program
 factories are not direct spends. Factory validation separately executes the
 returned program on four environments for every successful named compiler run.
 The raw password module is also a pure-function comparison: its caller supplies

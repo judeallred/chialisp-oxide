@@ -26,7 +26,7 @@
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7"
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/p2-controls-bundle/44685-1795018955688945000/manifest.json",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/p2-controls-bundle/36940-1795061247714705000/manifest.json",
     "manifest_sha256": "99cad30243dec21fe0612aae0d156d1a505e48fe81b5d547fdac200fa738fa66",
     "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
     "driver_sha256": "f0ac291185e9c7a8c17d2dca795ecca3337723b7bc89e0a071b5929632202d6c",
@@ -297,6 +297,10 @@
         "raffle": {
           "entry": "chialisp_oxide_puzzles::raffle::puzzle",
           "source": "puzzles/raffle/puzzle.rs"
+        },
+        "one-armed-bandit": {
+          "entry": "chialisp_oxide_puzzles::one_armed_bandit::puzzle",
+          "source": "puzzles/one-armed-bandit/puzzle.rs"
         }
       },
       "sources": [
@@ -590,11 +594,11 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-          "sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
+          "sha256": "03ea2314ccabedbccc18651813b2e088ab83d124de9467470e671223d4034a4e"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native.rs",
-          "sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
+          "sha256": "1af14fb36258883fc2fb9c11d5c92c7ac3fec6efd13de4bb601e12d13d318f17"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -646,7 +650,7 @@
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-          "sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
+          "sha256": "f2ec214bc2da9092d9ad79d155b46537e6a92d6c302b8608dd7ae6f2d1ea3424"
         },
         {
           "path": "crates/chialisp-oxide-corpus/src/spends/precommit.rs",
@@ -682,7 +686,7 @@
         },
         {
           "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-          "sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
+          "sha256": "b51e22ae360a95853c2d1617b66371c569c08f387ede204784df70ec99f127fd"
         },
         {
           "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -762,7 +766,7 @@
         },
         {
           "path": "puzzles/authoring.json",
-          "sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
+          "sha256": "e705ddac8087c5aee5e7f7cc43369312cb4dd34a17189e162aeb821a87acc30f"
         },
         {
           "path": "puzzles/boolean-gate/puzzle.rs",
@@ -930,7 +934,7 @@
         },
         {
           "path": "puzzles/lib.rs",
-          "sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
+          "sha256": "fdd14ae24ab90e330022c57ad3d7cf72e6c9a977456a60b234ee02f4d698bbbe"
         },
         {
           "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -1023,6 +1027,22 @@
         {
           "path": "puzzles/morph-coin-doubler/reference.clsp",
           "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
+        },
+        {
+          "path": "puzzles/one-armed-bandit/puzzle.json",
+          "sha256": "0d921a84f33c4a3c645caa5aaf6efddff7d17283a6dafbeeb1b3db98b7a5e25e"
+        },
+        {
+          "path": "puzzles/one-armed-bandit/puzzle.rs",
+          "sha256": "47972967f3743012d5a9e30d84076550dd2222bc7ea370df17370e2b54020526"
+        },
+        {
+          "path": "puzzles/one-armed-bandit/puzzle.rue",
+          "sha256": "aeb48e920dfdcf92d9251b35d24f19472d9f49573dbc4dd4b32f0511a47f5984"
+        },
+        {
+          "path": "puzzles/one-armed-bandit/reference.clsp",
+          "sha256": "a6cbe295a9d8c249b4ad7d7db0658ac9398eb3c08baca004509f9f40c970dad1"
         },
         {
           "path": "puzzles/ordered-payout/puzzle.json",
@@ -1312,7 +1332,7 @@
     "controls": [
       {
         "entry": "chialisp_oxide_p2_singleton_controls::proper_struct::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/p2-controls-bundle/44685-1795018955688945000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/p2-controls-bundle/36940-1795061247714705000/284339e6b8568f39eec52bbef5b61baa59af290aa5f02400558ede17364090d8.ir.json",
         "ir_sha256": "47ab6cc139bf20e4c7db32ef04da38d35382a4402a9db1b67fef70ce8801c112",
         "runs": [
           {
@@ -1361,7 +1381,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::wrong_dollar::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/p2-controls-bundle/44685-1795018955688945000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/p2-controls-bundle/36940-1795061247714705000/a3db21ac705e04ec1eb201a472b9b9641b3b883e5c9a03feeaaecb1a244499da.ir.json",
         "ir_sha256": "fd75f730dd8b93669883a71b97dbd8b2e970f005b30e20a0bb092be5b18961b7",
         "runs": [
           {
@@ -1410,7 +1430,7 @@
       },
       {
         "entry": "chialisp_oxide_p2_singleton_controls::reversed_parameters::puzzle",
-        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/p2-controls-bundle/44685-1795018955688945000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
+        "ir_path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/p2-controls-bundle/36940-1795061247714705000/a4defaffbe59beb28c564c6d9070d4b789c8cbf41f96340f3dce23ccc69106e1.ir.json",
         "ir_sha256": "ca7214b68d737e0442c0c91a6361d4e6efcd6a78219c4f8e296624f39ab6dbfc",
         "runs": [
           {
@@ -1458,7 +1478,7 @@
         ]
       }
     ],
-    "manifest_path": "/Users/judeallred/code/clispOx/target/capture-20261118-raffle/p2-controls-bundle/44685-1795018955688945000/manifest.json",
+    "manifest_path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/p2-controls-bundle/36940-1795061247714705000/manifest.json",
     "manifest_sha256": "99cad30243dec21fe0612aae0d156d1a505e48fe81b5d547fdac200fa738fa66",
     "scope": "Three actual ordinary Rust policy mutations admitted through Cargo. Native tests and six CLVM runs distinguish the independent protocol relation. This is not an error Rust makes impossible or constructed-IR mutation.",
     "source_controls": [
@@ -1872,11 +1892,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
-        "sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
+        "sha256": "03ea2314ccabedbccc18651813b2e088ab83d124de9467470e671223d4034a4e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
-        "sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
+        "sha256": "1af14fb36258883fc2fb9c11d5c92c7ac3fec6efd13de4bb601e12d13d318f17"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native_hash.rs",
@@ -1932,7 +1952,11 @@
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
-        "sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
+        "sha256": "f2ec214bc2da9092d9ad79d155b46537e6a92d6c302b8608dd7ae6f2d1ea3424"
+      },
+      {
+        "path": "crates/chialisp-oxide-corpus/src/spends/bandit.rs",
+        "sha256": "a27e1656ce70bdea2571bc2076b548c1d0e921b90531d7def737994e7b8757e3"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/spends/ordered_payout.rs",
@@ -2736,7 +2760,7 @@
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
-        "sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
+        "sha256": "b51e22ae360a95853c2d1617b66371c569c08f387ede204784df70ec99f127fd"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -2940,7 +2964,7 @@
       },
       {
         "path": "puzzles/authoring.json",
-        "sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
+        "sha256": "e705ddac8087c5aee5e7f7cc43369312cb4dd34a17189e162aeb821a87acc30f"
       },
       {
         "path": "puzzles/boolean-gate/puzzle.rs",
@@ -3108,7 +3132,7 @@
       },
       {
         "path": "puzzles/lib.rs",
-        "sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
+        "sha256": "fdd14ae24ab90e330022c57ad3d7cf72e6c9a977456a60b234ee02f4d698bbbe"
       },
       {
         "path": "puzzles/modern-lambda-map/puzzle.json",
@@ -3201,6 +3225,22 @@
       {
         "path": "puzzles/morph-coin-doubler/reference.clsp",
         "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/puzzle.json",
+        "sha256": "0d921a84f33c4a3c645caa5aaf6efddff7d17283a6dafbeeb1b3db98b7a5e25e"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/puzzle.rs",
+        "sha256": "47972967f3743012d5a9e30d84076550dd2222bc7ea370df17370e2b54020526"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/puzzle.rue",
+        "sha256": "aeb48e920dfdcf92d9251b35d24f19472d9f49573dbc4dd4b32f0511a47f5984"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/reference.clsp",
+        "sha256": "a6cbe295a9d8c249b4ad7d7db0658ac9398eb3c08baca004509f9f40c970dad1"
       },
       {
         "path": "puzzles/ordered-payout/puzzle.json",

@@ -65,7 +65,7 @@ def self_test(root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--packet', type=Path, default=Path(__file__).resolve().parent / 'evidence')
-    parser.add_argument('--current', action='store_true', help='also compare explicit current repository sources and complete51 report')
+    parser.add_argument('--current', action='store_true', help='also compare explicit current repository sources and complete52 report')
     parser.add_argument('--self-test', action='store_true')
     args = parser.parse_args()
     result = packet.validate(args.packet, current_root=ROOT if args.current else None)

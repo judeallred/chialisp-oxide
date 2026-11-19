@@ -176,6 +176,11 @@
       "slug": "raffle",
       "entry": "chialisp_oxide_puzzles::raffle::puzzle",
       "source": "puzzles/raffle/puzzle.rs"
+    },
+    {
+      "slug": "one-armed-bandit",
+      "entry": "chialisp_oxide_puzzles::one_armed_bandit::puzzle",
+      "source": "puzzles/one-armed-bandit/puzzle.rs"
     }
   ],
   "source_transition": {
@@ -645,6 +650,22 @@
         "sha256": "644af3a8ac7e15b20722eb8ece2ba7046b222d6e387035988ee760e9c6486f79"
       },
       {
+        "path": "puzzles/one-armed-bandit/puzzle.json",
+        "sha256": "0d921a84f33c4a3c645caa5aaf6efddff7d17283a6dafbeeb1b3db98b7a5e25e"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/puzzle.rs",
+        "sha256": "47972967f3743012d5a9e30d84076550dd2222bc7ea370df17370e2b54020526"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/puzzle.rue",
+        "sha256": "aeb48e920dfdcf92d9251b35d24f19472d9f49573dbc4dd4b32f0511a47f5984"
+      },
+      {
+        "path": "puzzles/one-armed-bandit/reference.clsp",
+        "sha256": "a6cbe295a9d8c249b4ad7d7db0658ac9398eb3c08baca004509f9f40c970dad1"
+      },
+      {
         "path": "puzzles/ordered-payout/puzzle.json",
         "sha256": "7fa148f3220ed8fdc30dbe28584e3e3942d7216ad1859dd90729d57904ed88a1"
       },
@@ -816,12 +837,12 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/lib.rs",
         "before_sha256": "f92debb74c44befc9235a63e85cf9a7006ce715dd7a08a42003493a5e7a76814",
-        "after_sha256": "b7ea6395e662346679642c42e25e77e9363b0b018fe18289367819ac04f49605"
+        "after_sha256": "03ea2314ccabedbccc18651813b2e088ab83d124de9467470e671223d4034a4e"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/native.rs",
         "before_sha256": "0f913a4eeda2d462de237baff8bc811f9d99b2062292c0b79d5ffd69fc23c448",
-        "after_sha256": "dd95ec6132d299aa98aa5e181a19394e06ea746a231b0566dd9855e31b841caa"
+        "after_sha256": "1af14fb36258883fc2fb9c11d5c92c7ac3fec6efd13de4bb601e12d13d318f17"
       },
       {
         "path": "crates/chialisp-oxide-corpus/src/p2_delegated_conditions.rs",
@@ -836,12 +857,12 @@
       {
         "path": "crates/chialisp-oxide-corpus/src/spends.rs",
         "before_sha256": "557a5cb37fd81a32a805b1841f3f48a3c1a95b820ca6857c69e63d8f1d5c6cc7",
-        "after_sha256": "6e8bddef2ff4cd81be1e6262c2106fcaf25edd477d8f0df379399efe0a5885e7"
+        "after_sha256": "f2ec214bc2da9092d9ad79d155b46537e6a92d6c302b8608dd7ae6f2d1ea3424"
       },
       {
         "path": "crates/chialisp-oxide-simulator/rejection-protocol.json",
         "before_sha256": "7c86236de1d0196d173f5a8bf5ca5087b8df2ee20563fcfa20208bbe69ca0de5",
-        "after_sha256": "1909c5732a3929b9ba04ebccef36546fbecdc09b41fe7a1513abca0b8bb5f298"
+        "after_sha256": "b51e22ae360a95853c2d1617b66371c569c08f387ede204784df70ec99f127fd"
       },
       {
         "path": "crates/chialisp-oxide-simulator/src/lib.rs",
@@ -871,12 +892,12 @@
       {
         "path": "puzzles/authoring.json",
         "before_sha256": "a2bd0f0da6a5cebb91647f46371c0332b9d749d91708f1473d84771d0081a6a5",
-        "after_sha256": "51fd9bfa118f78a8814f291c47433e4c9eac0ac1149847f3bb5f9a8dcb43eaf0"
+        "after_sha256": "e705ddac8087c5aee5e7f7cc43369312cb4dd34a17189e162aeb821a87acc30f"
       },
       {
         "path": "puzzles/lib.rs",
         "before_sha256": "6c83b23757ed8ed34c7a1ec62a92f9e821f5b36c0e96e7b4d27a332ad005fec1",
-        "after_sha256": "2c549eaa667c0e7a06b668a254c95794586329986e7d9d210970bc7fcefcaee9"
+        "after_sha256": "fdd14ae24ab90e330022c57ad3d7cf72e6c9a977456a60b234ee02f4d698bbbe"
       }
     ],
     "embedded_native_paths": [
@@ -917,9 +938,9 @@
     ]
   },
   "reviewed_after": {
-    "report_sha256": "efae89153b8a02d95e78c5857a535323f8f67278c92aac8f885becc6e959cc5a",
-    "canonical_report_sha256": "8ec687a7fbbf57e1cbb310890800018786a2573c0ef1256be6f8eda79ab491ba",
-    "controls_sha256": "57b256345b97252892ca8fc0e4744ba7cad2051afcb19c8f51c5f03ce7c8d9df",
+    "report_sha256": "9d460ec47e38fca0f7e3d6dc7bca4f60952629f71514d4bc43245706d2b91d2f",
+    "canonical_report_sha256": "d1ca8c0e49b73f995784cb20423ab2349eaeaf46e6ca422dc939d05bd6f3f9c8",
+    "controls_sha256": "33845b52a03b8be84f1d3f34017dd534a1a1f91863743a368bdf87342620eb61",
     "metrics_sha256": "a252d5929d35822735d34cc3b58ab63c8a62bc011529dbb25b7827bba9a5bbbd",
     "added_puzzles": [
       {
@@ -956,7 +977,7 @@
       },
       {
         "slug": "boomerang",
-        "sha256": "71748d05ae5a1ea3528403da29fab7df0fbb3bac4d31515a8258448951facad3"
+        "sha256": "88fbea90fed69c063c4cc31ea74c6fc11986fb8a09dab4f57da3319a26a7e2f7"
       },
       {
         "slug": "precommit-claim",
@@ -968,27 +989,27 @@
       },
       {
         "slug": "cat-genesis-by-coin-id",
-        "sha256": "2af0f06e8e2f0d05a1274ac86e3fd4076cee7890433f2d3badf42205b9862aa5"
+        "sha256": "65fa84483e8865707cf6be8c58ffeb8c83ec7b3631bb6b008b26fa3c31c4b7cb"
       },
       {
         "slug": "counter-increment",
-        "sha256": "87a59468ffb7d7f80111c7b771d21485c0b880f8db4e913da319ccc37fb16cf2"
+        "sha256": "a898885287069d5746209d985f5ce8ca247e88355614e89ef0ec2463e26dd31a"
       },
       {
         "slug": "counter-reset",
-        "sha256": "541869996d009b74fe5daef4f08282f31b14f17ee0a38fe5807ec6f9e6f6c51c"
+        "sha256": "1387899a6de3d1c6a7bd1e445d65d83e43d70ee46d32d764f9f7e714c2a9a396"
       },
       {
         "slug": "registry-initialize",
-        "sha256": "02f446a7ded6a6bc00cb377251277e3d4e23e8961d75ad572f1c83e3814ccccd"
+        "sha256": "b602df8627c6c36c4ec4c4a6be1b77c369c075e565f90b5a6bb0a661a8d5eacc"
       },
       {
         "slug": "registry-set-alpha",
-        "sha256": "7618f2d76ac33d43f45a5fc1dc7f41b783e2211ebeef915c7bd7997fc132d3c6"
+        "sha256": "d2aa97823b0b1514467a2e6b1240a6894cd3ef1192dbf32d593c7b8f17bce880"
       },
       {
         "slug": "registry-set-beta",
-        "sha256": "1d2fd61a9e4cccb5ed5c8ffc7343c1b2f30506f6db20b33d916bd122ce837301"
+        "sha256": "646deb4d270f161d2735a89749c7fb8008eb95e2405853a46d5cc381307b7645"
       },
       {
         "slug": "morph-coin-doubler",
@@ -1008,15 +1029,15 @@
       },
       {
         "slug": "modern-let-product",
-        "sha256": "acb6c64c9c72c1082f654ef823fc956dce7e5084bca4363d2484c950f6ff4cf2"
+        "sha256": "27e570e661adb8737215cf0dd52e29c2f0caf71717f422473e6fc3ef22a5ddcc"
       },
       {
         "slug": "modern-named-map",
-        "sha256": "27bb7f4c975bdb3aa4f622398554eac076d2137ffddd0ec62ed5dd7887e91ba8"
+        "sha256": "819e75991659e8464201410441fd64528b32377187b9d3849c15620895d90835"
       },
       {
         "slug": "modern-lambda-map",
-        "sha256": "c827bf81fb548df18041311ad037050f70e99d0553e1dd7875c60685235dfb7a"
+        "sha256": "2000f44de54025e7e512d581ac5989042b0e0365259d6535535d78052ef5518b"
       },
       {
         "slug": "standard-delegated-hidden",
@@ -1033,6 +1054,10 @@
       {
         "slug": "raffle",
         "sha256": "d5b8720cfb0243e7f25cfc649e3748579eb956dc2445923e9fa61b2d00229934"
+      },
+      {
+        "slug": "one-armed-bandit",
+        "sha256": "c507a3a75ad6e3fbfbc18cdbd13656bc00e5a49717f85cb33d48662cd0bb5572"
       }
     ],
     "raw_ir": [
@@ -1153,6 +1178,10 @@
         "sha256": "20a526f924c512ae9e11a2bcded95a293d8f2a8451e2e26d5eb7501bf86ad476"
       },
       {
+        "entry": "chialisp_oxide_puzzles::one_armed_bandit::puzzle",
+        "sha256": "c2611260b1a8b7af881e6325cddd3c44368ae5a3963de24b13cbddf8b671d67e"
+      },
+      {
         "entry": "chialisp_oxide_puzzles::ordered_payout::puzzle",
         "sha256": "1ffc82df60d07e2b9111d99e58c031e3c3a24ddb01e4a191cb088cf897d0edb9"
       },
@@ -1243,7 +1272,7 @@
     ],
     "bundles": {
       "on": {
-        "manifest_sha256": "2eb428efcd1460ef3ff43c1ad12558fe1db2732606830720ecf690d50ef601ea",
+        "manifest_sha256": "8e50ce52a1e4e8c93762b26212746729488047af645d98cfb03ccad3f467b924",
         "optimize_lir": true,
         "cargo_options": [
           "--manifest-path",
@@ -1254,7 +1283,7 @@
         ]
       },
       "off": {
-        "manifest_sha256": "2ab15ff41435b1d2f392696f32e746b3ed31d967d85c39d582b8f6b85a115f28",
+        "manifest_sha256": "c161dc36985bc94ce23b75c1a6e18988361aee61313fcdf27c56177a5efe031d",
         "optimize_lir": false,
         "cargo_options": [
           "--manifest-path",

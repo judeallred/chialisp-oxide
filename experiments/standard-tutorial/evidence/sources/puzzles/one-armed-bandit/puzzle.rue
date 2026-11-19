@@ -1,0 +1,49 @@
+// Original teaching comparison of one one-armed-bandit pull (#20).
+// WIP prototype; not ready for real funds. Testnet teaching only.
+type Terms = (Bytes32, (Bytes32, (Bytes32, (Bytes32, nil))));
+
+const BET: Int = 1000;
+const PULL_TOTAL: Int = 8000;
+const RESOLVE_WINDOW: Int = 10;
+// UTF-8 "chialisp-oxide/bandit/v1/seed:00" and "chialisp-oxide/bandit/v1/spin:00".
+const SEED_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f62616e6469742f76312f736565643a3030;
+const SPIN_DOMAIN: Bytes = 0x636869616c6973702d6f786964652f62616e6469742f76312f7370696e3a3030;
+
+fn main(...environment: Any) -> List<Condition> {
+    // Strict whole environment: (terms resolve seed); timeout still validates the seed.
+    assert environment is (Terms, (Bool, (Bytes32, nil)));
+    let terms = environment.first;
+    let house = terms.first;
+    let commitment = terms.rest.first;
+    let player = terms.rest.rest.first;
+    let salt = terms.rest.rest.rest.first;
+    let resolve = environment.rest.first;
+    let seed = environment.rest.rest.first;
+
+    if resolve {
+        assert sha256(...[SEED_DOMAIN, seed]) == commitment;
+        let won = winnings(unsigned_byte(substr(sha256(...[SPIN_DOMAIN, seed, salt]), 31, 32)));
+        if won == 0 {
+            [AssertMyAmount { amount: PULL_TOTAL },
+             AssertBeforeHeightRelative { height: RESOLVE_WINDOW },
+             CreateCoin { puzzle_hash: house, amount: PULL_TOTAL }]
+        } else {
+            [AssertMyAmount { amount: PULL_TOTAL },
+             AssertBeforeHeightRelative { height: RESOLVE_WINDOW },
+             CreateCoin { puzzle_hash: house, amount: PULL_TOTAL - won },
+             CreateCoin { puzzle_hash: player, amount: won }]
+        }
+    } else {
+        [AssertMyAmount { amount: PULL_TOTAL },
+         AssertHeightRelative { height: RESOLVE_WINDOW },
+         CreateCoin { puzzle_hash: player, amount: PULL_TOTAL }]
+    }
+}
+
+fn unsigned_byte(byte: Bytes) -> Int {
+    (0x00 + byte) as Int
+}
+
+fn winnings(outcome: Int) -> Int {
+    if outcome < 16 { BET * 7 } else if outcome < 64 { BET * 2 } else { 0 }
+}

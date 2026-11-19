@@ -1,0 +1,73 @@
+---
+title: Pull a one-armed bandit
+description: Resolve one committed slot-machine pull from a published paytable, and see why a withholding house loses its reserve.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import ValidationCases from '../../../components/ValidationCases.astro';
+
+**WIP prototype. Not ready for use. Testnet teaching only; this page does not
+encourage gambling for value.**
+
+This original teaching game for
+[#20](https://github.com/judeallred/chialisp-oxide/issues/20) is one pull of a
+slot machine. Two parties each hold half of the randomness, and the timing rules
+make withholding cost the house rather than the player.
+
+## Read the policy in three languages
+
+<SourceComparison slug="one-armed-bandit" />
+
+## The house commits before the player picks
+
+1. The house picks a fresh random 32-byte seed and publishes only
+   `sha256("chialisp-oxide/bandit/v1/seed:00" || seed)`.
+2. The player then picks a salt. One pull coin curries
+   `(HOUSE_PAYOUT SEED_COMMITMENT PLAYER_PAYOUT SALT)` and holds exactly 8,000
+   mojos: the player’s 1,000-mojo bet plus the house’s 7,000-mojo reserve.
+3. Before the coin is ten blocks old, the house resolves by revealing the seed.
+   The outcome byte is `sha256(spin domain || seed || salt)[31]`.
+
+| Outcome byte | Chance | Player receives |
+| --- | --- | --- |
+| below 16 | 16 / 256 | 7 bets (7,000 mojos) |
+| 16 to 63 | 48 / 256 | 2 bets (2,000 mojos) |
+| 64 and above | 192 / 256 | nothing |
+
+The house receives the rest, which is always at least one bet, so a pull can
+never bankrupt it. The expected return to the player is exactly
+(16 × 7 + 48 × 2) / 256 = 208 / 256 = 81.25%. A Rust unit test computes that
+number from the published constants over all 256 outcomes. It is exact
+arithmetic, not sampling.
+
+<ValidationCases slug="one-armed-bandit" labels={["losing pull pays the house the whole pull", "jackpot pays the player seven bets and the house the rest", "house reveal not matching its commitment rejected", "timeout pays the player the whole pull"]} />
+
+## Withholding costs the house
+
+If the house sees a losing reveal coming and refuses to resolve, the player
+waits ten blocks and claims all 8,000 mojos. Unlike the
+[raffle](/chialisp-oxide/tutorials/raffle/), where a withholder just forces a
+refund, here withholding forfeits the house’s reserve.
+
+The corpus plays this in the SDK simulator for the Rust, Chialisp and Rue
+builds:
+
+- three resolved pulls pay a loss, a pair and a jackpot across blocks while the
+  house bankroll is tracked;
+- an early timeout claim fails with `AssertHeightRelativeFailed`, a misfunded
+  pull fails with `AssertMyAmountFailed`, and a late resolve fails with
+  `AssertBeforeHeightRelativeFailed`;
+- a withholding house forfeits the whole pull to the player, and a replay fails
+  with `DoubleSpend`.
+
+Each rejected bundle leaves the simulator unchanged.
+
+## What still requires trust
+
+- **Fresh seeds.** If the house ever reuses a seed, a player who saw it can pick
+  a winning salt. The puzzle cannot detect reuse.
+- **Order of commitment.** The player must pick the salt only after the
+  commitment is published, and both are fixed when the pull coin is created.
+- **Scope.** There is one fixed bet and paytable, and no bankroll singleton or
+  house close-out. SHA-256 is an assumption, and these finite observations are
+  not a fairness proof.

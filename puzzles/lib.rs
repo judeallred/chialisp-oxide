@@ -133,3 +133,6 @@ pub mod spuds;
 
 #[path = "raffle/puzzle.rs"]
 pub mod raffle;
+
+#[path = "one-armed-bandit/puzzle.rs"]
+pub mod one_armed_bandit;

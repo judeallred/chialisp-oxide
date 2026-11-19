@@ -87,6 +87,7 @@ pub const PUZZLES: &[&str] = &[
     "ordered-payout",
     "spuds",
     "raffle",
+    "one-armed-bandit",
 ];
 #[derive(Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

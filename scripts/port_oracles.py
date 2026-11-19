@@ -23,6 +23,11 @@ def _precommit():
     return precommit_oracle
 
 
+def _bandit():
+    import bandit_oracle
+    return bandit_oracle
+
+
 def _raffle():
     import raffle_oracle
     return raffle_oracle
@@ -92,4 +97,5 @@ PORTS = {
     "ordered-payout": {"expected": lambda solution: _ordered_payout().expected(solution), "generated": lambda: []},
     "spuds": {"expected": _spuds, "generated": lambda: []},
     "raffle": {"expected": lambda solution: _raffle().expected(solution), "generated": lambda: []},
+    "one-armed-bandit": {"expected": lambda solution: _bandit().expected(solution), "generated": lambda: []},
 }

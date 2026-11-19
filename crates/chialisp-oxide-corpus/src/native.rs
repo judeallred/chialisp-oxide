@@ -1112,6 +1112,21 @@ pub fn execute(slug: &str, solution: &str) -> Result<Option<Vec<u8>>> {
                     Amount::from_mojos(uint(&a, args[3])?),
                 ))
             }
+            "one-armed-bandit" => {
+                ensure!(args.len() == 3, "arity");
+                let terms = self::args(&a, args[0])?;
+                ensure!(terms.len() == 4, "terms arity");
+                output(chialisp_oxide_puzzles::one_armed_bandit::puzzle(
+                    (
+                        PuzzleHash(fixed_atom(&a, terms[0])?),
+                        Message32(fixed_atom(&a, terms[1])?),
+                        PuzzleHash(fixed_atom(&a, terms[2])?),
+                        Message32(fixed_atom(&a, terms[3])?),
+                    ),
+                    boolean(&a, args[1])?,
+                    Message32(fixed_atom(&a, args[2])?),
+                ))
+            }
             "raffle" => {
                 ensure!(args.len() == 3, "arity");
                 let terms = self::args(&a, args[0])?;

@@ -4,6 +4,7 @@ use chialisp_oxide_simulator::{
     create_coin, partial_aggregate_signature, require_consensus_rejection, sign_transaction,
 };
 use serde::Serialize;
+mod bandit;
 mod ordered_payout;
 mod precommit;
 mod raffle;
@@ -58,6 +59,9 @@ pub fn validate(slug: &str, code: &[u8]) -> Result<Vec<Scenario>> {
     }
     if slug == "raffle" {
         return raffle::validate(code);
+    }
+    if slug == "one-armed-bandit" {
+        return bandit::validate(code);
     }
     let msg = format!("0x{}", "ab".repeat(32));
     let input = match slug {
