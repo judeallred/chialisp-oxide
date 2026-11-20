@@ -4,6 +4,7 @@ description: A pinned mainnet block range measured for repeated module reveals, 
 ---
 
 import report from '../../../../../experiments/chain-space/report.json';
+import storage from '../../../../../experiments/chain-space/storage.json';
 
 export const pct = (value) => `${(value * 100).toFixed(1)}%`;
 export const kb = (value) => `${(value / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })} KB`;
@@ -54,6 +55,24 @@ Generator bytes are charged at {report.cost_per_generator_byte.toLocaleString('e
   consensus. It would need a CHIP, a canonical module registry (overlapping
   [#21](https://github.com/judeallred/chialisp-oxide/issues/21)), and node
   storage and validation work.
+
+## Local storage
+
+For [#23](https://github.com/judeallred/chialisp-oxide/issues/23), the same range
+was stored as a local spend table three ways. All
+{storage.byte_exact_reveal_round_trips.toLocaleString('en-US')} reveals rebuilt
+byte for byte from the deduplicated form.
+
+| Store | Bytes | Relative |
+| --- | --- | --- |
+| Raw reveal + solution table | {kb(storage.sizes.raw_spend_table)} | 100% |
+| zstd level {storage.zstd_level} | {kb(storage.sizes.raw_spend_table_zstd)} | {pct(storage.relative.zstd_vs_raw)} |
+| Modules stored once, then references | {kb(storage.sizes.dedup_store)} | {pct(storage.relative.dedup_vs_raw)} |
+| Modules stored once, then zstd | {kb(storage.sizes.dedup_store_zstd)} | {pct(storage.relative.dedup_zstd_vs_raw_zstd)} of the zstd table |
+
+General compression already captures almost all of the repeated module bytes,
+so module deduplication on top of it saves little here. This is a spend table,
+not a node database or byte-exact block storage.
 
 One recent range is not a trend over time, the provider’s responses are not
 authenticated here, and only the outermost curried module is uncurried.

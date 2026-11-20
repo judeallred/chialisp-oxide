@@ -1,0 +1,19 @@
+{
+  "scope": "Local spend-table storage only: reveal and solution bytes per spend, not a node database, block bodies or generator backref encoding. Measured over the same pinned range as report.json.",
+  "zstd_level": 3,
+  "spends": 2726,
+  "byte_exact_reveal_round_trips": 2726,
+  "sizes": {
+    "raw_spend_table": 17432482,
+    "raw_spend_table_zstd": 12666367,
+    "dedup_store": 16224587,
+    "dedup_store_zstd": 12640141,
+    "distinct_modules": 13,
+    "distinct_module_bytes": 11230
+  },
+  "relative": {
+    "zstd_vs_raw": 0.7266,
+    "dedup_vs_raw": 0.9307,
+    "dedup_zstd_vs_raw_zstd": 0.9979
+  }
+}

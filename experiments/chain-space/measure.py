@@ -164,14 +164,75 @@ def analyze(capture):
         top_modules=[dict(module_hash=k, **v) for k, v in top])
 
 
+def curry(module, arguments):
+    """Rebuild the standard curried form (a (q . MODULE) (c (q . A1) ... 1))."""
+    environment = b"\x01"
+    for argument in reversed(arguments):
+        environment = (b"\x04", ((b"\x01", argument), (environment, b"")))
+    return (b"\x02", ((b"\x01", module), (environment, b"")))
+
+
+def storage(capture, level=3):
+    """Local spend-table storage: raw, zstd, and a module-deduplicated store (#23)."""
+    from compression import zstd
+    index = json.loads((capture / "index.json").read_text())
+    raw_rows, dedup_rows, modules, round_trips = [], [], {}, 0
+    for row in index["blocks"]:
+        name = f"{row['height']:09d}"
+        spends_raw = gzip.decompress((capture / f"{name}.spends.json.gz").read_bytes())
+        if hashlib.sha256(spends_raw).hexdigest() != row["spends_sha256"]:
+            raise ValueError(f"{name}: capture digest mismatch")
+        for spend in json.loads(spends_raw)["block_spends"]:
+            reveal = bytes.fromhex(spend["puzzle_reveal"].removeprefix("0x"))
+            solution = bytes.fromhex(spend["solution"].removeprefix("0x"))
+            raw_rows.append(reveal + solution)
+            parsed = uncurry(raw_tree.deserialize(reveal))
+            if parsed is None:
+                dedup_rows.append(reveal + solution)
+                continue
+            module, arguments = parsed
+            module_bytes = raw_tree.serialize(module)
+            digest = raw_tree.tree_hash(module)
+            modules.setdefault(digest, module_bytes)
+            argument_bytes = raw_tree.serialize(tuple_list(arguments))
+            # Byte-exact round trip of the stored form back to the original reveal.
+            rebuilt = raw_tree.serialize(curry(module, arguments))
+            if rebuilt != reveal:
+                raise ValueError(f"{name}: reveal did not round-trip byte for byte")
+            round_trips += 1
+            dedup_rows.append(digest + argument_bytes + solution)
+    raw = b"".join(raw_rows)
+    dedup = b"".join(modules.values()) + b"".join(dedup_rows)
+    sizes = dict(raw_spend_table=len(raw), raw_spend_table_zstd=len(zstd.compress(raw, level=level)),
+                 dedup_store=len(dedup), dedup_store_zstd=len(zstd.compress(dedup, level=level)),
+                 distinct_modules=len(modules), distinct_module_bytes=sum(len(v) for v in modules.values()))
+    return dict(scope="Local spend-table storage only: reveal and solution bytes per spend, not a node database, "
+                      "block bodies or generator backref encoding. Measured over the same pinned range as report.json.",
+                zstd_level=level, spends=len(raw_rows), byte_exact_reveal_round_trips=round_trips, sizes=sizes,
+                relative=dict(zstd_vs_raw=round(sizes["raw_spend_table_zstd"] / sizes["raw_spend_table"], 4),
+                              dedup_vs_raw=round(sizes["dedup_store"] / sizes["raw_spend_table"], 4),
+                              dedup_zstd_vs_raw_zstd=round(sizes["dedup_store_zstd"] / sizes["raw_spend_table_zstd"], 4)))
+
+
+def tuple_list(items):
+    result = b""
+    for item in reversed(items):
+        result = (item, result)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
     f = sub.add_parser("fetch"); f.add_argument("--start", type=int, required=True); f.add_argument("--count", type=int, required=True); f.add_argument("--output", type=Path, required=True)
     a = sub.add_parser("analyze"); a.add_argument("--capture", type=Path, required=True); a.add_argument("--report", type=Path)
+    t = sub.add_parser("storage"); t.add_argument("--capture", type=Path, required=True); t.add_argument("--report", type=Path)
     args = parser.parse_args()
     if args.command == "fetch":
         fetch(args.start, args.count, args.output)
+    elif args.command == "storage":
+        text = json.dumps(storage(args.capture), indent=2) + "\n"
+        (args.report.write_text(text) if args.report else sys.stdout.write(text))
     else:
         report = analyze(args.capture)
         text = json.dumps(report, indent=2) + "\n"

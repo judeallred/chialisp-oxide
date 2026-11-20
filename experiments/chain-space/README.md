@@ -54,6 +54,22 @@ node storage and validation work, and its benefit is bounded by reveal bytes,
 which are about a tenth of spend bytes here. Delegated-puzzle solutions are a
 larger target than module reveals.
 
+## Local storage (#23)
+
+`measure.py storage` compares a local spend table (reveal plus solution bytes
+per spend) stored raw, zstd-compressed (level 3), and as a module-deduplicated
+store: each distinct uncurried module once, plus a 32-byte module hash, curried
+arguments and solution per spend. Every reveal is rebuilt byte for byte from
+the stored module and arguments. See [`storage.json`](storage.json).
+
+Over the same range, zstd alone shrinks the table to about 73% of raw size and
+module deduplication alone to about 93%, but deduplicating before zstd saves
+only about 0.2% more: general compression already captures almost all repeated
+module bytes. The range has only 13 distinct modules. This covers a spend table
+only, not a node database, block bodies or byte-exact generator reconstruction
+with its backref encoding, and the full node's actual schema and compression are
+not pinned here.
+
 ## Limits
 
 One recent range of 150 transaction blocks is not a trend over time, and the
