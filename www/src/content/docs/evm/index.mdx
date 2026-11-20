@@ -38,9 +38,10 @@ simulator spends.
 | [Ether Wallet](/chialisp-oxide/evm/ether-wallet/) | `signature-payment` | Ownership is a signature condition, not `msg.sender` |
 | [Multi-Sig Wallet](/chialisp-oxide/evm/multi-sig/) | `two-signature-payment` | Approvals are signatures on one spend, not stored votes |
 | [Time Lock](/chialisp-oxide/evm/time-lock/) | `timelocked-payment` | Time is a consensus-checked condition, not `block.timestamp` logic |
+| [ERC-20 token](/chialisp-oxide/evm/erc20/) | `cat-genesis-by-coin-id` | Balances are coins; a TAIL governs issuance |
+| [English auction](/chialisp-oxide/evm/english-auction/) | (design sketch; nearest: `spuds`) | Refunds must happen in the bid spend itself |
 
-Later lessons can build on corpus exports that already exist: the
-[CAT TAIL](/chialisp-oxide/tutorials/cat-genesis-tail/) for ERC-20,
+Later lessons can build on corpus exports that already exist:
 [commit-wait-reveal](/chialisp-oxide/tutorials/precommit/) for blind auctions,
 and the [ordered payout queue](/chialisp-oxide/tutorials/ordered-payout/) for
 batched transfers.

@@ -76,6 +76,8 @@ export default defineConfig({
           { label: 'Ether Wallet', slug: 'evm/ether-wallet' },
           { label: 'Multi-Sig Wallet', slug: 'evm/multi-sig' },
           { label: 'Time Lock', slug: 'evm/time-lock' },
+          { label: 'ERC-20 token', slug: 'evm/erc20' },
+          { label: 'English auction', slug: 'evm/english-auction' },
         ] },
         { label: 'For Solana developers', items: [
           { label: 'Overview', slug: 'solana' },
@@ -84,6 +86,7 @@ export default defineConfig({
           { label: 'Transfer SOL', slug: 'solana/transfer-sol' },
           { label: 'Checking accounts', slug: 'solana/checking-accounts' },
           { label: 'Program-derived addresses', slug: 'solana/program-derived-addresses' },
+          { label: 'Create and transfer tokens', slug: 'solana/tokens' },
         ] },
         { label: 'Case studies and protocol analysis', items: [
           { label: 'XCHandles premine cascade', slug: 'case-studies/xchandles-premine' },

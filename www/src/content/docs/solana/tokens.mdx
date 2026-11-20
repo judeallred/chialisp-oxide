@@ -1,0 +1,37 @@
+---
+title: Create and transfer tokens
+description: SPL token mint creation and transfer beside a Chia CAT, where each token amount is a coin and a TAIL governs issuance.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solana (native Rust)
+
+<PinnedSource track="solana" path="tokens/create-token/native/program/src/lib.rs" />
+
+<PinnedSource track="solana" path="tokens/transfer-tokens/native/program/src/instructions/transfer.rs" />
+
+## Chia (Rust)
+
+<SourceComparison slug="cat-genesis-by-coin-id" />
+
+## A mint authority becomes a TAIL; token accounts become coins
+
+On Solana, a mint account records supply and a mint authority, and each holder
+has a token account that the SPL Token program debits and credits.
+
+A Chia CAT has neither. Each holding is its own coin: the owner’s inner puzzle
+wrapped in the standard CAT outer layer, which makes every spend conserve the
+token across the coins it touches. A transfer spends the sender’s CAT coin and
+creates new CAT coins for the recipient and any change. There is no associated
+token account to create first.
+
+Who may issue supply is decided by a **TAIL** program instead of a mint
+authority. This export is the canonical genesis-by-coin-ID TAIL ported to Rust:
+it allows issuance only in a spend of one specific parent coin, so total supply
+is fixed when the token is created. The
+[CAT TAIL tutorial](/chialisp-oxide/tutorials/cat-genesis-tail/) runs a full
+local issuance and transfer.

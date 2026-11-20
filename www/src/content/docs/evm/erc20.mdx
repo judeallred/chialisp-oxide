@@ -1,0 +1,36 @@
+---
+title: ERC-20 token
+description: An ERC-20 balance mapping beside a Chia CAT, where every token amount is its own coin and a TAIL governs issuance.
+---
+
+import SourceComparison from '../../../components/SourceComparison.astro';
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<PinnedSource track="evm" path="contracts/src/app/erc20/ERC20.sol" />
+
+## Chia (Rust)
+
+<SourceComparison slug="cat-genesis-by-coin-id" />
+
+## Balances are coins, and the contract is two puzzles
+
+An ERC-20 contract keeps one `balanceOf` mapping and moves numbers between
+entries. A Chia CAT (Chia Asset Token) has no balance table. Each holding is a
+separate coin whose puzzle wraps the owner’s inner puzzle in the standard CAT
+outer layer, and the CAT layer makes every spend conserve the token’s total
+across the coins it touches.
+
+What the ERC-20 constructor and `mint` decide (who may create supply) is the
+job of a **TAIL** (Token and Asset Issuance Limitations) program. This export is
+the canonical genesis-by-coin-ID TAIL ported to Rust: it allows issuance only in
+a spend of one specific parent coin, so supply is fixed at creation. The
+[CAT TAIL tutorial](/chialisp-oxide/tutorials/cat-genesis-tail/) walks through a
+full local issuance and transfer.
+
+Some ERC-20 ideas have no counterpart: there is no `approve`/`transferFrom`
+allowance, because an owner signs each spend of their own coins, and nothing
+calls into the token contract.

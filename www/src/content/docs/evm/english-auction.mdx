@@ -1,0 +1,36 @@
+---
+title: English auction
+description: An escrowing English auction in Solidity beside the closest Chia corpus pattern, and the gap between them.
+---
+
+import PinnedSource from '../../../components/PinnedSource.astro';
+
+**WIP prototype. Not ready for use.**
+
+## Solidity
+
+<PinnedSource track="evm" path="contracts/src/app/english-auction/EnglishAuction.sol" />
+
+## Chia: the closest corpus pattern
+
+There is no auction export in the corpus yet. The nearest pattern is the
+[hot-potato game](/chialisp-oxide/tutorials/spuds/): one self-recreating coin
+holds the pot, each new participant adds funds and becomes the holder by signing
+the successor, a relative-height window restarts on every take, and the last
+holder claims once the window passes. That matches the auction’s “highest bidder
+when time runs out” shape.
+
+It is not an auction port, and the differences matter:
+
+- **No refunds.** The contract records outbid amounts in `bids` and lets bidders
+  `withdraw`. Spuds keeps every contribution in the pot. A Chia auction would
+  have to pay the previous high bidder back inside the same spend that accepts a
+  higher bid, so there is no withdrawal step to forget.
+- **Fixed increments.** Spuds takes exactly 1,000 mojos per round. An auction
+  needs bids of any size above the current one, with the bid amount checked by
+  `ASSERT_MY_AMOUNT` on the recreated coin.
+- **Sealed bids differ again.** A blind auction hides bids until a reveal phase,
+  which is the [commit-wait-reveal](/chialisp-oxide/tutorials/precommit/)
+  pattern.
+
+Treat this page as a design sketch, not a verified port.
