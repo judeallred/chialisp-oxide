@@ -1,0 +1,53 @@
+{
+  "scope": "Reads `corpus/validation.json`, deserializes each selected export's optimized\nRust artifact and the independently compiled Chialisp artifact, and reports the\nlargest subtree that occurs more than once, how much of the module it accounts\nfor, and the `if` node whose two arms contain the copies. This is a read-only\ndiagnostic of retained bytes; it changes no compiler behavior and is not a cost\nor preservation claim.",
+  "exports": [
+    {
+      "slug": "ordered-payout",
+      "rust_on_bytes": 6217,
+      "chialisp_bytes": 1474,
+      "rue_on_bytes": 1838,
+      "largest_duplicate": {
+        "subtree_bytes": 2850,
+        "copies": 2,
+        "branch_condition": "17"
+      },
+      "duplicate_share_of_module": 0.458
+    },
+    {
+      "slug": "one-armed-bandit",
+      "rust_on_bytes": 5827,
+      "chialisp_bytes": 1053,
+      "rue_on_bytes": 1654,
+      "largest_duplicate": {
+        "subtree_bytes": 2687,
+        "copies": 2,
+        "branch_condition": "05"
+      },
+      "duplicate_share_of_module": 0.461
+    },
+    {
+      "slug": "raffle",
+      "rust_on_bytes": 15367,
+      "chialisp_bytes": 2024,
+      "rue_on_bytes": 4098,
+      "largest_duplicate": {
+        "subtree_bytes": 7163,
+        "copies": 2,
+        "branch_condition": "05"
+      },
+      "duplicate_share_of_module": 0.466
+    },
+    {
+      "slug": "spuds",
+      "rust_on_bytes": 22909,
+      "chialisp_bytes": 1712,
+      "rue_on_bytes": 2412,
+      "largest_duplicate": {
+        "subtree_bytes": 11246,
+        "copies": 2,
+        "branch_condition": "2e"
+      },
+      "duplicate_share_of_module": 0.491
+    }
+  ]
+}
