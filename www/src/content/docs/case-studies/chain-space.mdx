@@ -1,0 +1,59 @@
+---
+title: Repeated puzzle reveals on mainnet
+description: A pinned mainnet block range measured for repeated module reveals, solution bytes and what in-block backreferences already remove.
+---
+
+import report from '../../../../../experiments/chain-space/report.json';
+
+export const pct = (value) => `${(value * 100).toFixed(1)}%`;
+export const kb = (value) => `${(value / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })} KB`;
+
+**WIP measurement. Observations of one pinned block range, not a protocol proposal.**
+
+This study for [#22](https://github.com/judeallred/chialisp-oxide/issues/22) asks
+how much mainnet block space goes to re-revealing the same standard puzzles. It
+reads heights {report.first_height.toLocaleString('en-US')} to {report.last_height.toLocaleString('en-US')}
+({report.transaction_blocks} transaction blocks, {report.totals.spends.toLocaleString('en-US')} spends)
+from the public Coinset full-node API. The script and every response digest are
+in [`experiments/chain-space`](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/chain-space).
+
+## Measured
+
+| Quantity | Value |
+| --- | --- |
+| Puzzle reveal bytes | {kb(report.totals.reveal_bytes)} |
+| Solution bytes | {kb(report.totals.solution_bytes)} |
+| Solutions as a share of raw spend bytes | {pct(report.shares.solution_of_raw_spend_bytes)} |
+| Module code as a share of reveal bytes | {pct(report.shares.module_bytes_of_reveal)} |
+| Module bytes repeated within the same block | {pct(report.shares.in_block_repeat_of_reveal)} of reveal bytes |
+| Module bytes first seen in an earlier block | {pct(report.shares.cross_block_repeat_of_reveal)} of reveal bytes |
+| Actual generator bytes as a share of raw spend bytes | {pct(report.shares.generator_of_raw_spend_bytes)} |
+
+Generator bytes are charged at {report.cost_per_generator_byte.toLocaleString('en-US')} cost per byte.
+
+## Most revealed modules
+
+<table>
+  <thead><tr><th scope="col">Module (pinned chia-puzzles name)</th><th scope="col">Spends</th><th scope="col">Reveal bytes</th><th scope="col">Module bytes</th></tr></thead>
+  <tbody>
+    {report.top_modules.slice(0, 6).map((row) => <tr><td><code>{row.name}</code></td><td>{row.spends.toLocaleString('en-US')}</td><td>{row.reveal_bytes.toLocaleString('en-US')}</td><td>{row.module_bytes.toLocaleString('en-US')}</td></tr>)}
+  </tbody>
+</table>
+
+## What this means
+
+- **In-block deduplication already exists.** The pinned `chia-consensus` 0.36.1
+  deserializes block generators with CLVM backreferences, so a module repeated
+  within one block can be serialized once. The large within-block share shows
+  that matters, but this range’s generators were only lightly compressed.
+- **Solutions are the bigger target.** Standard-puzzle solutions carry their
+  delegated condition programs, and they make up most spend bytes here. A
+  cross-block “module by hash” reference could remove at most the repeated
+  module share of reveal bytes, which are a small fraction of the total.
+- **The cross-block number is a projection.** No such reference exists in
+  consensus. It would need a CHIP, a canonical module registry (overlapping
+  [#21](https://github.com/judeallred/chialisp-oxide/issues/21)), and node
+  storage and validation work.
+
+One recent range is not a trend over time, the provider’s responses are not
+authenticated here, and only the outermost curried module is uncurried.

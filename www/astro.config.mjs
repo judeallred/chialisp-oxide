@@ -90,6 +90,7 @@ export default defineConfig({
         ] },
         { label: 'Case studies and protocol analysis', items: [
           { label: 'XCHandles premine cascade', slug: 'case-studies/xchandles-premine' },
+          { label: 'Repeated puzzle reveals on mainnet', slug: 'case-studies/chain-space' },
         ] },
         { label: 'Validate a coin policy', items: [
           { label: 'Inputs and commitments', slug: 'validation/inputs' },
