@@ -3,8 +3,9 @@ title: Repeated puzzle reveals on mainnet
 description: A pinned mainnet block range measured for repeated module reveals, solution bytes and what in-block backreferences already remove.
 ---
 
-import report from '../../../../../experiments/chain-space/report.json';
-import storage from '../../../../../experiments/chain-space/storage.json';
+import report from '../../../../../experiments/chain-space/ranges/9500000/report.json';
+import storage from '../../../../../experiments/chain-space/ranges/9500000/storage.json';
+import trend from '../../../../../experiments/chain-space/trend.json';
 
 export const pct = (value) => `${(value * 100).toFixed(1)}%`;
 export const kb = (value) => `${(value / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })} KB`;
@@ -15,7 +16,7 @@ This study for [#22](https://github.com/judeallred/chialisp-oxide/issues/22) ask
 how much mainnet block space goes to re-revealing the same standard puzzles. It
 reads heights {report.first_height.toLocaleString('en-US')} to {report.last_height.toLocaleString('en-US')}
 ({report.transaction_blocks} transaction blocks, {report.totals.spends.toLocaleString('en-US')} spends)
-from the public Coinset full-node API. The script and every response digest are
+from the public Coinset full-node API. The script, three sampled ranges and every response digest are
 in [`experiments/chain-space`](https://github.com/judeallred/chialisp-oxide/tree/main/experiments/chain-space).
 
 ## Measured
@@ -74,5 +75,20 @@ General compression already captures almost all of the repeated module bytes,
 so module deduplication on top of it saves little here. This is a spend table,
 not a node database or byte-exact block storage.
 
-One recent range is not a trend over time, the provider’s responses are not
+## Three sampled ranges
+
+The same measurements over three pinned 150-transaction-block ranges:
+
+<table>
+  <thead><tr><th scope="col">Range start</th><th scope="col">Spends</th><th scope="col">Generator / raw</th><th scope="col">Solutions / raw</th><th scope="col">Cross-block repeat / reveal</th><th scope="col">Dedup then zstd / zstd</th></tr></thead>
+  <tbody>
+    {trend.ranges.map((row) => <tr><td>{row.start.toLocaleString('en-US')}</td><td>{row.spends.toLocaleString('en-US')}</td><td>{pct(row.generator_of_raw_spend_bytes)}</td><td>{pct(row.solution_of_raw_spend_bytes)}</td><td>{pct(row.cross_block_repeat_of_reveal)}</td><td>{pct(row.dedup_zstd_vs_raw_zstd)}</td></tr>)}
+  </tbody>
+</table>
+
+Compression of a block’s generator depends on the block it came from, not only
+its date. In every range, deduplicating modules before zstd saves at most a few
+percent.
+
+Three ranges are samples, not a continuous trend, the provider’s responses are not
 authenticated here, and only the outermost curried module is uncurried.

@@ -17,11 +17,12 @@ every response, and analyzes each spend:
 
 ```sh
 python3 -B experiments/chain-space/measure.py fetch --start 9500000 --count 150 --output target/chain-space-9500000
-python3 -B experiments/chain-space/measure.py analyze --capture target/chain-space-9500000 --report experiments/chain-space/report.json
+python3 -B experiments/chain-space/measure.py analyze --capture target/chain-space-9500000 --report experiments/chain-space/ranges/9500000/report.json
+python3 -B experiments/chain-space/measure.py storage --capture target/chain-space-9500000 --report experiments/chain-space/ranges/9500000/storage.json
 ```
 
 The raw responses (about 32 MB) stay in the ignored capture directory. The
-committed [`report.json`](report.json) keeps every response digest, so a rerun
+committed `ranges/<start>/report.json` files keep every response digest, so a rerun
 against the same heights can be compared byte for byte.
 
 ## What already exists (pinned `chia-consensus` 0.36.1)
@@ -60,7 +61,7 @@ larger target than module reveals.
 per spend) stored raw, zstd-compressed (level 3), and as a module-deduplicated
 store: each distinct uncurried module once, plus a 32-byte module hash, curried
 arguments and solution per spend. Every reveal is rebuilt byte for byte from
-the stored module and arguments. See [`storage.json`](storage.json).
+the stored module and arguments. See `ranges/<start>/storage.json`.
 
 Over the same range, zstd alone shrinks the table to about 73% of raw size and
 module deduplication alone to about 93%, but deduplicating before zstd saves
@@ -70,9 +71,26 @@ only, not a node database, block bodies or byte-exact generator reconstruction
 with its backref encoding, and the full node's actual schema and compression are
 not pinned here.
 
+## Three ranges (`trend.json`)
+
+The same measurements over three pinned 150-transaction-block ranges:
+
+| Range start | Spends | Generator / raw spend bytes | Solutions / raw | In-block repeat / reveal | Cross-block repeat / reveal | zstd / raw | Dedup then zstd / zstd |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 5,000,000 | 32,231 | 101.0% | 28.4% | 71.4% | 3.2% | 9.5% | 98.5% |
+| 7,500,000 | 6,965 | 18.1% | 8.5% | 27.8% | 2.9% | 5.0% | 96.6% |
+| 9,500,000 | 2,726 | 94.5% | 90.1% | 52.9% | 19.5% | 72.7% | 99.8% |
+
+Whether a block's generator was compressed depends on the block it came from,
+not only on its date: the 7,500,000 range was heavily compressed and the recent
+range barely. Across all three, deduplicating modules before zstd saves at most
+a few percent, and the cross-block share is small except in the recent range,
+where large standard solutions dominate. Three ranges are samples, not a
+continuous trend.
+
 ## Limits
 
-One recent range of 150 transaction blocks is not a trend over time, and the
+Three ranges of 150 transaction blocks each are samples, not a continuous trend, and the
 Coinset API is a third-party provider whose responses are not authenticated
 here. Only the outermost curried module is uncurried; inner layers (for example
 the standard puzzle inside a CAT) are counted as arguments.
