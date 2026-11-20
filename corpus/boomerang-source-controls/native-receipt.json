@@ -3,7 +3,7 @@
   "protocol": "chialisp-oxide-boomerang-controls-native/v1",
   "status": "native_phase_passed_before_LAST_host_build",
   "source_root": "/Users/judeallred/code/clispOx",
-  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package",
+  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
     "authoring": {
@@ -4042,6 +4042,10 @@
         "sha256": "35d4f8acfaf656c6e6d7b0a8aa740d6f47c55c6e46ea75ecebecfdfc4f483d92"
       },
       {
+        "path": "scripts/check-corpus-source-controls.py",
+        "sha256": "2e39216b476c31ee924487cab30293e7bd5edbfe47240781cf96158edc9ee966"
+      },
+      {
         "path": "scripts/check-cost-optimization.py",
         "sha256": "10ad0227d480b06999df160564ed71eddf199602fd5b6493c157a363367b44f5"
       },
@@ -4171,7 +4175,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "e847e55ddf5b6c28f0d682b33bb2a2057a59f3b3166e6d12a57bb50ec74f9c31"
+        "sha256": "b1427190ea5703fc32aee1154c97ce8d85e7dea77c87ab18cef4443cc2c7f098"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -4180,6 +4184,10 @@
       {
         "path": "scripts/corpus_report.py",
         "sha256": "8c6687d04b9288eae0fcf344a7148db8b30fc0a315b7fde46304c6db195fd04d"
+      },
+      {
+        "path": "scripts/corpus_source_controls.py",
+        "sha256": "f0c85c763321e4cffff51394bae4eca612fbdb7ba79e6c568c088f42bcbfc030"
       },
       {
         "path": "scripts/cost_controls.py",
@@ -4416,6 +4424,10 @@
       {
         "path": "scripts/test_corpus_append.py",
         "sha256": "e70d965f5683cf7a4f44797bbbd275bf55269bb13c8ec9e8c7b19e4c163d1025"
+      },
+      {
+        "path": "scripts/test_corpus_source_controls.py",
+        "sha256": "1f65ec78df36f76b825215474665864542e56bddf55a810a9d465d22b3ab281c"
       },
       {
         "path": "scripts/test_cost_optimization.py",
@@ -4693,7 +4705,7 @@
     "source_files": [
       {
         "path": "Cargo.lock",
-        "sha256": "8dc2b7c62ed81edd853e4ad8a4a898a7e1fcceff57bf264793ea79ed0ae39235"
+        "sha256": "20d3b2082426272fdbbc0ab428be2f946a485e1b76f57ccad0476918b731bc80"
       },
       {
         "path": "Cargo.toml",
@@ -4901,7 +4913,7 @@
       "cargo",
       "test",
       "--manifest-path",
-      "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+      "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
       "--locked",
       "--offline",
       "--",
@@ -4911,10 +4923,10 @@
     "native_test_groups": 1,
     "native_policy_observations": 9,
     "log": "native.log",
-    "log_sha256": "0f6093fd319a0e1686b59ae09ba5e68044f1f5c65474e938bddb02cf0b71cd19",
+    "log_sha256": "1c203db24cc46a3f0e813fd5c94d92c4dee93451b746ba9dad04f92a74087084",
     "ledger_binary": {
-      "path": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-native-target/debug/examples/ledger",
-      "sha256": "33fed6aa4b2e337d884f0ef12144919a4accdcdcebe5ec95281fdfc9bfd0dee6"
+      "path": "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-native-target/debug/examples/ledger",
+      "sha256": "dd96aa71074c6b2a240666a3a6ceb823fea50a0aa556380bb241b2b953d250dc"
     }
   },
   "commands": [
@@ -4927,11 +4939,11 @@
         "generate-lockfile",
         "--offline",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml"
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml"
       ],
       "exit_code": 0,
       "log": "native-logs/0.log",
-      "log_sha256": "f99cc085d91eaa959d64c5f8032b22d261aafc28c62f44b3cbdbf635d0863185"
+      "log_sha256": "3a265c76d789f9a56089d844687dfc4d929e705666b74f476a836a76ad22efc2"
     },
     {
       "argv": [
@@ -4941,7 +4953,7 @@
         "cargo",
         "fmt",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
         "--all",
         "--check"
       ],
@@ -4957,14 +4969,14 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline"
       ],
       "exit_code": 0,
       "log": "native-logs/2.log",
-      "log_sha256": "5eae2cdd7d3cebde6de2e2c26069ebdbebdc8d39077a8e4f553c893f9d9b4785"
+      "log_sha256": "f12701e76f6cf15583864ac3c2bf069d202feaec12298e36e4225681737a5f98"
     },
     {
       "argv": [
@@ -4974,7 +4986,7 @@
         "cargo",
         "test",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
         "--locked",
         "--offline",
         "--",
@@ -4982,7 +4994,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/3.log",
-      "log_sha256": "0f6093fd319a0e1686b59ae09ba5e68044f1f5c65474e938bddb02cf0b71cd19"
+      "log_sha256": "1c203db24cc46a3f0e813fd5c94d92c4dee93451b746ba9dad04f92a74087084"
     },
     {
       "argv": [
@@ -4992,7 +5004,7 @@
         "cargo",
         "clippy",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline",
@@ -5002,7 +5014,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/4.log",
-      "log_sha256": "caa5591c2787f8afee895f1329c4a8ec298e42c4ce1cffe616a6b0addebc8bda"
+      "log_sha256": "01894d60d7f5ed1b262149397ec94f8e958cd98acba8d89b402f0045b14a976f"
     },
     {
       "argv": [
@@ -5012,7 +5024,7 @@
         "cargo",
         "build",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/boomerang-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/boomerang-package/Cargo.toml",
         "--example",
         "ledger",
         "--locked",
@@ -5020,7 +5032,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/5.log",
-      "log_sha256": "732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd"
+      "log_sha256": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36"
     }
   ]
 }

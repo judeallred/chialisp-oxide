@@ -38,6 +38,14 @@
   before every step, because redirected build output fails isolated-target
   gates and leaks host paths into retained logs. Its stateful SDK steps have
   900 s limits; capture on an uncontended host rather than raising them.
+- Generic actual-source VM controls for newer paired-corpus exports are
+  declared in `experiments/corpus-controls/mutations.json` (exact edits plus a
+  distinguishing witness) and retained in `corpus/corpus-source-controls/`.
+  Each original module must compile to the corpus artifact's exact tree hash
+  and match the port oracle; each mutant must diverge. They are primary-VM
+  observations only, separate from the dedicated native/SDK control lanes. Run
+  `scripts/check-corpus-source-controls.py --replay`; the capture script
+  refreshes the packet.
 - Before committing any edit to a hashed source, run
   `python3 scripts/check-evidence-freshness.py` (a few seconds of Cargo-free
   work). It lists every retained packet whose current-source pins matched

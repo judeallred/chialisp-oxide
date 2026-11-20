@@ -443,6 +443,8 @@ jobs:
           python3 scripts/check-canonical-factories.py
           python3 scripts/check-canonical-factories.py --self-test
           python3 scripts/check-port-evidence.py --self-test --replay --cli target/debug/chialisp-oxide
+          python3 -B scripts/check-corpus-source-controls.py --replay --tools target/debug
+          python3 -B -m unittest discover -s scripts -p test_corpus_source_controls.py
           python3 scripts/cat_genesis_evidence.py --self-test
           python3 scripts/check-canonical-helpers.py
           python3 scripts/check-canonical-helpers.py --self-test

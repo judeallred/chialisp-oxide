@@ -164,6 +164,9 @@ for the Rust, Chialisp and Rue builds. It also submits misstated-amount and
 replayed-step bundles, each with its exact typed consensus code
 (`AssertMyAmountFailed`, `DoubleSpend`) and full simulator equality.
 Puzzle-level raises remain VM-vector evidence, not ledger rejection credit.
+A separate actual-source control removes the opening check: compiled in both
+modes, that mutant accepts a skipped item that the unchanged export (byte-identical
+to the corpus artifact) rejects. These are primary-VM observations only.
 
 Measured at introduction, the optimized Rust module is 6,217 bytes against
 1,474 for the independent Chialisp and 1,838 for optimized Rue. That is the

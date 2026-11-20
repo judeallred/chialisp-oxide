@@ -62,6 +62,12 @@ builds:
 
 Each rejected bundle leaves the simulator unchanged.
 
+Two actual-source controls show what the checks protect. Deleting the seed
+check lets the house reveal any seed, so the mutant accepts a mismatched reveal.
+Raising the jackpot threshold from 16 to 128 makes the same pull pay 7,000 mojos
+instead of 2,000. Both mutants are compiled in both modes and compared with the
+unchanged export; they are primary-VM observations only.
+
 ## What still requires trust
 
 - **Fresh seeds.** If the house ever reuses a seed, a player who saw it can pick

@@ -3,7 +3,7 @@
   "protocol": "chialisp-oxide-precommit-controls-quiet-window/v1",
   "status": "LAST_host_build_terminal_tools_quiet",
   "source_root": "/Users/judeallred/code/clispOx",
-  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package",
+  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package",
   "compiler": "rustc 1.99.0-nightly (daf2e5e18 2026-07-13)\nbinary: rustc\ncommit-hash: daf2e5e18b3abc4311d9da3d96fd64138f43d508\ncommit-date: 2026-07-13\nhost: aarch64-apple-darwin\nrelease: 1.99.0-nightly\nLLVM version: 22.1.8\n",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
@@ -4039,6 +4039,10 @@
         "sha256": "35d4f8acfaf656c6e6d7b0a8aa740d6f47c55c6e46ea75ecebecfdfc4f483d92"
       },
       {
+        "path": "scripts/check-corpus-source-controls.py",
+        "sha256": "2e39216b476c31ee924487cab30293e7bd5edbfe47240781cf96158edc9ee966"
+      },
+      {
         "path": "scripts/check-cost-optimization.py",
         "sha256": "10ad0227d480b06999df160564ed71eddf199602fd5b6493c157a363367b44f5"
       },
@@ -4168,7 +4172,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "e847e55ddf5b6c28f0d682b33bb2a2057a59f3b3166e6d12a57bb50ec74f9c31"
+        "sha256": "b1427190ea5703fc32aee1154c97ce8d85e7dea77c87ab18cef4443cc2c7f098"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -4177,6 +4181,10 @@
       {
         "path": "scripts/corpus_report.py",
         "sha256": "8c6687d04b9288eae0fcf344a7148db8b30fc0a315b7fde46304c6db195fd04d"
+      },
+      {
+        "path": "scripts/corpus_source_controls.py",
+        "sha256": "f0c85c763321e4cffff51394bae4eca612fbdb7ba79e6c568c088f42bcbfc030"
       },
       {
         "path": "scripts/cost_controls.py",
@@ -4415,6 +4423,10 @@
         "sha256": "e70d965f5683cf7a4f44797bbbd275bf55269bb13c8ec9e8c7b19e4c163d1025"
       },
       {
+        "path": "scripts/test_corpus_source_controls.py",
+        "sha256": "1f65ec78df36f76b825215474665864542e56bddf55a810a9d465d22b3ab281c"
+      },
+      {
         "path": "scripts/test_cost_optimization.py",
         "sha256": "e35e645a62e7bae9cb0ac0f25e1a012424bad5a83647d746a75e23edf9274037"
       },
@@ -4639,17 +4651,17 @@
     },
     "chialisp-oxide": {
       "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide",
-      "sha256": "1cdf2179ae987effe2f349979986107a04f88c95c28b910a1ce8e5c9b0946e49"
+      "sha256": "62d56faab56813b41ce84b683e75900319fe0eecf37da8477a53a2d534496ed1"
     },
     "chialisp-oxide-verifier": {
       "path": "/Users/judeallred/code/clispOx/target/debug/chialisp-oxide-verifier",
       "sha256": "116eda199c045a8248dbd01fb6353867bd5d48b7f01cf7a3292327a570082837"
     }
   },
-  "native_receipt_sha256": "57e466b9552024148642245bebc1cca28ca5901017f1c558f24036e405a09f84",
+  "native_receipt_sha256": "f56aee8cd5aa1e13559abf417691f8f2686951ccf896bb6fb8c0dfae3f50366b",
   "scope": "Sequential coordinator record after its successful workspace --bins --examples host build and before fresh capture. The caller keeps builds serialized. This receipt does not authenticate execution or prove compiler preservation.",
   "ledger_runner": {
     "path": "/Users/judeallred/code/clispOx/target/debug/examples/precommit_controls",
-    "sha256": "c3f6444cecad42bb6538e14e7f42231bd600abeca7e777ecf19f7ee761dfa2cc"
+    "sha256": "e62a06248e2e4c2cd1b30b042d3a5df868a84d74b9b01a7e251d6ea85a2ca657"
   }
 }

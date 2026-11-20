@@ -3,7 +3,7 @@
   "protocol": "chialisp-oxide-precommit-controls-native/v1",
   "status": "native_phase_passed_before_LAST_host_build",
   "source_root": "/Users/judeallred/code/clispOx",
-  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package",
+  "package_root": "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package",
   "toolchain": "nightly-2026-07-14",
   "source_window": {
     "authoring": {
@@ -4038,6 +4038,10 @@
         "sha256": "35d4f8acfaf656c6e6d7b0a8aa740d6f47c55c6e46ea75ecebecfdfc4f483d92"
       },
       {
+        "path": "scripts/check-corpus-source-controls.py",
+        "sha256": "2e39216b476c31ee924487cab30293e7bd5edbfe47240781cf96158edc9ee966"
+      },
+      {
         "path": "scripts/check-cost-optimization.py",
         "sha256": "10ad0227d480b06999df160564ed71eddf199602fd5b6493c157a363367b44f5"
       },
@@ -4167,7 +4171,7 @@
       },
       {
         "path": "scripts/corpus_append.py",
-        "sha256": "e847e55ddf5b6c28f0d682b33bb2a2057a59f3b3166e6d12a57bb50ec74f9c31"
+        "sha256": "b1427190ea5703fc32aee1154c97ce8d85e7dea77c87ab18cef4443cc2c7f098"
       },
       {
         "path": "scripts/corpus_compiler_transition.py",
@@ -4176,6 +4180,10 @@
       {
         "path": "scripts/corpus_report.py",
         "sha256": "8c6687d04b9288eae0fcf344a7148db8b30fc0a315b7fde46304c6db195fd04d"
+      },
+      {
+        "path": "scripts/corpus_source_controls.py",
+        "sha256": "f0c85c763321e4cffff51394bae4eca612fbdb7ba79e6c568c088f42bcbfc030"
       },
       {
         "path": "scripts/cost_controls.py",
@@ -4412,6 +4420,10 @@
       {
         "path": "scripts/test_corpus_append.py",
         "sha256": "e70d965f5683cf7a4f44797bbbd275bf55269bb13c8ec9e8c7b19e4c163d1025"
+      },
+      {
+        "path": "scripts/test_corpus_source_controls.py",
+        "sha256": "1f65ec78df36f76b825215474665864542e56bddf55a810a9d465d22b3ab281c"
       },
       {
         "path": "scripts/test_cost_optimization.py",
@@ -4702,7 +4714,7 @@
         "cargo",
         "generate-lockfile",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package/Cargo.toml",
         "--offline"
       ],
       "exit_code": 0,
@@ -4717,14 +4729,14 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline"
       ],
       "exit_code": 0,
       "log": "native-logs/1.log",
-      "log_sha256": "1b337479aa2fe3324712262312bddc57146948a7bd4ce6b41919a63c3eabd4de"
+      "log_sha256": "931050db2ce51fedd23c7f5f14951b855ee8a40c9950ce92df3c126c38764ef2"
     },
     {
       "argv": [
@@ -4734,7 +4746,7 @@
         "cargo",
         "test",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package/Cargo.toml",
         "--locked",
         "--offline",
         "--",
@@ -4742,7 +4754,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/2.log",
-      "log_sha256": "a62fcbe48eda7ece50366a551cbf6b3aa5307b2386fdf8ba452bc09c63910c72"
+      "log_sha256": "0000eb9a040f5448f70d1f3aa20943f198ac64bf2c6948a0542e82e9c86711a1"
     },
     {
       "argv": [
@@ -4752,7 +4764,7 @@
         "cargo",
         "clippy",
         "--manifest-path",
-        "/Users/judeallred/code/clispOx/target/capture-20261118-bandit/precommit-package/Cargo.toml",
+        "/Users/judeallred/code/clispOx/target/capture-20261119-controls/precommit-package/Cargo.toml",
         "--all-targets",
         "--locked",
         "--offline",
@@ -4762,7 +4774,7 @@
       ],
       "exit_code": 0,
       "log": "native-logs/3.log",
-      "log_sha256": "8a2fd9a0763a52e817c34b2d888f41ded5a017038ecfea1e97fdb05dc2e2fced"
+      "log_sha256": "fa22959603b0ef3a27b6c51d34a9e1e6cf882a0475d13002a36631107f8b1bf3"
     }
   ]
 }

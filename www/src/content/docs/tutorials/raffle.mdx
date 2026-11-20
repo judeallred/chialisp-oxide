@@ -52,6 +52,10 @@ fails with `DoubleSpend`. The second is never drawn: a late draw fails with
 `AssertBeforeHeightRelativeFailed`, the refund creates the queue, and four queue
 spends repay every entrant. Each rejected bundle leaves the simulator unchanged.
 
+An actual-source control deletes one commitment check. Compiled in both modes,
+that mutant accepts a substituted salt, letting whoever draws steer the result,
+while the unchanged export rejects it. This is a primary-VM observation only.
+
 ## Fairness assumptions
 
 Read these before reusing the pattern:

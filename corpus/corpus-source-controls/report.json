@@ -1,0 +1,200 @@
+{
+  "protocol": "chialisp-oxide-corpus-source-controls/v1",
+  "scope": "Actual Rust source controls for paired-corpus exports, compiled with the real cargo chialisp-oxide in both modes. Each original module must compile to the corpus artifact's exact tree hash and match the independent port oracle on its witness; each mutant is an ordinary compiling policy error whose witness outcome must differ. Primary-VM observations only: no native, SDK or consensus credit, and no claim beyond these finite witnesses.",
+  "source_window": {
+    "experiments/corpus-controls/mutations.json": "38178f475b770f6f2bf122d30726c8f83c417569cfae1e55b4b2b84118d64d74",
+    "puzzles/one-armed-bandit/puzzle.rs": "47972967f3743012d5a9e30d84076550dd2222bc7ea370df17370e2b54020526",
+    "puzzles/ordered-payout/puzzle.rs": "b6d52c008f8e2db1a538cc9813f8c71f7162b513abc83a26c4b07ab9c330cbd5",
+    "puzzles/raffle/puzzle.rs": "290437c63b1fa43d035b5f500480967d7055837ab2aae36961f32cc595026f74"
+  },
+  "modules": {
+    "one_armed_bandit:off": {
+      "bytes": 12027,
+      "tree_hash": "bfb331f905ec85d34f912669f7333550c903d923793995efda06a62e640647b1",
+      "clvm_sha256": "886f3f68581525c8912bb04527c9b9cac6cf8505e94c984069bb892f4e937580",
+      "path": "programs/one_armed_bandit-off.clvm.hex"
+    },
+    "one_armed_bandit:on": {
+      "bytes": 5827,
+      "tree_hash": "b8ceda2f8791788ee54f91c705dee5430cd4abe7bf87ccf7673d44e4cf809993",
+      "clvm_sha256": "3fbc7b60f304cd4c02244e5894d25454cbf703be65bf6554dd50e8a9b69bf1cf",
+      "path": "programs/one_armed_bandit-on.clvm.hex"
+    },
+    "one_armed_bandit_drop_seed_check:off": {
+      "bytes": 11251,
+      "tree_hash": "628bdf85979bed7d00bfda48cb6a5debca3c9f75b3b0a6ed782b4c6d78979bd6",
+      "clvm_sha256": "fdba21b22b31a99e76af235c125f3aa593317af64f2d7fdedac0bae942c1857b",
+      "path": "programs/one_armed_bandit_drop_seed_check-off.clvm.hex"
+    },
+    "one_armed_bandit_drop_seed_check:on": {
+      "bytes": 5511,
+      "tree_hash": "0b02f22deca10e9af6dd6f89fee85cc2cfe20e04fb3812a74c75827a9c74d7b7",
+      "clvm_sha256": "4bbfd2616d10139cfeaa4fe1e94ab4bae9920ccd7261278abe74a072a2a56917",
+      "path": "programs/one_armed_bandit_drop_seed_check-on.clvm.hex"
+    },
+    "one_armed_bandit_skewed_jackpot:off": {
+      "bytes": 12031,
+      "tree_hash": "8684e82a9ccaf9f5c00265bf8ef10e8c16e58d9e72ab22b1fcdca64b746eeac1",
+      "clvm_sha256": "b00e838389d87bd050b1e2e9297be1703939583cad5f1fba866212ae71feb519",
+      "path": "programs/one_armed_bandit_skewed_jackpot-off.clvm.hex"
+    },
+    "one_armed_bandit_skewed_jackpot:on": {
+      "bytes": 5831,
+      "tree_hash": "a8add8e573e41c897d19fca25da8a374081d082f61497eb01677c0e724649336",
+      "clvm_sha256": "a55e6a71d1129f297920c14b3c4be4f93c6a512f4df634a027caaba59d108de0",
+      "path": "programs/one_armed_bandit_skewed_jackpot-on.clvm.hex"
+    },
+    "ordered_payout:off": {
+      "bytes": 31038,
+      "tree_hash": "a077a0025ca06d197de6f53d729d62ae7aee4597943b4c739189ea7b912b879e",
+      "clvm_sha256": "cd2e7507d10934adb6777ab4d02133d096074f841e8ed0173606b5b86f1ddf75",
+      "path": "programs/ordered_payout-off.clvm.hex"
+    },
+    "ordered_payout:on": {
+      "bytes": 6217,
+      "tree_hash": "7d7a448d47aaf5fee09b2a847f19c7eba30c24f3a6342f071518ff6f15350a11",
+      "clvm_sha256": "ea97c552b12764f09219156e9a10f255856741c095db68394443a518229079c2",
+      "path": "programs/ordered_payout-on.clvm.hex"
+    },
+    "ordered_payout_drop_opening:off": {
+      "bytes": 28453,
+      "tree_hash": "d6e4e417bb34ef918a0f046e3b83158564e781b8469a21ca4bd292205104b0ba",
+      "clvm_sha256": "7c920d866658e668ab3d7f1d9b3971a42246211f374787874a35187bb0d955e9",
+      "path": "programs/ordered_payout_drop_opening-off.clvm.hex"
+    },
+    "ordered_payout_drop_opening:on": {
+      "bytes": 5815,
+      "tree_hash": "a6461bff55073fe9219f13322e6e4c97cd014db302ee3144ffdcde4b4a6b1f18",
+      "clvm_sha256": "1c39d2c196e5de664f306464063599121d3cb32dc9400c098d5b6562034dd7d0",
+      "path": "programs/ordered_payout_drop_opening-on.clvm.hex"
+    },
+    "raffle:off": {
+      "bytes": 36921,
+      "tree_hash": "cea66c8959185868211cbfd46ce6488c010f9d2741214ea200c9cea842e598eb",
+      "clvm_sha256": "fdf8cbe74c29d75d8d09165517dad759b38f9a35d6aacf0dbcb1b297aa54e554",
+      "path": "programs/raffle-off.clvm.hex"
+    },
+    "raffle:on": {
+      "bytes": 15367,
+      "tree_hash": "fbfb5e8ce9d900cbe16e2701bea18fa2f9b07604122b7831340bea7da0645c02",
+      "clvm_sha256": "105034ff759cc707940000fa05a1b03d11cecb00a22146872093e531f33cd3f6",
+      "path": "programs/raffle-on.clvm.hex"
+    },
+    "raffle_drop_commitment:off": {
+      "bytes": 36165,
+      "tree_hash": "49c3300b591d0b52e558b45d66b4b1fd516b3f7e2c758431567e8a40355e3444",
+      "clvm_sha256": "5442e7567e882274374668f9dfd5eb4d94cb4026de57ca0737fa24593a0327e0",
+      "path": "programs/raffle_drop_commitment-off.clvm.hex"
+    },
+    "raffle_drop_commitment:on": {
+      "bytes": 15055,
+      "tree_hash": "f2d43954737069723c4ac948aa26f28ff07acaf3f718afc7c4971a04ac0c7af2",
+      "clvm_sha256": "cf221ca29054faf40dae81a51288fe0af6971569afd48703969bab81fa5b334a",
+      "path": "programs/raffle_drop_commitment-on.clvm.hex"
+    }
+  },
+  "controls": [
+    {
+      "name": "ordered_payout_skipped_item",
+      "original": "ordered_payout",
+      "mutant": "ordered_payout_drop_opening",
+      "modes": {
+        "on": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff820bb880ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff8203e880ffff33ffa0802d9ea7222b85b93ae8473b7044a6769e91a96970eaf24c7705d8804f456cc3ff8207d08080"
+          }
+        },
+        "off": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff820bb880ffff33ffa02222222222222222222222222222222222222222222222222222222222222222ff8203e880ffff33ffa0802d9ea7222b85b93ae8473b7044a6769e91a96970eaf24c7705d8804f456cc3ff8207d08080"
+          }
+        }
+      }
+    },
+    {
+      "name": "raffle_wrong_salt",
+      "original": "raffle",
+      "mutant": "raffle_drop_commitment",
+      "modes": {
+        "on": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff820fa080ffff56ff0a80ffff33ffa03333333333333333333333333333333333333333333333333333333333333333ff820fa080ffff3cffa0c7ec4e1c15f4a4d47505443bb312ced4f064978a52c0bf8a92f812673222687a8080"
+          }
+        },
+        "off": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff820fa080ffff56ff0a80ffff33ffa03333333333333333333333333333333333333333333333333333333333333333ff820fa080ffff3cffa0c7ec4e1c15f4a4d47505443bb312ced4f064978a52c0bf8a92f812673222687a8080"
+          }
+        }
+      }
+    },
+    {
+      "name": "bandit_unchecked_reveal",
+      "original": "one_armed_bandit",
+      "mutant": "one_armed_bandit_drop_seed_check",
+      "modes": {
+        "on": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff821f408080"
+          }
+        },
+        "off": {
+          "original": {
+            "status": "rejected"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff821f408080"
+          }
+        }
+      }
+    },
+    {
+      "name": "bandit_skewed_paytable",
+      "original": "one_armed_bandit",
+      "mutant": "one_armed_bandit_skewed_jackpot",
+      "modes": {
+        "on": {
+          "original": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff82177080ffff33ffa05050505050505050505050505050505050505050505050505050505050505050ff8207d08080"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff8203e880ffff33ffa05050505050505050505050505050505050505050505050505050505050505050ff821b588080"
+          }
+        },
+        "off": {
+          "original": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff82177080ffff33ffa05050505050505050505050505050505050505050505050505050505050505050ff8207d08080"
+          },
+          "mutant": {
+            "status": "accepted",
+            "output_hex": "ffff49ff821f4080ffff56ff0a80ffff33ffa04848484848484848484848484848484848484848484848484848484848484848ff8203e880ffff33ffa05050505050505050505050505050505050505050505050505050505050505050ff821b588080"
+          }
+        }
+      }
+    }
+  ]
+}

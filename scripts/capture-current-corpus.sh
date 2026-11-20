@@ -314,6 +314,9 @@ rm -rf experiments/standard-tutorial/evidence
 cp -R "$WORK/standard-tutorial" experiments/standard-tutorial/evidence
 python3 -B experiments/standard-tutorial/check.py --current --self-test > "$WORK/gate-standard-tutorial-installed.log"
 
+step "corpus actual-source VM controls (final tools)"
+python3 -B scripts/check-corpus-source-controls.py --capture "$WORK/corpus-controls" --install --replay --tools "$ROOT/target/debug" > "$WORK/gate-corpus-controls.log"
+
 step "flag any current-source packet the capture did not refresh"
 # Advisory: the planning aid can over-report frozen records. Confirm each
 # flagged packet with its own reader before treating it as stale.

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "classification": "actual_source_vm_controls",
+  "scope": "Actual Rust source controls for paired-corpus exports, compiled with the real cargo chialisp-oxide in both modes. Each original module must compile to the corpus artifact's exact tree hash and match the independent port oracle on its witness; each mutant is an ordinary compiling policy error whose witness outcome must differ. Primary-VM observations only: no native, SDK or consensus credit, and no claim beyond these finite witnesses.",
+  "modules": [
+    {
+      "module": "ordered_payout",
+      "source": "puzzles/ordered-payout/puzzle.rs",
+      "slug": "ordered-payout",
+      "edits": []
+    },
+    {
+      "module": "ordered_payout_drop_opening",
+      "source": "puzzles/ordered-payout/puzzle.rs",
+      "slug": "ordered-payout",
+      "edits": [
+        {
+          "before": "    assert!(queue_item(&QUEUE_DOMAIN, recipient, next).0 == head.0);\n",
+          "after": "    let _unused_head = head;\n"
+        }
+      ]
+    },
+    {
+      "module": "raffle",
+      "source": "puzzles/raffle/puzzle.rs",
+      "slug": "raffle",
+      "edits": []
+    },
+    {
+      "module": "raffle_drop_commitment",
+      "source": "puzzles/raffle/puzzle.rs",
+      "slug": "raffle",
+      "edits": [
+        {
+          "before": "        assert!(commitment(s1).0 == first.1.0);\n",
+          "after": ""
+        }
+      ]
+    },
+    {
+      "module": "one_armed_bandit",
+      "source": "puzzles/one-armed-bandit/puzzle.rs",
+      "slug": "one-armed-bandit",
+      "edits": []
+    },
+    {
+      "module": "one_armed_bandit_drop_seed_check",
+      "source": "puzzles/one-armed-bandit/puzzle.rs",
+      "slug": "one-armed-bandit",
+      "edits": [
+        {
+          "before": "        assert!(seed_commitment(seed).0 == commitment.0);\n",
+          "after": "        let _unused_commitment = commitment;\n"
+        }
+      ]
+    },
+    {
+      "module": "one_armed_bandit_skewed_jackpot",
+      "source": "puzzles/one-armed-bandit/puzzle.rs",
+      "slug": "one-armed-bandit",
+      "edits": [
+        {
+          "before": "pub const JACKPOT_BELOW: u8 = 16;\n",
+          "after": "pub const JACKPOT_BELOW: u8 = 128;\n"
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "ordered_payout_skipped_item",
+      "original": "ordered_payout",
+      "mutant": "ordered_payout_drop_opening",
+      "witness": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 0xdd1aecbb853c6d3e2a6b91036e3a7aa0019435be89397b8fe0c41753766ae822) 0x2222222222222222222222222222222222222222222222222222222222222222 0xb12128cceaec0c86d9d081e14dce311adddba87d715d12b62077beb59a708082 3000)",
+      "claim": "Removing the opening check lets a spender skip a committed queue item."
+    },
+    {
+      "name": "raffle_wrong_salt",
+      "original": "raffle",
+      "mutant": "raffle_drop_commitment",
+      "witness": "((0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (0x1111111111111111111111111111111111111111111111111111111111111111 0x3022f39c0bfd2113e3667b48527f91d402ef5f15b7e406c63f6df03af976555b) (0x2222222222222222222222222222222222222222222222222222222222222222 0x39dde95bc9a6a5f7884689d2752910593a660176593b1319748974946599ce5d) (0x3333333333333333333333333333333333333333333333333333333333333333 0x7549d45c6aa53c10546fd5bf2a7faf87b32759824cc9f52c3c885d229b7161cd) (0x4444444444444444444444444444444444444444444444444444444444444444 0x6c58d9e2ef3b5e87cbd64e0a8f01b82668f76e2c1d41b69234c7bef248df4d47)) 1 (0x9999999999999999999999999999999999999999999999999999999999999999 0x54005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a 0x58005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a 0x5c005a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a))",
+      "claim": "Removing one commitment check lets a drawer substitute that entrant's salt and steer the draw."
+    },
+    {
+      "name": "bandit_unchecked_reveal",
+      "original": "one_armed_bandit",
+      "mutant": "one_armed_bandit_drop_seed_check",
+      "witness": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00165a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f)",
+      "claim": "Removing the seed check lets the house reveal any seed and pick the outcome."
+    },
+    {
+      "name": "bandit_skewed_paytable",
+      "original": "one_armed_bandit",
+      "mutant": "one_armed_bandit_skewed_jackpot",
+      "witness": "((0x4848484848484848484848484848484848484848484848484848484848484848 0x3953d5315b91f6cd612ede8a57db76520e8ea62d4f03b47a1252fafda849b8ac 0x5050505050505050505050505050505050505050505050505050505050505050 0x00015a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a) 1 0x5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e)",
+      "claim": "Skewing the jackpot weight changes what an otherwise identical pull pays."
+    }
+  ]
+}
